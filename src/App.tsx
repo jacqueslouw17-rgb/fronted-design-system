@@ -7,6 +7,7 @@ import Landing from "./pages/Landing";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import StepCardPattern from "./pages/StepCardPattern";
+import ContextualDrawerPattern from "./pages/ContextualDrawerPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
+          <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

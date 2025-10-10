@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -24,6 +24,13 @@ const Landing = () => {
       icon: ListChecks,
       path: "/step-card-pattern",
       color: "text-green-500"
+    },
+    {
+      title: "Contextual Drawer",
+      description: "Right-side panel for detailed views, contracts, payroll, and support tickets",
+      icon: PanelRightOpen,
+      path: "/contextual-drawer",
+      color: "text-orange-500"
     }
   ];
 
