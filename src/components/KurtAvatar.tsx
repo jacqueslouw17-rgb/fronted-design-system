@@ -3,9 +3,18 @@ import { Mic, MessageSquare } from "lucide-react";
 interface KurtAvatarProps {
   isListening?: boolean;
   message?: string;
+  size?: "default" | "sm";
 }
 
-const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up." }: KurtAvatarProps) => {
+const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default" }: KurtAvatarProps) => {
+  if (size === "sm") {
+    return (
+      <div className="w-8 h-8 rounded-full bg-foreground/60 flex items-center justify-center">
+        <span className="text-xs">🧞‍♂️</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center space-y-6">
       {/* Kurt Avatar - Concentric gradient circles */}

@@ -15,6 +15,7 @@ import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { ArrowLeft, Mic, Keyboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Dashboard from "./Dashboard";
 
 type StepStatus = "pending" | "active" | "completed";
 
@@ -30,9 +31,11 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, can I save your details?"
   );
+  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
 
   // Speak Kurt's message whenever it changes (only after user has started)
   useEffect(() => {
@@ -43,8 +46,16 @@ const Index = () => {
 
   const handleStart = () => {
     setHasStarted(true);
+    setChatHistory([{ role: "assistant", content: kurtMessage }]);
     speak(kurtMessage);
   };
+
+  // Track chat history
+  useEffect(() => {
+    if (kurtMessage && hasStarted) {
+      setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
+    }
+  }, [kurtMessage, hasStarted]);
 
   const [formData, setFormData] = useState({
     firstName: "John",
@@ -54,6 +65,7 @@ const Index = () => {
     taxId: "",
     bankName: "",
     accountNumber: "",
+    role: "contractor", // Default role
   });
 
   const [steps, setSteps] = useState<Step[]>([
@@ -114,10 +126,22 @@ const Index = () => {
       ];
       setKurtMessage(messages[currentStep] || "Let's continue!");
     } else {
-      toast({
-        title: "Onboarding Complete! 🎉",
-        description: "Welcome to the team! You're all set up.",
-      });
+      // Final step - transition to dashboard
+      setKurtMessage("Perfect! Saving your details now...");
+      
+      setTimeout(() => {
+        toast({
+          title: "Details Saved",
+          description: "Your information has been saved successfully!",
+        });
+        
+        setKurtMessage("All set! Preparing your workspace...");
+        
+        // Transition to dashboard
+        setTimeout(() => {
+          setShowDashboard(true);
+        }, 1500);
+      }, 2500);
     }
   };
 
@@ -275,6 +299,11 @@ const Index = () => {
         return null;
     }
   };
+
+  // Show dashboard if onboarding is complete
+  if (showDashboard) {
+    return <Dashboard userData={formData} onboardingHistory={chatHistory} />;
+  }
 
   return (
     <main className="flex min-h-screen bg-background text-foreground">
