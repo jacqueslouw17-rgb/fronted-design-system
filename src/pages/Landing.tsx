@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -17,6 +17,13 @@ const Landing = () => {
       icon: LayoutDashboard,
       path: "/dashboard",
       color: "text-purple-500"
+    },
+    {
+      title: "Step Card Stack",
+      description: "Guided multi-step workflow with progress tracking and expandable cards",
+      icon: ListChecks,
+      path: "/step-card-pattern",
+      color: "text-green-500"
     }
   ];
 
