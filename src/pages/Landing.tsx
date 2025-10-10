@@ -31,7 +31,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
       <div className="max-w-6xl w-full space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">UI Pattern Library</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Design patterns</h1>
           <p className="text-lg text-muted-foreground">
             Explore different interface patterns and interactions
           </p>
