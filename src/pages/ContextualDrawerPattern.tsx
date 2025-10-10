@@ -138,15 +138,13 @@ const ContextualDrawerPattern = () => {
           {selectedItem && (
             <>
               <SheetHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <SheetTitle className="text-xl">{selectedItem.title}</SheetTitle>
-                    <SheetDescription className="mt-1">
-                      Reference: {selectedItem.id}
-                    </SheetDescription>
-                  </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <SheetTitle className="text-xl">{selectedItem.title}</SheetTitle>
                   {getStatusBadge(selectedItem.status)}
                 </div>
+                <SheetDescription className="mt-1">
+                  Reference: {selectedItem.id}
+                </SheetDescription>
               </SheetHeader>
 
               <Separator className="my-4" />
