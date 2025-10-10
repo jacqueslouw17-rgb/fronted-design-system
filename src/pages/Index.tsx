@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,11 +26,19 @@ interface Step {
 
 const Index = () => {
   const { toast } = useToast();
+  const { speak, stop } = useTextToSpeech();
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, can I save your details?"
   );
+
+  // Speak Kurt's message whenever it changes
+  useEffect(() => {
+    if (kurtMessage) {
+      speak(kurtMessage);
+    }
+  }, [kurtMessage, speak]);
 
   const [formData, setFormData] = useState({
     firstName: "John",
@@ -53,6 +62,7 @@ const Index = () => {
   const handleVoiceInput = () => {
     setIsListening(!isListening);
     if (!isListening) {
+      stop(); // Stop current speech when starting to listen
       setKurtMessage("I'm listening...");
       toast({
         title: "Voice input activated",
