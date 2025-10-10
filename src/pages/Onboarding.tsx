@@ -306,7 +306,17 @@ const Index = () => {
   }
 
   return (
-    <main className="flex min-h-screen bg-background text-foreground">
+    <main className="flex min-h-screen bg-background text-foreground relative">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10"
+        onClick={() => window.location.href = '/'}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
       {/* Center Kurt Panel */}
       <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative">
         <KurtAvatar isListening={isListening} message={kurtMessage} />
