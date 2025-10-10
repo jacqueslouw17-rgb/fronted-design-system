@@ -29,16 +29,22 @@ const Index = () => {
   const { speak, stop } = useTextToSpeech();
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, can I save your details?"
   );
 
-  // Speak Kurt's message whenever it changes
+  // Speak Kurt's message whenever it changes (only after user has started)
   useEffect(() => {
-    if (kurtMessage) {
+    if (kurtMessage && hasStarted) {
       speak(kurtMessage);
     }
-  }, [kurtMessage, speak]);
+  }, [kurtMessage, speak, hasStarted]);
+
+  const handleStart = () => {
+    setHasStarted(true);
+    speak(kurtMessage);
+  };
 
   const [formData, setFormData] = useState({
     firstName: "John",
@@ -277,21 +283,27 @@ const Index = () => {
         <KurtAvatar isListening={isListening} message={kurtMessage} />
 
         {/* Input Controls */}
-        <div className="flex items-center space-x-4 mt-8">
-          <Button
-            onClick={handleVoiceInput}
-            className={`px-6 ${
-              isListening ? "bg-destructive hover:bg-destructive/90" : ""
-            }`}
-          >
-            <Mic className="h-5 w-5 mr-2" />
-            {isListening ? "Stop" : "Speak"}
+        {!hasStarted ? (
+          <Button onClick={handleStart} size="lg" className="px-8">
+            Start Conversation
           </Button>
-          <Button variant="outline" className="px-6">
-            <Keyboard className="h-5 w-5 mr-2" />
-            Type
-          </Button>
-        </div>
+        ) : (
+          <div className="flex items-center space-x-4 mt-8">
+            <Button
+              onClick={handleVoiceInput}
+              className={`px-6 ${
+                isListening ? "bg-destructive hover:bg-destructive/90" : ""
+              }`}
+            >
+              <Mic className="h-5 w-5 mr-2" />
+              {isListening ? "Stop" : "Speak"}
+            </Button>
+            <Button variant="outline" className="px-6">
+              <Keyboard className="h-5 w-5 mr-2" />
+              Type
+            </Button>
+          </div>
+        )}
 
         {/* Back Button */}
         {currentStep > 1 && (
