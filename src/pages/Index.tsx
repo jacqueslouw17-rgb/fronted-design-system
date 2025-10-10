@@ -28,13 +28,13 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
-    "Hi! Let's get you set up for your new role. I'll guide you through each step."
+    "Hi, can I save your details?"
   );
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
     country: "",
     taxId: "",
     bankName: "",
@@ -53,15 +53,26 @@ const Index = () => {
   const handleVoiceInput = () => {
     setIsListening(!isListening);
     if (!isListening) {
-      setKurtMessage("I'm listening... Tell me about yourself.");
+      setKurtMessage("I'm listening...");
       toast({
         title: "Voice input activated",
-        description: "Speak naturally, and I'll fill in the details for you.",
+        description: "Say 'yes' to proceed.",
       });
     } else {
-      setKurtMessage("Great! Let me process that...");
+      setKurtMessage("Perfect! Saving your details...");
+      
+      // Simulate processing and move to next step
       setTimeout(() => {
-        setKurtMessage("Perfect! I've filled in your information. Let's continue.");
+        const updatedSteps = steps.map((step) =>
+          step.id === 1
+            ? { ...step, status: "completed" as StepStatus }
+            : step.id === 2
+            ? { ...step, status: "active" as StepStatus }
+            : step
+        );
+        setSteps(updatedSteps);
+        setCurrentStep(2);
+        setKurtMessage("Great! Now, what's your country of residence?");
       }, 1500);
     }
   };
