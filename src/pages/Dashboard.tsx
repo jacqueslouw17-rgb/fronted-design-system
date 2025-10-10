@@ -28,11 +28,13 @@ const Dashboard = ({ userData, onboardingHistory }: DashboardProps) => {
         chatHistory={onboardingHistory}
       />
 
-      {/* Left Sidebar */}
-      <NavSidebar 
-        onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
-        isGenieOpen={isGenieOpen}
-      />
+      {/* Left Sidebar - hide when Genie is open */}
+      {!isGenieOpen && (
+        <NavSidebar 
+          onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
+          isGenieOpen={isGenieOpen}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
