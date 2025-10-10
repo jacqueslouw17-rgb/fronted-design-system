@@ -14,42 +14,36 @@ const WidgetGrid = ({ role, userData }: WidgetGridProps) => {
       value: "24",
       trend: "+12%",
       icon: Users,
-      color: "text-blue-500",
     },
     {
       title: "Monthly Payroll",
       value: "$145,000",
       trend: "+8%",
       icon: DollarSign,
-      color: "text-green-500",
     },
     {
       title: "Compliance Score",
       value: "98%",
       trend: "+2%",
       icon: FileCheck,
-      color: "text-purple-500",
     },
     {
       title: "Active Contracts",
       value: "18",
       trend: "+4",
       icon: TrendingUp,
-      color: "text-orange-500",
     },
     {
       title: "Pending Actions",
       value: "3",
       trend: "-2",
       icon: AlertCircle,
-      color: "text-red-500",
     },
     {
       title: "Avg Response Time",
       value: "2.4h",
       trend: "-0.5h",
       icon: Clock,
-      color: "text-cyan-500",
     },
   ] : [
     {
@@ -57,21 +51,18 @@ const WidgetGrid = ({ role, userData }: WidgetGridProps) => {
       value: "5 days",
       trend: "On track",
       icon: DollarSign,
-      color: "text-green-500",
     },
     {
       title: "Contract Status",
       value: "Active",
       trend: "Valid until Dec 2025",
       icon: FileCheck,
-      color: "text-blue-500",
     },
     {
       title: "Support Tickets",
       value: "0",
       trend: "All resolved",
       icon: AlertCircle,
-      color: "text-purple-500",
     },
   ];
 

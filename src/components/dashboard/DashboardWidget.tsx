@@ -6,17 +6,16 @@ interface DashboardWidgetProps {
   value: string;
   trend: string;
   icon: LucideIcon;
-  color: string;
 }
 
-const DashboardWidget = ({ title, value, trend, icon: Icon, color }: DashboardWidgetProps) => {
+const DashboardWidget = ({ title, value, trend, icon: Icon }: DashboardWidgetProps) => {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        <Icon className={`h-5 w-5 ${color}`} />
+        <Icon className="h-5 w-5 text-foreground/60" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>

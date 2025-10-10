@@ -1,4 +1,4 @@
-import { LayoutDashboard, DollarSign, FileCheck, Headphones, Settings, Sparkles } from "lucide-react";
+import { LayoutDashboard, DollarSign, FileCheck, Headphones, Settings, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -24,9 +24,9 @@ const NavSidebar = ({ onGenieToggle }: NavSidebarProps) => {
             variant="ghost"
             size="icon"
             onClick={onGenieToggle}
-            className="mb-4 hover:bg-primary/10"
+            className="mb-4"
           >
-            <Sparkles className="h-5 w-5 text-primary" />
+            <PanelLeftOpen className="h-5 w-5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Mic, Send, Sparkles } from "lucide-react";
+import { X, Mic, Send, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -56,10 +56,10 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
 
       {/* Drawer */}
       <div className="fixed left-0 top-0 h-full w-80 bg-card border-r z-50 flex flex-col shadow-2xl animate-slide-in-left">
-        {/* Header */}
+        {/* Genie Toggle */}
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <PanelLeftOpen className="h-5 w-5 text-foreground/60" />
             <h2 className="font-semibold">Genie Assistant</h2>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -83,7 +83,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
                   </div>
                 ) : (
                   <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    <AvatarFallback className="bg-foreground/10 text-foreground text-xs">
                       {userData.firstName[0]}
                     </AvatarFallback>
                   </Avatar>
@@ -91,7 +91,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
                 <div
                   className={`rounded-lg p-3 max-w-[70%] ${
                     msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-foreground/10"
                       : "bg-muted"
                   }`}
                 >
