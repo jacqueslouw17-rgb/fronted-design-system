@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import GenieDrawer from "@/components/dashboard/GenieDrawer";
@@ -30,17 +28,7 @@ const Dashboard = ({
   const [isGenieOpen, setIsGenieOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex w-full bg-background relative">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-50"
-        onClick={() => window.location.href = '/'}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
-
+    <div className="min-h-screen flex w-full bg-background">
       {/* Genie Drawer */}
       <GenieDrawer
         isOpen={isGenieOpen}
