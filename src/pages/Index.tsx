@@ -63,7 +63,6 @@ const Index = () => {
     setIsListening(!isListening);
     if (!isListening) {
       stop(); // Stop current speech when starting to listen
-      setKurtMessage("I'm listening...");
       toast({
         title: "Voice input activated",
         description: "Say 'yes' to proceed.",
