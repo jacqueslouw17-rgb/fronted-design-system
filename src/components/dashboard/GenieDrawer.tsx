@@ -46,7 +46,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
 
   return (
     <div 
-      className={`h-full bg-card border-r flex flex-col transition-all duration-300 ease-in-out flex-shrink-0 ${
+      className={`h-screen bg-card border-r flex flex-col transition-all duration-300 ease-in-out flex-shrink-0 ${
         isOpen ? "w-80" : "w-0 border-r-0"
       }`}
     >
@@ -64,7 +64,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
           </div>
 
           {/* Chat History */}
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {messages.map((msg, idx) => (
               <div
