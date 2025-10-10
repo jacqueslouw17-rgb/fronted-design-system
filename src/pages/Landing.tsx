@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -31,6 +31,13 @@ const Landing = () => {
       icon: PanelRightOpen,
       path: "/contextual-drawer",
       color: "text-orange-500"
+    },
+    {
+      title: "Hover Toolbar",
+      description: "Quick action toolbar that appears on hover for instant access",
+      icon: MousePointerClick,
+      path: "/hover-toolbar",
+      color: "text-pink-500"
     }
   ];
 
