@@ -80,10 +80,36 @@ export default {
             height: "0",
           },
         },
+        "genie-pulse": {
+          "0%, 100%": {
+            opacity: "0.5",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "0.8",
+            transform: "scale(1.05)",
+          },
+        },
+        "fade-in": {
+          from: {
+            opacity: "0",
+            transform: "translateY(10px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "genie-pulse": "genie-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-in": "fade-in 0.3s ease-out",
+      },
+      backgroundImage: {
+        "gradient-genie": "var(--gradient-genie)",
+        "gradient-progress": "var(--gradient-progress)",
       },
     },
   },
