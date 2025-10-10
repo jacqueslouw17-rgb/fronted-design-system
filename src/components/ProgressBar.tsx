@@ -14,7 +14,7 @@ const ProgressBar = ({ currentStep, totalSteps }: ProgressBarProps) => {
           {currentStep} / {totalSteps}
         </span>
       </div>
-      <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-progress transition-all duration-500 ease-out rounded-full"
           style={{ width: `${percentage}%` }}

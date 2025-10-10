@@ -83,7 +83,7 @@ const Index = () => {
         setSteps(updatedSteps);
         setCurrentStep(2);
         setKurtMessage("Great! Now, what's your country of residence?");
-      }, 1500);
+      }, 2500);
     }
   };
 
