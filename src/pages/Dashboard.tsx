@@ -29,7 +29,10 @@ const Dashboard = ({ userData, onboardingHistory }: DashboardProps) => {
       />
 
       {/* Left Sidebar */}
-      <NavSidebar onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} />
+      <NavSidebar 
+        onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
+        isGenieOpen={isGenieOpen}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">

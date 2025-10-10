@@ -44,31 +44,27 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
     setInputValue("");
   };
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/20 z-40 transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <div className="fixed left-0 top-0 h-full w-80 bg-card border-r z-50 flex flex-col shadow-2xl animate-slide-in-left">
-        {/* Genie Toggle */}
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelLeftOpen className="h-5 w-5 text-foreground/60" />
-            <h2 className="font-semibold">Genie Assistant</h2>
+    <div 
+      className={`h-full bg-card border-r flex flex-col transition-all duration-300 ease-in-out flex-shrink-0 ${
+        isOpen ? "w-80" : "w-0 border-r-0"
+      }`}
+    >
+      {isOpen && (
+        <>
+          {/* Header */}
+          <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <PanelLeftOpen className="h-5 w-5 text-foreground/60" />
+              <h2 className="font-semibold">Genie Assistant</h2>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
 
-        {/* Chat History */}
-        <ScrollArea className="flex-1 p-4">
+          {/* Chat History */}
+          <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             {messages.map((msg, idx) => (
               <div
@@ -99,11 +95,11 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
                 </div>
               </div>
             ))}
-          </div>
-        </ScrollArea>
+            </div>
+          </ScrollArea>
 
-        {/* Input */}
-        <div className="p-4 border-t">
+          {/* Input */}
+          <div className="p-4 border-t flex-shrink-0">
           <div className="flex gap-2">
             <Input
               placeholder="Ask Genie anything..."
@@ -117,10 +113,11 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
             <Button size="icon" onClick={handleSend}>
               <Send className="h-4 w-4" />
             </Button>
+            </div>
           </div>
-        </div>
-      </div>
-    </>
+        </>
+      )}
+    </div>
   );
 };
 
