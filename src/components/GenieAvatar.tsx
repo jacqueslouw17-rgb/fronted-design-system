@@ -11,29 +11,29 @@ const GenieAvatar = ({ isListening = false, message = "Hi! Let's get you set up.
       {/* Genie Avatar - Concentric gradient circles */}
       <div className="relative w-48 h-48">
         {/* Outer glow effect */}
-        <div className={`absolute inset-0 rounded-full bg-primary/20 blur-3xl ${isListening ? 'animate-genie-pulse' : ''}`} />
+        <div className="absolute inset-0 rounded-full bg-primary/20 blur-3xl animate-genie-pulse" />
         
         {/* Outermost circle - lightest */}
-        <div className={`absolute inset-0 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/15 animate-genie-pulse' : 'bg-primary/10'}`} />
+        <div className="absolute inset-0 rounded-full bg-primary/10 animate-genie-pulse" />
         
         {/* Second circle */}
-        <div className={`absolute inset-4 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/25 animate-genie-pulse' : 'bg-primary/20'}`}
+        <div className="absolute inset-4 rounded-full bg-primary/20 animate-genie-pulse"
              style={{ animationDelay: '0.1s' }} />
         
         {/* Third circle */}
-        <div className={`absolute inset-8 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/40 animate-genie-pulse' : 'bg-primary/30'}`}
+        <div className="absolute inset-8 rounded-full bg-primary/30 animate-genie-pulse"
              style={{ animationDelay: '0.2s' }} />
         
         {/* Fourth circle */}
-        <div className={`absolute inset-12 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/55 animate-genie-pulse' : 'bg-primary/45'}`}
+        <div className="absolute inset-12 rounded-full bg-primary/45 animate-genie-pulse"
              style={{ animationDelay: '0.3s' }} />
         
         {/* Inner circle */}
-        <div className={`absolute inset-16 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/70 animate-genie-pulse' : 'bg-primary/60'}`}
+        <div className="absolute inset-16 rounded-full bg-primary/60 animate-genie-pulse"
              style={{ animationDelay: '0.4s' }} />
         
         {/* Center circle - darkest */}
-        <div className={`absolute inset-20 rounded-full transition-all duration-300 flex items-center justify-center ${isListening ? 'bg-primary animate-genie-pulse' : 'bg-primary/85'}`}
+        <div className="absolute inset-20 rounded-full bg-primary/85 animate-genie-pulse flex items-center justify-center"
              style={{ animationDelay: '0.5s' }}>
           {isListening && (
             <div className="w-3 h-3 rounded-full bg-white animate-genie-pulse" />
