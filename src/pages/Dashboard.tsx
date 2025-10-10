@@ -5,17 +5,26 @@ import GenieDrawer from "@/components/dashboard/GenieDrawer";
 import WidgetGrid from "@/components/dashboard/WidgetGrid";
 
 interface DashboardProps {
-  userData: {
+  userData?: {
     firstName: string;
     lastName: string;
     email: string;
     country: string;
     role: string;
   };
-  onboardingHistory: Array<{ role: string; content: string }>;
+  onboardingHistory?: Array<{ role: string; content: string }>;
 }
 
-const Dashboard = ({ userData, onboardingHistory }: DashboardProps) => {
+const Dashboard = ({ 
+  userData = {
+    firstName: "Demo",
+    lastName: "User",
+    email: "demo@example.com",
+    country: "United States",
+    role: "viewer"
+  },
+  onboardingHistory = []
+}: DashboardProps) => {
   const [isGenieOpen, setIsGenieOpen] = useState(false);
 
   return (
