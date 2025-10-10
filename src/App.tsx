@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import StepCardPattern from "./pages/StepCardPattern";
 import ContextualDrawerPattern from "./pages/ContextualDrawerPattern";
 import HoverToolbarPattern from "./pages/HoverToolbarPattern";
+import SmartTagsPattern from "./pages/SmartTagsPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />
+          <Route path="/smart-tags" element={<SmartTagsPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
