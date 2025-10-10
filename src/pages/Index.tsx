@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import GenieAvatar from "@/components/GenieAvatar";
+import KurtAvatar from "@/components/KurtAvatar";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { ArrowLeft, Mic, Keyboard } from "lucide-react";
@@ -27,7 +27,7 @@ const Index = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
-  const [genieMessage, setGenieMessage] = useState(
+  const [kurtMessage, setKurtMessage] = useState(
     "Hi! Let's get you set up for your new role. I'll guide you through each step."
   );
 
@@ -53,15 +53,15 @@ const Index = () => {
   const handleVoiceInput = () => {
     setIsListening(!isListening);
     if (!isListening) {
-      setGenieMessage("I'm listening... Tell me about yourself.");
+      setKurtMessage("I'm listening... Tell me about yourself.");
       toast({
         title: "Voice input activated",
         description: "Speak naturally, and I'll fill in the details for you.",
       });
     } else {
-      setGenieMessage("Great! Let me process that...");
+      setKurtMessage("Great! Let me process that...");
       setTimeout(() => {
-        setGenieMessage("Perfect! I've filled in your information. Let's continue.");
+        setKurtMessage("Perfect! I've filled in your information. Let's continue.");
       }, 1500);
     }
   };
@@ -79,14 +79,14 @@ const Index = () => {
       setSteps(updatedSteps);
       setCurrentStep(currentStep + 1);
 
-      // Update Genie message based on step
+      // Update Kurt message based on step
       const messages = [
         "Great start! Now let's confirm your tax residency.",
         "Excellent! Next, I need your bank details for payments.",
         "Almost done! Let's review everything together.",
         "Perfect! You're all set. Welcome aboard!",
       ];
-      setGenieMessage(messages[currentStep] || "Let's continue!");
+      setKurtMessage(messages[currentStep] || "Let's continue!");
     } else {
       toast({
         title: "Onboarding Complete! 🎉",
@@ -106,7 +106,7 @@ const Index = () => {
       );
       setSteps(updatedSteps);
       setCurrentStep(currentStep - 1);
-      setGenieMessage("No problem! Let's go back to the previous step.");
+      setKurtMessage("No problem! Let's go back to the previous step.");
     }
   };
 
@@ -252,9 +252,9 @@ const Index = () => {
 
   return (
     <main className="flex min-h-screen bg-background text-foreground">
-      {/* Center Genie Panel */}
+      {/* Center Kurt Panel */}
       <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative">
-        <GenieAvatar isListening={isListening} message={genieMessage} />
+        <KurtAvatar isListening={isListening} message={kurtMessage} />
 
         {/* Input Controls */}
         <div className="flex items-center space-x-4 mt-8">

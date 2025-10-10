@@ -80,7 +80,7 @@ export default {
             height: "0",
           },
         },
-        "genie-pulse": {
+        "kurt-pulse": {
           "0%, 100%": {
             opacity: "0.5",
             transform: "scale(1)",
@@ -104,11 +104,11 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "genie-pulse": "genie-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "kurt-pulse": "kurt-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "fade-in": "fade-in 0.3s ease-out",
       },
       backgroundImage: {
-        "gradient-genie": "var(--gradient-genie)",
+        "gradient-kurt": "var(--gradient-kurt)",
         "gradient-progress": "var(--gradient-progress)",
       },
     },
