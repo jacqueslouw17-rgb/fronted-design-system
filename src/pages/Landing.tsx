@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -66,6 +66,13 @@ const Landing = () => {
       icon: ScrollText,
       path: "/audit-trail",
       color: "text-red-500"
+    },
+    {
+      title: "Confirmation Modal",
+      description: "Smart approval prompts with clear summaries before critical actions",
+      icon: CheckSquare,
+      path: "/confirmation-modal",
+      color: "text-teal-500"
     }
   ];
 

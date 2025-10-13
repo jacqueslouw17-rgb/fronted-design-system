@@ -13,6 +13,7 @@ import SmartTagsPattern from "./pages/SmartTagsPattern";
 import PolicyTagChipsPattern from "./pages/PolicyTagChipsPattern";
 import NarratedInsightPattern from "./pages/NarratedInsightPattern";
 import AuditTrailPattern from "./pages/AuditTrailPattern";
+import ConfirmationModalPattern from "./pages/ConfirmationModalPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/policy-tags" element={<PolicyTagChipsPattern />} />
           <Route path="/narrated-insight" element={<NarratedInsightPattern />} />
           <Route path="/audit-trail" element={<AuditTrailPattern />} />
+          <Route path="/confirmation-modal" element={<ConfirmationModalPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
