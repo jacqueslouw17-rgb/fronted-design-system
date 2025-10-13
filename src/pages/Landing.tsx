@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -115,6 +115,13 @@ const Landing = () => {
       icon: Bell,
       path: "/notification-center",
       color: "text-fuchsia-500"
+    },
+    {
+      title: "Adaptive Widget Grid",
+      description: "Personalized, draggable, resizable dashboard widgets with role-based layouts",
+      icon: LayoutGrid,
+      path: "/adaptive-widget-grid",
+      color: "text-slate-500"
     }
   ];
 

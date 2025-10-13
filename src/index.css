@@ -237,4 +237,44 @@ All colors MUST be HSL.
       transform: translateY(0);
     }
   }
+  
+  /* React Grid Layout styles */
+  .react-grid-layout {
+    position: relative;
+    transition: height 200ms ease;
+  }
+  
+  .react-grid-item {
+    transition: all 200ms ease;
+    transition-property: left, top, width, height;
+  }
+  
+  .react-grid-item.react-draggable-dragging {
+    transition: none;
+    z-index: 100;
+    will-change: transform;
+  }
+  
+  .react-grid-item.resizing {
+    transition: none;
+    z-index: 100;
+    will-change: transform;
+  }
+  
+  .react-grid-item > .react-resizable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .react-grid-item > .react-resizable-handle::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid hsl(var(--muted-foreground));
+    border-bottom: 2px solid hsl(var(--muted-foreground));
+  }
 }
