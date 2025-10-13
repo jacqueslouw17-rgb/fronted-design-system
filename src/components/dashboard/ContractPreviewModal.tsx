@@ -139,7 +139,7 @@ export function ContractPreviewModal({
 
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
           {/* Main PDF/Document Viewer */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-h-0">
             <ScrollArea className="h-full border rounded-md bg-muted/20">
               <div className="p-6 space-y-4">
                 <div className="bg-background p-6 rounded-md shadow-sm">
@@ -212,52 +212,56 @@ export function ContractPreviewModal({
           </div>
 
           {/* Sidebar with Checklist & Genie Insights */}
-          <div className="space-y-4">
-            <div className="border rounded-md p-4 bg-card">
-              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Genie Insights
-              </h4>
-              <div className="space-y-3">
-                <div className="p-3 bg-muted/50 rounded-md text-sm">
-                  <p className="text-muted-foreground">
-                    All clauses verified for Norwegian compliance.
-                  </p>
-                </div>
-                <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-md text-sm">
-                  <div className="flex items-start gap-2">
-                    <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm">
-                      Clause 12 covers tax withholding — verified against current tax tables.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {clauses.length > 0 && (
-              <div className="border rounded-md p-4 bg-card">
-                <h4 className="font-semibold text-sm mb-3">Compliance Checklist</h4>
-                <div className="space-y-2">
-                  {clauses.map((clause) => (
-                    <div key={clause.id} className="flex items-start gap-2 text-sm">
-                      <Check
-                        className={cn(
-                          "h-4 w-4 mt-0.5 flex-shrink-0",
-                          clause.verified ? "text-green-500" : "text-muted-foreground"
-                        )}
-                      />
-                      <div>
-                        <p>{clause.text}</p>
-                        {clause.genieInsight && (
-                          <p className="text-xs text-muted-foreground mt-1">{clause.genieInsight}</p>
-                        )}
+          <div className="min-h-0">
+            <ScrollArea className="h-full pr-2">
+              <div className="space-y-4">
+                <div className="border rounded-md p-4 bg-card">
+                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    Genie Insights
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-muted/50 rounded-md text-sm">
+                      <p className="text-muted-foreground">
+                        All clauses verified for Norwegian compliance.
+                      </p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-md text-sm">
+                      <div className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm">
+                          Clause 12 covers tax withholding — verified against current tax tables.
+                        </p>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
+
+                {clauses.length > 0 && (
+                  <div className="border rounded-md p-4 bg-card">
+                    <h4 className="font-semibold text-sm mb-3">Compliance Checklist</h4>
+                    <div className="space-y-2">
+                      {clauses.map((clause) => (
+                        <div key={clause.id} className="flex items-start gap-2 text-sm">
+                          <Check
+                            className={cn(
+                              "h-4 w-4 mt-0.5 flex-shrink-0",
+                              clause.verified ? "text-green-500" : "text-muted-foreground"
+                            )}
+                          />
+                          <div>
+                            <p>{clause.text}</p>
+                            {clause.genieInsight && (
+                              <p className="text-xs text-muted-foreground mt-1">{clause.genieInsight}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </ScrollArea>
           </div>
         </div>
 
