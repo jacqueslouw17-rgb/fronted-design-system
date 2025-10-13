@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -122,6 +122,13 @@ const Landing = () => {
       icon: LayoutGrid,
       path: "/adaptive-widget-grid",
       color: "text-slate-500"
+    },
+    {
+      title: "Contract Preview & E-Sign",
+      description: "In-line contract review and e-signature modal with Genie-powered clause verification",
+      icon: FileText,
+      path: "/contract-preview",
+      color: "text-yellow-500"
     }
   ];
 

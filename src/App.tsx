@@ -21,6 +21,7 @@ import ComplianceChecklistPattern from "./pages/ComplianceChecklistPattern";
 import VoiceTypeTogglePattern from "./pages/VoiceTypeTogglePattern";
 import NotificationCenterPattern from "./pages/NotificationCenterPattern";
 import AdaptiveWidgetGridPattern from "./pages/AdaptiveWidgetGrid";
+import ContractPreviewPattern from "./pages/ContractPreviewPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
         <Route path="/voice-type-toggle" element={<VoiceTypeTogglePattern />} />
         <Route path="/notification-center" element={<NotificationCenterPattern />} />
         <Route path="/adaptive-widget-grid" element={<AdaptiveWidgetGridPattern />} />
+        <Route path="/contract-preview" element={<ContractPreviewPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
