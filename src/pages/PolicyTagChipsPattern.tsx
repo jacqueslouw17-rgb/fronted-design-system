@@ -18,8 +18,9 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+  } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   Clock,
@@ -211,21 +212,20 @@ const PolicyTagChipsPattern = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10"
-        onClick={() => (window.location.href = "/")}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
 
-      {/* Header */}
-      <header className="border-b border-border bg-card pl-16 pr-8 py-6">
-        <h1 className="text-2xl font-bold text-foreground">
-          Policy Tag Chips (Mini-Rules)
-        </h1>
+        {/* Header */}
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Policy Tag Chips (Mini-Rules)
+          </h1>
         <p className="text-muted-foreground mt-1">
           Lightweight, always-visible rule indicators with Genie Drawer integration
         </p>
@@ -503,6 +503,7 @@ const PolicyTagChipsPattern = () => {
           )}
         </SheetContent>
       </Sheet>
+      </div>
     </div>
   );
 };

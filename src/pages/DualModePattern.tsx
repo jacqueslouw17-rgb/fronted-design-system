@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, MessageSquare, FileText, Mic, Send, Check, AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -167,12 +167,13 @@ const DualModePattern = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto pl-16 pr-8 py-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/")}
-            className="absolute left-4 top-4"
+        <div className="container mx-auto px-8 py-4">
+          <Link to="/">
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Overview
+            </Button>
+          </Link>
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

@@ -9,7 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ArrowLeft, Plus, Edit3 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import AdaptiveWidget from "@/components/dashboard/AdaptiveWidget";
 import {
   DollarSign,
@@ -275,13 +275,19 @@ const AdaptiveWidgetGridPattern = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
+            Back to Overview
           </Button>
-          <div>
+        </Link>
+        
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div>
             <h1 className="text-3xl font-bold">Pattern 17: Adaptive Widget Grid</h1>
             <p className="text-muted-foreground mt-1">
               Personalized, modular dashboard with drag-and-drop widgets

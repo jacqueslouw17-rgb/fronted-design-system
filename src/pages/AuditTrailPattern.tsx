@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -192,17 +193,15 @@ const AuditTrailPattern = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background relative">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 left-4 z-10"
-          onClick={() => (window.location.href = "/")}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        <div className="max-w-4xl mx-auto space-y-6 p-6">
+          {/* Back Button */}
+          <Link to="/">
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Overview
+            </Button>
+          </Link>
 
-        <div className="max-w-4xl mx-auto space-y-6 pl-16 pr-6 py-6">
           {/* Header */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">Audit Trail Timeline</h1>

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 type ModalState = "ready" | "warning" | "error" | "processing" | "success";
 
@@ -170,17 +171,15 @@ const ConfirmationModalPattern = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background relative">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 left-4 z-10"
-          onClick={() => (window.location.href = "/")}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        <div className="max-w-5xl mx-auto space-y-6 p-6">
+          {/* Back Button */}
+          <Link to="/">
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Overview
+            </Button>
+          </Link>
 
-        <div className="max-w-5xl mx-auto space-y-6 pl-16 pr-6 py-6">
           {/* Header */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">

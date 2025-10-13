@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import ComplianceChecklistBlock, { ComplianceStatus } from "@/components/ComplianceChecklistBlock";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -218,13 +218,16 @@ const ComplianceChecklistPattern = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
+        
         {/* Header */}
         <div>
-          <div className="flex items-center gap-4 mb-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/")}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
