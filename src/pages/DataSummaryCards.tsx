@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DataSummaryCard from "@/components/DataSummaryCard";
-import { DollarSign, AlertTriangle, CheckCircle, Users, TrendingUp, FileCheck } from "lucide-react";
+import { DollarSign, AlertTriangle, CheckCircle, Users, TrendingUp, FileCheck, ArrowLeft } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 interface DrawerContent {
@@ -12,6 +14,7 @@ interface DrawerContent {
 }
 
 const DataSummaryCards = () => {
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerContent, setDrawerContent] = useState<DrawerContent | null>(null);
   const { toast } = useToast();
@@ -30,8 +33,18 @@ const DataSummaryCards = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold mb-2">Data Summary Cards</h1>
-          <p className="text-muted-foreground">
+          <div className="flex items-center gap-4 mb-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/")}
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-4xl font-bold">Data Summary Cards</h1>
+          </div>
+          <p className="text-muted-foreground ml-14">
             Compact, self-contained cards displaying key insights and metrics at a glance
           </p>
         </div>
