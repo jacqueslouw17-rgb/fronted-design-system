@@ -262,23 +262,20 @@ const ConfirmationModalPattern = () => {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="p-2 rounded-lg bg-primary/10 shrink-0">
-                    <TypeIcon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <DialogTitle className="text-xl">{selectedApproval?.title}</DialogTitle>
-                    <DialogDescription className="mt-1">
-                      {selectedApproval?.description}
-                    </DialogDescription>
-                  </div>
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                  <TypeIcon className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <StateIcon className={`h-5 w-5 ${getStateColor(modalState)}`} />
-                  <Badge variant={getStateBadge(modalState)} className="capitalize">
-                    {modalState}
-                  </Badge>
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <DialogTitle className="text-xl">{selectedApproval?.title}</DialogTitle>
+                    <Badge variant={getStateBadge(modalState)} className="capitalize shrink-0">
+                      {modalState}
+                    </Badge>
+                  </div>
+                  <DialogDescription>
+                    {selectedApproval?.description}
+                  </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
