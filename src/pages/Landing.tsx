@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -101,6 +101,13 @@ const Landing = () => {
       icon: ClipboardCheck,
       path: "/compliance-checklist",
       color: "text-lime-500"
+    },
+    {
+      title: "Voice/Type Toggle",
+      description: "Switch between voice and text input for natural Genie interactions",
+      icon: Mic,
+      path: "/voice-type-toggle",
+      color: "text-rose-500"
     }
   ];
 

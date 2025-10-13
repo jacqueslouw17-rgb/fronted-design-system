@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { X, Mic, Send, PanelLeftOpen } from "lucide-react";
+import { X, Send, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import VoiceTypeToggle from "./VoiceTypeToggle";
+import { useToast } from "@/hooks/use-toast";
 
 interface GenieDrawerProps {
   isOpen: boolean;
@@ -19,7 +22,10 @@ interface GenieDrawerProps {
 const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProps) => {
   const [messages, setMessages] = useState(chatHistory);
   const [inputValue, setInputValue] = useState("");
+  const [inputMode, setInputMode] = useState<"voice" | "text">("text");
   const { speak } = useTextToSpeech();
+  const { isListening, transcript, error, startListening, stopListening, resetTranscript, isSupported } = useSpeechToText();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -28,6 +34,39 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
       speak(welcomeMsg);
     }
   }, [isOpen, messages.length, userData.firstName, speak]);
+
+  // Update input value when transcript changes
+  useEffect(() => {
+    if (transcript && inputMode === "voice") {
+      setInputValue(transcript);
+    }
+  }, [transcript, inputMode]);
+
+  const handleToggleMode = () => {
+    if (inputMode === "text") {
+      if (!isSupported) {
+        toast({
+          title: "Voice not supported",
+          description: "Your browser doesn't support speech recognition.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setInputMode("voice");
+      startListening();
+      toast({
+        title: "Voice input active",
+        description: "Say something like 'Draft my new contract for Maria.'",
+      });
+    } else {
+      setInputMode("text");
+      stopListening();
+      toast({
+        title: "Switched to text mode",
+        description: "Type your message precisely.",
+      });
+    }
+  };
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -42,6 +81,9 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
     }, 1000);
 
     setInputValue("");
+    if (inputMode === "voice") {
+      resetTranscript();
+    }
   };
 
   return (
@@ -100,19 +142,24 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
 
           {/* Input */}
           <div className="p-4 border-t flex-shrink-0">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Ask Genie anything..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            />
-            <Button size="icon" variant="ghost">
-              <Mic className="h-4 w-4" />
-            </Button>
-            <Button size="icon" onClick={handleSend}>
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Input
+                placeholder={inputMode === "voice" ? "Listening..." : "Ask Genie anything..."}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                disabled={inputMode === "voice" && isListening}
+                className={inputMode === "voice" && isListening ? "bg-muted" : ""}
+              />
+              <VoiceTypeToggle
+                mode={inputMode}
+                isListening={isListening}
+                error={error}
+                onToggle={handleToggleMode}
+              />
+              <Button size="icon" onClick={handleSend} disabled={!inputValue.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </>
