@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,6 +122,9 @@ export function ContractPreviewModal({
                   {contractTitle} {contractVersion}
                   {country && <span className="text-muted-foreground"> ({country})</span>}
                 </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Review and sign contract document with compliance verification
+                </DialogDescription>
                 {timestamp && user && (
                   <p className="text-sm text-muted-foreground mt-1">
                     <Clock className="inline h-3 w-3 mr-1" />
