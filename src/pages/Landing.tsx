@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -59,6 +59,13 @@ const Landing = () => {
       icon: MessageSquare,
       path: "/narrated-insight",
       color: "text-amber-500"
+    },
+    {
+      title: "Audit Trail Timeline",
+      description: "Chronological record of every action for accountability and trust",
+      icon: ScrollText,
+      path: "/audit-trail",
+      color: "text-red-500"
     }
   ];
 
