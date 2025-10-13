@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -136,6 +136,13 @@ const Landing = () => {
       icon: DollarSign,
       path: "/fx-breakdown",
       color: "text-green-600"
+    },
+    {
+      title: "Empty State / Placeholder",
+      description: "Helpful placeholders that guide users toward their next action",
+      icon: Inbox,
+      path: "/empty-state",
+      color: "text-gray-500"
     }
   ];
 
