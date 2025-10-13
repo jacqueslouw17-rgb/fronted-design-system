@@ -22,6 +22,7 @@ import VoiceTypeTogglePattern from "./pages/VoiceTypeTogglePattern";
 import NotificationCenterPattern from "./pages/NotificationCenterPattern";
 import AdaptiveWidgetGridPattern from "./pages/AdaptiveWidgetGrid";
 import ContractPreviewPattern from "./pages/ContractPreviewPattern";
+import FXBreakdownPopoverPattern from "./pages/FXBreakdownPopoverPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
         <Route path="/notification-center" element={<NotificationCenterPattern />} />
         <Route path="/adaptive-widget-grid" element={<AdaptiveWidgetGridPattern />} />
         <Route path="/contract-preview" element={<ContractPreviewPattern />} />
+        <Route path="/fx-breakdown" element={<FXBreakdownPopoverPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

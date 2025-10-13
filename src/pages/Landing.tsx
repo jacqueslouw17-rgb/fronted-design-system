@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -129,6 +129,13 @@ const Landing = () => {
       icon: FileText,
       path: "/contract-preview",
       color: "text-yellow-500"
+    },
+    {
+      title: "FX Breakdown Popover",
+      description: "Transparent currency conversion details with spot rates, spreads, fees, and AI insights",
+      icon: DollarSign,
+      path: "/fx-breakdown",
+      color: "text-green-600"
     }
   ];
 
