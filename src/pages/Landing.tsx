@@ -147,36 +147,36 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
-      <div className="max-w-6xl w-full space-y-8">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">Design patterns</h1>
-          <p className="text-lg text-muted-foreground">
-            Explore different interface patterns and interactions
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+      <div className="max-w-7xl w-full space-y-6 sm:space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-semibold">Design Patterns</h1>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+            Explore interface patterns and interactions for modern applications
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {patterns.map((pattern) => {
             const Icon = pattern.icon;
             return (
               <Link key={pattern.path} to={pattern.path}>
-                <Card className="h-full hover:shadow-lg transition-all duration-300 hover-scale group cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg bg-primary/10 ${pattern.color}`}>
-                        <Icon className="w-6 h-6" />
+                <Card className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border">
+                  <CardHeader className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
+                        <Icon className="w-5 h-5" strokeWidth={2} />
                       </div>
-                      <CardTitle className="text-xl">{pattern.title}</CardTitle>
+                      <CardTitle className="text-base font-medium leading-tight">{pattern.title}</CardTitle>
                     </div>
-                    <CardDescription className="mt-2">
+                    <CardDescription className="text-xs leading-relaxed">
                       {pattern.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center text-sm text-primary group-hover:gap-2 transition-all">
-                      View Pattern
-                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  <CardContent className="pt-0">
+                    <div className="flex items-center text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      View pattern
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                     </div>
                   </CardContent>
                 </Card>
