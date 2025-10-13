@@ -1,4 +1,4 @@
-import { Bell, Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
 
 interface TopbarProps {
   userName: string;
@@ -46,10 +47,7 @@ const Topbar = ({ userName }: TopbarProps) => {
       {/* Actions */}
       <div className="flex items-center gap-3">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
-        </Button>
+        <NotificationCenter />
 
         {/* User Menu */}
         <DropdownMenu>

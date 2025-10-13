@@ -19,6 +19,7 @@ import QuickLinksHoverBar from "./pages/QuickLinksHoverBar";
 import DataSummaryCards from "./pages/DataSummaryCards";
 import ComplianceChecklistPattern from "./pages/ComplianceChecklistPattern";
 import VoiceTypeTogglePattern from "./pages/VoiceTypeTogglePattern";
+import NotificationCenterPattern from "./pages/NotificationCenterPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
         <Route path="/data-summary" element={<DataSummaryCards />} />
         <Route path="/compliance-checklist" element={<ComplianceChecklistPattern />} />
         <Route path="/voice-type-toggle" element={<VoiceTypeTogglePattern />} />
+        <Route path="/notification-center" element={<NotificationCenterPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

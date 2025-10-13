@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -108,6 +108,13 @@ const Landing = () => {
       icon: Mic,
       path: "/voice-type-toggle",
       color: "text-rose-500"
+    },
+    {
+      title: "Notification Center + SLA Alerts",
+      description: "Centralized system alerts with SLA timers and Genie notifications",
+      icon: Bell,
+      path: "/notification-center",
+      color: "text-fuchsia-500"
     }
   ];
 
