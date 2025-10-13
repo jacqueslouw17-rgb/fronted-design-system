@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3 } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -94,6 +94,13 @@ const Landing = () => {
       icon: BarChart3,
       path: "/data-summary",
       color: "text-sky-500"
+    },
+    {
+      title: "Compliance Checklist",
+      description: "Modular compliance blocks with country-specific verification and Genie validation",
+      icon: ClipboardCheck,
+      path: "/compliance-checklist",
+      color: "text-lime-500"
     }
   ];
 
