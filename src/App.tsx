@@ -24,6 +24,7 @@ import AdaptiveWidgetGridPattern from "./pages/AdaptiveWidgetGrid";
 import ContractPreviewPattern from "./pages/ContractPreviewPattern";
 import FXBreakdownPopoverPattern from "./pages/FXBreakdownPopoverPattern";
 import EmptyStatePlaceholderPattern from "./pages/EmptyStatePlaceholderPattern";
+import GenieConfirmationCardPattern from "./pages/GenieConfirmationCardPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
         <Route path="/contract-preview" element={<ContractPreviewPattern />} />
         <Route path="/fx-breakdown" element={<FXBreakdownPopoverPattern />} />
         <Route path="/empty-state" element={<EmptyStatePlaceholderPattern />} />
+        <Route path="/genie-confirmation" element={<GenieConfirmationCardPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

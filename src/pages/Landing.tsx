@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -143,6 +143,13 @@ const Landing = () => {
       icon: Inbox,
       path: "/empty-state",
       color: "text-gray-500"
+    },
+    {
+      title: "Genie Confirmation Card",
+      description: "Structured confirmation moments with visual checkpoints for impactful actions",
+      icon: ShieldCheck,
+      path: "/genie-confirmation",
+      color: "text-blue-600"
     }
   ];
 
@@ -150,7 +157,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl w-full space-y-6 sm:space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-semibold">Design Patterns</h1>
+          <h1 className="text-3xl sm:text-4xl font-semibold">Design System</h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
             Explore interface patterns and interactions for modern applications
           </p>
