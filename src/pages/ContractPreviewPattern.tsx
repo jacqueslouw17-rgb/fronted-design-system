@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContractPreviewModal } from "@/components/dashboard/ContractPreviewModal";
-import { FileText, CheckCircle, XCircle, Clock } from "lucide-react";
+import { FileText, CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type ContractStatus = "draft" | "reviewing" | "approved" | "signed" | "rejected" | "expired";
 
@@ -115,6 +116,14 @@ export default function ContractPreviewPattern() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
+
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold mb-2">Contract Preview & E-Sign Modal</h1>
