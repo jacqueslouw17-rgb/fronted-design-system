@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -73,6 +73,13 @@ const Landing = () => {
       icon: CheckSquare,
       path: "/confirmation-modal",
       color: "text-teal-500"
+    },
+    {
+      title: "Dual Mode",
+      description: "Complete tasks via chat or manual UI — seamlessly synced",
+      icon: ToggleLeft,
+      path: "/dual-mode",
+      color: "text-violet-500"
     }
   ];
 
