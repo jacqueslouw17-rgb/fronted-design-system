@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -150,6 +150,13 @@ const Landing = () => {
       icon: ShieldCheck,
       path: "/genie-confirmation",
       color: "text-blue-600"
+    },
+    {
+      title: "Genie Smart Suggestion Chips",
+      description: "Instant, one-tap contextual actions that help users move faster through flows",
+      icon: Sparkles,
+      path: "/smart-suggestion-chips",
+      color: "text-violet-600"
     }
   ];
 
