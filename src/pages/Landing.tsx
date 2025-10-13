@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -157,6 +157,13 @@ const Landing = () => {
       icon: Sparkles,
       path: "/smart-suggestion-chips",
       color: "text-violet-600"
+    },
+    {
+      title: "Genie Memory Thread",
+      description: "Context persistence and recall across sessions — makes Genie feel intelligent",
+      icon: Brain,
+      path: "/genie-memory-thread",
+      color: "text-purple-600"
     }
   ];
 

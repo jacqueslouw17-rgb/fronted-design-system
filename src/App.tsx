@@ -26,6 +26,7 @@ import FXBreakdownPopoverPattern from "./pages/FXBreakdownPopoverPattern";
 import EmptyStatePlaceholderPattern from "./pages/EmptyStatePlaceholderPattern";
 import GenieConfirmationCardPattern from "./pages/GenieConfirmationCardPattern";
 import SmartSuggestionChipsPattern from "./pages/SmartSuggestionChipsPattern";
+import GenieMemoryThreadPattern from "./pages/GenieMemoryThreadPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
         <Route path="/empty-state" element={<EmptyStatePlaceholderPattern />} />
         <Route path="/genie-confirmation" element={<GenieConfirmationCardPattern />} />
         <Route path="/smart-suggestion-chips" element={<SmartSuggestionChipsPattern />} />
+        <Route path="/genie-memory-thread" element={<GenieMemoryThreadPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
