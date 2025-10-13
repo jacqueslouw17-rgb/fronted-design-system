@@ -34,8 +34,9 @@ import {
   FileText,
   DollarSign,
   AlertCircle,
-} from "lucide-react";
+  } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface TableRowData {
   id: string;
@@ -110,28 +111,27 @@ const HoverToolbarPattern = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10"
-        onClick={() => (window.location.href = "/")}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
 
-      {/* Header */}
-      <header className="border-b border-border bg-card pl-16 pr-8 py-6">
-        <h1 className="text-2xl font-bold text-foreground">
-          Hover Quick Action Toolbar
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Context-aware actions appear on hover for instant access
-        </p>
-      </header>
+        {/* Header */}
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Hover Quick Action Toolbar
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Context-aware actions appear on hover for instant access
+          </p>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-12 space-y-12">
+        {/* Main Content */}
+        <div className="space-y-12">
         {/* Table Example */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Table Row Actions</h2>
@@ -331,7 +331,8 @@ const HoverToolbarPattern = () => {
             </CardContent>
           </Card>
         </section>
-      </main>
+        </div>
+      </div>
     </div>
   );
 };

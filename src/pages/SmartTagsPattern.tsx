@@ -30,8 +30,9 @@ import {
   TrendingUp,
   Edit,
   Info,
-} from "lucide-react";
+  } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface SmartTag {
   id: string;
@@ -197,17 +198,16 @@ const SmartTagsPattern = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10"
-        onClick={() => (window.location.href = "/")}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
 
-      {/* Header */}
+        {/* Header */}
       <header className="border-b border-border bg-card pl-16 pr-8 py-6">
         <h1 className="text-2xl font-bold text-foreground">
           Mini-Rules & Smart Tags
@@ -428,6 +428,7 @@ const SmartTagsPattern = () => {
           )}
         </SheetContent>
       </Sheet>
+      </div>
     </div>
   );
 };

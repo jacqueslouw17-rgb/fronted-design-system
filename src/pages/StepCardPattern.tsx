@@ -13,6 +13,7 @@ import {
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type StepStatus = "pending" | "active" | "completed";
 
@@ -218,17 +219,16 @@ const StepCardPattern = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10"
-        onClick={() => (window.location.href = "/")}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
 
-      {/* Header */}
+        {/* Header */}
       <header className="border-b border-border bg-card pl-16 pr-8 py-6">
         <h1 className="text-2xl font-bold text-foreground">
           Step Card Stack Pattern
@@ -277,6 +277,7 @@ const StepCardPattern = () => {
           ))}
         </div>
       </main>
+      </div>
     </div>
   );
 };
