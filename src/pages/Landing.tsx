@@ -162,12 +162,12 @@ const Landing = () => {
             return (
               <Link key={pattern.path} to={pattern.path}>
                 <Card className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border">
-                  <CardHeader className="space-y-3">
-                    <div className="flex items-start gap-3">
+                  <CardHeader className="space-y-2.5">
+                    <div className="flex items-center gap-3">
                       <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
                         <Icon className="w-5 h-5" strokeWidth={2} />
                       </div>
-                      <CardTitle className="text-base font-medium leading-tight">{pattern.title}</CardTitle>
+                      <CardTitle className="text-base font-semibold leading-snug">{pattern.title}</CardTitle>
                     </div>
                     <CardDescription className="text-xs leading-relaxed">
                       {pattern.description}
