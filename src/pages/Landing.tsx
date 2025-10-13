@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -80,6 +80,13 @@ const Landing = () => {
       icon: ToggleLeft,
       path: "/dual-mode",
       color: "text-violet-500"
+    },
+    {
+      title: "Quick Links Hover Bar",
+      description: "Context actions appear on hover — clean by default, powerful when needed",
+      icon: Link2,
+      path: "/quick-links",
+      color: "text-emerald-500"
     }
   ];
 
