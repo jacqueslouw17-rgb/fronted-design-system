@@ -29,30 +29,31 @@ const DataSummaryCards = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Back Button */}
         <Link to="/">
-          <Button variant="ghost" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Back to Overview
+            <span className="hidden sm:inline">Back to Overview</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
         
         {/* Header */}
-        <header className="border-b border-border bg-card px-8 py-6">
-          <h1 className="text-2xl font-bold text-foreground">
+        <header className="border-b border-border bg-card px-4 sm:px-6 py-5 rounded-lg shadow-card">
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
             Data Summary Cards
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground text-sm mt-1.5">
             Compact, self-contained cards displaying key insights and metrics at a glance
           </p>
         </header>
 
         {/* Overview Section */}
         <div className="prose prose-sm max-w-none">
-          <h2 className="text-2xl font-semibold mb-4">Pattern Overview</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3">Pattern Overview</h2>
+          <p className="text-sm text-muted-foreground">
             Show clarity first, complexity later. Each card answers a clear question like "What's happening?", 
             "Is it okay?", or "What should I do next?" — reinforcing transparency for all users.
           </p>
@@ -60,9 +61,9 @@ const DataSummaryCards = () => {
 
         {/* Example Cards Grid */}
         <div>
-          <h2 className="text-2xl font-semibold mb-6">Live Examples</h2>
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Live Examples</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Payroll Card - Normal State */}
             <DataSummaryCard
               label="Total Payroll This Month"

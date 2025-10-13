@@ -167,21 +167,22 @@ const DualModePattern = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background border-b border-border">
-        <div className="container mx-auto px-8 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <Link to="/">
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Overview
+              <span className="hidden sm:inline">Back to Overview</span>
+              <span className="sm:hidden">Back</span>
             </Button>
           </Link>
         </div>
-        <div className="container mx-auto px-8 pb-6">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
                 Dual Mode Pattern
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground text-sm mt-1.5">
                 Complete tasks via chat or manual UI — seamlessly synced
               </p>
             </div>

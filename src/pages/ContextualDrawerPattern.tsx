@@ -61,22 +61,23 @@ const ContextualDrawerPattern = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-8 space-y-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Back Button */}
         <Link to="/">
-          <Button variant="ghost" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Back to Overview
+            <span className="hidden sm:inline">Back to Overview</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
 
         {/* Header */}
-        <header className="border-b border-border bg-card px-8 py-6">
-          <h1 className="text-2xl font-bold text-foreground">
+        <header className="border-b border-border bg-card px-4 sm:px-6 py-5 rounded-lg shadow-card">
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
             Contextual Drawer Pattern
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground text-sm mt-1.5">
             Right-side panel for detailed views and actions
           </p>
         </header>
