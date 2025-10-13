@@ -222,7 +222,7 @@ const PolicyTagChipsPattern = () => {
       </Button>
 
       {/* Header */}
-      <header className="border-b border-border bg-card px-8 py-6">
+      <header className="border-b border-border bg-card pl-16 pr-8 py-6">
         <h1 className="text-2xl font-bold text-foreground">
           Policy Tag Chips (Mini-Rules)
         </h1>

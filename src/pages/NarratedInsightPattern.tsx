@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Info, TrendingUp, DollarSign, Shield, FileText, ArrowRight, Volume2 } from "lucide-react";
+import { Info, TrendingUp, DollarSign, Shield, FileText, ArrowRight, Volume2, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
@@ -17,8 +17,18 @@ const NarratedInsightPattern = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background relative">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10"
+        onClick={() => (window.location.href = "/")}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
+      <div className="max-w-6xl mx-auto space-y-6 pl-16 pr-6 py-6">
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">Narrated Insight / Tooltip Bubble</h1>
