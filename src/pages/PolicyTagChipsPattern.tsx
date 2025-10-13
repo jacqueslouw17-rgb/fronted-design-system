@@ -226,13 +226,13 @@ const PolicyTagChipsPattern = () => {
           <h1 className="text-2xl font-bold text-foreground">
             Policy Tag Chips (Mini-Rules)
           </h1>
-        <p className="text-muted-foreground mt-1">
-          Lightweight, always-visible rule indicators with Genie Drawer integration
-        </p>
-      </header>
+          <p className="text-muted-foreground mt-1">
+            Lightweight, always-visible rule indicators with Genie Drawer integration
+          </p>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-12 space-y-8">
+        {/* Main Content */}
+        <div className="space-y-8">
         {/* Status Legend */}
         <Card>
           <CardHeader>
@@ -401,7 +401,7 @@ const PolicyTagChipsPattern = () => {
             </ul>
           </CardContent>
         </Card>
-      </main>
+        </div>
 
       {/* Rule Drawer (Genie Integration) */}
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>

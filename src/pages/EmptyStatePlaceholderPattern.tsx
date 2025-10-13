@@ -45,23 +45,23 @@ const EmptyStatePlaceholderPattern = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
+
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">
-              Pattern 20: Empty State / Placeholder
-            </h1>
-            <p className="text-muted-foreground">
-              Helpful, emotionally neutral placeholders that guide users toward their next action.
-            </p>
-          </div>
-          <Link to="/">
-            <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Overview
-            </Button>
-          </Link>
-        </div>
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Empty State / Placeholder
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Helpful, emotionally neutral placeholders that guide users toward their next action
+          </p>
+        </header>
 
         {/* State: Default - No Contractors */}
         <div>

@@ -62,12 +62,14 @@ const VoiceTypeTogglePattern = () => {
         </Link>
         
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">Voice / Type Toggle (Genie Interaction)</h1>
-          <p className="text-muted-foreground">
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Voice / Type Toggle (Genie Interaction)
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Switch effortlessly between typing and speaking to interact with Genie
           </p>
-        </div>
+        </header>
 
         {/* Pattern Description */}
         <Card>

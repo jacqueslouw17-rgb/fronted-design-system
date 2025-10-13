@@ -166,7 +166,7 @@ const DualModePattern = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card">
+      <header className="bg-background border-b border-border">
         <div className="container mx-auto px-8 py-4">
           <Link to="/">
             <Button variant="ghost" className="gap-2">
@@ -174,11 +174,14 @@ const DualModePattern = () => {
               Back to Overview
             </Button>
           </Link>
-          
-          <div className="flex items-center justify-between mt-4">
+        </div>
+        <div className="container mx-auto px-8 pb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">Dual Mode Pattern</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <h1 className="text-2xl font-bold text-foreground">
+                Dual Mode Pattern
+              </h1>
+              <p className="text-muted-foreground mt-1">
                 Complete tasks via chat or manual UI — seamlessly synced
               </p>
             </div>
@@ -196,7 +199,7 @@ const DualModePattern = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto p-8">
+      <main className="container mx-auto px-8 py-6">
         <Tabs value={activeMode} onValueChange={(v) => handleModeSwitch(v as "chat" | "manual")}>
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="chat" className="gap-2">

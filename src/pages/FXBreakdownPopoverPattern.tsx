@@ -143,15 +143,14 @@ const FXBreakdownPopoverPattern = () => {
         </Link>
 
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">
-            Pattern 19: FX Breakdown Popover
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            FX Breakdown Popover
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Transparent currency conversion details with spot rates, spreads,
-            fees, and AI insights
+          <p className="text-muted-foreground mt-1">
+            Transparent currency conversion details with spot rates, spreads, fees, and AI insights
           </p>
-        </div>
+        </header>
 
         {/* Purpose Card */}
         <Card>

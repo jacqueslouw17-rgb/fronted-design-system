@@ -181,14 +181,14 @@ const ConfirmationModalPattern = () => {
           </Link>
 
           {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
+          <header className="border-b border-border bg-card px-8 py-6">
+            <h1 className="text-2xl font-bold text-foreground">
               Confirmation Prompt + Smart Approval Modal
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1">
               Clear summaries and confirmation prompts before critical actions — balancing speed with confidence
             </p>
-          </div>
+          </header>
 
           {/* Trigger Examples */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

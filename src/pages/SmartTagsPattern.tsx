@@ -208,17 +208,17 @@ const SmartTagsPattern = () => {
         </Link>
 
         {/* Header */}
-      <header className="border-b border-border bg-card pl-16 pr-8 py-6">
-        <h1 className="text-2xl font-bold text-foreground">
-          Mini-Rules & Smart Tags
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Dynamic, contextual logic chips for policies and automation
-        </p>
-      </header>
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Mini-Rules & Smart Tags
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Dynamic, contextual logic chips for policies and automation
+          </p>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-12 space-y-8">
+        {/* Main Content */}
+        <div className="space-y-8">
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
@@ -349,7 +349,7 @@ const SmartTagsPattern = () => {
             </ul>
           </CardContent>
         </Card>
-      </main>
+        </div>
 
       {/* Edit Rule Drawer */}
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>

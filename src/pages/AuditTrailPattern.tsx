@@ -203,12 +203,14 @@ const AuditTrailPattern = () => {
           </Link>
 
           {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Audit Trail Timeline</h1>
-            <p className="text-sm text-muted-foreground">
+          <header className="border-b border-border bg-card px-8 py-6">
+            <h1 className="text-2xl font-bold text-foreground">
+              Audit Trail Timeline
+            </h1>
+            <p className="text-muted-foreground mt-1">
               Complete chronological record of every action — human or Genie — for accountability and trust
             </p>
-          </div>
+          </header>
 
           {/* Filter Bar */}
           <Card>

@@ -228,8 +228,8 @@ const StepCardPattern = () => {
           </Button>
         </Link>
 
-        {/* Header */}
-      <header className="border-b border-border bg-card pl-16 pr-8 py-6">
+      {/* Header */}
+      <header className="border-b border-border bg-card px-8 py-6">
         <h1 className="text-2xl font-bold text-foreground">
           Step Card Stack Pattern
         </h1>
@@ -239,7 +239,7 @@ const StepCardPattern = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-8 py-12">
+      <main className="max-w-3xl mx-auto py-12">
         {/* Progress Bar */}
         <div className="mb-8">
           <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />

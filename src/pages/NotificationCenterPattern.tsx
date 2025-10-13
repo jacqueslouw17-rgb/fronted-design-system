@@ -159,12 +159,14 @@ const NotificationCenterPattern = () => {
         </Link>
         
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">Notification Center + SLA Alerts</h1>
-          <p className="text-muted-foreground">
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Notification Center + SLA Alerts
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Centralized system alerts, SLA timers, and Genie notifications with clear accountability
           </p>
-        </div>
+        </header>
 
         {/* Demo Section */}
         <div className="border rounded-lg p-8 bg-card">

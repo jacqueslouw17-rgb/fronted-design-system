@@ -146,25 +146,27 @@ const QuickLinksHoverBar = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-6 py-4">
-          <Link to="/">
-            <Button variant="ghost" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Overview
-            </Button>
-          </Link>
-        </div>
-      </div>
-      
-      <div className="container mx-auto px-6 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Pattern 12: Quick Links Hover Bar</h1>
-          <p className="text-sm text-muted-foreground">Actions appear just in time — not all the time</p>
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto p-8 space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Overview
+          </Button>
+        </Link>
 
-      <div className="container mx-auto px-6 py-8 space-y-8">
+        {/* Header */}
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Quick Links Hover Bar
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Actions appear just in time — not all the time
+          </p>
+        </header>
+
+        {/* Main Content */}
+        <div className="space-y-8">
         {/* Payroll Table Example */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Example 1: Payroll Batches</h2>
@@ -417,6 +419,7 @@ const QuickLinksHoverBar = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

@@ -227,12 +227,14 @@ const ComplianceChecklistPattern = () => {
         </Link>
         
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">Compliance Checklist Blocks</h1>
-          <p className="text-muted-foreground">
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Compliance Checklist Blocks
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Modular, visual compliance interface ensuring every process is traceable and auditable
           </p>
-        </div>
+        </header>
 
         {/* Overall Summary */}
         <Card>

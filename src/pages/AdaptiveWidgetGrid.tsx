@@ -285,14 +285,14 @@ const AdaptiveWidgetGridPattern = () => {
         </Link>
         
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Pattern 17: Adaptive Widget Grid</h1>
-            <p className="text-muted-foreground mt-1">
-              Personalized, modular dashboard with drag-and-drop widgets
-            </p>
-          </div>
-        </div>
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Adaptive Widget Grid
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Personalized, modular dashboard with drag-and-drop widgets
+          </p>
+        </header>
         <div className="flex items-center gap-2">
           <Button
             variant={isEditMode ? "default" : "outline"}

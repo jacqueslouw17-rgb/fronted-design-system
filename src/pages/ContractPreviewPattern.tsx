@@ -125,13 +125,14 @@ export default function ContractPreviewPattern() {
         </Link>
 
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Contract Preview & E-Sign Modal</h1>
-          <p className="text-muted-foreground text-lg">
-            Pattern 18 — Enable users to review, approve, and sign contracts directly within
-            Fronted without leaving the product flow.
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Contract Preview & E-Sign Modal
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Enable users to review, approve, and sign contracts directly within Fronted without leaving the product flow
           </p>
-        </div>
+        </header>
 
         {/* Pattern Description */}
         <Card>

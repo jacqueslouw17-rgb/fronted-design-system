@@ -29,12 +29,14 @@ const NarratedInsightPattern = () => {
         </Link>
 
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Narrated Insight / Tooltip Bubble</h1>
-          <p className="text-sm text-muted-foreground">
-            Contextual, human-sounding micro-explanations at the point of uncertainty.
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Narrated Insight / Tooltip Bubble
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Contextual, human-sounding micro-explanations at the point of uncertainty
           </p>
-        </div>
+        </header>
 
         {/* Simple Tooltips with IconInfo */}
         <Card>

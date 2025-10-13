@@ -40,12 +40,14 @@ const DataSummaryCards = () => {
         </Link>
         
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">Data Summary Cards</h1>
-          <p className="text-muted-foreground">
+        <header className="border-b border-border bg-card px-8 py-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            Data Summary Cards
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Compact, self-contained cards displaying key insights and metrics at a glance
           </p>
-        </div>
+        </header>
 
         {/* Overview Section */}
         <div className="prose prose-sm max-w-none">
