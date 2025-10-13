@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -52,6 +52,13 @@ const Landing = () => {
       icon: Shield,
       path: "/policy-tags",
       color: "text-indigo-500"
+    },
+    {
+      title: "Narrated Insight",
+      description: "Contextual tooltips and popovers with conversational Genie explanations",
+      icon: MessageSquare,
+      path: "/narrated-insight",
+      color: "text-amber-500"
     }
   ];
 
