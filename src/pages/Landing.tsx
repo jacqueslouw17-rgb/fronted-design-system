@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2 } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -87,6 +87,13 @@ const Landing = () => {
       icon: Link2,
       path: "/quick-links",
       color: "text-emerald-500"
+    },
+    {
+      title: "Data Summary Cards",
+      description: "Key metrics and insights in compact, expandable cards — clarity first",
+      icon: BarChart3,
+      path: "/data-summary",
+      color: "text-sky-500"
     }
   ];
 

@@ -16,6 +16,7 @@ import AuditTrailPattern from "./pages/AuditTrailPattern";
 import ConfirmationModalPattern from "./pages/ConfirmationModalPattern";
 import DualModePattern from "./pages/DualModePattern";
 import QuickLinksHoverBar from "./pages/QuickLinksHoverBar";
+import DataSummaryCards from "./pages/DataSummaryCards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
         <Route path="/confirmation-modal" element={<ConfirmationModalPattern />} />
         <Route path="/dual-mode" element={<DualModePattern />} />
         <Route path="/quick-links" element={<QuickLinksHoverBar />} />
+        <Route path="/data-summary" element={<DataSummaryCards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
