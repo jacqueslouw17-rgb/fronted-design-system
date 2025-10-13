@@ -286,8 +286,7 @@ const AdaptiveWidgetGridPattern = () => {
         
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div>
+          <div>
             <h1 className="text-3xl font-bold">Pattern 17: Adaptive Widget Grid</h1>
             <p className="text-muted-foreground mt-1">
               Personalized, modular dashboard with drag-and-drop widgets

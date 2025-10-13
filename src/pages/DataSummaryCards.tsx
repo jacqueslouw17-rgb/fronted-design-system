@@ -41,13 +41,8 @@ const DataSummaryCards = () => {
         
         {/* Header */}
         <div>
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-4xl font-bold">Data Summary Cards</h1>
-          </div>
-          <p className="text-muted-foreground ml-14">
+          <h1 className="text-4xl font-bold">Data Summary Cards</h1>
+          <p className="text-muted-foreground">
             Compact, self-contained cards displaying key insights and metrics at a glance
           </p>
         </div>

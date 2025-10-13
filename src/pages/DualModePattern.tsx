@@ -174,11 +174,8 @@ const DualModePattern = () => {
               Back to Overview
             </Button>
           </Link>
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-4">
             <div>
               <h1 className="text-2xl font-bold">Dual Mode Pattern</h1>
               <p className="text-sm text-muted-foreground mt-1">

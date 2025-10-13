@@ -159,15 +159,8 @@ const QuickLinksHoverBar = () => {
       
       <div className="container mx-auto px-6 py-6">
         <div className="mb-6">
-          <div>
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Pattern 12: Quick Links Hover Bar</h1>
-              <p className="text-sm text-muted-foreground">Actions appear just in time — not all the time</p>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold">Pattern 12: Quick Links Hover Bar</h1>
+          <p className="text-sm text-muted-foreground">Actions appear just in time — not all the time</p>
         </div>
       </div>
 

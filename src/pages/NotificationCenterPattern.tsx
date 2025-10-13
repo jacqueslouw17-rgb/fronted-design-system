@@ -160,13 +160,8 @@ const NotificationCenterPattern = () => {
         
         {/* Header */}
         <div>
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-4xl font-bold">Notification Center + SLA Alerts</h1>
-          </div>
-          <p className="text-muted-foreground ml-14">
+          <h1 className="text-4xl font-bold">Notification Center + SLA Alerts</h1>
+          <p className="text-muted-foreground">
             Centralized system alerts, SLA timers, and Genie notifications with clear accountability
           </p>
         </div>

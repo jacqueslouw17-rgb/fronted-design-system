@@ -228,13 +228,8 @@ const ComplianceChecklistPattern = () => {
         
         {/* Header */}
         <div>
-              className="shrink-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-4xl font-bold">Compliance Checklist Blocks</h1>
-          </div>
-          <p className="text-muted-foreground ml-14">
+          <h1 className="text-4xl font-bold">Compliance Checklist Blocks</h1>
+          <p className="text-muted-foreground">
             Modular, visual compliance interface ensuring every process is traceable and auditable
           </p>
         </div>
