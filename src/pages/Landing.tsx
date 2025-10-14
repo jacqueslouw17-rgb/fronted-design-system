@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -234,6 +234,13 @@ const Landing = () => {
         icon: History,
         path: "/genie-context-tracker",
         color: "text-teal-700"
+      },
+      {
+        title: "Genie Task Timeline (Live Progress & ETA Cards)",
+        description: "Transparent, real-time view of every background action with step-by-step confidence",
+        icon: Timer,
+        path: "/genie-task-timeline",
+        color: "text-orange-700"
       }
     ];
 

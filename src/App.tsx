@@ -37,6 +37,7 @@ import TrustIndexGaugePattern from "./pages/TrustIndexGaugePattern";
 import DynamicRoleLensPattern from "./pages/DynamicRoleLensPattern";
 import GenieActionConfirmationsPattern from "./pages/GenieActionConfirmationsPattern";
 import GenieContextTrackerPattern from "./pages/GenieContextTrackerPattern";
+import GenieTaskTimelinePattern from "./pages/GenieTaskTimelinePattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,7 @@ const App = () => (
         <Route path="/dynamic-role-lens" element={<DynamicRoleLensPattern />} />
         <Route path="/genie-action-confirmations" element={<GenieActionConfirmationsPattern />} />
         <Route path="/genie-context-tracker" element={<GenieContextTrackerPattern />} />
+        <Route path="/genie-task-timeline" element={<GenieTaskTimelinePattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
