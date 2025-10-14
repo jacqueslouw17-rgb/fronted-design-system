@@ -101,7 +101,7 @@ export const GenieActionConfirmation = ({
         className={className}
       >
         <Card className="border-2 border-primary/20">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg flex items-center gap-2">

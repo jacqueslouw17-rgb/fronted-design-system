@@ -102,7 +102,7 @@ const AdaptiveWidget = ({
         </div>
       )}
 
-      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-4">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

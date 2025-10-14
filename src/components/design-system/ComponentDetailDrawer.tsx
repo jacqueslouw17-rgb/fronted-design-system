@@ -44,7 +44,7 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
         <div className="mt-6 space-y-6">
           {/* File Path */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <Code className="w-4 h-4 text-muted-foreground" />
                 <CardTitle className="text-sm">File Location</CardTitle>
@@ -59,7 +59,7 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
 
           {/* States */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-muted-foreground" />
                 <CardTitle className="text-sm">State Variants</CardTitle>
@@ -85,7 +85,7 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
           {/* Props (if available) */}
           {component.props && component.props.length > 0 && (
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Package className="w-4 h-4 text-muted-foreground" />
                   <CardTitle className="text-sm">Props & Interactions</CardTitle>
@@ -109,7 +109,7 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
 
           {/* Used in Patterns */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <List className="w-4 h-4 text-muted-foreground" />
                 <CardTitle className="text-sm">Used in Patterns</CardTitle>
@@ -136,7 +136,7 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
 
           {/* Used in Modules */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-muted-foreground" />
                 <CardTitle className="text-sm">Used in Modules</CardTitle>

@@ -59,7 +59,7 @@ export const RecallCard = ({ memory, onResume, onView, onForget, className }: Re
 
   return (
     <Card className={cn("transition-all hover:shadow-md animate-fade-in", className)}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <StatusIcon className={cn("w-4 h-4 flex-shrink-0", statusConfig.color)} />

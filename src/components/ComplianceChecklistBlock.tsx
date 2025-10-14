@@ -79,7 +79,7 @@ const ComplianceChecklistBlock = ({
         status === "na" && "opacity-60",
         className
       )}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1">
               <Checkbox

@@ -235,7 +235,7 @@ export const RecapCard: React.FC<{
       transition={{ duration: 0.3 }}
     >
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="text-base flex items-center gap-2">

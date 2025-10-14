@@ -89,7 +89,7 @@ const DataSummaryCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}

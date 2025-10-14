@@ -95,7 +95,7 @@ export const GenieConfirmationCard = ({
         className
       )}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-start gap-3">
           <div className={cn("p-2 rounded-md bg-muted/50 flex-shrink-0", config.iconColor)}>
             <Icon className="w-5 h-5" strokeWidth={2} />
