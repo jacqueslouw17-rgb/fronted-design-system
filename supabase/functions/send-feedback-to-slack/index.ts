@@ -131,8 +131,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const payload = {
-      blocks,
-      text: `New feedback from ${feedbackData.name}: ${feedbackData.feedback}`,
+      text:
+        `New feedback from ${feedbackData.name} (${feedbackData.role})\n` +
+        `Page: ${feedbackData.pageContext}\n` +
+        `Priority: ${priorityEmoji[feedbackData.priority]} ${feedbackData.priority}\n\n` +
+        `${feedbackData.feedback}` +
+        (feedbackData.screenshot ? "\n\n[Note: screenshot captured in app]" : ""),
     };
 
     console.log("Sending to Slack webhook...");
