@@ -88,8 +88,8 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
 
   return (
     <div 
-      className={`h-screen bg-card border-r flex flex-col transition-all duration-300 ease-in-out flex-shrink-0 ${
-        isOpen ? "w-80" : "w-0 border-r-0"
+      className={`fixed top-0 right-0 h-full bg-card border-l shadow-lg transition-transform duration-300 z-50 flex flex-col ${
+        isOpen ? "translate-x-0 w-[50%]" : "translate-x-full w-0"
       }`}
     >
       {isOpen && (
