@@ -22,6 +22,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Camera, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -110,126 +111,29 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
   };
 
   const sendToSlack = async (screenshot?: string | null) => {
-    const webhookUrl = "https://hooks.slack.com/services/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";
-
-    const priorityEmoji = {
-      Low: "🟢",
-      Medium: "🟡",
-      High: "🔴",
-    };
-
-    const blocks = [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: "🎨 New Pattern Feedback Submitted!",
-          emoji: true,
-        },
-      },
-      {
-        type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*From:*\n${formData.name} (${formData.role})`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Page:*\n${formData.pageContext}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Priority:*\n${priorityEmoji[formData.priority]} ${formData.priority}`,
-          },
-        ],
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*Feedback:*\n${formData.feedback}`,
-        },
-      },
-      {
-        type: "divider",
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `🧭 _Design system auto-tag:_ \`${formData.pageContext}\``,
-          },
-        ],
-      },
-      {
-        type: "actions",
-        elements: [
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "✅ Acknowledge",
-              emoji: true,
-            },
-            style: "primary",
-            value: "acknowledge",
-          },
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "❓ Need More Info",
-              emoji: true,
-            },
-            value: "clarify",
-          },
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "✔️ Resolved",
-              emoji: true,
-            },
-            style: "primary",
-            value: "resolved",
-          },
-        ],
-      },
-    ];
-
-    if (screenshot) {
-      blocks.splice(4, 0, {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "📸 *Screenshot attached*",
-        },
-      } as any);
-    }
-
-    const payload = {
-      blocks,
-      text: `New feedback from ${formData.name}: ${formData.feedback}`,
-    };
-
     try {
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "send-feedback-to-slack",
+        {
+          body: {
+            name: formData.name,
+            role: formData.role,
+            pageContext: formData.pageContext,
+            feedback: formData.feedback,
+            priority: formData.priority,
+            screenshot: screenshot,
+          },
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to send to Slack");
+      if (error) {
+        console.error("Backend function error:", error);
+        return false;
       }
 
-      return true;
+      return data?.success || false;
     } catch (error) {
-      console.error("Slack webhook error:", error);
+      console.error("Failed to send feedback:", error);
       return false;
     }
   };
