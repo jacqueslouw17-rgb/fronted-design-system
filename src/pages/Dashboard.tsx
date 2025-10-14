@@ -3,6 +3,7 @@ import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import GenieDrawer from "@/components/dashboard/GenieDrawer";
 import WidgetGrid from "@/components/dashboard/WidgetGrid";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 interface DashboardProps {
   userData?: {
@@ -28,34 +29,36 @@ const Dashboard = ({
   const [isGenieOpen, setIsGenieOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
-      {/* Genie Drawer */}
-      <GenieDrawer
-        isOpen={isGenieOpen}
-        onClose={() => setIsGenieOpen(false)}
-        userData={userData}
-        chatHistory={onboardingHistory}
-      />
-
-      {/* Left Sidebar - hide when Genie is open */}
-      {!isGenieOpen && (
-        <NavSidebar 
-          onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
-          isGenieOpen={isGenieOpen}
+    <RoleLensProvider initialRole={userData.role as any}>
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Genie Drawer */}
+        <GenieDrawer
+          isOpen={isGenieOpen}
+          onClose={() => setIsGenieOpen(false)}
+          userData={userData}
+          chatHistory={onboardingHistory}
         />
-      )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <Topbar userName={`${userData.firstName} ${userData.lastName}`} />
+        {/* Left Sidebar - hide when Genie is open */}
+        {!isGenieOpen && (
+          <NavSidebar 
+            onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
+            isGenieOpen={isGenieOpen}
+          />
+        )}
 
-        {/* Dashboard Grid */}
-        <main className="flex-1 p-6">
-          <WidgetGrid role={userData.role} userData={userData} />
-        </main>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Top Bar */}
+          <Topbar userName={`${userData.firstName} ${userData.lastName}`} />
+
+          {/* Dashboard Grid */}
+          <main className="flex-1 p-6">
+            <WidgetGrid userData={userData} />
+          </main>
+        </div>
       </div>
-    </div>
+    </RoleLensProvider>
   );
 };
 

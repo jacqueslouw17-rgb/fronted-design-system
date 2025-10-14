@@ -34,6 +34,7 @@ import GenieContextPivotPattern from "./pages/GenieContextPivotPattern";
 import GenieSmartRecapPattern from "./pages/GenieSmartRecapPattern";
 import GenieReactionCardsPattern from "./pages/GenieReactionCardsPattern";
 import TrustIndexGaugePattern from "./pages/TrustIndexGaugePattern";
+import DynamicRoleLensPattern from "./pages/DynamicRoleLensPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
         <Route path="/genie-smart-recap" element={<GenieSmartRecapPattern />} />
         <Route path="/genie-reaction-cards" element={<GenieReactionCardsPattern />} />
         <Route path="/trust-index-gauge" element={<TrustIndexGaugePattern />} />
+        <Route path="/dynamic-role-lens" element={<DynamicRoleLensPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

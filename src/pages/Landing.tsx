@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -213,6 +213,13 @@ const Landing = () => {
         icon: Shield,
         path: "/trust-index-gauge",
         color: "text-indigo-700"
+      },
+      {
+        title: "Dynamic Role Lens",
+        description: "Role-based UI adaptation with personalized widgets and tone",
+        icon: Eye,
+        path: "/dynamic-role-lens",
+        color: "text-violet-700"
       }
     ];
 

@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
+import ToneChip from "./ToneChip";
+import LensToggle from "./LensToggle";
 
 interface TopbarProps {
   userName: string;
@@ -46,6 +48,10 @@ const Topbar = ({ userName }: TopbarProps) => {
 
       {/* Actions */}
       <div className="flex items-center gap-3">
+        {/* Role Lens */}
+        <ToneChip />
+        <LensToggle />
+        
         {/* Notifications */}
         <NotificationCenter />
 
