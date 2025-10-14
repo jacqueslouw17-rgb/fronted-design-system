@@ -54,8 +54,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <FeedbackBubble />
       <BrowserRouter>
+        <FeedbackBubble />
       <Routes>
         <Route path="/" element={<DesignSystem />} />
         <Route path="/design-system" element={<DesignSystem />} />

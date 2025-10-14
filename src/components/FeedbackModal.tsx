@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -275,14 +275,14 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Submit Feedback</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent side="right" className="w-full sm:w-[540px] sm:max-w-[540px] overflow-y-auto">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="text-2xl">Submit Feedback</SheetTitle>
+          <SheetDescription className="text-muted-foreground">
             Your feedback will be shared with the design & tech teams on Slack.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           {/* Name */}
@@ -424,7 +424,7 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
             )}
           </Button>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
