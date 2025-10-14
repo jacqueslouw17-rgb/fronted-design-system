@@ -3,6 +3,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code, Package, Layers, List } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ComponentDetailDrawerProps {
   component: ComponentReference | null;
@@ -11,9 +12,16 @@ interface ComponentDetailDrawerProps {
 }
 
 export const ComponentDetailDrawer = ({ component, open, onOpenChange }: ComponentDetailDrawerProps) => {
+  const navigate = useNavigate();
+  
   if (!component) return null;
 
   const Icon = component.icon;
+
+  const handlePatternClick = (pattern: string) => {
+    onOpenChange(false);
+    navigate(`/${pattern}`);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -113,11 +121,14 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {component.usedInPatterns.map((pattern) => (
-                  <a key={pattern} href={`/${pattern}`} target="_blank" rel="noopener noreferrer">
-                    <Badge variant="outline" className="cursor-pointer hover:bg-muted transition-colors">
-                      {pattern}
-                    </Badge>
-                  </a>
+                  <Badge 
+                    key={pattern} 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => handlePatternClick(pattern)}
+                  >
+                    {pattern}
+                  </Badge>
                 ))}
               </div>
             </CardContent>
