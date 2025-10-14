@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo, Clock, Activity } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo, Clock, Activity, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -185,6 +185,13 @@ const Landing = () => {
       icon: Activity,
       path: "/smart-progress",
       color: "text-teal-600"
+    },
+    {
+      title: "Genie Context Pivot Switcher",
+      description: "Seamlessly switch between entity contexts with separate memory threads",
+      icon: RefreshCw,
+      path: "/genie-context-pivot",
+      color: "text-emerald-600"
     }
   ];
 

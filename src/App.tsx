@@ -30,6 +30,7 @@ import GenieMemoryThreadPattern from "./pages/GenieMemoryThreadPattern";
 import GenieConfirmationQueuePattern from "./pages/GenieConfirmationQueuePattern";
 import GenieContextualTimelinePattern from "./pages/GenieContextualTimelinePattern";
 import SmartProgressPattern from "./pages/SmartProgressPattern";
+import GenieContextPivotPattern from "./pages/GenieContextPivotPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
         <Route path="/genie-confirmation-queue" element={<GenieConfirmationQueuePattern />} />
         <Route path="/genie-contextual-timeline" element={<GenieContextualTimelinePattern />} />
         <Route path="/smart-progress" element={<SmartProgressPattern />} />
+        <Route path="/genie-context-pivot" element={<GenieContextPivotPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
