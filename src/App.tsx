@@ -43,6 +43,7 @@ import GenieTrustGaugePattern from "./pages/GenieTrustGaugePattern";
 import GenieSmartConfirmationPattern from "./pages/GenieSmartConfirmationPattern";
 import GenieDualPathSuggestionPattern from "./pages/GenieDualPathSuggestionPattern";
 import GeniePredictiveHintBarPattern from "./pages/GeniePredictiveHintBarPattern";
+import GenieMultiStepRecallThreadPattern from "./pages/GenieMultiStepRecallThreadPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -94,6 +95,7 @@ const App = () => (
         <Route path="/genie-smart-confirmation" element={<GenieSmartConfirmationPattern />} />
         <Route path="/genie-dual-path-suggestion" element={<GenieDualPathSuggestionPattern />} />
         <Route path="/genie-predictive-hint-bar" element={<GeniePredictiveHintBarPattern />} />
+        <Route path="/genie-multi-step-recall" element={<GenieMultiStepRecallThreadPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
