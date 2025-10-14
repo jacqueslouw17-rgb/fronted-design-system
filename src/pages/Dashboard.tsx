@@ -43,13 +43,23 @@ const Dashboard = ({
   return (
     <RoleLensProvider initialRole={(userData.role as any) || 'admin'}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* Agent Drawer - positioned on right in both modes */}
-        <AgentDrawer
-          isOpen={version === "v2" ? isV2AgentOpen : isV1AgentOpen}
-          onClose={() => setIsAgentOpen(false)}
-          userData={userData}
-          chatHistory={onboardingHistory}
-        />
+        {/* V1: Agent Drawer from LEFT (overlay) */}
+        {version === "v1" && (
+          <div 
+            className={`fixed top-0 left-0 h-full bg-card border-r shadow-lg transition-transform duration-300 z-50 flex flex-col ${
+              isV1AgentOpen ? "translate-x-0 w-80" : "-translate-x-full w-0"
+            }`}
+          >
+            {isV1AgentOpen && (
+              <AgentDrawer
+                isOpen={isV1AgentOpen}
+                onClose={() => setIsAgentOpen(false)}
+                userData={userData}
+                chatHistory={onboardingHistory}
+              />
+            )}
+          </div>
+        )}
 
         {/* Left Sidebar - hide when Agent is open in V1 */}
         {!isV1AgentOpen && (
@@ -60,11 +70,12 @@ const Dashboard = ({
               }
             }} 
             isGenieOpen={isV1AgentOpen}
+            disabled={version === "v2"}
           />
         )}
 
         {/* Main Content */}
-        <div className={`flex-1 flex flex-col min-w-0 ${version === "v2" && isV2AgentOpen ? "w-1/2" : "w-full"}`}>
+        <div className={`flex-1 flex flex-col min-w-0`}>
           {/* Top Bar */}
           <Topbar 
             userName={`${userData.firstName} ${userData.lastName}`}
@@ -79,6 +90,16 @@ const Dashboard = ({
             <WidgetGrid userData={userData} />
           </main>
         </div>
+
+        {/* V2: Agent Drawer on RIGHT (50/50 split) */}
+        {version === "v2" && (
+          <AgentDrawer
+            isOpen={isV2AgentOpen}
+            onClose={() => setIsAgentOpen(false)}
+            userData={userData}
+            chatHistory={onboardingHistory}
+          />
+        )}
       </div>
     </RoleLensProvider>
   );

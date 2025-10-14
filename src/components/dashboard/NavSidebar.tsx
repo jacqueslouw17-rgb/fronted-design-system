@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 interface NavSidebarProps {
   onGenieToggle: () => void;
   isGenieOpen: boolean;
+  disabled?: boolean;
 }
 
 const navItems = [
@@ -15,7 +16,7 @@ const navItems = [
   { icon: Settings, label: "Settings", active: false },
 ];
 
-const NavSidebar = ({ onGenieToggle, isGenieOpen }: NavSidebarProps) => {
+const NavSidebar = ({ onGenieToggle, isGenieOpen, disabled }: NavSidebarProps) => {
   return (
     <aside className="w-16 border-r bg-card flex flex-col items-center py-4 gap-2 flex-shrink-0">
       {/* Genie Toggle */}
@@ -25,13 +26,14 @@ const NavSidebar = ({ onGenieToggle, isGenieOpen }: NavSidebarProps) => {
             variant={isGenieOpen ? "default" : "ghost"}
             size="icon"
             onClick={onGenieToggle}
-            className="mb-4"
+            className={`mb-4 ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
+            disabled={disabled}
           >
             <PanelLeftOpen className="h-5 w-5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>{isGenieOpen ? "Close" : "Open"} Genie</p>
+          <p>{disabled ? "Use topbar button in v2" : isGenieOpen ? "Close Agent" : "Open Agent"}</p>
         </TooltipContent>
       </Tooltip>
 
