@@ -38,6 +38,7 @@ import DynamicRoleLensPattern from "./pages/DynamicRoleLensPattern";
 import GenieActionConfirmationsPattern from "./pages/GenieActionConfirmationsPattern";
 import GenieContextTrackerPattern from "./pages/GenieContextTrackerPattern";
 import GenieTaskTimelinePattern from "./pages/GenieTaskTimelinePattern";
+import GenieInsightCarouselPattern from "./pages/GenieInsightCarouselPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const App = () => (
         <Route path="/genie-action-confirmations" element={<GenieActionConfirmationsPattern />} />
         <Route path="/genie-context-tracker" element={<GenieContextTrackerPattern />} />
         <Route path="/genie-task-timeline" element={<GenieTaskTimelinePattern />} />
+        <Route path="/genie-insight-carousel" element={<GenieInsightCarouselPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

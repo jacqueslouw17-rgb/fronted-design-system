@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -241,6 +241,13 @@ const Landing = () => {
         icon: Timer,
         path: "/genie-task-timeline",
         color: "text-orange-700"
+      },
+      {
+        title: "Genie Insight Carousel (Summarized Highlights)",
+        description: "Multiple related insights in a swipeable, horizontal carousel format",
+        icon: Presentation,
+        path: "/genie-insight-carousel",
+        color: "text-blue-700"
       }
     ];
 
