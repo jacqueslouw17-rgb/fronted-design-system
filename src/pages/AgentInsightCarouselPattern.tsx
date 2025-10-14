@@ -250,7 +250,7 @@ const GenieInsightCarouselPattern = () => {
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold tracking-tight">
-            Genie Insight Carousel (Summarized Highlights)
+            Agent Insight Carousel (Summarized Highlights)
           </h1>
           <p className="text-muted-foreground mt-2">
             Multiple related insights in a concise, swipeable format within the chat thread

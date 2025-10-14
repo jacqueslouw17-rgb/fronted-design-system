@@ -309,7 +309,7 @@ const GenieSmartRecapPattern = () => {
               <Sparkles className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Genie Smart Recap</h1>
+              <h1 className="text-3xl font-bold">Agent Smart Recap</h1>
               <p className="text-muted-foreground">Pattern 28 — Session summaries with contextual next steps</p>
             </div>
           </div>

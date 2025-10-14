@@ -142,7 +142,7 @@ const GenieMultiStepRecallThreadPattern = () => {
 
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold mb-2">Pattern 40 — Genie Multi-Step Recall Thread</h1>
+          <h1 className="text-4xl font-bold mb-2">Pattern 40 — Agent Multi-Step Recall Thread</h1>
           <p className="text-muted-foreground text-lg">
             Pause, remember, and resume multi-step processes without losing context.
           </p>

@@ -88,7 +88,7 @@ export default function GenieConfirmationQueuePattern() {
             </Link>
             <div>
               <h1 className="text-4xl font-bold tracking-tight">
-                Genie Confirmation Queue
+                Agent Confirmation Queue
               </h1>
               <p className="text-lg text-muted-foreground mt-2">
                 Pattern 24 — Pending Actions Manager
@@ -104,7 +104,7 @@ export default function GenieConfirmationQueuePattern() {
           <h2 className="text-xl font-semibold mb-3">Purpose</h2>
           <p className="text-muted-foreground leading-relaxed">
             The Confirmation Queue gives users a single place to review, confirm, or reject
-            pending actions Genie has initiated — without losing context or searching through
+            pending actions Agent has initiated — without losing context or searching through
             chats or dashboards. It ensures nothing slips through while maintaining a
             lightweight conversational experience.
           </p>

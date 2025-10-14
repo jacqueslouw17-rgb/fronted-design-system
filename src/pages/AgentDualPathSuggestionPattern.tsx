@@ -20,14 +20,14 @@ const GenieDualPathSuggestionPattern = () => {
       title: "Set up contractor onboarding",
       description: "Howard approved a new contractor in Norway. Would you like me to set up their contract automatically?",
       aiOption: {
-        label: "Let Genie handle it",
+        label: "Let Agent handle it",
         description: "I'll draft the contract and prepare all documents for review",
-        tooltip: "Genie will create a contract based on the country template and show you before sending",
+        tooltip: "Agent will create a contract based on the country template and show you before sending",
       },
       manualOption: {
         label: "I'll do it manually",
         description: "I'll guide you through the contract creation process step-by-step",
-        tooltip: "You maintain full control while Genie provides contextual assistance",
+        tooltip: "You maintain full control while Agent provides contextual assistance",
       },
       aiResponse: "Got it! I'll draft the Norway contractor agreement and show you before sending it for signature.",
       manualResponse: "Sure thing! You can start here: Create Contract → Select Norway Template. I'll stay ready if you need help filling the details.",
@@ -39,7 +39,7 @@ const GenieDualPathSuggestionPattern = () => {
       title: "Process monthly payroll",
       description: "October payroll for 24 contractors is ready. Should I prepare the batch automatically?",
       aiOption: {
-        label: "Let Genie handle it",
+        label: "Let Agent handle it",
         description: "I'll prep the batch with current FX rates and validate all accounts",
         tooltip: "Automated preparation with Smart Confirmation before execution",
       },
@@ -58,14 +58,14 @@ const GenieDualPathSuggestionPattern = () => {
       title: "Update contractor terms",
       description: "Senior Developer in Oslo requested a rate increase. Want me to generate the amendment?",
       aiOption: {
-        label: "Let Genie handle it",
+        label: "Let Agent handle it",
         description: "I'll create the amendment from the existing contract and highlight changes",
         tooltip: "Automated document generation with change tracking and legal validation",
       },
       manualOption: {
         label: "I'll edit directly",
         description: "I'll open the contract editor and make changes myself",
-        tooltip: "Direct editing with Genie providing suggestions and validation",
+        tooltip: "Direct editing with Agent providing suggestions and validation",
       },
       aiResponse: "On it! I'll generate the amendment with the new rate ($85 → $95/hr) and show you the clause changes before finalizing.",
       manualResponse: "Great! Opening the contract editor. I'll highlight the compensation clause and suggest market-aligned language as you edit.",
@@ -77,7 +77,7 @@ const GenieDualPathSuggestionPattern = () => {
       title: "Renew compliance documents",
       description: "3 tax certificates expire next week. Should I request renewals automatically?",
       aiOption: {
-        label: "Let Genie handle it",
+        label: "Let Agent handle it",
         description: "I'll send renewal requests and track responses",
         tooltip: "Automated compliance tracking with deadline monitoring",
       },
@@ -96,7 +96,7 @@ const GenieDualPathSuggestionPattern = () => {
       title: "Escalate support ticket",
       description: "Ticket #2847 is approaching SLA deadline. Would you like me to escalate automatically?",
       aiOption: {
-        label: "Let Genie handle it",
+        label: "Let Agent handle it",
         description: "I'll escalate to senior support and notify the contractor",
         tooltip: "Automated escalation with tracking and notifications",
       },
@@ -145,7 +145,7 @@ const GenieDualPathSuggestionPattern = () => {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Pattern 38 — Genie Dual Path Suggestion</h1>
+            <h1 className="text-4xl font-bold mb-2">Pattern 38 — Agent Dual Path Suggestion</h1>
             <p className="text-muted-foreground text-lg">
               Let users choose between AI automation and manual control for every key workflow.
             </p>
@@ -244,7 +244,7 @@ const GenieDualPathSuggestionPattern = () => {
                 <div>
                   <h4 className="font-semibold mb-1">Clear Choice Presentation</h4>
                   <p className="text-sm text-muted-foreground">
-                    Two distinct options: "Let Genie handle it" (automated) or "I'll do it manually"
+                    Two distinct options: "Let Agent handle it" (automated) or "I'll do it manually"
                     (guided)
                   </p>
                 </div>

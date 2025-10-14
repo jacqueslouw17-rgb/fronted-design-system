@@ -133,7 +133,7 @@ const GenieSmartConfirmationPattern = () => {
 
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold mb-2">Pattern 37 — Genie Smart Confirmation</h1>
+          <h1 className="text-4xl font-bold mb-2">Pattern 37 — Agent Smart Confirmation</h1>
           <p className="text-muted-foreground text-lg">
             Ensure users remain in control with structured review moments before significant actions.
           </p>

@@ -18,10 +18,10 @@ const GenieConfirmationCardPattern = () => {
 
         <div className={patternLayout.header}>
           <CardTitle className={patternLayout.headerTitle}>
-            Pattern 21 — Genie Confirmation Card
+            Pattern 21 — Agent Confirmation Card
           </CardTitle>
           <CardDescription className={patternLayout.headerDescription}>
-            Structured confirmation moments inside Genie for impactful actions with clear visual checkpoints
+            Structured confirmation moments inside Agent for impactful actions with clear visual checkpoints
           </CardDescription>
         </div>
 
@@ -123,7 +123,7 @@ const GenieConfirmationCardPattern = () => {
               <li className={patternLayout.featureItem}>
                 <CheckCircle2 className="w-4 h-4 text-primary" />
                 <div className={patternLayout.featureText}>
-                  <span className={patternLayout.featureLabel}>Genie Hints:</span> Proactive suggestions and follow-up actions
+                  <span className={patternLayout.featureLabel}>Agent Hints:</span> Proactive suggestions and follow-up actions
                 </div>
               </li>
               <li className={patternLayout.featureItem}>

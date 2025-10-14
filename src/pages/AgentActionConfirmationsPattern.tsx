@@ -53,7 +53,7 @@ const GenieActionConfirmationsPattern = () => {
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold tracking-tight">
-            Genie Action Confirmations (HITL)
+            Agent Action Confirmations (HITL)
           </h1>
           <p className="text-muted-foreground mt-2">
             Human-in-the-Loop inline confirmations for high-impact automated actions
@@ -68,14 +68,14 @@ const GenieActionConfirmationsPattern = () => {
               Pattern Behavior
             </CardTitle>
             <CardDescription>
-              Preserves human control and auditability within Genie's automation
+              Preserves human control and auditability within Agent's automation
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-medium mb-2">Core Principle</h3>
               <p className="text-sm text-muted-foreground">
-                "Genie suggests, humans decide." — Every automation remains reviewable, explainable, and reversible.
+                "Agent suggests, humans decide." — Every automation remains reviewable, explainable, and reversible.
               </p>
             </div>
             <div>

@@ -108,7 +108,7 @@ const GenieMemoryThreadPattern = () => {
               </Button>
               <Brain className="w-6 h-6 text-primary" />
               <h1 className="text-xl sm:text-2xl font-semibold">
-                Pattern 23 — Genie Context Memory Thread
+                Pattern 23 — Agent Context Memory Thread
               </h1>
             </div>
             <MemoryDrawer

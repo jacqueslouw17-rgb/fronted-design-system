@@ -56,7 +56,7 @@ const GenieContextTrackerPattern = () => {
         "assistant",
         "I've drafted the contract. Review before sending for e-signature."
       );
-      addAction(contractId, "contract_drafted", "Contract created for review", "Genie");
+      addAction(contractId, "contract_drafted", "Contract created for review", "Agent");
 
       // Switch to payroll
       switchContext(payrollId);
@@ -73,14 +73,14 @@ const GenieContextTrackerPattern = () => {
 
     addMessage(activeContext.id, "user", inputValue);
     
-    // Simulate Genie response
+    // Simulate Agent response
     setTimeout(() => {
       addMessage(
         activeContext.id,
         "assistant",
         `I understand you're asking about "${inputValue}". Let me help with that in the ${activeContext.type} context.`
       );
-      addAction(activeContext.id, "response_generated", "Genie provided contextual response", "Genie");
+      addAction(activeContext.id, "response_generated", "Agent provided contextual response", "Agent");
     }, 500);
 
     setInputValue("");
@@ -100,7 +100,7 @@ const GenieContextTrackerPattern = () => {
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold tracking-tight">
-            Genie Context Tracker (Memory Thread)
+            Agent Context Tracker (Memory Thread)
           </h1>
           <p className="text-muted-foreground mt-2">
             Persistent conversation awareness with context switching and memory
@@ -115,14 +115,14 @@ const GenieContextTrackerPattern = () => {
               Pattern Behavior
             </CardTitle>
             <CardDescription>
-              Genie maintains persistent awareness of conversation context
+              Agent maintains persistent awareness of conversation context
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-medium mb-2">Core Principle</h3>
               <p className="text-sm text-muted-foreground">
-                "Genie never forgets what matters." — Memory creates continuity, and continuity builds trust.
+                "Agent never forgets what matters." — Memory creates continuity, and continuity builds trust.
               </p>
             </div>
             <div>
@@ -144,7 +144,7 @@ const GenieContextTrackerPattern = () => {
           {/* Chat Demo */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">Genie Chat Demo</h2>
+              <h2 className="text-2xl font-semibold">Agent Chat Demo</h2>
               {recentContexts.length === 0 && (
                 <Button onClick={initializeSampleContexts} size="sm" className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -249,7 +249,7 @@ const GenieContextTrackerPattern = () => {
                 <div>
                   <h3 className="font-medium">Payroll Context</h3>
                   <p className="text-sm text-muted-foreground">
-                    Retains all Genie-led approvals, edits, and FX steps in one thread
+                    Retains all Agent-led approvals, edits, and FX steps in one thread
                   </p>
                 </div>
               </div>

@@ -236,7 +236,7 @@ const GeniePredictiveHintBarPattern = () => {
 
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold mb-2">Pattern 39 — Genie Predictive Hint Bar</h1>
+          <h1 className="text-4xl font-bold mb-2">Pattern 39 — Agent Predictive Hint Bar</h1>
           <p className="text-muted-foreground text-lg">
             Intelligent next-action suggestions based on context, actions, and system state.
           </p>

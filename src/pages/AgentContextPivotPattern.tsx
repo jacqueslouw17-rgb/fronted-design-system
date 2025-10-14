@@ -91,7 +91,7 @@ const PatternContent = () => {
     
     addMessage(activeEntity.id, "user", content);
     
-    // Simulate Genie response
+    // Simulate Agent response
     setTimeout(() => {
       const responses: Record<string, string> = {
         contractor: `I'm now viewing ${activeEntity.name}'s profile. I can help with contracts, payments, or compliance documents. What would you like to do?`,
@@ -181,7 +181,7 @@ const PatternContent = () => {
                                 }`}
                               >
                                 <div className="text-xs font-medium mb-1 capitalize">
-                                  {msg.role === "user" ? "You" : "Genie"}
+                                  {msg.role === "user" ? "You" : "Agent"}
                                 </div>
                                 <div className="text-sm">{msg.content}</div>
                               </div>
