@@ -3,7 +3,6 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code, Package, Layers, List } from "lucide-react";
-import { Link } from "react-router-dom";
 
 interface ComponentDetailDrawerProps {
   component: ComponentReference | null;
@@ -108,17 +107,17 @@ export const ComponentDetailDrawer = ({ component, open, onOpenChange }: Compone
                 <CardTitle className="text-sm">Used in Patterns</CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Patterns that utilize this component
+                Click to view pattern implementation
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {component.usedInPatterns.map((pattern) => (
-                  <Link key={pattern} to={`/${pattern}`} onClick={() => onOpenChange(false)}>
+                  <a key={pattern} href={`/${pattern}`} target="_blank" rel="noopener noreferrer">
                     <Badge variant="outline" className="cursor-pointer hover:bg-muted transition-colors">
                       {pattern}
                     </Badge>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </CardContent>

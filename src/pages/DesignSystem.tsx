@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
-import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
 import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
@@ -294,9 +293,7 @@ const patterns = [
 
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
-  const [selectedPattern, setSelectedPattern] = useState<typeof patterns[0] | null>(null);
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
-  const [patternDrawerOpen, setPatternDrawerOpen] = useState(false);
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
@@ -304,11 +301,6 @@ const DesignSystem = () => {
       setSelectedComponent(component);
       setComponentDrawerOpen(true);
     }
-  };
-
-  const handlePatternClick = (pattern: typeof patterns[0]) => {
-    setSelectedPattern(pattern);
-    setPatternDrawerOpen(true);
   };
 
   return (
@@ -334,53 +326,50 @@ const DesignSystem = () => {
                 const linkedComponents = getComponentsByPattern(pattern.path);
                 
                 return (
-                  <Card 
-                    key={pattern.path}
-                    className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border flex flex-col"
-                    onClick={() => handlePatternClick(pattern)}
-                  >
-                    <CardHeader className="space-y-3 flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
-                          <Icon className="w-5 h-5" strokeWidth={2} />
+                  <Link key={pattern.path} to={pattern.path}>
+                    <Card className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border flex flex-col">
+                      <CardHeader className="space-y-3 flex-1">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
+                            <Icon className="w-5 h-5" strokeWidth={2} />
+                          </div>
+                          <CardTitle className="text-base font-semibold leading-snug">{pattern.title}</CardTitle>
                         </div>
-                        <CardTitle className="text-base font-semibold leading-snug">{pattern.title}</CardTitle>
-                      </div>
-                      <CardDescription className="text-xs leading-relaxed">
-                        {pattern.description}
-                      </CardDescription>
-                      {linkedComponents.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {linkedComponents.slice(0, 3).map((comp) => (
-                            <Badge 
-                              key={comp.id} 
-                              variant="secondary" 
-                              className="text-xs cursor-pointer hover:bg-muted transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleComponentClick(comp.id);
-                              }}
-                            >
-                              {comp.name}
-                            </Badge>
-                          ))}
-                          {linkedComponents.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{linkedComponents.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </CardHeader>
-                    <CardContent className="pt-0 pb-4">
-                      <Link to={pattern.path} onClick={(e) => e.stopPropagation()}>
+                        <CardDescription className="text-xs leading-relaxed">
+                          {pattern.description}
+                        </CardDescription>
+                        {linkedComponents.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {linkedComponents.slice(0, 3).map((comp) => (
+                              <Badge 
+                                key={comp.id} 
+                                variant="secondary" 
+                                className="text-xs cursor-pointer hover:bg-muted transition-colors"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleComponentClick(comp.id);
+                                }}
+                              >
+                                {comp.name}
+                              </Badge>
+                            ))}
+                            {linkedComponents.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{linkedComponents.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </CardHeader>
+                      <CardContent className="pt-0 pb-4">
                         <div className="flex items-center text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                           View pattern
                           <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                         </div>
-                      </Link>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>
@@ -451,13 +440,6 @@ const DesignSystem = () => {
         component={selectedComponent}
         open={componentDrawerOpen}
         onOpenChange={setComponentDrawerOpen}
-      />
-
-      <PatternDetailDrawer
-        pattern={selectedPattern}
-        open={patternDrawerOpen}
-        onOpenChange={setPatternDrawerOpen}
-        onComponentClick={handleComponentClick}
       />
     </div>
   );
