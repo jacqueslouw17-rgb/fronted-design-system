@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
+import DesignSystem from "./pages/DesignSystem";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -54,9 +55,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/design-system" element={<DesignSystem />} />
+        <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
