@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GenieSuggestionChips } from "@/components/GenieSuggestionChips";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { ArrowLeft, CheckCircle2, Eye, FileText, Edit, Settings, DollarSign, BarChart3, MessageSquare, AlertTriangle, Send, Download, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { patternLayout } from "@/styles/pattern-layout";
@@ -19,7 +19,7 @@ const SmartSuggestionChipsPattern = () => {
 
         <div className={patternLayout.header}>
           <CardTitle className={patternLayout.headerTitle}>
-            Pattern 22 — Genie Smart Suggestion Chips
+            Pattern 22 — Agent Smart Suggestion Chips
           </CardTitle>
           <CardDescription className={patternLayout.headerDescription}>
             Instant, one-tap contextual actions that help users move faster through flows without typing
@@ -30,7 +30,7 @@ const SmartSuggestionChipsPattern = () => {
           <CardHeader>
             <CardTitle className={patternLayout.demoTitle}>Live Examples</CardTitle>
             <CardDescription className={patternLayout.demoDescription}>
-              Smart chips appear contextually after Genie responses
+              Smart chips appear contextually after agent responses
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">

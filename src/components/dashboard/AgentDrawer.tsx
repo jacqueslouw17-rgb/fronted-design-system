@@ -10,7 +10,7 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import VoiceTypeToggle from "./VoiceTypeToggle";
 import { useToast } from "@/hooks/use-toast";
 
-interface GenieDrawerProps {
+interface AgentDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   userData: {
@@ -19,7 +19,7 @@ interface GenieDrawerProps {
   chatHistory: Array<{ role: string; content: string }>;
 }
 
-const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProps) => {
+const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProps) => {
   const [messages, setMessages] = useState(chatHistory);
   const [inputValue, setInputValue] = useState("");
   const [inputMode, setInputMode] = useState<"voice" | "text">("text");
@@ -73,7 +73,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
 
     setMessages((prev) => [...prev, { role: "user", content: inputValue }]);
     
-    // Simulate Genie response
+    // Simulate agent response
     setTimeout(() => {
       const response = "I'm here to help! This is a demo response.";
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
@@ -98,7 +98,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
           <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <PanelLeftOpen className="h-5 w-5 text-foreground/60" />
-              <h2 className="font-semibold">Genie Assistant</h2>
+              <h2 className="font-semibold">Agent Assistant</h2>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -144,7 +144,7 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
           <div className="p-4 border-t flex-shrink-0">
             <div className="flex gap-2">
               <Input
-                placeholder={inputMode === "voice" ? "Listening..." : "Ask Genie anything..."}
+                placeholder={inputMode === "voice" ? "Listening..." : "Ask agent anything..."}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
@@ -168,4 +168,4 @@ const GenieDrawer = ({ isOpen, onClose, userData, chatHistory }: GenieDrawerProp
   );
 };
 
-export default GenieDrawer;
+export default AgentDrawer;

@@ -24,26 +24,26 @@ import AdaptiveWidgetGridPattern from "./pages/AdaptiveWidgetGrid";
 import ContractPreviewPattern from "./pages/ContractPreviewPattern";
 import FXBreakdownPopoverPattern from "./pages/FXBreakdownPopoverPattern";
 import EmptyStatePlaceholderPattern from "./pages/EmptyStatePlaceholderPattern";
-import GenieConfirmationCardPattern from "./pages/GenieConfirmationCardPattern";
+import AgentConfirmationCardPattern from "./pages/AgentConfirmationCardPattern";
 import SmartSuggestionChipsPattern from "./pages/SmartSuggestionChipsPattern";
-import GenieMemoryThreadPattern from "./pages/GenieMemoryThreadPattern";
-import GenieConfirmationQueuePattern from "./pages/GenieConfirmationQueuePattern";
-import GenieContextualTimelinePattern from "./pages/GenieContextualTimelinePattern";
+import AgentMemoryThreadPattern from "./pages/AgentMemoryThreadPattern";
+import AgentConfirmationQueuePattern from "./pages/AgentConfirmationQueuePattern";
+import AgentContextualTimelinePattern from "./pages/AgentContextualTimelinePattern";
 import SmartProgressPattern from "./pages/SmartProgressPattern";
-import GenieContextPivotPattern from "./pages/GenieContextPivotPattern";
-import GenieSmartRecapPattern from "./pages/GenieSmartRecapPattern";
-import GenieReactionCardsPattern from "./pages/GenieReactionCardsPattern";
+import AgentContextPivotPattern from "./pages/AgentContextPivotPattern";
+import AgentSmartRecapPattern from "./pages/AgentSmartRecapPattern";
+import AgentReactionCardsPattern from "./pages/AgentReactionCardsPattern";
 import TrustIndexGaugePattern from "./pages/TrustIndexGaugePattern";
 import DynamicRoleLensPattern from "./pages/DynamicRoleLensPattern";
-import GenieActionConfirmationsPattern from "./pages/GenieActionConfirmationsPattern";
-import GenieContextTrackerPattern from "./pages/GenieContextTrackerPattern";
-import GenieTaskTimelinePattern from "./pages/GenieTaskTimelinePattern";
-import GenieInsightCarouselPattern from "./pages/GenieInsightCarouselPattern";
-import GenieTrustGaugePattern from "./pages/GenieTrustGaugePattern";
-import GenieSmartConfirmationPattern from "./pages/GenieSmartConfirmationPattern";
-import GenieDualPathSuggestionPattern from "./pages/GenieDualPathSuggestionPattern";
-import GeniePredictiveHintBarPattern from "./pages/GeniePredictiveHintBarPattern";
-import GenieMultiStepRecallThreadPattern from "./pages/GenieMultiStepRecallThreadPattern";
+import AgentActionConfirmationsPattern from "./pages/AgentActionConfirmationsPattern";
+import AgentContextTrackerPattern from "./pages/AgentContextTrackerPattern";
+import AgentTaskTimelinePattern from "./pages/AgentTaskTimelinePattern";
+import AgentInsightCarouselPattern from "./pages/AgentInsightCarouselPattern";
+import AgentTrustGaugePattern from "./pages/AgentTrustGaugePattern";
+import AgentSmartConfirmationPattern from "./pages/AgentSmartConfirmationPattern";
+import AgentDualPathSuggestionPattern from "./pages/AgentDualPathSuggestionPattern";
+import AgentPredictiveHintBarPattern from "./pages/AgentPredictiveHintBarPattern";
+import AgentMultiStepRecallThreadPattern from "./pages/AgentMultiStepRecallThreadPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,26 +77,26 @@ const App = () => (
         <Route path="/contract-preview" element={<ContractPreviewPattern />} />
         <Route path="/fx-breakdown" element={<FXBreakdownPopoverPattern />} />
         <Route path="/empty-state" element={<EmptyStatePlaceholderPattern />} />
-        <Route path="/genie-confirmation" element={<GenieConfirmationCardPattern />} />
+        <Route path="/agent-confirmation" element={<AgentConfirmationCardPattern />} />
         <Route path="/smart-suggestion-chips" element={<SmartSuggestionChipsPattern />} />
-        <Route path="/genie-memory-thread" element={<GenieMemoryThreadPattern />} />
-        <Route path="/genie-confirmation-queue" element={<GenieConfirmationQueuePattern />} />
-        <Route path="/genie-contextual-timeline" element={<GenieContextualTimelinePattern />} />
+        <Route path="/agent-memory-thread" element={<AgentMemoryThreadPattern />} />
+        <Route path="/agent-confirmation-queue" element={<AgentConfirmationQueuePattern />} />
+        <Route path="/agent-contextual-timeline" element={<AgentContextualTimelinePattern />} />
         <Route path="/smart-progress" element={<SmartProgressPattern />} />
-        <Route path="/genie-context-pivot" element={<GenieContextPivotPattern />} />
-        <Route path="/genie-smart-recap" element={<GenieSmartRecapPattern />} />
-        <Route path="/genie-reaction-cards" element={<GenieReactionCardsPattern />} />
+        <Route path="/agent-context-pivot" element={<AgentContextPivotPattern />} />
+        <Route path="/agent-smart-recap" element={<AgentSmartRecapPattern />} />
+        <Route path="/agent-reaction-cards" element={<AgentReactionCardsPattern />} />
         <Route path="/trust-index-gauge" element={<TrustIndexGaugePattern />} />
         <Route path="/dynamic-role-lens" element={<DynamicRoleLensPattern />} />
-        <Route path="/genie-action-confirmations" element={<GenieActionConfirmationsPattern />} />
-        <Route path="/genie-context-tracker" element={<GenieContextTrackerPattern />} />
-        <Route path="/genie-task-timeline" element={<GenieTaskTimelinePattern />} />
-        <Route path="/genie-insight-carousel" element={<GenieInsightCarouselPattern />} />
-        <Route path="/genie-trust-gauge" element={<GenieTrustGaugePattern />} />
-        <Route path="/genie-smart-confirmation" element={<GenieSmartConfirmationPattern />} />
-        <Route path="/genie-dual-path-suggestion" element={<GenieDualPathSuggestionPattern />} />
-        <Route path="/genie-predictive-hint-bar" element={<GeniePredictiveHintBarPattern />} />
-        <Route path="/genie-multi-step-recall" element={<GenieMultiStepRecallThreadPattern />} />
+        <Route path="/agent-action-confirmations" element={<AgentActionConfirmationsPattern />} />
+        <Route path="/agent-context-tracker" element={<AgentContextTrackerPattern />} />
+        <Route path="/agent-task-timeline" element={<AgentTaskTimelinePattern />} />
+        <Route path="/agent-insight-carousel" element={<AgentInsightCarouselPattern />} />
+        <Route path="/agent-trust-gauge" element={<AgentTrustGaugePattern />} />
+        <Route path="/agent-smart-confirmation" element={<AgentSmartConfirmationPattern />} />
+        <Route path="/agent-dual-path-suggestion" element={<AgentDualPathSuggestionPattern />} />
+        <Route path="/agent-predictive-hint-bar" element={<AgentPredictiveHintBarPattern />} />
+        <Route path="/agent-multi-step-recall" element={<AgentMultiStepRecallThreadPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

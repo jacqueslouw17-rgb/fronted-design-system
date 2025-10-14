@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
-import GenieDrawer from "@/components/dashboard/GenieDrawer";
+import AgentDrawer from "@/components/dashboard/AgentDrawer";
 import WidgetGrid from "@/components/dashboard/WidgetGrid";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
@@ -26,24 +26,24 @@ const Dashboard = ({
   },
   onboardingHistory = []
 }: DashboardProps) => {
-  const [isGenieOpen, setIsGenieOpen] = useState(false);
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
 
   return (
     <RoleLensProvider initialRole={(userData.role as any) || 'admin'}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* Genie Drawer */}
-        <GenieDrawer
-          isOpen={isGenieOpen}
-          onClose={() => setIsGenieOpen(false)}
+        {/* Agent Drawer */}
+        <AgentDrawer
+          isOpen={isAgentOpen}
+          onClose={() => setIsAgentOpen(false)}
           userData={userData}
           chatHistory={onboardingHistory}
         />
 
-        {/* Left Sidebar - hide when Genie is open */}
-        {!isGenieOpen && (
+        {/* Left Sidebar - hide when Agent is open */}
+        {!isAgentOpen && (
           <NavSidebar 
-            onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
-            isGenieOpen={isGenieOpen}
+            onGenieToggle={() => setIsAgentOpen(!isAgentOpen)} 
+            isGenieOpen={isAgentOpen}
           />
         )}
 

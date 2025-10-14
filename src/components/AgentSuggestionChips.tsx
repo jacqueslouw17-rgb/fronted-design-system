@@ -14,7 +14,7 @@ interface SuggestionChip {
   onAction?: () => void;
 }
 
-interface GenieSuggestionChipsProps {
+interface AgentSuggestionChipsProps {
   chips: SuggestionChip[];
   className?: string;
 }
@@ -92,7 +92,7 @@ const SuggestionChipButton = ({
   return chipButton;
 };
 
-export const GenieSuggestionChips = ({ chips, className }: GenieSuggestionChipsProps) => {
+export const AgentSuggestionChips = ({ chips, className }: AgentSuggestionChipsProps) => {
   if (!chips.length) return null;
 
   // Limit to max 5 chips as per spec

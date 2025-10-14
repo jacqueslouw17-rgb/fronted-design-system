@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 type Severity = "default" | "warning" | "critical" | "completed";
 
-interface GenieConfirmationCardProps {
+interface AgentConfirmationCardProps {
   title: string;
   summary: string;
   details?: string[];
@@ -19,7 +19,7 @@ interface GenieConfirmationCardProps {
   confirmLabel?: string;
   cancelLabel?: string;
   impactTooltip?: string;
-  genieHint?: string;
+  agentHint?: string;
   className?: string;
 }
 
@@ -50,7 +50,7 @@ const severityConfig = {
   },
 };
 
-export const GenieConfirmationCard = ({
+export const AgentConfirmationCard = ({
   title,
   summary,
   details,
@@ -60,9 +60,9 @@ export const GenieConfirmationCard = ({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   impactTooltip,
-  genieHint,
+  agentHint,
   className,
-}: GenieConfirmationCardProps) => {
+}: AgentConfirmationCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCompleted, setIsCompleted] = useState(severity === "completed");
   
@@ -175,11 +175,11 @@ export const GenieConfirmationCard = ({
         )}
       </CardContent>
 
-      {genieHint && !isCompleted && (
+      {agentHint && !isCompleted && (
         <CardFooter className="pt-0 pb-4">
           <div className="w-full p-3 rounded-md bg-muted/50 border border-border/50">
             <p className="text-xs text-muted-foreground italic">
-              💡 Genie: {genieHint}
+              💡 Agent: {agentHint}
             </p>
           </div>
         </CardFooter>

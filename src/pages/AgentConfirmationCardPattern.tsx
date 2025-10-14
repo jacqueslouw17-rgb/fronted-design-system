@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GenieConfirmationCard } from "@/components/GenieConfirmationCard";
+import { AgentConfirmationCard } from "@/components/AgentConfirmationCard";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { patternLayout } from "@/styles/pattern-layout";

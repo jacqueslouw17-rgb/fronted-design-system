@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RecallThreadCard, ThreadListPanel } from "@/components/GenieRecallThread";
+import { RecallThreadCard, ThreadListPanel } from "@/components/AgentRecallThread";
 import { useRecallThread, RecallThread } from "@/hooks/useRecallThread";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, RefreshCw } from "lucide-react";
