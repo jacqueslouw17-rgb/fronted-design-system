@@ -75,8 +75,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
 
       {/* Actions */}
       <div className="flex items-center gap-3">
-        {/* Agent Toggle - shown in both versions, left of notifications */}
-        {onAgentToggle && (
+        {/* Agent Toggle - only shown in v2, left of notifications */}
+        {version === "v2" && onAgentToggle && (
           <Button
             variant="ghost"
             size="icon"
