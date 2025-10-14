@@ -127,7 +127,7 @@ const AdaptiveWidget = ({
         </div>
       </CardHeader>
 
-      <CardContent className="px-4 pb-4">
+      <CardContent className="px-4 pb-3">
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground mt-1">{trend}</p>
 
