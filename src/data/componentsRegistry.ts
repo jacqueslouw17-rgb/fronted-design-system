@@ -37,7 +37,7 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "status", type: "'pending' | 'active' | 'completed'", description: "Step status" },
       { name: "children", type: "ReactNode", description: "Step content" }
     ],
-    usedInPatterns: ["step-card-pattern"],
+    usedInPatterns: ["onboarding", "step-card-pattern", "compliance-checklist"],
     usedInModules: ["Onboarding", "Compliance"],
     icon: ListChecks,
     filePath: "src/components/StepCard.tsx"
@@ -416,7 +416,7 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "disabled", description: "Non-interactive state" },
       { name: "loading", description: "Processing action" }
     ],
-    usedInPatterns: ["All patterns"],
+    usedInPatterns: ["onboarding", "dashboard", "step-card-pattern", "contextual-drawer", "confirmation-modal", "dual-mode", "compliance-checklist", "voice-type-toggle", "genie-confirmation", "genie-dual-path-suggestion", "genie-predictive-hint-bar", "genie-multi-step-recall"],
     usedInModules: ["All Modules"],
     icon: Box,
     filePath: "src/components/ui/button.tsx"
@@ -431,7 +431,7 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "hover", description: "Elevated on hover" },
       { name: "clickable", description: "Interactive card variant" }
     ],
-    usedInPatterns: ["All patterns"],
+    usedInPatterns: ["onboarding", "dashboard", "data-summary", "empty-state", "genie-confirmation", "genie-reaction-cards", "trust-index-gauge", "genie-smart-recap", "genie-insight-carousel"],
     usedInModules: ["All Modules"],
     icon: CreditCard,
     filePath: "src/components/ui/card.tsx"
@@ -447,7 +447,7 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "warning", description: "Caution indicator" },
       { name: "error", description: "Error or danger indicator" }
     ],
-    usedInPatterns: ["All patterns"],
+    usedInPatterns: ["onboarding", "policy-tags", "smart-tags", "notification-center", "compliance-checklist", "genie-predictive-hint-bar", "genie-context-pivot", "genie-confirmation-queue"],
     usedInModules: ["All Modules"],
     icon: CheckSquare,
     filePath: "src/components/ui/badge.tsx"
@@ -477,7 +477,7 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "determinate", description: "Known percentage" },
       { name: "complete", description: "100% finished" }
     ],
-    usedInPatterns: ["smart-progress", "step-card-pattern"],
+    usedInPatterns: ["onboarding", "smart-progress", "step-card-pattern", "genie-task-timeline", "genie-multi-step-recall"],
     usedInModules: ["Onboarding", "Payroll"],
     icon: Activity,
     filePath: "src/components/ui/progress.tsx"
@@ -507,10 +507,54 @@ export const componentsRegistry: ComponentReference[] = [
       { name: "hidden", description: "Not visible" },
       { name: "visible", description: "Showing on hover" }
     ],
-    usedInPatterns: ["narrated-insight", "All patterns"],
+    usedInPatterns: ["onboarding", "narrated-insight", "hover-toolbar", "fx-breakdown", "genie-predictive-hint-bar", "genie-dual-path-suggestion"],
     usedInModules: ["All Modules"],
     icon: MessageSquare,
     filePath: "src/components/ui/tooltip.tsx"
+  },
+  {
+    id: "input",
+    name: "Input",
+    description: "Text input field with validation states",
+    category: "UI",
+    states: [
+      { name: "default", description: "Ready for input" },
+      { name: "focus", description: "Active input state" },
+      { name: "error", description: "Validation error" },
+      { name: "disabled", description: "Non-editable" }
+    ],
+    usedInPatterns: ["onboarding", "dual-mode", "voice-type-toggle", "compliance-checklist"],
+    usedInModules: ["All Modules"],
+    icon: Box,
+    filePath: "src/components/ui/input.tsx"
+  },
+  {
+    id: "avatar",
+    name: "Avatar",
+    description: "User profile image with fallback",
+    category: "UI",
+    states: [
+      { name: "default", description: "With image" },
+      { name: "fallback", description: "Showing initials" }
+    ],
+    usedInPatterns: ["onboarding", "dashboard", "genie-memory-thread", "genie-context-tracker"],
+    usedInModules: ["All Modules"],
+    icon: UserPlus,
+    filePath: "src/components/ui/avatar.tsx"
+  },
+  {
+    id: "kurt-avatar",
+    name: "KurtAvatar",
+    description: "Genie AI assistant avatar component",
+    category: "Genie",
+    states: [
+      { name: "default", description: "Standard size" },
+      { name: "small", description: "Compact variant" }
+    ],
+    usedInPatterns: ["onboarding", "dashboard", "genie-memory-thread", "genie-smart-recap", "genie-dual-path-suggestion", "genie-multi-step-recall"],
+    usedInModules: ["All Modules"],
+    icon: Brain,
+    filePath: "src/components/KurtAvatar.tsx"
   }
 ];
 
