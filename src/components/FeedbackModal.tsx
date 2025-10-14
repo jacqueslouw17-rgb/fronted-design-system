@@ -70,40 +70,66 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
   const captureScreenshot = async (): Promise<string | null> => {
     try {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      
-      if (!ctx) return null;
-
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      // Use html2canvas-like logic (simplified)
-      const bodyHTML = document.body.innerHTML;
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-          <foreignObject width="100%" height="100%">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 16px;">
-              ${bodyHTML}
-            </div>
-          </foreignObject>
-        </svg>
-      `;
-
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      
-      const img = new Image();
-      img.src = url;
-
-      await new Promise((resolve) => {
-        img.onload = resolve;
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => resolve(null), 2000); // 2 second timeout
       });
 
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+      const screenshotPromise = new Promise<string | null>(async (resolve) => {
+        try {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          
+          if (!ctx) {
+            resolve(null);
+            return;
+          }
 
-      return canvas.toDataURL("image/png");
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          const bodyHTML = document.body.innerHTML;
+          const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+              <foreignObject width="100%" height="100%">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 16px;">
+                  ${bodyHTML}
+                </div>
+              </foreignObject>
+            </svg>
+          `;
+
+          const blob = new Blob([svg], { type: "image/svg+xml" });
+          const url = URL.createObjectURL(blob);
+          
+          const img = new Image();
+          img.src = url;
+
+          img.onload = () => {
+            try {
+              ctx.drawImage(img, 0, 0);
+              URL.revokeObjectURL(url);
+              resolve(canvas.toDataURL("image/png"));
+            } catch (e) {
+              console.error("Canvas draw failed:", e);
+              resolve(null);
+            }
+          };
+
+          img.onerror = () => {
+            console.error("Image load failed");
+            URL.revokeObjectURL(url);
+            resolve(null);
+          };
+        } catch (e) {
+          console.error("Screenshot generation failed:", e);
+          resolve(null);
+        }
+      });
+
+      // Race between screenshot and timeout
+      const result = await Promise.race([screenshotPromise, timeoutPromise]);
+      return result;
     } catch (error) {
       console.error("Screenshot capture failed:", error);
       return null;

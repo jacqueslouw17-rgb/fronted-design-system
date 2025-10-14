@@ -131,6 +131,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const payload = {
+      blocks,
       text:
         `New feedback from ${feedbackData.name} (${feedbackData.role})\n` +
         `Page: ${feedbackData.pageContext}\n` +
