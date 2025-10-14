@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -164,6 +164,13 @@ const Landing = () => {
       icon: Brain,
       path: "/genie-memory-thread",
       color: "text-purple-600"
+    },
+    {
+      title: "Genie Confirmation Queue",
+      description: "Pending actions manager for reviewing and confirming Genie-initiated tasks",
+      icon: ListTodo,
+      path: "/genie-confirmation-queue",
+      color: "text-amber-600"
     }
   ];
 
