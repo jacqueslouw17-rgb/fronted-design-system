@@ -1,4 +1,4 @@
-import { Search, ArrowLeft, PanelLeftOpen, X, MoreVertical } from "lucide-react";
+import { Search, ArrowLeft, PanelLeftOpen, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -83,11 +83,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
             onClick={onAgentToggle}
             className="relative"
           >
-            {isAgentOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <PanelLeftOpen className="h-5 w-5" />
-            )}
+            <PanelLeftOpen className="h-5 w-5" />
           </Button>
         )}
         
