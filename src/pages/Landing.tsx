@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -220,6 +220,13 @@ const Landing = () => {
         icon: Eye,
         path: "/dynamic-role-lens",
         color: "text-violet-700"
+      },
+      {
+        title: "Genie Action Confirmations (HITL)",
+        description: "Human-in-the-loop inline confirmations for high-impact actions",
+        icon: UserCheck,
+        path: "/genie-action-confirmations",
+        color: "text-sky-700"
       }
     ];
 
