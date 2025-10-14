@@ -11,7 +11,7 @@ import {
   InlineMemoryRecall,
   useMemoryThread,
   type MemoryEntry 
-} from "@/components/GenieMemoryThread";
+} from "@/components/AgentMemoryThread";
 import KurtAvatar from "@/components/KurtAvatar";
 import { toast } from "sonner";
 

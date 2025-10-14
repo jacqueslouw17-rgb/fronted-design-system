@@ -9,7 +9,7 @@ import {
   type EventType,
   type EventStatus,
   type EventActor,
-} from "@/components/GenieContextualTimeline";
+} from "@/components/AgentContextualTimeline";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 

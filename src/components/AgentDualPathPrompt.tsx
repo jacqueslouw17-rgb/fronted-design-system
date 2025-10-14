@@ -27,7 +27,7 @@ export type DualPathPromptProps = {
   className?: string;
 };
 
-export const GenieDualPathPrompt = ({
+export const AgentDualPathPrompt = ({
   title,
   description,
   aiOption,
@@ -201,4 +201,4 @@ export const PathModeBadge = ({ mode }: { mode: PathMode }) => {
   );
 };
 
-export default GenieDualPathPrompt;
+export default AgentDualPathPrompt;

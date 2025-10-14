@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GenieSmartConfirmation, ConfirmationData } from "@/components/GenieSmartConfirmation";
+import { AgentSmartConfirmation, ConfirmationData } from "@/components/AgentSmartConfirmation";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Play, FileText, DollarSign, CheckCircle2 } from "lucide-react";
 

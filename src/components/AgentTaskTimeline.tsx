@@ -22,7 +22,7 @@ export interface TaskStep {
   };
 }
 
-interface GenieTaskTimelineProps {
+interface AgentTaskTimelineProps {
   steps: TaskStep[];
   title?: string;
   compact?: boolean;
@@ -135,12 +135,12 @@ const TimelineStep = ({
   );
 };
 
-export const GenieTaskTimeline = ({ 
+export const AgentTaskTimeline = ({ 
   steps, 
   title = "Task Progress",
   compact: initialCompact = false,
   onComplete 
-}: GenieTaskTimelineProps) => {
+}: AgentTaskTimelineProps) => {
   const [compact, setCompact] = useState(initialCompact);
   const [hasNotifiedComplete, setHasNotifiedComplete] = useState(false);
 
@@ -213,4 +213,4 @@ export const GenieTaskTimeline = ({
   );
 };
 
-export default GenieTaskTimeline;
+export default AgentTaskTimeline;

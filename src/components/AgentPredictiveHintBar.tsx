@@ -28,7 +28,7 @@ const urgencyConfig = {
   high: { color: "bg-red-500", label: "Urgent" },
 };
 
-export const GeniePredictiveHintBar = ({
+export const AgentPredictiveHintBar = ({
   suggestions,
   context,
   onDismiss,
@@ -170,4 +170,4 @@ export const HintActionBadge = ({ urgency }: { urgency: "low" | "medium" | "high
   );
 };
 
-export default GeniePredictiveHintBar;
+export default AgentPredictiveHintBar;

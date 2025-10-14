@@ -10,7 +10,7 @@ import {
   useSmartRecap,
   type RecapSession,
   type NextStep 
-} from '@/components/GenieSmartRecap';
+} from '@/components/AgentSmartRecap';
 import { 
   BookOpen, 
   CheckCircle2, 

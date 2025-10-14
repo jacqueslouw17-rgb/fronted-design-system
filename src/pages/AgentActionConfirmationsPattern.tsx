@@ -1,7 +1,7 @@
 import { ArrowLeft, Send, DollarSign, FileText, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { GenieActionConfirmation, ActionSummaryItem } from "@/components/GenieActionConfirmation";
+import { AgentActionConfirmation, ActionSummaryItem } from "@/components/AgentActionConfirmation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useState } from "react";

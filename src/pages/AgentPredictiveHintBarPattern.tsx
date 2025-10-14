@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GeniePredictiveHintBar, HintAction } from "@/components/GeniePredictiveHintBar";
+import { AgentPredictiveHintBar, HintAction } from "@/components/AgentPredictiveHintBar";
 import { toast } from "@/hooks/use-toast";
 import {
   ArrowLeft,

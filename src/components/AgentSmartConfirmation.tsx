@@ -33,7 +33,7 @@ export type ConfirmationData = {
   status?: "ready" | "warning" | "info";
 };
 
-type GenieSmartConfirmationProps = {
+type AgentSmartConfirmationProps = {
   isOpen: boolean;
   onClose: () => void;
   data: ConfirmationData;
@@ -68,13 +68,13 @@ const changeTypeConfig = {
   removed: { color: "bg-orange-500", label: "Removed" },
 };
 
-export const GenieSmartConfirmation = ({
+export const AgentSmartConfirmation = ({
   isOpen,
   onClose,
   data,
   onConfirm,
   onEdit,
-}: GenieSmartConfirmationProps) => {
+}: AgentSmartConfirmationProps) => {
   const [showRationale, setShowRationale] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -236,4 +236,4 @@ export const GenieSmartConfirmation = ({
   );
 };
 
-export default GenieSmartConfirmation;
+export default AgentSmartConfirmation;

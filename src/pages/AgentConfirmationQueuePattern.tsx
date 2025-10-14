@@ -8,7 +8,7 @@ import {
   QueueDrawer,
   useConfirmationQueue,
   type QueueModule,
-} from "@/components/GenieConfirmationQueue";
+} from "@/components/AgentConfirmationQueue";
 import { toast } from "@/hooks/use-toast";
 
 export default function GenieConfirmationQueuePattern() {

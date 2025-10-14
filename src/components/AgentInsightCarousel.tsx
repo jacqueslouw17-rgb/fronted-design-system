@@ -121,17 +121,17 @@ const InsightCard = ({
   );
 };
 
-interface GenieInsightCarouselProps {
+interface AgentInsightCarouselProps {
   insights: InsightCardData[];
   summary?: string;
   className?: string;
 }
 
-export const GenieInsightCarousel = ({
+export const AgentInsightCarousel = ({
   insights,
   summary,
   className,
-}: GenieInsightCarouselProps) => {
+}: AgentInsightCarouselProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [selectedInsight, setSelectedInsight] = useState<InsightCardData | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -313,4 +313,4 @@ export const GenieInsightCarousel = ({
   );
 };
 
-export default GenieInsightCarousel;
+export default AgentInsightCarousel;

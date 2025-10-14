@@ -10,7 +10,7 @@ import {
   ContextSwitcher,
   ContextTransition,
   ContextEntity,
-} from "@/components/GenieContextPivot";
+} from "@/components/AgentContextPivot";
 
 // Sample Data
 const sampleEntities: ContextEntity[] = [

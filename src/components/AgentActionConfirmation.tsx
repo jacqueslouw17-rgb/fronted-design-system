@@ -15,7 +15,7 @@ export interface ActionSummaryItem {
   highlight?: boolean;
 }
 
-export interface GenieActionConfirmationProps {
+export interface AgentActionConfirmationProps {
   title: string;
   description?: string;
   summaryItems: ActionSummaryItem[];
@@ -28,7 +28,7 @@ export interface GenieActionConfirmationProps {
   className?: string;
 }
 
-export const GenieActionConfirmation = ({
+export const AgentActionConfirmation = ({
   title,
   description,
   summaryItems,
@@ -39,7 +39,7 @@ export const GenieActionConfirmation = ({
   onCancel,
   editContent,
   className = "",
-}: GenieActionConfirmationProps) => {
+}: AgentActionConfirmationProps) => {
   const [status, setStatus] = useState<ActionConfirmationStatus>(initialStatus);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const { toast } = useToast();

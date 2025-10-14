@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GenieDualPathPrompt, PathModeBadge, PathMode } from "@/components/GenieDualPathPrompt";
+import { AgentDualPathPrompt, PathModeBadge, PathMode } from "@/components/AgentDualPathPrompt";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, FileText, DollarSign, UserPlus, Shield, Headphones } from "lucide-react";
 import KurtAvatar from "@/components/KurtAvatar";

@@ -3,7 +3,7 @@ import { ArrowLeft, Play, RotateCcw, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GenieTaskTimeline, TaskStep, TaskStatus } from "@/components/GenieTaskTimeline";
+import { AgentTaskTimeline, TaskStep, TaskStatus } from "@/components/AgentTaskTimeline";
 import { useToast } from "@/hooks/use-toast";
 
 const GenieTaskTimelinePattern = () => {

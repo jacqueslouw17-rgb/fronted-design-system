@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GenieInsightCarousel, InsightCardData } from "@/components/GenieInsightCarousel";
+import { AgentInsightCarousel, InsightCardData } from "@/components/AgentInsightCarousel";
 import KurtAvatar from "@/components/KurtAvatar";
 
 const GenieInsightCarouselPattern = () => {
