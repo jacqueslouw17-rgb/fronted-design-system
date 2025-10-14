@@ -1,1 +1,4 @@
 project_id = "dqlthucoxkixodoicksq"
+
+[functions.send-feedback-to-slack]
+verify_jwt = false
