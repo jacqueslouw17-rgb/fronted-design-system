@@ -286,54 +286,57 @@ const AdaptiveWidgetGridPattern = () => {
         </Link>
         
         {/* Header */}
-        <header className="border-b border-border bg-card px-4 sm:px-6 py-5 rounded-lg shadow-card">
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
-            Adaptive Widget Grid
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1.5">
-            Personalized, modular dashboard with drag-and-drop widgets
-          </p>
+        <header className="border-b border-border bg-card px-4 sm:px-6 py-4 rounded-lg shadow-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
+                Adaptive Widget Grid
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                Personalized, modular dashboard with drag-and-drop widgets
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isEditMode ? "default" : "outline"}
+                onClick={() => setIsEditMode(!isEditMode)}
+              >
+                <Edit3 className="h-4 w-4 mr-2" />
+                {isEditMode ? "Done" : "Edit Layout"}
+              </Button>
+              <Button variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Widget
+              </Button>
+            </div>
+          </div>
         </header>
+
+        {/* Role Selector */}
         <div className="flex items-center gap-2">
-          <Button
-            variant={isEditMode ? "default" : "outline"}
-            onClick={() => setIsEditMode(!isEditMode)}
-          >
-            <Edit3 className="h-4 w-4 mr-2" />
-            {isEditMode ? "Done" : "Edit Layout"}
-          </Button>
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Widget
-          </Button>
+          <span className="text-sm font-medium">View as:</span>
+          <div className="flex gap-2">
+            {(["admin", "hr", "cfo", "contractor"] as const).map((r) => (
+              <Button
+                key={r}
+                variant={role === r ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleRoleChange(r)}
+              >
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Role Selector */}
-      <div className="mb-6 flex items-center gap-2">
-        <span className="text-sm font-medium">View as:</span>
-        <div className="flex gap-2">
-          {(["admin", "hr", "cfo", "contractor"] as const).map((r) => (
-            <Button
-              key={r}
-              variant={role === r ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleRoleChange(r)}
-            >
-              {r.charAt(0).toUpperCase() + r.slice(1)}
-            </Button>
-          ))}
+        {/* Widget Grid */}
+        <div>
+          <Badge variant="outline" className="mb-3">
+            {isEditMode ? "Drag widgets to rearrange, resize from bottom-right corner" : "Hover over widgets to see actions"}
+          </Badge>
         </div>
-      </div>
 
-      {/* Widget Grid */}
-      <div className="mb-4">
-        <Badge variant="outline" className="mb-4">
-          {isEditMode ? "Drag widgets to rearrange, resize from bottom-right corner" : "Hover over widgets to see actions"}
-        </Badge>
-      </div>
-
-      <GridLayout
+        <GridLayout
         className="layout"
         layout={layout}
         cols={12}
@@ -401,6 +404,7 @@ const AdaptiveWidgetGridPattern = () => {
           </div>
         </SheetContent>
       </Sheet>
+      </div>
     </div>
   );
 };

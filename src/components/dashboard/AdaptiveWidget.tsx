@@ -102,7 +102,7 @@ const AdaptiveWidget = ({
         </div>
       )}
 
-      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-8">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -127,13 +127,13 @@ const AdaptiveWidget = ({
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground mt-1">{trend}</p>
 
         {/* Genie Hint */}
         {genieHint && (
-          <div className="mt-3 p-2 rounded-md bg-primary/5 border border-primary/10">
+          <div className="mt-2 p-2 rounded-md bg-primary/5 border border-primary/10">
             <div className="flex items-start gap-2">
               <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <p className="text-xs text-muted-foreground">{genieHint}</p>
