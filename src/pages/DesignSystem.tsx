@@ -336,10 +336,10 @@ const DesignSystem = () => {
                 return (
                   <Card 
                     key={pattern.path}
-                    className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border"
+                    className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border flex flex-col"
                     onClick={() => handlePatternClick(pattern)}
                   >
-                    <CardHeader className="space-y-2.5">
+                    <CardHeader className="space-y-3 flex-1">
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
                           <Icon className="w-5 h-5" strokeWidth={2} />
@@ -349,10 +349,8 @@ const DesignSystem = () => {
                       <CardDescription className="text-xs leading-relaxed">
                         {pattern.description}
                       </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-0 space-y-3">
                       {linkedComponents.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1.5 pt-1">
                           {linkedComponents.slice(0, 3).map((comp) => (
                             <Badge 
                               key={comp.id} 
@@ -373,6 +371,8 @@ const DesignSystem = () => {
                           )}
                         </div>
                       )}
+                    </CardHeader>
+                    <CardContent className="pt-0 pb-4">
                       <Link to={pattern.path} onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                           View pattern
