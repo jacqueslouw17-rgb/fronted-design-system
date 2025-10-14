@@ -20,9 +20,11 @@ import {
   Shield,
   RefreshCw,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 const GenieSmartRecapPattern = () => {
   const { sessions, addSession, clearSessions } = useSmartRecap();
@@ -295,16 +297,22 @@ const GenieSmartRecapPattern = () => {
   return (
     <div className="min-h-screen bg-background p-6 space-y-8">
       {/* Header */}
-      <div className="max-w-5xl mx-auto space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Sparkles className="h-6 w-6 text-primary" />
+        <div className="max-w-5xl mx-auto space-y-4">
+          <div className="flex items-center">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Link>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Genie Smart Recap</h1>
-            <p className="text-muted-foreground">Pattern 28 — Session summaries with contextual next steps</p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Genie Smart Recap</h1>
+              <p className="text-muted-foreground">Pattern 28 — Session summaries with contextual next steps</p>
+            </div>
           </div>
-        </div>
 
         {/* Description Card */}
         <Card>

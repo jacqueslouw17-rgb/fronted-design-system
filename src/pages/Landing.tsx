@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -193,14 +193,21 @@ const Landing = () => {
       path: "/genie-context-pivot",
       color: "text-emerald-600"
     },
-    {
-      title: "Genie Smart Recap",
-      description: "Session summaries with contextual next steps and action tracking",
-      icon: SparklesIcon,
-      path: "/genie-smart-recap",
-      color: "text-pink-600"
-    }
-  ];
+      {
+        title: "Genie Smart Recap",
+        description: "Session summaries with contextual next steps and action tracking",
+        icon: SparklesIcon,
+        path: "/genie-smart-recap",
+        color: "text-pink-600"
+      },
+      {
+        title: "Genie Reaction Cards",
+        description: "Sentiment feedback loop with lightweight emojis",
+        icon: Smile,
+        path: "/genie-reaction-cards",
+        color: "text-rose-600"
+      }
+    ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
