@@ -1,4 +1,4 @@
-import { Search, ArrowLeft, MessageSquare, X } from "lucide-react";
+import { Search, ArrowLeft, PanelLeftOpen, X, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -75,8 +75,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
 
       {/* Actions */}
       <div className="flex items-center gap-3">
-        {/* V2 Agent Toggle */}
-        {version === "v2" && onAgentToggle && (
+        {/* Agent Toggle - shown in both versions, left of notifications */}
+        {onAgentToggle && (
           <Button
             variant="ghost"
             size="icon"
@@ -86,14 +86,39 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
             {isAgentOpen ? (
               <X className="h-5 w-5" />
             ) : (
-              <MessageSquare className="h-5 w-5" />
+              <PanelLeftOpen className="h-5 w-5" />
             )}
           </Button>
         )}
         
-        {/* Role Lens */}
-        <ToneChip />
-        <LensToggle />
+        {/* When agent is open, collapse actions into menu */}
+        {isAgentOpen ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <div className="p-2 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">Tone</span>
+                  <ToneChip />
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">Lens</span>
+                  <LensToggle />
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <>
+            {/* Normal state - show actions directly */}
+            <ToneChip />
+            <LensToggle />
+          </>
+        )}
         
         {/* Notifications */}
         <NotificationCenter />
