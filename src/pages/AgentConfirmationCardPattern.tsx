@@ -35,7 +35,7 @@ const GenieConfirmationCardPattern = () => {
           <CardContent className="space-y-8">
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Default Action</h3>
-              <GenieConfirmationCard
+              <AgentConfirmationCard
                 title="Send Contract for Signature"
                 summary="Alex Hansen – Remote Engineer (Norway)"
                 details={[
@@ -45,13 +45,13 @@ const GenieConfirmationCardPattern = () => {
                 ]}
                 confirmLabel="Send Now"
                 cancelLabel="Review Again"
-                genieHint="I'll notify Ioana once signed."
+                agentHint="I'll notify Ioana once signed."
               />
             </div>
 
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Warning (Financial Impact)</h3>
-              <GenieConfirmationCard
+              <AgentConfirmationCard
                 title="Confirm Payroll Run"
                 summary="You're about to pay 5 contractors a total of $32,800 USD."
                 details={[
@@ -62,13 +62,13 @@ const GenieConfirmationCardPattern = () => {
                 severity="warning"
                 confirmLabel="Confirm Run"
                 impactTooltip="This will trigger immediate payouts via Wise to all contractors."
-                genieHint="Would you like to notify your CFO too?"
+                agentHint="Would you like to notify your CFO too?"
               />
             </div>
 
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Critical (Legal/Compliance Impact)</h3>
-              <GenieConfirmationCard
+              <AgentConfirmationCard
                 title="Terminate Contract"
                 summary="This action will permanently end the employment contract with Maria Santos."
                 details={[
@@ -81,13 +81,13 @@ const GenieConfirmationCardPattern = () => {
                 confirmLabel="Confirm Termination"
                 cancelLabel="Cancel"
                 impactTooltip="This is a legally binding action that cannot be undone. All relevant parties will be notified."
-                genieHint="I can help draft the termination letter if needed."
+                agentHint="I can help draft the termination letter if needed."
               />
             </div>
 
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Completed State</h3>
-              <GenieConfirmationCard
+              <AgentConfirmationCard
                 title="Payroll Run Completed"
                 summary="September payroll has been successfully processed for 5 contractors."
                 severity="completed"

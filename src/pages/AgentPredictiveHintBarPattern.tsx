@@ -454,7 +454,7 @@ const GeniePredictiveHintBarPattern = () => {
 
       {/* Predictive Hint Bar */}
       {showHintBar && activeScenarioData && (
-        <GeniePredictiveHintBar
+        <AgentPredictiveHintBar
           suggestions={activeScenarioData.suggestions}
           context={activeScenarioData.context}
           onDismiss={handleDismiss}

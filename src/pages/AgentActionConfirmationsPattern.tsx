@@ -109,7 +109,7 @@ const GenieActionConfirmationsPattern = () => {
                 </div>
 
                 {!payrollApproved && (
-                  <GenieActionConfirmation
+                  <AgentActionConfirmation
                     title="Review Payroll Summary"
                     description="Review details before processing payout"
                     summaryItems={payrollSummary}
@@ -158,7 +158,7 @@ const GenieActionConfirmationsPattern = () => {
                 </div>
 
                 {!contractApproved && (
-                  <GenieActionConfirmation
+                  <AgentActionConfirmation
                     title="Review Contract"
                     description="Verify contractor details before sending"
                     summaryItems={contractSummary}
@@ -193,7 +193,7 @@ const GenieActionConfirmationsPattern = () => {
                   </p>
                 </div>
 
-                <GenieActionConfirmation
+                <AgentActionConfirmation
                   title="Archive Compliance Document"
                   description="Confirm document verification and archival"
                   summaryItems={complianceSummary}

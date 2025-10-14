@@ -44,7 +44,7 @@ const SmartSuggestionChipsPattern = () => {
                     <p className="text-sm text-foreground">
                       The draft contract for Alex Hansen (Norway) is ready.
                     </p>
-                    <GenieSuggestionChips
+                    <AgentSuggestionChips
                       chips={[
                         { label: "Approve & Send", icon: CheckCircle2, variant: "primary", tooltip: "Send contract for signature" },
                         { label: "Edit Clauses", icon: Edit, variant: "default", tooltip: "Modify contract terms" },
@@ -66,7 +66,7 @@ const SmartSuggestionChipsPattern = () => {
                     <p className="text-sm text-foreground">
                       September payroll summary prepared. Total payout $32,800 USD.
                     </p>
-                    <GenieSuggestionChips
+                    <AgentSuggestionChips
                       chips={[
                         { label: "View Breakdown", icon: FileText, variant: "default", tooltip: "See detailed breakdown" },
                         { label: "Edit Rates", icon: Settings, variant: "default", tooltip: "Adjust payment rates" },
@@ -88,7 +88,7 @@ const SmartSuggestionChipsPattern = () => {
                     <p className="text-sm text-foreground">
                       Contractor Sam reported a missing payment.
                     </p>
-                    <GenieSuggestionChips
+                    <AgentSuggestionChips
                       chips={[
                         { label: "View Ticket", icon: Eye, variant: "default", tooltip: "Open ticket details" },
                         { label: "Assign to Ops", icon: MessageSquare, variant: "default", tooltip: "Route to operations team" },
@@ -110,7 +110,7 @@ const SmartSuggestionChipsPattern = () => {
                     <p className="text-sm text-foreground">
                       You're trending 8% over average contractor costs this quarter.
                     </p>
-                    <GenieSuggestionChips
+                    <AgentSuggestionChips
                       chips={[
                         { label: "View Breakdown", icon: BarChart3, variant: "default", tooltip: "See cost analysis" },
                         { label: "Explain Why", icon: MessageSquare, variant: "info", tooltip: "Get detailed explanation" },
@@ -128,7 +128,7 @@ const SmartSuggestionChipsPattern = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Default</p>
-                  <GenieSuggestionChips
+                  <AgentSuggestionChips
                     chips={[
                       { label: "View Details", icon: Eye, variant: "default" },
                       { label: "Edit", icon: Edit, variant: "default" },
@@ -137,7 +137,7 @@ const SmartSuggestionChipsPattern = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Primary</p>
-                  <GenieSuggestionChips
+                  <AgentSuggestionChips
                     chips={[
                       { label: "Confirm", icon: CheckCircle2, variant: "primary" },
                       { label: "Send", icon: Send, variant: "primary" },
@@ -146,7 +146,7 @@ const SmartSuggestionChipsPattern = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Info</p>
-                  <GenieSuggestionChips
+                  <AgentSuggestionChips
                     chips={[
                       { label: "Learn More", icon: MessageSquare, variant: "info" },
                       { label: "View Stats", icon: BarChart3, variant: "info" },
@@ -155,7 +155,7 @@ const SmartSuggestionChipsPattern = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Critical</p>
-                  <GenieSuggestionChips
+                  <AgentSuggestionChips
                     chips={[
                       { label: "Review Risk", icon: AlertTriangle, variant: "critical" },
                     ]}
@@ -163,7 +163,7 @@ const SmartSuggestionChipsPattern = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Disabled</p>
-                  <GenieSuggestionChips
+                  <AgentSuggestionChips
                     chips={[
                       { label: "Waiting Approval", variant: "disabled" },
                       { label: "Processing", variant: "disabled" },
@@ -183,7 +183,7 @@ const SmartSuggestionChipsPattern = () => {
                     <p className="text-sm text-foreground">
                       Multiple actions available for this contract.
                     </p>
-                    <GenieSuggestionChips
+                    <AgentSuggestionChips
                       chips={[
                         { label: "Approve", icon: CheckCircle2, variant: "primary" },
                         { label: "Preview", icon: Eye, variant: "default" },

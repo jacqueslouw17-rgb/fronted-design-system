@@ -201,7 +201,7 @@ const GenieDualPathSuggestionPattern = () => {
 
                     {/* Show Dual Path Prompt for selected scenario */}
                     {isSelected && (
-                      <GenieDualPathPrompt
+                      <AgentDualPathPrompt
                         title={scenario.title}
                         description="Choose your preferred approach"
                         aiOption={scenario.aiOption}

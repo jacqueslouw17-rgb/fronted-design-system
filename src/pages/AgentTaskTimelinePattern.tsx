@@ -232,7 +232,7 @@ const GenieTaskTimelinePattern = () => {
             </div>
 
             {steps.length > 0 ? (
-              <GenieTaskTimeline
+              <AgentTaskTimeline
                 title="October Payroll Processing"
                 steps={steps}
                 onComplete={handleComplete}
@@ -251,7 +251,7 @@ const GenieTaskTimelinePattern = () => {
           {/* Static Example */}
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold">Completed Example</h2>
-            <GenieTaskTimeline
+            <AgentTaskTimeline
               title="Contract Generation Complete"
               compact={false}
               steps={[

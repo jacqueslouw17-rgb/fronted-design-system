@@ -303,7 +303,7 @@ const GenieInsightCarouselPattern = () => {
                   <strong>Genie:</strong> "Here's your September payroll summary 👇"
                 </p>
                 
-                <GenieInsightCarousel
+                <AgentInsightCarousel
                   insights={payrollInsights}
                   summary="Overall: Everything ran smoothly. Your Trust Index improved by +6."
                 />
@@ -322,7 +322,7 @@ const GenieInsightCarouselPattern = () => {
                   <strong>Genie:</strong> "Here's your compliance status overview 📋"
                 </p>
                 
-                <GenieInsightCarousel
+                <AgentInsightCarousel
                   insights={complianceInsights}
                   summary="Great progress! Only 2 checklist items remaining."
                 />
@@ -341,7 +341,7 @@ const GenieInsightCarouselPattern = () => {
                   <strong>Genie:</strong> "Your support team performance this week 🎧"
                 </p>
                 
-                <GenieInsightCarousel
+                <AgentInsightCarousel
                   insights={supportInsights}
                   summary="Excellent improvement across all metrics. Keep it up!"
                 />

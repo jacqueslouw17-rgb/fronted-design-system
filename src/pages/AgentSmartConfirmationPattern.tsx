@@ -340,7 +340,7 @@ const GenieSmartConfirmationPattern = () => {
 
       {/* Modal */}
       {selectedScenario && (
-        <GenieSmartConfirmation
+        <AgentSmartConfirmation
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           data={selectedScenario}
