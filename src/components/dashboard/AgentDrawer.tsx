@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { Send, Mic, Keyboard } from "lucide-react";
+import { Send, Mic, Keyboard, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useToast } from "@/hooks/use-toast";
 
 interface AgentDrawerProps {
@@ -81,9 +79,19 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   };
 
   return (
-    <>
+    <div className="h-full flex flex-col bg-background relative">
+      {/* Close button - top right corner */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onClose}
+        className="absolute top-4 right-4 z-10"
+      >
+        <X className="h-5 w-5" />
+      </Button>
+
       {/* Main centered area - like onboarding */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 relative bg-background">
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
         {/* Kurt Avatar with message */}
         <KurtAvatar 
           isListening={isListening} 
@@ -130,7 +138,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

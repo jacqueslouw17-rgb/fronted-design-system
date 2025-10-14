@@ -33,6 +33,9 @@ const Dashboard = ({
   useEffect(() => {
     if (version === "v2") {
       setIsAgentOpen(true);
+    } else {
+      // Reset to closed when switching back to v1
+      setIsAgentOpen(false);
     }
   }, [version]);
 
@@ -43,39 +46,31 @@ const Dashboard = ({
   return (
     <RoleLensProvider initialRole={(userData.role as any) || 'admin'}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* V1: Agent Drawer from LEFT (overlay) */}
-        {version === "v1" && (
-          <div 
-            className={`fixed top-0 left-0 h-full bg-card border-r shadow-lg transition-transform duration-300 z-50 flex flex-col ${
-              isV1AgentOpen ? "translate-x-0 w-80" : "-translate-x-full w-0"
-            }`}
-          >
-            {isV1AgentOpen && (
-              <AgentDrawer
-                isOpen={isV1AgentOpen}
-                onClose={() => setIsAgentOpen(false)}
-                userData={userData}
-                chatHistory={onboardingHistory}
-              />
-            )}
+        {/* Left Sidebar - always visible */}
+        <NavSidebar 
+          onGenieToggle={() => {
+            if (version === "v1") {
+              setIsAgentOpen(!isAgentOpen);
+            }
+          }} 
+          isGenieOpen={version === "v1" && isV1AgentOpen}
+          disabled={version === "v2"}
+        />
+
+        {/* V1: Agent Panel from LEFT (40% width, pushes dashboard) */}
+        {version === "v1" && isV1AgentOpen && (
+          <div className="w-[40%] border-r border-border flex-shrink-0">
+            <AgentDrawer
+              isOpen={isV1AgentOpen}
+              onClose={() => setIsAgentOpen(false)}
+              userData={userData}
+              chatHistory={onboardingHistory}
+            />
           </div>
         )}
 
-        {/* Left Sidebar - hide when Agent is open in V1 */}
-        {!isV1AgentOpen && (
-          <NavSidebar 
-            onGenieToggle={() => {
-              if (version === "v1") {
-                setIsAgentOpen(!isAgentOpen);
-              }
-            }} 
-            isGenieOpen={isV1AgentOpen}
-            disabled={version === "v2"}
-          />
-        )}
-
-        {/* Main Content */}
-        <div className={`flex-1 flex flex-col min-w-0`}>
+        {/* Main Content - adapts to agent panel width */}
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Top Bar */}
           <Topbar 
             userName={`${userData.firstName} ${userData.lastName}`}
@@ -91,14 +86,16 @@ const Dashboard = ({
           </main>
         </div>
 
-        {/* V2: Agent Drawer on RIGHT (50/50 split) */}
-        {version === "v2" && (
-          <AgentDrawer
-            isOpen={isV2AgentOpen}
-            onClose={() => setIsAgentOpen(false)}
-            userData={userData}
-            chatHistory={onboardingHistory}
-          />
+        {/* V2: Agent Panel on RIGHT (50% width, pushes dashboard) */}
+        {version === "v2" && isV2AgentOpen && (
+          <div className="w-[50%] border-l border-border flex-shrink-0">
+            <AgentDrawer
+              isOpen={isV2AgentOpen}
+              onClose={() => setIsAgentOpen(false)}
+              userData={userData}
+              chatHistory={onboardingHistory}
+            />
+          </div>
         )}
       </div>
     </RoleLensProvider>
