@@ -1,12 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import AgentDrawer from "@/components/dashboard/AgentDrawer";
 import WidgetGrid from "@/components/dashboard/WidgetGrid";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface DashboardProps {
   userData?: {
@@ -29,40 +26,52 @@ const Dashboard = ({
   },
   onboardingHistory = []
 }: DashboardProps) => {
-  const [isAgentOpen, setIsAgentOpen] = useState(false);
   const [version, setVersion] = useState<"v1" | "v2">("v1");
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+  
+  // When switching to v2, auto-open the agent
+  useEffect(() => {
+    if (version === "v2") {
+      setIsAgentOpen(true);
+    }
+  }, [version]);
 
-  // V2 mode: Agent is always open on the right
-  const isV2AgentOpen = version === "v2" ? true : isAgentOpen;
+  // V2 mode: Agent is always open on the right initially, but can be closed
+  const isV2AgentOpen = version === "v2" ? isAgentOpen : false;
+  const isV1AgentOpen = version === "v1" ? isAgentOpen : false;
 
   return (
     <RoleLensProvider initialRole={(userData.role as any) || 'admin'}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* Agent Drawer - V1: overlay, V2: fixed 50% split */}
+        {/* Agent Drawer - positioned on right in both modes */}
         <AgentDrawer
-          isOpen={isV2AgentOpen}
-          onClose={() => version === "v1" && setIsAgentOpen(false)}
+          isOpen={version === "v2" ? isV2AgentOpen : isV1AgentOpen}
+          onClose={() => setIsAgentOpen(false)}
           userData={userData}
           chatHistory={onboardingHistory}
         />
 
         {/* Left Sidebar - hide when Agent is open in V1 */}
-        {!(version === "v1" && isAgentOpen) && (
+        {!isV1AgentOpen && (
           <NavSidebar 
-            onGenieToggle={() => version === "v1" && setIsAgentOpen(!isAgentOpen)} 
-            isGenieOpen={isAgentOpen}
+            onGenieToggle={() => {
+              if (version === "v1") {
+                setIsAgentOpen(!isAgentOpen);
+              }
+            }} 
+            isGenieOpen={isV1AgentOpen}
           />
         )}
 
         {/* Main Content */}
-        <div className={`flex-1 flex flex-col ${version === "v2" ? "max-w-[50%]" : ""}`}>
+        <div className={`flex-1 flex flex-col min-w-0 ${version === "v2" && isV2AgentOpen ? "w-1/2" : "w-full"}`}>
           {/* Top Bar */}
           <Topbar 
             userName={`${userData.firstName} ${userData.lastName}`}
             version={version}
-            onVersionChange={setVersion}
-            isAgentOpen={isV2AgentOpen}
-            onAgentToggle={() => version === "v2" && setIsAgentOpen(!isAgentOpen)}
+            onVersionChange={(v) => setVersion(v)}
+            isAgentOpen={isAgentOpen}
+            onAgentToggle={() => setIsAgentOpen(!isAgentOpen)}
           />
 
           {/* Dashboard Grid */}

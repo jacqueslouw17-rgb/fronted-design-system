@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, Send, PanelLeftOpen } from "lucide-react";
+import { Send, Mic, Keyboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
-import VoiceTypeToggle from "./VoiceTypeToggle";
 import { useToast } from "@/hooks/use-toast";
 
 interface AgentDrawerProps {
@@ -23,44 +21,37 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   const [messages, setMessages] = useState(chatHistory);
   const [inputValue, setInputValue] = useState("");
   const [inputMode, setInputMode] = useState<"voice" | "text">("text");
-  const { speak } = useTextToSpeech();
-  const { isListening, transcript, error, startListening, stopListening, resetTranscript, isSupported } = useSpeechToText();
+  const [isListening, setIsListening] = useState(false);
+  const [kurtMessage, setKurtMessage] = useState("");
+  const { speak, stop } = useTextToSpeech();
   const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcomeMsg = `Welcome to your dashboard, ${userData.firstName}! How can I help you today?`;
       setMessages([{ role: "assistant", content: welcomeMsg }]);
+      setKurtMessage(welcomeMsg);
       speak(welcomeMsg);
+    } else if (isOpen && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === "assistant") {
+        setKurtMessage(lastMsg.content);
+      }
     }
-  }, [isOpen, messages.length, userData.firstName, speak]);
-
-  // Update input value when transcript changes
-  useEffect(() => {
-    if (transcript && inputMode === "voice") {
-      setInputValue(transcript);
-    }
-  }, [transcript, inputMode]);
+  }, [isOpen, messages.length, userData.firstName, speak, messages]);
 
   const handleToggleMode = () => {
     if (inputMode === "text") {
-      if (!isSupported) {
-        toast({
-          title: "Voice not supported",
-          description: "Your browser doesn't support speech recognition.",
-          variant: "destructive",
-        });
-        return;
-      }
       setInputMode("voice");
-      startListening();
+      setIsListening(true);
+      stop();
       toast({
         title: "Voice input active",
-        description: "Say something like 'Draft my new contract for Maria.'",
+        description: "Say something like 'Show me the latest contracts.'",
       });
     } else {
       setInputMode("text");
-      stopListening();
+      setIsListening(false);
       toast({
         title: "Switched to text mode",
         description: "Type your message precisely.",
@@ -77,90 +68,72 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
     setTimeout(() => {
       const response = "I'm here to help! This is a demo response.";
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+      setKurtMessage(response);
       speak(response);
     }, 1000);
 
     setInputValue("");
     if (inputMode === "voice") {
-      resetTranscript();
+      setIsListening(false);
+      setInputMode("text");
     }
   };
 
   return (
     <div 
-      className={`fixed top-0 right-0 h-full bg-card border-l shadow-lg transition-transform duration-300 z-50 flex flex-col ${
+      className={`fixed top-0 right-0 h-full bg-background flex flex-col transition-transform duration-300 z-40 ${
         isOpen ? "translate-x-0 w-[50%]" : "translate-x-full w-0"
       }`}
     >
       {isOpen && (
         <>
-          {/* Header */}
-          <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <PanelLeftOpen className="h-5 w-5 text-foreground/60" />
-              <h2 className="font-semibold">Agent Assistant</h2>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+          {/* Main centered area - like onboarding */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8 relative">
+            {/* Kurt Avatar with message */}
+            <KurtAvatar 
+              isListening={isListening} 
+              message={kurtMessage}
+            />
 
-          {/* Chat History */}
-          <ScrollArea className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-4">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex gap-3 ${
-                  msg.role === "user" ? "flex-row-reverse" : ""
+            {/* Input Controls - styled like onboarding */}
+            <div className="flex items-center space-x-4 mt-8">
+              <Button
+                onClick={handleToggleMode}
+                className={`px-6 ${
+                  isListening ? "bg-destructive hover:bg-destructive/90" : ""
                 }`}
               >
-                {msg.role === "assistant" ? (
-                  <div className="w-8 h-8 flex-shrink-0">
-                    <KurtAvatar isListening={false} message="" size="sm" />
-                  </div>
-                ) : (
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-foreground/10 text-foreground text-xs">
-                      {userData.firstName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div
-                  className={`rounded-lg p-3 max-w-[70%] ${
-                    msg.role === "user"
-                      ? "bg-foreground/10"
-                      : "bg-muted"
-                  }`}
-                >
-                  <p className="text-sm">{msg.content}</p>
-                </div>
-              </div>
-            ))}
-            </div>
-          </ScrollArea>
-
-          {/* Input */}
-          <div className="p-4 border-t flex-shrink-0">
-            <div className="flex gap-2">
-              <Input
-                placeholder={inputMode === "voice" ? "Listening..." : "Ask agent anything..."}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                disabled={inputMode === "voice" && isListening}
-                className={inputMode === "voice" && isListening ? "bg-muted" : ""}
-              />
-              <VoiceTypeToggle
-                mode={inputMode}
-                isListening={isListening}
-                error={error}
-                onToggle={handleToggleMode}
-              />
-              <Button size="icon" onClick={handleSend} disabled={!inputValue.trim()}>
-                <Send className="h-4 w-4" />
+                <Mic className="h-5 w-5 mr-2" />
+                {isListening ? "Stop" : "Speak"}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="px-6"
+                onClick={() => setInputMode("text")}
+              >
+                <Keyboard className="h-5 w-5 mr-2" />
+                Type
               </Button>
             </div>
+
+            {/* Text input area - only show when in text mode or has messages */}
+            {(inputMode === "text" || messages.length > 0) && (
+              <div className="mt-8 w-full max-w-2xl">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={inputMode === "voice" ? "Listening..." : "Ask agent anything..."}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    disabled={inputMode === "voice" && isListening}
+                    className={`${inputMode === "voice" && isListening ? "bg-muted" : ""}`}
+                  />
+                  <Button size="icon" onClick={handleSend} disabled={!inputValue.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
