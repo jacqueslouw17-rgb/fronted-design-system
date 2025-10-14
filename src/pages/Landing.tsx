@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -229,32 +229,39 @@ const Landing = () => {
         color: "text-sky-700"
       },
       {
-        title: "Genie Context Tracker (Memory Thread)",
+        title: "Genie Context Tracker",
         description: "Persistent conversation awareness with context switching and memory",
         icon: History,
         path: "/genie-context-tracker",
         color: "text-teal-700"
       },
       {
-        title: "Genie Task Timeline (Live Progress & ETA Cards)",
+        title: "Genie Task Timeline",
         description: "Transparent, real-time view of every background action with step-by-step confidence",
         icon: Timer,
         path: "/genie-task-timeline",
         color: "text-orange-700"
       },
       {
-        title: "Genie Insight Carousel (Summarized Highlights)",
+        title: "Genie Insight Carousel",
         description: "Multiple related insights in a swipeable, horizontal carousel format",
         icon: Presentation,
         path: "/genie-insight-carousel",
         color: "text-blue-700"
       },
       {
-        title: "Genie Trust Gauge (Dynamic Confidence Meter)",
+        title: "Genie Trust Gauge",
         description: "Visualize user trust and system confidence as a living, evolving metric",
         icon: Gauge,
         path: "/genie-trust-gauge",
         color: "text-purple-700"
+      },
+      {
+        title: "Genie Smart Confirmation",
+        description: "Structured review moments before significant actions with clear summaries",
+        icon: CheckCircle,
+        path: "/genie-smart-confirmation",
+        color: "text-green-700"
       }
     ];
 

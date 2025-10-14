@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrustGauge } from "@/components/TrustIndexGauge";
 import { useTrustIndex, TrustMetrics } from "@/hooks/useTrustIndex";
 import { toast } from "@/hooks/use-toast";
-import { ArrowUp, ArrowDown, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { ArrowUp, ArrowDown, CheckCircle2, XCircle, Clock, ArrowLeft } from "lucide-react";
 
 const GenieTrustGaugePattern = () => {
   const { current, history, updateTrust } = useTrustIndex();
@@ -92,6 +93,14 @@ const GenieTrustGaugePattern = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Back Button */}
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Patterns
+          </Button>
+        </Link>
+
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold mb-2">Pattern 36 — Genie Trust Gauge</h1>
