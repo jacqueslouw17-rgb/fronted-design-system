@@ -19,18 +19,21 @@ export const FeedbackBubble = () => {
           <Button
             onClick={() => setIsModalOpen(true)}
             className={cn(
-              "fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-elevated z-50",
-              "bg-background border-2 transition-all duration-200",
-              "hover:scale-105 hover:shadow-overlay",
-              "border-[hsl(var(--accent-purple-outline))]"
+              "fixed bottom-6 right-6 h-12 w-12 rounded-full z-50",
+              "bg-card border border-border",
+              "transition-all duration-300 ease-out",
+              "hover:scale-110 hover:-translate-y-0.5",
+              "shadow-card hover:shadow-elevated",
+              "group"
             )}
             size="icon"
+            variant="ghost"
           >
-            <MessageSquare className="h-5 w-5 text-[hsl(var(--accent-purple-outline))]" />
+            <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="left">
-          <p className="text-sm">Share feedback or improvement ideas</p>
+        <TooltipContent side="left" className="text-xs">
+          <p>Share feedback</p>
         </TooltipContent>
       </Tooltip>
 
