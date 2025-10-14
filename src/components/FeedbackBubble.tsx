@@ -19,12 +19,12 @@ export const FeedbackBubble = () => {
           <Button
             onClick={() => setIsModalOpen(true)}
             className={cn(
-              "fixed bottom-6 right-6 h-12 w-12 rounded-full z-50",
+              "fixed bottom-8 right-8 h-12 w-12 rounded-full",
               "bg-card border border-border",
               "transition-all duration-300 ease-out",
               "hover:scale-110 hover:-translate-y-0.5",
               "shadow-card hover:shadow-elevated",
-              "group"
+              "group z-[100]"
             )}
             size="icon"
             variant="ghost"
