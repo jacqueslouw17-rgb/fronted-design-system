@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo, Clock } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo, Clock, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -178,6 +178,13 @@ const Landing = () => {
       icon: Clock,
       path: "/genie-contextual-timeline",
       color: "text-cyan-600"
+    },
+    {
+      title: "Smart Progress",
+      description: "Multi-step process tracker with countdown timers and live pulse animations",
+      icon: Activity,
+      path: "/smart-progress",
+      color: "text-teal-600"
     }
   ];
 
