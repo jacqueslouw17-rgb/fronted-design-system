@@ -76,7 +76,7 @@ const RoleLensContext = createContext<RoleLensContextType | null>(null);
 
 export const RoleLensProvider = ({ children, initialRole = 'admin' }: { children: ReactNode; initialRole?: UserRole }) => {
   const [currentRole, setCurrentRole] = useState<UserRole>(initialRole);
-  const currentLens = roleLensConfigs[currentRole];
+  const currentLens = roleLensConfigs[currentRole] || roleLensConfigs.admin;
 
   const hasPermission = (permission: keyof RoleLensConfig['permissions']) => {
     return currentLens.permissions[permission];

@@ -22,14 +22,14 @@ const Dashboard = ({
     lastName: "User",
     email: "demo@example.com",
     country: "United States",
-    role: "viewer"
+    role: "admin"
   },
   onboardingHistory = []
 }: DashboardProps) => {
   const [isGenieOpen, setIsGenieOpen] = useState(false);
 
   return (
-    <RoleLensProvider initialRole={userData.role as any}>
+    <RoleLensProvider initialRole={(userData.role as any) || 'admin'}>
       <div className="min-h-screen flex w-full bg-background">
         {/* Genie Drawer */}
         <GenieDrawer
