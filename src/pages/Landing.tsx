@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -49,7 +49,7 @@ const Landing = () => {
     {
       title: "Policy Tag Chips",
       description: "Always-visible rule indicators with status and Genie integration",
-      icon: Shield,
+      icon: ShieldIcon,
       path: "/policy-tags",
       color: "text-indigo-500"
     },
@@ -206,6 +206,13 @@ const Landing = () => {
         icon: Smile,
         path: "/genie-reaction-cards",
         color: "text-rose-600"
+      },
+      {
+        title: "Trust Index Gauge",
+        description: "Visual confidence signal with composite trust scoring",
+        icon: Shield,
+        path: "/trust-index-gauge",
+        color: "text-indigo-700"
       }
     ];
 
