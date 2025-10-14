@@ -36,6 +36,7 @@ import GenieReactionCardsPattern from "./pages/GenieReactionCardsPattern";
 import TrustIndexGaugePattern from "./pages/TrustIndexGaugePattern";
 import DynamicRoleLensPattern from "./pages/DynamicRoleLensPattern";
 import GenieActionConfirmationsPattern from "./pages/GenieActionConfirmationsPattern";
+import GenieContextTrackerPattern from "./pages/GenieContextTrackerPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,7 @@ const App = () => (
         <Route path="/trust-index-gauge" element={<TrustIndexGaugePattern />} />
         <Route path="/dynamic-role-lens" element={<DynamicRoleLensPattern />} />
         <Route path="/genie-action-confirmations" element={<GenieActionConfirmationsPattern />} />
+        <Route path="/genie-context-tracker" element={<GenieContextTrackerPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
