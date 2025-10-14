@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles, Brain, ListTodo, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -171,6 +171,13 @@ const Landing = () => {
       icon: ListTodo,
       path: "/genie-confirmation-queue",
       color: "text-amber-600"
+    },
+    {
+      title: "Genie Contextual Timeline",
+      description: "Real-time event bridge connecting all Genie actions into a visible stream",
+      icon: Clock,
+      path: "/genie-contextual-timeline",
+      color: "text-cyan-600"
     }
   ];
 

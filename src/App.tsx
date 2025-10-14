@@ -28,6 +28,7 @@ import GenieConfirmationCardPattern from "./pages/GenieConfirmationCardPattern";
 import SmartSuggestionChipsPattern from "./pages/SmartSuggestionChipsPattern";
 import GenieMemoryThreadPattern from "./pages/GenieMemoryThreadPattern";
 import GenieConfirmationQueuePattern from "./pages/GenieConfirmationQueuePattern";
+import GenieContextualTimelinePattern from "./pages/GenieContextualTimelinePattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
         <Route path="/smart-suggestion-chips" element={<SmartSuggestionChipsPattern />} />
         <Route path="/genie-memory-thread" element={<GenieMemoryThreadPattern />} />
         <Route path="/genie-confirmation-queue" element={<GenieConfirmationQueuePattern />} />
+        <Route path="/genie-contextual-timeline" element={<GenieContextualTimelinePattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
