@@ -39,6 +39,7 @@ import GenieActionConfirmationsPattern from "./pages/GenieActionConfirmationsPat
 import GenieContextTrackerPattern from "./pages/GenieContextTrackerPattern";
 import GenieTaskTimelinePattern from "./pages/GenieTaskTimelinePattern";
 import GenieInsightCarouselPattern from "./pages/GenieInsightCarouselPattern";
+import GenieTrustGaugePattern from "./pages/GenieTrustGaugePattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
         <Route path="/genie-context-tracker" element={<GenieContextTrackerPattern />} />
         <Route path="/genie-task-timeline" element={<GenieTaskTimelinePattern />} />
         <Route path="/genie-insight-carousel" element={<GenieInsightCarouselPattern />} />
+        <Route path="/genie-trust-gauge" element={<GenieTrustGaugePattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -248,6 +248,13 @@ const Landing = () => {
         icon: Presentation,
         path: "/genie-insight-carousel",
         color: "text-blue-700"
+      },
+      {
+        title: "Genie Trust Gauge (Dynamic Confidence Meter)",
+        description: "Visualize user trust and system confidence as a living, evolving metric",
+        icon: Gauge,
+        path: "/genie-trust-gauge",
+        color: "text-purple-700"
       }
     ];
 
