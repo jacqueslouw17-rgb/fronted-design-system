@@ -48,6 +48,27 @@ All colors MUST be HSL.
     --success: 142 71% 45%;
     --success-foreground: 0 0% 98%;
     
+    /* Soft Accent System - Stripe-inspired */
+    /* Blue accent family */
+    --accent-blue-outline: 221 83% 40%;     /* #1e40af - Deep blue outline */
+    --accent-blue-fill: 214 95% 93%;        /* #dbeafe - Very light blue fill */
+    --accent-blue-text: 221 83% 32%;        /* #1e3a8a - Accessible dark-blue text */
+    
+    /* Purple accent family */
+    --accent-purple-outline: 262 83% 41%;   /* #5b21b6 - Deep violet outline */
+    --accent-purple-fill: 262 90% 96%;      /* #ede9fe - Light lavender fill */
+    --accent-purple-text: 262 73% 35%;      /* #4c1d95 - Accessible purple text */
+    
+    /* Green accent family */
+    --accent-green-outline: 166 100% 26%;   /* #047857 - Deep emerald outline */
+    --accent-green-fill: 152 76% 91%;       /* #d1fae5 - Mint soft fill */
+    --accent-green-text: 164 100% 19%;      /* #065f46 - Accessible green text */
+    
+    /* Yellow accent family */
+    --accent-yellow-outline: 32 95% 37%;    /* #b45309 - Golden brown outline */
+    --accent-yellow-fill: 54 92% 88%;       /* #fef9c3 - Soft butter fill */
+    --accent-yellow-text: 32 95% 31%;       /* #92400e - Accessible yellow text */
+    
     /* Subtle gradients */
     --gradient-kurt: linear-gradient(135deg, hsl(0 0% 18%) 0%, hsl(0 0% 32%) 100%);
     --gradient-progress: linear-gradient(90deg, hsl(0 0% 18%) 0%, hsl(0 0% 32%) 100%);
@@ -119,6 +140,27 @@ All colors MUST be HSL.
     
     --success: 142 71% 45%;
     --success-foreground: 0 0% 98%;
+    
+    /* Soft Accent System - Dark mode */
+    /* Blue accent family */
+    --accent-blue-outline: 214 95% 75%;     /* Lighter outline for dark mode */
+    --accent-blue-fill: 221 83% 20%;        /* Dark blue fill */
+    --accent-blue-text: 214 95% 85%;        /* Light blue text */
+    
+    /* Purple accent family */
+    --accent-purple-outline: 262 90% 80%;   /* Lighter purple outline */
+    --accent-purple-fill: 262 73% 22%;      /* Dark purple fill */
+    --accent-purple-text: 262 90% 88%;      /* Light purple text */
+    
+    /* Green accent family */
+    --accent-green-outline: 152 76% 75%;    /* Lighter green outline */
+    --accent-green-fill: 166 100% 18%;      /* Dark green fill */
+    --accent-green-text: 152 76% 85%;       /* Light green text */
+    
+    /* Yellow accent family */
+    --accent-yellow-outline: 54 92% 75%;    /* Lighter yellow outline */
+    --accent-yellow-fill: 32 95% 25%;       /* Dark yellow fill */
+    --accent-yellow-text: 54 92% 85%;       /* Light yellow text */
     
     --gradient-kurt: linear-gradient(135deg, hsl(0 0% 82%) 0%, hsl(0 0% 65%) 100%);
     --gradient-progress: linear-gradient(90deg, hsl(0 0% 82%) 0%, hsl(0 0% 65%) 100%);

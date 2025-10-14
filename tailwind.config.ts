@@ -106,6 +106,27 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Soft Accent System - Stripe-inspired
+        "accent-blue": {
+          outline: "hsl(var(--accent-blue-outline))",
+          fill: "hsl(var(--accent-blue-fill))",
+          text: "hsl(var(--accent-blue-text))",
+        },
+        "accent-purple": {
+          outline: "hsl(var(--accent-purple-outline))",
+          fill: "hsl(var(--accent-purple-fill))",
+          text: "hsl(var(--accent-purple-text))",
+        },
+        "accent-green": {
+          outline: "hsl(var(--accent-green-outline))",
+          fill: "hsl(var(--accent-green-fill))",
+          text: "hsl(var(--accent-green-text))",
+        },
+        "accent-yellow": {
+          outline: "hsl(var(--accent-yellow-outline))",
+          fill: "hsl(var(--accent-yellow-fill))",
+          text: "hsl(var(--accent-yellow-text))",
+        },
       },
       borderRadius: {
         // Subtle, 4pt-aligned radius
