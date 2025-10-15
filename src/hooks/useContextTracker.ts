@@ -169,12 +169,38 @@ export const useContextTracker = create<ContextStore>()(
 
       getRecentContexts: (limit = 5) => {
         return [...get().contexts]
-          .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+          .sort((a, b) => {
+            const aTime = a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt).getTime();
+            const bTime = b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt).getTime();
+            return bTime - aTime;
+          })
           .slice(0, limit);
       },
     }),
     {
       name: 'genie-context-storage',
+      merge: (persistedState: any, currentState: ContextStore) => {
+        // Convert date strings back to Date objects when rehydrating
+        const hydratedContexts = (persistedState?.contexts || []).map((ctx: any) => ({
+          ...ctx,
+          createdAt: new Date(ctx.createdAt),
+          updatedAt: new Date(ctx.updatedAt),
+          messages: ctx.messages?.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          })) || [],
+          actions: ctx.actions?.map((act: any) => ({
+            ...act,
+            timestamp: new Date(act.timestamp),
+          })) || [],
+        }));
+        
+        return {
+          ...currentState,
+          ...persistedState,
+          contexts: hydratedContexts,
+        };
+      },
     }
   )
 );
