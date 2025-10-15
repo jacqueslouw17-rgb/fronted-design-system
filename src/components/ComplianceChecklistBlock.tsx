@@ -75,8 +75,10 @@ const ComplianceChecklistBlock = ({
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
       <Card className={cn(
         "transition-all",
-        status === "breach" && "border-destructive/50",
+        status === "breach" && "border-destructive/30 hover:bg-destructive/5 hover:border-destructive/50",
+        status === "passed" && "border-success/30 hover:bg-success/5 hover:border-success/50",
         status === "na" && "opacity-60",
+        status !== "breach" && status !== "passed" && status !== "na" && "hover:bg-primary/5 hover:border-primary/40",
         className
       )}>
         <CardHeader className="pb-2">

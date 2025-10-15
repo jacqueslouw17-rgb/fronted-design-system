@@ -38,9 +38,9 @@ const DataSummaryCard = ({
   const getStatusStyles = () => {
     switch (status) {
       case "warning":
-        return "border-amber-500/50 bg-amber-500/5";
+        return "border-amber-500/30 hover:bg-amber-500/5 hover:border-amber-500/50";
       case "error":
-        return "border-destructive/50 bg-destructive/5";
+        return "border-destructive/30 hover:bg-destructive/5 hover:border-destructive/50";
       case "loading":
         return "animate-pulse";
       default:
@@ -81,7 +81,7 @@ const DataSummaryCard = ({
   return (
     <Card
       className={cn(
-        "transition-all hover:shadow-lg",
+        "transition-all hover:bg-primary/5 hover:border-primary/40",
         getStatusStyles(),
         className
       )}
