@@ -7,12 +7,8 @@ const corsHeaders = {
 };
 
 interface FeedbackRequest {
-  name: string;
-  role: string;
   pageContext: string;
   feedback: string;
-  priority: "Low" | "Medium" | "High";
-  screenshot?: string | null;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,143 +19,97 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const feedbackData: FeedbackRequest = await req.json();
     console.log("Received feedback submission:", {
-      name: feedbackData.name,
-      page: feedbackData.pageContext,
+      context: feedbackData.pageContext,
     });
 
-    const webhookUrl =
-      "https://hooks.slack.com/services/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";
+    const botToken = Deno.env.get("SLACK_BOT_TOKEN");
+    const channelId = Deno.env.get("SLACK_CHANNEL_ID");
 
-    const priorityEmoji = {
-      Low: "🟢",
-      Medium: "🟡",
-      High: "🔴",
-    };
-
-    const blocks: any[] = [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: "🎨 New Pattern Feedback Submitted!",
-          emoji: true,
-        },
-      },
-      {
-        type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*From:*\n${feedbackData.name} (${feedbackData.role})`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Page:*\n${feedbackData.pageContext}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Priority:*\n${priorityEmoji[feedbackData.priority]} ${feedbackData.priority}`,
-          },
-        ],
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*Feedback:*\n${feedbackData.feedback}`,
-        },
-      },
-    ];
-
-    if (feedbackData.screenshot) {
-      blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "📸 *Screenshot attached*",
-        },
-      });
+    if (!botToken || !channelId) {
+      throw new Error("Missing Slack configuration");
     }
 
-    blocks.push({
-      type: "divider",
-    });
-    
-    blocks.push({
-      type: "context",
-      elements: [
-        {
-          type: "mrkdwn",
-          text: `🧭 _Design system auto-tag:_ \`${feedbackData.pageContext}\``,
-        },
-      ],
-    });
-    
-    blocks.push({
-      type: "actions",
-      elements: [
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "✅ Acknowledge",
-            emoji: true,
-          },
-          style: "primary",
-          value: "acknowledge",
-        },
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "❓ Need More Info",
-            emoji: true,
-          },
-          value: "clarify",
-        },
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "✔️ Resolved",
-            emoji: true,
-          },
-          style: "primary",
-          value: "resolved",
-        },
-      ],
-    });
-
     const payload = {
-      blocks,
-      text:
-        `New feedback from ${feedbackData.name} (${feedbackData.role})\n` +
-        `Page: ${feedbackData.pageContext}\n` +
-        `Priority: ${priorityEmoji[feedbackData.priority]} ${feedbackData.priority}\n\n` +
-        `${feedbackData.feedback}` +
-        (feedbackData.screenshot ? "\n\n[Note: screenshot captured in app]" : ""),
+      channel: channelId,
+      text: "*New Feedback Submitted* 🧠",
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Type:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
+          },
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: "Submitted from Lovable Feedback Bubble",
+            },
+          ],
+        },
+        {
+          type: "divider",
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "✅ Acknowledge",
+                emoji: true,
+              },
+              style: "primary",
+              value: "acknowledge",
+              action_id: "acknowledge_feedback",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "❓ Need More Info",
+                emoji: true,
+              },
+              value: "clarify",
+              action_id: "clarify_feedback",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "✔️ Resolved",
+                emoji: true,
+              },
+              style: "primary",
+              value: "resolved",
+              action_id: "resolve_feedback",
+            },
+          ],
+        },
+      ],
     };
 
-    console.log("Sending to Slack webhook...");
-    const slackResponse = await fetch(webhookUrl, {
+    console.log("Sending to Slack via Bot API...");
+    const slackResponse = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${botToken}`,
       },
       body: JSON.stringify(payload),
     });
 
-    if (!slackResponse.ok) {
-      const errorText = await slackResponse.text();
-      console.error("Slack webhook error:", {
-        status: slackResponse.status,
-        statusText: slackResponse.statusText,
-        body: errorText,
-      });
-      throw new Error(`Slack API error: ${slackResponse.status}`);
+    const slackData = await slackResponse.json();
+    
+    if (!slackResponse.ok || !slackData.ok) {
+      console.error("Slack API error:", slackData);
+      throw new Error(`Slack API error: ${slackData.error || "Unknown error"}`);
     }
 
-    console.log("Successfully sent to Slack");
+    console.log("✅ Feedback sent to Slack successfully");
     return new Response(
       JSON.stringify({ success: true, message: "Feedback sent to Slack" }),
       {
