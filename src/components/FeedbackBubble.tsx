@@ -21,16 +21,16 @@ export const FeedbackBubble = () => {
               onClick={() => setIsModalOpen(true)}
               className={cn(
                 "fixed bottom-8 right-8 h-12 w-12 rounded-full",
-                "bg-card border border-border",
+                "bg-primary/5 border border-primary/20",
                 "transition-all duration-300 ease-out",
-                "hover:scale-110 hover:-translate-y-0.5",
+                "hover:scale-110 hover:-translate-y-0.5 hover:bg-primary/10 hover:border-primary/30",
                 "shadow-card hover:shadow-elevated",
                 "group z-[100]"
               )}
               size="icon"
               variant="ghost"
             >
-              <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              <MessageSquare className="h-4 w-4 text-primary/70 group-hover:text-primary transition-colors" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left" className="text-xs">
