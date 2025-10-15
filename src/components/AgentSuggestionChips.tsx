@@ -23,10 +23,10 @@ const getChipStyles = (variant: ChipVariant = "default") => {
   const baseStyles = "h-9 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95";
   
   const variantStyles = {
-    default: "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
+    default: "border border-border bg-background hover:bg-primary/5 hover:border-primary/40",
     primary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
     info: "border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10",
-    critical: "border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10",
+    critical: "border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15",
     disabled: "border border-muted bg-muted/50 text-muted-foreground cursor-not-allowed opacity-60 hover:scale-100",
   };
 

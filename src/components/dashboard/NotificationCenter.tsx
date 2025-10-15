@@ -56,31 +56,31 @@ const NotificationCenter = ({
     }
   };
 
-  const getPriorityColor = (priority: Priority) => {
-    switch (priority) {
-      case "low":
-        return "bg-muted text-muted-foreground";
-      case "medium":
-        return "bg-accent text-accent-foreground";
-      case "high":
-        return "bg-primary text-primary-foreground";
-      case "critical":
-        return "bg-destructive text-destructive-foreground";
-    }
-  };
+const getPriorityColor = (priority: Priority) => {
+  switch (priority) {
+    case "low":
+      return "bg-muted text-muted-foreground";
+    case "medium":
+      return "bg-foreground/10 text-foreground";
+    case "high":
+      return "bg-primary text-primary-foreground";
+    case "critical":
+      return "bg-destructive text-destructive-foreground";
+  }
+};
 
-  const getStatusColor = (status: Status) => {
-    switch (status) {
-      case "unread":
-        return "bg-primary/10 border-primary/20";
-      case "active":
-        return "bg-accent/10 border-accent/20";
-      case "breach":
-        return "bg-destructive/10 border-destructive/20";
-      case "resolved":
-        return "bg-muted border-border";
-    }
-  };
+const getStatusColor = (status: Status) => {
+  switch (status) {
+    case "unread":
+      return "bg-primary/10 border-primary/20";
+    case "active":
+      return "bg-foreground/5 border-border";
+    case "breach":
+      return "bg-destructive/10 border-destructive/20";
+    case "resolved":
+      return "bg-muted border-border";
+  }
+};
 
   const filteredNotifications = notifications.filter((n) => {
     if (activeTab === "all") return true;
@@ -142,13 +142,13 @@ const NotificationCenter = ({
                 ) : (
                   <div className="divide-y">
                     {filteredNotifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={cn(
-                          "p-4 border-l-4 transition-colors hover:bg-accent/5",
-                          getStatusColor(notification.status)
-                        )}
-                      >
+          <div
+            key={notification.id}
+            className={cn(
+              "p-4 border-l-4 transition-colors hover:bg-primary/5",
+              getStatusColor(notification.status)
+            )}
+          >
                         {/* Main Content */}
                         <div className="flex gap-3">
                           {/* Icon */}
@@ -207,15 +207,15 @@ const NotificationCenter = ({
                             </div>
 
                             {/* Genie Hint */}
-                            {notification.genieHint && (
-                              <div className="mt-2 p-2 bg-accent/10 rounded-md border border-accent/20">
-                                <p className="text-xs text-accent-foreground flex items-start gap-1">
-                                  <Sparkles className="h-3 w-3 shrink-0 mt-0.5" />
-                                  <span className="font-medium">Genie:</span>
-                                  <span>{notification.genieHint}</span>
-                                </p>
-                              </div>
-                            )}
+            {notification.genieHint && (
+              <div className="mt-2 p-2 bg-foreground/5 rounded-md border border-border">
+                <p className="text-xs text-foreground flex items-start gap-1">
+                  <Sparkles className="h-3 w-3 shrink-0 mt-0.5" />
+                  <span className="font-medium">Genie:</span>
+                  <span>{notification.genieHint}</span>
+                </p>
+              </div>
+            )}
 
                             {/* Quick Action */}
                             {notification.quickAction && (
