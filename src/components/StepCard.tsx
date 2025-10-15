@@ -33,7 +33,7 @@ const StepCard = ({
         );
       case "active":
         return (
-          <Badge className="bg-primary text-primary-foreground">
+          <Badge variant="outline" className="text-muted-foreground border-border">
             In Progress
           </Badge>
         );
@@ -44,10 +44,10 @@ const StepCard = ({
 
   if (isExpanded) {
     return (
-      <Card className="p-5 border-primary shadow-lg card-expand">
+      <Card className="p-5 border-border hover:border-primary/30 shadow-card hover:shadow-elevated transition-all duration-300 card-expand">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+            <div className="h-8 w-8 rounded-full bg-muted text-foreground flex items-center justify-center text-sm font-medium">
               {stepNumber}
             </div>
             <h3 className="font-semibold text-lg text-foreground">{title}</h3>
@@ -64,22 +64,22 @@ const StepCard = ({
 
   return (
     <Card
-      className={`p-4 transition-all duration-200 cursor-pointer ${
+      className={`p-4 transition-all duration-300 cursor-pointer group ${
         status === "completed"
-          ? "bg-success/5 hover:bg-success/10 border-success/20"
-          : "hover:bg-muted/50 hover:shadow-md"
-      } ${status === "pending" ? "opacity-60" : ""}`}
+          ? "bg-success/5 hover:bg-success/10 border-success/20 hover:shadow-md hover:-translate-y-0.5"
+          : "hover:shadow-elevated hover:-translate-y-1 hover:border-primary/20"
+      } ${status === "pending" ? "opacity-50" : ""}`}
       onClick={onClick}
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <div
-            className={`h-7 w-7 rounded-full flex items-center justify-center text-sm font-semibold ${
+            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 ${
               status === "completed"
-                ? "bg-success text-success-foreground"
+                ? "bg-success/10 text-success group-hover:bg-success group-hover:text-success-foreground"
                 : status === "active"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                ? "bg-muted text-muted-foreground group-hover:bg-gradient-primary group-hover:text-primary-foreground"
+                : "bg-muted/50 text-muted-foreground"
             }`}
           >
             {status === "completed" ? (
@@ -88,7 +88,7 @@ const StepCard = ({
               stepNumber
             )}
           </div>
-          <p className="font-medium text-foreground">{title}</p>
+          <p className="font-medium text-foreground group-hover:text-foreground transition-colors">{title}</p>
         </div>
         {getStatusBadge()}
       </div>

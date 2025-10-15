@@ -385,7 +385,7 @@ const Index = () => {
                     Back
                   </Button>
                 )}
-                <Button onClick={handleNext}>
+                <Button onClick={handleNext} variant="outline" className="flex-1">
                   {currentStep === totalSteps ? "Complete" : "Next"}
                 </Button>
               </div>

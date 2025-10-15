@@ -305,11 +305,11 @@ const normalizedPatterns = patterns.map(p => ({
             const Icon = pattern.icon;
             return (
               <Link key={pattern.path} to={pattern.path}>
-                <Card className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border">
+                <Card className="h-full transition-all duration-300 group cursor-pointer border border-border/60 hover:border-primary/20 hover:shadow-elevated hover:-translate-y-1">
                   <CardHeader className="space-y-2.5">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
-                        <Icon className="w-5 h-5" strokeWidth={2} />
+                      <div className={`p-2 rounded-md bg-muted/50 group-hover:bg-gradient-primary transition-all duration-300 flex-shrink-0`}>
+                        <Icon className={`w-5 h-5 ${pattern.color} group-hover:text-primary-foreground transition-colors duration-300`} strokeWidth={2} />
                       </div>
                       <CardTitle className="text-base font-semibold leading-snug">{pattern.title}</CardTitle>
                     </div>

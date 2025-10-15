@@ -331,11 +331,11 @@ const DesignSystem = () => {
                 
                 return (
                   <Link key={pattern.path} to={pattern.path}>
-                    <Card className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border flex flex-col">
+                    <Card className="h-full transition-all duration-300 group cursor-pointer border border-border/60 hover:border-primary/20 hover:shadow-elevated hover:-translate-y-1 flex flex-col">
                       <CardHeader className="space-y-3 flex-1">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-md bg-muted/50 ${pattern.color} flex-shrink-0`}>
-                            <Icon className="w-5 h-5" strokeWidth={2} />
+                          <div className={`p-2 rounded-md bg-muted/50 group-hover:bg-gradient-primary transition-all duration-300 flex-shrink-0`}>
+                            <Icon className={`w-5 h-5 ${pattern.color} group-hover:text-primary-foreground transition-colors duration-300`} strokeWidth={2} />
                           </div>
                           <CardTitle className="text-base font-semibold leading-snug">{pattern.title}</CardTitle>
                         </div>
@@ -389,13 +389,13 @@ const DesignSystem = () => {
                   return (
                     <Card 
                       key={component.id}
-                      className="h-full hover:shadow-elevated transition-all duration-200 group cursor-pointer border border-border/60 hover:border-border"
+                      className="h-full transition-all duration-300 group cursor-pointer border border-border/60 hover:border-primary/20 hover:shadow-elevated hover:-translate-y-1"
                       onClick={() => handleComponentClick(component.id)}
                     >
                       <CardHeader className="space-y-2.5">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-md bg-muted/50 flex-shrink-0">
-                            <Icon className="w-5 h-5" strokeWidth={2} />
+                          <div className="p-2 rounded-md bg-muted/50 group-hover:bg-primary/10 transition-colors duration-300 flex-shrink-0">
+                            <Icon className="w-5 h-5 group-hover:text-primary transition-colors duration-300" strokeWidth={2} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <CardTitle className="text-base font-semibold leading-snug truncate">
