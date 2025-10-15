@@ -555,6 +555,132 @@ export const componentsRegistry: ComponentReference[] = [
     usedInModules: ["All Modules"],
     icon: Brain,
     filePath: "src/components/KurtAvatar.tsx"
+  },
+  {
+    id: "compliance-icon",
+    name: "ComplianceIcon",
+    description: "Status indicator for compliance sync with badge states",
+    category: "Genie",
+    states: [
+      { name: "idle", description: "Compliance up to date" },
+      { name: "syncing", description: "Sync in progress with pulse animation" },
+      { name: "changed", description: "Updates available with count badge" },
+      { name: "error", description: "Sync failed with error indicator" }
+    ],
+    props: [
+      { name: "status", type: "'idle' | 'syncing' | 'changed' | 'error'", description: "Current sync status" },
+      { name: "count", type: "number", description: "Number of changes (optional)" },
+      { name: "onClick", type: "() => void", description: "Click handler to open drawer" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Genie", "Compliance"],
+    icon: Shield,
+    filePath: "src/components/compliance/ComplianceIcon.tsx"
+  },
+  {
+    id: "compliance-drawer",
+    name: "ComplianceDrawer",
+    description: "Right-side drawer showing real-time country rule status and quick actions",
+    category: "Genie",
+    states: [
+      { name: "open", description: "Drawer visible" },
+      { name: "closed", description: "Drawer hidden" }
+    ],
+    props: [
+      { name: "open", type: "boolean", description: "Controls drawer visibility" },
+      { name: "country", type: "string", description: "Selected country code" },
+      { name: "status", type: "SyncStatus", description: "Current sync status" },
+      { name: "changes", type: "RuleChange[]", description: "List of rule changes" },
+      { name: "activePolicies", type: "MiniRule[]", description: "Active policy rules" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Genie", "Compliance"],
+    icon: Shield,
+    filePath: "src/components/compliance/ComplianceDrawer.tsx"
+  },
+  {
+    id: "rule-change-chip",
+    name: "RuleChangeChip",
+    description: "Expandable chip showing rule change summary with diff viewer",
+    category: "Pattern",
+    states: [
+      { name: "collapsed", description: "Summary view only" },
+      { name: "expanded", description: "Full diff visible" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Compliance"],
+    icon: FileText,
+    filePath: "src/components/compliance/RuleChangeChip.tsx"
+  },
+  {
+    id: "rule-badge",
+    name: "RuleBadge",
+    description: "Editable policy chip with popover editor",
+    category: "UI",
+    states: [
+      { name: "default", description: "Read-only display" },
+      { name: "editing", description: "Popover editor open" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer", "policy-tags"],
+    usedInModules: ["Compliance"],
+    icon: Tags,
+    filePath: "src/components/compliance/RuleBadge.tsx"
+  },
+  {
+    id: "diff-viewer",
+    name: "DiffViewer",
+    description: "Side-by-side text comparison for rule changes",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Showing diff" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Compliance"],
+    icon: FileText,
+    filePath: "src/components/compliance/DiffViewer.tsx"
+  },
+  {
+    id: "sync-status-dot",
+    name: "SyncStatusDot",
+    description: "Visual status indicator for sync states",
+    category: "UI",
+    states: [
+      { name: "idle", description: "Neutral/up to date" },
+      { name: "syncing", description: "Pulse animation" },
+      { name: "changed", description: "Updates available" },
+      { name: "error", description: "Sync failed" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Compliance"],
+    icon: Activity,
+    filePath: "src/components/compliance/SyncStatusDot.tsx"
+  },
+  {
+    id: "source-link",
+    name: "SourceLink",
+    description: "External link to authority references",
+    category: "UI",
+    states: [
+      { name: "default", description: "Standard link" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Compliance"],
+    icon: Link2,
+    filePath: "src/components/compliance/SourceLink.tsx"
+  },
+  {
+    id: "acknowledge-button",
+    name: "AcknowledgeButton",
+    description: "Confirm review action that logs to audit timeline",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Ready to acknowledge" },
+      { name: "disabled", description: "No changes to acknowledge" }
+    ],
+    usedInPatterns: ["compliance-sync-drawer"],
+    usedInModules: ["Compliance", "Audit"],
+    icon: CheckCircle,
+    filePath: "src/components/compliance/AcknowledgeButton.tsx"
   }
 ];
 

@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
+import { ComplianceIcon } from "@/components/compliance/ComplianceIcon";
+import { ComplianceDrawer } from "@/components/compliance/ComplianceDrawer";
+import { useComplianceChanges } from "@/hooks/useComplianceChanges";
 
 interface AgentDrawerProps {
   isOpen: boolean;
@@ -22,8 +25,11 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   const [inputMode, setInputMode] = useState<"voice" | "text">("text");
   const [isListening, setIsListening] = useState(false);
   const [kurtMessage, setKurtMessage] = useState("");
+  const [complianceOpen, setComplianceOpen] = useState(false);
+  const [selectedCountry] = useState("NO");
   const { speak, stop } = useTextToSpeech();
   const { toast } = useToast();
+  const { data: complianceData, status: complianceStatus } = useComplianceChanges(selectedCountry);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -80,15 +86,21 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
 
   return (
     <div className="h-full flex flex-col bg-background relative">
-      {/* Close button - top right corner */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        className="absolute top-4 right-4 z-10"
-      >
-        <X className="h-5 w-5" />
-      </Button>
+      {/* Header controls - top right */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <ComplianceIcon
+          status={complianceStatus}
+          count={complianceData?.changes.length}
+          onClick={() => setComplianceOpen(true)}
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Main centered area - like onboarding */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -138,6 +150,20 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
           </div>
         )}
       </div>
+
+      {/* Compliance Drawer */}
+      {complianceData && (
+        <ComplianceDrawer
+          open={complianceOpen}
+          onOpenChange={setComplianceOpen}
+          country={selectedCountry}
+          status={complianceStatus}
+          lastSync={complianceData.lastSync}
+          changes={complianceData.changes}
+          activePolicies={complianceData.activePolicies}
+          sources={complianceData.sources}
+        />
+      )}
     </div>
   );
 };

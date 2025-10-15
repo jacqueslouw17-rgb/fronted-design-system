@@ -45,6 +45,7 @@ import AgentSmartConfirmationPattern from "./pages/AgentSmartConfirmationPattern
 import AgentDualPathSuggestionPattern from "./pages/AgentDualPathSuggestionPattern";
 import AgentPredictiveHintBarPattern from "./pages/AgentPredictiveHintBarPattern";
 import AgentMultiStepRecallThreadPattern from "./pages/AgentMultiStepRecallThreadPattern";
+import ComplianceSyncDrawerPattern from "./pages/ComplianceSyncDrawerPattern";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,7 @@ const App = () => (
         <Route path="/agent-dual-path-suggestion" element={<AgentDualPathSuggestionPattern />} />
         <Route path="/agent-predictive-hint-bar" element={<AgentPredictiveHintBarPattern />} />
         <Route path="/agent-multi-step-recall" element={<AgentMultiStepRecallThreadPattern />} />
+        <Route path="/compliance-sync-drawer" element={<ComplianceSyncDrawerPattern />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
