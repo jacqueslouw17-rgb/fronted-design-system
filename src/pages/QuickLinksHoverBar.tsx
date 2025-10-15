@@ -180,7 +180,13 @@ const QuickLinksHoverBar = () => {
                 {payrollData.map((batch) => (
                   <div
                     key={batch.id}
-                    className="group relative p-4 border rounded-lg hover:bg-accent/50 transition-colors focus-within:ring-2 focus-within:ring-ring"
+                    className={`group relative p-4 border rounded-lg transition-all focus-within:ring-2 focus-within:ring-ring ${
+                      batch.status === "completed" 
+                        ? "hover:bg-success/5 hover:border-success/40" 
+                        : batch.status === "approved"
+                        ? "hover:bg-primary/5 hover:border-primary/40"
+                        : "hover:bg-primary/5 hover:border-primary/40"
+                    }`}
                     tabIndex={0}
                     onMouseEnter={() => setHoveredRow(batch.id)}
                     onMouseLeave={() => setHoveredRow(null)}
@@ -255,7 +261,13 @@ const QuickLinksHoverBar = () => {
                 {supportTickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="group relative p-4 border rounded-lg hover:bg-accent/50 transition-colors focus-within:ring-2 focus-within:ring-ring"
+                    className={`group relative p-4 border rounded-lg transition-all focus-within:ring-2 focus-within:ring-ring ${
+                      ticket.priority === "urgent" 
+                        ? "hover:bg-destructive/5 hover:border-destructive/40" 
+                        : ticket.priority === "high"
+                        ? "hover:bg-amber-500/5 hover:border-amber-500/40"
+                        : "hover:bg-primary/5 hover:border-primary/40"
+                    }`}
                     tabIndex={0}
                   >
                     <div className="flex items-center justify-between pr-32">
@@ -328,7 +340,11 @@ const QuickLinksHoverBar = () => {
                 {complianceDocs.map((doc) => (
                   <div
                     key={doc.id}
-                    className="group relative p-4 border rounded-lg hover:bg-accent/50 transition-colors focus-within:ring-2 focus-within:ring-ring"
+                    className={`group relative p-4 border rounded-lg transition-all focus-within:ring-2 focus-within:ring-ring ${
+                      doc.status === "verified" 
+                        ? "hover:bg-success/5 hover:border-success/40" 
+                        : "hover:bg-primary/5 hover:border-primary/40"
+                    }`}
                     tabIndex={0}
                   >
                     <div className="flex items-center justify-between pr-32">
