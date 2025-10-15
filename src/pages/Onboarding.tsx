@@ -307,43 +307,7 @@ const Index = () => {
   }
 
   return (
-    <main className="flex min-h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Animated gradient background orbs */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-      >
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.15, 0.1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-primary)' }}
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.08, 0.12, 0.08],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-          className="absolute bottom-1/4 right-1/3 w-[28rem] h-[28rem] rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-secondary)' }}
-        />
-      </motion.div>
-
+    <main className="flex min-h-screen bg-background text-foreground relative">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -355,13 +319,49 @@ const Index = () => {
       </Button>
 
       {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative z-10">
+      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden">
+        {/* Animated gradient background orbs - centered around Kurt */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+        >
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute w-96 h-96 rounded-full blur-3xl -translate-x-20 -translate-y-10"
+            style={{ background: 'var(--gradient-primary)' }}
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.08, 0.12, 0.08],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            className="absolute w-[28rem] h-[28rem] rounded-full blur-3xl translate-x-20 translate-y-10"
+            style={{ background: 'var(--gradient-secondary)' }}
+          />
+        </motion.div>
+
         {/* Kurt Avatar with enhanced glow */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative"
+          className="relative z-10"
         >
           {/* Animated glow rings */}
           {isListening && (
@@ -410,6 +410,7 @@ const Index = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
+            className="relative z-10"
           >
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button 
@@ -426,7 +427,7 @@ const Index = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex items-center space-x-4 mt-8"
+            className="flex items-center space-x-4 mt-8 relative z-10"
           >
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
@@ -464,7 +465,7 @@ const Index = () => {
         {currentStep > 1 && (
           <button
             onClick={handleBack}
-            className="absolute bottom-10 left-10 flex items-center space-x-2 text-muted-foreground hover:text-primary transition"
+            className="absolute bottom-10 left-10 flex items-center space-x-2 text-muted-foreground hover:text-primary transition z-10"
           >
             <ArrowLeft className="h-5 w-5" />
             <span>Back</span>
