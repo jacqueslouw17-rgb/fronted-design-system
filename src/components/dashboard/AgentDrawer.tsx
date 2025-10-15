@@ -28,7 +28,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   const [kurtMessage, setKurtMessage] = useState("");
   const [view, setView] = useState<"chat" | "compliance">("chat");
   const [selectedCountry] = useState("NO");
-  const { speak, stop } = useTextToSpeech();
+  const { speak, stop } = useTextToSpeech({ lang: 'nb-NO', voiceName: 'norwegian' });
   const { toast } = useToast();
   const { data: complianceData, status: complianceStatus } = useComplianceChanges(selectedCountry);
 

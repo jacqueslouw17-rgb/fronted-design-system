@@ -28,7 +28,7 @@ interface Step {
 
 const Index = () => {
   const { toast } = useToast();
-  const { speak, stop } = useTextToSpeech();
+  const { speak, stop } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british' });
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);

@@ -15,7 +15,7 @@ interface AgentMainProps {
 const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const { speak } = useTextToSpeech();
+  const { speak } = useTextToSpeech({ lang: 'nb-NO', voiceName: 'norwegian' });
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
