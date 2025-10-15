@@ -88,11 +88,13 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
     <div className="h-full flex flex-col bg-background relative">
       {/* Header controls - top right */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-        <ComplianceIcon
-          status={complianceStatus}
-          count={complianceData?.changes.length}
-          onClick={() => setView("compliance")}
-        />
+        {view === "chat" && (
+          <ComplianceIcon
+            status={complianceStatus}
+            count={complianceData?.changes.length}
+            onClick={() => setView("compliance")}
+          />
+        )}
         <Button
           variant="ghost"
           size="icon"
