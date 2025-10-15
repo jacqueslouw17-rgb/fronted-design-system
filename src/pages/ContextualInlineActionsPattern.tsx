@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { InlineEditContext } from "@/components/InlineEditContext";
 import { InlineToolbar } from "@/components/InlineToolbar";
 import { AIPromptInput } from "@/components/AIPromptInput";
@@ -6,6 +8,7 @@ import { AIProcessingState } from "@/components/AIProcessingState";
 import { ChangeDiffCard } from "@/components/ChangeDiffCard";
 import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const ContextualInlineActionsPattern = () => {
   const [selectedText, setSelectedText] = useState("");
@@ -100,7 +103,13 @@ const ContextualInlineActionsPattern = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-8">
-        <div className="space-y-2">
+        <div className="space-y-4">
+          <Link to="/design-system">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Design System
+            </Button>
+          </Link>
           <h1 className="text-4xl font-bold">Pattern 43: Contextual Inline Actions</h1>
           <p className="text-lg text-muted-foreground">
             Notion AI-style inline editing with custom prompts and auto-applying changes

@@ -111,7 +111,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
                     onSubmit?.(suggestion);
                   }}
                 >
-                  <Sparkles className="mr-1 h-3 w-3 text-primary" />
+                  <Sparkles className="mr-1 h-3 w-3 text-muted-foreground" />
                   {suggestion}
                 </Badge>
               ))}
