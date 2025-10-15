@@ -31,7 +31,7 @@ const Dashboard = ({
   },
   onboardingHistory = []
 }: DashboardProps) => {
-  const [version, setVersion] = useState<"v1" | "v2" | "v3">("v1");
+  const [version, setVersion] = useState<"v1" | "v2" | "v3">("v3");
   const [isAgentOpen, setIsAgentOpen] = useState(false);
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const [isTransitioning, setIsTransitioning] = useState(false);
