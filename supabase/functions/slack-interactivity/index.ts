@@ -62,6 +62,13 @@ const handler = async (req: Request): Promise<Response> => {
     const slackTimestamp = req.headers.get("x-slack-request-timestamp");
     const body = await req.text();
 
+    // Health/verification checks Slack may send (e.g., ssl_check)
+    const quickParams = new URLSearchParams(body);
+    if (quickParams.get("ssl_check") === "1") {
+      console.log("Slack ssl_check received");
+      return new Response("ok", { status: 200, headers: corsHeaders });
+    }
+
     // Verify the request is from Slack
     if (slackSignature && slackTimestamp) {
       const isValid = await verifySlackSignature(
@@ -82,7 +89,8 @@ const handler = async (req: Request): Promise<Response> => {
     const payloadString = params.get("payload");
 
     if (!payloadString) {
-      throw new Error("No payload found in request");
+      console.log("No payload found; ignoring");
+      return new Response("ok", { status: 200, headers: corsHeaders });
     }
 
     const payload = JSON.parse(payloadString);
