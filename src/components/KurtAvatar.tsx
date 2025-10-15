@@ -56,8 +56,8 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
       </p>
 
       {/* Message bubble */}
-      <div className="bg-accent px-6 py-3 rounded-full shadow-sm max-w-md text-center border border-border">
-        <p className="text-sm text-accent-foreground">
+      <div className="bg-muted/50 px-6 py-3 rounded-full shadow-sm max-w-md text-center border border-border">
+        <p className="text-sm text-foreground">
           {message}
         </p>
       </div>
