@@ -193,8 +193,16 @@ export default {
         "slide-in-left": "slide-in-left 0.3s ease-out",
       },
       backgroundImage: {
-        "gradient-kurt": "var(--gradient-kurt)",
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-accent": "var(--gradient-accent)",
         "gradient-progress": "var(--gradient-progress)",
+        "gradient-kurt": "var(--gradient-kurt)",
+      },
+      boxShadow: {
+        "glow-primary": "var(--glow-primary)",
+        "glow-secondary": "var(--glow-secondary)",
+        "glow-accent": "var(--glow-accent)",
       },
     },
   },
