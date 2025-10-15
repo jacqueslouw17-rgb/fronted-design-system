@@ -288,6 +288,13 @@ const patterns = [
     icon: RotateCcw,
     path: "/genie-multi-step-recall",
     color: "text-pink-700"
+  },
+  {
+    title: "Contextual Inline Actions",
+    description: "AI-assisted inline editing with contextual suggestions and decision flows",
+    icon: SparklesIcon,
+    path: "/patterns/contextual-inline-actions",
+    color: "text-indigo-700"
   }
 ];
 const normalizedPatterns = patterns.map(p => ({
