@@ -18,7 +18,7 @@ const patterns = [
   },
   {
     title: "Dashboard",
-    description: "Interactive dashboard with widgets and Genie AI assistant",
+    description: "Interactive dashboard with widgets and Agent AI assistant",
     icon: LayoutDashboard,
     path: "/dashboard",
     color: "text-purple-500"
@@ -53,14 +53,14 @@ const patterns = [
   },
   {
     title: "Policy Tag Chips",
-    description: "Always-visible rule indicators with status and Genie integration",
+    description: "Always-visible rule indicators with status and Agent integration",
     icon: ShieldIcon,
     path: "/policy-tags",
     color: "text-indigo-500"
   },
   {
     title: "Narrated Insight",
-    description: "Contextual tooltips and popovers with conversational Genie explanations",
+    description: "Contextual tooltips and popovers with conversational Agent explanations",
     icon: MessageSquare,
     path: "/narrated-insight",
     color: "text-amber-500"
@@ -102,21 +102,21 @@ const patterns = [
   },
   {
     title: "Compliance Checklist",
-    description: "Modular compliance blocks with country-specific verification and Genie validation",
+    description: "Modular compliance blocks with country-specific verification and Agent validation",
     icon: ClipboardCheck,
     path: "/compliance-checklist",
     color: "text-lime-500"
   },
   {
     title: "Voice/Type Toggle",
-    description: "Switch between voice and text input for natural Genie interactions",
+    description: "Switch between voice and text input for natural Agent interactions",
     icon: Mic,
     path: "/voice-type-toggle",
     color: "text-rose-500"
   },
   {
     title: "Notification Center + SLA Alerts",
-    description: "Centralized system alerts with SLA timers and Genie notifications",
+    description: "Centralized system alerts with SLA timers and Agent notifications",
     icon: Bell,
     path: "/notification-center",
     color: "text-fuchsia-500"
@@ -130,7 +130,7 @@ const patterns = [
   },
   {
     title: "Contract Preview & E-Sign",
-    description: "In-line contract review and e-signature modal with Genie-powered clause verification",
+    description: "In-line contract review and e-signature modal with Agent-powered clause verification",
     icon: FileText,
     path: "/contract-preview",
     color: "text-yellow-500"
@@ -150,36 +150,36 @@ const patterns = [
     color: "text-gray-500"
   },
   {
-    title: "Genie Confirmation Card",
+    title: "Agent Confirmation Card",
     description: "Structured confirmation moments with visual checkpoints for impactful actions",
     icon: ShieldCheck,
     path: "/genie-confirmation",
     color: "text-blue-600"
   },
   {
-    title: "Genie Smart Suggestion Chips",
+    title: "Agent Smart Suggestion Chips",
     description: "Instant, one-tap contextual actions that help users move faster through flows",
     icon: SparklesIcon,
     path: "/smart-suggestion-chips",
     color: "text-violet-600"
   },
   {
-    title: "Genie Memory Thread",
-    description: "Context persistence and recall across sessions — makes Genie feel intelligent",
+    title: "Agent Memory Thread",
+    description: "Context persistence and recall across sessions — makes Agent feel intelligent",
     icon: Brain,
     path: "/genie-memory-thread",
     color: "text-purple-600"
   },
   {
-    title: "Genie Confirmation Queue",
-    description: "Pending actions manager for reviewing and confirming Genie-initiated tasks",
+    title: "Agent Confirmation Queue",
+    description: "Pending actions manager for reviewing and confirming Agent-initiated tasks",
     icon: ListTodo,
     path: "/genie-confirmation-queue",
     color: "text-amber-600"
   },
   {
-    title: "Genie Contextual Timeline",
-    description: "Real-time event bridge connecting all Genie actions into a visible stream",
+    title: "Agent Contextual Timeline",
+    description: "Real-time event bridge connecting all Agent actions into a visible stream",
     icon: Clock,
     path: "/genie-contextual-timeline",
     color: "text-cyan-600"
@@ -192,21 +192,21 @@ const patterns = [
     color: "text-teal-600"
   },
   {
-    title: "Genie Context Pivot Switcher",
+    title: "Agent Context Pivot Switcher",
     description: "Seamlessly switch between entity contexts with separate memory threads",
     icon: RefreshCw,
     path: "/genie-context-pivot",
     color: "text-emerald-600"
   },
   {
-    title: "Genie Smart Recap",
+    title: "Agent Smart Recap",
     description: "Session summaries with contextual next steps and action tracking",
     icon: SparklesIcon,
     path: "/genie-smart-recap",
     color: "text-pink-600"
   },
   {
-    title: "Genie Reaction Cards",
+    title: "Agent Reaction Cards",
     description: "Sentiment feedback loop with lightweight emojis",
     icon: Smile,
     path: "/genie-reaction-cards",
@@ -227,63 +227,63 @@ const patterns = [
     color: "text-violet-700"
   },
   {
-    title: "Genie Action Confirmations",
+    title: "Agent Action Confirmations",
     description: "Human-in-the-loop inline confirmations for high-impact actions",
     icon: UserCheck,
     path: "/genie-action-confirmations",
     color: "text-sky-700"
   },
   {
-    title: "Genie Context Tracker",
+    title: "Agent Context Tracker",
     description: "Persistent conversation awareness with context switching and memory",
     icon: History,
     path: "/genie-context-tracker",
     color: "text-teal-700"
   },
   {
-    title: "Genie Task Timeline",
+    title: "Agent Task Timeline",
     description: "Transparent, real-time view of every background action with step-by-step confidence",
     icon: Timer,
     path: "/genie-task-timeline",
     color: "text-orange-700"
   },
   {
-    title: "Genie Insight Carousel",
+    title: "Agent Insight Carousel",
     description: "Multiple related insights in a swipeable, horizontal carousel format",
     icon: Presentation,
     path: "/genie-insight-carousel",
     color: "text-blue-700"
   },
   {
-    title: "Genie Trust Gauge",
+    title: "Agent Trust Gauge",
     description: "Visualize user trust and system confidence as a living, evolving metric",
     icon: Gauge,
     path: "/genie-trust-gauge",
     color: "text-purple-700"
   },
   {
-    title: "Genie Smart Confirmation",
+    title: "Agent Smart Confirmation",
     description: "Structured review moments before significant actions with clear summaries",
     icon: CheckCircle,
     path: "/genie-smart-confirmation",
     color: "text-green-700"
   },
   {
-    title: "Genie Dual Path Suggestion",
+    title: "Agent Dual Path Suggestion",
     description: "Choose between AI automation and manual control for every workflow",
     icon: GitBranch,
     path: "/genie-dual-path-suggestion",
     color: "text-cyan-700"
   },
   {
-    title: "Genie Predictive Hint Bar",
+    title: "Agent Predictive Hint Bar",
     description: "Intelligent next-action suggestions based on context and system state",
     icon: Lightbulb,
     path: "/genie-predictive-hint-bar",
     color: "text-yellow-700"
   },
   {
-    title: "Genie Multi-Step Recall Thread",
+    title: "Agent Multi-Step Recall Thread",
     description: "Pause, remember, and resume multi-step processes without losing context",
     icon: RotateCcw,
     path: "/genie-multi-step-recall",
@@ -313,7 +313,7 @@ const DesignSystem = () => {
         <div className="text-center space-y-2">
           <h1 className="text-3xl sm:text-4xl font-semibold">Design System</h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            Unified library of Patterns and Components for the Fronted Genie platform
+            Unified library of Patterns and Components for the Fronted Agent platform
           </p>
         </div>
 
