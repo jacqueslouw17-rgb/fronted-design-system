@@ -46,20 +46,20 @@ const ComplianceChecklistBlock = ({
   const getStatusBadge = () => {
     switch (status) {
       case "passed":
-        return <Badge variant="default" className="bg-green-600 hover:bg-green-700">Passed</Badge>;
+        return <Badge variant="secondary" className="bg-success/10 text-success border-0 font-normal">Passed</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-foreground/5 text-foreground/60 border-0 font-normal">Pending</Badge>;
       case "processing":
-        return <Badge variant="secondary" className="gap-1">
+        return <Badge variant="secondary" className="gap-1 bg-foreground/5 text-foreground/60 border-0 font-normal">
           <Loader2 className="h-3 w-3 animate-spin" />
           Processing
         </Badge>;
       case "breach":
-        return <Badge variant="destructive">Breach</Badge>;
+        return <Badge variant="secondary" className="bg-destructive/10 text-destructive border-0 font-normal">Breach</Badge>;
       case "na":
-        return <Badge variant="outline" className="text-muted-foreground">N/A</Badge>;
+        return <Badge variant="secondary" className="bg-foreground/5 text-muted-foreground border-0 font-normal">N/A</Badge>;
       case "override":
-        return <Badge variant="outline" className="gap-1">
+        return <Badge variant="secondary" className="gap-1 bg-foreground/5 text-foreground/60 border-0 font-normal">
           <Shield className="h-3 w-3" />
           Override
         </Badge>;
@@ -109,11 +109,11 @@ const ComplianceChecklistBlock = ({
                   </p>
                 )}
                 {tags && tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <div className="flex flex-wrap gap-3 mt-2">
                     {tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                      <span key={index} className="text-xs text-muted-foreground">
                         {tag}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 )}

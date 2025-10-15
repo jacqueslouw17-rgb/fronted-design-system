@@ -1,6 +1,5 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LucideIcon, ChevronRight, TrendingUp, TrendingDown, Info } from "lucide-react";
 import { ReactNode, useState } from "react";
@@ -134,11 +133,11 @@ const DataSummaryCard = ({
           {sparklineData && renderSparkline()}
 
           {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="flex flex-wrap gap-3 mt-3">
               {tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
+                <span key={index} className="text-xs text-muted-foreground">
                   {tag}
-                </Badge>
+                </span>
               ))}
             </div>
           )}
