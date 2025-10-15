@@ -68,10 +68,10 @@ export const AgentDualPathPrompt = ({
             className="relative"
           >
             <Button
-              variant={selectedMode === "ai-led" ? "default" : "outline"}
+              variant="outline"
               className={cn(
-                "w-full h-auto flex-col items-start p-4 text-left gap-2 transition-all",
-                selectedMode === "ai-led" && "ring-2 ring-primary ring-offset-2"
+                "w-full h-auto flex-col items-start p-4 text-left gap-2 transition-all hover:bg-primary/5 hover:border-primary/40",
+                selectedMode === "ai-led" && "border-primary bg-primary/5 ring-2 ring-primary ring-offset-2"
               )}
               onClick={() => handleSelect("ai-led")}
             >
@@ -120,10 +120,10 @@ export const AgentDualPathPrompt = ({
             className="relative"
           >
             <Button
-              variant={selectedMode === "manual" ? "default" : "outline"}
+              variant="outline"
               className={cn(
-                "w-full h-auto flex-col items-start p-4 text-left gap-2 transition-all",
-                selectedMode === "manual" && "ring-2 ring-primary ring-offset-2"
+                "w-full h-auto flex-col items-start p-4 text-left gap-2 transition-all hover:bg-foreground/5 hover:border-border",
+                selectedMode === "manual" && "border-border bg-foreground/5 ring-2 ring-border ring-offset-2"
               )}
               onClick={() => handleSelect("manual")}
             >

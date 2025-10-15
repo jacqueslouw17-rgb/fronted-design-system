@@ -150,7 +150,7 @@ const GenieMultiStepRecallThreadPattern = () => {
 
         {/* Genie Greeting with Recall */}
         {pausedThreads.length > 0 && (
-          <Card className="border-2 border-primary/20 bg-accent/20">
+          <Card className="border-2 border-primary/20 bg-primary/5">
             <CardContent className="pt-6">
               <div className="flex items-start gap-4">
                 <KurtAvatar size="sm" />

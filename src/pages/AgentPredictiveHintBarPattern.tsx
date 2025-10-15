@@ -257,8 +257,8 @@ const GeniePredictiveHintBarPattern = () => {
                   key={scenario.id}
                   className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
                     activeScenario === scenario.id
-                      ? "border-primary bg-accent/50"
-                      : "border-border hover:border-muted-foreground"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/40 hover:bg-primary/5"
                   }`}
                   onClick={() => handleScenarioSelect(scenario.id)}
                 >

@@ -180,8 +180,8 @@ const GenieDualPathSuggestionPattern = () => {
                     <div
                       className={`p-4 rounded-lg border-2 transition-all ${
                         isSelected
-                          ? "border-primary bg-accent/50"
-                          : "border-border hover:border-muted-foreground cursor-pointer"
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
                       }`}
                       onClick={() => !isSelected && setSelectedScenario(scenario.id)}
                     >
