@@ -38,7 +38,7 @@ const LensToggle = () => {
             <DropdownMenuItem
               key={role.value}
               onClick={() => setRole(role.value)}
-              className={isActive ? "bg-muted" : ""}
+              className={isActive ? "bg-primary/5 border border-primary/40" : "hover:bg-primary/5 hover:border hover:border-primary/40"}
             >
               <div className="flex items-start gap-3 w-full">
                 <Icon className="h-4 w-4 mt-0.5" />
