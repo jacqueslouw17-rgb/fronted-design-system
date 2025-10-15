@@ -21,6 +21,7 @@ interface FeedbackModalProps {
 }
 
 interface FeedbackFormData {
+  name: string;
   pageContext: string;
   feedback: string;
 }
@@ -29,6 +30,7 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FeedbackFormData>({
+    name: "",
     pageContext: "",
     feedback: "",
   });
@@ -54,8 +56,8 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.feedback) {
-      toast.error("Please enter your feedback");
+    if (!formData.name || !formData.feedback) {
+      toast.error("Please enter your name and feedback");
       return;
     }
 
@@ -66,6 +68,7 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
         "send-feedback-to-slack",
         {
           body: {
+            name: formData.name,
             pageContext: formData.pageContext,
             feedback: formData.feedback,
           },
@@ -80,6 +83,7 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
         toast.success("✅ Feedback sent to Slack successfully");
         onClose();
         setFormData({
+          name: "",
           pageContext: "",
           feedback: "",
         });
@@ -103,6 +107,22 @@ export const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          {/* Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name">
+              Your Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="e.g., John Doe"
+              required
+            />
+          </div>
+
           {/* Page Context */}
           <div className="space-y-2">
             <Label htmlFor="pageContext">Context / Page</Label>

@@ -9,6 +9,7 @@ const corsHeaders = {
 interface FeedbackRequest {
   pageContext: string;
   feedback: string;
+  name: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -37,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*Type:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
+            text: `*From:* ${feedbackData.name}\n*Page:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
           },
         },
         {
@@ -55,27 +56,6 @@ const handler = async (req: Request): Promise<Response> => {
         {
           type: "actions",
           elements: [
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "✅ Acknowledge",
-                emoji: true,
-              },
-              style: "primary",
-              value: "acknowledge",
-              action_id: "acknowledge_feedback",
-            },
-            {
-              type: "button",
-              text: {
-                type: "plain_text",
-                text: "❓ Need More Info",
-                emoji: true,
-              },
-              value: "clarify",
-              action_id: "clarify_feedback",
-            },
             {
               type: "button",
               text: {
