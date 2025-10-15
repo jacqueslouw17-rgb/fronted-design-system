@@ -290,6 +290,10 @@ const patterns = [
     color: "text-pink-700"
   }
 ];
+const normalizedPatterns = patterns.map(p => ({
+  ...p,
+  path: p.path.startsWith("/genie-") ? p.path.replace("/genie-", "/agent-") : p.path
+}));
 
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
@@ -321,9 +325,9 @@ const DesignSystem = () => {
 
           <TabsContent value="patterns" className="mt-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {patterns.map((pattern) => {
+              {normalizedPatterns.map((pattern) => {
                 const Icon = pattern.icon;
-                const linkedComponents = getComponentsByPattern(pattern.path);
+                const linkedComponents = getComponentsByPattern(pattern.path.replace('/agent-', 'genie-'));
                 
                 return (
                   <Link key={pattern.path} to={pattern.path}>

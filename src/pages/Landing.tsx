@@ -285,6 +285,10 @@ const Landing = () => {
         color: "text-pink-700"
       }
     ];
+const normalizedPatterns = patterns.map(p => ({
+  ...p,
+  path: p.path.startsWith("/genie-") ? p.path.replace("/genie-", "/agent-") : p.path
+}));
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
@@ -297,7 +301,7 @@ const Landing = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {patterns.map((pattern) => {
+          {normalizedPatterns.map((pattern) => {
             const Icon = pattern.icon;
             return (
               <Link key={pattern.path} to={pattern.path}>
