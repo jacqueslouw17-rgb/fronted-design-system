@@ -5,7 +5,6 @@ import { DollarSign, AlertTriangle, CheckCircle, Users, TrendingUp, FileCheck, A
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 interface DrawerContent {
   title: string;
@@ -17,15 +16,10 @@ const DataSummaryCards = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerContent, setDrawerContent] = useState<DrawerContent | null>(null);
-  const { toast } = useToast();
 
   const handleExpand = (content: DrawerContent) => {
     setDrawerContent(content);
     setDrawerOpen(true);
-    toast({
-      title: "Opening details",
-      description: `Viewing ${content.title}`,
-    });
   };
 
   return (
