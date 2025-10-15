@@ -6,7 +6,7 @@ import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { ComplianceIcon } from "@/components/compliance/ComplianceIcon";
-import { ComplianceDrawer } from "@/components/compliance/ComplianceDrawer";
+import { ComplianceContent } from "@/components/compliance/ComplianceContent";
 import { useComplianceChanges } from "@/hooks/useComplianceChanges";
 
 interface AgentDrawerProps {
@@ -25,7 +25,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   const [inputMode, setInputMode] = useState<"voice" | "text">("text");
   const [isListening, setIsListening] = useState(false);
   const [kurtMessage, setKurtMessage] = useState("");
-  const [complianceOpen, setComplianceOpen] = useState(false);
+  const [view, setView] = useState<"chat" | "compliance">("chat");
   const [selectedCountry] = useState("NO");
   const { speak, stop } = useTextToSpeech();
   const { toast } = useToast();
@@ -91,7 +91,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
         <ComplianceIcon
           status={complianceStatus}
           count={complianceData?.changes.length}
-          onClick={() => setComplianceOpen(true)}
+          onClick={() => setView("compliance")}
         />
         <Button
           variant="ghost"
@@ -102,68 +102,68 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
         </Button>
       </div>
 
-      {/* Main centered area - like onboarding */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        {/* Kurt Avatar with message */}
-        <KurtAvatar 
-          isListening={isListening} 
-          message={kurtMessage}
-        />
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col p-8 overflow-y-auto">
+        {view === "chat" ? (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {/* Kurt Avatar with message */}
+            <KurtAvatar 
+              isListening={isListening} 
+              message={kurtMessage}
+            />
 
-        {/* Input Controls - styled like onboarding */}
-        <div className="flex items-center space-x-4 mt-8">
-          <Button
-            onClick={handleToggleMode}
-            className={`px-6 ${
-              isListening ? "bg-destructive hover:bg-destructive/90" : ""
-            }`}
-          >
-            <Mic className="h-5 w-5 mr-2" />
-            {isListening ? "Stop" : "Speak"}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="px-6"
-            onClick={() => setInputMode("text")}
-          >
-            <Keyboard className="h-5 w-5 mr-2" />
-            Type
-          </Button>
-        </div>
-
-        {/* Text input area - only show when in text mode or has messages */}
-        {(inputMode === "text" || messages.length > 0) && (
-          <div className="mt-8 w-full max-w-2xl">
-            <div className="flex gap-2">
-              <Input
-                placeholder={inputMode === "voice" ? "Listening..." : "Ask agent anything..."}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                disabled={inputMode === "voice" && isListening}
-                className={`${inputMode === "voice" && isListening ? "bg-muted" : ""}`}
-              />
-              <Button size="icon" onClick={handleSend} disabled={!inputValue.trim()}>
-                <Send className="h-4 w-4" />
+            {/* Input Controls - styled like onboarding */}
+            <div className="flex items-center space-x-4 mt-8">
+              <Button
+                onClick={handleToggleMode}
+                className={`px-6 ${
+                  isListening ? "bg-destructive hover:bg-destructive/90" : ""
+                }`}
+              >
+                <Mic className="h-5 w-5 mr-2" />
+                {isListening ? "Stop" : "Speak"}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="px-6"
+                onClick={() => setInputMode("text")}
+              >
+                <Keyboard className="h-5 w-5 mr-2" />
+                Type
               </Button>
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* Compliance Drawer */}
-      {complianceData && (
-        <ComplianceDrawer
-          open={complianceOpen}
-          onOpenChange={setComplianceOpen}
-          country={selectedCountry}
-          status={complianceStatus}
-          lastSync={complianceData.lastSync}
-          changes={complianceData.changes}
-          activePolicies={complianceData.activePolicies}
-          sources={complianceData.sources}
-        />
-      )}
+            {/* Text input area - only show when in text mode or has messages */}
+            {(inputMode === "text" || messages.length > 0) && (
+              <div className="mt-8 w-full max-w-2xl">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={inputMode === "voice" ? "Listening..." : "Ask agent anything..."}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    disabled={inputMode === "voice" && isListening}
+                    className={`${inputMode === "voice" && isListening ? "bg-muted" : ""}`}
+                  />
+                  <Button size="icon" onClick={handleSend} disabled={!inputValue.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : complianceData ? (
+          <ComplianceContent
+            onBack={() => setView("chat")}
+            country={selectedCountry}
+            status={complianceStatus}
+            lastSync={complianceData.lastSync}
+            changes={complianceData.changes}
+            activePolicies={complianceData.activePolicies}
+            sources={complianceData.sources}
+          />
+        ) : null}
+      </div>
     </div>
   );
 };
