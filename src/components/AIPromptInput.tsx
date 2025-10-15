@@ -53,7 +53,7 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
   return (
     <div
       className={cn(
-        "fixed z-50 w-[500px] animate-in fade-in slide-in-from-top-2",
+        "fixed z-50 w-[500px] animate-in fade-in-0 slide-in-from-top-2 duration-200",
         className
       )}
       style={
@@ -66,8 +66,8 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
           : undefined
       }
     >
-      <div className="rounded-lg border border-border bg-popover shadow-lg">
-        <div className="flex items-center gap-2 border-b border-border p-2">
+      <div className="rounded-lg border border-border bg-popover shadow-xl">
+        <div className="flex items-center gap-2 border-b border-border p-3">
           <input
             ref={inputRef}
             type="text"
@@ -75,26 +75,18 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="flex-1 bg-transparent px-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="flex-1 bg-transparent px-2 py-1 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-              <Hash className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-              <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="h-7 w-7 rounded-full p-0"
-              onClick={handleSubmit}
-              disabled={!prompt.trim()}
-            >
-              <ArrowUp className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 rounded-md px-3"
+            onClick={handleSubmit}
+            disabled={!prompt.trim()}
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
         </div>
 
         {suggestions.length > 0 && (

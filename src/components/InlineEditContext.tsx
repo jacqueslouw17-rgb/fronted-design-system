@@ -48,13 +48,13 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
     <div
       ref={containerRef}
       className={cn(
-        "relative min-h-[200px] rounded-lg border border-border bg-background p-6 transition-all",
-        "focus-within:border-primary/30 hover:border-border/80",
+        "relative min-h-[200px] rounded-lg border border-border bg-card p-6 transition-all duration-200",
+        "hover:border-muted-foreground/20",
         className
       )}
     >
       <div 
-        className="prose prose-sm max-w-none text-foreground"
+        className="prose prose-sm max-w-none text-foreground transition-all duration-300"
         dangerouslySetInnerHTML={{ __html: content }}
       />
       {children}

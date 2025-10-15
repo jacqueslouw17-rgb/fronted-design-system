@@ -71,14 +71,21 @@ const ContextualInlineActionsPattern = () => {
         if (prompt.toLowerCase().includes("checkbox")) {
           newContent = currentContent.replace(/<ul>/g, '<ul class="checklist">').replace(/<li>/g, '<li><input type="checkbox" /> ');
         } else if (prompt.toLowerCase().includes("improve") || prompt.toLowerCase().includes("writing")) {
-          newContent = currentContent.replace(/What library/g, "Which library");
+          newContent = currentContent
+            .replace(/What library/g, "Which library")
+            .replace(/AI tool/g, "AI development tool");
         } else if (prompt.toLowerCase().includes("shorter")) {
           newContent = `<ul>
             <li><strong>Foundations</strong> - core principles</li>
-            <li><strong>Components list</strong></li>
-            <li>Library selection</li>
-            <li>Build & map patterns</li>
+            <li><strong>Components list:</strong> <a href="#">notion.so/MVP-link</a></li>
+            <li>Library selection - ShadeCN or UntitledUI</li>
+            <li>Build & map patterns to modules</li>
           </ul>`;
+        } else if (prompt.toLowerCase().includes("bullet")) {
+          newContent = currentContent.replace(/<li>/g, '<li>• ');
+        } else {
+          // Default transformation
+          newContent = currentContent.replace(/AI tool/g, "AI development platform");
         }
 
         setOriginalContent(currentContent);
@@ -87,17 +94,17 @@ const ContextualInlineActionsPattern = () => {
 
         addAuditEntry({
           user: "Joe",
-          action: `AI applied: ${prompt}`,
+          action: `Gelo applied: ${prompt}`,
           before: currentContent,
           after: newContent,
         });
 
         toast({
           title: "Changes applied",
-          description: `Kurt ${prompt.toLowerCase()}`,
+          description: `Gelo ${prompt.toLowerCase()}`,
         });
-      }, 1000);
-    }, 1500);
+      }, 1200);
+    }, 1800);
   };
 
   return (
@@ -119,7 +126,7 @@ const ContextualInlineActionsPattern = () => {
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Interactive Demo</h2>
           <p className="text-sm text-muted-foreground">
-            Select any text below to see the inline toolbar. Click "Ask AI" to type a custom prompt like "Change list to checkboxes" or "Make it shorter".
+            Select any text below to see the inline toolbar. Click "Ask Gelo" to type a custom prompt like "Change list to checkboxes" or "Make it shorter".
           </p>
 
           <div className="relative">

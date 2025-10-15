@@ -26,7 +26,7 @@ export const AIProcessingState: React.FC<AIProcessingStateProps> = ({
   return (
     <div
       className={cn(
-        "fixed z-50 flex items-center gap-2 rounded-full border border-border bg-popover/95 px-4 py-2 shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-top-1",
+        "fixed z-50 animate-in fade-in-0 slide-in-from-top-2 duration-200",
         className
       )}
       style={
@@ -39,11 +39,18 @@ export const AIProcessingState: React.FC<AIProcessingStateProps> = ({
           : undefined
       }
     >
-      <Sparkles className="h-4 w-4 animate-pulse text-primary" />
-      <span className="text-sm font-medium text-foreground">
-        {stateText[state]}
-        <span className="animate-pulse">...</span>
-      </span>
+      <div className="rounded-lg border border-border bg-popover/95 px-4 py-2.5 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="flex gap-1">
+            <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+            <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" style={{ animationDelay: "0.2s" }} />
+            <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" style={{ animationDelay: "0.4s" }} />
+          </div>
+          <span className="font-medium text-foreground">
+            {state === "thinking" ? "Gelo is thinking..." : "Applying changes..."}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

@@ -43,7 +43,7 @@ export const InlineToolbar: React.FC<InlineToolbarProps> = ({
         onClick={onAskAI}
       >
         <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-        Ask AI
+        Ask Gelo
       </Button>
       
       <div className="h-4 w-px bg-border" />
