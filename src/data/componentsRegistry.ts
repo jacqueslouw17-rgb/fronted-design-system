@@ -1,4 +1,4 @@
-import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle } from "lucide-react";
+import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle, Calculator } from "lucide-react";
 
 export interface ComponentReference {
   id: string;
@@ -681,6 +681,98 @@ export const componentsRegistry: ComponentReference[] = [
     usedInModules: ["Compliance", "Audit"],
     icon: CheckCircle,
     filePath: "src/components/compliance/AcknowledgeButton.tsx"
+  },
+  {
+    id: "pattern-42",
+    name: "Cost & Tax Logic Visualizer",
+    description: "Transparent breakdown of Gross → Employer Tax → Fee → Total with toggleable fee models",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Standard calculation view" },
+      { name: "comparing", description: "Showing competitor comparison" },
+      { name: "editing", description: "User adjusting parameters" }
+    ],
+    props: [
+      { name: "jurisdiction", type: "string", description: "Selected country" },
+      { name: "currency", type: "string", description: "Currency code" },
+      { name: "gross", type: "number", description: "Gross salary amount" },
+      { name: "employerRate", type: "number", description: "Employer tax rate" },
+      { name: "feeRate", type: "number", description: "Fee percentage" },
+      { name: "feeModel", type: "'GROSS' | 'TOTAL_COST'", description: "Fee calculation model" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer"],
+    usedInModules: ["Finance", "Payroll", "Country Blocks"],
+    icon: Calculator,
+    filePath: "src/pages/CostTaxVisualizerPattern.tsx"
+  },
+  {
+    id: "cost-breakdown-card",
+    name: "CostBreakdownCard",
+    description: "Main cost calculator with jurisdiction, rates, and fee model controls",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Showing cost breakdown" },
+      { name: "comparing", description: "Comparison modal open" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer"],
+    usedInModules: ["Finance", "Payroll"],
+    icon: Calculator,
+    filePath: "src/components/cost/CostBreakdownCard.tsx"
+  },
+  {
+    id: "fx-badge",
+    name: "FXBadge",
+    description: "Display FX spot rate, spread, and effective rate",
+    category: "UI",
+    states: [
+      { name: "default", description: "Showing FX info" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer", "fx-breakdown"],
+    usedInModules: ["Finance", "Payroll"],
+    icon: TrendingUp,
+    filePath: "src/components/cost/FXBadge.tsx"
+  },
+  {
+    id: "fee-toggle-switch",
+    name: "FeeToggleSwitch",
+    description: "Toggle between GROSS and TOTAL_COST fee calculation models",
+    category: "UI",
+    states: [
+      { name: "gross", description: "Fee based on gross only" },
+      { name: "total-cost", description: "Fee based on gross + tax" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer"],
+    usedInModules: ["Finance"],
+    icon: ToggleLeft,
+    filePath: "src/components/cost/FeeToggleSwitch.tsx"
+  },
+  {
+    id: "tooltip-explain",
+    name: "TooltipExplain",
+    description: "Formula and source explanations in tooltips",
+    category: "UI",
+    states: [
+      { name: "closed", description: "Tooltip hidden" },
+      { name: "open", description: "Showing formula and source" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer"],
+    usedInModules: ["Finance", "Compliance"],
+    icon: AlertCircle,
+    filePath: "src/components/cost/TooltipExplain.tsx"
+  },
+  {
+    id: "comparison-chart",
+    name: "ComparisonChart",
+    description: "Educational cost comparison modal",
+    category: "Pattern",
+    states: [
+      { name: "open", description: "Modal visible" },
+      { name: "closed", description: "Modal hidden" }
+    ],
+    usedInPatterns: ["cost-tax-visualizer"],
+    usedInModules: ["Finance"],
+    icon: BarChart3,
+    filePath: "src/components/cost/ComparisonChart.tsx"
   }
 ];
 
