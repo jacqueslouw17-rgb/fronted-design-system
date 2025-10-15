@@ -26,14 +26,14 @@ const StepCard = ({
     switch (status) {
       case "completed":
         return (
-          <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+          <Badge variant="secondary" className="bg-success/10 text-success border-0 font-normal">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            Done
+            Complete
           </Badge>
         );
       case "active":
         return (
-          <Badge variant="outline" className="text-muted-foreground border-border">
+          <Badge variant="secondary" className="bg-foreground/5 text-foreground/60 border-0 font-normal">
             In Progress
           </Badge>
         );
@@ -44,13 +44,13 @@ const StepCard = ({
 
   if (isExpanded) {
     return (
-      <Card className="p-5 border-border hover:border-primary/30 shadow-card hover:shadow-elevated transition-all duration-300 card-expand">
+      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 rounded-full bg-muted text-foreground flex items-center justify-center text-sm font-medium">
+            <div className="h-7 w-7 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium">
               {stepNumber}
             </div>
-            <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+            <h3 className="font-semibold text-base text-foreground">{title}</h3>
           </div>
           {getStatusBadge()}
         </div>
@@ -64,31 +64,31 @@ const StepCard = ({
 
   return (
     <Card
-      className={`p-4 transition-all duration-300 cursor-pointer group ${
+      className={`p-4 transition-all duration-300 cursor-pointer group border-border/50 ${
         status === "completed"
-          ? "bg-success/5 hover:bg-success/10 border-success/20 hover:shadow-md hover:-translate-y-0.5"
-          : "hover:shadow-elevated hover:-translate-y-1 hover:border-primary/20"
-      } ${status === "pending" ? "opacity-50" : ""}`}
-      onClick={onClick}
+          ? "bg-success/5 hover:bg-success/10"
+          : "hover:shadow-md hover:-translate-y-0.5"
+      } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
+      onClick={status !== "pending" ? onClick : undefined}
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <div
-            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 ${
+            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 ${
               status === "completed"
-                ? "bg-success/10 text-success group-hover:bg-success group-hover:text-success-foreground"
+                ? "bg-success/15 text-success"
                 : status === "active"
-                ? "bg-muted text-muted-foreground group-hover:bg-gradient-primary group-hover:text-primary-foreground"
-                : "bg-muted/50 text-muted-foreground"
+                ? "bg-foreground/8 text-foreground/50 group-hover:bg-foreground/12"
+                : "bg-foreground/5 text-foreground/30"
             }`}
           >
             {status === "completed" ? (
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-3.5 w-3.5" />
             ) : (
               stepNumber
             )}
           </div>
-          <p className="font-medium text-foreground group-hover:text-foreground transition-colors">{title}</p>
+          <p className="font-medium text-sm text-foreground">{title}</p>
         </div>
         {getStatusBadge()}
       </div>
