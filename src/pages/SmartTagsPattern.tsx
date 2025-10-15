@@ -139,10 +139,10 @@ const SmartTagsPattern = () => {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      payroll: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-      compliance: "bg-green-500/10 text-green-500 border-green-500/20",
-      contract: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-      policy: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      payroll: "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30",
+      compliance: "bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30",
+      contract: "bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20 hover:border-purple-500/30",
+      policy: "bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/30",
     };
     return colors[category] || "bg-muted text-muted-foreground";
   };
