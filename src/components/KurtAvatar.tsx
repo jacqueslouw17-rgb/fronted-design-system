@@ -4,9 +4,10 @@ interface KurtAvatarProps {
   isListening?: boolean;
   message?: string;
   size?: "default" | "sm";
+  name?: string;
 }
 
-const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default" }: KurtAvatarProps) => {
+const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt" }: KurtAvatarProps) => {
   if (size === "sm") {
     return (
       <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -52,7 +53,7 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
 
       {/* Status text */}
       <p className="text-lg font-medium text-foreground">
-        {isListening ? "Kurt is listening..." : "Kurt"}
+        {isListening ? `${name} is listening...` : name}
       </p>
 
       {/* Message bubble */}

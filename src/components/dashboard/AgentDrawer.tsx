@@ -108,10 +108,11 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
       <div className="flex-1 flex flex-col p-8 overflow-y-auto">
         {view === "chat" ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            {/* Kurt Avatar with message */}
+            {/* Gelo Avatar with message */}
             <KurtAvatar 
               isListening={isListening} 
               message={kurtMessage}
+              name="Gelo"
             />
 
             {/* Input Controls - styled like onboarding */}

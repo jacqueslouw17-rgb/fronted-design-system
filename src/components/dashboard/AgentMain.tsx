@@ -33,7 +33,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
     }
   };
 
-  const greeting = `Hi ${userData.firstName}! I'm Kurt, your AI assistant. How can I help you today?`;
+  const greeting = `Hi ${userData.firstName}! I'm Gelo, your AI assistant. How can I help you today?`;
 
   return (
     <motion.div
@@ -51,7 +51,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="flex justify-center"
         >
-          <KurtAvatar isListening={isListening} size="default" />
+          <KurtAvatar isListening={isListening} size="default" name="Gelo" />
         </motion.div>
 
         {/* Input Area */}
