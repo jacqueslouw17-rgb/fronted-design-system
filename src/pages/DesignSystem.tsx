@@ -348,7 +348,7 @@ const DesignSystem = () => {
                               <Badge 
                                 key={comp.id} 
                                 variant="secondary" 
-                                className="text-xs cursor-pointer hover:bg-muted transition-colors"
+                                className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
