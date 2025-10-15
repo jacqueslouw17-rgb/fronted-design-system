@@ -102,7 +102,7 @@ const HoverToolbarPattern = () => {
             <Icon className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="z-50">
           <p>{label}</p>
         </TooltipContent>
       </Tooltip>
@@ -206,7 +206,7 @@ const HoverToolbarPattern = () => {
                                     </Button>
                                   </DropdownMenuTrigger>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="z-50">
                                   <p>More actions</p>
                                 </TooltipContent>
                               </Tooltip>
@@ -272,7 +272,7 @@ const HoverToolbarPattern = () => {
 
                   {/* Hover Toolbar */}
                   <div
-                    className={`absolute top-4 right-4 flex items-center gap-1 bg-card/95 backdrop-blur-sm rounded-lg p-1 shadow-lg border border-border transition-all duration-200 ${
+                    className={`absolute top-4 right-4 flex items-center gap-1 bg-card/95 backdrop-blur-sm rounded-lg p-1 shadow-lg border border-border transition-all duration-200 z-40 ${
                       hoveredCard === card.id
                         ? "opacity-100 translate-x-0"
                         : "opacity-0 translate-x-2 pointer-events-none"
