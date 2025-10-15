@@ -23,9 +23,9 @@ interface DashboardProps {
 
 const Dashboard = ({ 
   userData = {
-    firstName: "Demo",
+    firstName: "Joe",
     lastName: "User",
-    email: "demo@example.com",
+    email: "joe@example.com",
     country: "United States",
     role: "admin"
   },
