@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Input } from "@/components/ui/input";
@@ -306,42 +307,157 @@ const Index = () => {
   }
 
   return (
-    <main className="flex min-h-screen bg-background text-foreground relative">
+    <main className="flex min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Animated gradient background orbs */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+      >
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.15, 0.1],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl"
+          style={{ background: 'var(--gradient-primary)' }}
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.08, 0.12, 0.08],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+          className="absolute bottom-1/4 right-1/3 w-[28rem] h-[28rem] rounded-full blur-3xl"
+          style={{ background: 'var(--gradient-secondary)' }}
+        />
+      </motion.div>
+
       {/* Back Button */}
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-4 left-4 z-10"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
         onClick={() => window.location.href = '/'}
       >
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
       {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative">
-        <KurtAvatar isListening={isListening} message={kurtMessage} />
+      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative z-10">
+        {/* Kurt Avatar with enhanced glow */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="relative"
+        >
+          {/* Animated glow rings */}
+          {isListening && (
+            <>
+              <motion.div
+                animate={{
+                  scale: [1, 1.4, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeOut"
+                }}
+                className="absolute inset-0 rounded-full blur-xl"
+                style={{ 
+                  background: 'var(--gradient-primary)',
+                  filter: 'blur(20px)'
+                }}
+              />
+              <motion.div
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.3, 0, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                  delay: 0.5
+                }}
+                className="absolute inset-0 rounded-full blur-2xl"
+                style={{ 
+                  background: 'var(--gradient-secondary)',
+                  filter: 'blur(30px)'
+                }}
+              />
+            </>
+          )}
+          <KurtAvatar isListening={isListening} message={kurtMessage} />
+        </motion.div>
 
-        {/* Input Controls */}
+        {/* Input Controls with gradient effects */}
         {!hasStarted ? (
-          <Button onClick={handleStart} size="lg" className="px-8">
-            Start Conversation
-          </Button>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button 
+                onClick={handleStart} 
+                size="lg" 
+                className="px-8 bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all"
+              >
+                Start Conversation
+              </Button>
+            </motion.div>
+          </motion.div>
         ) : (
-          <div className="flex items-center space-x-4 mt-8">
-            <Button
-              onClick={handleVoiceInput}
-              className={`px-6 ${
-                isListening ? "bg-destructive hover:bg-destructive/90" : ""
-              }`}
-            >
-              <Mic className="h-5 w-5 mr-2" />
-              {isListening ? "Stop" : "Speak"}
-            </Button>
-            <Button variant="outline" className="px-6">
-              <Keyboard className="h-5 w-5 mr-2" />
-              Type
-            </Button>
-          </div>
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4 mt-8"
+          >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleVoiceInput}
+                className={`px-6 relative overflow-hidden ${
+                  isListening 
+                    ? "bg-destructive hover:bg-destructive/90" 
+                    : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                }`}
+              >
+                {isListening && (
+                  <motion.div
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
+                  />
+                )}
+                <Mic className={`h-5 w-5 mr-2 relative z-10 ${isListening ? 'animate-pulse' : ''}`} />
+                <span className="relative z-10">{isListening ? "Stop" : "Speak"}</span>
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button 
+                variant="outline" 
+                className="px-6 border-primary/30 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all"
+              >
+                <Keyboard className="h-5 w-5 mr-2" />
+                Type
+              </Button>
+            </motion.div>
+          </motion.div>
         )}
 
         {/* Back Button */}
