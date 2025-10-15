@@ -53,6 +53,12 @@ The interface should feel calm, minimal, and elegant at rest—revealing depth, 
 3. **Icons**: Scale (1.05), color shift to brand colors
 4. **Badges**: Slight background darken, no dramatic color shift
 5. **Links**: Underline with gradient, color shift
+6. **Status-aware Items**: Use status-appropriate colors with subtle fills
+   - Neutral/pending: `hover:bg-primary/5 hover:border-primary/40` (brand blue)
+   - Success/verified: `hover:bg-success/5 hover:border-success/40` (green)
+   - Error/breach: `hover:bg-destructive/5 hover:border-destructive/40` (red)
+   - Warning/urgent: `hover:bg-amber-500/5 hover:border-amber-500/40` (amber)
+   - ❌ Avoid generic `hover:bg-accent/50` - always choose status-appropriate colors
 
 ### Transition Timing
 - **Fast**: 200ms for buttons, icons

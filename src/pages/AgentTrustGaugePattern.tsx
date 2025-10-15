@@ -205,7 +205,13 @@ const GenieTrustGaugePattern = () => {
                 {history.slice(0, 5).map((record, index) => (
                   <div
                     key={record.id}
-                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className={`flex items-center justify-between p-3 rounded-lg border bg-card transition-all ${
+                      record.status === "stable" 
+                        ? "hover:bg-success/5 hover:border-success/40" 
+                        : record.status === "caution"
+                        ? "hover:bg-amber-500/5 hover:border-amber-500/40"
+                        : "hover:bg-destructive/5 hover:border-destructive/40"
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="text-2xl font-bold text-muted-foreground">

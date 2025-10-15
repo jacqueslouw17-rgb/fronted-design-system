@@ -111,7 +111,7 @@ export function QueueBadge({ count, onClick }: QueueBadgeProps) {
   return (
     <button
       onClick={onClick}
-      className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border hover:bg-accent transition-colors"
+      className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border hover:bg-amber-500/5 hover:border-amber-500/40 transition-all"
     >
       <ListTodo className="h-4 w-4 text-muted-foreground" />
       <span className="text-sm font-medium">{count} Pending</span>

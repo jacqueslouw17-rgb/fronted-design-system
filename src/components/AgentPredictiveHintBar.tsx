@@ -94,7 +94,13 @@ export const AgentPredictiveHintBar = ({
                           variant="outline"
                           size="sm"
                           onClick={suggestion.onClick}
-                          className="gap-2 relative hover:bg-accent"
+                          className={`gap-2 relative transition-all ${
+                            urgency === "high" 
+                              ? "hover:bg-destructive/5 hover:border-destructive/40" 
+                              : urgency === "medium"
+                              ? "hover:bg-amber-500/5 hover:border-amber-500/40"
+                              : "hover:bg-primary/5 hover:border-primary/40"
+                          }`}
                         >
                           {/* Urgency indicator */}
                           {suggestion.urgency && suggestion.urgency !== "low" && (

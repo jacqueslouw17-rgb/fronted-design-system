@@ -112,7 +112,7 @@ export const AgentSmartConfirmation = ({
               {data.metrics.map((metric, index) => (
                 <div
                   key={index}
-                  className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  className="p-3 rounded-lg border bg-card hover:bg-primary/5 hover:border-primary/40 transition-all"
                 >
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
@@ -152,7 +152,13 @@ export const AgentSmartConfirmation = ({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-start gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors"
+                      className={`flex items-start gap-3 p-2 rounded-md transition-all ${
+                        change.type === "added"
+                          ? "hover:bg-success/5 hover:border-success/40"
+                          : change.type === "removed"
+                          ? "hover:bg-amber-500/5 hover:border-amber-500/40"
+                          : "hover:bg-primary/5 hover:border-primary/40"
+                      }`}
                     >
                       <div
                         className={cn(

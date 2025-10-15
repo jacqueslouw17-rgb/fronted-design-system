@@ -297,13 +297,28 @@ const AuditTrailPattern = () => {
                 <div className="space-y-3">
                   {events.map((event, index) => {
                     const Icon = getEventIcon(event.type);
+                    const getHoverClass = () => {
+                      if (event.actor.isGenie) return "bg-primary/10";
+                      switch (event.status) {
+                        case "approved":
+                        case "completed":
+                          return "hover:bg-success/5 hover:border-success/40";
+                        case "declined":
+                        case "error":
+                          return "hover:bg-destructive/5 hover:border-destructive/40";
+                        case "edited":
+                          return "hover:bg-primary/5 hover:border-primary/40";
+                        default:
+                          return "hover:bg-primary/5 hover:border-primary/40";
+                      }
+                    };
                     return (
                       <Tooltip key={event.id}>
                         <TooltipTrigger asChild>
                           <Card 
-                            className={`cursor-pointer transition-colors hover:bg-accent/50 ${
-                              event.actor.isGenie ? "bg-accent/20" : ""
-                            }`}
+                            className={`cursor-pointer transition-all ${
+                              event.actor.isGenie ? "bg-primary/10" : ""
+                            } ${!event.actor.isGenie ? getHoverClass() : "hover:bg-primary/15 hover:border-primary/40"}`}
                           >
                             <CardContent className="p-4">
                               <div className="flex gap-4">
