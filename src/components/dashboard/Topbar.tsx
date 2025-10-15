@@ -20,16 +20,19 @@ import {
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import ToneChip from "./ToneChip";
 import LensToggle from "./LensToggle";
+import DrawerToggle from "./DrawerToggle";
 
 interface TopbarProps {
   userName: string;
-  version?: "v1" | "v2";
-  onVersionChange?: (version: "v1" | "v2") => void;
+  version?: "v1" | "v2" | "v3";
+  onVersionChange?: (version: "v1" | "v2" | "v3") => void;
   isAgentOpen?: boolean;
   onAgentToggle?: () => void;
+  isDrawerOpen?: boolean;
+  onDrawerToggle?: () => void;
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle }: TopbarProps) => {
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -59,6 +62,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
             <SelectContent>
               <SelectItem value="v1">v1</SelectItem>
               <SelectItem value="v2">v2</SelectItem>
+              <SelectItem value="v3">v3</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -85,6 +89,11 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           >
             <PanelLeftOpen className="h-5 w-5" />
           </Button>
+        )}
+        
+        {/* Drawer Toggle - only shown in v3 */}
+        {version === "v3" && onDrawerToggle && (
+          <DrawerToggle isOpen={isDrawerOpen || false} onClick={onDrawerToggle} />
         )}
         
         {/* When agent is open, collapse actions into menu */}
