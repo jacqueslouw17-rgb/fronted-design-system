@@ -3,61 +3,60 @@ import { cn } from "@/lib/utils";
 
 interface InlineEditContextProps {
   content: string;
-  role?: string;
-  onSelect?: (text: string, range: { start: number; end: number }) => void;
-  onChange?: (newContent: string) => void;
+  onContentChange?: (newContent: string) => void;
+  onSelect?: (text: string, position: { x: number; y: number }) => void;
   children?: React.ReactNode;
   className?: string;
 }
 
 export const InlineEditContext: React.FC<InlineEditContextProps> = ({
   content,
-  role = "user",
+  onContentChange,
   onSelect,
-  onChange,
   children,
   className,
 }) => {
-  const [selectedText, setSelectedText] = useState("");
-  const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
-    const text = selection?.toString() || "";
+    const text = selection?.toString().trim() || "";
     
     if (text && containerRef.current?.contains(selection?.anchorNode || null)) {
-      const range = selection?.getRangeAt(0);
-      const preSelectionRange = range?.cloneRange();
-      preSelectionRange?.selectNodeContents(containerRef.current);
-      preSelectionRange?.setEnd(range?.startContainer || containerRef.current, range?.startOffset || 0);
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
       
-      const start = preSelectionRange?.toString().length || 0;
-      const end = start + text.length;
-      
-      setSelectedText(text);
-      setSelectionRange({ start, end });
-      onSelect?.(text, { start, end });
+      onSelect?.(text, {
+        x: rect.left + rect.width / 2,
+        y: rect.top - 10,
+      });
+    } else if (!text) {
+      onSelect?.("", { x: 0, y: 0 });
     }
   };
 
   useEffect(() => {
     document.addEventListener("mouseup", handleTextSelection);
-    return () => document.removeEventListener("mouseup", handleTextSelection);
+    document.addEventListener("selectionchange", handleTextSelection);
+    return () => {
+      document.removeEventListener("mouseup", handleTextSelection);
+      document.removeEventListener("selectionchange", handleTextSelection);
+    };
   }, []);
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative rounded-lg border border-border bg-background p-4 transition-colors hover:border-primary/20",
+        "relative min-h-[200px] rounded-lg border border-border bg-background p-6 transition-all",
+        "focus-within:border-primary/30 hover:border-border/80",
         className
       )}
-      data-role={role}
     >
-      <div className="prose prose-sm max-w-none">
-        {content}
-      </div>
+      <div 
+        className="prose prose-sm max-w-none text-foreground"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
       {children}
     </div>
   );
