@@ -14,28 +14,30 @@ export const FeedbackBubble = () => {
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className={cn(
-              "fixed bottom-8 right-8 h-12 w-12 rounded-full",
-              "bg-card border border-border",
-              "transition-all duration-300 ease-out",
-              "hover:scale-110 hover:-translate-y-0.5",
-              "shadow-card hover:shadow-elevated",
-              "group z-[100]"
-            )}
-            size="icon"
-            variant="ghost"
-          >
-            <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="left" className="text-xs">
-          <p>Share feedback</p>
-        </TooltipContent>
-      </Tooltip>
+      {!isModalOpen && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className={cn(
+                "fixed bottom-8 right-8 h-12 w-12 rounded-full",
+                "bg-card border border-border",
+                "transition-all duration-300 ease-out",
+                "hover:scale-110 hover:-translate-y-0.5",
+                "shadow-card hover:shadow-elevated",
+                "group z-[100]"
+              )}
+              size="icon"
+              variant="ghost"
+            >
+              <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="text-xs">
+            <p>Share feedback</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
 
       <FeedbackModal 
         isOpen={isModalOpen} 
