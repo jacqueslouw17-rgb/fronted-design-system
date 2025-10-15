@@ -43,7 +43,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         isDrawerOpen ? "w-1/2" : "w-full"
       }`}
     >
-      <div className="max-w-2xl w-full space-y-8">
+      <div className="max-w-2xl w-full space-y-6">
         {/* Kurt Avatar with pulse animation */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -54,26 +54,11 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           <KurtAvatar isListening={isListening} size="default" />
         </motion.div>
 
-        {/* Greeting Message */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center space-y-2"
-        >
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome to Kurt
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            {greeting}
-          </p>
-        </motion.div>
-
         {/* Input Area */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           className="space-y-4"
         >
           <div className="relative">
