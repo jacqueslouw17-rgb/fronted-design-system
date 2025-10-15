@@ -39,7 +39,7 @@ export const InlineToolbar: React.FC<InlineToolbarProps> = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 gap-2 text-xs font-medium hover:bg-accent text-foreground"
+        className="h-8 gap-2 text-xs font-medium hover:bg-muted text-foreground"
         onClick={onAskAI}
       >
         <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
@@ -51,7 +51,7 @@ export const InlineToolbar: React.FC<InlineToolbarProps> = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 gap-2 text-xs text-foreground hover:bg-accent"
+        className="h-8 gap-2 text-xs text-foreground hover:bg-muted"
         onClick={() => onQuickAction?.("improve")}
       >
         <Type className="h-3.5 w-3.5 text-muted-foreground" />
@@ -61,7 +61,7 @@ export const InlineToolbar: React.FC<InlineToolbarProps> = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 px-2 hover:bg-accent"
+        className="h-8 px-2 hover:bg-muted"
         onClick={() => onQuickAction?.("more")}
       >
         <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
