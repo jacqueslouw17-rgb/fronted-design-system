@@ -269,14 +269,14 @@ const Dashboard = ({
                   </motion.div>
                 ) : (
                   <>
-                    {/* Dashboard Panel - 40% left */}
+                    {/* Dashboard Panel - 50% left */}
                     <motion.div
                       key="dashboard-left"
                       initial={{ x: "-100%", opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: "-100%", opacity: 0 }}
                       transition={{ duration: 0.28, ease: "easeInOut" }}
-                      className="w-[40%] h-full overflow-y-auto p-8 space-y-6 border-r border-border"
+                      className="w-[50%] h-full overflow-y-auto p-8 space-y-6 border-r border-border"
                     >
                       {/* Payroll Widget */}
                       <motion.div
@@ -396,11 +396,11 @@ const Dashboard = ({
 
                     </motion.div>
 
-                    {/* Gelo Panel - 60% right */}
+                    {/* Gelo Panel - 50% right */}
                     <motion.div
                       key="gelo-right"
                       initial={{ width: "100%" }}
-                      animate={{ width: "60%" }}
+                      animate={{ width: "50%" }}
                       exit={{ width: "100%" }}
                       transition={{ duration: 0.24, ease: "easeIn" }}
                       className="h-full flex flex-col items-start relative overflow-hidden"
