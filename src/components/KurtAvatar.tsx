@@ -17,8 +17,26 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
   if (compact) {
     return (
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/30 flex items-center justify-center shadow-sm">
-          <span className="text-base font-bold text-primary">{name.charAt(0)}</span>
+        <div className="relative w-12 h-12">
+          {/* Outer glow effect */}
+          <div className="absolute inset-0 rounded-full bg-primary/5 blur-xl animate-kurt-pulse opacity-30" />
+          
+          {/* Outermost circle */}
+          <div className="absolute inset-0 rounded-full border bg-primary/5 border-primary/10 animate-kurt-pulse" />
+          
+          {/* Second circle */}
+          <div className="absolute inset-[3px] rounded-full border bg-primary/8 border-primary/15 animate-kurt-pulse"
+               style={{ animationDelay: '0.1s' }} />
+          
+          {/* Third circle */}
+          <div className="absolute inset-[6px] rounded-full border bg-primary/12 border-primary/20 animate-kurt-pulse"
+               style={{ animationDelay: '0.2s' }} />
+          
+          {/* Center circle with letter */}
+          <div className="absolute inset-[9px] rounded-full border bg-primary/25 border-primary/40 animate-kurt-pulse flex items-center justify-center"
+               style={{ animationDelay: '0.3s' }}>
+            <span className="text-xs font-bold text-primary">{name.charAt(0)}</span>
+          </div>
         </div>
         <span className="text-lg font-medium text-foreground">{name}</span>
       </div>
