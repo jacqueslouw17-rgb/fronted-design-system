@@ -206,7 +206,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "kurt-pulse": "kurt-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "kurt-pulse": "kurt-pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "kurt-pulse-active": "kurt-pulse-active 3s ease-in-out infinite",
         "kurt-breathe": "kurt-breathe 4s ease-in-out infinite",
         "fade-in": "fade-in 0.3s ease-out",
