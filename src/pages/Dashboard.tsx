@@ -441,55 +441,55 @@ const Dashboard = ({
                                   onOpenChange={setV4AuditExpanded}
                                 >
                                   <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-                                  <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                      <Activity className="w-4 h-4 text-primary" />
-                                      <h3 className="font-semibold text-sm">Audit Timeline</h3>
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${v4AuditExpanded ? 'rotate-180' : ''}`} />
-                                  </CollapsibleTrigger>
-                                  <CollapsibleContent>
-                                    <div className="p-4 pt-0">
-                                      <Timeline 
-                                        events={[
-                                          {
-                                            id: "1",
-                                            type: "payroll",
-                                            status: "success",
-                                            title: "Payroll Initiated",
-                                            description: "3 countries, €42,150 total",
-                                            timestamp: new Date(Date.now() - 300000),
-                                            actor: "genie",
-                                            actorName: "Gelo"
-                                          },
-                                          {
-                                            id: "2",
-                                            type: "compliance",
-                                            status: "success",
-                                            title: "Compliance Checks",
-                                            description: "All regions verified",
-                                            timestamp: new Date(Date.now() - 240000),
-                                            actor: "system",
-                                            actorName: "System"
-                                          },
-                                          {
-                                            id: "3",
-                                            type: "approval",
-                                            status: "pending",
-                                            title: "CFO Approval Pending",
-                                            description: "Sent to Howard for review",
-                                            timestamp: new Date(),
-                                            actor: "genie",
-                                            actorName: "Gelo"
-                                          }
-                                        ]}
-                                        showFilters={false}
-                                        maxHeight="400px"
-                                      />
-                                    </div>
-                                  </CollapsibleContent>
-                                </div>
-                              </Collapsible>
+                                    <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                                      <div className="flex items-center gap-2">
+                                        <Activity className="w-4 h-4 text-primary" />
+                                        <h3 className="font-semibold text-sm">Audit Timeline</h3>
+                                      </div>
+                                      <ChevronDown className={`w-4 h-4 transition-transform ${v4AuditExpanded ? 'rotate-180' : ''}`} />
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                      <div className="p-4 pt-0">
+                                        <Timeline 
+                                          events={[
+                                            {
+                                              id: "1",
+                                              type: "payroll",
+                                              status: "success",
+                                              title: "Payroll Initiated",
+                                              description: "3 countries, €42,150 total",
+                                              timestamp: new Date(Date.now() - 300000),
+                                              actor: "genie",
+                                              actorName: "Gelo"
+                                            },
+                                            {
+                                              id: "2",
+                                              type: "compliance",
+                                              status: "success",
+                                              title: "Compliance Checks",
+                                              description: "All regions verified",
+                                              timestamp: new Date(Date.now() - 240000),
+                                              actor: "system",
+                                              actorName: "System"
+                                            },
+                                            {
+                                              id: "3",
+                                              type: "approval",
+                                              status: "pending",
+                                              title: "CFO Approval Pending",
+                                              description: "Sent to Howard for review",
+                                              timestamp: new Date(),
+                                              actor: "genie",
+                                              actorName: "Gelo"
+                                            }
+                                          ]}
+                                          showFilters={false}
+                                          maxHeight="400px"
+                                        />
+                                      </div>
+                                    </CollapsibleContent>
+                                  </div>
+                                </Collapsible>
                               </motion.div>
                             )}
 
