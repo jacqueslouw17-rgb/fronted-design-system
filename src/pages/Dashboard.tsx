@@ -77,45 +77,53 @@ const Dashboard = ({
     speak(msg1);
     setV4IsProcessing(true);
     
+    // Wait for Gelo to finish speaking (~2s) before showing dashboard
     setTimeout(() => {
       setV4Phase("processing");
       setV4ShowSkeleton(true);
-    }, 1200);
+    }, 2400);
 
     setTimeout(() => {
       setV4PayrollData([
         { country: "PH", flag: "🇵🇭", currency: "PHP", total: "₱5.3 M", fxRate: "62.1", fee: "€42", eta: "2 d", status: "processing" },
       ]);
-    }, 2000);
+    }, 3200);
 
     setTimeout(() => {
       setV4PayrollData(prev => [...prev,
         { country: "NO", flag: "🇳🇴", currency: "NOK", total: "190 K", fxRate: "11.4", fee: "€30", eta: "1 d", status: "processing" },
       ]);
-    }, 2600);
+    }, 3800);
 
     setTimeout(() => {
       setV4PayrollData(prev => [...prev,
         { country: "PL", flag: "🇵🇱", currency: "PLN", total: "420 K", fxRate: "4.3", fee: "€28", eta: "1 d", status: "processing" },
       ]);
-    }, 3200);
+    }, 4400);
 
     setTimeout(() => {
       setV4ShowSkeleton(false);
-      setV4Phase("results");
       setV4PayrollData(prev => prev.map(row => ({ ...row, status: "complete" })));
       setV4ComplianceScore(96);
-      
-      const msg2 = "Payroll batch completed. Would you like to send for CFO approval?";
-      setV4Message(msg2);
-      speak(msg2);
       setV4IsProcessing(false);
-
-      toast({
-        title: "✅ Processing Complete",
-        description: "3 currency batches processed successfully",
-      });
-    }, 4500);
+      
+      // Wait a moment before speaking completion message
+      setTimeout(() => {
+        const msg2 = "Payroll batch completed. Would you like to send for CFO approval?";
+        setV4Message(msg2);
+        speak(msg2);
+        
+        // Wait for Gelo to finish speaking before showing results phase
+        setTimeout(() => {
+          setV4Phase("results");
+          
+          toast({
+            title: "✅ Processing Complete",
+            description: "3 currency batches processed successfully",
+          });
+        }, 3500);
+      }, 800);
+    }, 5500);
   };
 
   const sendV4ForApproval = () => {
@@ -218,7 +226,7 @@ const Dashboard = ({
                     <motion.div
                       animate={{
                         scale: [1, 1.2, 1],
-                        opacity: [0.1, 0.15, 0.1],
+                        opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
                       }}
                       transition={{
                         duration: 8,
@@ -284,7 +292,7 @@ const Dashboard = ({
                             </div>
                           ) : (
                             <div className="space-y-2">
-                              <div className="grid grid-cols-7 gap-2 text-xs font-medium text-muted-foreground pb-2 border-b">
+                              <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_auto] gap-3 text-xs font-medium text-muted-foreground pb-2 border-b">
                                 <div>Country</div>
                                 <div>Currency</div>
                                 <div>Total</div>
@@ -299,9 +307,9 @@ const Dashboard = ({
                                   initial={{ x: -20, opacity: 0 }}
                                   animate={{ x: 0, opacity: 1 }}
                                   transition={{ delay: 0.3 + idx * 0.08, duration: 0.15, ease: "easeOut" }}
-                                  className="grid grid-cols-7 gap-2 text-sm py-3 px-2 rounded-lg hover:bg-muted/50 transition-colors"
+                                  className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_auto] gap-3 text-sm py-3 px-2 rounded-lg hover:bg-muted/50 transition-colors items-center"
                                 >
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 whitespace-nowrap">
                                     <span>{row.flag}</span>
                                     <span className="font-medium">{row.country}</span>
                                   </div>
@@ -310,7 +318,7 @@ const Dashboard = ({
                                   <div>{row.fxRate}</div>
                                   <div>{row.fee}</div>
                                   <div>{row.eta}</div>
-                                  <div>
+                                  <div className="whitespace-nowrap">
                                     {row.status === "complete" ? (
                                       <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
                                         <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -437,7 +445,7 @@ const Dashboard = ({
                       <motion.div
                         animate={{
                           scale: [1, 1.2, 1],
-                          opacity: [0.1, 0.15, 0.1],
+                          opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
                         }}
                         transition={{
                           duration: 8,
@@ -462,18 +470,18 @@ const Dashboard = ({
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="mt-8 space-y-3"
+                            className="mt-8 flex gap-3 flex-wrap justify-center"
                           >
                             <Button 
                               onClick={sendV4ForApproval}
-                              className="w-full bg-gradient-to-r from-primary to-secondary"
+                              className="flex-1 min-w-[200px] bg-gradient-to-r from-primary to-secondary"
                             >
                               Send for CFO Approval
                             </Button>
                             <Button 
                               variant="outline"
                               onClick={() => setV4Phase("idle")}
-                              className="w-full"
+                              className="flex-1 min-w-[200px]"
                             >
                               Cancel
                             </Button>

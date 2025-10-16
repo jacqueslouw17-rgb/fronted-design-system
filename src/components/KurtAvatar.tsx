@@ -24,38 +24,52 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
       {/* Kurt Avatar - Concentric gradient circles */}
       <div className={`relative w-48 h-48 ${isListening ? 'animate-kurt-breathe' : ''}`}>
         {/* Outer glow effect */}
-        <div className={`absolute inset-0 rounded-full bg-primary/5 blur-3xl ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
+        <div className={`absolute inset-0 rounded-full blur-3xl transition-all duration-500 ${
+          isProcessing ? 'bg-primary/2 opacity-30' : 'bg-primary/5'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
         
         {/* Outermost circle - lightest */}
-        <div className={`absolute inset-0 rounded-full bg-primary/5 border border-primary/10 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
+        <div className={`absolute inset-0 rounded-full border transition-all duration-500 ${
+          isProcessing ? 'bg-primary/2 border-primary/5 opacity-30' : 'bg-primary/5 border-primary/10'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
         
         {/* Second circle */}
-        <div className={`absolute inset-4 rounded-full bg-primary/8 border border-primary/15 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+        <div className={`absolute inset-4 rounded-full border transition-all duration-500 ${
+          isProcessing ? 'bg-primary/3 border-primary/8 opacity-30' : 'bg-primary/8 border-primary/15'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
              style={{ animationDelay: isListening ? '0.2s' : '0.1s' }} />
         
         {/* Third circle */}
-        <div className={`absolute inset-8 rounded-full bg-primary/12 border border-primary/20 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+        <div className={`absolute inset-8 rounded-full border transition-all duration-500 ${
+          isProcessing ? 'bg-primary/4 border-primary/10 opacity-30' : 'bg-primary/12 border-primary/20'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
              style={{ animationDelay: isListening ? '0.4s' : '0.2s' }} />
         
         {/* Fourth circle */}
-        <div className={`absolute inset-12 rounded-full bg-primary/18 border border-primary/30 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+        <div className={`absolute inset-12 rounded-full border transition-all duration-500 ${
+          isProcessing ? 'bg-primary/5 border-primary/12 opacity-30' : 'bg-primary/18 border-primary/30'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
              style={{ animationDelay: isListening ? '0.6s' : '0.3s' }} />
         
         {/* Inner circle */}
-        <div className={`absolute inset-16 rounded-full bg-primary/25 border border-primary/40 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+        <div className={`absolute inset-16 rounded-full border transition-all duration-500 ${
+          isProcessing ? 'bg-primary/8 border-primary/15 opacity-30' : 'bg-primary/25 border-primary/40'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
              style={{ animationDelay: isListening ? '0.8s' : '0.4s' }} />
         
         {/* Center circle */}
-        <div className={`absolute inset-20 rounded-full bg-primary/30 border border-primary/50 flex items-center justify-center transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+        <div className={`absolute inset-20 rounded-full border flex items-center justify-center transition-all duration-500 ${
+          isProcessing ? 'bg-primary/10 border-primary/20 opacity-40' : 'bg-primary/30 border-primary/50'
+        } ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
              style={{ animationDelay: isListening ? '1s' : '0.5s' }}>
           {isListening && (
             <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
           )}
           {isProcessing && (
-            <div className="flex gap-1">
-              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "0ms" }} />
-              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "150ms" }} />
-              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "300ms" }} />
+            <div className="flex gap-1.5">
+              <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary shadow-lg" style={{ animationDelay: "0ms" }} />
+              <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary shadow-lg" style={{ animationDelay: "150ms" }} />
+              <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary shadow-lg" style={{ animationDelay: "300ms" }} />
             </div>
           )}
         </div>
