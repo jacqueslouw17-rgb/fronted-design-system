@@ -15,7 +15,7 @@ interface AgentMainProps {
 const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
+  const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -126,7 +126,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
                 />
               </>
             )}
-            <KurtAvatar isListening={isListening} size="default" name="Gelo" />
+            <KurtAvatar isListening={isListening} size="default" name="Gelo" message={greeting} currentWordIndex={currentWordIndex} />
           </div>
         </motion.div>
 
