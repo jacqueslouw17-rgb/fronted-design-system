@@ -33,7 +33,7 @@ const Index = () => {
   const [isListening, setIsListening] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
-    "Hi Joe, let's start with your onboarding. I've filled in your personal details, ready to save it?"
+    "Hi Joe, ready to save your personal details to kick off onboarding?"
   );
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
 
@@ -45,7 +45,7 @@ const Index = () => {
 
   // Speak Kurt's message whenever it changes (except on mount)
   useEffect(() => {
-    if (kurtMessage !== "Hi Joe, let's start with your onboarding. I've filled in your personal details, ready to save it?") {
+    if (kurtMessage !== "Hi Joe, ready to save your personal details to kick off onboarding?") {
       speak(kurtMessage);
       setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
     }
