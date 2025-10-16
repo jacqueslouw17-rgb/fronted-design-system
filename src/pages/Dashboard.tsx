@@ -487,6 +487,31 @@ const Dashboard = ({
                               transition={{ delay: 0.2 }}
                               className="flex gap-3 flex-wrap"
                             >
+                              {v4Phase === "results" && (
+                                <>
+                                  <Button 
+                                    onClick={sendV4ForApproval}
+                                    size="lg"
+                                    className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
+                                  >
+                                    Send for CFO Approval
+                                  </Button>
+                                  <Button 
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={() => {
+                                      setV4Phase("idle");
+                                      setV4Message("Ready for the next payroll run!");
+                                      setV4GeloCompact(false);
+                                      speak("Ready for the next payroll run!");
+                                    }}
+                                    className="min-w-[200px]"
+                                  >
+                                    Start Over
+                                  </Button>
+                                </>
+                              )}
+
                               {v4Phase === "audit" && (
                                 <Button 
                                   onClick={completeV4Flow} 
