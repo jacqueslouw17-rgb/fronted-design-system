@@ -270,17 +270,30 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
               </motion.div>
             )}
           </div>
-        ) : complianceData ? (
-          <ComplianceContent
-            onBack={() => setView("chat")}
-            country={selectedCountry}
-            status={complianceStatus}
-            lastSync={complianceData.lastSync}
-            changes={complianceData.changes}
-            activePolicies={complianceData.activePolicies}
-            sources={complianceData.sources}
-          />
-        ) : null}
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            {complianceData ? (
+              <ComplianceContent
+                onBack={() => setView("chat")}
+                country={selectedCountry}
+                status={complianceStatus}
+                lastSync={complianceData.lastSync}
+                changes={complianceData.changes}
+                activePolicies={complianceData.activePolicies}
+                sources={complianceData.sources}
+              />
+            ) : (
+              <div className="text-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-4"
+                />
+                <p className="text-muted-foreground">Loading compliance data...</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
