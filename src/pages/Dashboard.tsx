@@ -144,7 +144,7 @@ const Dashboard = ({
       setV4Phase("audit");
       setV4GeloCompact(true);
       setV4AuditExpanded(true);
-    }, 1000);
+    }, 600);
   };
 
   const completeV4Flow = () => {
@@ -402,7 +402,10 @@ const Dashboard = ({
                       initial={{ width: "100%" }}
                       animate={{ width: "50%" }}
                       exit={{ width: "100%" }}
-                      transition={{ duration: 0.24, ease: "easeIn" }}
+                      transition={{ 
+                        duration: 0.5,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
                       className="h-full flex flex-col items-start relative overflow-hidden"
                     >
                       {v4GeloCompact ? (
@@ -424,11 +427,20 @@ const Dashboard = ({
                           <div className="flex-1 space-y-4 min-h-0">
                             {/* Audit Timeline - Collapsible */}
                             {v4Phase === "audit" && (
-                              <Collapsible 
-                                open={v4AuditExpanded} 
-                                onOpenChange={setV4AuditExpanded}
+                              <motion.div
+                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ 
+                                  delay: 0.5,
+                                  duration: 0.6,
+                                  ease: [0.4, 0, 0.2, 1]
+                                }}
                               >
-                                <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+                                <Collapsible 
+                                  open={v4AuditExpanded} 
+                                  onOpenChange={setV4AuditExpanded}
+                                >
+                                  <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
                                   <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                                     <div className="flex items-center gap-2">
                                       <Activity className="w-4 h-4 text-primary" />
@@ -478,6 +490,7 @@ const Dashboard = ({
                                   </CollapsibleContent>
                                 </div>
                               </Collapsible>
+                              </motion.div>
                             )}
 
                             {/* Action Buttons */}
