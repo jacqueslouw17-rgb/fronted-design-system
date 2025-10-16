@@ -7,10 +7,24 @@ interface KurtAvatarProps {
   name?: string;
   currentWordIndex?: number;
   isProcessing?: boolean;
+  compact?: boolean;
 }
 
-const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt", currentWordIndex = 0, isProcessing = false }: KurtAvatarProps) => {
+const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt", currentWordIndex = 0, isProcessing = false, compact = false }: KurtAvatarProps) => {
   const words = message.split(' ');
+  
+  // Compact header mode - small circle with name
+  if (compact) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/30 flex items-center justify-center shadow-sm">
+          <span className="text-base font-bold text-primary">{name.charAt(0)}</span>
+        </div>
+        <span className="text-lg font-medium text-foreground">{name}</span>
+      </div>
+    );
+  }
+  
   if (size === "sm") {
     return (
       <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">

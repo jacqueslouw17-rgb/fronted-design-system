@@ -9,13 +9,16 @@ import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, TrendingUp } from "lucide-react";
+import { CheckCircle2, TrendingUp, Activity, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import KurtAvatar from "@/components/KurtAvatar";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
+import { Timeline } from "@/components/AgentContextualTimeline";
+import type { TimelineEvent } from "@/components/AgentContextualTimeline";
 
 interface DashboardProps {
   userData?: {
@@ -51,7 +54,8 @@ const Dashboard = ({
   const [v4PayrollData, setV4PayrollData] = useState<any[]>([]);
   const [v4ShowSkeleton, setV4ShowSkeleton] = useState(false);
   const [v4ComplianceScore, setV4ComplianceScore] = useState(0);
-  const [v4ShowAuditDrawer, setV4ShowAuditDrawer] = useState(false);
+  const [v4GeloCompact, setV4GeloCompact] = useState(false);
+  const [v4AuditExpanded, setV4AuditExpanded] = useState(true);
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
   const { toast } = useToast();
   
@@ -127,7 +131,7 @@ const Dashboard = ({
   };
 
   const sendV4ForApproval = () => {
-    const msg = "Sent to Howard. You can track status in Audit Panel.";
+    const msg = "Sent to Howard. You can track status here in the audit timeline.";
     setV4Message(msg);
     speak(msg);
     
@@ -138,28 +142,30 @@ const Dashboard = ({
 
     setTimeout(() => {
       setV4Phase("audit");
-      setV4ShowAuditDrawer(true);
+      setV4GeloCompact(true);
+      setV4AuditExpanded(true);
     }, 1000);
   };
 
   const completeV4Flow = () => {
-    setV4ShowAuditDrawer(false);
+    const msg = "Payroll run completed. CFO approved. Compliance 96%. All reports archived under /finance/oct-2025.";
+    setV4Message(msg);
+    speak(msg);
+
+    toast({
+      title: "✅ All Complete",
+      description: "Payroll archived and documented",
+    });
     
     setTimeout(() => {
       setV4Phase("idle");
-      const msg = "Payroll run completed. CFO approved. Compliance 96%. All reports archived under /finance/oct-2025.";
-      setV4Message(msg);
-      speak(msg);
-
-      toast({
-        title: "✅ All Complete",
-        description: "Payroll archived and documented",
-      });
+      setV4GeloCompact(false);
+      setV4AuditExpanded(true);
       
       // Reset state
       setV4PayrollData([]);
       setV4ComplianceScore(0);
-    }, 300);
+    }, 3000);
   };
 
   // Handle transition loading state for v3
@@ -388,49 +394,6 @@ const Dashboard = ({
                         </motion.div>
                       )}
 
-                      {/* Audit Drawer */}
-                      <AnimatePresence>
-                        {v4ShowAuditDrawer && (
-                          <motion.div
-                            initial={{ x: "-100%", opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: "-100%", opacity: 0 }}
-                            transition={{ duration: 0.28, ease: "easeInOut" }}
-                            className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-96 bg-card border-r shadow-2xl z-50 overflow-y-auto"
-                          >
-                            <div className="p-6">
-                              <h3 className="text-lg font-semibold mb-4">Audit Timeline</h3>
-                              <div className="space-y-4">
-                                {[
-                                  { artifact: "PayoutBatch#2025-10", desc: "Sent to Wise PLN/PHP", time: "09:41" },
-                                  { artifact: "FXSnapshot", desc: "Mid-market + 0.8% margin", time: "09:42" },
-                                  { artifact: "ComplianceReceipt", desc: "PH Module v1.2.3 ok", time: "09:44" },
-                                ].map((item, idx) => (
-                                  <motion.div
-                                    key={idx}
-                                    initial={{ x: -20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: 0.08 * idx, duration: 0.2 }}
-                                    className="p-4 rounded-lg bg-muted/50 border"
-                                  >
-                                    <div className="flex items-start justify-between mb-2">
-                                      <p className="font-medium text-sm">{item.artifact}</p>
-                                      <span className="text-xs text-muted-foreground">{item.time}</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground">{item.desc}</p>
-                                  </motion.div>
-                                ))}
-                              </div>
-
-                              <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/30">
-                                <p className="text-sm">
-                                  All receipts stored. Would you like to generate the CFO report?
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </motion.div>
 
                     {/* Gelo Panel - 60% right */}
@@ -440,70 +403,160 @@ const Dashboard = ({
                       animate={{ width: "60%" }}
                       exit={{ width: "100%" }}
                       transition={{ duration: 0.24, ease: "easeIn" }}
-                      className="h-full flex flex-col items-center justify-center relative"
+                      className="h-full flex flex-col items-start relative overflow-hidden"
                     >
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
-                        }}
-                        transition={{
-                          duration: 8,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                        className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full blur-3xl"
-                        style={{ background: 'var(--gradient-primary)' }}
-                      />
+                      {v4GeloCompact ? (
+                        // Compact Header State with Contextual Content
+                        <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
+                          {/* Compact Header */}
+                          <div className="flex-shrink-0 mb-6">
+                            <KurtAvatar compact={true} name="Gelo" />
+                          </div>
 
-                      <div className="relative z-10 px-8">
-                        <KurtAvatar 
-                          isListening={false}
-                          message={v4Message}
-                          name="Gelo"
-                          currentWordIndex={currentWordIndex}
-                          isProcessing={v4IsProcessing}
-                        />
+                          {/* Chat Bubble */}
+                          <div className="flex-shrink-0 mb-6 bg-card border border-border rounded-lg p-4 shadow-sm">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {v4Message}
+                            </p>
+                          </div>
 
-                        {v4Phase === "results" && (
+                          {/* Contextual Content Area */}
+                          <div className="flex-1 space-y-4 min-h-0">
+                            {/* Audit Timeline - Collapsible */}
+                            {v4Phase === "audit" && (
+                              <Collapsible 
+                                open={v4AuditExpanded} 
+                                onOpenChange={setV4AuditExpanded}
+                              >
+                                <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+                                  <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                      <Activity className="w-4 h-4 text-primary" />
+                                      <h3 className="font-semibold text-sm">Audit Timeline</h3>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${v4AuditExpanded ? 'rotate-180' : ''}`} />
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <div className="p-4 pt-0">
+                                      <Timeline 
+                                        events={[
+                                          {
+                                            id: "1",
+                                            type: "payroll",
+                                            status: "success",
+                                            title: "Payroll Initiated",
+                                            description: "3 countries, €42,150 total",
+                                            timestamp: new Date(Date.now() - 300000),
+                                            actor: "genie",
+                                            actorName: "Gelo"
+                                          },
+                                          {
+                                            id: "2",
+                                            type: "compliance",
+                                            status: "success",
+                                            title: "Compliance Checks",
+                                            description: "All regions verified",
+                                            timestamp: new Date(Date.now() - 240000),
+                                            actor: "system",
+                                            actorName: "System"
+                                          },
+                                          {
+                                            id: "3",
+                                            type: "approval",
+                                            status: "pending",
+                                            title: "CFO Approval Pending",
+                                            description: "Sent to Howard for review",
+                                            timestamp: new Date(),
+                                            actor: "genie",
+                                            actorName: "Gelo"
+                                          }
+                                        ]}
+                                        showFilters={false}
+                                        maxHeight="400px"
+                                      />
+                                    </div>
+                                  </CollapsibleContent>
+                                </div>
+                              </Collapsible>
+                            )}
+
+                            {/* Action Buttons */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2 }}
+                              className="flex gap-3 flex-wrap"
+                            >
+                              {v4Phase === "audit" && (
+                                <Button 
+                                  onClick={completeV4Flow} 
+                                  size="lg"
+                                  className="min-w-[200px]"
+                                >
+                                  Complete & Archive
+                                </Button>
+                              )}
+                            </motion.div>
+                          </div>
+                        </div>
+                      ) : (
+                        // Full Centered State
+                        <>
                           <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="mt-8 flex gap-3 flex-wrap justify-center"
-                          >
-                            <Button 
-                              onClick={sendV4ForApproval}
-                              className="flex-1 min-w-[200px] bg-gradient-to-r from-primary to-secondary"
-                            >
-                              Send for CFO Approval
-                            </Button>
-                            <Button 
-                              variant="outline"
-                              onClick={() => setV4Phase("idle")}
-                              className="flex-1 min-w-[200px]"
-                            >
-                              Cancel
-                            </Button>
-                          </motion.div>
-                        )}
+                            animate={{
+                              scale: [1, 1.2, 1],
+                              opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
+                            }}
+                            transition={{
+                              duration: 8,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full blur-3xl"
+                            style={{ background: 'var(--gradient-primary)' }}
+                          />
 
-                        {v4Phase === "audit" && (
-                          <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="mt-8"
-                          >
-                            <Button 
-                              onClick={completeV4Flow}
-                              className="w-full bg-gradient-to-r from-primary to-secondary"
-                            >
-                              Complete & Archive
-                            </Button>
-                          </motion.div>
-                        )}
-                      </div>
+                          <div className="w-full h-full flex items-center justify-center relative z-10 px-8">
+                            <div>
+                              <KurtAvatar 
+                                isListening={false}
+                                message={v4Message}
+                                name="Gelo"
+                                currentWordIndex={currentWordIndex}
+                                isProcessing={v4IsProcessing}
+                              />
+
+                              {v4Phase === "results" && (
+                                <motion.div
+                                  initial={{ y: 20, opacity: 0 }}
+                                  animate={{ y: 0, opacity: 1 }}
+                                  transition={{ delay: 0.4 }}
+                                  className="mt-8 flex gap-3 flex-wrap justify-center"
+                                >
+                                  <Button 
+                                    onClick={sendV4ForApproval}
+                                    className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
+                                  >
+                                    Send for CFO Approval
+                                  </Button>
+                                  <Button 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setV4Phase("idle");
+                                      setV4Message("Ready for the next payroll run!");
+                                      setV4GeloCompact(false);
+                                      speak("Ready for the next payroll run!");
+                                    }}
+                                    className="min-w-[200px]"
+                                  >
+                                    Start Over
+                                  </Button>
+                                </motion.div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </motion.div>
                   </>
                 )}
