@@ -349,51 +349,13 @@ const Index = () => {
           />
         </motion.div>
 
-        {/* Kurt Avatar with enhanced glow */}
+        {/* Kurt Avatar */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6 }}
           className="relative z-10"
         >
-          {/* Animated glow rings */}
-          {isListening && (
-            <>
-              <motion.div
-                animate={{
-                  scale: [1, 1.4, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeOut"
-                }}
-                className="absolute inset-0 rounded-full blur-xl"
-                style={{ 
-                  background: 'var(--gradient-primary)',
-                  filter: 'blur(20px)'
-                }}
-              />
-              <motion.div
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.3, 0, 0.3],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeOut",
-                  delay: 0.5
-                }}
-                className="absolute inset-0 rounded-full blur-2xl"
-                style={{ 
-                  background: 'var(--gradient-secondary)',
-                  filter: 'blur(30px)'
-                }}
-              />
-            </>
-          )}
           <KurtAvatar isListening={isListening} message={kurtMessage} currentWordIndex={currentWordIndex} />
         </motion.div>
 
