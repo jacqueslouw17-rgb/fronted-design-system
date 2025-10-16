@@ -23,30 +23,30 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
       {/* Kurt Avatar - Concentric gradient circles */}
       <div className={`relative w-48 h-48 ${isListening ? 'animate-kurt-breathe' : ''}`}>
         {/* Outer glow effect */}
-        <div className="absolute inset-0 rounded-full bg-primary/5 blur-3xl animate-kurt-pulse" />
+        <div className={`absolute inset-0 rounded-full bg-primary/5 blur-3xl ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
         
         {/* Outermost circle - lightest */}
-        <div className="absolute inset-0 rounded-full bg-primary/5 border border-primary/10 animate-kurt-pulse transition-all duration-500" />
+        <div className={`absolute inset-0 rounded-full bg-primary/5 border border-primary/10 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`} />
         
         {/* Second circle */}
-        <div className="absolute inset-4 rounded-full bg-primary/8 border border-primary/15 animate-kurt-pulse transition-all duration-500"
-             style={{ animationDelay: '0.2s' }} />
+        <div className={`absolute inset-4 rounded-full bg-primary/8 border border-primary/15 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+             style={{ animationDelay: isListening ? '0.2s' : '0.1s' }} />
         
         {/* Third circle */}
-        <div className="absolute inset-8 rounded-full bg-primary/12 border border-primary/20 animate-kurt-pulse transition-all duration-500"
-             style={{ animationDelay: '0.4s' }} />
+        <div className={`absolute inset-8 rounded-full bg-primary/12 border border-primary/20 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+             style={{ animationDelay: isListening ? '0.4s' : '0.2s' }} />
         
         {/* Fourth circle */}
-        <div className="absolute inset-12 rounded-full bg-primary/18 border border-primary/30 animate-kurt-pulse transition-all duration-500"
-             style={{ animationDelay: '0.6s' }} />
+        <div className={`absolute inset-12 rounded-full bg-primary/18 border border-primary/30 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+             style={{ animationDelay: isListening ? '0.6s' : '0.3s' }} />
         
         {/* Inner circle */}
-        <div className="absolute inset-16 rounded-full bg-primary/25 border border-primary/40 animate-kurt-pulse transition-all duration-500"
-             style={{ animationDelay: '0.8s' }} />
+        <div className={`absolute inset-16 rounded-full bg-primary/25 border border-primary/40 transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+             style={{ animationDelay: isListening ? '0.8s' : '0.4s' }} />
         
         {/* Center circle */}
-        <div className="absolute inset-20 rounded-full bg-primary/30 border border-primary/50 animate-kurt-pulse flex items-center justify-center transition-all duration-500"
-             style={{ animationDelay: '1s' }}>
+        <div className={`absolute inset-20 rounded-full bg-primary/30 border border-primary/50 flex items-center justify-center transition-all duration-500 ${isListening ? 'animate-kurt-pulse-active' : 'animate-kurt-pulse'}`}
+             style={{ animationDelay: isListening ? '1s' : '0.5s' }}>
           {isListening && (
             <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
           )}
