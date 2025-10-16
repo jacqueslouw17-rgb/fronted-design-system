@@ -59,7 +59,7 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
       </p>
 
       {/* Message bubble with word highlighting */}
-      <div className="bg-muted/50 px-6 py-3 rounded-full shadow-sm max-w-md text-center border border-border">
+      <div className="bg-muted/50 px-6 py-3 rounded-full shadow-sm max-w-lg text-center border border-border">
         <p className="text-sm">
           {words.map((word, index) => (
             <span
