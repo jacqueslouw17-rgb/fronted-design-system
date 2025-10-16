@@ -50,32 +50,32 @@ const PayrollUseCaseDemo = () => {
     speak(msg1);
     setIsProcessing(true);
     
-    // Start split transition after 800ms
+    // Start split transition after 1200ms
     setTimeout(() => {
       setPhase("split");
       setShowSkeleton(true);
-    }, 800);
+    }, 1200);
 
-    // Load payroll data with staggered timing
+    // Load payroll data with staggered timing (longer delays)
     setTimeout(() => {
       setPayrollData([
         { country: "PH", flag: "🇵🇭", currency: "PHP", total: "₱5.3 M", fxRate: "62.1", fee: "€42", eta: "2 d", status: "processing" },
       ]);
-    }, 1200);
+    }, 2000);
 
     setTimeout(() => {
       setPayrollData(prev => [...prev,
         { country: "NO", flag: "🇳🇴", currency: "NOK", total: "190 K", fxRate: "11.4", fee: "€30", eta: "1 d", status: "processing" },
       ]);
-    }, 1280);
+    }, 2600);
 
     setTimeout(() => {
       setPayrollData(prev => [...prev,
         { country: "PL", flag: "🇵🇱", currency: "PLN", total: "420 K", fxRate: "4.3", fee: "€28", eta: "1 d", status: "processing" },
       ]);
-    }, 1360);
+    }, 3200);
 
-    // Phase 3: Results visible
+    // Phase 3: Results visible (extended to 4500ms)
     setTimeout(() => {
       setShowSkeleton(false);
       setPhase("context");
@@ -91,7 +91,7 @@ const PayrollUseCaseDemo = () => {
         title: "✅ Processing Complete",
         description: "3 currency batches processed successfully",
       });
-    }, 2500);
+    }, 4500);
   };
 
   const sendForApproval = () => {
@@ -207,6 +207,7 @@ const PayrollUseCaseDemo = () => {
                   message={message}
                   name="Gelo"
                   currentWordIndex={currentWordIndex}
+                  isProcessing={phase === "focus" && isProcessing}
                 />
               </motion.div>
 
@@ -265,6 +266,7 @@ const PayrollUseCaseDemo = () => {
                     message={message}
                     name="Gelo"
                     currentWordIndex={currentWordIndex}
+                    isProcessing={isProcessing}
                   />
 
                   {phase === "context" && (

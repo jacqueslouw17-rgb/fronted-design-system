@@ -31,7 +31,7 @@ const Dashboard = ({
   },
   onboardingHistory = []
 }: DashboardProps) => {
-  const [version, setVersion] = useState<"v1" | "v2" | "v3">("v3");
+  const [version, setVersion] = useState<"v1" | "v2" | "v3" | "v4">("v3");
   const [isAgentOpen, setIsAgentOpen] = useState(false);
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -40,6 +40,9 @@ const Dashboard = ({
   useEffect(() => {
     if (version === "v2") {
       setIsAgentOpen(true);
+    } else if (version === "v4") {
+      // Navigate to payroll demo
+      window.location.href = "/payroll-demo";
     } else {
       // Reset to closed when switching back to v1
       setIsAgentOpen(false);

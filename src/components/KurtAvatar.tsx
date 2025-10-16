@@ -6,9 +6,10 @@ interface KurtAvatarProps {
   size?: "default" | "sm";
   name?: string;
   currentWordIndex?: number;
+  isProcessing?: boolean;
 }
 
-const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt", currentWordIndex = 0 }: KurtAvatarProps) => {
+const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt", currentWordIndex = 0, isProcessing = false }: KurtAvatarProps) => {
   const words = message.split(' ');
   if (size === "sm") {
     return (
@@ -50,12 +51,19 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
           {isListening && (
             <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
           )}
+          {isProcessing && (
+            <div className="flex gap-1">
+              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "0ms" }} />
+              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "150ms" }} />
+              <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: "300ms" }} />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Status text */}
       <p className="text-lg font-medium text-foreground">
-        {isListening ? `${name} is listening...` : name}
+        {isListening ? `${name} is listening...` : isProcessing ? `${name} is working...` : name}
       </p>
 
       {/* Message bubble with word highlighting */}
