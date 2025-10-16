@@ -404,24 +404,47 @@ const Index = () => {
           transition={{ delay: 0.2 }}
           className="flex items-center justify-center mt-8 relative z-10"
         >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="relative">
+            {/* Ring pulse effect when listening */}
+            {isListening && (
+              <>
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3],
+                    opacity: [0.6, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+                <motion.div
+                  animate={{
+                    scale: [1, 1.4],
+                    opacity: [0.4, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                    delay: 0.3
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+              </>
+            )}
             <Button
               onClick={handleVoiceInput}
-              className={`px-6 relative overflow-hidden ${
+              className={`px-6 relative ${
                 isListening 
                   ? "bg-destructive hover:bg-destructive/90" 
                   : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
               }`}
             >
-              {isListening && (
-                <motion.div
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
-                />
-              )}
-              <Mic className={`h-5 w-5 mr-2 relative z-10 ${isListening ? 'animate-pulse' : ''}`} />
-              <span className="relative z-10">{isListening ? "Stop" : "Speak"}</span>
+              <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+              <span>{isListening ? "Stop" : "Speak"}</span>
             </Button>
           </motion.div>
         </motion.div>
