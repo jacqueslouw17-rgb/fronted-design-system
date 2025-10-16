@@ -1,4 +1,4 @@
-import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle, Calculator } from "lucide-react";
+import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle, Calculator, HelpCircle, FileSignature, User, CheckCircle2 } from "lucide-react";
 
 export interface ComponentReference {
   id: string;
@@ -773,6 +773,149 @@ export const componentsRegistry: ComponentReference[] = [
     usedInModules: ["Finance"],
     icon: BarChart3,
     filePath: "src/components/cost/ComparisonChart.tsx"
+  },
+  {
+    id: "contract-viewer",
+    name: "ContractViewer",
+    description: "Contract document preview with summary banner for key details",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Standard preview" },
+      { name: "loading", description: "Loading contract document" }
+    ],
+    props: [
+      { name: "summary", type: "ContractSummary", description: "Key contract details (salary, dates, PTO)" },
+      { name: "contractUrl", type: "string", description: "PDF document URL (optional)" },
+      { name: "children", type: "ReactNode", description: "Custom contract content" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Contracts", "Onboarding"],
+    icon: FileText,
+    filePath: "src/components/ContractViewer.tsx"
+  },
+  {
+    id: "clause-tooltip",
+    name: "ClauseTooltip",
+    description: "Interactive tooltip explaining contract clauses with plain-English definitions",
+    category: "UI",
+    states: [
+      { name: "closed", description: "Tooltip hidden" },
+      { name: "open", description: "Showing clause explanation" }
+    ],
+    props: [
+      { name: "clauseNumber", type: "string", description: "Clause reference number" },
+      { name: "title", type: "string", description: "Clause title" },
+      { name: "explanation", type: "string", description: "Plain-English explanation" },
+      { name: "whyThisClause", type: "string", description: "Context for why this clause exists (optional)" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Contracts", "Legal"],
+    icon: HelpCircle,
+    filePath: "src/components/ClauseTooltip.tsx"
+  },
+  {
+    id: "signature-flow",
+    name: "SignatureFlow",
+    description: "E-signature dialog with ready → signing → signed states",
+    category: "Pattern",
+    states: [
+      { name: "ready", description: "Ready to sign" },
+      { name: "signing", description: "Processing signature" },
+      { name: "signed", description: "Successfully signed with timestamp" }
+    ],
+    props: [
+      { name: "open", type: "boolean", description: "Dialog visibility" },
+      { name: "candidateName", type: "string", description: "Signer's name" },
+      { name: "documentTitle", type: "string", description: "Document being signed" },
+      { name: "onSign", type: "() => Promise<void>", description: "Signature handler" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Contracts", "Legal"],
+    icon: FileSignature,
+    filePath: "src/components/SignatureFlow.tsx"
+  },
+  {
+    id: "worker-profile-shell",
+    name: "WorkerProfileShell",
+    description: "Candidate profile card showing basic info and onboarding status",
+    category: "Pattern",
+    states: [
+      { name: "awaiting_contract", description: "Contract not yet sent" },
+      { name: "contract_signed", description: "Contract completed" },
+      { name: "onboarding", description: "In onboarding process" },
+      { name: "active", description: "Fully onboarded worker" }
+    ],
+    props: [
+      { name: "name", type: "string", description: "Worker's full name" },
+      { name: "email", type: "string", description: "Contact email" },
+      { name: "role", type: "string", description: "Job title" },
+      { name: "location", type: "string", description: "Work location" },
+      { name: "status", type: "Status", description: "Current workflow status" },
+      { name: "startDate", type: "string", description: "Contract start date (optional)" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Onboarding", "HR"],
+    icon: User,
+    filePath: "src/components/WorkerProfileShell.tsx"
+  },
+  {
+    id: "compliance-badge",
+    name: "ComplianceBadge",
+    description: "Country compliance status indicator with tooltip messages",
+    category: "UI",
+    states: [
+      { name: "compliant", description: "Fully compliant" },
+      { name: "pending_review", description: "Under review" },
+      { name: "requires_action", description: "Action needed" },
+      { name: "non_compliant", description: "Not compliant" }
+    ],
+    props: [
+      { name: "country", type: "string", description: "Country name" },
+      { name: "status", type: "ComplianceStatus", description: "Compliance state" },
+      { name: "message", type: "string", description: "Additional context (optional)" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Compliance", "Legal"],
+    icon: ShieldCheck,
+    filePath: "src/components/ComplianceBadge.tsx"
+  },
+  {
+    id: "cost-summary-popover",
+    name: "CostSummaryPopover",
+    description: "Employment cost breakdown with taxes, benefits, and totals",
+    category: "Pattern",
+    states: [
+      { name: "closed", description: "Popover hidden" },
+      { name: "open", description: "Showing cost breakdown" }
+    ],
+    props: [
+      { name: "baseSalary", type: "number", description: "Base salary amount" },
+      { name: "employerTax", type: "number", description: "Employer tax amount" },
+      { name: "benefits", type: "number", description: "Benefits cost" },
+      { name: "currency", type: "string", description: "Currency code" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Finance", "Payroll"],
+    icon: DollarSign,
+    filePath: "src/components/CostSummaryPopover.tsx"
+  },
+  {
+    id: "onboarding-step-progress",
+    name: "OnboardingStepProgress",
+    description: "Visual progress tracker for multi-step onboarding flows",
+    category: "Pattern",
+    states: [
+      { name: "completed", description: "Step completed" },
+      { name: "current", description: "Active step with animation" },
+      { name: "pending", description: "Not yet started" }
+    ],
+    props: [
+      { name: "steps", type: "OnboardingStep[]", description: "Array of steps with status" }
+    ],
+    usedInPatterns: ["candidate-experience-flow"],
+    usedInModules: ["Onboarding", "HR"],
+    icon: CheckCircle2,
+    filePath: "src/components/OnboardingStepProgress.tsx"
   }
 ];
 
