@@ -14,7 +14,7 @@ import {
 import KurtAvatar from "@/components/KurtAvatar";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
-import { ArrowLeft, Mic, Keyboard } from "lucide-react";
+import { ArrowLeft, Mic } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
 
@@ -28,45 +28,38 @@ interface Step {
 
 const Index = () => {
   const { toast } = useToast();
-  const { speak, stop } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british' });
+  const { speak, stop } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
-    "Hi, can I save your details?"
+    "Hi Joe, let's start with your onboarding. I've filled in your personal details, ready to save it?"
   );
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
 
-  // Speak Kurt's message whenever it changes (only after user has started)
+  // Auto-start and speak Kurt's greeting on mount
   useEffect(() => {
-    if (kurtMessage && hasStarted) {
-      speak(kurtMessage);
-    }
-  }, [kurtMessage, speak, hasStarted]);
-
-  const handleStart = () => {
-    setHasStarted(true);
-    setChatHistory([{ role: "assistant", content: kurtMessage }]);
     speak(kurtMessage);
-  };
+    setChatHistory([{ role: "assistant", content: kurtMessage }]);
+  }, []);
 
-  // Track chat history
+  // Speak Kurt's message whenever it changes (except on mount)
   useEffect(() => {
-    if (kurtMessage && hasStarted) {
+    if (kurtMessage !== "Hi Joe, let's start with your onboarding. I've filled in your personal details, ready to save it?") {
+      speak(kurtMessage);
       setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
     }
-  }, [kurtMessage, hasStarted]);
+  }, [kurtMessage]);
 
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    country: "",
-    taxId: "",
-    bankName: "",
-    accountNumber: "",
-    role: "contractor", // Default role
+    firstName: "Joe",
+    lastName: "Smith",
+    email: "joe.smith@example.com",
+    country: "norway",
+    taxId: "123-45-6789",
+    bankName: "Nordic Bank",
+    accountNumber: "9876543210",
+    role: "contractor",
   });
 
   const [steps, setSteps] = useState<Step[]>([
@@ -82,14 +75,14 @@ const Index = () => {
     setIsListening(!isListening);
     if (!isListening) {
       stop(); // Stop current speech when starting to listen
-      toast({
-        title: "Voice input activated",
-        description: "Say 'yes' to proceed.",
-      });
+      // Just start listening - no toast or message
     } else {
-      setKurtMessage("Perfect! Saving your details...");
+      // User finished speaking
+      setTimeout(() => {
+        setKurtMessage("Saving details...");
+      }, 500);
       
-      // Simulate processing and move to next step
+      // Process and move to next step
       setTimeout(() => {
         const updatedSteps = steps.map((step) =>
           step.id === 1
@@ -100,8 +93,8 @@ const Index = () => {
         );
         setSteps(updatedSteps);
         setCurrentStep(2);
-        setKurtMessage("Great! Now, what's your country of residence?");
-      }, 2500);
+        setKurtMessage("Next, confirm your tax residency.");
+      }, 2000);
     }
   };
 
@@ -337,7 +330,7 @@ const Index = () => {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute w-96 h-96 rounded-full blur-3xl -translate-x-20 -translate-y-10"
+            className="absolute w-96 h-96 rounded-full blur-3xl"
             style={{ background: 'var(--gradient-primary)' }}
           />
           <motion.div
@@ -351,7 +344,7 @@ const Index = () => {
               ease: "easeInOut",
               delay: 1
             }}
-            className="absolute w-[28rem] h-[28rem] rounded-full blur-3xl translate-x-20 translate-y-10"
+            className="absolute w-[28rem] h-[28rem] rounded-full blur-3xl"
             style={{ background: 'var(--gradient-secondary)' }}
           />
         </motion.div>
@@ -404,62 +397,34 @@ const Index = () => {
           <KurtAvatar isListening={isListening} message={kurtMessage} />
         </motion.div>
 
-        {/* Input Controls with gradient effects */}
-        {!hasStarted ? (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="relative z-10"
-          >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
-                onClick={handleStart} 
-                size="lg" 
-                className="px-8 bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all"
-              >
-                Start Conversation
-              </Button>
-            </motion.div>
+        {/* Voice Input Control */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center justify-center mt-8 relative z-10"
+        >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              onClick={handleVoiceInput}
+              className={`px-6 relative overflow-hidden ${
+                isListening 
+                  ? "bg-destructive hover:bg-destructive/90" 
+                  : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+              }`}
+            >
+              {isListening && (
+                <motion.div
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
+                />
+              )}
+              <Mic className={`h-5 w-5 mr-2 relative z-10 ${isListening ? 'animate-pulse' : ''}`} />
+              <span className="relative z-10">{isListening ? "Stop" : "Speak"}</span>
+            </Button>
           </motion.div>
-        ) : (
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center space-x-4 mt-8 relative z-10"
-          >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                onClick={handleVoiceInput}
-                className={`px-6 relative overflow-hidden ${
-                  isListening 
-                    ? "bg-destructive hover:bg-destructive/90" 
-                    : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                }`}
-              >
-                {isListening && (
-                  <motion.div
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
-                  />
-                )}
-                <Mic className={`h-5 w-5 mr-2 relative z-10 ${isListening ? 'animate-pulse' : ''}`} />
-                <span className="relative z-10">{isListening ? "Stop" : "Speak"}</span>
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
-                variant="outline" 
-                className="px-6 border-primary/30 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all"
-              >
-                <Keyboard className="h-5 w-5 mr-2" />
-                Type
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
+        </motion.div>
 
         {/* Back Button */}
         {currentStep > 1 && (
