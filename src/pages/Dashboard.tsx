@@ -225,7 +225,7 @@ const Dashboard = ({
                     key="gelo-full"
                     initial={{ width: "100%" }}
                     animate={{ width: "100%" }}
-                    exit={{ width: "60%" }}
+                    exit={{ width: "50%" }}
                     transition={{ duration: 0.24, ease: "easeOut" }}
                     className="h-full flex flex-col items-center justify-center relative overflow-hidden"
                   >
