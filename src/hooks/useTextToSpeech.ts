@@ -11,6 +11,7 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -31,7 +32,7 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
     }
   }, []);
 
-  const speak = useCallback((text: string, onEnd?: () => void) => {
+  const speak = useCallback((text: string, onEnd?: () => void, onWordBoundary?: (index: number) => void) => {
     if (!synthRef.current) {
       console.error('Speech synthesis not supported');
       return;
@@ -39,6 +40,10 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
 
     // Cancel any ongoing speech
     synthRef.current.cancel();
+    setCurrentWordIndex(0);
+
+    const words = text.split(' ');
+    let wordIndex = 0;
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = config?.rate || 0.9;
@@ -61,9 +66,21 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
       }
     }
 
-    if (onEnd) {
-      utterance.onend = onEnd;
-    }
+    // Track word boundaries
+    utterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        wordIndex++;
+        setCurrentWordIndex(wordIndex);
+        if (onWordBoundary) {
+          onWordBoundary(wordIndex);
+        }
+      }
+    };
+
+    utterance.onend = () => {
+      setCurrentWordIndex(0);
+      if (onEnd) onEnd();
+    };
 
     utteranceRef.current = utterance;
     synthRef.current.speak(utterance);
@@ -72,8 +89,9 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
   const stop = useCallback(() => {
     if (synthRef.current) {
       synthRef.current.cancel();
+      setCurrentWordIndex(0);
     }
   }, []);
 
-  return { speak, stop };
+  return { speak, stop, currentWordIndex };
 };

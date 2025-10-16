@@ -5,9 +5,11 @@ interface KurtAvatarProps {
   message?: string;
   size?: "default" | "sm";
   name?: string;
+  currentWordIndex?: number;
 }
 
-const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt" }: KurtAvatarProps) => {
+const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up.", size = "default", name = "Kurt", currentWordIndex = 0 }: KurtAvatarProps) => {
+  const words = message.split(' ');
   if (size === "sm") {
     return (
       <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -56,10 +58,19 @@ const KurtAvatar = ({ isListening = false, message = "Hi! Let's get you set up."
         {isListening ? `${name} is listening...` : name}
       </p>
 
-      {/* Message bubble */}
+      {/* Message bubble with word highlighting */}
       <div className="bg-muted/50 px-6 py-3 rounded-full shadow-sm max-w-md text-center border border-border">
-        <p className="text-sm text-foreground">
-          {message}
+        <p className="text-sm">
+          {words.map((word, index) => (
+            <span
+              key={index}
+              className={`transition-colors duration-150 ${
+                index < currentWordIndex ? 'text-foreground font-medium' : 'text-muted-foreground'
+              }`}
+            >
+              {word}{index < words.length - 1 ? ' ' : ''}
+            </span>
+          ))}
         </p>
       </div>
     </div>

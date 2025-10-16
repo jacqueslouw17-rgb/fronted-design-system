@@ -28,7 +28,7 @@ interface Step {
 
 const Index = () => {
   const { toast } = useToast();
-  const { speak, stop } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
@@ -394,7 +394,7 @@ const Index = () => {
               />
             </>
           )}
-          <KurtAvatar isListening={isListening} message={kurtMessage} />
+          <KurtAvatar isListening={isListening} message={kurtMessage} currentWordIndex={currentWordIndex} />
         </motion.div>
 
         {/* Voice Input Control */}
