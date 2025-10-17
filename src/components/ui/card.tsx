@@ -6,13 +6,16 @@ const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     hover?: boolean;
+    variant?: "default" | "gradient" | "accent";
   }
->(({ className, hover = false, ...props }, ref) => (
+>(({ className, hover = false, variant = "default", ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-card",
+      "rounded-2xl border bg-card text-card-foreground shadow-card",
       hover && "transition-all duration-200 hover:bg-primary/5 hover:border-primary/40",
+      variant === "gradient" && "bg-gradient-to-br from-primary/10 via-secondary/5 to-background border-primary/20",
+      variant === "accent" && "bg-accent/5 border-accent/20",
       className
     )}
     {...props}

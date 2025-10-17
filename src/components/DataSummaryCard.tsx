@@ -53,10 +53,13 @@ const DataSummaryCard = ({
     return null;
   };
 
+  const cardVariant = status === "normal" && Math.random() > 0.5 ? "gradient" : "default";
+
   return (
     <Card
+      variant={cardVariant}
       className={cn(
-        "transition-all hover:bg-primary/5 hover:border-primary/40",
+        "transition-all hover:shadow-lg",
         getStatusStyles(),
         className
       )}
@@ -65,8 +68,12 @@ const DataSummaryCard = ({
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+          <div className="flex items-center gap-3">
+            {Icon && (
+              <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
+                <Icon className="h-5 w-5 text-accent" />
+              </div>
+            )}
             <span className="text-sm font-medium text-muted-foreground">{label}</span>
           </div>
           {tooltipText && (

@@ -53,8 +53,11 @@ const AdaptiveWidget = ({
 }: AdaptiveWidgetProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const shouldUseGradient = status === "ok" && !genieHint;
+  
   return (
     <Card
+      variant={shouldUseGradient ? "gradient" : "default"}
       className="relative h-full hover:shadow-lg transition-all group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -118,7 +121,9 @@ const AdaptiveWidget = ({
           </Tooltip>
         </TooltipProvider>
         <div className="flex items-center gap-2">
-          <Icon className="h-5 w-5 text-foreground/60" />
+          <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
+            <Icon className="h-5 w-5 text-accent" />
+          </div>
           {status !== "ok" && (
             <Badge variant="outline" className={statusColors[status]}>
               {status}
