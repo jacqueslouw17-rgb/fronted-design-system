@@ -123,14 +123,16 @@ const AdaptiveWidget = ({
         </TooltipProvider>
         <div className="flex items-center gap-2">
           <div className={cn(
-            "p-2 rounded-xl",
+            "p-2 rounded-xl transition-all duration-200",
             shouldUseGradient 
-              ? "bg-muted/50 border border-border/50"
-              : "bg-amber-500/10 border border-amber-500/20"
+              ? "bg-muted/50 border border-border/50 group-hover:bg-muted group-hover:border-border"
+              : "bg-amber-500/10 border border-amber-500/20 group-hover:bg-amber-600 group-hover:border-amber-600"
           )}>
             <Icon className={cn(
-              "h-5 w-5",
-              shouldUseGradient ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"
+              "h-5 w-5 transition-colors duration-200",
+              shouldUseGradient 
+                ? "text-muted-foreground group-hover:text-foreground" 
+                : "text-amber-600 dark:text-amber-400 group-hover:text-white"
             )} />
           </div>
           {status !== "ok" && (

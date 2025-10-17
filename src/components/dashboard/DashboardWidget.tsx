@@ -10,23 +10,26 @@ interface DashboardWidgetProps {
 }
 
 const DashboardWidget = ({ title, value, trend, icon: Icon }: DashboardWidgetProps) => {
-  const variant = Math.random() > 0.6 ? "gradient" : "default";
+  // Only Total Contractors gets gradient
+  const variant = title === "Total Contractors" ? "gradient" : "default";
 
   return (
-    <Card variant={variant} className="hover:shadow-lg transition-shadow overflow-hidden">
+    <Card variant={variant} className="hover:shadow-lg transition-shadow overflow-hidden group">
       <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
         <div className={cn(
-          "p-2 rounded-xl",
+          "p-2 rounded-xl transition-all duration-200",
           variant === "gradient" 
-            ? "bg-muted/50 border border-border/50"
-            : "bg-amber-500/10 border border-amber-500/20"
+            ? "bg-muted/50 border border-border/50 group-hover:bg-muted group-hover:border-border"
+            : "bg-amber-500/10 border border-amber-500/20 group-hover:bg-amber-600 group-hover:border-amber-600"
         )}>
           <Icon className={cn(
-            "h-5 w-5",
-            variant === "gradient" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"
+            "h-5 w-5 transition-colors duration-200",
+            variant === "gradient" 
+              ? "text-muted-foreground group-hover:text-foreground" 
+              : "text-amber-600 dark:text-amber-400 group-hover:text-white"
           )} />
         </div>
       </CardHeader>
