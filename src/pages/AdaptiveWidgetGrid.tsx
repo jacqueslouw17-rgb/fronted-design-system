@@ -340,12 +340,14 @@ const AdaptiveWidgetGridPattern = () => {
         className="layout"
         layout={layout}
         cols={12}
-        rowHeight={100}
+        rowHeight={90}
         width={1200}
         isDraggable={isEditMode}
         isResizable={isEditMode}
         onLayoutChange={(newLayout) => setLayout(newLayout)}
         draggableHandle=".cursor-move"
+        compactType="vertical"
+        margin={[16, 16]}
       >
         {widgets.map((widget) => (
           <div key={widget.i} className="h-full">

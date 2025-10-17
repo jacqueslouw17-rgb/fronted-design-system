@@ -152,7 +152,7 @@ const WidgetGrid = ({ userData }: WidgetGridProps) => {
       </div>
 
       {/* Widget Grid - Responsive: stacks on small, 2 cols on md, 3 cols on lg+ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {widgets.map((widget, idx) => (
           <motion.div
             key={`${currentLens.role}-${idx}`}

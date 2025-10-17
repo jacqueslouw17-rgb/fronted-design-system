@@ -133,11 +133,21 @@ The interface should feel calm, minimal, and elegant at rest—revealing depth, 
 ### System
 - Use 4px base unit (2pt grid system)
 - Consistent gaps: 4px, 8px, 12px, 16px, 24px, 32px
+- **Card Grids**: Use `gap-4` (16px) for tight, compact layouts
+- **Vertical Stacks**: Use `space-y-4` or `space-y-6` depending on content density
 
 ### Padding
 - **Cards**: 16px (p-4)
 - **Buttons**: 12px horizontal, 6px vertical
 - **Containers**: 24px-32px (p-6 to p-8)
+- **Table Cells**: `px-4 py-2` (tight vertical spacing)
+- **Table Headers**: `h-9 px-4` (reduced from h-12 for compactness)
+
+### Tight & Neat Philosophy
+- Prioritize compact, information-dense layouts
+- Use white space purposefully, not excessively
+- Tighter spacing between related elements creates visual grouping
+- Maintain breathing room only where hierarchy demands it
 
 ---
 
