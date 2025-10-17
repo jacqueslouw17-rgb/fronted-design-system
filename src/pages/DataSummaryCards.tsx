@@ -67,7 +67,6 @@ const DataSummaryCards = () => {
               status="normal"
               tooltipText="Includes approved payments across Norway and the Philippines"
               tags={["Auto-approved", "FX locked"]}
-              sparklineData={[180000, 190000, 195000, 220000, 230000, 241000]}
               onExpand={() => handleExpand({
                 title: "Payroll Breakdown",
                 description: "Detailed breakdown of this month's payroll",
@@ -108,7 +107,6 @@ const DataSummaryCards = () => {
               status="normal"
               tooltipText="Country documents verified across all active contractors"
               tags={["Auto-verify enabled"]}
-              sparklineData={[88, 90, 92, 94, 95, 96]}
               onExpand={() => handleExpand({
                 title: "Compliance Status",
                 description: "Document verification status by country",
@@ -129,7 +127,6 @@ const DataSummaryCards = () => {
               trend={{ value: "+8", direction: "up" }}
               status="normal"
               tooltipText="Total number of active contractors across all countries"
-              sparklineData={[110, 115, 118, 121, 124, 127]}
               onExpand={() => handleExpand({
                 title: "Contractor Distribution",
                 description: "Active contractors by country",
@@ -150,7 +147,6 @@ const DataSummaryCards = () => {
               status="normal"
               tooltipText="Average time from approval to payout completion"
               tags={["Improved"]}
-              sparklineData={[36, 34, 30, 28, 26, 24]}
               onExpand={() => handleExpand({
                 title: "Processing Time Breakdown",
                 description: "Time metrics for payroll processing",

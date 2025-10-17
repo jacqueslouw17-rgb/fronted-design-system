@@ -36,7 +36,6 @@ interface WidgetConfig {
   tooltipText?: string;
   isPinned?: boolean;
   expandedContent?: string;
-  sparklineData?: number[];
 }
 
 const AdaptiveWidgetGridPattern = () => {
@@ -57,7 +56,6 @@ const AdaptiveWidgetGridPattern = () => {
       genieHint: "FX spread has widened by 0.4%. Want to review?",
       tooltipText: "Total monthly payroll across all contractors",
       expandedContent: "Detailed payroll breakdown with FX rates and contractor-wise distribution.",
-      sparklineData: [45, 52, 48, 55, 58, 62, 59, 65, 68, 70, 72, 75, 73, 78, 80, 82, 85, 83, 87, 90],
     },
     {
       i: "compliance",
@@ -70,7 +68,6 @@ const AdaptiveWidgetGridPattern = () => {
       tooltipText: "Overall compliance verification status",
       isPinned: true,
       expandedContent: "Full compliance checklist with country-specific requirements and status.",
-      sparklineData: [88, 89, 90, 91, 92, 91, 93, 94, 95, 94, 93, 94, 95, 96, 95, 94, 93, 94, 95, 94],
     },
     {
       i: "contractors",
@@ -81,7 +78,6 @@ const AdaptiveWidgetGridPattern = () => {
       status: "ok",
       tooltipText: "Active contractors across all countries",
       expandedContent: "Contractor list with status, location, and contract details.",
-      sparklineData: [18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24],
     },
     {
       i: "sla",
@@ -93,7 +89,6 @@ const AdaptiveWidgetGridPattern = () => {
       genieHint: "I can escalate it to your Ops Lead.",
       tooltipText: "Live SLA countdowns and unresolved tickets",
       expandedContent: "Detailed SLA tracking with timelines and escalation options.",
-      sparklineData: [1, 1, 2, 2, 2, 3, 3, 4, 4, 3, 3, 2, 3, 3, 4, 4, 3, 3, 3, 3],
     },
     {
       i: "fx",
@@ -104,7 +99,6 @@ const AdaptiveWidgetGridPattern = () => {
       status: "ok",
       tooltipText: "Current FX spread and conversion fees",
       expandedContent: "Real-time FX rates, spreads, and historical trends.",
-      sparklineData: [0.9, 0.85, 0.88, 0.82, 0.79, 0.81, 0.78, 0.8, 0.79, 0.77, 0.8, 0.78, 0.79, 0.81, 0.8, 0.82, 0.8, 0.79, 0.8, 0.8],
     },
     {
       i: "contracts",
@@ -115,7 +109,6 @@ const AdaptiveWidgetGridPattern = () => {
       status: "ok",
       tooltipText: "Drafted, signed, and pending contracts",
       expandedContent: "Contract pipeline with status tracking and approval workflows.",
-      sparklineData: [12, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
     },
   ];
 
@@ -128,7 +121,6 @@ const AdaptiveWidgetGridPattern = () => {
       icon: Users,
       status: "ok",
       tooltipText: "Active onboarding processes",
-      sparklineData: [3, 3, 4, 4, 5, 5, 5, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     },
     {
       i: "contracts",
@@ -138,7 +130,6 @@ const AdaptiveWidgetGridPattern = () => {
       icon: FileCheck,
       status: "warning",
       genieHint: "3 contracts need your review.",
-      sparklineData: [15, 15, 16, 16, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
     },
     {
       i: "documents",
@@ -147,7 +138,6 @@ const AdaptiveWidgetGridPattern = () => {
       trend: "Down from 12 last week",
       icon: AlertCircle,
       status: "ok",
-      sparklineData: [12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7],
     },
   ];
 
@@ -160,7 +150,6 @@ const AdaptiveWidgetGridPattern = () => {
       icon: DollarSign,
       status: "ok",
       isPinned: true,
-      sparklineData: [115000, 118000, 120000, 125000, 128000, 130000, 132000, 135000, 138000, 140000, 141000, 142000, 143000, 144000, 144500, 145000, 145000, 145000, 145000, 145000],
     },
     {
       i: "fx",
@@ -170,7 +159,6 @@ const AdaptiveWidgetGridPattern = () => {
       icon: Activity,
       status: "warning",
       genieHint: "FX spread has increased. Consider hedging strategy.",
-      sparklineData: [980, 1000, 1020, 1050, 1080, 1100, 1120, 1140, 1160, 1180, 1190, 1200, 1210, 1220, 1230, 1235, 1238, 1240, 1240, 1240],
     },
     {
       i: "compliance",
@@ -179,7 +167,6 @@ const AdaptiveWidgetGridPattern = () => {
       trend: "94% verified",
       icon: FileCheck,
       status: "ok",
-      sparklineData: [88, 89, 90, 91, 92, 91, 93, 94, 95, 94, 93, 94, 95, 96, 95, 94, 93, 94, 95, 94],
     },
   ];
 
@@ -192,7 +179,6 @@ const AdaptiveWidgetGridPattern = () => {
       icon: DollarSign,
       status: "ok",
       tooltipText: "Your most recent payment",
-      sparklineData: [4200, 4300, 4350, 4400, 4450, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500, 4500],
     },
     {
       i: "next-payout",
@@ -201,7 +187,6 @@ const AdaptiveWidgetGridPattern = () => {
       trend: "Expected: $4,500",
       icon: Clock,
       status: "ok",
-      sparklineData: [10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     },
     {
       i: "documents",
@@ -210,7 +195,6 @@ const AdaptiveWidgetGridPattern = () => {
       trend: "Insurance expires in 45 days",
       icon: FileCheck,
       status: "ok",
-      sparklineData: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
     },
   ];
 
@@ -377,7 +361,6 @@ const AdaptiveWidgetGridPattern = () => {
               onExpand={() => handleExpand(widget)}
               onPin={() => handlePin(widget.i)}
               onRemove={() => handleRemove(widget.i)}
-              sparklineData={widget.sparklineData}
             />
           </div>
         ))}

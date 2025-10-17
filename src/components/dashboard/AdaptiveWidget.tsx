@@ -14,8 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { LucideIcon, GripVertical, MoreVertical, Maximize2, Pin, X, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import { useState } from "react";
 
 export type WidgetStatus = "ok" | "warning" | "breach";
 
@@ -31,15 +30,7 @@ interface AdaptiveWidgetProps {
   onExpand?: () => void;
   onPin?: () => void;
   onRemove?: () => void;
-  sparklineData?: number[];
 }
-
-// Generate smooth sparkline data
-const generateSparklineData = (points: number = 20) => {
-  return Array.from({ length: points }, (_, i) => ({
-    value: Math.sin(i / 3) * 20 + 50 + Math.random() * 10,
-  }));
-};
 
 const statusColors = {
   ok: "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
@@ -59,22 +50,8 @@ const AdaptiveWidget = ({
   onExpand,
   onPin,
   onRemove,
-  sparklineData,
 }: AdaptiveWidgetProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [chartData, setChartData] = useState(generateSparklineData());
-  const [isAnimating, setIsAnimating] = useState(true);
-
-  useEffect(() => {
-    // Use provided data or generate default
-    if (sparklineData) {
-      setChartData(sparklineData.map(value => ({ value })));
-    }
-    
-    // Trigger animation on mount
-    const timer = setTimeout(() => setIsAnimating(false), 1000);
-    return () => clearTimeout(timer);
-  }, [sparklineData]);
 
   return (
     <Card
@@ -153,30 +130,6 @@ const AdaptiveWidget = ({
       <CardContent className="px-4 pb-3">
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground mt-1">{trend}</p>
-
-        {/* Sparkline Chart */}
-        <div className="mt-3 h-12 -mx-4" style={{ opacity: isAnimating ? 0 : 1, transition: 'opacity 0.6s ease-in' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.5} />
-                  <stop offset="95%" stopColor="hsl(var(--secondary))" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(var(--secondary))"
-                strokeWidth={2.5}
-                fill={`url(#gradient-${title})`}
-                isAnimationActive={true}
-                animationDuration={1200}
-                animationEasing="ease-in-out"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
 
         {/* Genie Hint */}
         {genieHint && (
