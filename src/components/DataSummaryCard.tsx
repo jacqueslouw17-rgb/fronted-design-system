@@ -2,8 +2,9 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LucideIcon, ChevronRight, TrendingUp, TrendingDown, Info } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 interface DataSummaryCardProps {
   label: string;
@@ -34,6 +35,19 @@ const DataSummaryCard = ({
   className,
 }: DataSummaryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [chartData, setChartData] = useState<{ value: number }[]>([]);
+  const [isAnimating, setIsAnimating] = useState(true);
+
+  useEffect(() => {
+    // Convert sparklineData to chart format
+    if (sparklineData && sparklineData.length > 0) {
+      setChartData(sparklineData.map(value => ({ value })));
+    }
+    
+    // Trigger animation on mount
+    const timer = setTimeout(() => setIsAnimating(false), 1000);
+    return () => clearTimeout(timer);
+  }, [sparklineData]);
 
   const getStatusStyles = () => {
     switch (status) {
@@ -56,24 +70,33 @@ const DataSummaryCard = ({
   };
 
   const renderSparkline = () => {
-    if (!sparklineData || sparklineData.length === 0) return null;
-    
-    const max = Math.max(...sparklineData);
-    const min = Math.min(...sparklineData);
-    const range = max - min || 1;
+    if (!chartData || chartData.length === 0) return null;
 
     return (
-      <div className="flex items-end gap-0.5 h-8 mt-2">
-        {sparklineData.map((value, index) => {
-          const height = ((value - min) / range) * 100;
-          return (
-            <div
-              key={index}
-              className="flex-1 bg-primary/20 rounded-sm transition-all hover:bg-primary/40"
-              style={{ height: `${Math.max(height, 10)}%` }}
+      <div 
+        className="mt-3 h-16 -mx-2" 
+        style={{ opacity: isAnimating ? 0 : 1, transition: 'opacity 0.6s ease-in' }}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id={`gradient-${label}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="hsl(var(--secondary))" stopOpacity={0.05} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--secondary))"
+              strokeWidth={2.5}
+              fill={`url(#gradient-${label})`}
+              isAnimationActive={true}
+              animationDuration={1400}
+              animationEasing="ease-in-out"
             />
-          );
-        })}
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     );
   };
@@ -110,7 +133,7 @@ const DataSummaryCard = ({
       </CardHeader>
 
       <CardContent className="pb-3">
-        <div className="space-y-2">
+        <div className="space-y-1">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">
               {status === "loading" ? "..." : value}
@@ -120,8 +143,8 @@ const DataSummaryCard = ({
                 {getTrendIcon()}
                 <span className={cn(
                   "text-sm font-medium",
-                  trend.direction === "up" && "text-green-600",
-                  trend.direction === "down" && "text-red-600",
+                  trend.direction === "up" && "text-accent-green-text",
+                  trend.direction === "down" && "text-destructive",
                   trend.direction === "neutral" && "text-muted-foreground"
                 )}>
                   {trend.value}
@@ -130,7 +153,7 @@ const DataSummaryCard = ({
             )}
           </div>
 
-          {sparklineData && renderSparkline()}
+          {chartData.length > 0 && renderSparkline()}
 
           {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-3">
