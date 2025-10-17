@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { LucideIcon, GripVertical, MoreVertical, Maximize2, Pin, X, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export type WidgetStatus = "ok" | "warning" | "breach";
 
@@ -121,8 +122,16 @@ const AdaptiveWidget = ({
           </Tooltip>
         </TooltipProvider>
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
-            <Icon className="h-5 w-5 text-accent" />
+          <div className={cn(
+            "p-2 rounded-xl",
+            shouldUseGradient 
+              ? "bg-muted/50 border border-border/50"
+              : "bg-amber-500/10 border border-amber-500/20"
+          )}>
+            <Icon className={cn(
+              "h-5 w-5",
+              shouldUseGradient ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"
+            )} />
           </div>
           {status !== "ok" && (
             <Badge variant="outline" className={statusColors[status]}>

@@ -70,8 +70,16 @@ const DataSummaryCard = ({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             {Icon && (
-              <div className="p-2 rounded-xl bg-accent/10 border border-accent/20">
-                <Icon className="h-5 w-5 text-accent" />
+              <div className={cn(
+                "p-2 rounded-xl",
+                cardVariant === "gradient" 
+                  ? "bg-muted/50 border border-border/50"
+                  : "bg-amber-500/10 border border-amber-500/20"
+              )}>
+                <Icon className={cn(
+                  "h-5 w-5",
+                  cardVariant === "gradient" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"
+                )} />
               </div>
             )}
             <span className="text-sm font-medium text-muted-foreground">{label}</span>
