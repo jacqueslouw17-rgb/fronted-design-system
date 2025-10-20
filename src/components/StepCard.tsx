@@ -47,7 +47,7 @@ const StepCard = ({
       <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300 animate-fade-in">
         <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
           <div className="flex items-center space-x-3">
-            <div className="h-7 w-7 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium">
+            <div className="h-6 w-6 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium flex-shrink-0">
               {stepNumber}
             </div>
             <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/60" : "text-foreground"}`}>{title}</h3>
@@ -55,7 +55,7 @@ const StepCard = ({
           {getStatusBadge()}
         </div>
 
-        <div className="mt-4 space-y-4 animate-fade-in">
+        <div className="mt-4 space-y-4 animate-fade-in overflow-hidden">
           {children}
         </div>
       </Card>
@@ -64,7 +64,7 @@ const StepCard = ({
 
   return (
     <Card
-      className={`p-4 transition-colors duration-150 cursor-pointer group border-border/50 ${
+      className={`p-4 transition-all duration-300 ease-in-out cursor-pointer group border-border/50 ${
         status === "completed"
           ? "bg-background hover:bg-primary/5"
           : status === "active"
@@ -76,7 +76,7 @@ const StepCard = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <div
-            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 ${
+            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 flex-shrink-0 ${
               status === "completed"
                 ? "bg-primary/15 text-primary"
                 : status === "active"
