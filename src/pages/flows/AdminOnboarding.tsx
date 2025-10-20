@@ -53,6 +53,16 @@ const AdminOnboarding = () => {
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Auto-speak initial welcome message on mount
+  useEffect(() => {
+    const initialMessage = "Hi, I'm Genie. Let's set up your global contractor management system together.";
+    setIsSpeaking(true);
+    speak(initialMessage, () => {
+      setIsSpeaking(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Auto-expand step 1 and update message after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -645,29 +655,15 @@ const AdminOnboarding = () => {
           </div>
         </div>
 
-        {/* Voice Input Control */}
-        <div className="flex items-center justify-center mt-8 relative z-10">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleVoiceInput}
-              disabled={isProcessing}
-              className={`px-6 relative ${
-                isListening 
-                  ? "bg-destructive hover:bg-destructive/90" 
-                  : "bg-gradient-to-r from-primary to-secondary shadow"
-              }`}
-            >
-              <Mic className="h-5 w-5 mr-2" />
-              <span>{isListening ? "Stop" : isProcessing ? "Processing..." : "Speak"}</span>
-            </Button>
-            {isListening && (
-              <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
-                <Mic className="h-4 w-4" />
-                <span>Listening...</span>
-              </div>
-            )}
+        {/* Listening indicator */}
+        {isListening && (
+          <div className="flex items-center justify-center mt-8 relative z-10">
+            <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
+              <Mic className="h-4 w-4" />
+              <span>Listening...</span>
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
