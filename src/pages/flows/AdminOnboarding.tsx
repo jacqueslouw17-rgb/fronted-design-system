@@ -46,6 +46,7 @@ const AdminOnboarding = () => {
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
+  const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-expand step 1 and update message after 3 seconds
@@ -57,7 +58,10 @@ const AdminOnboarding = () => {
       
       // Start speaking and track state
       setIsSpeaking(true);
-      speak(newMessage, () => setIsSpeaking(false));
+      speak(newMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
       
       // Delay step expansion slightly for better animation
       setTimeout(() => {
@@ -201,7 +205,9 @@ const AdminOnboarding = () => {
                 <span
                   key={index}
                   className={`transition-colors duration-150 ${
-                    index === currentWordIndex - 1 
+                    hasFinishedReading
+                      ? `${messageStyle}` 
+                      : index === currentWordIndex - 1 
                       ? `${messageStyle} font-semibold` 
                       : index < currentWordIndex - 1
                       ? `${messageStyle} font-medium`
