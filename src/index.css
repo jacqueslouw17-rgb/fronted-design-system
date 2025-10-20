@@ -40,8 +40,8 @@ All colors MUST be HSL.
     --ring: 0 0% 9%;
     
     /* Skeleton loading states */
-    --skeleton: 221 83% 93%;       /* Light blue tint for visibility */
-    --skeleton-shimmer: 221 83% 96%; /* Lighter shimmer */
+    --skeleton: 0 0% 92%;          /* Light grey */
+    --skeleton-shimmer: 0 0% 95%;  /* Lighter shimmer */
 
     /* Subtle radius - 4pt system */
     --radius: 8px;
@@ -151,8 +151,8 @@ All colors MUST be HSL.
     --ring: 0 0% 98%;
     
     /* Skeleton loading states */
-    --skeleton: 221 83% 18%;       /* Dark blue tint */
-    --skeleton-shimmer: 221 83% 22%; /* Lighter shimmer */
+    --skeleton: 0 0% 20%;          /* Dark grey */
+    --skeleton-shimmer: 0 0% 25%;  /* Lighter shimmer */
     
     --kurt-primary: 221 83% 63%;     /* Match primary for dark */
     --kurt-glow: 262 83% 68%;        /* Match secondary for dark */

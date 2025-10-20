@@ -693,11 +693,11 @@ const AdminOnboarding = () => {
 
       {/* Static background (performance-safe) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
-        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-2xl opacity-15"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }} />
-        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-2xl opacity-10"
-             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.08))' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
       {/* Left Section - Agent */}
