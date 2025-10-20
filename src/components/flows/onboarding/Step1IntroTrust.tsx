@@ -35,12 +35,12 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {/* How Genie Works Section */}
+      {/* How Kurt Works Section */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <CheckCircle2 className="h-4 w-4 text-primary" />
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            How Genie Works
+            How Kurt Works
           </h3>
         </div>
         <p className="text-sm text-muted-foreground mb-3">
@@ -53,7 +53,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
               <span className="text-xs font-semibold text-primary">1</span>
             </div>
             <div>
-              <p className="font-medium text-sm mb-0.5">Genie prepares everything</p>
+              <p className="font-medium text-sm mb-0.5">Kurt prepares everything</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 The agent asks questions, fills forms, and suggests next steps
               </p>
@@ -132,7 +132,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
               <RadioGroupItem value="chat" id="chat" />
               <Label htmlFor="chat" className="cursor-pointer flex items-center gap-2 text-sm">
                 <MessageSquare className="h-4 w-4 text-primary" />
-                <span>Chat with Genie <span className="text-xs text-muted-foreground">(Recommended)</span></span>
+                <span>Chat with Kurt <span className="text-xs text-muted-foreground">(Recommended)</span></span>
               </Label>
             </div>
             <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'manual' ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/8 border-transparent'}`}>
