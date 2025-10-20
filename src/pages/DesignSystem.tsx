@@ -4,9 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
+import { Button } from "@/components/ui/button";
 
 const patterns = [
   {
@@ -305,6 +306,13 @@ const normalizedPatterns = patterns.map(p => ({
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
+  const location = useLocation();
+
+  const navigation = [
+    { name: "Patterns", path: "/", icon: LayoutGrid, current: location.pathname === "/" },
+    { name: "Flows", path: "/flows", icon: Workflow, current: location.pathname.startsWith("/flows") },
+    { name: "Components", path: "/design-system", icon: Tags, current: location.pathname === "/design-system" },
+  ];
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
@@ -317,6 +325,27 @@ const DesignSystem = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl w-full space-y-6 sm:space-y-8">
+        {/* Top Navigation */}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2 p-1 rounded-lg bg-muted">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.name} to={item.path}>
+                  <Button
+                    variant={item.current ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.name}
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="text-center space-y-2">
           <h1 className="text-3xl sm:text-4xl font-semibold">Design System</h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
