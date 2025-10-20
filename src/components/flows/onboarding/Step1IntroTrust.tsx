@@ -119,14 +119,14 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
             Preferred Input Mode
           </Label>
           <RadioGroup value={inputMode} onValueChange={setInputMode}>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent/50 transition-colors">
+            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'chat' ? 'bg-accent/30 border-primary/30' : 'hover:bg-accent/40 border-transparent'}`}>
               <RadioGroupItem value="chat" id="chat" />
               <Label htmlFor="chat" className="cursor-pointer flex items-center gap-2 text-sm">
                 <MessageSquare className="h-4 w-4 text-primary" />
                 <span>Chat with Genie <span className="text-xs text-muted-foreground">(Recommended)</span></span>
               </Label>
             </div>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent/50 transition-colors">
+            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'manual' ? 'bg-accent/30 border-primary/30' : 'hover:bg-accent/40 border-transparent'}`}>
               <RadioGroupItem value="manual" id="manual" />
               <Label htmlFor="manual" className="cursor-pointer text-sm">
                 Manual forms <span className="text-xs text-muted-foreground">(Traditional)</span>
