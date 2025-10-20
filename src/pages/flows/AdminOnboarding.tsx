@@ -77,6 +77,7 @@ const AdminOnboarding = () => {
       scrollToStep("intro_trust_model");
     }, 2000);
     
+    stop();
     speak(initialMessage, () => {
       setIsSpeaking(false);
       setHasFinishedReading(true);
@@ -112,30 +113,32 @@ const AdminOnboarding = () => {
 
   // Watch for transcript changes and auto-process
   useEffect(() => {
-    if (transcript && !isProcessing && !isSpeaking) {
-      const lowerTranscript = transcript.toLowerCase();
-      
-      // Check for dashboard navigation (step 7)
-      if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
-        stopListening();
-        resetTranscript();
-        handleDashboardNavigation();
-      }
-      // Check for affirmative responses
-      else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok") || lowerTranscript.includes("ready")) {
-        stopListening();
-        resetTranscript();
-        handleUserConfirmation();
-      }
-      // Check for save/continue commands (for when user edits selections)
-      else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
-        stopListening();
-        resetTranscript();
-        handleUserSaveAction();
-      }
+    if (!isListening || !transcript || isProcessing || isSpeaking) return;
+    const lowerTranscript = transcript.toLowerCase();
+
+    // Navigate to dashboard (step 7)
+    if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
+      stopListening();
+      setIsProcessing(true);
+      resetTranscript();
+      handleDashboardNavigation();
+    }
+    // Affirmative responses
+    else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok") || lowerTranscript.includes("ready")) {
+      stopListening();
+      setIsProcessing(true);
+      resetTranscript();
+      handleUserConfirmation();
+    }
+    // Save/continue commands
+    else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
+      stopListening();
+      setIsProcessing(true);
+      resetTranscript();
+      handleUserSaveAction();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcript, isProcessing, isSpeaking]);
+  }, [transcript, isProcessing, isSpeaking, isListening]);
 
   const handleUserConfirmation = async () => {
     // STEP 1 → STEP 2
@@ -145,7 +148,7 @@ const AdminOnboarding = () => {
       
       // Show loading on button
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1800));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // Complete step 1 and close it
       completeStep("intro_trust_model");
@@ -176,19 +179,20 @@ const AdminOnboarding = () => {
         console.error("Error saving policy acceptance:", error);
       }
       
-      // Expand Step 2 mid-way through voiceover (after 1.8s)
+      // Expand Step 2 mid-way through voiceover (after 0.8s)
       setTimeout(() => {
         setIsLoadingFields(true);
         goToStep("org_profile");
         setExpandedStep("org_profile");
         scrollToStep("org_profile");
-      }, 1800);
+      }, 800);
         
+      stop();
       speak(loadingMessage, async () => {
         setIsSpeaking(false);
         
         // Keep skeleton loading visible
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(resolve => setTimeout(resolve, 700));
         
         // Populate the data
         const orgData = {
@@ -211,6 +215,7 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        stop();
         speak(confirmMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
@@ -224,7 +229,7 @@ const AdminOnboarding = () => {
     // STEP 2 → STEP 3
     else if (state.currentStep === "org_profile") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1800));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // Complete step 2
       completeStep("org_profile");
@@ -251,11 +256,12 @@ const AdminOnboarding = () => {
       setExpandedStep("localization_country_blocks");
       scrollToStep("localization_country_blocks");
       
+      stop();
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
         // Keep skeleton visible briefly
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 400));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
         setHasAutoStarted(false);
@@ -276,6 +282,7 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        stop();
         speak(errorMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
@@ -287,7 +294,7 @@ const AdminOnboarding = () => {
       }
       
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 600));
       
       completeStep("localization_country_blocks");
       setExpandedStep(null);
@@ -319,11 +326,12 @@ const AdminOnboarding = () => {
       setExpandedStep("integrations_connect");
       scrollToStep("integrations_connect");
       
+      stop();
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
         // Keep skeleton visible briefly while connecting
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Auto-connect integrations
         updateFormData({ 
@@ -340,6 +348,7 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        stop();
         speak(nextMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
@@ -353,7 +362,7 @@ const AdminOnboarding = () => {
     // STEP 4 → STEP 5
     else if (state.currentStep === "integrations_connect") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 600));
       
       completeStep("integrations_connect");
       setExpandedStep(null);
@@ -383,11 +392,12 @@ const AdminOnboarding = () => {
       setExpandedStep("mini_rules_setup");
       scrollToStep("mini_rules_setup");
       
+      stop();
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
         // Keep skeleton visible briefly
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 400));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
         setHasAutoStarted(false);
@@ -421,11 +431,12 @@ const AdminOnboarding = () => {
       setExpandedStep("transparency_pledge_esign");
       scrollToStep("transparency_pledge_esign");
       
+      stop();
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
         // Keep skeleton visible briefly
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 400));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
         setHasAutoStarted(false);
@@ -437,7 +448,7 @@ const AdminOnboarding = () => {
     // STEP 6 → STEP 7
     else if (state.currentStep === "transparency_pledge_esign") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 600));
       
       updateFormData({ pledgeSigned: true, signedAt: new Date().toISOString() });
       completeStep("transparency_pledge_esign");
@@ -451,6 +462,7 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
+      stop();
       speak(confirmMessage, () => {
         setIsSpeaking(false);
         setHasFinishedReading(true);
@@ -476,6 +488,7 @@ const AdminOnboarding = () => {
     setHasAutoStarted(false);
     setIsSpeaking(true);
     
+    stop();
     speak(loadingMessage, async () => {
       setIsSpeaking(false);
       
@@ -548,7 +561,7 @@ const AdminOnboarding = () => {
       }
       
       // Show loading for a moment
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 600));
       
       // Navigate to dashboard
       navigate('/dashboard');
@@ -570,6 +583,7 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        stop();
         speak(errorMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
@@ -604,11 +618,12 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
+      stop();
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
         // Auto-connect integrations
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(resolve => setTimeout(resolve, 700));
         updateFormData({ 
           slackConnected: true, 
           fxConnected: true,
@@ -621,6 +636,7 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        stop();
         speak(nextMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
