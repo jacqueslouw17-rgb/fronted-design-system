@@ -72,6 +72,11 @@ export const useSpeechToText = () => {
   }, [isListening]);
 
   const startListening = useCallback(async () => {
+    // Don't start if already listening
+    if (isListening) {
+      return;
+    }
+    
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       setError(null);
@@ -84,7 +89,7 @@ export const useSpeechToText = () => {
       setError('Microphone access blocked. Please enable it in your browser settings.');
       console.error('Microphone permission error:', err);
     }
-  }, []);
+  }, [isListening]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {

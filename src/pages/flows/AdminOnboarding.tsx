@@ -50,6 +50,7 @@ const AdminOnboarding = () => {
   );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
+  const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-expand step 1 and update message after 3 seconds
@@ -61,6 +62,7 @@ const AdminOnboarding = () => {
       
       // Start speaking and track state
       setIsSpeaking(true);
+      setHasAutoStarted(false); // Reset auto-start flag
       speak(newMessage, () => {
         setIsSpeaking(false);
         setHasFinishedReading(true);
@@ -76,16 +78,17 @@ const AdminOnboarding = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-start listening after AI finishes speaking
+  // Auto-start listening after AI finishes speaking (only once per message)
   useEffect(() => {
-    if (hasFinishedReading && !isListening && !isProcessing) {
+    if (hasFinishedReading && !isListening && !isProcessing && !hasAutoStarted) {
       const timer = setTimeout(() => {
+        setHasAutoStarted(true);
         startListening();
       }, 800);
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasFinishedReading, isListening, isProcessing]);
+  }, [hasFinishedReading, isListening, isProcessing, hasAutoStarted]);
 
   // Handle voice input with full flow
   const handleVoiceInput = async () => {
@@ -129,6 +132,7 @@ const AdminOnboarding = () => {
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
+      setHasAutoStarted(false); // Reset for next message
       setIsSpeaking(true);
       
       speak(confirmMessage, async () => {
@@ -159,6 +163,7 @@ const AdminOnboarding = () => {
         setKurtMessage(newMessage);
         setMessageStyle("text-foreground/80");
         setHasFinishedReading(false);
+        setHasAutoStarted(false); // Reset for next message
         setIsSpeaking(true);
         speak(newMessage, () => {
           setIsSpeaking(false);
