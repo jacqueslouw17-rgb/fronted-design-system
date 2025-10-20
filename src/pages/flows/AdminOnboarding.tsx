@@ -386,7 +386,7 @@ const AdminOnboarding = () => {
       </motion.div>
 
       {/* Main content - centered */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 max-w-4xl mx-auto">
         {/* Audio Wave Visualizer */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -397,27 +397,31 @@ const AdminOnboarding = () => {
           <AudioWaveVisualizer isActive={isListening} />
         </motion.div>
 
-        {/* Progress indicator */}
+        {/* Progress Bar */}
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
+          className="w-full max-w-md mb-6"
         >
-          <div className="text-sm font-medium text-muted-foreground">
-            Step {currentStepIndex + 1} of {totalSteps}
+          <div className="text-center mb-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              {currentStepIndex + 1} / {totalSteps}
+            </span>
           </div>
+          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
         </motion.div>
 
-        {/* Greeting and step title */}
+        {/* Greeting and message */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-center mb-8 max-w-2xl"
+          className="text-center mb-8"
         >
-          <h2 className="text-2xl font-semibold mb-2">Hi, welcome to Fronted</h2>
-          <h1 className="text-3xl font-bold mb-3">{currentStepData.title}</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Hi, welcome to Fronted
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
             {kurtMessage.split(' ').map((word, index) => (
               <span
                 key={index}
@@ -435,16 +439,14 @@ const AdminOnboarding = () => {
           </p>
         </motion.div>
 
-        {/* Glassmorphism card with current step content */}
+        {/* Step content - no card wrapper */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
           className="w-full max-w-2xl"
         >
-          <div className="bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-elevated">
-            {renderStepContent(state.currentStep)}
-          </div>
+          {renderStepContent(state.currentStep)}
         </motion.div>
 
         {/* Voice Input Control */}
