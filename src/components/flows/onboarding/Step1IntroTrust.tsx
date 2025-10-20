@@ -101,7 +101,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
 
       {/* Privacy & Preferences Section */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-        <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
+        <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-primary/8 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
           <Checkbox
             id="privacy"
             checked={privacyAccepted}
@@ -119,14 +119,14 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
             Preferred Input Mode
           </Label>
           <RadioGroup value={inputMode} onValueChange={setInputMode}>
-            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'chat' ? 'bg-primary/10 border-primary/30' : 'hover:bg-accent/40 border-transparent'}`}>
+            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'chat' ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/8 border-transparent'}`}>
               <RadioGroupItem value="chat" id="chat" />
               <Label htmlFor="chat" className="cursor-pointer flex items-center gap-2 text-sm">
                 <MessageSquare className="h-4 w-4 text-primary" />
                 <span>Chat with Genie <span className="text-xs text-muted-foreground">(Recommended)</span></span>
               </Label>
             </div>
-            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'manual' ? 'bg-primary/10 border-primary/30' : 'hover:bg-accent/40 border-transparent'}`}>
+            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'manual' ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/8 border-transparent'}`}>
               <RadioGroupItem value="manual" id="manual" />
               <Label htmlFor="manual" className="cursor-pointer text-sm">
                 Manual forms <span className="text-xs text-muted-foreground">(Traditional)</span>
