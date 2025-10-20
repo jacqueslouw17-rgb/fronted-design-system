@@ -121,98 +121,79 @@ const AdminOnboarding = () => {
   const handleUserConfirmation = async () => {
     // STEP 1 → STEP 2
     if (state.currentStep === "intro_trust_model") {
-      // Start processing
-      setIsProcessing(true);
-      
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Auto-accept privacy
+      // Auto-accept privacy checkbox first
       updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
       
-      // Confirm action with voice
+      // Show loading on button
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1800));
+      
+      // Complete step 1 and close it
+      completeStep("intro_trust_model");
+      setExpandedStep(null);
       setIsProcessing(false);
-      const confirmMessage = "Perfect! I've got that sorted. Let me grab your organization details now.";
-      setKurtMessage(confirmMessage);
+      
+      // Wait before speaking about org details
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // NOW speak about fetching org details
+      const loadingMessage = "Perfect! Let me fetch your organization details...";
+      setKurtMessage(loadingMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
-      setHasAutoStarted(false); // Reset for next message
+      setHasAutoStarted(false);
       setIsSpeaking(true);
       
-      speak(confirmMessage, async () => {
+      // Auto-save policy acceptance to database
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.from("profiles").upsert({
+            user_id: session.user.id,
+            display_name: "Joe Smith"
+          }, { onConflict: "user_id" });
+        }
+      } catch (error) {
+        console.error("Error saving policy acceptance:", error);
+      }
+      
+      // Expand Step 2 mid-way through voiceover (after 1.8s)
+      setTimeout(() => {
+        setIsLoadingFields(true);
+        goToStep("org_profile");
+        setExpandedStep("org_profile");
+      }, 1800);
+        
+      speak(loadingMessage, async () => {
         setIsSpeaking(false);
         
-        // Show processing in step 1
-        setIsProcessing(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Keep skeleton loading visible
+        await new Promise(resolve => setTimeout(resolve, 2500));
         
-        // Complete step 1 and close it
-        completeStep("intro_trust_model");
-        setExpandedStep(null);
-        setIsProcessing(false);
+        // Populate the data
+        const orgData = {
+          companyName: "Fronted Inc",
+          primaryContactName: "Joe Smith",
+          primaryContactEmail: "joe@fronted.com",
+          hqCountry: "NO",
+          payrollFrequency: "monthly",
+          payoutDay: "25",
+          dualApproval: true
+        };
+        updateFormData(orgData);
+        setIsLoadingFields(false);
         
-        // Wait a moment, then start speaking about step 2
-        await new Promise(resolve => setTimeout(resolve, 600));
-        
-        // Start speaking about fetching org details
-        const loadingMessage = "Let me fetch your organization details...";
-        setKurtMessage(loadingMessage);
+        // Confirm org details are ready and ask for user approval
+        const confirmMessage = "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
+        setKurtMessage(confirmMessage);
         setMessageStyle("text-foreground/80");
         setHasFinishedReading(false);
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
-        // Expand Step 2 mid-way through voiceover (after 1.5s)
-        setTimeout(() => {
-          setIsLoadingFields(true);
-          goToStep("org_profile");
-          setExpandedStep("org_profile");
-        }, 1500);
-        
-        speak(loadingMessage, async () => {
+        speak(confirmMessage, () => {
           setIsSpeaking(false);
-          
-          // Auto-save policy acceptance to database
-          try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-              await supabase.from("profiles").upsert({
-                user_id: session.user.id,
-                display_name: "Joe Smith"
-              }, { onConflict: "user_id" });
-            }
-          } catch (error) {
-            console.error("Error saving policy acceptance:", error);
-          }
-          
-          // Keep skeleton loading visible
-          await new Promise(resolve => setTimeout(resolve, 2500));
-          
-          // Populate the data
-          const orgData = {
-            companyName: "Fronted Inc",
-            primaryContactName: "Joe Smith",
-            primaryContactEmail: "joe@fronted.com",
-            hqCountry: "NO",
-            payrollFrequency: "monthly",
-            payoutDay: "25",
-            dualApproval: true
-          };
-          updateFormData(orgData);
-          setIsLoadingFields(false);
-          
-          // Confirm org details are ready and ask for user approval
-          const confirmMessage = "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
-          setKurtMessage(confirmMessage);
-          setMessageStyle("text-foreground/80");
-          setHasFinishedReading(false);
-          setHasAutoStarted(false);
-          setIsSpeaking(true);
-          
-          speak(confirmMessage, () => {
-            setIsSpeaking(false);
-            setHasFinishedReading(true);
-          });
+          setHasFinishedReading(true);
         });
       });
       
