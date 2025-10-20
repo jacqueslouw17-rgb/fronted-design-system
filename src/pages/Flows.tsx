@@ -203,7 +203,7 @@ const Flows = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {flows.map((flow) => (
             <Link key={flow.id} to={flow.path}>
               <Card className="hover:shadow-lg transition-all group h-full">
@@ -243,15 +243,9 @@ const Flows = () => {
                     {flow.patterns.length > 3 && (
                       <Badge
                         variant="outline"
-                        className="cursor-pointer hover:bg-muted transition-colors text-xs"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setSelectedPattern(flow.patterns[3]);
-                        }}
+                        className="text-xs"
                       >
-                        <Plus className="h-3 w-3 mr-1" />
-                        {flow.patterns.length - 3}
+                        +{flow.patterns.length - 3}
                       </Badge>
                     )}
                   </div>
