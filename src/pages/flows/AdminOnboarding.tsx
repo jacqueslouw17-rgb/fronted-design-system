@@ -55,30 +55,19 @@ const AdminOnboarding = () => {
 
   // Auto-speak initial welcome message and smoothly transition to step 1
   useEffect(() => {
-    const initialMessage = "Hi, I'm Kurt. Let's set up your global contractor management system together.";
+    const initialMessage = "Hi Joe, I'm Kurt. I'll help you set up your global contractor management system. To get started, can I accept the privacy policy on your behalf?";
+    setKurtMessage(initialMessage);
+    setMessageStyle("text-foreground/80");
     setIsSpeaking(true);
     
-    // Expand step 1 during the initial greeting for smooth transition
+    // Expand step 1 during the greeting for smooth transition
     setTimeout(() => {
       setExpandedStep("intro_trust_model");
-    }, 1500);
+    }, 2000);
     
     speak(initialMessage, () => {
       setIsSpeaking(false);
-      
-      // Smoothly continue with step 1 question
-      setTimeout(() => {
-        const stepMessage = "Let's set you up Joe, want me to accept the privacy policy on your behalf?";
-        setKurtMessage(stepMessage);
-        setMessageStyle("text-foreground/80");
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        speak(stepMessage, () => {
-          setIsSpeaking(false);
-          setHasFinishedReading(true);
-        });
-      }, 800);
+      setHasFinishedReading(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
