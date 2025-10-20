@@ -44,45 +44,11 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
     <motion.div
       layout
       transition={{ duration: 0.5, ease: "easeInOut" }}
-      className={`flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden ${
+      className={`flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] ${
         isDrawerOpen ? "w-1/2" : "w-full"
       }`}
     >
-      {/* Stunning gradient background */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2 }}
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-      >
-        <motion.div
-          animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.1, 0.15, 0.1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[40rem] rounded-full blur-[120px]"
-          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.08, 0.12, 0.08],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-          className="absolute bottom-0 right-0 w-[50rem] h-[35rem] rounded-full blur-[100px]"
-          style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
-        />
-      </motion.div>
+      {/* Subtle background already applied via container gradient */}
 
       <div className="max-w-2xl w-full space-y-8 relative z-10">
         {/* Audio Wave Visualizer */}

@@ -89,42 +89,8 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   };
 
   return (
-    <div className="h-full flex flex-col bg-background relative overflow-hidden">
-      {/* Animated gradient background orbs */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-      >
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.15, 0.1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-primary)' }}
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.08, 0.12, 0.08],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-          className="absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-secondary)' }}
-        />
-      </motion.div>
+    <div className="h-full flex flex-col relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      {/* Subtle background already applied via container gradient */}
 
       {/* Header controls - top right */}
       <div className="absolute top-4 right-4 z-30 flex items-center gap-2 pointer-events-auto">
