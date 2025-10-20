@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import KurtAvatar from "@/components/KurtAvatar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, Send } from "lucide-react";
@@ -41,7 +41,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         isDrawerOpen ? "w-1/2" : "w-full"
       }`}
     >
-      {/* Stunning subtle gradient background */}
+      {/* Stunning gradient background */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -51,7 +51,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         <motion.div
           animate={{
             scale: [1, 1.15, 1],
-            opacity: [0.03, 0.06, 0.03],
+            opacity: [0.1, 0.15, 0.1],
           }}
           transition={{
             duration: 12,
@@ -59,12 +59,12 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
             ease: "easeInOut"
           }}
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[40rem] rounded-full blur-[120px]"
-          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--secondary) / 0.1))' }}
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
         />
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.02, 0.04, 0.02],
+            opacity: [0.08, 0.12, 0.08],
           }}
           transition={{
             duration: 15,
@@ -73,45 +73,19 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
             delay: 2
           }}
           className="absolute bottom-0 right-0 w-[50rem] h-[35rem] rounded-full blur-[100px]"
-          style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.08), hsl(var(--primary) / 0.05))' }}
+          style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
         />
       </motion.div>
 
       <div className="max-w-2xl w-full space-y-8 relative z-10">
-        {/* Gelo Avatar - Clean, no animations */}
+        {/* Audio Wave Visualizer */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="flex flex-col items-center space-y-8"
         >
-          {/* Avatar circles */}
-          <div className="relative w-48 h-48">
-            {/* Outer glow effect */}
-            <div className="absolute inset-0 rounded-full bg-primary/5 blur-3xl opacity-30" />
-            
-            {/* Outermost circle - lightest */}
-            <div className="absolute inset-0 rounded-full border bg-primary/5 border-primary/10" />
-            
-            {/* Second circle */}
-            <div className="absolute inset-4 rounded-full border bg-primary/8 border-primary/15" />
-            
-            {/* Third circle */}
-            <div className="absolute inset-8 rounded-full border bg-primary/12 border-primary/20" />
-            
-            {/* Fourth circle */}
-            <div className="absolute inset-12 rounded-full border bg-primary/18 border-primary/30" />
-            
-            {/* Inner circle */}
-            <div className="absolute inset-16 rounded-full border bg-primary/25 border-primary/40" />
-            
-            {/* Center circle */}
-            <div className="absolute inset-20 rounded-full border bg-primary/30 border-primary/50 flex items-center justify-center">
-              {isListening && (
-                <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
-              )}
-            </div>
-          </div>
+          <AudioWaveVisualizer isActive={isListening} />
 
           {/* Beautiful hierarchy: caption, heading, subtext */}
           <div className="text-center space-y-3">

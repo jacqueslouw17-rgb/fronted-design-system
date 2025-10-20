@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import KurtAvatar from "@/components/KurtAvatar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { ArrowLeft, Mic } from "lucide-react";
@@ -312,7 +312,7 @@ const Index = () => {
       </Button>
 
       {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.04] via-secondary/[0.025] to-accent/[0.035]">
+      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
         {/* Stunning subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -323,7 +323,7 @@ const Index = () => {
           <motion.div
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [0.04, 0.07, 0.04],
+              opacity: [0.1, 0.15, 0.1],
             }}
             transition={{
               duration: 12,
@@ -331,12 +331,12 @@ const Index = () => {
               ease: "easeInOut"
             }}
             className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
-            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }}
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
           />
           <motion.div
             animate={{
               scale: [1, 1.15, 1],
-              opacity: [0.03, 0.05, 0.03],
+              opacity: [0.08, 0.12, 0.08],
             }}
             transition={{
               duration: 15,
@@ -345,44 +345,18 @@ const Index = () => {
               delay: 2
             }}
             className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
-            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
+            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
           />
         </motion.div>
 
-        {/* Kurt Avatar - Clean, no animations */}
+        {/* Audio Wave Visualizer */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center space-y-8"
         >
-          {/* Avatar circles */}
-          <div className="relative w-48 h-48">
-            {/* Outer glow effect */}
-            <div className="absolute inset-0 rounded-full bg-primary/5 blur-3xl opacity-30" />
-            
-            {/* Outermost circle - lightest */}
-            <div className="absolute inset-0 rounded-full border bg-primary/5 border-primary/10" />
-            
-            {/* Second circle */}
-            <div className="absolute inset-4 rounded-full border bg-primary/8 border-primary/15" />
-            
-            {/* Third circle */}
-            <div className="absolute inset-8 rounded-full border bg-primary/12 border-primary/20" />
-            
-            {/* Fourth circle */}
-            <div className="absolute inset-12 rounded-full border bg-primary/18 border-primary/30" />
-            
-            {/* Inner circle */}
-            <div className="absolute inset-16 rounded-full border bg-primary/25 border-primary/40" />
-            
-            {/* Center circle */}
-            <div className="absolute inset-20 rounded-full border bg-primary/30 border-primary/50 flex items-center justify-center">
-              {isListening && (
-                <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
-              )}
-            </div>
-          </div>
+          <AudioWaveVisualizer isActive={isListening} />
 
           {/* Beautiful hierarchy: caption, heading, subtext */}
           <div className="text-center space-y-3">
