@@ -811,11 +811,18 @@ const AdminOnboarding = () => {
                 Speak
               </Button>
             ) : isListening ? (
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center gap-3">
                 <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
                   <Mic className="h-4 w-4" />
                   <span>Listening...</span>
                 </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={stopListening}
+                >
+                  Stop
+                </Button>
               </div>
             ) : null}
           </div>
