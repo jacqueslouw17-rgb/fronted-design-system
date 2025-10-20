@@ -38,6 +38,10 @@ All colors MUST be HSL.
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 0 0% 9%;
+    
+    /* Skeleton loading states */
+    --skeleton: 221 83% 93%;       /* Light blue tint for visibility */
+    --skeleton-shimmer: 221 83% 96%; /* Lighter shimmer */
 
     /* Subtle radius - 4pt system */
     --radius: 8px;
@@ -145,6 +149,10 @@ All colors MUST be HSL.
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 0 0% 98%;
+    
+    /* Skeleton loading states */
+    --skeleton: 221 83% 18%;       /* Dark blue tint */
+    --skeleton-shimmer: 221 83% 22%; /* Lighter shimmer */
     
     --kurt-primary: 221 83% 63%;     /* Match primary for dark */
     --kurt-glow: 262 83% 68%;        /* Match secondary for dark */
@@ -311,6 +319,27 @@ All colors MUST be HSL.
   
   .hover-brighten:hover {
     filter: brightness(1.1);
+  }
+  
+  /* Skeleton shimmer animation */
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--skeleton)) 0%,
+      hsl(var(--skeleton-shimmer)) 50%,
+      hsl(var(--skeleton)) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
   }
   
   .card-expand {
