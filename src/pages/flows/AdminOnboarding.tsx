@@ -123,7 +123,7 @@ const AdminOnboarding = () => {
         handleDashboardNavigation();
       }
       // Check for affirmative responses
-      else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok")) {
+      else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok") || lowerTranscript.includes("ready")) {
         handleUserConfirmation();
       }
       // Check for save/continue commands (for when user edits selections)
