@@ -143,17 +143,24 @@ const AdminOnboarding = () => {
         setIsSpeaking(false);
         setHasFinishedReading(true);
         
+        // Show processing in step 1
+        setIsProcessing(true);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         // Complete step 1 and close it
         completeStep("intro_trust_model");
         setExpandedStep(null);
+        setIsProcessing(false);
         
         // Wait before moving to step 2
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await new Promise(resolve => setTimeout(resolve, 800));
         
-        // First, expand Step 2 and show loading state
+        // Set loading state FIRST, before expanding
+        setIsLoadingFields(true);
+        
+        // Then expand Step 2 - skeleton will be visible
         goToStep("org_profile");
         setExpandedStep("org_profile");
-        setIsLoadingFields(true);
         
         const loadingMessage = "Let me fetch your organization details...";
         setKurtMessage(loadingMessage);
@@ -165,8 +172,8 @@ const AdminOnboarding = () => {
         speak(loadingMessage, async () => {
           setIsSpeaking(false);
           
-          // Simulate fetching data with skeleton loading
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Keep skeleton loading visible for longer
+          await new Promise(resolve => setTimeout(resolve, 3000));
           
           // Populate the data
           const orgData = {
@@ -182,7 +189,7 @@ const AdminOnboarding = () => {
           setIsLoadingFields(false);
           
           // Update message after data is loaded
-          await new Promise(resolve => setTimeout(resolve, 400));
+          await new Promise(resolve => setTimeout(resolve, 600));
           
           const newMessage = "I've added your organization details here. Everything look good to you?";
           setKurtMessage(newMessage);
