@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, PanelRightClose, PanelRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,16 @@ const AdminOnboarding = () => {
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-expand step 1 and update message after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setExpandedStep("intro_trust_model");
+      setKurtMessage("Let's set you up Joe, want me to accept the privacy policy on your behalf?");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
