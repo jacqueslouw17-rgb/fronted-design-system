@@ -128,7 +128,7 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <main className="flex h-screen bg-background text-foreground relative overflow-hidden">
+    <main className="flex h-screen bg-background text-foreground relative">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -220,7 +220,7 @@ const AdminOnboarding = () => {
       )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border bg-card transition-colors duration-200 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
+      <aside className={`border-l border-border bg-card transition-colors duration-200 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%] min-w-[380px]'}`}>
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
