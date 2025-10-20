@@ -53,38 +53,33 @@ const AdminOnboarding = () => {
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
 
-  // Auto-speak initial welcome message on mount
+  // Auto-speak initial welcome message and smoothly transition to step 1
   useEffect(() => {
     const initialMessage = "Hi, I'm Kurt. Let's set up your global contractor management system together.";
     setIsSpeaking(true);
+    
+    // Expand step 1 during the initial greeting for smooth transition
+    setTimeout(() => {
+      setExpandedStep("intro_trust_model");
+    }, 1500);
+    
     speak(initialMessage, () => {
       setIsSpeaking(false);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Auto-expand step 1 and update message after 3 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const newMessage = "Let's set you up Joe, want me to accept the privacy policy on your behalf?";
-      setKurtMessage(newMessage);
-      setMessageStyle("text-foreground/80");
       
-      // Start speaking and track state
-      setIsSpeaking(true);
-      setHasAutoStarted(false); // Reset auto-start flag
-      speak(newMessage, () => {
-        setIsSpeaking(false);
-        setHasFinishedReading(true);
-      });
-      
-      // Delay step expansion slightly for better animation
+      // Smoothly continue with step 1 question
       setTimeout(() => {
-        setExpandedStep("intro_trust_model");
-      }, 500);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+        const stepMessage = "Let's set you up Joe, want me to accept the privacy policy on your behalf?";
+        setKurtMessage(stepMessage);
+        setMessageStyle("text-foreground/80");
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
+        
+        speak(stepMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+      }, 800);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
