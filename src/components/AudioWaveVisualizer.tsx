@@ -2,9 +2,13 @@ import { motion } from "framer-motion";
 
 interface AudioWaveVisualizerProps {
   isActive?: boolean;
+  isListening?: boolean;
+  isDetectingVoice?: boolean;
 }
 
-const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => {
+const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectingVoice = false }: AudioWaveVisualizerProps) => {
+  // Determine animation state: full active, listening (resting), or inactive
+  const isFullyActive = (isActive && !isListening) || (isListening && isDetectingVoice);
   // Create 5 wave lines with different animations
   const waves = [
     { delay: 0, color: "hsl(var(--primary) / 0.3)", activeHeight: 40, restingHeight: 12 },
@@ -17,7 +21,7 @@ const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => 
   return (
     <div className="relative w-64 h-32 flex items-center justify-center gap-2">
       {/* Glow effect behind waves */}
-      {isActive && (
+      {isFullyActive && (
         <motion.div
           animate={{
             opacity: [0.3, 0.6, 0.3],
@@ -40,13 +44,18 @@ const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => 
           className="w-1 rounded-full"
           style={{
             background: wave.color,
-            boxShadow: isActive ? `0 0 20px ${wave.color}` : 'none',
+            boxShadow: isFullyActive ? `0 0 20px ${wave.color}` : 'none',
           }}
           animate={
-            isActive
+            isFullyActive
               ? {
                   height: [wave.activeHeight * 0.3, wave.activeHeight, wave.activeHeight * 0.4, wave.activeHeight, wave.activeHeight * 0.3],
                   scaleY: [1, 1.2, 0.8, 1.2, 1],
+                }
+              : isListening
+              ? {
+                  height: [8, 10, 8],
+                  scaleY: [1, 1, 1],
                 }
               : {
                   height: [wave.restingHeight * 0.8, wave.restingHeight, wave.restingHeight * 0.8],
@@ -54,7 +63,7 @@ const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => 
                 }
           }
           transition={{
-            duration: isActive ? 1.2 : 3.5,
+            duration: isFullyActive ? 1.2 : isListening ? 2 : 3.5,
             repeat: Infinity,
             ease: "easeInOut",
             delay: wave.delay,

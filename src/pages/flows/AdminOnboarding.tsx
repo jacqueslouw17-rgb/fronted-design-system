@@ -40,7 +40,7 @@ const AdminOnboarding = () => {
     "intro_trust_model"
   );
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
-  const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError, isSupported } = useSpeechToText();
+  const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError, isSupported, isDetectingVoice } = useSpeechToText();
 
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -761,11 +761,15 @@ const AdminOnboarding = () => {
           <div className="relative z-10 flex flex-col items-center space-y-6">
             {/* Audio Wave Visualizer or Loading Dots */}
             <div className="flex flex-col items-center space-y-4">
-              {isProcessing ? (
-                <LoadingDots isActive={isProcessing} />
-              ) : (
-                <AudioWaveVisualizer isActive={isSpeaking || isListening} />
-              )}
+            {isProcessing ? (
+              <LoadingDots isActive={isProcessing} />
+            ) : (
+              <AudioWaveVisualizer 
+                isActive={isSpeaking} 
+                isListening={isListening}
+                isDetectingVoice={isDetectingVoice}
+              />
+            )}
 
               {/* Title and dynamic subtext */}
               <div className="text-center space-y-2">

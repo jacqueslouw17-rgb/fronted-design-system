@@ -4,8 +4,13 @@ export const useSpeechToText = () => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isDetectingVoice, setIsDetectingVoice] = useState(false);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const isAPISupported = typeof window !== 'undefined' && (("SpeechRecognition" in window) || ("webkitSpeechRecognition" in window));
 
   useEffect(() => {
@@ -80,6 +85,52 @@ export const useSpeechToText = () => {
     };
   }, []);
 
+  const startAudioLevelDetection = useCallback(async (stream: MediaStream) => {
+    try {
+      audioContextRef.current = new AudioContext();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      source.connect(analyserRef.current);
+
+      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+      
+      const checkAudioLevel = () => {
+        if (!analyserRef.current) return;
+        
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        
+        // Detect voice when average volume is above threshold
+        setIsDetectingVoice(average > 20);
+        
+        animationFrameRef.current = requestAnimationFrame(checkAudioLevel);
+      };
+      
+      checkAudioLevel();
+    } catch (err) {
+      console.error('Audio level detection error:', err);
+    }
+  }, []);
+
+  const stopAudioLevelDetection = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    analyserRef.current = null;
+    setIsDetectingVoice(false);
+  }, []);
+
   const startListening = useCallback(async () => {
     // Don't start if already listening
     if (isListening) {
@@ -87,9 +138,15 @@ export const useSpeechToText = () => {
     }
     
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      
       setError(null);
       setTranscript('');
+      
+      // Start audio level detection
+      await startAudioLevelDetection(stream);
+      
       if (recognitionRef.current) {
         recognitionRef.current.start();
         setIsListening(true);
@@ -98,14 +155,15 @@ export const useSpeechToText = () => {
       setError('Microphone access blocked. Please enable it in your browser settings.');
       console.error('Microphone permission error:', err);
     }
-  }, [isListening]);
+  }, [isListening, startAudioLevelDetection]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsListening(false);
     }
-  }, []);
+    stopAudioLevelDetection();
+  }, [stopAudioLevelDetection]);
 
   const resetTranscript = useCallback(() => {
     setTranscript('');
@@ -115,6 +173,7 @@ export const useSpeechToText = () => {
     isListening,
     transcript,
     error,
+    isDetectingVoice,
     startListening,
     stopListening,
     resetTranscript,
