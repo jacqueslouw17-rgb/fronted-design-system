@@ -757,7 +757,7 @@ const AdminOnboarding = () => {
 
       {/* Left Section - Agent */}
       {isKurtVisible && (
-        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '60%' }}>
+        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '50%' }}>
           <div className="relative z-10 flex flex-col items-center space-y-6">
             {/* Audio Wave Visualizer or Loading Dots */}
             <div className="flex flex-col items-center space-y-4">
@@ -814,9 +814,9 @@ const AdminOnboarding = () => {
       <aside 
         className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 transition-all duration-300"
         style={{ 
-          width: isKurtVisible ? '40%' : '100%', 
+          width: isKurtVisible ? '50%' : '100%', 
           minWidth: '380px',
-          maxWidth: isKurtVisible ? '40%' : '600px',
+          maxWidth: isKurtVisible ? '50%' : '600px',
           margin: isKurtVisible ? '0' : '0 auto'
         }}
       >
