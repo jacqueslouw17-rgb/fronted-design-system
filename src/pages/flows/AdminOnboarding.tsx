@@ -665,7 +665,16 @@ const AdminOnboarding = () => {
     if (currentIndex < FLOW_STEPS.length - 1) {
       const nextStep = FLOW_STEPS[currentIndex + 1];
       goToStep(nextStep.id);
-      setExpandedStep(nextStep.id);
+      
+      // If completing step 1 with manual mode, collapse Kurt and step
+      if (stepId === "intro_trust_model" && data?.defaultInputMode === "manual") {
+        setIsKurtVisible(false);
+        setTimeout(() => {
+          setExpandedStep(null);
+        }, 300);
+      } else {
+        setExpandedStep(nextStep.id);
+      }
     }
 
     toast({
