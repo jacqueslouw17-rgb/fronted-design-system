@@ -727,32 +727,15 @@ const AdminOnboarding = () => {
 
   return (
     <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-      {/* Header Controls */}
-      <div className="absolute top-4 left-0 right-0 z-10 flex items-center justify-center px-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-primary/10 hover:text-primary transition-colors"
-            onClick={() => navigate('/')}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-primary/10 hover:text-primary transition-colors"
-            onClick={() => setIsKurtVisible(!isKurtVisible)}
-          >
-            <PanelLeft className="h-5 w-5" />
-          </Button>
-          
-          <div className="min-w-[200px]">
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-          </div>
-        </div>
-      </div>
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
 
       {/* Static background (performance-safe) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -765,7 +748,7 @@ const AdminOnboarding = () => {
 
       {/* Left Section - Agent */}
       {isKurtVisible && (
-        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative transition-all duration-300" style={{ width: '60%' }}>
+        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '60%' }}>
           <div className="relative z-10 flex flex-col items-center space-y-6">
             {/* Audio Wave Visualizer or Loading Dots */}
             <div className="flex flex-col items-center space-y-4">
@@ -821,10 +804,23 @@ const AdminOnboarding = () => {
           width: isKurtVisible ? '40%' : '100%', 
           minWidth: '380px',
           maxWidth: isKurtVisible ? '40%' : '600px',
-          margin: isKurtVisible ? '0' : '0 auto',
-          paddingTop: '80px'
+          margin: isKurtVisible ? '0' : '0 auto'
         }}
       >
+        {/* Progress Bar with Drawer Toggle */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
+            onClick={() => setIsKurtVisible(!isKurtVisible)}
+          >
+            <PanelLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex-1">
+            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+          </div>
+        </div>
 
         {/* Step Cards */}
         <div className="space-y-3">
