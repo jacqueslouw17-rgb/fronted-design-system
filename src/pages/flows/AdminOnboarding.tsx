@@ -51,11 +51,18 @@ const AdminOnboarding = () => {
   // Auto-expand step 1 and update message after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      setExpandedStep("intro_trust_model");
       const newMessage = "Let's set you up Joe, want me to accept the privacy policy on your behalf?";
       setKurtMessage(newMessage);
       setMessageStyle("text-foreground/80");
-      speak(newMessage);
+      
+      // Start speaking and track state
+      setIsSpeaking(true);
+      speak(newMessage, () => setIsSpeaking(false));
+      
+      // Delay step expansion slightly for better animation
+      setTimeout(() => {
+        setExpandedStep("intro_trust_model");
+      }, 500);
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -182,7 +189,7 @@ const AdminOnboarding = () => {
 
         {/* Audio Wave Visualizer */}
         <div className="relative z-10 flex flex-col items-center space-y-4">
-          <AudioWaveVisualizer isActive={isListening} />
+          <AudioWaveVisualizer isActive={isSpeaking} />
 
           {/* Title and dynamic subtext */}
           <div className="text-center space-y-2">

@@ -44,7 +44,7 @@ const StepCard = ({
 
   if (isExpanded) {
     return (
-      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300">
+      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300 animate-fade-in">
         <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
           <div className="flex items-center space-x-3">
             <div className="h-7 w-7 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium">
