@@ -43,7 +43,13 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
     setCurrentWordIndex(0);
 
     const words = text.split(' ');
-    let wordIndex = 0;
+    const cumulative: number[] = [];
+    let acc = 0;
+    for (let i = 0; i < words.length; i++) {
+      // +1 accounts for the space after each word except last
+      acc += words[i].length + (i < words.length - 1 ? 1 : 0);
+      cumulative.push(acc);
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = config?.rate || 0.9;
@@ -66,25 +72,34 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
       }
     }
 
-    // Track word boundaries
-    utterance.onboundary = (event) => {
-      if (event.name === 'word') {
-        wordIndex++;
-        setCurrentWordIndex(wordIndex);
-        if (onWordBoundary) {
-          onWordBoundary(wordIndex);
+    // Track word boundaries (cross-browser)
+    utterance.onboundary = (e: any) => {
+      try {
+        if (e.name === 'word') {
+          const nextIndex = Math.min(currentWordIndex + 1, words.length);
+          setCurrentWordIndex(nextIndex);
+          onWordBoundary?.(nextIndex);
+          return;
         }
-      }
+        if (typeof e.charIndex === 'number') {
+          // Find first cumulative boundary that exceeds charIndex
+          const charIdx = e.charIndex as number;
+          const wordIdx = cumulative.findIndex(boundary => charIdx < boundary);
+          const idx = wordIdx === -1 ? words.length : wordIdx + 1;
+          setCurrentWordIndex(idx);
+          onWordBoundary?.(idx);
+        }
+      } catch {}
     };
 
     utterance.onend = () => {
       setCurrentWordIndex(0);
-      if (onEnd) onEnd();
+      onEnd?.();
     };
 
     utteranceRef.current = utterance;
     synthRef.current.speak(utterance);
-  }, [config, voices]);
+  }, [config, voices, currentWordIndex]);
 
   const stop = useCallback(() => {
     if (synthRef.current) {
