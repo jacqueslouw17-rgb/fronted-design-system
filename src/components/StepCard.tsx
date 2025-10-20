@@ -45,13 +45,13 @@ const StepCard = ({
   if (isExpanded) {
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden">
-        <Card className="p-5 border-border/50 hover:border-border shadow-card">
+        <Card className="p-5 border-white/10 bg-white/5 backdrop-blur-md hover:border-white/20 hover:bg-white/10 shadow-lg">
           <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
             <div className="flex items-center space-x-3">
-              <div className="h-6 w-6 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium flex-shrink-0">
+              <div className="h-6 w-6 rounded-full bg-white/10 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {stepNumber}
               </div>
-              <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/60" : "text-foreground"}`}>{title}</h3>
+              <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
             </div>
             {getStatusBadge()}
           </div>
@@ -67,13 +67,8 @@ const StepCard = ({
   return (
     <div className="transition-all duration-500 ease-in-out">
       <Card
-        className={`p-4 transition-all duration-500 ease-in-out cursor-pointer group border-border/50 ${
-          status === "completed"
-            ? "bg-background hover:bg-primary/5"
-            : status === "active"
-            ? "bg-background hover:bg-primary/5"
-            : "hover:bg-primary/5"
-        } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
+        className={`p-4 transition-all duration-500 ease-in-out cursor-pointer group border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 ${
+          status === "pending" ? "opacity-40 cursor-default" : ""}`}
         onClick={status !== "pending" ? onClick : undefined}
       >
       <div className="flex justify-between items-center">
@@ -81,10 +76,10 @@ const StepCard = ({
           <div
             className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 flex-shrink-0 ${
               status === "completed"
-                ? "bg-primary/15 text-primary"
+                ? "bg-primary/20 text-primary"
                 : status === "active"
-                ? "bg-foreground/12 text-foreground/70 group-hover:bg-foreground/16"
-                : "bg-foreground/5 text-foreground/30"
+                ? "bg-white/15 text-foreground group-hover:bg-white/20"
+                : "bg-white/8 text-foreground/50"
             }`}
           >
             {status === "completed" ? (
@@ -95,7 +90,7 @@ const StepCard = ({
           </div>
           <p className={`font-medium text-sm ${
             status === "completed" 
-              ? "text-foreground/60" 
+              ? "text-foreground/70" 
               : status === "active"
               ? "text-foreground"
               : "text-foreground"
