@@ -203,60 +203,61 @@ const Flows = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {flows.map((flow) => (
             <Link key={flow.id} to={flow.path}>
               <Card className="hover:shadow-lg transition-all group h-full">
                 <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
                       <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                     </div>
-                    <CardTitle className="text-xl">{flow.title}</CardTitle>
+                    <CardTitle className="text-lg">{flow.title}</CardTitle>
                   </div>
-                  <CardDescription className="line-clamp-2">{flow.description}</CardDescription>
+                  <CardDescription className="line-clamp-3">{flow.description}</CardDescription>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                    <span className="font-medium">{flow.steps} steps</span>
+                    <span>•</span>
+                    <span>{flow.patterns.length} patterns</span>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="font-medium">{flow.steps} steps</span>
-                      <span>•</span>
-                      <span>{flow.patterns.length} patterns</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {flow.patterns.slice(0, 8).map((patternId) => {
-                        const pattern = getPatternById(patternId);
-                        return (
-                          <Badge
-                            key={patternId}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-muted transition-colors text-xs"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedPattern(patternId);
-                            }}
-                          >
-                            {pattern?.name}
-                          </Badge>
-                        );
-                      })}
-                      {flow.patterns.length > 8 && (
+                <CardContent className="space-y-3">
+                  <div className="flex flex-wrap gap-1.5">
+                    {flow.patterns.slice(0, 3).map((patternId) => {
+                      const pattern = getPatternById(patternId);
+                      return (
                         <Badge
-                          variant="outline"
+                          key={patternId}
+                          variant="secondary"
                           className="cursor-pointer hover:bg-muted transition-colors text-xs"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setSelectedPattern(flow.patterns[8]);
+                            setSelectedPattern(patternId);
                           }}
                         >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {flow.patterns.length - 8} more
+                          {pattern?.name}
                         </Badge>
-                      )}
-                    </div>
+                      );
+                    })}
+                    {flow.patterns.length > 3 && (
+                      <Badge
+                        variant="outline"
+                        className="cursor-pointer hover:bg-muted transition-colors text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedPattern(flow.patterns[3]);
+                        }}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        {flow.patterns.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                    View flow
+                    <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                   </div>
                 </CardContent>
               </Card>
