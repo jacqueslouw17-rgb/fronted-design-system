@@ -218,6 +218,9 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
+      // Wait before moving to step 3
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       // Pre-populate step 3 data
       const countries = ["NO", "PH"];
       updateFormData({ selectedCountries: countries });
@@ -229,15 +232,19 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
-      speak(confirmMessage, () => {
+      // Set loading state FIRST, before expanding step 3
+      setIsLoadingFields(true);
+      goToStep("localization_country_blocks");
+      setExpandedStep("localization_country_blocks");
+      
+      speak(confirmMessage, async () => {
         setIsSpeaking(false);
+        
+        // Keep skeleton visible
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
-      
-      goToStep("localization_country_blocks");
-      setTimeout(() => {
-        setExpandedStep("localization_country_blocks");
-      }, 400);
       
       resetTranscript();
     }
@@ -270,6 +277,9 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
+      // Wait before moving to step 4
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       const countryNames = selectedCountries.map((code: string) => {
         const country = [
           { code: "NO", name: "Norway" },
@@ -287,16 +297,25 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
+      // Set loading state FIRST, before expanding step 4
+      setIsLoadingFields(true);
+      goToStep("integrations_connect");
+      setExpandedStep("integrations_connect");
+      
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
-        // Auto-connect integrations
+        // Keep skeleton visible while connecting
         await new Promise(resolve => setTimeout(resolve, 2500));
+        
+        // Auto-connect integrations
         updateFormData({ 
           slackConnected: true, 
           fxConnected: true,
           googleSignConnected: false 
         });
+        
+        setIsLoadingFields(false);
         
         const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
         setKurtMessage(nextMessage);
@@ -308,11 +327,6 @@ const AdminOnboarding = () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
         });
-        
-        goToStep("integrations_connect");
-        setTimeout(() => {
-          setExpandedStep("integrations_connect");
-        }, 400);
       });
       
       resetTranscript();
@@ -326,6 +340,9 @@ const AdminOnboarding = () => {
       completeStep("integrations_connect");
       setExpandedStep(null);
       setIsProcessing(false);
+      
+      // Wait before moving to step 5
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       // Pre-populate mini rules
       const rules = [
@@ -342,15 +359,19 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
-      speak(confirmMessage, () => {
+      // Set loading state FIRST, before expanding step 5
+      setIsLoadingFields(true);
+      goToStep("mini_rules_setup");
+      setExpandedStep("mini_rules_setup");
+      
+      speak(confirmMessage, async () => {
         setIsSpeaking(false);
+        
+        // Keep skeleton visible
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
-      
-      goToStep("mini_rules_setup");
-      setTimeout(() => {
-        setExpandedStep("mini_rules_setup");
-      }, 400);
       
       resetTranscript();
     }
@@ -364,6 +385,9 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
+      // Wait before moving to step 6
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       const confirmMessage = "Rules saved! One last step—our Transparency Pledge. It's our commitment to you. Ready to review and sign?";
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
@@ -371,15 +395,19 @@ const AdminOnboarding = () => {
       setHasAutoStarted(false);
       setIsSpeaking(true);
       
-      speak(confirmMessage, () => {
+      // Set loading state FIRST, before expanding step 6
+      setIsLoadingFields(true);
+      goToStep("transparency_pledge_esign");
+      setExpandedStep("transparency_pledge_esign");
+      
+      speak(confirmMessage, async () => {
         setIsSpeaking(false);
+        
+        // Keep skeleton visible
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
-      
-      goToStep("transparency_pledge_esign");
-      setTimeout(() => {
-        setExpandedStep("transparency_pledge_esign");
-      }, 400);
       
       resetTranscript();
     }
@@ -624,14 +652,15 @@ const AdminOnboarding = () => {
       formData: state.formData,
       onComplete: handleStepComplete,
       onOpenDrawer: () => {},
-      isProcessing: isProcessing
+      isProcessing: isProcessing,
+      isLoadingFields: isLoadingFields
     };
 
     switch (stepId) {
       case "intro_trust_model":
         return <Step1IntroTrust {...stepProps} />;
       case "org_profile":
-        return <Step2OrgProfile {...stepProps} isLoadingFields={isLoadingFields} />;
+        return <Step2OrgProfile {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
       case "integrations_connect":

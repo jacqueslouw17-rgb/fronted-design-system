@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Pencil, Trash2, Shield, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -11,6 +12,7 @@ interface Step5Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
 interface Rule {
@@ -37,7 +39,7 @@ const STARTER_RULES: Rule[] = [
   }
 ];
 
-const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing }: Step5Props) => {
+const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step5Props) => {
   const [rules, setRules] = useState<Rule[]>(
     formData.miniRules || STARTER_RULES
   );
@@ -117,12 +119,21 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Your Rules</Label>
-          <Button size="sm" variant="outline" onClick={handleAddRule}>
-            <Plus className="h-3 w-3 mr-1" />
-            Add
-          </Button>
+          {!isLoadingFields && (
+            <Button size="sm" variant="outline" onClick={handleAddRule}>
+              <Plus className="h-3 w-3 mr-1" />
+              Add
+            </Button>
+          )}
         </div>
-        {rules.map((rule) => (
+        {isLoadingFields ? (
+          <div className="space-y-2">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        ) : (
+          rules.map((rule) => (
           <div
             key={rule.id}
             className="p-3 rounded-lg border border-border/50 bg-card hover:shadow-sm transition-shadow"
@@ -179,10 +190,14 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
               )}
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+      {isLoadingFields ? (
+        <Skeleton className="h-11 w-full" />
+      ) : (
+        <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
         {externalProcessing ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -191,7 +206,8 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
         ) : (
           "Save Rules & Continue"
         )}
-      </Button>
+        </Button>
+      )}
     </div>
   );
 };

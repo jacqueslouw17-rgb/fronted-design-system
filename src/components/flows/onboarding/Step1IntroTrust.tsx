@@ -10,6 +10,7 @@ interface Step1Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
 const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false }: Step1Props) => {

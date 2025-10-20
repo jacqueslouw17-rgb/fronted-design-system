@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Shield, CheckCircle2, FileSignature } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -10,9 +11,10 @@ interface Step6Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
-const Step6Pledge = ({ formData, onComplete, isProcessing: externalProcessing }: Step6Props) => {
+const Step6Pledge = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step6Props) => {
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [signing, setSigning] = useState(false);
 
@@ -54,8 +56,15 @@ const Step6Pledge = ({ formData, onComplete, isProcessing: externalProcessing }:
         </div>
       </div>
 
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4">
-        <ScrollArea className="h-80 rounded-md border border-border/50 p-4 bg-card" onScrollCapture={handleScroll}>
+      {isLoadingFields ? (
+        <div className="space-y-3">
+          <Skeleton className="h-80 w-full" />
+          <Skeleton className="h-11 w-full" />
+        </div>
+      ) : (
+        <>
+          <div className="bg-card/40 border border-border/40 rounded-lg p-4">
+            <ScrollArea className="h-80 rounded-md border border-border/50 p-4 bg-card" onScrollCapture={handleScroll}>
           <div className="space-y-4 text-sm">
             <section>
               <h3 className="font-semibold mb-2 text-sm">Our Promise</h3>
@@ -129,26 +138,28 @@ const Step6Pledge = ({ formData, onComplete, isProcessing: externalProcessing }:
             </>
           )}
         </div>
-      </div>
+          </div>
 
-      <Button
-        onClick={handleSign}
-        size="lg"
-        className="w-full"
-        disabled={!scrolledToBottom || signing || externalProcessing}
-      >
-        {(signing || externalProcessing) ? (
-          <>
-            <FileSignature className="h-4 w-4 mr-2 animate-pulse" />
-            {externalProcessing ? "Processing..." : "Signing..."}
-          </>
-        ) : (
-          <>
-            <FileSignature className="h-4 w-4 mr-2" />
-            Sign Pledge
-          </>
-        )}
-      </Button>
+          <Button
+            onClick={handleSign}
+            size="lg"
+            className="w-full"
+            disabled={!scrolledToBottom || signing || externalProcessing}
+          >
+            {(signing || externalProcessing) ? (
+              <>
+                <FileSignature className="h-4 w-4 mr-2 animate-pulse" />
+                {externalProcessing ? "Processing..." : "Signing..."}
+              </>
+            ) : (
+              <>
+                <FileSignature className="h-4 w-4 mr-2" />
+                Sign Pledge
+              </>
+            )}
+          </Button>
+        </>
+      )}
     </div>
   );
 };

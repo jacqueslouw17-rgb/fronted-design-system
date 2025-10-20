@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -11,6 +12,7 @@ interface Step3Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
 const COUNTRIES = [
@@ -40,7 +42,7 @@ const COUNTRIES = [
   }
 ];
 
-const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing }: Step3Props) => {
+const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step3Props) => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
   );
@@ -103,8 +105,16 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
       {/* Country Selection */}
       <div className="space-y-3 bg-card/40 border border-border/40 rounded-lg p-4">
         <Label className="text-sm font-medium">Select Countries</Label>
-        <div className="grid grid-cols-1 gap-2">
-          {COUNTRIES.map((country) => {
+        {isLoadingFields ? (
+          <div className="space-y-2">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2">
+            {COUNTRIES.map((country) => {
             const isSelected = selectedCountries.includes(country.code);
             return (
               <div
@@ -127,7 +137,8 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
 
       {selectedCountries.length > 0 && (
@@ -146,12 +157,15 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
         </div>
       )}
 
-      <Button
-        onClick={handleLoadBlocks}
-        size="lg"
-        className="w-full"
-        disabled={loading || selectedCountries.length === 0 || externalProcessing}
-      >
+      {isLoadingFields ? (
+        <Skeleton className="h-11 w-full" />
+      ) : (
+        <Button
+          onClick={handleLoadBlocks}
+          size="lg"
+          className="w-full"
+          disabled={loading || selectedCountries.length === 0 || externalProcessing}
+        >
         {(loading || externalProcessing) ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -160,7 +174,8 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
         ) : (
           "Load Blocks & Continue"
         )}
-      </Button>
+        </Button>
+      )}
     </div>
   );
 };

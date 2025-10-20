@@ -9,6 +9,7 @@ interface Step7Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
 const Step7Finish = ({ formData, isProcessing: externalProcessing }: Step7Props) => {

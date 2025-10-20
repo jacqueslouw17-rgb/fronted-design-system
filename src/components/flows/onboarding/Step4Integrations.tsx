@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, TrendingUp, FileSignature, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -9,11 +10,12 @@ interface Step4Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
 type IntegrationStatus = "not_connected" | "connecting" | "connected";
 
-const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcessing }: Step4Props) => {
+const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step4Props) => {
   const [slackStatus, setSlackStatus] = useState<IntegrationStatus>(
     formData.slackConnected ? "connected" : "not_connected"
   );
@@ -121,8 +123,15 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
         </div>
       </div>
 
-      <div className="space-y-3">
-        {renderIntegrationCard(
+      {isLoadingFields ? (
+        <div className="space-y-3">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {renderIntegrationCard(
           <MessageSquare className="h-4 w-4 text-primary" />,
           "Slack",
           "Receive approval requests and alerts",
@@ -146,9 +155,13 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
           googleStatus,
           () => handleConnect("google")
         )}
-      </div>
+        </div>
+      )}
 
-      <Button
+      {isLoadingFields ? (
+        <Skeleton className="h-11 w-full" />
+      ) : (
+        <Button
         onClick={handleContinue}
         size="lg"
         className="w-full"
@@ -162,7 +175,8 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
         ) : (
           "Continue"
         )}
-      </Button>
+        </Button>
+      )}
     </div>
   );
 };
