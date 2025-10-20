@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
+import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
 import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
@@ -305,12 +306,22 @@ const normalizedPatterns = patterns.map(p => ({
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
+  const [selectedPattern, setSelectedPattern] = useState<typeof normalizedPatterns[0] | null>(null);
+  const [patternDrawerOpen, setPatternDrawerOpen] = useState(false);
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
       setSelectedComponent(component);
       setComponentDrawerOpen(true);
+    }
+  };
+
+  const handlePatternClick = (patternPath: string) => {
+    const pattern = normalizedPatterns.find(p => p.path === patternPath);
+    if (pattern) {
+      setSelectedPattern(pattern);
+      setPatternDrawerOpen(true);
     }
   };
 
@@ -409,13 +420,37 @@ const DesignSystem = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/onboarding');
+                        }}
+                      >
                         Genie-Led Conversational Onboarding
                       </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/step-card-pattern');
+                        }}
+                      >
                         Step Card Stack + Progress Bar
                       </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/dashboard');
+                        }}
+                      >
                         Dashboard-Centered Layout + Collapsible Genie Drawer
                       </Badge>
                       <Badge variant="outline" className="text-xs">
@@ -497,6 +532,12 @@ const DesignSystem = () => {
         component={selectedComponent}
         open={componentDrawerOpen}
         onOpenChange={setComponentDrawerOpen}
+      />
+      
+      <PatternDetailDrawer
+        pattern={selectedPattern}
+        open={patternDrawerOpen}
+        onOpenChange={setPatternDrawerOpen}
       />
     </div>
   );
