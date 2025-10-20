@@ -10,7 +10,6 @@ import Dashboard from "./pages/Dashboard";
 
 // Flows
 import Flows from "./pages/Flows";
-import AdminFlow from "./pages/flows/AdminFlow";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
 import StepCardPattern from "./pages/StepCardPattern";
 import ContextualDrawerPattern from "./pages/ContextualDrawerPattern";
@@ -73,7 +72,6 @@ const App = () => (
         
         {/* Flows Routes */}
         <Route path="/flows" element={<Flows />} />
-        <Route path="/flows/admin" element={<AdminFlow />} />
         <Route path="/flows/admin/onboarding" element={<AdminOnboarding />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
