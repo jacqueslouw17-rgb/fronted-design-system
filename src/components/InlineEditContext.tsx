@@ -54,9 +54,10 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
       )}
     >
       <div 
-        className="prose prose-sm max-w-none text-foreground transition-all duration-300"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+        className="prose prose-sm max-w-none text-foreground transition-all duration-300 whitespace-pre-wrap"
+      >
+        {content}
+      </div>
       {children}
     </div>
   );
