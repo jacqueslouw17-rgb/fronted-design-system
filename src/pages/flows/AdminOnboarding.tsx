@@ -7,7 +7,9 @@ import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import LoadingDots from "@/components/LoadingDots";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -37,9 +39,10 @@ const AdminOnboarding = () => {
     "intro_trust_model"
   );
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { isListening, transcript, startListening, stopListening, resetTranscript } = useSpeechToText();
 
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
-  const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isFormCollapsed, setIsFormCollapsed] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
@@ -73,10 +76,64 @@ const AdminOnboarding = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleVoiceInput = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
+  // Handle voice input with full flow
+  const handleVoiceInput = async () => {
+    if (isListening) {
+      stopListening();
+      
+      // Check if user said "yes please" or similar
+      const lowerTranscript = transcript.toLowerCase();
+      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please")) {
+        // Start processing
+        setIsProcessing(true);
+        
+        // Simulate AI processing for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Auto-accept privacy and complete step 1
+        updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
+        completeStep("intro_trust_model");
+        
+        // Close step 1
+        setExpandedStep(null);
+        
+        // Wait a bit before moving to step 2
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Pre-populate step 2 data
+        const orgData = {
+          companyName: "Fronted Inc",
+          primaryContactName: "Joe Smith",
+          primaryContactEmail: "joe@fronted.com",
+          hqCountry: "NO",
+          payrollFrequency: "monthly",
+          payoutDay: "25",
+          dualApproval: true
+        };
+        updateFormData(orgData);
+        
+        // Update message and expand step 2
+        const newMessage = "Got your organisation details added already, want me to save?";
+        setKurtMessage(newMessage);
+        setMessageStyle("text-foreground/80");
+        setHasFinishedReading(false);
+        setIsProcessing(false);
+        setIsSpeaking(true);
+        speak(newMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+        
+        goToStep("org_profile");
+        setTimeout(() => {
+          setExpandedStep("org_profile");
+        }, 500);
+      }
+      
+      resetTranscript();
+    } else {
       stop();
+      await startListening();
     }
   };
 
@@ -131,7 +188,8 @@ const AdminOnboarding = () => {
     const stepProps = {
       formData: state.formData,
       onComplete: handleStepComplete,
-      onOpenDrawer: () => {}
+      onOpenDrawer: () => {},
+      isProcessing: isProcessing
     };
 
     switch (stepId) {
@@ -191,9 +249,13 @@ const AdminOnboarding = () => {
                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.08))' }} />
         </div>
 
-        {/* Audio Wave Visualizer */}
+        {/* Audio Wave Visualizer or Loading Dots */}
         <div className="relative z-10 flex flex-col items-center space-y-4">
-          <AudioWaveVisualizer isActive={isSpeaking} />
+          {isProcessing ? (
+            <LoadingDots isActive={isProcessing} />
+          ) : (
+            <AudioWaveVisualizer isActive={isSpeaking || isListening} />
+          )}
 
           {/* Title and dynamic subtext */}
           <div className="text-center space-y-2">
@@ -226,6 +288,7 @@ const AdminOnboarding = () => {
           <div className="relative">
             <Button
               onClick={handleVoiceInput}
+              disabled={isProcessing}
               className={`px-6 relative ${
                 isListening 
                   ? "bg-destructive hover:bg-destructive/90" 
@@ -233,7 +296,7 @@ const AdminOnboarding = () => {
               }`}
             >
               <Mic className="h-5 w-5 mr-2" />
-              <span>{isListening ? "Stop" : "Speak"}</span>
+              <span>{isListening ? "Stop" : isProcessing ? "Processing..." : "Speak"}</span>
             </Button>
           </div>
         </div>

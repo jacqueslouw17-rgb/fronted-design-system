@@ -2,18 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle2, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, MessageSquare, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Step1Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
-const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => {
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false }: Step1Props) => {
+  const [privacyAccepted, setPrivacyAccepted] = useState(formData.privacyAccepted || false);
   const [inputMode, setInputMode] = useState(formData.defaultInputMode || "chat");
+
+  // Watch for formData changes to auto-check privacy
+  useEffect(() => {
+    if (formData.privacyAccepted) {
+      setPrivacyAccepted(true);
+    }
+  }, [formData.privacyAccepted]);
 
   const handleContinue = () => {
     if (!privacyAccepted) return;
@@ -143,11 +151,18 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
       <div className="pt-1">
         <Button
           onClick={handleContinue}
-          disabled={!privacyAccepted}
+          disabled={!privacyAccepted || isProcessing}
           className="w-full"
           size="lg"
         >
-          Get Started
+          {isProcessing ? (
+            <>
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "Get Started"
+          )}
         </Button>
       </div>
     </div>
