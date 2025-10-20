@@ -388,24 +388,43 @@ const DesignSystem = () => {
           </TabsContent>
 
           <TabsContent value="flows" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Link to="/flows">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <Link to="/flows/admin/onboarding">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-6 w-6 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
+                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
+                      <CardTitle className="text-lg">Flow 1 — Admin Onboarding</CardTitle>
                     </div>
-                    <CardTitle className="text-xl">Admin Flows</CardTitle>
-                    <CardDescription>
-                      End-to-end onboarding and configuration workflows for system administrators
+                    <CardDescription className="line-clamp-3">
+                      Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3
                     </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">7 steps</span>
+                      <span>•</span>
+                      <span>18 patterns</span>
+                    </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary" className="text-xs">
+                        Genie-Led Conversational Onboarding
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        Step Card Stack + Progress Bar
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        Dashboard-Centered Layout + Collapsible Genie Drawer
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        +15
+                      </Badge>
+                    </div>
                     <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flows
-                      <ArrowRight className="w-3.5 h-3.5 ml-1" strokeWidth={2} />
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                     </div>
                   </CardContent>
                 </Card>
