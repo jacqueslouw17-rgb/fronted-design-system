@@ -27,18 +27,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="flex justify-center mb-4">
-          <div className="p-4 rounded-full bg-primary/10">
-            <Shield className="h-12 w-12 text-primary" />
-          </div>
-        </div>
-        <h2 className="text-3xl font-bold">Welcome to Fronted</h2>
-        <p className="text-muted-foreground text-lg">
-          Let's set up your global contractor management system
-        </p>
-      </div>
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

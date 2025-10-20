@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFlowState } from "@/hooks/useFlowState";
-import { Textarea } from "@/components/ui/textarea";
-import KurtAvatar from "@/components/KurtAvatar";
-import VoiceTypeToggle from "@/components/dashboard/VoiceTypeToggle";
 import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { motion } from "framer-motion";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -35,61 +35,20 @@ const AdminOnboarding = () => {
     "flows.admin.f1.onboarding",
     "intro_trust_model"
   );
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
   const [expandedStep, setExpandedStep] = useState<string | null>(state.currentStep);
-  const [inputMode, setInputMode] = useState<"voice" | "text">("text");
   const [isListening, setIsListening] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [agentMessages, setAgentMessages] = useState<Array<{ role: "user" | "genie"; content: string }>>([
-    {
-      role: "genie",
-      content: "Welcome! I'm Genie. I'll prepare everything and ask you to confirm key actions. You can switch between chat and forms anytime."
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [kurtMessage, setKurtMessage] = useState(
+    "Hi, I'm Genie. Let's set up your global contractor management system together."
+  );
+
+  const handleVoiceInput = () => {
+    setIsListening(!isListening);
+    if (!isListening) {
+      stop();
     }
-  ]);
-
-  const handleToggleMode = () => {
-    const newMode = inputMode === "voice" ? "text" : "voice";
-    setInputMode(newMode);
-    
-    if (newMode === "voice") {
-      setIsListening(true);
-      toast({
-        title: "Voice mode activated",
-        description: "Speak naturally, I'm listening..."
-      });
-    } else {
-      setIsListening(false);
-    }
-  };
-
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
-
-    logEvent(state.currentStep, "user", "input", { message: inputValue });
-    setAgentMessages(prev => [...prev, { role: "user", content: inputValue }]);
-    
-    // Simulate Genie response
-    setTimeout(() => {
-      const response = getGenieResponse(state.currentStep, inputValue);
-      setAgentMessages(prev => [...prev, { role: "genie", content: response }]);
-      logEvent(state.currentStep, "genie", "input", { message: response });
-    }, 800);
-
-    setInputValue("");
-  };
-
-  const getGenieResponse = (step: string, userInput: string): string => {
-    // Simple response logic based on step
-    const responses: Record<string, string> = {
-      intro_trust_model: "Great! Let me show you what we'll set up together. Click 'Get Started' when you're ready.",
-      org_profile: "I can help fill in your organization details. Just tell me your company name and location.",
-      localization_country_blocks: "Which countries do you operate in? I'll load the relevant compliance rules for each.",
-      integrations_connect: "Let's connect your tools. I can set up Slack notifications and FX rate feeds.",
-      mini_rules_setup: "I'll create some starter rules for approvals and compliance. You can customize them anytime.",
-      transparency_pledge_esign: "Our transparency pledge ensures you always know what's happening. Ready to review and sign?",
-      finish_dashboard_transition: "You're all set! Would you like me to help draft your first contract?"
-    };
-    return responses[step] || "I'm here to help. What would you like to do next?";
   };
 
   const handleStepComplete = (stepId: string, data?: Record<string, any>) => {
@@ -156,28 +115,147 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="mb-6"
-          onClick={() => navigate('/')}
+    <main className="flex min-h-screen bg-background text-foreground relative">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
+      {/* Center Genie Panel */}
+      <section className="flex flex-col flex-1 items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+        {/* Subtle gradient background */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Design System
-        </Button>
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [0.08, 0.12, 0.08],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+            className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
+            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
+          />
+        </motion.div>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Onboarding</h1>
-          <p className="text-muted-foreground">
-            Complete setup: introduce Genie, capture settings, configure rules, and launch your dashboard
-          </p>
-        </div>
+        {/* Audio Wave Visualizer */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="relative z-10 flex flex-col items-center space-y-4"
+        >
+          <AudioWaveVisualizer isActive={isListening} />
 
+          {/* Title and dynamic subtext */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-foreground">
+              Welcome to Fronted
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              {kurtMessage.split(' ').map((word, index) => (
+                <span
+                  key={index}
+                  className={`transition-colors duration-150 ${
+                    index === currentWordIndex - 1 
+                      ? 'text-foreground font-semibold' 
+                      : index < currentWordIndex - 1
+                      ? 'text-foreground/70 font-medium'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                </span>
+              ))}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Voice Input Control */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center justify-center mt-8 relative z-10"
+        >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="relative">
+            {isListening && (
+              <>
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3],
+                    opacity: [0.6, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+                <motion.div
+                  animate={{
+                    scale: [1, 1.4],
+                    opacity: [0.4, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                    delay: 0.3
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+              </>
+            )}
+            <Button
+              onClick={handleVoiceInput}
+              className={`px-6 relative ${
+                isListening 
+                  ? "bg-destructive hover:bg-destructive/90" 
+                  : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+              }`}
+            >
+              <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+              <span>{isListening ? "Stop" : "Speak"}</span>
+            </Button>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Right Panel — Steps + Progress */}
+      <aside className="w-[420px] border-l border-border bg-card px-6 py-8 space-y-6 overflow-y-auto">
+        {/* Progress Bar */}
         <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
-        <div className="mt-8 space-y-4">
+        {/* Step Cards */}
+        <div className="space-y-3">
           {FLOW_STEPS.map((step) => {
             const status = getStepStatus(step.id);
             const isExpanded = expandedStep === step.id;
@@ -200,11 +278,8 @@ const AdminOnboarding = () => {
             );
           })}
         </div>
-      </div>
-
-      {/* EXTENSION: add "Draft first contract" micro-flow */}
-      {/* EXTENSION: connect Vouch ATS webhook here */}
-    </div>
+      </aside>
+    </main>
   );
 };
 
