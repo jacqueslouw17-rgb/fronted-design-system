@@ -26,7 +26,7 @@ const StepCard = ({
     switch (status) {
       case "completed":
         return (
-          <Badge variant="secondary" className="bg-success/10 text-success border-0 font-normal">
+          <Badge variant="secondary" className="bg-primary/10 text-primary border-0 font-normal">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Complete
           </Badge>
@@ -66,7 +66,7 @@ const StepCard = ({
     <Card
       className={`p-4 transition-colors duration-150 cursor-pointer group border-border/50 ${
         status === "completed"
-          ? "bg-success/5 hover:bg-accent/30"
+          ? "bg-accent/20 hover:bg-accent/30"
           : "hover:bg-accent/30"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
@@ -76,7 +76,7 @@ const StepCard = ({
           <div
             className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 ${
               status === "completed"
-                ? "bg-success/15 text-success"
+                ? "bg-primary/15 text-primary"
                 : status === "active"
                 ? "bg-foreground/8 text-foreground/50 group-hover:bg-foreground/12"
                 : "bg-foreground/5 text-foreground/30"

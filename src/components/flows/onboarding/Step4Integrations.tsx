@@ -85,7 +85,7 @@ const Step4Integrations = ({ formData, onComplete }: Step4Props) => {
             </div>
           </div>
           {status === "connected" && (
-            <Badge variant="default" className="bg-success text-success-foreground">
+            <Badge variant="default" className="bg-primary/10 text-primary border-0">
               <CheckCircle2 className="h-3 w-3 mr-1" />
               Connected
             </Badge>
