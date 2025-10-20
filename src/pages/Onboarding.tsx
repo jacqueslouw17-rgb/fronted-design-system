@@ -40,19 +40,26 @@ const Index = () => {
 
   // Auto-start and speak Kurt's greeting on mount
   useEffect(() => {
-    setIsSpeaking(true);
-    speak(kurtMessage, () => setIsSpeaking(false));
-    setChatHistory([{ role: "assistant", content: kurtMessage }]);
+    const timer = setTimeout(() => {
+      setIsSpeaking(true);
+      speak(kurtMessage, () => {
+        setIsSpeaking(false);
+      });
+      setChatHistory([{ role: "assistant", content: kurtMessage }]);
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Speak Kurt's message whenever it changes (except on mount)
   useEffect(() => {
     if (kurtMessage !== "Hi Joe, ready to save your personal details to kick off onboarding?") {
       setIsSpeaking(true);
-      speak(kurtMessage, () => setIsSpeaking(false));
+      speak(kurtMessage, () => {
+        setIsSpeaking(false);
+      });
       setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
     }
-  }, [kurtMessage, speak]);
+  }, [kurtMessage]);
 
   const [formData, setFormData] = useState({
     firstName: "Joe",
@@ -359,7 +366,7 @@ const Index = () => {
           transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center space-y-4"
         >
-          <AudioWaveVisualizer isActive={isListening || isSpeaking} isResting={!isListening && !isSpeaking} />
+          <AudioWaveVisualizer isActive={isListening || isSpeaking} />
 
           {/* Beautiful hierarchy: title and dynamic subtext */}
           <div className="text-center space-y-2">
