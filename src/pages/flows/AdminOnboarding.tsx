@@ -141,7 +141,6 @@ const AdminOnboarding = () => {
       
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
-        setHasFinishedReading(true);
         
         // Show processing in step 1
         setIsProcessing(true);
@@ -162,6 +161,7 @@ const AdminOnboarding = () => {
         goToStep("org_profile");
         setExpandedStep("org_profile");
         
+        // Speak about fetching org details while loading
         const loadingMessage = "Let me fetch your organization details...";
         setKurtMessage(loadingMessage);
         setMessageStyle("text-foreground/80");
@@ -172,8 +172,8 @@ const AdminOnboarding = () => {
         speak(loadingMessage, async () => {
           setIsSpeaking(false);
           
-          // Keep skeleton loading visible for longer
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          // Keep skeleton loading visible
+          await new Promise(resolve => setTimeout(resolve, 2500));
           
           // Populate the data
           const orgData = {
@@ -187,21 +187,7 @@ const AdminOnboarding = () => {
           };
           updateFormData(orgData);
           setIsLoadingFields(false);
-          
-          // Update message after data is loaded
-          await new Promise(resolve => setTimeout(resolve, 600));
-          
-          const newMessage = "I've added your organization details here. Everything look good to you?";
-          setKurtMessage(newMessage);
-          setMessageStyle("text-foreground/80");
-          setHasFinishedReading(false);
-          setHasAutoStarted(false);
-          setIsSpeaking(true);
-          
-          speak(newMessage, () => {
-            setIsSpeaking(false);
-            setHasFinishedReading(true);
-          });
+          setHasFinishedReading(true);
         });
       });
       
