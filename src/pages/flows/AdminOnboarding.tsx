@@ -39,7 +39,7 @@ const AdminOnboarding = () => {
     "intro_trust_model"
   );
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
-  const { isListening, transcript, startListening, stopListening, resetTranscript } = useSpeechToText();
+  const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError, isSupported } = useSpeechToText();
 
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -80,7 +80,7 @@ const AdminOnboarding = () => {
 
   // Auto-start listening after AI finishes speaking (only once per message)
   useEffect(() => {
-    if (hasFinishedReading && !isListening && !isProcessing && !hasAutoStarted) {
+    if (hasFinishedReading && !isListening && !isProcessing && !hasAutoStarted && isSupported && !sttError) {
       const timer = setTimeout(() => {
         setHasAutoStarted(true);
         startListening();
@@ -88,7 +88,7 @@ const AdminOnboarding = () => {
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasFinishedReading, isListening, isProcessing, hasAutoStarted]);
+  }, [hasFinishedReading, isListening, isProcessing, hasAutoStarted, isSupported, sttError]);
 
   // Handle voice input with full flow
   const handleVoiceInput = async () => {
@@ -326,15 +326,29 @@ const AdminOnboarding = () => {
           </div>
         </div>
 
-        {/* Listening indicator */}
-        {isListening && (
-          <div className="flex items-center justify-center mt-8 relative z-10">
-            <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
-              <Mic className="h-4 w-4" />
-              <span>Listening...</span>
-            </div>
+        {/* Voice Input Control */}
+        <div className="flex items-center justify-center mt-8 relative z-10">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleVoiceInput}
+              disabled={isProcessing}
+              className={`px-6 relative ${
+                isListening 
+                  ? "bg-destructive hover:bg-destructive/90" 
+                  : "bg-gradient-to-r from-primary to-secondary shadow"
+              }`}
+            >
+              <Mic className="h-5 w-5 mr-2" />
+              <span>{isListening ? "Stop" : isProcessing ? "Processing..." : "Speak"}</span>
+            </Button>
+            {isListening && (
+              <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
+                <Mic className="h-4 w-4" />
+                <span>Listening...</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </section>
 
       {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
