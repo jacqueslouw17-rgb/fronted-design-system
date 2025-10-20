@@ -80,6 +80,7 @@ const AdminOnboarding = () => {
     speak(initialMessage, () => {
       setIsSpeaking(false);
       setHasFinishedReading(true);
+      setHasAutoStarted(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -213,6 +214,7 @@ const AdminOnboarding = () => {
         speak(confirmMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
+          setHasAutoStarted(false);
         });
       });
       
@@ -256,6 +258,7 @@ const AdminOnboarding = () => {
         await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
+        setHasAutoStarted(false);
       });
       
       resetTranscript();
@@ -276,6 +279,7 @@ const AdminOnboarding = () => {
         speak(errorMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
+          setHasAutoStarted(false);
         });
         
         resetTranscript();
@@ -339,6 +343,7 @@ const AdminOnboarding = () => {
         speak(nextMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
+          setHasAutoStarted(false);
         });
       });
       
@@ -385,6 +390,7 @@ const AdminOnboarding = () => {
         await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
+        setHasAutoStarted(false);
       });
       
       resetTranscript();
@@ -422,6 +428,7 @@ const AdminOnboarding = () => {
         await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
+        setHasAutoStarted(false);
       });
       
       resetTranscript();
@@ -566,6 +573,7 @@ const AdminOnboarding = () => {
         speak(errorMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
+          setHasAutoStarted(false);
         });
         
         resetTranscript();
@@ -616,6 +624,7 @@ const AdminOnboarding = () => {
         speak(nextMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
+          setHasAutoStarted(false);
         });
         
         goToStep("integrations_connect");
