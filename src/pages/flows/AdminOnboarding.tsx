@@ -106,9 +106,8 @@ const AdminOnboarding = () => {
   // Watch for transcript changes and auto-process
   useEffect(() => {
     if (!isListening && transcript && !isProcessing) {
-      // Check if user said "yes please" or similar
       const lowerTranscript = transcript.toLowerCase();
-      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure")) {
+      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok")) {
         handleUserConfirmation();
       }
     }
@@ -116,6 +115,7 @@ const AdminOnboarding = () => {
   }, [isListening, transcript]);
 
   const handleUserConfirmation = async () => {
+    // STEP 1 → STEP 2
     if (state.currentStep === "intro_trust_model") {
       // Start processing
       setIsProcessing(true);
@@ -175,6 +175,183 @@ const AdminOnboarding = () => {
           setExpandedStep("org_profile");
         }, 400);
       });
+      
+      resetTranscript();
+    }
+    
+    // STEP 2 → STEP 3
+    else if (state.currentStep === "org_profile") {
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Complete step 2
+      completeStep("org_profile");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      // Pre-populate step 3 data
+      const countries = ["NO", "PH"];
+      updateFormData({ selectedCountries: countries });
+      
+      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. Want me to load the compliance blocks for these?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
+      
+      goToStep("localization_country_blocks");
+      setTimeout(() => {
+        setExpandedStep("localization_country_blocks");
+      }, 400);
+      
+      resetTranscript();
+    }
+    
+    // STEP 3 → STEP 4
+    else if (state.currentStep === "localization_country_blocks") {
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      completeStep("localization_country_blocks");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      const confirmMessage = "Perfect! Compliance blocks loaded. Now let me connect your integrations—Slack for alerts and FX for currency rates.";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
+        
+        // Auto-connect integrations
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        updateFormData({ 
+          slackConnected: true, 
+          fxConnected: true,
+          googleSignConnected: false 
+        });
+        
+        const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
+        setKurtMessage(nextMessage);
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
+        
+        speak(nextMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+        
+        goToStep("integrations_connect");
+        setTimeout(() => {
+          setExpandedStep("integrations_connect");
+        }, 400);
+      });
+      
+      resetTranscript();
+    }
+    
+    // STEP 4 → STEP 5
+    else if (state.currentStep === "integrations_connect") {
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      completeStep("integrations_connect");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      // Pre-populate mini rules
+      const rules = [
+        { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
+        { id: "r2", type: "compliance", description: "Remind contractor 7 days before doc expiry" },
+        { id: "r3", type: "policy", description: "Default paid leave: 5d (PH), 0d (NO)" }
+      ];
+      updateFormData({ miniRules: rules });
+      
+      const confirmMessage = "I've set up three starter mini-rules for you. These look good?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
+      
+      goToStep("mini_rules_setup");
+      setTimeout(() => {
+        setExpandedStep("mini_rules_setup");
+      }, 400);
+      
+      resetTranscript();
+    }
+    
+    // STEP 5 → STEP 6
+    else if (state.currentStep === "mini_rules_setup") {
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      completeStep("mini_rules_setup");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      const confirmMessage = "Rules saved! One last step—our Transparency Pledge. It's our commitment to you. Ready to review and sign?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
+      
+      goToStep("transparency_pledge_esign");
+      setTimeout(() => {
+        setExpandedStep("transparency_pledge_esign");
+      }, 400);
+      
+      resetTranscript();
+    }
+    
+    // STEP 6 → STEP 7
+    else if (state.currentStep === "transparency_pledge_esign") {
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      updateFormData({ pledgeSigned: true, signedAt: new Date().toISOString() });
+      completeStep("transparency_pledge_esign");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or would you prefer to explore the dashboard?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
+      
+      goToStep("finish_dashboard_transition");
+      setTimeout(() => {
+        setExpandedStep("finish_dashboard_transition");
+      }, 400);
       
       resetTranscript();
     }

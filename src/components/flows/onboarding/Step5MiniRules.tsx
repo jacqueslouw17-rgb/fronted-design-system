@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, Shield } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -102,97 +102,84 @@ const Step5MiniRules = ({ formData, onComplete }: Step5Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Mini-Rules Setup</h2>
-        <p className="text-muted-foreground">
-          Create starter rules for approvals, compliance, and policies. You can edit these anytime.
-        </p>
+    <div className="max-w-xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 mb-3">
+          <Shield className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Mini-Rules Setup
+          </h3>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Your Rules
-            </CardTitle>
-            <Button size="sm" variant="outline" onClick={handleAddRule}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Rule
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {rules.map((rule) => (
-            <div
-              key={rule.id}
-              className="p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow"
-            >
-              <div className="flex items-start gap-3">
-                <Badge variant="secondary" className={cn("mt-1", getTypeColor(rule.type))}>
-                  {rule.type}
-                </Badge>
-                <div className="flex-1">
-                  {editingId === rule.id ? (
-                    <div className="space-y-2">
-                      <Input
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleSaveEdit(rule.id);
-                          if (e.key === "Escape") setEditingId(null);
-                        }}
-                        autoFocus
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleSaveEdit(rule.id)}>
-                          Save
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                          Cancel
-                        </Button>
-                      </div>
+      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">Your Rules</Label>
+          <Button size="sm" variant="outline" onClick={handleAddRule}>
+            <Plus className="h-3 w-3 mr-1" />
+            Add
+          </Button>
+        </div>
+        {rules.map((rule) => (
+          <div
+            key={rule.id}
+            className="p-3 rounded-lg border border-border/50 bg-card hover:shadow-sm transition-shadow"
+          >
+            <div className="flex items-start gap-2">
+              <Badge variant="secondary" className={cn("mt-1 text-xs", getTypeColor(rule.type))}>
+                {rule.type}
+              </Badge>
+              <div className="flex-1 min-w-0">
+                {editingId === rule.id ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveEdit(rule.id);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      autoFocus
+                      className="text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => handleSaveEdit(rule.id)}>
+                        Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                        Cancel
+                      </Button>
                     </div>
-                  ) : (
-                    <p className="text-sm">{rule.description}</p>
-                  )}
-                </div>
-                {editingId !== rule.id && (
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0"
-                      onClick={() => handleEdit(rule)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(rule.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
                   </div>
+                ) : (
+                  <p className="text-sm">{rule.description}</p>
                 )}
               </div>
+              {editingId !== rule.id && (
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0"
+                    onClick={() => handleEdit(rule)}
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(rule.id)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
             </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card className="bg-muted/30">
-        <CardContent className="pt-6">
-          <p className="text-sm font-medium mb-2">💡 Genie Tip</p>
-          <p className="text-sm text-muted-foreground">
-            These rules will appear as badges throughout the app and can be edited inline. They help
-            enforce consistency across your contractor operations.
-          </p>
-        </CardContent>
-      </Card>
+          </div>
+        ))}
+      </div>
 
       <Button onClick={handleSave} size="lg" className="w-full">
         Save Rules & Continue

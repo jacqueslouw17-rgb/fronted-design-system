@@ -1,9 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Globe, CheckCircle2, Loader2 } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -89,82 +88,61 @@ const Step3Localization = ({ formData, onComplete }: Step3Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Localization & Country Blocks</h2>
-        <p className="text-muted-foreground">
-          Select the countries where you hire contractors. We'll load the relevant compliance rules for each.
-        </p>
+    <div className="max-w-xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 mb-3">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Localization & Country Blocks
+          </h3>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Quick Picks
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {COUNTRIES.map((country) => {
-              const isSelected = selectedCountries.includes(country.code);
-              return (
-                <div
-                  key={country.code}
-                  onClick={() => toggleCountry(country.code)}
-                  className={cn(
-                    "p-4 rounded-lg border-2 cursor-pointer transition-all",
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  )}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{country.flag}</span>
-                      <div>
-                        <p className="font-medium">{country.name}</p>
-                        <p className="text-xs text-muted-foreground">{country.code}</p>
-                      </div>
-                    </div>
-                    <Checkbox checked={isSelected} />
+      {/* Country Selection */}
+      <div className="space-y-3 bg-card/40 border border-border/40 rounded-lg p-4">
+        <Label className="text-sm font-medium">Select Countries</Label>
+        <div className="grid grid-cols-1 gap-2">
+          {COUNTRIES.map((country) => {
+            const isSelected = selectedCountries.includes(country.code);
+            return (
+              <div
+                key={country.code}
+                onClick={() => toggleCountry(country.code)}
+                className={cn(
+                  "p-3 rounded-lg border cursor-pointer transition-all text-sm",
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border/50 hover:border-primary/30 bg-card/30"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{country.flag}</span>
+                    <span className="font-medium">{country.name}</span>
                   </div>
-                  <div className="space-y-1 mt-3">
-                    {country.rules.map((rule, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-3 w-3" />
-                        <span>{rule}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <Checkbox checked={isSelected} />
                 </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {selectedCountries.length > 0 && (
+        <div className="space-y-2 bg-card/40 border border-border/40 rounded-lg p-4">
+          <Label className="text-sm font-medium">Selected</Label>
+          <div className="flex flex-wrap gap-2">
+            {selectedCountries.map((code) => {
+              const country = COUNTRIES.find(c => c.code === code);
+              return (
+                <Badge key={code} variant="secondary" className="text-xs">
+                  {country?.flag} {country?.name}
+                </Badge>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
-
-      {selectedCountries.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Selected Countries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {selectedCountries.map((code) => {
-                const country = COUNTRIES.find(c => c.code === code);
-                return (
-                  <Badge key={code} variant="secondary" className="text-sm px-3 py-1">
-                    {country?.flag} {country?.name}
-                  </Badge>
-                );
-              })}
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              We'll load compliance rules and tax requirements for these countries
-            </p>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
       <Button
@@ -176,7 +154,7 @@ const Step3Localization = ({ formData, onComplete }: Step3Props) => {
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Loading Country Blocks...
+            Loading...
           </>
         ) : (
           "Load Blocks & Continue"
