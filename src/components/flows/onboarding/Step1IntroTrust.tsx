@@ -116,7 +116,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
             checked={privacyAccepted}
             onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
             className="mt-0.5 pointer-events-none"
-            autoFocus
           />
           <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90 pointer-events-none">
             I accept the privacy policy and agree to data processing for contractor management purposes
