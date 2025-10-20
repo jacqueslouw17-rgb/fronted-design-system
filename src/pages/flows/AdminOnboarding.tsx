@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, PanelRightClose, PanelRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,7 @@ const AdminOnboarding = () => {
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -63,6 +64,9 @@ const AdminOnboarding = () => {
       const nextStep = FLOW_STEPS[currentIndex + 1];
       goToStep(nextStep.id);
       setExpandedStep(nextStep.id);
+      
+      // Scroll to top
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     toast({
@@ -80,8 +84,15 @@ const AdminOnboarding = () => {
   const handleStepClick = (stepId: string) => {
     const status = getStepStatus(stepId);
     if (status !== "pending") {
-      setExpandedStep(expandedStep === stepId ? null : stepId);
+      // Toggle: collapse if already expanded, expand if not
+      const newExpandedStep = expandedStep === stepId ? null : stepId;
+      setExpandedStep(newExpandedStep);
       goToStep(stepId);
+      
+      // Scroll to top when expanding
+      if (newExpandedStep === stepId) {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -276,7 +287,7 @@ const AdminOnboarding = () => {
       {/* Right Panel — Steps + Progress - 40% width */}
       <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
           <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 

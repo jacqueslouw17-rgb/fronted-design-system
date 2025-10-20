@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -38,6 +38,7 @@ const Index = () => {
     "Hi Joe, ready to save your personal details to kick off onboarding?"
   );
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-start and speak Kurt's greeting on mount
   useEffect(() => {
@@ -121,6 +122,9 @@ const Index = () => {
       );
       setSteps(updatedSteps);
       setCurrentStep(currentStep + 1);
+
+      // Scroll to top
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Update Kurt message based on step
       const messages = [
@@ -483,7 +487,7 @@ const Index = () => {
       {/* Right Panel — Steps + Progress - 40% width */}
       <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
           <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
@@ -498,7 +502,11 @@ const Index = () => {
                 isExpanded={step.id === currentStep}
                 onClick={() => {
                   if (step.status !== "pending") {
-                    setCurrentStep(step.id);
+                    // Toggle: collapse if already expanded, expand if not
+                    setCurrentStep(currentStep === step.id ? 0 : step.id);
+                    if (currentStep !== step.id) {
+                      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                   }
                 }}
               >
