@@ -14,7 +14,7 @@ import {
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
-import { ArrowLeft, Mic } from "lucide-react";
+import { ArrowLeft, Mic, PanelRightClose, PanelRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
 
@@ -33,6 +33,7 @@ const Index = () => {
   const [isListening, setIsListening] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi Joe, ready to save your personal details to kick off onboarding?"
   );
@@ -310,7 +311,7 @@ const Index = () => {
   }
 
   return (
-    <main className="flex min-h-screen bg-background text-foreground relative">
+    <main className="flex h-screen bg-background text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -321,8 +322,8 @@ const Index = () => {
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      {/* Agent Panel - 60% width */}
+      <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
         {/* Stunning subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -456,41 +457,56 @@ const Index = () => {
         )}
       </section>
 
-      {/* Right Panel — Steps + Progress */}
-      <aside className="w-[420px] border-l border-border bg-card px-6 py-8 space-y-6 overflow-y-auto">
-        {/* Progress Bar */}
-        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+      {/* Right Panel — Steps + Progress - 40% width */}
+      <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
+        {/* Drawer Toggle Button */}
+        <div className="flex justify-end p-4 border-b border-border">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsFormCollapsed(!isFormCollapsed)}
+            className="hover:bg-primary/10"
+          >
+            {isFormCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelRightClose className="h-5 w-5" />}
+          </Button>
+        </div>
 
-        {/* Step Cards */}
-        <div className="space-y-3">
-          {steps.map((step) => (
-            <StepCard
-              key={step.id}
-              title={step.title}
-              status={step.status}
-              stepNumber={step.id}
-              isExpanded={step.id === currentStep}
-              onClick={() => {
-                if (step.status !== "pending") {
-                  setCurrentStep(step.id);
-                }
-              }}
-            >
-              {renderStepContent(step.id)}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          {/* Progress Bar */}
+          <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
-              {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-border">
-                {currentStep > 1 && (
-                  <Button variant="outline" onClick={handleBack}>
-                    Back
+          {/* Step Cards */}
+          <div className="space-y-3">
+            {steps.map((step) => (
+              <StepCard
+                key={step.id}
+                title={step.title}
+                status={step.status}
+                stepNumber={step.id}
+                isExpanded={step.id === currentStep}
+                onClick={() => {
+                  if (step.status !== "pending") {
+                    setCurrentStep(step.id);
+                  }
+                }}
+              >
+                {renderStepContent(step.id)}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-border">
+                  {currentStep > 1 && (
+                    <Button variant="outline" onClick={handleBack}>
+                      Back
+                    </Button>
+                  )}
+                  <Button onClick={handleNext} variant="outline" className="flex-1">
+                    {currentStep === totalSteps ? "Complete" : "Next"}
                   </Button>
-                )}
-                <Button onClick={handleNext} variant="outline" className="flex-1">
-                  {currentStep === totalSteps ? "Complete" : "Next"}
-                </Button>
-              </div>
-            </StepCard>
-          ))}
+                </div>
+              </StepCard>
+            ))}
+          </div>
         </div>
       </aside>
     </main>
