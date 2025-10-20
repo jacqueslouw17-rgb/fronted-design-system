@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,11 +8,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface FeedbackRequest {
-  pageContext: string;
-  feedback: string;
-  name: string;
-}
+// Input validation schema
+const feedbackSchema = z.object({
+  pageContext: z.string().trim().max(500),
+  feedback: z.string().trim().min(1).max(5000),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -18,10 +20,48 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const feedbackData: FeedbackRequest = await req.json();
-    console.log("Received feedback submission:", {
-      context: feedbackData.pageContext,
-    });
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Authentication required" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid authentication" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Validate input
+    const rawData = await req.json();
+    const feedbackData = feedbackSchema.parse(rawData);
+
+    console.log("Feedback submission received");
 
     const botToken = Deno.env.get("SLACK_BOT_TOKEN");
     const channelId = Deno.env.get("SLACK_CHANNEL_ID");
@@ -38,7 +78,7 @@ const handler = async (req: Request): Promise<Response> => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*From:* ${feedbackData.name}\n*Page:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
+            text: `*From:* ${user.email || "Unknown user"}\n*Page:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
           },
         },
         {
@@ -72,7 +112,6 @@ const handler = async (req: Request): Promise<Response> => {
       ],
     };
 
-    console.log("Sending to Slack via Bot API...");
     const slackResponse = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: {
@@ -85,11 +124,9 @@ const handler = async (req: Request): Promise<Response> => {
     const slackData = await slackResponse.json();
     
     if (!slackResponse.ok || !slackData.ok) {
-      console.error("Slack API error:", slackData);
       throw new Error(`Slack API error: ${slackData.error || "Unknown error"}`);
     }
 
-    console.log("✅ Feedback sent to Slack successfully");
     return new Response(
       JSON.stringify({ success: true, message: "Feedback sent to Slack" }),
       {
@@ -101,11 +138,24 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   } catch (error: any) {
-    console.error("Error in send-feedback-to-slack function:", error);
+    // Handle validation errors
+    if (error.name === "ZodError") {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "Invalid input data" 
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || "Failed to send feedback" 
+        error: "Failed to send feedback" 
       }),
       {
         status: 500,
