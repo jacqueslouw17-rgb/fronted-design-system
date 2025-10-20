@@ -44,10 +44,10 @@ const StepCard = ({
 
   if (isExpanded) {
     return (
-      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300">
+      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300 bg-primary/5">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-3">
-            <div className="h-7 w-7 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium">
+            <div className="h-7 w-7 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-medium">
               {stepNumber}
             </div>
             <h3 className="font-semibold text-base text-foreground">{title}</h3>
@@ -66,8 +66,8 @@ const StepCard = ({
     <Card
       className={`p-4 transition-colors duration-150 cursor-pointer group border-border/50 ${
         status === "completed"
-          ? "bg-accent/20 hover:bg-accent/30"
-          : "hover:bg-accent/30"
+          ? "bg-primary/10 hover:bg-primary/15"
+          : "hover:bg-primary/5"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
     >
