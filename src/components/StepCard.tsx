@@ -66,7 +66,7 @@ const StepCard = ({
     <Card
       className={`p-4 transition-colors duration-150 cursor-pointer group border-border/50 ${
         status === "completed"
-          ? "bg-success/5 hover:bg-success/10"
+          ? "bg-success/5 hover:bg-accent/30"
           : "hover:bg-accent/30"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
