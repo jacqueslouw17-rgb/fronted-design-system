@@ -59,7 +59,8 @@ const AdminOnboarding = () => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [speak]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -188,16 +189,16 @@ const AdminOnboarding = () => {
             <h1 className="text-3xl font-bold text-foreground">
               Welcome to Fronted
             </h1>
-            <p className={`text-sm max-w-md mx-auto ${messageStyle}`}>
+            <p className="text-sm max-w-md mx-auto">
               {kurtMessage.split(' ').map((word, index) => (
                 <span
                   key={index}
                   className={`transition-colors duration-150 ${
                     index === currentWordIndex - 1 
-                      ? 'font-semibold' 
+                      ? `${messageStyle} font-semibold` 
                       : index < currentWordIndex - 1
-                      ? 'font-medium'
-                      : ''
+                      ? `${messageStyle} font-medium`
+                      : 'text-muted-foreground/60'
                   }`}
                 >
                   {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
