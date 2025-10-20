@@ -7,7 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-
+import { motion } from "framer-motion";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
