@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mic, PanelRightClose, PanelRight } from "lucide-react";
+import { ArrowLeft, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFlowState } from "@/hooks/useFlowState";
 import { toast } from "@/hooks/use-toast";
@@ -45,7 +45,6 @@ const AdminOnboarding = () => {
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, I'm Kurt. Let's set up your global contractor management system together."
@@ -686,18 +685,7 @@ const AdminOnboarding = () => {
       </Button>
 
         {/* Agent Panel - 60% width */}
-        <section className={`flex flex-col items-center justify-center p-8 relative transition-all duration-300 ${isFormCollapsed ? 'flex-1' : 'flex-shrink-0'}`} style={{ width: isFormCollapsed ? '100%' : '60%' }}>
-          {/* Drawer Toggle Button - In agent panel when form visible */}
-          {!isFormCollapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsFormCollapsed(true)}
-              className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 border border-border"
-            >
-              <PanelRightClose className="h-5 w-5" />
-            </Button>
-          )}
+        <section className="flex flex-col items-center justify-center p-8 relative transition-all duration-300 flex-shrink-0" style={{ width: '60%' }}>
         {/* Static background (performance-safe) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
@@ -752,20 +740,8 @@ const AdminOnboarding = () => {
         )}
       </section>
 
-      {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
-      {isFormCollapsed && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsFormCollapsed(false)}
-          className="absolute top-4 right-4 z-20 hover:bg-primary/10 bg-card border border-border"
-        >
-          <PanelRight className="h-5 w-5" />
-        </Button>
-      )}
-
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border/50 bg-card/30 backdrop-blur-xl transition-all duration-300 flex flex-col h-screen min-h-0 ${isFormCollapsed ? 'w-0 overflow-hidden opacity-0' : 'flex-shrink-0 opacity-100'}`} style={{ width: isFormCollapsed ? '0' : '40%', minWidth: isFormCollapsed ? '0' : '380px' }}>
+      <aside className="flex-shrink-0 flex flex-col h-screen min-h-0" style={{ width: '40%', minWidth: '380px' }}>
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
