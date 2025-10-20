@@ -52,7 +52,6 @@ const AdminOnboarding = () => {
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-speak initial welcome message on mount
   useEffect(() => {
@@ -605,11 +604,6 @@ const AdminOnboarding = () => {
       const nextStep = FLOW_STEPS[currentIndex + 1];
       goToStep(nextStep.id);
       setExpandedStep(nextStep.id);
-      
-      // Scroll to top and ensure visibility
-      setTimeout(() => {
-        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
     }
 
     toast({
@@ -631,13 +625,6 @@ const AdminOnboarding = () => {
       const newExpandedStep = expandedStep === stepId ? null : stepId;
       setExpandedStep(newExpandedStep);
       goToStep(stepId);
-      
-      // Scroll to top when expanding
-      if (newExpandedStep === stepId) {
-        setTimeout(() => {
-          scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 50);
-      }
     }
   };
 
@@ -673,7 +660,7 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative min-h-0">
+    <main className="flex flex-col h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -684,95 +671,97 @@ const AdminOnboarding = () => {
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-        {/* Agent Panel - 60% width */}
-        <section className="flex flex-col items-center justify-center p-8 relative transition-all duration-300 flex-shrink-0" style={{ width: '60%' }}>
-        {/* Static background (performance-safe) */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
-          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-2xl opacity-15"
-               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }} />
-          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-2xl opacity-10"
-               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.08))' }} />
-        </div>
+      {/* Static background (performance-safe) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
+        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-2xl opacity-15"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }} />
+        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-2xl opacity-10"
+             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.08))' }} />
+      </div>
 
-        {/* Audio Wave Visualizer or Loading Dots */}
-        <div className="relative z-10 flex flex-col items-center space-y-4">
-          {isProcessing ? (
-            <LoadingDots isActive={isProcessing} />
-          ) : (
-            <AudioWaveVisualizer isActive={isSpeaking || isListening} />
-          )}
+      {/* Main Content Container */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-5xl mx-auto px-6 py-12 space-y-12">
+          {/* Agent Section - Top Center */}
+          <section className="flex flex-col items-center justify-center space-y-6 relative z-10">
+            {/* Audio Wave Visualizer or Loading Dots */}
+            <div className="flex flex-col items-center space-y-4">
+              {isProcessing ? (
+                <LoadingDots isActive={isProcessing} />
+              ) : (
+                <AudioWaveVisualizer isActive={isSpeaking || isListening} />
+              )}
 
-          {/* Title and dynamic subtext */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome to Fronted
-            </h1>
-            <p className="text-sm max-w-md mx-auto">
-              {kurtMessage.split(' ').map((word, index) => (
-                <span
-                  key={index}
-                  className={`transition-colors duration-150 ${
-                    hasFinishedReading
-                      ? `${messageStyle}` 
-                      : index === currentWordIndex - 1 
-                      ? `${messageStyle} font-semibold` 
-                      : index < currentWordIndex - 1
-                      ? `${messageStyle} font-medium`
-                      : 'text-muted-foreground/60'
-                  }`}
-                >
-                  {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
-                </span>
-              ))}
-            </p>
-          </div>
-        </div>
-
-        {/* Listening indicator */}
-        {isListening && (
-          <div className="flex items-center justify-center mt-8 relative z-10">
-            <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
-              <Mic className="h-4 w-4" />
-              <span>Listening...</span>
+              {/* Title and dynamic subtext */}
+              <div className="text-center space-y-2">
+                <h1 className="text-3xl font-bold text-foreground">
+                  Welcome to Fronted
+                </h1>
+                <p className="text-sm max-w-2xl mx-auto">
+                  {kurtMessage.split(' ').map((word, index) => (
+                    <span
+                      key={index}
+                      className={`transition-colors duration-150 ${
+                        hasFinishedReading
+                          ? `${messageStyle}` 
+                          : index === currentWordIndex - 1 
+                          ? `${messageStyle} font-semibold` 
+                          : index < currentWordIndex - 1
+                          ? `${messageStyle} font-medium`
+                          : 'text-muted-foreground/60'
+                      }`}
+                    >
+                      {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-      </section>
 
-      {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className="flex-shrink-0 flex flex-col h-screen min-h-0" style={{ width: '40%', minWidth: '380px' }}>
-        {/* Scrollable content */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
-          {/* Progress Bar */}
-          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+            {/* Listening indicator */}
+            {isListening && (
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
+                  <Mic className="h-4 w-4" />
+                  <span>Listening...</span>
+                </div>
+              </div>
+            )}
+          </section>
 
-          {/* Step Cards */}
-          <div className="space-y-3">
-            {FLOW_STEPS.map((step) => {
-              const status = getStepStatus(step.id);
-              const isExpanded = expandedStep === step.id;
+          {/* Steps Section */}
+          <section className="space-y-6 relative z-10">
+            {/* Progress Bar */}
+            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
-              return (
-                <StepCard
-                  key={step.id}
-                  title={step.title}
-                  status={status}
-                  stepNumber={step.stepNumber}
-                  isExpanded={isExpanded}
-                  onClick={() => handleStepClick(step.id)}
-                >
-                  {isExpanded && (
-                    <div className="pt-6">
-                      {renderStepContent(step.id)}
-                    </div>
-                  )}
-                </StepCard>
-              );
-            })}
-          </div>
+            {/* Step Cards */}
+            <div className="space-y-3">
+              {FLOW_STEPS.map((step) => {
+                const status = getStepStatus(step.id);
+                const isExpanded = expandedStep === step.id;
+
+                return (
+                  <StepCard
+                    key={step.id}
+                    title={step.title}
+                    status={status}
+                    stepNumber={step.stepNumber}
+                    isExpanded={isExpanded}
+                    onClick={() => handleStepClick(step.id)}
+                  >
+                    {isExpanded && (
+                      <div className="pt-6">
+                        {renderStepContent(step.id)}
+                      </div>
+                    )}
+                  </StepCard>
+                );
+              })}
+            </div>
+          </section>
         </div>
-      </aside>
+      </div>
     </main>
   );
 };
