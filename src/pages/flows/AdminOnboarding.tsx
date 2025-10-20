@@ -151,17 +151,10 @@ const AdminOnboarding = () => {
         setExpandedStep(null);
         setIsProcessing(false);
         
-        // Wait before moving to step 2
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Wait a moment, then start speaking about step 2
+        await new Promise(resolve => setTimeout(resolve, 600));
         
-        // Set loading state FIRST, before expanding
-        setIsLoadingFields(true);
-        
-        // Then expand Step 2 - skeleton will be visible
-        goToStep("org_profile");
-        setExpandedStep("org_profile");
-        
-        // Speak about fetching org details while loading
+        // Start speaking about fetching org details
         const loadingMessage = "Let me fetch your organization details...";
         setKurtMessage(loadingMessage);
         setMessageStyle("text-foreground/80");
@@ -169,8 +162,28 @@ const AdminOnboarding = () => {
         setHasAutoStarted(false);
         setIsSpeaking(true);
         
+        // Expand Step 2 mid-way through voiceover (after 1.5s)
+        setTimeout(() => {
+          setIsLoadingFields(true);
+          goToStep("org_profile");
+          setExpandedStep("org_profile");
+        }, 1500);
+        
         speak(loadingMessage, async () => {
           setIsSpeaking(false);
+          
+          // Auto-save policy acceptance to database
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+              await supabase.from("profiles").upsert({
+                user_id: session.user.id,
+                display_name: "Joe Smith"
+              }, { onConflict: "user_id" });
+            }
+          } catch (error) {
+            console.error("Error saving policy acceptance:", error);
+          }
           
           // Keep skeleton loading visible
           await new Promise(resolve => setTimeout(resolve, 2500));
@@ -187,7 +200,19 @@ const AdminOnboarding = () => {
           };
           updateFormData(orgData);
           setIsLoadingFields(false);
-          setHasFinishedReading(true);
+          
+          // Confirm org details are ready and ask for user approval
+          const confirmMessage = "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
+          setKurtMessage(confirmMessage);
+          setMessageStyle("text-foreground/80");
+          setHasFinishedReading(false);
+          setHasAutoStarted(false);
+          setIsSpeaking(true);
+          
+          speak(confirmMessage, () => {
+            setIsSpeaking(false);
+            setHasFinishedReading(true);
+          });
         });
       });
       
