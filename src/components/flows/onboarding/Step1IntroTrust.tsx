@@ -25,20 +25,20 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
   };
 
   return (
-    <div className="space-y-8 max-w-xl mx-auto">
+    <div className="space-y-6 max-w-xl mx-auto">
       {/* How Genie Works Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-1">
           <CheckCircle2 className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
             How Genie Works
           </h3>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-sm text-muted-foreground mb-3">
           Your AI assistant handles the heavy lifting while you stay in control
         </p>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="text-xs font-semibold text-primary">1</span>
@@ -76,8 +76,8 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
       </div>
 
       {/* What We'll Set Up Section */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+      <div className="space-y-3">
+        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
           What We'll Set Up
         </h3>
         
@@ -100,7 +100,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
       </div>
 
       {/* Privacy & Preferences Section */}
-      <div className="bg-card/40 border border-border/40 rounded-lg p-5 space-y-5">
+      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
         <div className="flex items-start gap-3">
           <Checkbox
             id="privacy"
@@ -113,8 +113,8 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
           </Label>
         </div>
 
-        <div className="space-y-3 pt-2 border-t border-border/40">
-          <Label className="text-xs font-semibold uppercase tracking-wide text-foreground">
+        <div className="space-y-2.5 pt-3 border-t border-border/40">
+          <Label className="text-xs font-bold uppercase tracking-wide text-foreground">
             Preferred Input Mode
           </Label>
           <RadioGroup value={inputMode} onValueChange={setInputMode}>
@@ -139,7 +139,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
       </div>
 
       {/* Action Button */}
-      <div className="pt-2">
+      <div className="pt-1">
         <Button
           onClick={handleContinue}
           disabled={!privacyAccepted}
