@@ -2,16 +2,17 @@ import { motion } from "framer-motion";
 
 interface AudioWaveVisualizerProps {
   isActive?: boolean;
+  isResting?: boolean;
 }
 
-const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => {
+const AudioWaveVisualizer = ({ isActive = false, isResting = true }: AudioWaveVisualizerProps) => {
   // Create 5 wave lines with different animations
   const waves = [
-    { delay: 0, color: "hsl(var(--primary) / 0.3)", height: 40 },
-    { delay: 0.1, color: "hsl(var(--primary) / 0.5)", height: 60 },
-    { delay: 0.2, color: "hsl(var(--primary))", height: 80 },
-    { delay: 0.3, color: "hsl(var(--secondary) / 0.5)", height: 60 },
-    { delay: 0.4, color: "hsl(var(--secondary) / 0.3)", height: 40 },
+    { delay: 0, color: "hsl(var(--primary) / 0.3)", activeHeight: 40, restingHeight: 8 },
+    { delay: 0.1, color: "hsl(var(--primary) / 0.5)", activeHeight: 60, restingHeight: 12 },
+    { delay: 0.2, color: "hsl(var(--primary))", activeHeight: 80, restingHeight: 16 },
+    { delay: 0.3, color: "hsl(var(--secondary) / 0.5)", activeHeight: 60, restingHeight: 12 },
+    { delay: 0.4, color: "hsl(var(--secondary) / 0.3)", activeHeight: 40, restingHeight: 8 },
   ];
 
   return (
@@ -45,15 +46,20 @@ const AudioWaveVisualizer = ({ isActive = false }: AudioWaveVisualizerProps) => 
           animate={
             isActive
               ? {
-                  height: [wave.height * 0.3, wave.height, wave.height * 0.4, wave.height, wave.height * 0.3],
+                  height: [wave.activeHeight * 0.3, wave.activeHeight, wave.activeHeight * 0.4, wave.activeHeight, wave.activeHeight * 0.3],
                   scaleY: [1, 1.2, 0.8, 1.2, 1],
                 }
+              : isResting
+              ? {
+                  height: [wave.restingHeight * 0.8, wave.restingHeight, wave.restingHeight * 0.8],
+                  scaleY: [1, 1.1, 1],
+                }
               : {
-                  height: wave.height * 0.2,
+                  height: wave.restingHeight * 0.5,
                 }
           }
           transition={{
-            duration: 1.2,
+            duration: isActive ? 1.2 : 3,
             repeat: Infinity,
             ease: "easeInOut",
             delay: wave.delay,

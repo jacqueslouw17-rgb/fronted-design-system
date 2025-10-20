@@ -32,6 +32,7 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi Joe, ready to save your personal details to kick off onboarding?"
   );
@@ -39,15 +40,27 @@ const Index = () => {
 
   // Auto-start and speak Kurt's greeting on mount
   useEffect(() => {
+    setIsSpeaking(true);
     speak(kurtMessage);
     setChatHistory([{ role: "assistant", content: kurtMessage }]);
+    
+    // Set speaking to false after message duration (rough estimate)
+    const duration = kurtMessage.split(' ').length * 400; // ~400ms per word
+    const timer = setTimeout(() => setIsSpeaking(false), duration);
+    return () => clearTimeout(timer);
   }, []);
 
   // Speak Kurt's message whenever it changes (except on mount)
   useEffect(() => {
     if (kurtMessage !== "Hi Joe, ready to save your personal details to kick off onboarding?") {
+      setIsSpeaking(true);
       speak(kurtMessage);
       setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
+      
+      // Set speaking to false after message duration
+      const duration = kurtMessage.split(' ').length * 400;
+      const timer = setTimeout(() => setIsSpeaking(false), duration);
+      return () => clearTimeout(timer);
     }
   }, [kurtMessage]);
 
@@ -356,7 +369,7 @@ const Index = () => {
           transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center space-y-4"
         >
-          <AudioWaveVisualizer isActive={isListening} />
+          <AudioWaveVisualizer isActive={isListening || isSpeaking} isResting={!isListening && !isSpeaking} />
 
           {/* Beautiful hierarchy: title and dynamic subtext */}
           <div className="text-center space-y-2">
