@@ -122,7 +122,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
               transition={{ duration: 0.6 }}
               className="relative flex flex-col items-center space-y-4"
             >
-              <AudioWaveVisualizer isActive={isListening || isSpeaking} />
+              <AudioWaveVisualizer isActive={isListening} />
               <div className="text-center space-y-2">
                 <h2 className="text-2xl font-bold text-foreground">Hi {userData.firstName}, what would you like to know?</h2>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto">

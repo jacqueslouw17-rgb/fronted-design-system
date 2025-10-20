@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import KurtAvatar from "@/components/KurtAvatar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { Timeline } from "@/components/AgentContextualTimeline";
@@ -227,29 +227,30 @@ const Dashboard = ({
                     animate={{ width: "100%" }}
                     exit={{ width: "50%" }}
                     transition={{ duration: 0.24, ease: "easeOut" }}
-                    className="h-full flex flex-col items-center justify-center relative overflow-hidden"
+                    className="h-full flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]"
                   >
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
-                      }}
-                      transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
-                      style={{ background: 'var(--gradient-primary)' }}
-                    />
-                    
-                    <div className="relative z-10">
-                      <KurtAvatar 
-                        isListening={false}
-                        message={v4Message}
-                        name="Gelo"
-                        currentWordIndex={currentWordIndex}
-                      />
+                    {/* Subtle wave header */}
+                    <div className="relative z-10 flex flex-col items-center space-y-4">
+                      <AudioWaveVisualizer isActive={false} />
+                      <div className="text-center space-y-2">
+                        <h2 className="text-3xl font-bold text-foreground">Hi {userData.firstName}, what would you like to know?</h2>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          {v4Message.split(' ').map((word, index) => (
+                            <span
+                              key={index}
+                              className={`transition-colors duration-150 ${
+                                index === currentWordIndex - 1
+                                  ? 'text-foreground font-semibold'
+                                  : index < currentWordIndex - 1
+                                  ? 'text-foreground/70 font-medium'
+                                  : 'text-muted-foreground'
+                              }`}
+                            >
+                              {word}{index < v4Message.split(' ').length - 1 ? ' ' : ''}
+                            </span>
+                          ))}
+                        </p>
+                      </div>
                     </div>
 
                     <motion.div
@@ -412,9 +413,11 @@ const Dashboard = ({
                         // Compact Header State with Contextual Content
                         <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
                           {/* Compact Header */}
-                          <div className="flex-shrink-0 mb-6">
-                            <KurtAvatar compact={true} name="Gelo" />
-                          </div>
+                            <div className="flex-shrink-0 mb-6 flex justify-center">
+                              <div className="scale-75">
+                                <AudioWaveVisualizer isActive={false} />
+                              </div>
+                            </div>
 
                           {/* Chat Bubble */}
                           <div className="flex-shrink-0 mb-6 bg-card border border-border rounded-lg p-4 shadow-sm">
@@ -540,59 +543,55 @@ const Dashboard = ({
                       ) : (
                         // Full Centered State
                         <>
-                          <motion.div
-                            animate={{
-                              scale: [1, 1.2, 1],
-                              opacity: v4IsProcessing ? [0.02, 0.03, 0.02] : [0.1, 0.15, 0.1],
-                            }}
-                            transition={{
-                              duration: 8,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                            className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full blur-3xl"
-                            style={{ background: 'var(--gradient-primary)' }}
-                          />
-
                           <div className="w-full h-full flex items-center justify-center relative z-10 px-8">
-                            <div>
-                              <KurtAvatar 
-                                isListening={false}
-                                message={v4Message}
-                                name="Gelo"
-                                currentWordIndex={currentWordIndex}
-                                isProcessing={v4IsProcessing}
-                              />
-
-                              {v4Phase === "results" && (
-                                <motion.div
-                                  initial={{ y: 20, opacity: 0 }}
-                                  animate={{ y: 0, opacity: 1 }}
-                                  transition={{ delay: 0.4 }}
-                                  className="mt-8 flex gap-3 flex-wrap justify-center"
-                                >
-                                  <Button 
-                                    onClick={sendV4ForApproval}
-                                    className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
+                            <div className="text-center space-y-4">
+                              <AudioWaveVisualizer isActive={false} />
+                              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                                {v4Message.split(' ').map((word, index) => (
+                                  <span
+                                    key={index}
+                                    className={`transition-colors duration-150 ${
+                                      index === currentWordIndex - 1
+                                        ? 'text-foreground font-semibold'
+                                        : index < currentWordIndex - 1
+                                        ? 'text-foreground/70 font-medium'
+                                        : 'text-muted-foreground'
+                                    }`}
                                   >
-                                    Send for CFO Approval
-                                  </Button>
-                                  <Button 
-                                    variant="outline"
-                                    onClick={() => {
-                                      setV4Phase("idle");
-                                      setV4Message("Ready for the next payroll run!");
-                                      setV4GeloCompact(false);
-                                      speak("Ready for the next payroll run!");
-                                    }}
-                                    className="min-w-[200px]"
-                                  >
-                                    Start Over
-                                  </Button>
-                                </motion.div>
-                              )}
+                                    {word}{index < v4Message.split(' ').length - 1 ? ' ' : ''}
+                                  </span>
+                                ))}
+                              </p>
                             </div>
                           </div>
+
+                          {v4Phase === "results" && (
+                            <motion.div
+                              initial={{ y: 20, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ delay: 0.4 }}
+                              className="mt-8 flex gap-3 flex-wrap justify-center"
+                            >
+                              <Button 
+                                onClick={sendV4ForApproval}
+                                className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
+                              >
+                                Send for CFO Approval
+                              </Button>
+                              <Button 
+                                variant="outline"
+                                onClick={() => {
+                                  setV4Phase("idle");
+                                  setV4Message("Ready for the next payroll run!");
+                                  setV4GeloCompact(false);
+                                  speak("Ready for the next payroll run!");
+                                }}
+                                className="min-w-[200px]"
+                              >
+                                Start Over
+                              </Button>
+                            </motion.div>
+                          )}
                         </>
                       )}
                     </motion.div>

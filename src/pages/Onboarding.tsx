@@ -366,7 +366,7 @@ const Index = () => {
           transition={{ duration: 0.6 }}
           className="relative z-10 flex flex-col items-center space-y-4"
         >
-          <AudioWaveVisualizer isActive={isListening || isSpeaking} />
+          <AudioWaveVisualizer isActive={isListening} />
 
           {/* Beautiful hierarchy: title and dynamic subtext */}
           <div className="text-center space-y-2">
