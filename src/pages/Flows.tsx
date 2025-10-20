@@ -1,24 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, UserCog, Workflow } from "lucide-react";
+import { ArrowLeft, Workflow, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const Flows = () => {
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
-
-  const roles = [
-    {
-      id: "admin",
-      title: "Admin",
-      description: "Onboarding and configuration flows for system administrators",
-      icon: UserCog,
-      flowCount: 1
-    }
-  ];
 
   const patterns = [
     {
@@ -210,105 +199,71 @@ const Flows = () => {
           </Link>
           <h1 className="text-4xl font-bold mb-2">Flows</h1>
           <p className="text-muted-foreground">
-            End-to-end workflows organized by role, showing how patterns compose into complete user journeys
+            End-to-end workflows showing how patterns compose into complete user journeys
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {roles.map((role) => {
-            const IconComponent = role.icon;
-            return (
-              <Card
-                key={role.id}
-                className="hover:shadow-lg transition-all group h-full cursor-pointer"
-                onClick={() => setSelectedRole(role.id)}
-              >
+          {flows.map((flow) => (
+            <Link key={flow.id} to={flow.path}>
+              <Card className="hover:shadow-lg transition-all group h-full">
                 <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                      <IconComponent className="h-6 w-6 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
+                      <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                     </div>
-                    <div className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                      {role.flowCount} {role.flowCount === 1 ? 'flow' : 'flows'}
-                    </div>
+                    <CardTitle className="text-xl">{flow.title}</CardTitle>
                   </div>
-                  <CardTitle className="text-xl">{role.title}</CardTitle>
-                  <CardDescription>{role.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Role Flows Drawer */}
-      <Sheet open={!!selectedRole} onOpenChange={() => setSelectedRole(null)}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-          <SheetHeader className="mb-6">
-            <SheetTitle className="text-2xl">Admin Flows</SheetTitle>
-            <SheetDescription>
-              Onboarding and configuration workflows for administrators
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="space-y-4">
-            {flows.map((flow) => (
-              <Card key={flow.id} className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                          <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                        </div>
-                        <CardTitle className="text-2xl">{flow.title}</CardTitle>
-                      </div>
-                      <CardDescription className="text-base">{flow.description}</CardDescription>
-                    </div>
-                  </div>
+                  <CardDescription className="line-clamp-2">{flow.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span className="font-medium">{flow.steps} steps</span>
                       <span>•</span>
                       <span>{flow.patterns.length} patterns</span>
                     </div>
                     
-                    <div>
-                      <p className="text-sm font-medium mb-2">Patterns used in this flow:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {flow.patterns.map((patternId) => {
-                          const pattern = getPatternById(patternId);
-                          return (
-                            <Badge
-                              key={patternId}
-                              variant="secondary"
-                              className="cursor-pointer hover:bg-muted transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedPattern(patternId);
-                              }}
-                            >
-                              {pattern?.name}
-                            </Badge>
-                          );
-                        })}
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      {flow.patterns.slice(0, 8).map((patternId) => {
+                        const pattern = getPatternById(patternId);
+                        return (
+                          <Badge
+                            key={patternId}
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-muted transition-colors text-xs"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedPattern(patternId);
+                            }}
+                          >
+                            {pattern?.name}
+                          </Badge>
+                        );
+                      })}
+                      {flow.patterns.length > 8 && (
+                        <Badge
+                          variant="outline"
+                          className="cursor-pointer hover:bg-muted transition-colors text-xs"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedPattern(flow.patterns[8]);
+                          }}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          {flow.patterns.length - 8} more
+                        </Badge>
+                      )}
                     </div>
-
-                    <Link to={flow.path}>
-                      <Button className="w-full" size="lg">
-                        Start Flow
-                      </Button>
-                    </Link>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {/* Pattern Detail Drawer */}
       <Sheet open={!!selectedPattern} onOpenChange={() => setSelectedPattern(null)}>
