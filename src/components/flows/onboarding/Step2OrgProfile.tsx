@@ -14,9 +14,10 @@ interface Step2Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
   isProcessing?: boolean;
+  isLoadingFields?: boolean;
 }
 
-const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessing }: Step2Props) => {
+const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step2Props) => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [data, setData] = useState({
     companyName: formData.companyName || "",
@@ -29,7 +30,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
     dualApproval: formData.dualApproval ?? true
   });
 
-  // Watch for formData updates from Genie and show loading state
+  // Watch for formData updates from Kurt and show loading state
   useEffect(() => {
     if (formData.companyName && formData.companyName !== data.companyName) {
       setIsLoadingData(true);
@@ -101,7 +102,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="companyName" className="text-sm">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            {isLoadingData ? (
+            {isLoadingData || isLoadingFields ? (
               <Skeleton className="h-9 w-full" />
             ) : (
               <Input
@@ -119,13 +120,17 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
 
           <div className="space-y-2">
             <Label htmlFor="legalEntityName" className="text-sm">Legal Entity Name (Optional)</Label>
-            <Input
-              id="legalEntityName"
-              value={data.legalEntityName}
-              onChange={(e) => setData(prev => ({ ...prev, legalEntityName: e.target.value }))}
-              placeholder="Can be set later"
-              className="text-sm"
-            />
+            {isLoadingData || isLoadingFields ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Input
+                id="legalEntityName"
+                value={data.legalEntityName}
+                onChange={(e) => setData(prev => ({ ...prev, legalEntityName: e.target.value }))}
+                placeholder="Can be set later"
+                className="text-sm"
+              />
+            )}
             <p className="text-xs text-muted-foreground">
               If different from company name, add it now or later
             </p>
@@ -135,19 +140,23 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="hqCountry" className="text-sm">
               HQ Country <span className="text-destructive">*</span>
             </Label>
-            <Select value={data.hqCountry} onValueChange={(val) => setData(prev => ({ ...prev, hqCountry: val }))}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NO">🇳🇴 Norway</SelectItem>
-                <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
-                <SelectItem value="IN">🇮🇳 India</SelectItem>
-                <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
-                <SelectItem value="US">🇺🇸 United States</SelectItem>
-                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-              </SelectContent>
-            </Select>
+            {isLoadingData || isLoadingFields ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Select value={data.hqCountry} onValueChange={(val) => setData(prev => ({ ...prev, hqCountry: val }))}>
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NO">🇳🇴 Norway</SelectItem>
+                  <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
+                  <SelectItem value="IN">🇮🇳 India</SelectItem>
+                  <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
+                  <SelectItem value="US">🇺🇸 United States</SelectItem>
+                  <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             {errors.hqCountry && (
               <p className="text-xs text-destructive">{errors.hqCountry}</p>
             )}
@@ -172,7 +181,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="contactName" className="text-sm">
               Name <span className="text-destructive">*</span>
             </Label>
-            {isLoadingData ? (
+            {isLoadingData || isLoadingFields ? (
               <Skeleton className="h-9 w-full" />
             ) : (
               <Input
@@ -192,7 +201,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="contactEmail" className="text-sm">
               Email <span className="text-destructive">*</span>
             </Label>
-            {isLoadingData ? (
+            {isLoadingData || isLoadingFields ? (
               <Skeleton className="h-9 w-full" />
             ) : (
               <Input
@@ -223,32 +232,40 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="frequency" className="text-sm">Payroll Frequency</Label>
-            <Select
-              value={data.payrollFrequency}
-              onValueChange={(val) => setData(prev => ({ ...prev, payrollFrequency: val }))}
-            >
-              <SelectTrigger className="text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="bi-monthly">Bi-Monthly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
+            {isLoadingData || isLoadingFields ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Select
+                value={data.payrollFrequency}
+                onValueChange={(val) => setData(prev => ({ ...prev, payrollFrequency: val }))}
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="bi-monthly">Bi-Monthly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Day</Label>
-            <Input
-              id="payoutDay"
-              type="number"
-              min="1"
-              max="31"
-              value={data.payoutDay}
-              onChange={(e) => setData(prev => ({ ...prev, payoutDay: e.target.value }))}
-              className="text-sm"
-            />
+            {isLoadingData || isLoadingFields ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Input
+                id="payoutDay"
+                type="number"
+                min="1"
+                max="31"
+                value={data.payoutDay}
+                onChange={(e) => setData(prev => ({ ...prev, payoutDay: e.target.value }))}
+                className="text-sm"
+              />
+            )}
             <p className="text-xs text-muted-foreground">
               Day of the month (e.g., 25 = 25th of each month)
             </p>
@@ -261,25 +278,33 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
                 Require two approvers for large payments
               </p>
             </div>
-            <Switch
-              id="dualApproval"
-              checked={data.dualApproval}
-              onCheckedChange={(checked) => setData(prev => ({ ...prev, dualApproval: checked }))}
-            />
+            {isLoadingData || isLoadingFields ? (
+              <Skeleton className="h-6 w-11 rounded-full" />
+            ) : (
+              <Switch
+                id="dualApproval"
+                checked={data.dualApproval}
+                onCheckedChange={(checked) => setData(prev => ({ ...prev, dualApproval: checked }))}
+              />
+            )}
           </div>
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
-        {externalProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "Save & Continue"
-        )}
-      </Button>
+      {isLoadingFields ? (
+        <Skeleton className="h-11 w-full" />
+      ) : (
+        <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+          {externalProcessing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "Save & Continue"
+          )}
+        </Button>
+      )}
     </div>
   );
 };

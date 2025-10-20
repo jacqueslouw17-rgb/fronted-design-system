@@ -46,8 +46,9 @@ const AdminOnboarding = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+  const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
-    "Hi, I'm Genie. Let's set up your global contractor management system together."
+    "Hi, I'm Kurt. Let's set up your global contractor management system together."
   );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
@@ -56,7 +57,7 @@ const AdminOnboarding = () => {
 
   // Auto-speak initial welcome message on mount
   useEffect(() => {
-    const initialMessage = "Hi, I'm Genie. Let's set up your global contractor management system together.";
+    const initialMessage = "Hi, I'm Kurt. Let's set up your global contractor management system together.";
     setIsSpeaking(true);
     speak(initialMessage, () => {
       setIsSpeaking(false);
@@ -165,38 +166,54 @@ const AdminOnboarding = () => {
         setExpandedStep(null);
         
         // Wait before moving to step 2
-        await new Promise(resolve => setTimeout(resolve, 1800));
+        await new Promise(resolve => setTimeout(resolve, 1200));
         
-      // Pre-populate step 2 data with skeleton/loading states initially
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const orgData = {
-        companyName: "Fronted Inc",
-        primaryContactName: "Joe Smith",
-        primaryContactEmail: "joe@fronted.com",
-        hqCountry: "NO",
-        payrollFrequency: "monthly",
-        payoutDay: "25",
-        dualApproval: true
-      };
-      updateFormData(orgData);
+        // First, expand Step 2 and show loading state
+        goToStep("org_profile");
+        setExpandedStep("org_profile");
+        setIsLoadingFields(true);
         
-        // Update message and expand step 2
-        const newMessage = "I've added your organization details here. Everything look good to you?";
-        setKurtMessage(newMessage);
+        const loadingMessage = "Let me fetch your organization details...";
+        setKurtMessage(loadingMessage);
         setMessageStyle("text-foreground/80");
         setHasFinishedReading(false);
-        setHasAutoStarted(false); // Reset for next message
+        setHasAutoStarted(false);
         setIsSpeaking(true);
-        speak(newMessage, () => {
-          setIsSpeaking(false);
-          setHasFinishedReading(true);
-        });
         
-        goToStep("org_profile");
-        setTimeout(() => {
-          setExpandedStep("org_profile");
-        }, 400);
+        speak(loadingMessage, async () => {
+          setIsSpeaking(false);
+          
+          // Simulate fetching data with skeleton loading
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Populate the data
+          const orgData = {
+            companyName: "Fronted Inc",
+            primaryContactName: "Joe Smith",
+            primaryContactEmail: "joe@fronted.com",
+            hqCountry: "NO",
+            payrollFrequency: "monthly",
+            payoutDay: "25",
+            dualApproval: true
+          };
+          updateFormData(orgData);
+          setIsLoadingFields(false);
+          
+          // Update message after data is loaded
+          await new Promise(resolve => setTimeout(resolve, 400));
+          
+          const newMessage = "I've added your organization details here. Everything look good to you?";
+          setKurtMessage(newMessage);
+          setMessageStyle("text-foreground/80");
+          setHasFinishedReading(false);
+          setHasAutoStarted(false);
+          setIsSpeaking(true);
+          
+          speak(newMessage, () => {
+            setIsSpeaking(false);
+            setHasFinishedReading(true);
+          });
+        });
       });
       
       resetTranscript();
@@ -637,7 +654,7 @@ const AdminOnboarding = () => {
       case "intro_trust_model":
         return <Step1IntroTrust {...stepProps} />;
       case "org_profile":
-        return <Step2OrgProfile {...stepProps} />;
+        return <Step2OrgProfile {...stepProps} isLoadingFields={isLoadingFields} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
       case "integrations_connect":
@@ -657,7 +674,7 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <main className="flex h-screen bg-background text-foreground relative min-h-0">
+    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative min-h-0">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -669,7 +686,7 @@ const AdminOnboarding = () => {
       </Button>
 
         {/* Agent Panel - 60% width */}
-        <section className={`flex flex-col items-center justify-center p-8 relative bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'flex-1' : 'flex-shrink-0'}`} style={{ width: isFormCollapsed ? '100%' : '60%' }}>
+        <section className={`flex flex-col items-center justify-center p-8 relative transition-all duration-300 ${isFormCollapsed ? 'flex-1' : 'flex-shrink-0'}`} style={{ width: isFormCollapsed ? '100%' : '60%' }}>
           {/* Drawer Toggle Button - In agent panel when form visible */}
           {!isFormCollapsed && (
             <Button
@@ -748,7 +765,7 @@ const AdminOnboarding = () => {
       )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen min-h-0 ${isFormCollapsed ? 'w-0 overflow-hidden opacity-0' : 'flex-shrink-0 opacity-100'}`} style={{ width: isFormCollapsed ? '0' : '40%', minWidth: isFormCollapsed ? '0' : '380px' }}>
+      <aside className={`border-l border-border/50 bg-card/30 backdrop-blur-xl transition-all duration-300 flex flex-col h-screen min-h-0 ${isFormCollapsed ? 'w-0 overflow-hidden opacity-0' : 'flex-shrink-0 opacity-100'}`} style={{ width: isFormCollapsed ? '0' : '40%', minWidth: isFormCollapsed ? '0' : '380px' }}>
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
