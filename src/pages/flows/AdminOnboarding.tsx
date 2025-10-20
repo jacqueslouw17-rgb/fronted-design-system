@@ -79,73 +79,88 @@ const AdminOnboarding = () => {
   // Handle voice input with full flow
   const handleVoiceInput = async () => {
     if (isListening) {
+      // Manual stop
       stopListening();
-      
+      return;
+    }
+    
+    // Start listening
+    stop();
+    await startListening();
+  };
+
+  // Watch for transcript changes and auto-process
+  useEffect(() => {
+    if (!isListening && transcript && !isProcessing) {
       // Check if user said "yes please" or similar
       const lowerTranscript = transcript.toLowerCase();
-      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please")) {
-        // Start processing
-        setIsProcessing(true);
+      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure")) {
+        handleUserConfirmation();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isListening, transcript]);
+
+  const handleUserConfirmation = async () => {
+    if (state.currentStep === "intro_trust_model") {
+      // Start processing
+      setIsProcessing(true);
+      
+      // Simulate AI processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Auto-accept privacy
+      updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
+      
+      // Confirm action with voice
+      setIsProcessing(false);
+      const confirmMessage = "Perfect! I've got that sorted. Let me grab your organization details now.";
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
         
-        // Simulate AI processing for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Complete step 1 and close it
+        completeStep("intro_trust_model");
+        setExpandedStep(null);
         
-        // Auto-accept privacy and complete step 1
-        updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
+        // Wait before moving to step 2
+        await new Promise(resolve => setTimeout(resolve, 1200));
         
-        // Confirm action with voice
-        setIsProcessing(false);
-        const confirmMessage = "Perfect, I've accepted that for you. Now let me grab your organization details.";
-        setKurtMessage(confirmMessage);
+        // Pre-populate step 2 data
+        const orgData = {
+          companyName: "Fronted Inc",
+          primaryContactName: "Joe Smith",
+          primaryContactEmail: "joe@fronted.com",
+          hqCountry: "NO",
+          payrollFrequency: "monthly",
+          payoutDay: "25",
+          dualApproval: true
+        };
+        updateFormData(orgData);
+        
+        // Update message and expand step 2
+        const newMessage = "I've added your organization details here. Everything look good to you?";
+        setKurtMessage(newMessage);
         setMessageStyle("text-foreground/80");
         setHasFinishedReading(false);
         setIsSpeaking(true);
-        
-        speak(confirmMessage, async () => {
+        speak(newMessage, () => {
           setIsSpeaking(false);
           setHasFinishedReading(true);
-          
-          // Complete step 1 and close it
-          completeStep("intro_trust_model");
-          setExpandedStep(null);
-          
-          // Wait a bit before moving to step 2
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Pre-populate step 2 data
-          const orgData = {
-            companyName: "Fronted Inc",
-            primaryContactName: "Joe Smith",
-            primaryContactEmail: "joe@fronted.com",
-            hqCountry: "NO",
-            payrollFrequency: "monthly",
-            payoutDay: "25",
-            dualApproval: true
-          };
-          updateFormData(orgData);
-          
-          // Update message and expand step 2
-          const newMessage = "Got your organisation details added already, want me to save?";
-          setKurtMessage(newMessage);
-          setMessageStyle("text-foreground/80");
-          setHasFinishedReading(false);
-          setIsSpeaking(true);
-          speak(newMessage, () => {
-            setIsSpeaking(false);
-            setHasFinishedReading(true);
-          });
-          
-          goToStep("org_profile");
-          setTimeout(() => {
-            setExpandedStep("org_profile");
-          }, 500);
         });
-      }
+        
+        goToStep("org_profile");
+        setTimeout(() => {
+          setExpandedStep("org_profile");
+        }, 400);
+      });
       
       resetTranscript();
-    } else {
-      stop();
-      await startListening();
     }
   };
 

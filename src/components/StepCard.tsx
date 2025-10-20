@@ -44,35 +44,38 @@ const StepCard = ({
 
   if (isExpanded) {
     return (
-      <Card className="p-5 border-border/50 hover:border-border shadow-card transition-all duration-300 animate-fade-in">
-        <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
-          <div className="flex items-center space-x-3">
-            <div className="h-6 w-6 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium flex-shrink-0">
-              {stepNumber}
+      <div className="transition-all duration-500 ease-in-out overflow-hidden">
+        <Card className="p-5 border-border/50 hover:border-border shadow-card">
+          <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
+            <div className="flex items-center space-x-3">
+              <div className="h-6 w-6 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium flex-shrink-0">
+                {stepNumber}
+              </div>
+              <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/60" : "text-foreground"}`}>{title}</h3>
             </div>
-            <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/60" : "text-foreground"}`}>{title}</h3>
+            {getStatusBadge()}
           </div>
-          {getStatusBadge()}
-        </div>
 
-        <div className="mt-4 space-y-4 animate-fade-in overflow-hidden">
-          {children}
-        </div>
-      </Card>
+          <div className="space-y-4 animate-fade-in">
+            {children}
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card
-      className={`p-4 transition-all duration-300 ease-in-out cursor-pointer group border-border/50 ${
-        status === "completed"
-          ? "bg-background hover:bg-primary/5"
-          : status === "active"
-          ? "bg-background hover:bg-primary/5"
-          : "hover:bg-primary/5"
-      } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
-      onClick={status !== "pending" ? onClick : undefined}
-    >
+    <div className="transition-all duration-500 ease-in-out">
+      <Card
+        className={`p-4 transition-all duration-500 ease-in-out cursor-pointer group border-border/50 ${
+          status === "completed"
+            ? "bg-background hover:bg-primary/5"
+            : status === "active"
+            ? "bg-background hover:bg-primary/5"
+            : "hover:bg-primary/5"
+        } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
+        onClick={status !== "pending" ? onClick : undefined}
+      >
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <div
@@ -101,6 +104,7 @@ const StepCard = ({
         {getStatusBadge()}
       </div>
     </Card>
+    </div>
   );
 };
 

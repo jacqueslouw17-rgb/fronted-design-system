@@ -5,6 +5,7 @@ export const useSpeechToText = () => {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
@@ -22,6 +23,18 @@ export const useSpeechToText = () => {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
+            
+            // Reset silence timer on final result
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
+            }
+            
+            // Set new silence timer (auto-stop after 1.5 seconds of silence)
+            silenceTimerRef.current = setTimeout(() => {
+              if (recognitionRef.current && isListening) {
+                recognitionRef.current.stop();
+              }
+            }, 1500);
           } else {
             interimTranscript += transcript;
           }
@@ -41,6 +54,9 @@ export const useSpeechToText = () => {
       };
 
       recognitionRef.current.onend = () => {
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
         setIsListening(false);
       };
     }
@@ -49,8 +65,11 @@ export const useSpeechToText = () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
     };
-  }, []);
+  }, [isListening]);
 
   const startListening = useCallback(async () => {
     try {
