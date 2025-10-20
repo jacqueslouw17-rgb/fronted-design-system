@@ -14,7 +14,7 @@ const patterns = [
     title: "Onboarding Flow",
     description: "Voice-enabled user onboarding with step-by-step guidance",
     icon: UserPlus,
-    path: "/onboarding",
+    path: "/patterns/onboarding-flow",
     color: "text-blue-500"
   },
   {

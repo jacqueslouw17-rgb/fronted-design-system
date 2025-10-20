@@ -54,6 +54,7 @@ import AgentMultiStepRecallThreadPattern from "./pages/AgentMultiStepRecallThrea
 import ComplianceSyncDrawerPattern from "./pages/ComplianceSyncDrawerPattern";
 import CostTaxVisualizerPattern from "./pages/CostTaxVisualizerPattern";
 import ContextualInlineActionsPattern from "./pages/ContextualInlineActionsPattern";
+import OnboardingFlowPattern from "./pages/OnboardingFlowPattern";
 import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
 import NotFound from "./pages/NotFound";
 
@@ -118,6 +119,7 @@ const App = () => (
         <Route path="/compliance-sync-drawer" element={<ComplianceSyncDrawerPattern />} />
         <Route path="/patterns/cost-tax-visualizer" element={<CostTaxVisualizerPattern />} />
         <Route path="/patterns/contextual-inline-actions" element={<ContextualInlineActionsPattern />} />
+        <Route path="/patterns/onboarding-flow" element={<OnboardingFlowPattern />} />
         <Route path="/payroll-demo" element={<PayrollUseCaseDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
