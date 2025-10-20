@@ -349,30 +349,51 @@ const Index = () => {
           />
         </motion.div>
 
-        {/* Kurt Avatar */}
+        {/* Kurt Avatar - Clean, no animations */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10"
+          className="relative z-10 flex flex-col items-center space-y-8"
         >
-          <KurtAvatar isListening={isListening} message={kurtMessage} currentWordIndex={currentWordIndex} />
-        </motion.div>
+          {/* Avatar circles */}
+          <div className="relative w-48 h-48">
+            {/* Outer glow effect */}
+            <div className="absolute inset-0 rounded-full bg-primary/5 blur-3xl opacity-30" />
+            
+            {/* Outermost circle - lightest */}
+            <div className="absolute inset-0 rounded-full border bg-primary/5 border-primary/10" />
+            
+            {/* Second circle */}
+            <div className="absolute inset-4 rounded-full border bg-primary/8 border-primary/15" />
+            
+            {/* Third circle */}
+            <div className="absolute inset-8 rounded-full border bg-primary/12 border-primary/20" />
+            
+            {/* Fourth circle */}
+            <div className="absolute inset-12 rounded-full border bg-primary/18 border-primary/30" />
+            
+            {/* Inner circle */}
+            <div className="absolute inset-16 rounded-full border bg-primary/25 border-primary/40" />
+            
+            {/* Center circle */}
+            <div className="absolute inset-20 rounded-full border bg-primary/30 border-primary/50 flex items-center justify-center">
+              {isListening && (
+                <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+              )}
+            </div>
+          </div>
 
-        {/* Beautiful hierarchy: caption, heading, subtext */}
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center space-y-3 relative z-10"
-        >
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Onboarding Assistant</p>
-          <h1 className="text-3xl font-bold text-foreground balance-text">
-            Hi {formData.firstName}, ready to get started?
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Let's save your personal details to kick off your onboarding
-          </p>
+          {/* Beautiful hierarchy: caption, heading, subtext */}
+          <div className="text-center space-y-3">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Onboarding Assistant</p>
+            <h1 className="text-3xl font-bold text-foreground balance-text">
+              Hi {formData.firstName}, ready to get started?
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Let's save your personal details to kick off your onboarding
+            </p>
+          </div>
         </motion.div>
 
         {/* Voice Input Control */}

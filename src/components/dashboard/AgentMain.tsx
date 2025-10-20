@@ -78,70 +78,51 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
       </motion.div>
 
       <div className="max-w-2xl w-full space-y-8 relative z-10">
-        {/* Gelo Avatar */}
+        {/* Gelo Avatar - Clean, no animations */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex justify-center relative"
+          className="flex flex-col items-center space-y-8"
         >
-          <div className="relative">
-            {/* Animated glow rings */}
-            {isListening && (
-              <>
-                <motion.div
-                  animate={{
-                    scale: [1, 1.4, 1],
-                    opacity: [0.5, 0, 0.5],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeOut"
-                  }}
-                  className="absolute inset-0 rounded-full blur-xl"
-                  style={{ 
-                    background: 'var(--gradient-primary)',
-                    filter: 'blur(20px)'
-                  }}
-                />
-                <motion.div
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.3, 0, 0.3],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeOut",
-                    delay: 0.5
-                  }}
-                  className="absolute inset-0 rounded-full blur-2xl"
-                  style={{ 
-                    background: 'var(--gradient-secondary)',
-                    filter: 'blur(30px)'
-                  }}
-                />
-              </>
-            )}
-            <KurtAvatar isListening={isListening} size="default" name="Gelo" />
+          {/* Avatar circles */}
+          <div className="relative w-48 h-48">
+            {/* Outer glow effect */}
+            <div className="absolute inset-0 rounded-full bg-primary/5 blur-3xl opacity-30" />
+            
+            {/* Outermost circle - lightest */}
+            <div className="absolute inset-0 rounded-full border bg-primary/5 border-primary/10" />
+            
+            {/* Second circle */}
+            <div className="absolute inset-4 rounded-full border bg-primary/8 border-primary/15" />
+            
+            {/* Third circle */}
+            <div className="absolute inset-8 rounded-full border bg-primary/12 border-primary/20" />
+            
+            {/* Fourth circle */}
+            <div className="absolute inset-12 rounded-full border bg-primary/18 border-primary/30" />
+            
+            {/* Inner circle */}
+            <div className="absolute inset-16 rounded-full border bg-primary/25 border-primary/40" />
+            
+            {/* Center circle */}
+            <div className="absolute inset-20 rounded-full border bg-primary/30 border-primary/50 flex items-center justify-center">
+              {isListening && (
+                <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+              )}
+            </div>
           </div>
-        </motion.div>
 
-        {/* Beautiful hierarchy: caption, heading, subtext */}
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center space-y-3"
-        >
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">AI Assistant</p>
-          <h1 className="text-3xl font-bold text-foreground balance-text">
-            Hi {userData.firstName}, what would you like to know?
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Ask me anything or use voice input to get started
-          </p>
+          {/* Beautiful hierarchy: caption, heading, subtext */}
+          <div className="text-center space-y-3">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">AI Assistant</p>
+            <h1 className="text-3xl font-bold text-foreground balance-text">
+              Hi {userData.firstName}, what would you like to know?
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Ask me anything or use voice input to get started
+            </p>
+          </div>
         </motion.div>
 
         {/* Input Area with gradient border */}
