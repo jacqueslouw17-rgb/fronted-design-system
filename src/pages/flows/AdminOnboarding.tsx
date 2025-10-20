@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mic } from "lucide-react";
+import { ArrowLeft, Mic, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFlowState } from "@/hooks/useFlowState";
 import { toast } from "@/hooks/use-toast";
@@ -52,6 +52,7 @@ const AdminOnboarding = () => {
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
+  const [isKurtVisible, setIsKurtVisible] = useState(true);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Scroll to step helper
@@ -726,15 +727,32 @@ const AdminOnboarding = () => {
 
   return (
     <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+      {/* Header Controls */}
+      <div className="absolute top-4 left-0 right-0 z-10 flex items-center justify-center px-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-primary/10 hover:text-primary transition-colors"
+            onClick={() => navigate('/')}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-primary/10 hover:text-primary transition-colors"
+            onClick={() => setIsKurtVisible(!isKurtVisible)}
+          >
+            <PanelLeft className="h-5 w-5" />
+          </Button>
+          
+          <div className="min-w-[200px]">
+            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+          </div>
+        </div>
+      </div>
 
       {/* Static background (performance-safe) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -746,58 +764,67 @@ const AdminOnboarding = () => {
       </div>
 
       {/* Left Section - Agent */}
-      <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '60%' }}>
-        <div className="relative z-10 flex flex-col items-center space-y-6">
-          {/* Audio Wave Visualizer or Loading Dots */}
-          <div className="flex flex-col items-center space-y-4">
-            {isProcessing ? (
-              <LoadingDots isActive={isProcessing} />
-            ) : (
-              <AudioWaveVisualizer isActive={isSpeaking || isListening} />
-            )}
+      {isKurtVisible && (
+        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative transition-all duration-300" style={{ width: '60%' }}>
+          <div className="relative z-10 flex flex-col items-center space-y-6">
+            {/* Audio Wave Visualizer or Loading Dots */}
+            <div className="flex flex-col items-center space-y-4">
+              {isProcessing ? (
+                <LoadingDots isActive={isProcessing} />
+              ) : (
+                <AudioWaveVisualizer isActive={isSpeaking || isListening} />
+              )}
 
-            {/* Title and dynamic subtext */}
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                Welcome to Fronted
-              </h1>
-              <p className="text-sm max-w-md mx-auto">
-                {kurtMessage.split(' ').map((word, index) => (
-                  <span
-                    key={index}
-                    className={`transition-colors duration-150 ${
-                      hasFinishedReading
-                        ? `${messageStyle}` 
-                        : index === currentWordIndex - 1 
-                        ? `${messageStyle} font-semibold` 
-                        : index < currentWordIndex - 1
-                        ? `${messageStyle} font-medium`
-                        : 'text-muted-foreground/60'
-                    }`}
-                  >
-                    {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
-                  </span>
-                ))}
-              </p>
-            </div>
-          </div>
-
-          {/* Listening indicator */}
-          {isListening && (
-            <div className="flex items-center justify-center">
-              <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
-                <Mic className="h-4 w-4" />
-                <span>Listening...</span>
+              {/* Title and dynamic subtext */}
+              <div className="text-center space-y-2">
+                <h1 className="text-3xl font-bold text-foreground">
+                  Welcome to Fronted
+                </h1>
+                <p className="text-sm max-w-md mx-auto">
+                  {kurtMessage.split(' ').map((word, index) => (
+                    <span
+                      key={index}
+                      className={`transition-colors duration-150 ${
+                        hasFinishedReading
+                          ? `${messageStyle}` 
+                          : index === currentWordIndex - 1 
+                          ? `${messageStyle} font-semibold` 
+                          : index < currentWordIndex - 1
+                          ? `${messageStyle} font-medium`
+                          : 'text-muted-foreground/60'
+                      }`}
+                    >
+                      {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* Listening indicator */}
+            {isListening && (
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
+                  <Mic className="h-4 w-4" />
+                  <span>Listening...</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Right Section - Steps & Progress */}
-      <aside className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10" style={{ width: '40%', minWidth: '380px' }}>
-        {/* Progress Bar */}
-        <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+      <aside 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 transition-all duration-300"
+        style={{ 
+          width: isKurtVisible ? '40%' : '100%', 
+          minWidth: '380px',
+          maxWidth: isKurtVisible ? '40%' : '600px',
+          margin: isKurtVisible ? '0' : '0 auto',
+          paddingTop: '80px'
+        }}
+      >
 
         {/* Step Cards */}
         <div className="space-y-3">
