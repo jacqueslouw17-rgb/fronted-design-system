@@ -324,6 +324,17 @@ const Index = () => {
 
       {/* Agent Panel - 60% width */}
       <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
+        {/* Drawer Toggle Button - In agent panel when form visible */}
+        {!isFormCollapsed && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsFormCollapsed(true)}
+            className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 backdrop-blur-sm border border-border"
+          >
+            <PanelRightClose className="h-5 w-5" />
+          </Button>
+        )}
         {/* Stunning subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -457,15 +468,17 @@ const Index = () => {
         )}
       </section>
 
-      {/* Drawer Toggle Button - Always visible */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsFormCollapsed(!isFormCollapsed)}
-        className="absolute top-4 right-4 z-20 hover:bg-primary/10 bg-card border border-border"
-      >
-        {isFormCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelRightClose className="h-5 w-5" />}
-      </Button>
+      {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
+      {isFormCollapsed && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsFormCollapsed(false)}
+          className="absolute top-4 right-4 z-20 hover:bg-primary/10 bg-card border border-border"
+        >
+          <PanelRight className="h-5 w-5" />
+        </Button>
+      )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
       <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
