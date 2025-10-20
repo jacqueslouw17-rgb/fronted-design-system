@@ -38,24 +38,28 @@ const AdminOnboarding = () => {
   );
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
-  const [expandedStep, setExpandedStep] = useState<string | null>(state.currentStep);
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isFormCollapsed, setIsFormCollapsed] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
+  const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-expand step 1 and update message after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setExpandedStep("intro_trust_model");
-      setKurtMessage("Let's set you up Joe, want me to accept the privacy policy on your behalf?");
+      const newMessage = "Let's set you up Joe, want me to accept the privacy policy on your behalf?";
+      setKurtMessage(newMessage);
+      setMessageStyle("text-foreground/80");
+      speak(newMessage);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [speak]);
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -184,16 +188,16 @@ const AdminOnboarding = () => {
             <h1 className="text-3xl font-bold text-foreground">
               Welcome to Fronted
             </h1>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            <p className={`text-sm max-w-md mx-auto ${messageStyle}`}>
               {kurtMessage.split(' ').map((word, index) => (
                 <span
                   key={index}
                   className={`transition-colors duration-150 ${
                     index === currentWordIndex - 1 
-                      ? 'text-foreground font-semibold' 
+                      ? 'font-semibold' 
                       : index < currentWordIndex - 1
-                      ? 'text-foreground/70 font-medium'
-                      : 'text-muted-foreground'
+                      ? 'font-medium'
+                      : ''
                   }`}
                 >
                   {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
