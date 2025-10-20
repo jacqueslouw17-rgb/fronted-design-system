@@ -36,9 +36,9 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
     <div className="space-y-6 max-w-xl mx-auto">
       {/* How Genie Works Section */}
       <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-2">
           <CheckCircle2 className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
             How Genie Works
           </h3>
         </div>
@@ -85,7 +85,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
 
       {/* What We'll Set Up Section */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
           What We'll Set Up
         </h3>
         

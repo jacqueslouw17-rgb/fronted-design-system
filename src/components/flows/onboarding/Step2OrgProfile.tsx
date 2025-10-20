@@ -63,24 +63,19 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Organization Profile</h2>
-        <p className="text-muted-foreground">
-          Let's capture your company basics and primary contact information
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
+    <div className="space-y-5 max-w-xl mx-auto">
+      {/* Company Information */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Building2 className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
             Company Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </h3>
+        </div>
+        
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="companyName">
+            <Label htmlFor="companyName" className="text-sm">
               Company Name <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -88,6 +83,7 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               value={data.companyName}
               onChange={(e) => setData(prev => ({ ...prev, companyName: e.target.value }))}
               placeholder="Fronted Test Co"
+              className="text-sm"
             />
             {errors.companyName && (
               <p className="text-xs text-destructive">{errors.companyName}</p>
@@ -95,12 +91,13 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="legalEntityName">Legal Entity Name (Optional)</Label>
+            <Label htmlFor="legalEntityName" className="text-sm">Legal Entity Name (Optional)</Label>
             <Input
               id="legalEntityName"
               value={data.legalEntityName}
               onChange={(e) => setData(prev => ({ ...prev, legalEntityName: e.target.value }))}
               placeholder="Can be set later"
+              className="text-sm"
             />
             <p className="text-xs text-muted-foreground">
               If different from company name, add it now or later
@@ -108,11 +105,11 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hqCountry">
+            <Label htmlFor="hqCountry" className="text-sm">
               HQ Country <span className="text-destructive">*</span>
             </Label>
             <Select value={data.hqCountry} onValueChange={(val) => setData(prev => ({ ...prev, hqCountry: val }))}>
-              <SelectTrigger>
+              <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
               <SelectContent>
@@ -131,19 +128,21 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               Sets default currency and date formats
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+      {/* Primary Contact */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <User className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
             Primary Contact
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </h3>
+        </div>
+        
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="contactName">
+            <Label htmlFor="contactName" className="text-sm">
               Name <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -151,6 +150,7 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               value={data.primaryContactName}
               onChange={(e) => setData(prev => ({ ...prev, primaryContactName: e.target.value }))}
               placeholder="John Doe"
+              className="text-sm"
             />
             {errors.primaryContactName && (
               <p className="text-xs text-destructive">{errors.primaryContactName}</p>
@@ -158,7 +158,7 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contactEmail">
+            <Label htmlFor="contactEmail" className="text-sm">
               Email <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -167,29 +167,32 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               value={data.primaryContactEmail}
               onChange={(e) => setData(prev => ({ ...prev, primaryContactEmail: e.target.value }))}
               placeholder="john@fronted.com"
+              className="text-sm"
             />
             {errors.primaryContactEmail && (
               <p className="text-xs text-destructive">{errors.primaryContactEmail}</p>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+      {/* Payroll Settings */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Calendar className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
             Payroll Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </h3>
+        </div>
+        
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="frequency">Payroll Frequency</Label>
+            <Label htmlFor="frequency" className="text-sm">Payroll Frequency</Label>
             <Select
               value={data.payrollFrequency}
               onValueChange={(val) => setData(prev => ({ ...prev, payrollFrequency: val }))}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -201,7 +204,7 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payoutDay">Preferred Payout Day</Label>
+            <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Day</Label>
             <Input
               id="payoutDay"
               type="number"
@@ -209,15 +212,16 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               max="31"
               value={data.payoutDay}
               onChange={(e) => setData(prev => ({ ...prev, payoutDay: e.target.value }))}
+              className="text-sm"
             />
             <p className="text-xs text-muted-foreground">
               Day of the month (e.g., 25 = 25th of each month)
             </p>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div className="space-y-0.5">
-              <Label htmlFor="dualApproval">Enable dual approval for payouts</Label>
+              <Label htmlFor="dualApproval" className="text-sm">Enable dual approval for payouts</Label>
               <p className="text-xs text-muted-foreground">
                 Require two approvers for large payments
               </p>
@@ -228,8 +232,8 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
               onCheckedChange={(checked) => setData(prev => ({ ...prev, dualApproval: checked }))}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Button onClick={handleSave} size="lg" className="w-full">
         Save & Continue
