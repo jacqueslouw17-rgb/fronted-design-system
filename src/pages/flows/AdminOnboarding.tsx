@@ -9,6 +9,8 @@ import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { motion } from "framer-motion";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -45,6 +47,7 @@ const AdminOnboarding = () => {
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [version, setVersion] = useState<string>("v2");
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -126,31 +129,44 @@ const AdminOnboarding = () => {
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
   const totalSteps = FLOW_STEPS.length;
 
-  return (
-    <main className="flex h-screen bg-background text-foreground relative overflow-hidden">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
+  // V1 Layout - Original with side form
+  if (version === "v1") {
+    return (
+      <main className="flex h-screen bg-background text-foreground relative overflow-hidden">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
 
-      {/* Agent Panel - 60% width */}
-      <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
-        {/* Drawer Toggle Button - In agent panel when form visible */}
-        {!isFormCollapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsFormCollapsed(true)}
-            className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 backdrop-blur-sm border border-border"
-          >
-            <PanelRightClose className="h-5 w-5" />
-          </Button>
-        )}
+        {/* Version Toggle */}
+        <div className="absolute top-4 left-16 z-10 flex items-center gap-2">
+          <Label htmlFor="version-toggle" className="text-sm text-muted-foreground">V2</Label>
+          <Switch
+            id="version-toggle"
+            checked={version === "v1"}
+            onCheckedChange={(checked) => setVersion(checked ? "v1" : "v2")}
+          />
+          <Label htmlFor="version-toggle" className="text-sm text-muted-foreground">V1</Label>
+        </div>
+
+        {/* Agent Panel - 60% width */}
+        <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
+          {/* Drawer Toggle Button - In agent panel when form visible */}
+          {!isFormCollapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFormCollapsed(true)}
+              className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 backdrop-blur-sm border border-border"
+            >
+              <PanelRightClose className="h-5 w-5" />
+            </Button>
+          )}
         {/* Subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -317,6 +333,172 @@ const AdminOnboarding = () => {
           </div>
         </div>
       </aside>
+    </main>
+    );
+  }
+
+  // V2 Layout - Conversational with centered content
+  const currentStepData = FLOW_STEPS[currentStepIndex];
+  
+  return (
+    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
+      {/* Version Toggle */}
+      <div className="absolute top-4 left-16 z-10 flex items-center gap-2 bg-card/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-border/50">
+        <Label htmlFor="version-toggle-v2" className="text-xs text-muted-foreground">V2</Label>
+        <Switch
+          id="version-toggle-v2"
+          checked={version === "v1"}
+          onCheckedChange={(checked) => setVersion(checked ? "v1" : "v2")}
+        />
+        <Label htmlFor="version-toggle-v2" className="text-xs text-muted-foreground">V1</Label>
+      </div>
+
+      {/* Subtle gradient background */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+      >
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.1, 0.15, 0.1],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
+        />
+      </motion.div>
+
+      {/* Main content - centered */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10">
+        {/* Audio Wave Visualizer */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
+          <AudioWaveVisualizer isActive={isListening} />
+        </motion.div>
+
+        {/* Progress indicator */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <div className="text-sm font-medium text-muted-foreground">
+            Step {currentStepIndex + 1} of {totalSteps}
+          </div>
+        </motion.div>
+
+        {/* Greeting and step title */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-center mb-8 max-w-2xl"
+        >
+          <h2 className="text-2xl font-semibold mb-2">Hi, welcome to Fronted</h2>
+          <h1 className="text-3xl font-bold mb-3">{currentStepData.title}</h1>
+          <p className="text-sm text-muted-foreground">
+            {kurtMessage.split(' ').map((word, index) => (
+              <span
+                key={index}
+                className={`transition-colors duration-150 ${
+                  index === currentWordIndex - 1 
+                    ? 'text-foreground font-semibold' 
+                    : index < currentWordIndex - 1
+                    ? 'text-foreground/70 font-medium'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+              </span>
+            ))}
+          </p>
+        </motion.div>
+
+        {/* Glassmorphism card with current step content */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="w-full max-w-2xl"
+        >
+          <div className="bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-elevated">
+            {renderStepContent(state.currentStep)}
+          </div>
+        </motion.div>
+
+        {/* Voice Input Control */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center justify-center mt-8"
+        >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="relative">
+            {isListening && (
+              <>
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3],
+                    opacity: [0.6, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+                <motion.div
+                  animate={{
+                    scale: [1, 1.4],
+                    opacity: [0.4, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                    delay: 0.3
+                  }}
+                  className="absolute inset-0 rounded-lg border-2 border-destructive"
+                />
+              </>
+            )}
+            <Button
+              onClick={handleVoiceInput}
+              size="lg"
+              className={`px-8 relative ${
+                isListening 
+                  ? "bg-destructive hover:bg-destructive/90" 
+                  : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+              }`}
+            >
+              <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+              <span>{isListening ? "Stop" : "Speak to Genie"}</span>
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
     </main>
   );
 };
