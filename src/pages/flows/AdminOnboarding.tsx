@@ -55,7 +55,7 @@ const AdminOnboarding = () => {
 
   // Auto-speak initial welcome message and smoothly transition to step 1
   useEffect(() => {
-    const initialMessage = "Hi Joe, I'm Kurt. I'll help you set up your global contractor management system. To get started, can I accept the privacy policy on your behalf?";
+    const initialMessage = "Hi Joe, I'm Kurt. I'll help you set up today, can I accept the privacy policy on your behalf?";
     setKurtMessage(initialMessage);
     setMessageStyle("text-foreground/80");
     setIsSpeaking(true);
