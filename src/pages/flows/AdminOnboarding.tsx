@@ -7,7 +7,6 @@ import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { motion } from "framer-motion";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -47,14 +46,6 @@ const AdminOnboarding = () => {
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isInteracting, setIsInteracting] = useState(false);
-  const interactionTimer = useRef<number | null>(null);
-
-  const handlePanelScroll = () => {
-    setIsInteracting(true);
-    if (interactionTimer.current) window.clearTimeout(interactionTimer.current);
-    interactionTimer.current = window.setTimeout(() => setIsInteracting(false), 250);
-  };
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -156,7 +147,7 @@ const AdminOnboarding = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsFormCollapsed(true)}
-              className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 backdrop-blur-sm border border-border"
+              className="absolute top-4 right-4 z-10 hover:bg-primary/10 bg-card/50 border border-border"
             >
               <PanelRightClose className="h-5 w-5" />
             </Button>
@@ -164,19 +155,14 @@ const AdminOnboarding = () => {
         {/* Static background (performance-safe) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
-          <div className="absolute -top-20 -left-24 w-[40rem] h-[40rem] rounded-full blur-3xl opacity-20"
-               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--secondary) / 0.12))' }} />
-          <div className="absolute -bottom-24 -right-28 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-15"
-               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }} />
+          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-2xl opacity-15"
+               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }} />
+          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-2xl opacity-10"
+               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.1), hsl(var(--primary) / 0.08))' }} />
         </div>
 
         {/* Audio Wave Visualizer */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 flex flex-col items-center space-y-4"
-        >
+        <div className="relative z-10 flex flex-col items-center space-y-4">
           <AudioWaveVisualizer isActive={isListening} />
 
           {/* Title and dynamic subtext */}
@@ -201,58 +187,24 @@ const AdminOnboarding = () => {
               ))}
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Voice Input Control */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center mt-8 relative z-10"
-        >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="relative">
-            {isListening && (
-              <>
-                <motion.div
-                  animate={{
-                    scale: [1, 1.3],
-                    opacity: [0.6, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeOut"
-                  }}
-                  className="absolute inset-0 rounded-lg border-2 border-destructive"
-                />
-                <motion.div
-                  animate={{
-                    scale: [1, 1.4],
-                    opacity: [0.4, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeOut",
-                    delay: 0.3
-                  }}
-                  className="absolute inset-0 rounded-lg border-2 border-destructive"
-                />
-              </>
-            )}
+        <div className="flex items-center justify-center mt-8 relative z-10">
+          <div className="relative">
             <Button
               onClick={handleVoiceInput}
               className={`px-6 relative ${
                 isListening 
                   ? "bg-destructive hover:bg-destructive/90" 
-                  : "bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                  : "bg-gradient-to-r from-primary to-secondary shadow"
               }`}
             >
-              <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+              <Mic className="h-5 w-5 mr-2" />
               <span>{isListening ? "Stop" : "Speak"}</span>
             </Button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
@@ -268,9 +220,9 @@ const AdminOnboarding = () => {
       )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border bg-card transition-colors duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
+      <aside className={`border-l border-border bg-card transition-colors duration-200 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
         {/* Scrollable content */}
-        <div ref={scrollContainerRef} onScroll={handlePanelScroll} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
           <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
