@@ -7,7 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { motion } from "framer-motion";
+
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -149,7 +149,7 @@ const AdminOnboarding = () => {
       </Button>
 
         {/* Agent Panel - 60% width */}
-        <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
+        <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-colors duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
           {/* Drawer Toggle Button - In agent panel when form visible */}
           {!isFormCollapsed && (
             <Button
@@ -161,45 +161,14 @@ const AdminOnboarding = () => {
               <PanelRightClose className="h-5 w-5" />
             </Button>
           )}
-        {/* Subtle gradient background */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2 }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
-        >
-          {!isInteracting && (
-            <>
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.1, 0.15, 0.1],
-                }}
-                transition={{
-                  duration: 12,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
-              />
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1],
-                  opacity: [0.08, 0.12, 0.08],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 2
-                }}
-                className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
-                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
-              />
-            </>
-          )}
-        </motion.div>
+        {/* Static background (performance-safe) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.05]" />
+          <div className="absolute -top-20 -left-24 w-[40rem] h-[40rem] rounded-full blur-3xl opacity-20"
+               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--secondary) / 0.12))' }} />
+          <div className="absolute -bottom-24 -right-28 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-15"
+               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }} />
+        </div>
 
         {/* Audio Wave Visualizer */}
         <motion.div
@@ -299,7 +268,7 @@ const AdminOnboarding = () => {
       )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
+      <aside className={`border-l border-border bg-card transition-colors duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
         {/* Scrollable content */}
         <div ref={scrollContainerRef} onScroll={handlePanelScroll} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
