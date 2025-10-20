@@ -358,14 +358,22 @@ const Index = () => {
         >
           <AudioWaveVisualizer isActive={isListening} />
 
-          {/* Beautiful hierarchy: caption, heading, subtext */}
-          <div className="text-center space-y-3">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Onboarding Assistant</p>
+          {/* Beautiful hierarchy: title and dynamic subtext */}
+          <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground balance-text">
               Hi {formData.firstName}, ready to get started?
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Let's save your personal details to kick off your onboarding
+              {kurtMessage.split(' ').map((word, index) => (
+                <span
+                  key={index}
+                  className={`transition-colors duration-150 ${
+                    index < currentWordIndex ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  }`}
+                >
+                  {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                </span>
+              ))}
             </p>
           </div>
         </motion.div>

@@ -87,9 +87,8 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         >
           <AudioWaveVisualizer isActive={isListening} />
 
-          {/* Beautiful hierarchy: caption, heading, subtext */}
-          <div className="text-center space-y-3">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">AI Assistant</p>
+          {/* Beautiful hierarchy: title and dynamic subtext */}
+          <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground balance-text">
               Hi {userData.firstName}, what would you like to know?
             </h1>
