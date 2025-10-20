@@ -14,7 +14,186 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      localization_settings: {
+        Row: {
+          created_at: string
+          id: string
+          operating_countries: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          operating_countries?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          operating_countries?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mini_rules: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          rule_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          rule_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          rule_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      organization_profiles: {
+        Row: {
+          auto_tax_calc: boolean | null
+          company_name: string | null
+          company_size: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          default_currency: string | null
+          hq_country: string | null
+          id: string
+          industry: string | null
+          payroll_frequency: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          auto_tax_calc?: boolean | null
+          company_name?: string | null
+          company_size?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          default_currency?: string | null
+          hq_country?: string | null
+          id?: string
+          industry?: string | null
+          payroll_frequency?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          auto_tax_calc?: boolean | null
+          company_name?: string | null
+          company_size?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          default_currency?: string | null
+          hq_country?: string | null
+          id?: string
+          industry?: string | null
+          payroll_frequency?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_integrations: {
+        Row: {
+          accounting_system: string | null
+          banking_partner: string | null
+          created_at: string
+          hr_system: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accounting_system?: string | null
+          banking_partner?: string | null
+          created_at?: string
+          hr_system?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accounting_system?: string | null
+          banking_partner?: string | null
+          created_at?: string
+          hr_system?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_pledges: {
+        Row: {
+          accepted_at: string
+          id: string
+          pledge_text: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          pledge_text: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          pledge_text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
