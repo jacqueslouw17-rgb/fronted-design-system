@@ -111,27 +111,30 @@ const AdminOnboarding = () => {
 
   // Watch for transcript changes and auto-process
   useEffect(() => {
-    if (!isListening && transcript && !isProcessing && !isSpeaking) {
+    if (transcript && !isProcessing && !isSpeaking) {
       const lowerTranscript = transcript.toLowerCase();
       
       // Check for dashboard navigation (step 7)
       if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
+        stopListening();
         resetTranscript();
         handleDashboardNavigation();
       }
       // Check for affirmative responses
       else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok") || lowerTranscript.includes("ready")) {
+        stopListening();
         resetTranscript();
         handleUserConfirmation();
       }
       // Check for save/continue commands (for when user edits selections)
       else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
+        stopListening();
         resetTranscript();
         handleUserSaveAction();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isListening, transcript, isProcessing, isSpeaking]);
+  }, [transcript, isProcessing, isSpeaking]);
 
   const handleUserConfirmation = async () => {
     // STEP 1 → STEP 2
