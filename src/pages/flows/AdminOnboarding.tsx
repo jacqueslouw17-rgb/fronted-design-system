@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFlowState } from "@/hooks/useFlowState";
 import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
@@ -841,14 +842,23 @@ const AdminOnboarding = () => {
       >
         {/* Progress Bar with Drawer Toggle */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
-            onClick={() => setIsKurtVisible(!isKurtVisible)}
-          >
-            <PanelLeft className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
+                  onClick={() => setIsKurtVisible(!isKurtVisible)}
+                >
+                  <PanelLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-white/90 text-foreground border-white/20">
+                <p className="text-xs">{isKurtVisible ? "Collapse Kurt" : "Expand Kurt"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <div className="flex-1">
             <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
           </div>
