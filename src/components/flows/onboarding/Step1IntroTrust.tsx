@@ -107,6 +107,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
             checked={privacyAccepted}
             onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
             className="mt-0.5"
+            autoFocus
           />
           <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90">
             I accept the privacy policy and agree to data processing for contractor management purposes

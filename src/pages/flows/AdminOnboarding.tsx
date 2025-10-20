@@ -66,8 +66,10 @@ const AdminOnboarding = () => {
       goToStep(nextStep.id);
       setExpandedStep(nextStep.id);
       
-      // Scroll to top
-      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+      // Scroll to top and ensure visibility
+      setTimeout(() => {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
 
     toast({
@@ -92,7 +94,9 @@ const AdminOnboarding = () => {
       
       // Scroll to top when expanding
       if (newExpandedStep === stepId) {
-        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+        setTimeout(() => {
+          scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 50);
       }
     }
   };
@@ -128,7 +132,7 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <main className="flex h-screen bg-background text-foreground relative">
+    <main className="flex h-screen bg-background text-foreground relative min-h-0">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -140,7 +144,7 @@ const AdminOnboarding = () => {
       </Button>
 
         {/* Agent Panel - 60% width */}
-        <section className={`flex flex-col items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-colors duration-300 ${isFormCollapsed ? 'w-full' : 'w-[60%]'}`}>
+        <section className={`flex flex-col items-center justify-center p-8 relative bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] transition-all duration-300 ${isFormCollapsed ? 'flex-1' : 'flex-shrink-0'}`} style={{ width: isFormCollapsed ? '100%' : '60%' }}>
           {/* Drawer Toggle Button - In agent panel when form visible */}
           {!isFormCollapsed && (
             <Button
@@ -220,7 +224,7 @@ const AdminOnboarding = () => {
       )}
 
       {/* Right Panel — Steps + Progress - 40% width */}
-      <aside className={`border-l border-border bg-card transition-colors duration-200 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%] min-w-[380px]'}`}>
+      <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen min-h-0 ${isFormCollapsed ? 'w-0 overflow-hidden opacity-0' : 'flex-shrink-0 opacity-100'}`} style={{ width: isFormCollapsed ? '0' : '40%', minWidth: isFormCollapsed ? '0' : '380px' }}>
         {/* Scrollable content */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
