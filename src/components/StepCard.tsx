@@ -68,7 +68,7 @@ const StepCard = ({
         status === "completed"
           ? "bg-background hover:bg-primary/5"
           : status === "active"
-          ? "bg-card hover:bg-accent/20"
+          ? "bg-foreground/5 hover:bg-foreground/8"
           : "hover:bg-primary/5"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
