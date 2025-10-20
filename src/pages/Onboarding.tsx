@@ -312,7 +312,7 @@ const Index = () => {
       </Button>
 
       {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      <section className="flex flex-1 items-center justify-center p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
         {/* Stunning subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
