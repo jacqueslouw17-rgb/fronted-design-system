@@ -312,7 +312,7 @@ const Index = () => {
       </Button>
 
       {/* Center Kurt Panel */}
-      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.02] via-secondary/[0.01] to-accent/[0.015]">
+      <section className="flex flex-col flex-1 items-center justify-center space-y-8 p-8 relative overflow-hidden bg-gradient-to-br from-primary/[0.04] via-secondary/[0.025] to-accent/[0.035]">
         {/* Stunning subtle gradient background */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -323,7 +323,7 @@ const Index = () => {
           <motion.div
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [0.015, 0.025, 0.015],
+              opacity: [0.04, 0.07, 0.04],
             }}
             transition={{
               duration: 12,
@@ -331,12 +331,12 @@ const Index = () => {
               ease: "easeInOut"
             }}
             className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
-            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.08))' }}
           />
           <motion.div
             animate={{
               scale: [1, 1.15, 1],
-              opacity: [0.01, 0.02, 0.01],
+              opacity: [0.03, 0.05, 0.03],
             }}
             transition={{
               duration: 15,
@@ -345,7 +345,7 @@ const Index = () => {
               delay: 2
             }}
             className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
-            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.04), hsl(var(--primary) / 0.03))' }}
+            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
           />
         </motion.div>
 
