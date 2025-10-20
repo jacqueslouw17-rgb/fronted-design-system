@@ -107,8 +107,15 @@ const AdminOnboarding = () => {
   useEffect(() => {
     if (!isListening && transcript && !isProcessing) {
       const lowerTranscript = transcript.toLowerCase();
+      
+      // Check for affirmative responses
       if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok")) {
         handleUserConfirmation();
+      }
+      
+      // Check for save/continue commands (for when user edits selections)
+      else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
+        handleUserSaveAction();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,7 +200,7 @@ const AdminOnboarding = () => {
       const countries = ["NO", "PH"];
       updateFormData({ selectedCountries: countries });
       
-      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. Want me to load the compliance blocks for these?";
+      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'save' when ready.";
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
@@ -352,6 +359,84 @@ const AdminOnboarding = () => {
       setTimeout(() => {
         setExpandedStep("finish_dashboard_transition");
       }, 400);
+      
+      resetTranscript();
+    }
+  };
+
+  const handleUserSaveAction = async () => {
+    // Handle save for Step 3 (when user manually edits countries)
+    if (state.currentStep === "localization_country_blocks") {
+      const selectedCountries = state.formData.selectedCountries || [];
+      
+      if (selectedCountries.length === 0) {
+        const errorMessage = "I don't see any countries selected. Could you pick at least one?";
+        setKurtMessage(errorMessage);
+        setMessageStyle("text-foreground/80");
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
+        
+        speak(errorMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+        
+        resetTranscript();
+        return;
+      }
+      
+      setIsProcessing(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      completeStep("localization_country_blocks");
+      setExpandedStep(null);
+      setIsProcessing(false);
+      
+      const countryNames = selectedCountries.map((code: string) => {
+        const country = [
+          { code: "NO", name: "Norway" },
+          { code: "PH", name: "Philippines" },
+          { code: "IN", name: "India" },
+          { code: "XK", name: "Kosovo" }
+        ].find(c => c.code === code);
+        return country?.name;
+      }).filter(Boolean).join(", ");
+      
+      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
+      setKurtMessage(confirmMessage);
+      setMessageStyle("text-foreground/80");
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
+      
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
+        
+        // Auto-connect integrations
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        updateFormData({ 
+          slackConnected: true, 
+          fxConnected: true,
+          googleSignConnected: false 
+        });
+        
+        const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
+        setKurtMessage(nextMessage);
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
+        
+        speak(nextMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+        
+        goToStep("integrations_connect");
+        setTimeout(() => {
+          setExpandedStep("integrations_connect");
+        }, 400);
+      });
       
       resetTranscript();
     }
