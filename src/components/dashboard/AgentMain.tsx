@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, Send } from "lucide-react";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { toast } from "sonner";
 
 interface AgentMainProps {
@@ -14,22 +14,30 @@ interface AgentMainProps {
 
 const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
   const [inputValue, setInputValue] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [kurtMessage] = useState("Ask me anything or use voice input to get started");
-  const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
+  const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError } = useSpeechToText();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Update textarea with transcript as user speaks
   useEffect(() => {
-    setIsSpeaking(true);
-    speak(kurtMessage, () => setIsSpeaking(false));
-  }, [speak, kurtMessage]);
+    if (transcript && isListening) {
+      setInputValue(transcript);
+    }
+  }, [transcript, isListening]);
 
-  const handleVoiceInput = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      toast.info("Voice input activated");
+  // Show error toast if speech recognition fails
+  useEffect(() => {
+    if (sttError && !isListening) {
+      toast.error(sttError);
+    }
+  }, [sttError, isListening]);
+
+  // Update input value when transcript changes
+  const handleVoiceInput = async () => {
+    if (isListening) {
+      stopListening();
     } else {
-      toast.success("Voice input stopped");
+      resetTranscript();
+      await startListening();
     }
   };
 
@@ -37,6 +45,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
     if (inputValue.trim()) {
       toast.success(`Message sent: ${inputValue}`);
       setInputValue("");
+      resetTranscript();
     }
   };
 
@@ -48,8 +57,6 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         isDrawerOpen ? "w-1/2" : "w-full"
       }`}
     >
-      {/* Subtle background already applied via container gradient */}
-
       <div className="max-w-2xl w-full space-y-8 relative z-10">
         {/* Audio Wave Visualizer */}
         <motion.div
@@ -60,26 +67,13 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         >
           <AudioWaveVisualizer isActive={isListening} />
 
-          {/* Beautiful hierarchy: title and dynamic subtext */}
+          {/* Title */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground">
               Hi {userData.firstName}, what would you like to know?
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              {kurtMessage.split(' ').map((word, index) => (
-                <span
-                  key={index}
-                  className={`transition-colors duration-150 ${
-                    index === currentWordIndex - 1
-                      ? 'text-foreground font-semibold'
-                      : index < currentWordIndex - 1
-                      ? 'text-foreground/70 font-medium'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
-                </span>
-              ))}
+              Ask me anything or use voice input to get started
             </p>
           </div>
         </motion.div>
@@ -95,6 +89,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
             {/* Gradient border effect */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary via-secondary to-primary opacity-20 group-hover:opacity-30 rounded-lg blur transition-opacity" />
             <Textarea
+              ref={textareaRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Type your message or click the mic to speak..."
