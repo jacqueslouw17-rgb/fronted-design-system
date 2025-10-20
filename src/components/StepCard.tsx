@@ -64,10 +64,10 @@ const StepCard = ({
 
   return (
     <Card
-      className={`p-4 transition-all duration-300 cursor-pointer group border-border/50 ${
+      className={`p-4 transition-colors duration-200 cursor-pointer group border-border/50 ${
         status === "completed"
           ? "bg-success/5 hover:bg-success/10"
-          : "hover:shadow-md hover:-translate-y-0.5"
+          : "hover:shadow-sm"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
     >

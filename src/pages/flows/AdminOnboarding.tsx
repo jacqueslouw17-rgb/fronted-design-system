@@ -47,6 +47,14 @@ const AdminOnboarding = () => {
     "Hi, I'm Genie. Let's set up your global contractor management system together."
   );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const interactionTimer = useRef<number | null>(null);
+
+  const handlePanelScroll = () => {
+    setIsInteracting(true);
+    if (interactionTimer.current) window.clearTimeout(interactionTimer.current);
+    interactionTimer.current = window.setTimeout(() => setIsInteracting(false), 250);
+  };
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -68,7 +76,7 @@ const AdminOnboarding = () => {
       setExpandedStep(nextStep.id);
       
       // Scroll to top
-      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     toast({
@@ -93,7 +101,7 @@ const AdminOnboarding = () => {
       
       // Scroll to top when expanding
       if (newExpandedStep === stepId) {
-        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
       }
     }
   };
@@ -160,33 +168,37 @@ const AdminOnboarding = () => {
           transition={{ duration: 2 }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
         >
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.1, 0.15, 0.1],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
-            style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.08, 0.12, 0.08],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2
-            }}
-            className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
-            style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
-          />
+          {!isInteracting && (
+            <>
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [0.1, 0.15, 0.1],
+                }}
+                transition={{
+                  duration: 12,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="absolute w-[60rem] h-[40rem] rounded-full blur-[120px]"
+                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
+              />
+              <motion.div
+                animate={{
+                  scale: [1, 1.15, 1],
+                  opacity: [0.08, 0.12, 0.08],
+                }}
+                transition={{
+                  duration: 15,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 2
+                }}
+                className="absolute w-[50rem] h-[35rem] rounded-full blur-[100px]"
+                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.12), hsl(var(--primary) / 0.1))' }}
+              />
+            </>
+          )}
         </motion.div>
 
         {/* Audio Wave Visualizer */}
@@ -289,7 +301,7 @@ const AdminOnboarding = () => {
       {/* Right Panel — Steps + Progress - 40% width */}
       <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
         {/* Scrollable content */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+        <div ref={scrollContainerRef} onScroll={handlePanelScroll} className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
           <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
