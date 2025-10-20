@@ -47,12 +47,13 @@ const AdminOnboarding = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
-    "Hi, I'm Kurt. Let's set up your global contractor management system together."
+    "Click 'Speak' below to get started with your setup."
   );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const [isKurtVisible, setIsKurtVisible] = useState(true);
+  const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Scroll to step helper
@@ -65,8 +66,11 @@ const AdminOnboarding = () => {
     }, 100);
   };
 
-  // Auto-speak initial welcome message and smoothly transition to step 1
-  useEffect(() => {
+  // Handle speak button click
+  const handleSpeakClick = () => {
+    if (hasActivatedSpeech) return;
+    
+    setHasActivatedSpeech(true);
     const initialMessage = "Hi Joe, I'm Kurt. I'll help you set up today, can I accept the privacy policy on your behalf?";
     setKurtMessage(initialMessage);
     setMessageStyle("text-foreground/80");
@@ -84,8 +88,7 @@ const AdminOnboarding = () => {
       setHasFinishedReading(true);
       setHasAutoStarted(false);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   // Auto-start listening after AI finishes speaking (only once per message)
   useEffect(() => {
@@ -797,15 +800,24 @@ const AdminOnboarding = () => {
               </div>
             </div>
 
-            {/* Listening indicator */}
-            {isListening && (
+            {/* Speak button or Listening indicator */}
+            {!hasActivatedSpeech ? (
+              <Button
+                size="lg"
+                onClick={handleSpeakClick}
+                className="mt-4"
+              >
+                <Mic className="h-4 w-4 mr-2" />
+                Speak
+              </Button>
+            ) : isListening ? (
               <div className="flex items-center justify-center">
                 <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
                   <Mic className="h-4 w-4" />
                   <span>Listening...</span>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </section>
       )}
