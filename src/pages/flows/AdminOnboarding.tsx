@@ -250,22 +250,20 @@ const AdminOnboarding = () => {
         </motion.div>
       </section>
 
+      {/* Drawer Toggle Button - Always visible */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsFormCollapsed(!isFormCollapsed)}
+        className="absolute top-4 right-4 z-20 hover:bg-primary/10 bg-card border border-border"
+      >
+        {isFormCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelRightClose className="h-5 w-5" />}
+      </Button>
+
       {/* Right Panel — Steps + Progress - 40% width */}
       <aside className={`border-l border-border bg-card transition-all duration-300 flex flex-col h-screen ${isFormCollapsed ? 'w-0 overflow-hidden' : 'w-[40%]'}`}>
-        {/* Drawer Toggle Button */}
-        <div className="flex justify-end p-4 border-b border-border">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsFormCollapsed(!isFormCollapsed)}
-            className="hover:bg-primary/10"
-          >
-            {isFormCollapsed ? <PanelRight className="h-5 w-5" /> : <PanelRightClose className="h-5 w-5" />}
-          </Button>
-        </div>
-
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {/* Progress Bar */}
           <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
