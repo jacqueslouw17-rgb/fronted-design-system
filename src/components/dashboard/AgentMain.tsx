@@ -83,13 +83,13 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex flex-col items-center space-y-8"
+          className="flex flex-col items-center space-y-4"
         >
           <AudioWaveVisualizer isActive={isListening} />
 
           {/* Beautiful hierarchy: title and dynamic subtext */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground balance-text">
+            <h1 className="text-3xl font-bold text-foreground">
               Hi {userData.firstName}, what would you like to know?
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
