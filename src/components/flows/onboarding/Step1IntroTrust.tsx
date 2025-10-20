@@ -101,15 +101,15 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer }: Step1Props) => 
 
       {/* Privacy & Preferences Section */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-accent/30 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
           <Checkbox
             id="privacy"
             checked={privacyAccepted}
             onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
-            className="mt-0.5"
+            className="mt-0.5 pointer-events-none"
             autoFocus
           />
-          <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90">
+          <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90 pointer-events-none">
             I accept the privacy policy and agree to data processing for contractor management purposes
           </Label>
         </div>
