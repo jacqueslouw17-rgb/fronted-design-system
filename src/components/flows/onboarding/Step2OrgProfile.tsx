@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Building2, Mail, User, Globe, Calendar, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -16,6 +17,7 @@ interface Step2Props {
 }
 
 const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessing }: Step2Props) => {
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [data, setData] = useState({
     companyName: formData.companyName || "",
     legalEntityName: formData.legalEntityName || "",
@@ -26,6 +28,26 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
     payoutDay: formData.payoutDay || "25",
     dualApproval: formData.dualApproval ?? true
   });
+
+  // Watch for formData updates from Genie and show loading state
+  useEffect(() => {
+    if (formData.companyName && formData.companyName !== data.companyName) {
+      setIsLoadingData(true);
+      setTimeout(() => {
+        setData({
+          companyName: formData.companyName || "",
+          legalEntityName: formData.legalEntityName || "",
+          primaryContactName: formData.primaryContactName || "",
+          primaryContactEmail: formData.primaryContactEmail || "",
+          hqCountry: formData.hqCountry || "",
+          payrollFrequency: formData.payrollFrequency || "monthly",
+          payoutDay: formData.payoutDay || "25",
+          dualApproval: formData.dualApproval ?? true
+        });
+        setIsLoadingData(false);
+      }, 600);
+    }
+  }, [formData.companyName, formData.primaryContactName, formData.primaryContactEmail, formData.hqCountry, formData.payrollFrequency, formData.payoutDay, formData.dualApproval, formData.legalEntityName, data.companyName]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -79,13 +101,17 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="companyName" className="text-sm">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="companyName"
-              value={data.companyName}
-              onChange={(e) => setData(prev => ({ ...prev, companyName: e.target.value }))}
-              placeholder="Fronted Test Co"
-              className="text-sm"
-            />
+            {isLoadingData ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Input
+                id="companyName"
+                value={data.companyName}
+                onChange={(e) => setData(prev => ({ ...prev, companyName: e.target.value }))}
+                placeholder="Fronted Test Co"
+                className="text-sm"
+              />
+            )}
             {errors.companyName && (
               <p className="text-xs text-destructive">{errors.companyName}</p>
             )}
@@ -146,13 +172,17 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="contactName" className="text-sm">
               Name <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="contactName"
-              value={data.primaryContactName}
-              onChange={(e) => setData(prev => ({ ...prev, primaryContactName: e.target.value }))}
-              placeholder="John Doe"
-              className="text-sm"
-            />
+            {isLoadingData ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Input
+                id="contactName"
+                value={data.primaryContactName}
+                onChange={(e) => setData(prev => ({ ...prev, primaryContactName: e.target.value }))}
+                placeholder="John Doe"
+                className="text-sm"
+              />
+            )}
             {errors.primaryContactName && (
               <p className="text-xs text-destructive">{errors.primaryContactName}</p>
             )}
@@ -162,14 +192,18 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             <Label htmlFor="contactEmail" className="text-sm">
               Email <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="contactEmail"
-              type="email"
-              value={data.primaryContactEmail}
-              onChange={(e) => setData(prev => ({ ...prev, primaryContactEmail: e.target.value }))}
-              placeholder="john@fronted.com"
-              className="text-sm"
-            />
+            {isLoadingData ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
+              <Input
+                id="contactEmail"
+                type="email"
+                value={data.primaryContactEmail}
+                onChange={(e) => setData(prev => ({ ...prev, primaryContactEmail: e.target.value }))}
+                placeholder="john@fronted.com"
+                className="text-sm"
+              />
+            )}
             {errors.primaryContactEmail && (
               <p className="text-xs text-destructive">{errors.primaryContactEmail}</p>
             )}

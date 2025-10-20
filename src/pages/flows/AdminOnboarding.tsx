@@ -156,17 +156,19 @@ const AdminOnboarding = () => {
         // Wait before moving to step 2
         await new Promise(resolve => setTimeout(resolve, 1800));
         
-        // Pre-populate step 2 data
-        const orgData = {
-          companyName: "Fronted Inc",
-          primaryContactName: "Joe Smith",
-          primaryContactEmail: "joe@fronted.com",
-          hqCountry: "NO",
-          payrollFrequency: "monthly",
-          payoutDay: "25",
-          dualApproval: true
-        };
-        updateFormData(orgData);
+      // Pre-populate step 2 data with skeleton/loading states initially
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const orgData = {
+        companyName: "Fronted Inc",
+        primaryContactName: "Joe Smith",
+        primaryContactEmail: "joe@fronted.com",
+        hqCountry: "NO",
+        payrollFrequency: "monthly",
+        payoutDay: "25",
+        dualApproval: true
+      };
+      updateFormData(orgData);
         
         // Update message and expand step 2
         const newMessage = "I've added your organization details here. Everything look good to you?";
@@ -203,7 +205,7 @@ const AdminOnboarding = () => {
       const countries = ["NO", "PH"];
       updateFormData({ selectedCountries: countries });
       
-      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'save' when ready.";
+      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'yes' when ready.";
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
@@ -223,8 +225,27 @@ const AdminOnboarding = () => {
       resetTranscript();
     }
     
-    // STEP 3 → STEP 4
+    // STEP 3 → STEP 4 (when user confirms pre-selected countries with "yes")
     else if (state.currentStep === "localization_country_blocks") {
+      const selectedCountries = state.formData.selectedCountries || [];
+      
+      if (selectedCountries.length === 0) {
+        const errorMessage = "I don't see any countries selected. Could you pick at least one?";
+        setKurtMessage(errorMessage);
+        setMessageStyle("text-foreground/80");
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
+        
+        speak(errorMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+        });
+        
+        resetTranscript();
+        return;
+      }
+      
       setIsProcessing(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -232,7 +253,17 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
-      const confirmMessage = "Perfect! Compliance blocks loaded. Now let me connect your integrations—Slack for alerts and FX for currency rates.";
+      const countryNames = selectedCountries.map((code: string) => {
+        const country = [
+          { code: "NO", name: "Norway" },
+          { code: "PH", name: "Philippines" },
+          { code: "IN", name: "India" },
+          { code: "XK", name: "Kosovo" }
+        ].find(c => c.code === code);
+        return country?.name;
+      }).filter(Boolean).join(", ");
+      
+      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
@@ -429,7 +460,7 @@ const AdminOnboarding = () => {
         return country?.name;
       }).filter(Boolean).join(", ");
       
-      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
+      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now let me connect your integrations.`;
       setKurtMessage(confirmMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
@@ -440,7 +471,7 @@ const AdminOnboarding = () => {
         setIsSpeaking(false);
         
         // Auto-connect integrations
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 2500));
         updateFormData({ 
           slackConnected: true, 
           fxConnected: true,
