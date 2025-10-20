@@ -46,10 +46,10 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
     const cumulative: number[] = [];
     let acc = 0;
     for (let i = 0; i < words.length; i++) {
-      // +1 accounts for the space after each word except last
       acc += words[i].length + (i < words.length - 1 ? 1 : 0);
       cumulative.push(acc);
     }
+    let wordCounter = 0;
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = config?.rate || 0.9;
@@ -76,9 +76,9 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
     utterance.onboundary = (e: any) => {
       try {
         if (e.name === 'word') {
-          const nextIndex = Math.min(currentWordIndex + 1, words.length);
-          setCurrentWordIndex(nextIndex);
-          onWordBoundary?.(nextIndex);
+          wordCounter = Math.min(wordCounter + 1, words.length);
+          setCurrentWordIndex(wordCounter);
+          onWordBoundary?.(wordCounter);
           return;
         }
         if (typeof e.charIndex === 'number') {

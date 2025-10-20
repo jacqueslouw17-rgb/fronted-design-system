@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Send, Mic, Keyboard, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import KurtAvatar from "@/components/KurtAvatar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { ComplianceIcon } from "@/components/compliance/ComplianceIcon";
@@ -25,6 +25,7 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
   const [inputValue, setInputValue] = useState("");
   const [inputMode, setInputMode] = useState<"voice" | "text">("text");
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [kurtMessage, setKurtMessage] = useState("");
   const [view, setView] = useState<"chat" | "compliance">("chat");
   const [selectedCountry] = useState("NO");
@@ -37,7 +38,8 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
       const welcomeMsg = `Welcome to your dashboard, ${userData.firstName}! How can I help you today?`;
       setMessages([{ role: "assistant", content: welcomeMsg }]);
       setKurtMessage(welcomeMsg);
-      speak(welcomeMsg);
+      setIsSpeaking(true);
+      speak(welcomeMsg, () => setIsSpeaking(false));
     } else if (isOpen && messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
       if (lastMsg.role === "assistant") {
@@ -75,7 +77,8 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
       const response = "I'm here to help! This is a demo response.";
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
       setKurtMessage(response);
-      speak(response);
+      setIsSpeaking(true);
+      speak(response, () => setIsSpeaking(false));
     }, 1000);
 
     setInputValue("");
@@ -146,57 +149,33 @@ const AgentDrawer = ({ isOpen, onClose, userData, chatHistory }: AgentDrawerProp
       <div className="flex-1 flex flex-col p-8 overflow-y-auto relative z-10">
         {view === "chat" ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            {/* Gelo Avatar with enhanced glow */}
+            {/* Agent header with wave visualizer */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.6 }}
-              className="relative"
+              className="relative flex flex-col items-center space-y-4"
             >
-              {/* Animated glow rings */}
-              {isListening && (
-                <>
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.4, 1],
-                      opacity: [0.5, 0, 0.5],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeOut"
-                    }}
-                    className="absolute inset-0 rounded-full blur-xl"
-                    style={{ 
-                      background: 'var(--gradient-primary)',
-                      filter: 'blur(20px)'
-                    }}
-                  />
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.5, 1],
-                      opacity: [0.3, 0, 0.3],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeOut",
-                      delay: 0.5
-                    }}
-                    className="absolute inset-0 rounded-full blur-2xl"
-                    style={{ 
-                      background: 'var(--gradient-secondary)',
-                      filter: 'blur(30px)'
-                    }}
-                  />
-                </>
-              )}
-              <KurtAvatar 
-                isListening={isListening} 
-                message={kurtMessage}
-                name="Gelo"
-                currentWordIndex={currentWordIndex}
-              />
+              <AudioWaveVisualizer isActive={isListening || isSpeaking} />
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Hi {userData.firstName}, what would you like to know?</h2>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  {kurtMessage.split(' ').map((word, index) => (
+                    <span
+                      key={index}
+                      className={`transition-colors duration-150 ${
+                        index === currentWordIndex - 1
+                          ? 'text-foreground font-semibold'
+                          : index < currentWordIndex - 1
+                          ? 'text-foreground/70 font-medium'
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </p>
+              </div>
             </motion.div>
 
             {/* Input Controls with gradient effects */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,14 @@ interface AgentMainProps {
 const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [kurtMessage] = useState("Ask me anything or use voice input to get started");
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
+
+  useEffect(() => {
+    setIsSpeaking(true);
+    speak(kurtMessage, () => setIsSpeaking(false));
+  }, [speak, kurtMessage]);
 
   const handleVoiceInput = () => {
     setIsListening(!isListening);
@@ -85,7 +92,7 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="flex flex-col items-center space-y-4"
         >
-          <AudioWaveVisualizer isActive={isListening} />
+          <AudioWaveVisualizer isActive={isListening || isSpeaking} />
 
           {/* Beautiful hierarchy: title and dynamic subtext */}
           <div className="text-center space-y-2">
@@ -93,7 +100,20 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
               Hi {userData.firstName}, what would you like to know?
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Ask me anything or use voice input to get started
+              {kurtMessage.split(' ').map((word, index) => (
+                <span
+                  key={index}
+                  className={`transition-colors duration-150 ${
+                    index === currentWordIndex - 1
+                      ? 'text-foreground font-semibold'
+                      : index < currentWordIndex - 1
+                      ? 'text-foreground/70 font-medium'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
+                </span>
+              ))}
             </p>
           </div>
         </motion.div>
