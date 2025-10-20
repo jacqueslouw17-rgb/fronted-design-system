@@ -12,6 +12,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -411,7 +412,7 @@ const AdminOnboarding = () => {
   const handleDashboardNavigation = async () => {
     setIsProcessing(true);
     
-    const loadingMessage = "Perfect! Let me open your dashboard now.";
+    const loadingMessage = "Perfect! Let me save your settings and open your dashboard now.";
     setKurtMessage(loadingMessage);
     setMessageStyle("text-foreground/80");
     setHasFinishedReading(false);
@@ -420,6 +421,74 @@ const AdminOnboarding = () => {
     
     speak(loadingMessage, async () => {
       setIsSpeaking(false);
+      
+      // Save all onboarding data to database
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          const userId = session.user.id;
+          
+          // Save organization profile
+          if (state.formData.companyName) {
+            await supabase.from("organization_profiles").upsert({
+              user_id: userId,
+              company_name: state.formData.companyName,
+              industry: state.formData.industry,
+              company_size: state.formData.companySize,
+              hq_country: state.formData.hqCountry,
+              website: state.formData.website,
+              contact_name: state.formData.primaryContactName,
+              contact_email: state.formData.primaryContactEmail,
+              contact_phone: state.formData.primaryContactPhone,
+              default_currency: state.formData.defaultCurrency,
+              payroll_frequency: state.formData.payrollFrequency,
+              auto_tax_calc: state.formData.dualApproval
+            }, { onConflict: "user_id" });
+          }
+          
+          // Save localization settings
+          if (state.formData.selectedCountries) {
+            await supabase.from("localization_settings").upsert({
+              user_id: userId,
+              operating_countries: state.formData.selectedCountries
+            }, { onConflict: "user_id" });
+          }
+          
+          // Save mini rules
+          if (state.formData.miniRules && state.formData.miniRules.length > 0) {
+            await supabase.from("mini_rules").delete().eq("user_id", userId);
+            
+            const rulesToInsert = state.formData.miniRules.map((rule: any) => ({
+              user_id: userId,
+              rule_type: rule.type,
+              description: rule.description
+            }));
+            
+            await supabase.from("mini_rules").insert(rulesToInsert);
+          }
+          
+          // Save integrations
+          if (state.formData.slackConnected !== undefined) {
+            await supabase.from("user_integrations").upsert({
+              user_id: userId,
+              hr_system: state.formData.slackConnected ? "slack" : null,
+              accounting_system: state.formData.fxConnected ? "fx" : null,
+              banking_partner: state.formData.googleSignConnected ? "google" : null
+            }, { onConflict: "user_id" });
+          }
+          
+          // Save pledge
+          if (state.formData.pledgeSigned) {
+            await supabase.from("user_pledges").upsert({
+              user_id: userId,
+              pledge_text: "I commit to transparent, fair, and compliant contractor management."
+            }, { onConflict: "user_id" });
+          }
+        }
+      } catch (error) {
+        console.error("Error saving onboarding data:", error);
+      }
       
       // Show loading for a moment
       await new Promise(resolve => setTimeout(resolve, 1500));

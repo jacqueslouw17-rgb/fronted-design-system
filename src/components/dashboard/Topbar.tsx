@@ -2,6 +2,9 @@ import { Search, ArrowLeft, PanelLeftOpen, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +36,7 @@ interface TopbarProps {
 }
 
 const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle }: TopbarProps) => {
+  const navigate = useNavigate();
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -40,6 +44,16 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
     .toUpperCase();
   
   const showVersionSelector = version && onVersionChange;
+  
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Failed to log out");
+    } else {
+      toast.success("Logged out successfully");
+      navigate("/auth");
+    }
+  };
 
   return (
     <header className="h-16 border-b bg-card flex items-center justify-between px-6">
@@ -141,10 +155,11 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{userName}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/profile-settings")}>
+              Profile Settings
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

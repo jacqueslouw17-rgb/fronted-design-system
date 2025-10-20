@@ -7,6 +7,8 @@ import { FeedbackBubble } from "@/components/FeedbackBubble";
 import DesignSystem from "./pages/DesignSystem";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import ProfileSettings from "./pages/ProfileSettings";
 
 // Flows
 import Flows from "./pages/Flows";
@@ -68,7 +70,9 @@ const App = () => (
         <Route path="/" element={<DesignSystem />} />
         <Route path="/design-system" element={<DesignSystem />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile-settings" element={<ProfileSettings />} />
         
         {/* Flows Routes */}
         <Route path="/flows" element={<Flows />} />
