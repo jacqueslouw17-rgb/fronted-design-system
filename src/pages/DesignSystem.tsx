@@ -5,9 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
 import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
-import { Button } from "@/components/ui/button";
 
 const patterns = [
   {
@@ -306,13 +305,6 @@ const normalizedPatterns = patterns.map(p => ({
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
-  const location = useLocation();
-
-  const navigation = [
-    { name: "Patterns", path: "/", icon: LayoutGrid, current: location.pathname === "/" },
-    { name: "Flows", path: "/flows", icon: Workflow, current: location.pathname.startsWith("/flows") },
-    { name: "Components", path: "/design-system", icon: Tags, current: location.pathname === "/design-system" },
-  ];
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
@@ -325,27 +317,6 @@ const DesignSystem = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl w-full space-y-6 sm:space-y-8">
-        {/* Top Navigation */}
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-2 p-1 rounded-lg bg-muted">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link key={item.name} to={item.path}>
-                  <Button
-                    variant={item.current ? "default" : "ghost"}
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.name}
-                  </Button>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
         <div className="text-center space-y-2">
           <h1 className="text-3xl sm:text-4xl font-semibold">Design System</h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
@@ -354,8 +325,9 @@ const DesignSystem = () => {
         </div>
 
         <Tabs defaultValue="patterns" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
             <TabsTrigger value="patterns">Patterns</TabsTrigger>
+            <TabsTrigger value="flows">Flows</TabsTrigger>
             <TabsTrigger value="components">Components</TabsTrigger>
           </TabsList>
 
@@ -412,6 +384,32 @@ const DesignSystem = () => {
                   </Link>
                 );
               })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="flows" className="mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link to="/flows">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
+                        <Workflow className="h-6 w-6 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">Admin Flows</CardTitle>
+                    <CardDescription>
+                      End-to-end onboarding and configuration workflows for system administrators
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flows
+                      <ArrowRight className="w-3.5 h-3.5 ml-1" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
           </TabsContent>
 
