@@ -409,13 +409,13 @@ const DesignSystem = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
                         Genie-Led Conversational Onboarding
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
                         Step Card Stack + Progress Bar
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
                         Dashboard-Centered Layout + Collapsible Genie Drawer
                       </Badge>
                       <Badge variant="outline" className="text-xs">
@@ -466,9 +466,9 @@ const DesignSystem = () => {
                       <CardContent className="pt-0 space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground">States:</span>
-                          <div className="flex gap-1">
+                          <div className="flex flex-wrap gap-1">
                             {component.states.slice(0, 2).map((state) => (
-                              <Badge key={state.name} variant="secondary" className="text-xs">
+                              <Badge key={state.name} variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200">
                                 {state.name}
                               </Badge>
                             ))}

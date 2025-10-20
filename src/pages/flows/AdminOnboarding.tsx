@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFlowState } from "@/hooks/useFlowState";
@@ -30,6 +30,7 @@ const FLOW_STEPS = [
 ];
 
 const AdminOnboarding = () => {
+  const navigate = useNavigate();
   const { state, logEvent, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.admin.f1.onboarding",
     "intro_trust_model"
@@ -157,12 +158,15 @@ const AdminOnboarding = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <Link to="/flows/admin">
-          <Button variant="ghost" size="sm" className="mb-6">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Admin Flows
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="mb-6"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Design System
+        </Button>
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Admin Onboarding</h1>
