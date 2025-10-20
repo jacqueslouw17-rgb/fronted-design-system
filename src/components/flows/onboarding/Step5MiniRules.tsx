@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Shield } from "lucide-react";
+import { Plus, Pencil, Trash2, Shield, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -10,6 +10,7 @@ interface Step5Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
 interface Rule {
@@ -36,7 +37,7 @@ const STARTER_RULES: Rule[] = [
   }
 ];
 
-const Step5MiniRules = ({ formData, onComplete }: Step5Props) => {
+const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing }: Step5Props) => {
   const [rules, setRules] = useState<Rule[]>(
     formData.miniRules || STARTER_RULES
   );
@@ -181,8 +182,15 @@ const Step5MiniRules = ({ formData, onComplete }: Step5Props) => {
         ))}
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full">
-        Save Rules & Continue
+      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+        {externalProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Save Rules & Continue"
+        )}
       </Button>
     </div>
   );

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Mail, User, Globe, Calendar } from "lucide-react";
+import { Building2, Mail, User, Globe, Calendar, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -12,9 +12,10 @@ interface Step2Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
-const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
+const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessing }: Step2Props) => {
   const [data, setData] = useState({
     companyName: formData.companyName || "",
     legalEntityName: formData.legalEntityName || "",
@@ -235,8 +236,15 @@ const Step2OrgProfile = ({ formData, onComplete }: Step2Props) => {
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full">
-        Save & Continue
+      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+        {externalProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Save & Continue"
+        )}
       </Button>
     </div>
   );

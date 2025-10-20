@@ -9,9 +9,10 @@ interface Step6Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
-const Step6Pledge = ({ formData, onComplete }: Step6Props) => {
+const Step6Pledge = ({ formData, onComplete, isProcessing: externalProcessing }: Step6Props) => {
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [signing, setSigning] = useState(false);
 
@@ -134,12 +135,12 @@ const Step6Pledge = ({ formData, onComplete }: Step6Props) => {
         onClick={handleSign}
         size="lg"
         className="w-full"
-        disabled={!scrolledToBottom || signing}
+        disabled={!scrolledToBottom || signing || externalProcessing}
       >
-        {signing ? (
+        {(signing || externalProcessing) ? (
           <>
             <FileSignature className="h-4 w-4 mr-2 animate-pulse" />
-            Signing...
+            {externalProcessing ? "Processing..." : "Signing..."}
           </>
         ) : (
           <>

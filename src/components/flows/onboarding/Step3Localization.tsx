@@ -10,6 +10,7 @@ interface Step3Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
 const COUNTRIES = [
@@ -39,7 +40,7 @@ const COUNTRIES = [
   }
 ];
 
-const Step3Localization = ({ formData, onComplete }: Step3Props) => {
+const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing }: Step3Props) => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
   );
@@ -149,9 +150,9 @@ const Step3Localization = ({ formData, onComplete }: Step3Props) => {
         onClick={handleLoadBlocks}
         size="lg"
         className="w-full"
-        disabled={loading || selectedCountries.length === 0}
+        disabled={loading || selectedCountries.length === 0 || externalProcessing}
       >
-        {loading ? (
+        {(loading || externalProcessing) ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Loading...

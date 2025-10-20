@@ -8,11 +8,12 @@ interface Step4Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   onOpenDrawer: () => void;
+  isProcessing?: boolean;
 }
 
 type IntegrationStatus = "not_connected" | "connecting" | "connected";
 
-const Step4Integrations = ({ formData, onComplete }: Step4Props) => {
+const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcessing }: Step4Props) => {
   const [slackStatus, setSlackStatus] = useState<IntegrationStatus>(
     formData.slackConnected ? "connected" : "not_connected"
   );
@@ -151,9 +152,16 @@ const Step4Integrations = ({ formData, onComplete }: Step4Props) => {
         onClick={handleContinue}
         size="lg"
         className="w-full"
-        disabled={slackStatus !== "connected" || fxStatus !== "connected"}
+        disabled={slackStatus !== "connected" || fxStatus !== "connected" || externalProcessing}
       >
-        Continue
+        {externalProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Continue"
+        )}
       </Button>
     </div>
   );

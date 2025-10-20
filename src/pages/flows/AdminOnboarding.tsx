@@ -108,11 +108,14 @@ const AdminOnboarding = () => {
     if (!isListening && transcript && !isProcessing) {
       const lowerTranscript = transcript.toLowerCase();
       
+      // Check for dashboard navigation (step 7)
+      if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
+        handleDashboardNavigation();
+      }
       // Check for affirmative responses
-      if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok")) {
+      else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok")) {
         handleUserConfirmation();
       }
-      
       // Check for save/continue commands (for when user edits selections)
       else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
         handleUserSaveAction();
@@ -128,7 +131,7 @@ const AdminOnboarding = () => {
       setIsProcessing(true);
       
       // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Auto-accept privacy
       updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
@@ -151,7 +154,7 @@ const AdminOnboarding = () => {
         setExpandedStep(null);
         
         // Wait before moving to step 2
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await new Promise(resolve => setTimeout(resolve, 1800));
         
         // Pre-populate step 2 data
         const orgData = {
@@ -189,7 +192,7 @@ const AdminOnboarding = () => {
     // STEP 2 → STEP 3
     else if (state.currentStep === "org_profile") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 1800));
       
       // Complete step 2
       completeStep("org_profile");
@@ -223,7 +226,7 @@ const AdminOnboarding = () => {
     // STEP 3 → STEP 4
     else if (state.currentStep === "localization_country_blocks") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       completeStep("localization_country_blocks");
       setExpandedStep(null);
@@ -240,7 +243,7 @@ const AdminOnboarding = () => {
         setIsSpeaking(false);
         
         // Auto-connect integrations
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 2500));
         updateFormData({ 
           slackConnected: true, 
           fxConnected: true,
@@ -270,7 +273,7 @@ const AdminOnboarding = () => {
     // STEP 4 → STEP 5
     else if (state.currentStep === "integrations_connect") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       completeStep("integrations_connect");
       setExpandedStep(null);
@@ -307,7 +310,7 @@ const AdminOnboarding = () => {
     // STEP 5 → STEP 6
     else if (state.currentStep === "mini_rules_setup") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       completeStep("mini_rules_setup");
       setExpandedStep(null);
@@ -336,7 +339,7 @@ const AdminOnboarding = () => {
     // STEP 6 → STEP 7
     else if (state.currentStep === "transparency_pledge_esign") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       updateFormData({ pledgeSigned: true, signedAt: new Date().toISOString() });
       completeStep("transparency_pledge_esign");
@@ -364,6 +367,29 @@ const AdminOnboarding = () => {
     }
   };
 
+  const handleDashboardNavigation = async () => {
+    setIsProcessing(true);
+    
+    const loadingMessage = "Perfect! Let me open your dashboard now.";
+    setKurtMessage(loadingMessage);
+    setMessageStyle("text-foreground/80");
+    setHasFinishedReading(false);
+    setHasAutoStarted(false);
+    setIsSpeaking(true);
+    
+    speak(loadingMessage, async () => {
+      setIsSpeaking(false);
+      
+      // Show loading for a moment
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Navigate to dashboard
+      navigate('/dashboard');
+    });
+    
+    resetTranscript();
+  };
+
   const handleUserSaveAction = async () => {
     // Handle save for Step 3 (when user manually edits countries)
     if (state.currentStep === "localization_country_blocks") {
@@ -387,7 +413,7 @@ const AdminOnboarding = () => {
       }
       
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       completeStep("localization_country_blocks");
       setExpandedStep(null);
