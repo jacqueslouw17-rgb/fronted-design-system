@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, TrendingUp, FileSignature, CheckCircle2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
 interface Step4Props {
@@ -25,6 +25,19 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
   const [googleStatus, setGoogleStatus] = useState<IntegrationStatus>(
     formData.googleSignConnected ? "connected" : "not_connected"
   );
+
+  // Update status when formData changes (e.g., auto-connection from parent)
+  useEffect(() => {
+    if (formData.slackConnected) {
+      setSlackStatus("connected");
+    }
+    if (formData.fxConnected) {
+      setFxStatus("connected");
+    }
+    if (formData.googleSignConnected) {
+      setGoogleStatus("connected");
+    }
+  }, [formData.slackConnected, formData.fxConnected, formData.googleSignConnected]);
 
   const handleConnect = (integration: "slack" | "fx" | "google") => {
     const statusMap = {
