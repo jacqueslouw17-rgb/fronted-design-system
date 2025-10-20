@@ -45,10 +45,10 @@ const StepCard = ({
   if (isExpanded) {
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden">
-        <Card className="p-5 border-white/10 bg-white/5 backdrop-blur-md hover:border-white/20 hover:bg-white/10 shadow-lg">
+        <Card className="p-5 border-white/20 bg-white/10 backdrop-blur-md hover:border-white/30 hover:bg-white/15 shadow-lg">
           <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
             <div className="flex items-center space-x-3">
-              <div className="h-6 w-6 rounded-full bg-white/10 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
+              <div className="h-6 w-6 rounded-full bg-white/15 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {stepNumber}
               </div>
               <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
