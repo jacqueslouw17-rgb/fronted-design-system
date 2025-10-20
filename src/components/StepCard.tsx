@@ -26,7 +26,7 @@ const StepCard = ({
     switch (status) {
       case "completed":
         return (
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-0 font-normal">
+          <Badge variant="secondary" className="bg-background text-primary border-0 font-normal">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Complete
           </Badge>
@@ -50,7 +50,7 @@ const StepCard = ({
             <div className="h-7 w-7 rounded-full bg-foreground/8 text-foreground/50 flex items-center justify-center text-xs font-medium">
               {stepNumber}
             </div>
-            <h3 className="font-semibold text-base text-foreground">{title}</h3>
+            <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/60" : "text-foreground"}`}>{title}</h3>
           </div>
           {getStatusBadge()}
         </div>
@@ -67,6 +67,8 @@ const StepCard = ({
       className={`p-4 transition-colors duration-150 cursor-pointer group border-border/50 ${
         status === "completed"
           ? "bg-primary/10 hover:bg-primary/15"
+          : status === "active"
+          ? "bg-card hover:bg-accent/20"
           : "hover:bg-primary/5"
       } ${status === "pending" ? "opacity-40 cursor-default" : ""}`}
       onClick={status !== "pending" ? onClick : undefined}
@@ -78,7 +80,7 @@ const StepCard = ({
               status === "completed"
                 ? "bg-primary/15 text-primary"
                 : status === "active"
-                ? "bg-foreground/8 text-foreground/50 group-hover:bg-foreground/12"
+                ? "bg-foreground/12 text-foreground/70 group-hover:bg-foreground/16"
                 : "bg-foreground/5 text-foreground/30"
             }`}
           >
@@ -88,7 +90,13 @@ const StepCard = ({
               stepNumber
             )}
           </div>
-          <p className="font-medium text-sm text-foreground">{title}</p>
+          <p className={`font-medium text-sm ${
+            status === "completed" 
+              ? "text-foreground/60" 
+              : status === "active"
+              ? "text-foreground"
+              : "text-foreground"
+          }`}>{title}</p>
         </div>
         {getStatusBadge()}
       </div>
