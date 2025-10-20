@@ -41,28 +41,18 @@ const Index = () => {
   // Auto-start and speak Kurt's greeting on mount
   useEffect(() => {
     setIsSpeaking(true);
-    speak(kurtMessage);
+    speak(kurtMessage, () => setIsSpeaking(false));
     setChatHistory([{ role: "assistant", content: kurtMessage }]);
-    
-    // Set speaking to false after message duration (rough estimate)
-    const duration = kurtMessage.split(' ').length * 400; // ~400ms per word
-    const timer = setTimeout(() => setIsSpeaking(false), duration);
-    return () => clearTimeout(timer);
   }, []);
 
   // Speak Kurt's message whenever it changes (except on mount)
   useEffect(() => {
     if (kurtMessage !== "Hi Joe, ready to save your personal details to kick off onboarding?") {
       setIsSpeaking(true);
-      speak(kurtMessage);
+      speak(kurtMessage, () => setIsSpeaking(false));
       setChatHistory((prev) => [...prev, { role: "assistant", content: kurtMessage }]);
-      
-      // Set speaking to false after message duration
-      const duration = kurtMessage.split(' ').length * 400;
-      const timer = setTimeout(() => setIsSpeaking(false), duration);
-      return () => clearTimeout(timer);
     }
-  }, [kurtMessage]);
+  }, [kurtMessage, speak]);
 
   const [formData, setFormData] = useState({
     firstName: "Joe",
@@ -381,7 +371,11 @@ const Index = () => {
                 <span
                   key={index}
                   className={`transition-colors duration-150 ${
-                    index < currentWordIndex ? 'text-foreground font-medium' : 'text-muted-foreground'
+                    index === currentWordIndex - 1 
+                      ? 'text-foreground font-semibold' 
+                      : index < currentWordIndex - 1
+                      ? 'text-foreground/70 font-medium'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
