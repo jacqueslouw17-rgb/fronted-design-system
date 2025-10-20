@@ -111,24 +111,27 @@ const AdminOnboarding = () => {
 
   // Watch for transcript changes and auto-process
   useEffect(() => {
-    if (!isListening && transcript && !isProcessing) {
+    if (transcript && !isProcessing) {
       const lowerTranscript = transcript.toLowerCase();
       
       // Check for dashboard navigation (step 7)
       if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
         handleDashboardNavigation();
+        resetTranscript();
       }
       // Check for affirmative responses
       else if (lowerTranscript.includes("yes") || lowerTranscript.includes("please") || lowerTranscript.includes("sure") || lowerTranscript.includes("good") || lowerTranscript.includes("okay") || lowerTranscript.includes("ok") || lowerTranscript.includes("ready")) {
         handleUserConfirmation();
+        resetTranscript();
       }
       // Check for save/continue commands (for when user edits selections)
       else if (lowerTranscript.includes("save") || lowerTranscript.includes("continue") || lowerTranscript.includes("proceed")) {
         handleUserSaveAction();
+        resetTranscript();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isListening, transcript]);
+  }, [transcript]);
 
   const handleUserConfirmation = async () => {
     // STEP 1 → STEP 2
@@ -246,8 +249,8 @@ const AdminOnboarding = () => {
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
-        // Keep skeleton visible
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Keep skeleton visible briefly
+        await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
@@ -312,8 +315,8 @@ const AdminOnboarding = () => {
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
-        // Keep skeleton visible while connecting
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // Keep skeleton visible briefly while connecting
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Auto-connect integrations
         updateFormData({ 
@@ -375,8 +378,8 @@ const AdminOnboarding = () => {
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
-        // Keep skeleton visible
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Keep skeleton visible briefly
+        await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
@@ -412,8 +415,8 @@ const AdminOnboarding = () => {
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
         
-        // Keep skeleton visible
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Keep skeleton visible briefly
+        await new Promise(resolve => setTimeout(resolve, 800));
         setIsLoadingFields(false);
         setHasFinishedReading(true);
       });
