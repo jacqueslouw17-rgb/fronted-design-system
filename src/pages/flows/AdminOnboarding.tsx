@@ -76,6 +76,17 @@ const AdminOnboarding = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Auto-start listening after AI finishes speaking
+  useEffect(() => {
+    if (hasFinishedReading && !isListening && !isProcessing) {
+      const timer = setTimeout(() => {
+        startListening();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasFinishedReading, isListening, isProcessing]);
+
   // Handle voice input with full flow
   const handleVoiceInput = async () => {
     if (isListening) {
@@ -310,23 +321,15 @@ const AdminOnboarding = () => {
           </div>
         </div>
 
-        {/* Voice Input Control */}
-        <div className="flex items-center justify-center mt-8 relative z-10">
-          <div className="relative">
-            <Button
-              onClick={handleVoiceInput}
-              disabled={isProcessing}
-              className={`px-6 relative ${
-                isListening 
-                  ? "bg-destructive hover:bg-destructive/90" 
-                  : "bg-gradient-to-r from-primary to-secondary shadow"
-              }`}
-            >
-              <Mic className="h-5 w-5 mr-2" />
-              <span>{isListening ? "Stop" : isProcessing ? "Processing..." : "Speak"}</span>
-            </Button>
+        {/* Listening indicator */}
+        {isListening && (
+          <div className="flex items-center justify-center mt-8 relative z-10">
+            <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
+              <Mic className="h-4 w-4" />
+              <span>Listening...</span>
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Drawer Toggle Button - When collapsed, show at viewport edge */}
