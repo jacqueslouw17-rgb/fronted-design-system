@@ -33,8 +33,6 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
     }
   };
 
-  const greeting = `Hi ${userData.firstName}! I'm Gelo, your AI assistant. How can I help you today?`;
-
   return (
     <motion.div
       layout
@@ -43,44 +41,44 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
         isDrawerOpen ? "w-1/2" : "w-full"
       }`}
     >
-      {/* Animated gradient background orbs */}
+      {/* Stunning subtle gradient background */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
+        transition={{ duration: 2 }}
         className="absolute inset-0 overflow-hidden pointer-events-none"
       >
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.15, 0.1],
+            scale: [1, 1.15, 1],
+            opacity: [0.03, 0.06, 0.03],
           }}
           transition={{
-            duration: 8,
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-primary)' }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[40rem] rounded-full blur-[120px]"
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--secondary) / 0.1))' }}
         />
         <motion.div
           animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.08, 0.12, 0.08],
+            scale: [1, 1.2, 1],
+            opacity: [0.02, 0.04, 0.02],
           }}
           transition={{
-            duration: 10,
+            duration: 15,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 1
+            delay: 2
           }}
-          className="absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] rounded-full blur-3xl"
-          style={{ background: 'var(--gradient-secondary)' }}
+          className="absolute bottom-0 right-0 w-[50rem] h-[35rem] rounded-full blur-[100px]"
+          style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.08), hsl(var(--primary) / 0.05))' }}
         />
       </motion.div>
 
-      <div className="max-w-2xl w-full space-y-6 relative z-10">
-        {/* Gelo Avatar with enhanced glow */}
+      <div className="max-w-2xl w-full space-y-8 relative z-10">
+        {/* Gelo Avatar */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -126,8 +124,24 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
                 />
               </>
             )}
-            <KurtAvatar isListening={isListening} size="default" name="Gelo" message={greeting} currentWordIndex={currentWordIndex} />
+            <KurtAvatar isListening={isListening} size="default" name="Gelo" />
           </div>
+        </motion.div>
+
+        {/* Beautiful hierarchy: caption, heading, subtext */}
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center space-y-3"
+        >
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">AI Assistant</p>
+          <h1 className="text-3xl font-bold text-foreground balance-text">
+            Hi {userData.firstName}, what would you like to know?
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Ask me anything or use voice input to get started
+          </p>
         </motion.div>
 
         {/* Input Area with gradient border */}
