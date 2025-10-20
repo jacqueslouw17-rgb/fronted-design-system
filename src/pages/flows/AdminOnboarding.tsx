@@ -52,6 +52,17 @@ const AdminOnboarding = () => {
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
+  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Scroll to step helper
+  const scrollToStep = (stepId: string) => {
+    setTimeout(() => {
+      const stepElement = stepRefs.current[stepId];
+      if (stepElement) {
+        stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   // Auto-speak initial welcome message and smoothly transition to step 1
   useEffect(() => {
@@ -63,6 +74,7 @@ const AdminOnboarding = () => {
     // Expand step 1 during the greeting for smooth transition
     setTimeout(() => {
       setExpandedStep("intro_trust_model");
+      scrollToStep("intro_trust_model");
     }, 2000);
     
     speak(initialMessage, () => {
@@ -162,6 +174,7 @@ const AdminOnboarding = () => {
         setIsLoadingFields(true);
         goToStep("org_profile");
         setExpandedStep("org_profile");
+        scrollToStep("org_profile");
       }, 1800);
         
       speak(loadingMessage, async () => {
@@ -228,6 +241,7 @@ const AdminOnboarding = () => {
       setIsLoadingFields(true);
       goToStep("localization_country_blocks");
       setExpandedStep("localization_country_blocks");
+      scrollToStep("localization_country_blocks");
       
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
@@ -293,6 +307,7 @@ const AdminOnboarding = () => {
       setIsLoadingFields(true);
       goToStep("integrations_connect");
       setExpandedStep("integrations_connect");
+      scrollToStep("integrations_connect");
       
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
@@ -355,6 +370,7 @@ const AdminOnboarding = () => {
       setIsLoadingFields(true);
       goToStep("mini_rules_setup");
       setExpandedStep("mini_rules_setup");
+      scrollToStep("mini_rules_setup");
       
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
@@ -391,6 +407,7 @@ const AdminOnboarding = () => {
       setIsLoadingFields(true);
       goToStep("transparency_pledge_esign");
       setExpandedStep("transparency_pledge_esign");
+      scrollToStep("transparency_pledge_esign");
       
       speak(confirmMessage, async () => {
         setIsSpeaking(false);
@@ -429,6 +446,7 @@ const AdminOnboarding = () => {
       goToStep("finish_dashboard_transition");
       setTimeout(() => {
         setExpandedStep("finish_dashboard_transition");
+        scrollToStep("finish_dashboard_transition");
       }, 400);
       
       resetTranscript();
@@ -597,6 +615,7 @@ const AdminOnboarding = () => {
         goToStep("integrations_connect");
         setTimeout(() => {
           setExpandedStep("integrations_connect");
+          scrollToStep("integrations_connect");
         }, 400);
       });
       
@@ -636,6 +655,9 @@ const AdminOnboarding = () => {
       const newExpandedStep = expandedStep === stepId ? null : stepId;
       setExpandedStep(newExpandedStep);
       goToStep(stepId);
+      if (newExpandedStep) {
+        scrollToStep(stepId);
+      }
     }
   };
 
@@ -762,7 +784,10 @@ const AdminOnboarding = () => {
                 onClick={() => handleStepClick(step.id)}
               >
                 {isExpanded && (
-                  <div className="pt-6">
+                  <div 
+                    ref={(el) => stepRefs.current[step.id] = el}
+                    className="pt-6"
+                  >
                     {renderStepContent(step.id)}
                   </div>
                 )}
