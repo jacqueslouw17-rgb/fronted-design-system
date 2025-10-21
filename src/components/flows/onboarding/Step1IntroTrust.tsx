@@ -181,16 +181,12 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
                     { key: 'hasNumber', label: 'One number', met: passwordRules.hasNumber },
                     { key: 'hasSpecial', label: 'One special character (!@#$%^&*)', met: passwordRules.hasSpecial },
                   ].map((rule) => (
-                    <div key={rule.key} className="flex items-center gap-2 text-xs">
-                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all ${
+                    <div key={rule.key} className="flex items-center gap-2.5 text-xs">
+                      <CheckCircle2 className={`h-3.5 w-3.5 flex-shrink-0 transition-colors ${
                         rule.met 
-                          ? 'bg-primary border-primary' 
-                          : 'border-border/60'
-                      }`}>
-                        {rule.met && (
-                          <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
-                        )}
-                      </div>
+                          ? 'text-primary' 
+                          : 'text-border/60'
+                      }`} />
                       <span className={rule.met ? 'text-foreground' : 'text-muted-foreground'}>
                         {rule.label}
                       </span>
