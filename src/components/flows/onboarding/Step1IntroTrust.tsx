@@ -19,6 +19,16 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
   const [inputMode, setInputMode] = useState(formData.defaultInputMode || "chat");
   const [password, setPassword] = useState(formData.password || "");
   const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+  // Password validation rules
+  const passwordRules = {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
 
   // Watch for formData changes to auto-check privacy
   useEffect(() => {
@@ -138,21 +148,56 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         </div>
 
         <div className="space-y-3">
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter a strong password"
-              className="pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <span className="text-xs font-medium">{showPassword ? "Hide" : "Show"}</span>
-            </button>
+          <div className="space-y-2">
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+                placeholder="Enter a strong password"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span className="text-xs font-medium">{showPassword ? "Hide" : "Show"}</span>
+              </button>
+            </div>
+
+            {/* Password Rules */}
+            {isPasswordFocused && (
+              <div className="bg-card border border-border/60 rounded-md p-3 space-y-1.5 animate-fade-in">
+                <p className="text-xs font-medium text-foreground/80 mb-2">Password must contain:</p>
+                <div className="space-y-1.5">
+                  {[
+                    { key: 'minLength', label: 'At least 8 characters', met: passwordRules.minLength },
+                    { key: 'hasUppercase', label: 'One uppercase letter', met: passwordRules.hasUppercase },
+                    { key: 'hasLowercase', label: 'One lowercase letter', met: passwordRules.hasLowercase },
+                    { key: 'hasNumber', label: 'One number', met: passwordRules.hasNumber },
+                    { key: 'hasSpecial', label: 'One special character (!@#$%^&*)', met: passwordRules.hasSpecial },
+                  ].map((rule) => (
+                    <div key={rule.key} className="flex items-center gap-2 text-xs">
+                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all ${
+                        rule.met 
+                          ? 'bg-primary border-primary' 
+                          : 'border-border/60'
+                      }`}>
+                        {rule.met && (
+                          <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
+                        )}
+                      </div>
+                      <span className={rule.met ? 'text-foreground' : 'text-muted-foreground'}>
+                        {rule.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <Button
