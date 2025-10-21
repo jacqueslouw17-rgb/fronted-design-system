@@ -157,6 +157,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
                 onFocus={() => setIsPasswordFocused(true)}
                 onBlur={() => setIsPasswordFocused(false)}
                 placeholder="Enter a strong password"
+                autoComplete="new-password"
                 className="pr-10"
               />
               <button
