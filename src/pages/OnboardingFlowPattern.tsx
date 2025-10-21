@@ -8,7 +8,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import KurtAvatar from "@/components/KurtAvatar";
 import { patternLayout } from "@/styles/pattern-layout";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
@@ -121,7 +120,6 @@ const OnboardingFlowPattern = () => {
               <CardTitle className="text-sm">Components Used</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              <Badge variant="secondary">KurtAvatar</Badge>
               <Badge variant="secondary">AudioWaveVisualizer</Badge>
               <Badge variant="secondary">StepCard</Badge>
               <Badge variant="secondary">ProgressBar</Badge>
@@ -166,32 +164,16 @@ const OnboardingFlowPattern = () => {
                       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-accent/5 rounded-2xl blur-xl" />
                       <Card className="relative border-2 border-primary/20 bg-card/95 backdrop-blur">
                         <CardContent className="p-6 space-y-6">
-                          <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="relative">
-                              <div className="ring-2 ring-primary/20 rounded-full inline-block">
-                                <KurtAvatar 
-                                  size="default" 
-                                  isListening={isListening}
-                                  isProcessing={isSpeaking}
-                                  message={kurtMessage}
-                                  currentWordIndex={currentWordIndex}
-                                />
-                              </div>
-                              <div className="absolute -bottom-1 -right-1">
-                                <AudioWaveVisualizer
-                                  isActive={isSpeaking}
-                                  isListening={isListening}
-                                  isDetectingVoice={isDetectingVoice}
-                                />
-                              </div>
-                            </div>
+                          <div className="flex flex-col items-center text-center space-y-6">
+                            <AudioWaveVisualizer
+                              isActive={isSpeaking}
+                              isListening={isListening}
+                              isDetectingVoice={isDetectingVoice}
+                            />
 
-                            <div className="space-y-2">
-                              <h3 className="font-semibold text-lg">Kurt</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {kurtMessage}
-                              </p>
-                            </div>
+                            <p className="text-sm text-muted-foreground max-w-xs">
+                              {kurtMessage}
+                            </p>
                           </div>
 
                           <div className="pt-4 border-t border-border/50 flex flex-col items-center gap-3">
