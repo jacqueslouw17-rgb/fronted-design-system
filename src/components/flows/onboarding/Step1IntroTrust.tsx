@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle2, MessageSquare, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, MessageSquare, Loader2, Key, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface Step1Props {
@@ -16,6 +17,8 @@ interface Step1Props {
 const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false }: Step1Props) => {
   const [privacyAccepted, setPrivacyAccepted] = useState(formData.privacyAccepted || false);
   const [inputMode, setInputMode] = useState(formData.defaultInputMode || "chat");
+  const [password, setPassword] = useState(formData.password || "");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Watch for formData changes to auto-check privacy
   useEffect(() => {
@@ -24,12 +27,24 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
     }
   }, [formData.privacyAccepted]);
 
+  const generateStrongPassword = () => {
+    const length = 16;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let newPassword = "";
+    for (let i = 0; i < length; i++) {
+      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    setPassword(newPassword);
+    setShowPassword(true);
+  };
+
   const handleContinue = () => {
-    if (!privacyAccepted) return;
+    if (!privacyAccepted || !password) return;
     
     onComplete("intro_trust_model", {
       privacyAccepted,
-      defaultInputMode: inputMode
+      defaultInputMode: inputMode,
+      password
     });
   };
 
@@ -108,6 +123,51 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         </div>
       </div>
 
+      {/* Password Creation Section */}
+      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2">
+            <Key className="h-3.5 w-3.5 text-primary" />
+            <Label className="text-xs font-bold uppercase tracking-wide text-foreground">
+              Create Your Password
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Set up a secure password for your account
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter a strong password"
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span className="text-xs font-medium">{showPassword ? "Hide" : "Show"}</span>
+            </button>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateStrongPassword}
+            className="w-full"
+            size="sm"
+          >
+            <Sparkles className="h-3.5 w-3.5 mr-2" />
+            Let Kurt Suggest a Strong Password
+          </Button>
+        </div>
+      </div>
+
       {/* Privacy & Preferences Section */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
         <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-primary/8 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
@@ -151,7 +211,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
       <div className="pt-1">
         <Button
           onClick={handleContinue}
-          disabled={!privacyAccepted || isProcessing}
+          disabled={!privacyAccepted || !password || isProcessing}
           className="w-full"
           size="lg"
         >
