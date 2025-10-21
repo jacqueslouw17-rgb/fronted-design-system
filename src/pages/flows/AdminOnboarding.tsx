@@ -67,6 +67,11 @@ const AdminOnboarding = () => {
     }, 100);
   };
 
+  // Scroll to top helper
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Handle speak button click
   const handleSpeakClick = () => {
     if (hasActivatedSpeech) return;
@@ -664,6 +669,11 @@ const AdminOnboarding = () => {
       updateFormData(data);
     }
     completeStep(stepId);
+    
+    // Smooth scroll to top after completing a step
+    setTimeout(() => {
+      scrollToTop();
+    }, 300);
     
     const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
     if (currentIndex < FLOW_STEPS.length - 1) {
