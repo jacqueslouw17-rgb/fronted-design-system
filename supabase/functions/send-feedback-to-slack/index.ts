@@ -20,43 +20,6 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Authentication required" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    );
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid authentication" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
     // Validate input
     const rawData = await req.json();
     const feedbackData = feedbackSchema.parse(rawData);
@@ -78,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*From:* ${user.email || "Unknown user"}\n*Page:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
+            text: `*From:* Anonymous user\n*Page:* ${feedbackData.pageContext}\n*Feedback:* ${feedbackData.feedback}`,
           },
         },
         {
