@@ -1,24 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mic, PanelLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import KurtAvatar from "@/components/KurtAvatar";
 import { patternLayout } from "@/styles/pattern-layout";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 
 const OnboardingFlowPattern = () => {
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError, isDetectingVoice } = useSpeechToText();
+  
   const [isKurtVisible, setIsKurtVisible] = useState(true);
   const [expandedStep, setExpandedStep] = useState<string | null>("step1");
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isDetectingVoice, setIsDetectingVoice] = useState(false);
-  const [voiceMode, setVoiceMode] = useState(false);
+  const [kurtMessage, setKurtMessage] = useState("Click 'Speak' below to get started with your setup.");
+  const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
 
   const steps = [
     { id: "step1", title: "Welcome", status: "active" as const },
@@ -38,19 +41,28 @@ const OnboardingFlowPattern = () => {
     setExpandedStep(expandedStep === stepId ? null : stepId);
   };
 
-  const simulateVoice = () => {
-    if (!voiceMode) return;
+  const handleSpeakClick = () => {
+    if (hasActivatedSpeech) return;
     
-    if (!isListening) {
-      setIsListening(true);
-      setTimeout(() => {
-        setIsDetectingVoice(true);
-        setTimeout(() => {
-          setIsDetectingVoice(false);
-          setIsListening(false);
-        }, 2000);
-      }, 500);
+    setHasActivatedSpeech(true);
+    const initialMessage = "Hi, I'm Kurt. I'll help you set up today. Let's get started!";
+    setKurtMessage(initialMessage);
+    setIsSpeaking(true);
+    setExpandedStep("step1");
+    
+    stop();
+    speak(initialMessage, () => {
+      setIsSpeaking(false);
+    });
+  };
+
+  const handleVoiceInput = async () => {
+    if (isListening) {
+      stopListening();
+      return;
     }
+    stop();
+    await startListening();
   };
 
   return (
@@ -139,33 +151,6 @@ const OnboardingFlowPattern = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Demo Controls */}
-            <div className="flex items-center gap-6 mb-6 p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={voiceMode}
-                  onCheckedChange={(checked) => {
-                    setVoiceMode(checked);
-                    if (checked) {
-                      setIsSpeaking(true);
-                      setTimeout(() => setIsSpeaking(false), 2000);
-                    }
-                  }}
-                />
-                <Label>Voice Mode</Label>
-              </div>
-              {voiceMode && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={simulateVoice}
-                  disabled={isListening}
-                >
-                  <Mic className="h-4 w-4 mr-2" />
-                  Simulate Voice Input
-                </Button>
-              )}
-            </div>
 
             {/* Main Demo Layout */}
             <div className="relative flex gap-6 min-h-[600px]">
@@ -184,7 +169,13 @@ const OnboardingFlowPattern = () => {
                           <div className="flex flex-col items-center text-center space-y-4">
                             <div className="relative">
                               <div className="ring-2 ring-primary/20 rounded-full inline-block">
-                                <KurtAvatar size="default" />
+                                <KurtAvatar 
+                                  size="default" 
+                                  isListening={isListening}
+                                  isProcessing={isSpeaking}
+                                  message={kurtMessage}
+                                  currentWordIndex={currentWordIndex}
+                                />
                               </div>
                               <div className="absolute -bottom-1 -right-1">
                                 <AudioWaveVisualizer
@@ -198,25 +189,33 @@ const OnboardingFlowPattern = () => {
                             <div className="space-y-2">
                               <h3 className="font-semibold text-lg">Kurt</h3>
                               <p className="text-sm text-muted-foreground">
-                                {isSpeaking
-                                  ? "Hi, I'm Kurt. Let's set up your workspace together."
-                                  : isListening
-                                  ? isDetectingVoice
-                                    ? "I'm listening..."
-                                    : "Waiting for your voice..."
-                                  : "Ready to help you get started."}
+                                {kurtMessage}
                               </p>
                             </div>
                           </div>
 
-                          {voiceMode && (
-                            <div className="pt-4 border-t border-border/50">
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <div className={`h-2 w-2 rounded-full ${isListening ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
-                                <span>{isListening ? "Listening" : "Ready"}</span>
+                          <div className="pt-4 border-t border-border/50 flex flex-col items-center gap-3">
+                            {!hasActivatedSpeech ? (
+                              <Button onClick={handleSpeakClick} className="w-full">
+                                <Mic className="h-4 w-4 mr-2" />
+                                Speak
+                              </Button>
+                            ) : isListening ? (
+                              <div className="flex items-center gap-2 w-full">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground flex-1">
+                                  <Mic className="h-4 w-4 animate-pulse" />
+                                  <span>Listening...</span>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={stopListening}
+                                >
+                                  Stop
+                                </Button>
                               </div>
-                            </div>
-                          )}
+                            ) : null}
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
@@ -231,16 +230,27 @@ const OnboardingFlowPattern = () => {
                 }`}
               >
                 {/* Progress Bar with Drawer Toggle */}
-                <div className="flex items-center gap-4 mb-6">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleKurt}
-                    className="h-8 w-8 flex-shrink-0"
-                  >
-                    <PanelLeft className={`h-4 w-4 transition-transform ${!isKurtVisible ? "rotate-180" : ""}`} />
-                  </Button>
-                  <ProgressBar currentStep={1} totalSteps={7} />
+                <div className="flex items-center gap-2 mb-6">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
+                          onClick={toggleKurt}
+                        >
+                          <PanelLeft className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-white/90 text-foreground border-white/20">
+                        <p className="text-xs">{isKurtVisible ? "Collapse Kurt" : "Expand Kurt"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <div className="flex-1">
+                    <ProgressBar currentStep={1} totalSteps={7} />
+                  </div>
                 </div>
 
                 {/* Step Cards */}
