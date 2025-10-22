@@ -182,6 +182,14 @@ const Flows = () => {
       steps: 7,
       patterns: patterns.map(p => p.id),
       path: "/flows/admin/onboarding"
+    },
+    {
+      id: "f2-shortlist-to-contract",
+      title: "Flow 2 — Shortlist to Signed Contract",
+      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
+      steps: 6,
+      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+      path: "/flows/contract-flow"
     }
   ];
 
