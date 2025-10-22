@@ -35,19 +35,17 @@ const ContractFlowDemo = () => {
   const idleWords = idleMessage.split(' ');
 
   useEffect(() => {
-    if (contractFlow.phase === "idle" && currentWordIndex < idleWords.length) {
+    if (currentWordIndex < idleWords.length) {
       const timer = setTimeout(() => {
         setCurrentWordIndex(prev => prev + 1);
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [currentWordIndex, contractFlow.phase, idleWords.length]);
+  }, [currentWordIndex, idleWords.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       contractFlow.startFlow();
-      setCurrentWordIndex(0); // Reset for notification phase
-      // speak("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
