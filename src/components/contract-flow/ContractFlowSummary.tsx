@@ -22,6 +22,8 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
 }) => {
   const { toast } = useToast();
   const [selectedCertificate, setSelectedCertificate] = useState<Candidate | null>(null);
+  const [welcomePacksSent, setWelcomePacksSent] = useState(false);
+  const [logsSynced, setLogsSynced] = useState(false);
   
   const message = "✨ Contracts complete. Payroll flow unlocked. All signatures received. Certificates ready — stored under Contracts > Certificates of Contract.";
   const words = message.split(' ');
@@ -105,20 +107,28 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         className="flex gap-3"
       >
         <Button
-          onClick={onSendWelcomePacks}
+          onClick={() => {
+            setWelcomePacksSent(true);
+            onSendWelcomePacks();
+          }}
           variant="outline"
           className="flex-1"
+          disabled={welcomePacksSent}
         >
           <PackageOpen className="h-4 w-4 mr-2" />
-          Send Welcome Packs
+          {welcomePacksSent ? "Welcome Packs Sent" : "Send Welcome Packs"}
         </Button>
         <Button
-          onClick={onSyncLogs}
+          onClick={() => {
+            setLogsSynced(true);
+            onSyncLogs();
+          }}
           variant="outline"
           className="flex-1"
+          disabled={logsSynced}
         >
           <FileCheck className="h-4 w-4 mr-2" />
-          Sync Logs
+          {logsSynced ? "Logs Synced" : "Sync Logs"}
         </Button>
         <Button
           onClick={onOpenDashboard}

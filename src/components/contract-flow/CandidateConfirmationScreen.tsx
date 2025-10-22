@@ -65,15 +65,6 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           : status
       );
       
-      // Show Genie notification for individual candidate
-      if (candidate) {
-        setTimeout(() => {
-          toast.success(`✅ ${candidate.name} has completed their onboarding form. All details synced and the contract is ready for review.`, {
-            duration: 5000,
-          });
-        }, 500);
-      }
-      
       // Check if all data is now complete
       const allComplete = updated.every((status) => status.dataComplete);
       if (allComplete) {

@@ -266,25 +266,11 @@ const ContractFlowDemo = () => {
               ) : contractFlow.phase === "complete" ? (
                 <motion.div key="complete" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
                   <div className="w-full max-w-3xl space-y-8">
-                    {/* Data Transition Compliance Note */}
-                    <div className="space-y-6">
-                      {contractFlow.selectedCandidates.map((candidate, index) => (
-                        <motion.div
-                          key={candidate.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.2, duration: 0.4 }}
-                        >
-                          <ComplianceTransitionNote candidateName={candidate.name} />
-                        </motion.div>
-                      ))}
-                    </div>
-
                     {/* Contract Flow Summary */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: contractFlow.selectedCandidates.length * 0.2 + 0.3, duration: 0.4 }}
+                      transition={{ delay: 0.3, duration: 0.4 }}
                     >
                       <ContractFlowSummary 
                         candidates={contractFlow.selectedCandidates} 
