@@ -61,7 +61,7 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
         );
       } else if (isHeading) {
         return (
-          <div key={index} className="font-semibold mt-6 mb-2">
+          <div key={index} className="font-semibold mt-6 mb-1">
             {line}
           </div>
         );
