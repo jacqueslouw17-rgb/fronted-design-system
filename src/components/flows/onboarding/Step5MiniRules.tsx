@@ -238,21 +238,6 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
         )}
       </div>
 
-      {isLoadingFields ? (
-        <Skeleton className="h-11 w-full" />
-      ) : (
-        <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
-        {externalProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "Save Rules & Continue"
-        )}
-        </Button>
-      )}
-
       {/* Scenario Builder Section */}
       {!isLoadingFields && (
         <motion.div
