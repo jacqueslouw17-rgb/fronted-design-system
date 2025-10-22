@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 
 export type ContractFlowPhase = 
+  | "prompt"
+  | "generating"
   | "idle" 
   | "notification" 
   | "drafting" 
@@ -68,12 +70,19 @@ export const useMockCandidates = (): Candidate[] => [
   }
 ];
 
-export const useContractFlow = () => {
-  const [phase, setPhase] = useState<ContractFlowPhase>("idle");
+export const useContractFlow = (version: "v3" | "v5" = "v3") => {
+  const [phase, setPhase] = useState<ContractFlowPhase>(version === "v5" ? "prompt" : "idle");
   const [selectedCandidates, setSelectedCandidates] = useState<Candidate[]>([]);
   const [currentDraftIndex, setCurrentDraftIndex] = useState(0);
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [signedCandidates, setSignedCandidates] = useState<string[]>([]);
+
+  const startPromptFlow = useCallback(() => {
+    setPhase("generating");
+    setTimeout(() => {
+      setPhase("idle");
+    }, 2000);
+  }, []);
 
   const startFlow = useCallback(() => {
     setPhase("notification");
@@ -86,12 +95,15 @@ export const useContractFlow = () => {
   }, []);
 
   const nextDraft = useCallback(() => {
-    if (currentDraftIndex < selectedCandidates.length - 1) {
+    // v5: only show one draft, then go to reviewing
+    if (version === "v5") {
+      setPhase("reviewing");
+    } else if (currentDraftIndex < selectedCandidates.length - 1) {
       setCurrentDraftIndex(prev => prev + 1);
     } else {
       setPhase("reviewing");
     }
-  }, [currentDraftIndex, selectedCandidates.length]);
+  }, [currentDraftIndex, selectedCandidates.length, version]);
 
   const addReviewComment = useCallback((candidateId: string, comment: string) => {
     setReviewComments(prev => ({ ...prev, [candidateId]: comment }));
@@ -110,12 +122,12 @@ export const useContractFlow = () => {
   }, []);
 
   const resetFlow = useCallback(() => {
-    setPhase("idle");
+    setPhase(version === "v5" ? "prompt" : "idle");
     setSelectedCandidates([]);
     setCurrentDraftIndex(0);
     setReviewComments({});
     setSignedCandidates([]);
-  }, []);
+  }, [version]);
 
   return {
     phase,
@@ -123,6 +135,7 @@ export const useContractFlow = () => {
     currentDraftIndex,
     reviewComments,
     signedCandidates,
+    startPromptFlow,
     startFlow,
     prepareDrafts,
     nextDraft,

@@ -27,8 +27,8 @@ import DrawerToggle from "./DrawerToggle";
 
 interface TopbarProps {
   userName: string;
-  version?: "v1" | "v2" | "v3" | "v4";
-  onVersionChange?: (version: "v1" | "v2" | "v3" | "v4") => void;
+  version?: "v1" | "v2" | "v3" | "v4" | "v5";
+  onVersionChange?: (version: "v1" | "v2" | "v3" | "v4" | "v5") => void;
   isAgentOpen?: boolean;
   onAgentToggle?: () => void;
   isDrawerOpen?: boolean;
@@ -78,6 +78,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
               <SelectItem value="v2">v2</SelectItem>
               <SelectItem value="v3">v3</SelectItem>
               <SelectItem value="v4">v4 (Payroll Demo)</SelectItem>
+              <SelectItem value="v5">v5 (Pitch Demo)</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -106,8 +107,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           </Button>
         )}
         
-        {/* Drawer Toggle - only shown in v3 */}
-        {version === "v3" && onDrawerToggle && (
+        {/* Drawer Toggle - only shown in v3 and v5 */}
+        {(version === "v3" || version === "v5") && onDrawerToggle && (
           <DrawerToggle isOpen={isDrawerOpen || false} onClick={onDrawerToggle} />
         )}
         

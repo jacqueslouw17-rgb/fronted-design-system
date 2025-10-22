@@ -19,9 +19,12 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 const ContractFlowDemo = () => {
   // const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
   const { toast } = useToast();
-  const contractFlow = useContractFlow();
+  const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
+  const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
+  const [promptText, setPromptText] = React.useState("");
+  const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
 
   const userData = {
     firstName: "Joe",
@@ -34,6 +37,25 @@ const ContractFlowDemo = () => {
   const idleMessage = "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
   const idleWords = idleMessage.split(' ');
 
+  const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
+  
+  useEffect(() => {
+    if (contractFlow.phase === "prompt" && !isTypingPrompt) {
+      setIsTypingPrompt(true);
+      setPromptText("");
+      let charIndex = 0;
+      const typeInterval = setInterval(() => {
+        if (charIndex < mockPrompt.length) {
+          setPromptText(mockPrompt.substring(0, charIndex + 1));
+          charIndex++;
+        } else {
+          clearInterval(typeInterval);
+        }
+      }, 50);
+      return () => clearInterval(typeInterval);
+    }
+  }, [contractFlow.phase, isTypingPrompt]);
+
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
       const timer = setTimeout(() => {
@@ -44,11 +66,13 @@ const ContractFlowDemo = () => {
   }, [currentWordIndex, idleWords.length]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      contractFlow.startFlow();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (contractFlow.phase === "idle" && (version === "v3" || version === "v5")) {
+      const timer = setTimeout(() => {
+        contractFlow.startFlow();
+      }, version === "v3" ? 1000 : 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [contractFlow.phase, version]);
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -65,8 +89,8 @@ const ContractFlowDemo = () => {
         {/* Topbar */}
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
-          version="v3"
-          onVersionChange={() => {}}
+          version={version}
+          onVersionChange={setVersion}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
         />
@@ -78,7 +102,51 @@ const ContractFlowDemo = () => {
           {/* Contract Flow Main Area */}
           <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
             <AnimatePresence mode="wait">
-              {contractFlow.phase === "idle" || contractFlow.phase === "notification" ? (
+              {contractFlow.phase === "prompt" ? (
+                <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
+                  <div className="w-full max-w-2xl space-y-6">
+                    <div className="text-center mb-8">
+                      <h2 className="text-3xl font-bold text-foreground mb-2">Contract Flow Assistant</h2>
+                      <p className="text-muted-foreground">What would you like me to help you with?</p>
+                    </div>
+                    <div className="relative">
+                      <div className="border border-border rounded-lg bg-background p-4 shadow-lg">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                            value={promptText}
+                            readOnly
+                            placeholder="Type your request..."
+                            className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                          />
+                          {promptText.length === mockPrompt.length && (
+                            <Button 
+                              onClick={() => contractFlow.startPromptFlow()}
+                              className="whitespace-nowrap"
+                            >
+                              Generate
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : contractFlow.phase === "generating" ? (
+                <motion.div key="generating" className="flex flex-col items-center justify-center min-h-full p-8">
+                  <div className="w-full max-w-2xl space-y-6 text-center">
+                    <AudioWaveVisualizer isActive={true} />
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <span className="animate-pulse">Preparing contracts</span>
+                      <span className="flex gap-1">
+                        <span className="animate-bounce" style={{ animationDelay: "0ms" }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: "150ms" }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : contractFlow.phase === "idle" || contractFlow.phase === "notification" ? (
                 <motion.div key="notification" className="flex flex-col items-center justify-center min-h-full p-8">
                   <div className="w-full max-w-2xl space-y-6">
                     <div className="text-center mb-8 flex flex-col items-center space-y-4">
