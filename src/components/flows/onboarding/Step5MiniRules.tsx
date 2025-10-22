@@ -3,9 +3,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Pencil, Trash2, Shield, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Shield, Loader2, Sparkles, GitCompare } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import ScenarioBuilderDrawer, { Scenario } from "./ScenarioBuilderDrawer";
+import ScenarioPreviewCard from "./ScenarioPreviewCard";
+import ScenarioCompareView from "./ScenarioCompareView";
 
 interface Step5Props {
   formData: Record<string, any>;
@@ -45,6 +49,12 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  
+  // Scenario state
+  const [scenarios, setScenarios] = useState<Scenario[]>(formData.scenarios || []);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
 
   const handleEdit = (rule: Rule) => {
     setEditingId(rule.id);
@@ -75,6 +85,37 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
     handleEdit(newRule);
   };
 
+  const handleSaveScenario = (scenario: Scenario) => {
+    if (editingScenario) {
+      setScenarios(prev => prev.map(s => s.id === scenario.id ? scenario : s));
+      toast({
+        title: "Scenario updated",
+        description: "Your scenario has been updated successfully"
+      });
+    } else {
+      setScenarios(prev => [...prev, scenario]);
+      toast({
+        title: "Scenario saved!",
+        description: "I'll keep this ready for future payroll runs."
+      });
+    }
+    setIsDrawerOpen(false);
+    setEditingScenario(null);
+  };
+
+  const handleEditScenario = (scenario: Scenario) => {
+    setEditingScenario(scenario);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDeleteScenario = (id: string) => {
+    setScenarios(prev => prev.filter(s => s.id !== id));
+    toast({
+      title: "Scenario removed",
+      description: "The scenario has been deleted"
+    });
+  };
+
   const handleSave = () => {
     if (rules.length === 0) {
       toast({
@@ -86,12 +127,15 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
     }
 
     toast({
-      title: "Mini-Rules saved",
-      description: `${rules.length} rules configured`
+      title: scenarios.length > 0 ? "You're all set" : "Mini-Rules saved",
+      description: scenarios.length > 0 
+        ? "Fronted now understands how to adapt automatically."
+        : `${rules.length} rules configured`
     });
 
     onComplete("mini_rules_setup", {
-      miniRules: rules
+      miniRules: rules,
+      scenarios: scenarios
     });
   };
 
@@ -208,6 +252,114 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
         )}
         </Button>
       )}
+
+      {/* Scenario Builder Section */}
+      {!isLoadingFields && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4 space-y-4"
+        >
+          <div className="flex items-start gap-2">
+            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">
+                💡 Want to test alternate rule setups or payroll conditions?
+              </p>
+            </div>
+          </div>
+          
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Scenario
+          </Button>
+
+          {/* Scenario Cards */}
+          {scenarios.length > 0 && (
+            <div className="space-y-3 pt-2">
+              {!showCompare ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Saved Scenarios</Label>
+                    {scenarios.length >= 2 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowCompare(!showCompare)}
+                        className="h-7 text-xs"
+                      >
+                        <GitCompare className="h-3 w-3 mr-1" />
+                        Compare Scenarios
+                      </Button>
+                    )}
+                  </div>
+                  <AnimatePresence mode="popLayout">
+                    {scenarios.map((scenario, index) => (
+                      <ScenarioPreviewCard
+                        key={scenario.id}
+                        scenario={scenario}
+                        onEdit={handleEditScenario}
+                        onDelete={handleDeleteScenario}
+                        index={index}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  <div className="flex items-start gap-2 p-3 bg-card/50 rounded-lg border border-border/30">
+                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      Scenario rules make your operations adaptive and self-tuning.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Scenario Comparison</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowCompare(false)}
+                      className="h-7 text-xs"
+                    >
+                      Back to Cards
+                    </Button>
+                  </div>
+                  <ScenarioCompareView scenarios={scenarios} />
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {isLoadingFields ? (
+        <Skeleton className="h-11 w-full" />
+      ) : (
+        <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+        {externalProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Save Rules & Continue"
+        )}
+        </Button>
+      )}
+
+      {/* Scenario Builder Drawer */}
+      <ScenarioBuilderDrawer
+        open={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        onSave={handleSaveScenario}
+        editingScenario={editingScenario}
+      />
     </div>
   );
 };
