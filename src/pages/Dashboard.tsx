@@ -56,8 +56,6 @@ const Dashboard = ({
   
   // V3 Contract Flow State
   const contractFlow = useContractFlow();
-  const [v3KurtMessage, setV3KurtMessage] = useState("");
-  const [v3ShowContractors, setV3ShowContractors] = useState(false);
   
   // V4 Payroll Demo State
   type Phase = "idle" | "processing" | "results" | "audit";
@@ -116,13 +114,6 @@ const Dashboard = ({
       setV4Message(msg);
       speak(msg);
       setV4Phase("idle");
-    } else if (version === "v3") {
-      // Initialize v3 contract flow
-      const timer = setTimeout(() => {
-        contractFlow.startFlow();
-        setV3KurtMessage("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
-      }, 2000);
-      return () => clearTimeout(timer);
     } else {
       // Reset to closed when switching back to v1
       setIsAgentOpen(false);
@@ -670,7 +661,7 @@ const Dashboard = ({
                 {/* Dashboard Drawer */}
                 <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
                 
-                {/* Agent Main Area */}
+                {/* Contract Flow Main Area */}
                 <AnimatePresence mode="wait">
                   {isTransitioning ? (
                     <motion.div
@@ -687,11 +678,75 @@ const Dashboard = ({
                       </div>
                     </motion.div>
                   ) : (
-                    <AgentMain 
-                      key="agent"
-                      userData={userData} 
-                      isDrawerOpen={isDrawerOpen} 
-                    />
+                    <motion.div
+                      key="contract-flow"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex-1 overflow-auto"
+                    >
+                      {contractFlow.phase === "idle" && (
+                        <div className="h-full flex items-center justify-center p-8">
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center space-y-6 max-w-2xl"
+                          >
+                            <AudioWaveVisualizer isActive={false} />
+                            <div className="space-y-2">
+                              <h1 className="text-4xl font-bold">Hi {userData.firstName}, what would you like to know?</h1>
+                              <p className="text-muted-foreground">Ask me anything or use voice input to get started</p>
+                            </div>
+                            <Button 
+                              onClick={contractFlow.startFlow}
+                              size="lg"
+                              className="mt-8 bg-gradient-to-r from-primary to-secondary"
+                            >
+                              Start Contract Flow
+                            </Button>
+                          </motion.div>
+                        </div>
+                      )}
+
+                      {contractFlow.phase === "notification" && (
+                        <ContractFlowNotification
+                          candidates={contractFlow.selectedCandidates}
+                          onPrepareDrafts={contractFlow.prepareDrafts}
+                        />
+                      )}
+
+                      {contractFlow.phase === "drafting" && (
+                        <ContractDraftWorkspace
+                          candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]}
+                          index={contractFlow.currentDraftIndex}
+                          total={contractFlow.selectedCandidates.length}
+                          onNext={contractFlow.nextDraft}
+                        />
+                      )}
+
+                      {contractFlow.phase === "reviewing" && (
+                        <ContractReviewBoard
+                          candidates={contractFlow.selectedCandidates}
+                          onStartSigning={contractFlow.startSigning}
+                        />
+                      )}
+
+                      {contractFlow.phase === "signing" && (
+                        <ContractSignaturePhase
+                          candidates={contractFlow.selectedCandidates}
+                          onComplete={contractFlow.completeFlow}
+                        />
+                      )}
+
+                      {contractFlow.phase === "complete" && (
+                        <ContractFlowSummary
+                          candidates={contractFlow.selectedCandidates}
+                          onSendWelcomePacks={() => toast({ title: "Welcome packs sent!" })}
+                          onSyncLogs={() => toast({ title: "Logs synced!" })}
+                          onOpenDashboard={contractFlow.resetFlow}
+                        />
+                      )}
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </main>
