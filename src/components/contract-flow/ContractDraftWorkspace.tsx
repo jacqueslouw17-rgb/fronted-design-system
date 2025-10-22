@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InlineEditContext } from "@/components/InlineEditContext";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { ContractCarousel } from "./ContractCarousel";
@@ -292,23 +293,25 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </p>
         </motion.div>
 
-        <div className="flex-1 mb-4 overflow-y-auto">
-          <InlineEditContext
-            content={content}
-            className="min-h-[400px] mb-4"
-          />
+        <ScrollArea className="flex-1 mb-4 max-h-[600px]">
+          <div className="pr-4">
+            <InlineEditContext
+              content={content}
+              className="min-h-[400px] mb-4"
+            />
 
-          {/* Carousel navigation appears after typing */}
-          {showCarousel && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ContractCarousel pages={carouselPages} />
-            </motion.div>
-          )}
-        </div>
+            {/* Carousel navigation appears after typing */}
+            {showCarousel && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ContractCarousel pages={carouselPages} />
+              </motion.div>
+            )}
+          </div>
+        </ScrollArea>
 
         <Button
           onClick={onNext}
