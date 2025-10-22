@@ -4,8 +4,11 @@ export type ContractFlowPhase =
   | "prompt"
   | "generating"
   | "idle" 
-  | "notification" 
-  | "drafting" 
+  | "notification"
+  | "offer-accepted"
+  | "data-collection" 
+  | "drafting"
+  | "bundle-creation" 
   | "reviewing" 
   | "signing" 
   | "complete";
@@ -94,13 +97,26 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   }, []);
 
   const startFlow = useCallback(() => {
-    setPhase("notification");
+    setPhase("offer-accepted");
     setSelectedCandidates(useMockCandidates());
   }, []);
 
-  const prepareDrafts = useCallback(() => {
+  const proceedToDataCollection = useCallback(() => {
+    setPhase("data-collection");
+  }, []);
+
+  const proceedToDrafting = useCallback(() => {
     setPhase("drafting");
     setCurrentDraftIndex(0);
+  }, []);
+
+  const prepareDrafts = useCallback(() => {
+    setPhase("bundle-creation");
+    setCurrentDraftIndex(0);
+  }, []);
+
+  const proceedFromBundle = useCallback(() => {
+    setPhase("drafting");
   }, []);
 
   const nextDraft = useCallback(() => {
@@ -146,7 +162,10 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     signedCandidates,
     startPromptFlow,
     startFlow,
+    proceedToDataCollection,
+    proceedToDrafting,
     prepareDrafts,
+    proceedFromBundle,
     nextDraft,
     addReviewComment,
     startSigning,

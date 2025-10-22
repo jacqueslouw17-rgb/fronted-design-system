@@ -33,7 +33,7 @@ export const ContractFlowNotification: React.FC<ContractFlowNotificationProps> =
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold text-foreground">Shortlist Ready</h3>
+              <h3 className="font-semibold text-foreground">Offers Accepted</h3>
             </div>
             <Badge variant="secondary">{candidates.length}</Badge>
           </div>
