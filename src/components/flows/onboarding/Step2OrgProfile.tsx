@@ -4,10 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Building2, Mail, User, Globe, Calendar, Loader2 } from "lucide-react";
+import { Building2, Mail, User, Globe, Calendar, Loader2, Plus, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion, AnimatePresence } from "framer-motion";
+import PayrollScenarioModal, { PayrollScenario } from "./PayrollScenarioModal";
+import PayrollScenarioCard from "./PayrollScenarioCard";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -29,6 +32,11 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
     payoutDay: formData.payoutDay || "25",
     dualApproval: formData.dualApproval ?? true
   });
+
+  // Payroll scenarios state
+  const [payrollScenarios, setPayrollScenarios] = useState<PayrollScenario[]>(formData.payrollScenarios || []);
+  const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);
+  const [editingScenario, setEditingScenario] = useState<PayrollScenario | null>(null);
 
   // Watch for formData updates from Kurt and show loading state
   useEffect(() => {
@@ -83,7 +91,37 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
       description: "Your company information has been recorded"
     });
 
-    onComplete("org_profile", data);
+    onComplete("org_profile", { ...data, payrollScenarios });
+  };
+
+  const handleSaveScenario = (scenario: PayrollScenario) => {
+    if (editingScenario) {
+      setPayrollScenarios(prev => prev.map(s => s.id === scenario.id ? scenario : s));
+      toast({
+        title: "Configuration updated",
+        description: "Payroll scenario has been updated"
+      });
+    } else {
+      setPayrollScenarios(prev => [...prev, scenario]);
+      toast({
+        title: "Configuration added",
+        description: "New payroll scenario created successfully"
+      });
+    }
+    setEditingScenario(null);
+  };
+
+  const handleEditScenario = (scenario: PayrollScenario) => {
+    setEditingScenario(scenario);
+    setIsScenarioModalOpen(true);
+  };
+
+  const handleDeleteScenario = (id: string) => {
+    setPayrollScenarios(prev => prev.filter(s => s.id !== id));
+    toast({
+      title: "Configuration removed",
+      description: "Payroll scenario has been deleted"
+    });
   };
 
   return (
@@ -316,6 +354,54 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
             )}
           </div>
         </div>
+
+        {/* Payroll Scenarios Section */}
+        {!isLoadingFields && payrollScenarios.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+            className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10"
+          >
+            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground flex-1">
+              💡 Need different payroll setups per country or team? Add configurations below.
+            </p>
+          </motion.div>
+        )}
+
+        {!isLoadingFields && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditingScenario(null);
+              setIsScenarioModalOpen(true);
+            }}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Configuration
+          </Button>
+        )}
+
+        {/* Scenario Cards */}
+        {payrollScenarios.length > 0 && !isLoadingFields && (
+          <div className="space-y-2 pt-2">
+            <Label className="text-sm font-medium">Additional Configurations</Label>
+            <AnimatePresence mode="popLayout">
+              {payrollScenarios.map((scenario, index) => (
+                <PayrollScenarioCard
+                  key={scenario.id}
+                  scenario={scenario}
+                  onEdit={handleEditScenario}
+                  onDelete={handleDeleteScenario}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {isLoadingFields ? (
@@ -332,6 +418,14 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
           )}
         </Button>
       )}
+
+      {/* Payroll Scenario Modal */}
+      <PayrollScenarioModal
+        open={isScenarioModalOpen}
+        onOpenChange={setIsScenarioModalOpen}
+        onSave={handleSaveScenario}
+        editingScenario={editingScenario}
+      />
     </div>
   );
 };

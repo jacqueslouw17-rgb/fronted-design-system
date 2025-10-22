@@ -3,13 +3,25 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Pencil, Trash2, Shield, Loader2, Sparkles, GitCompare } from "lucide-react";
+import { Plus, MoreVertical, Trash2, Shield, Loader2, Sparkles, Tag, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import ScenarioBuilderDrawer, { Scenario } from "./ScenarioBuilderDrawer";
-import ScenarioPreviewCard from "./ScenarioPreviewCard";
-import ScenarioCompareView from "./ScenarioCompareView";
+import { motion } from "framer-motion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Step5Props {
   formData: Record<string, any>;
@@ -19,27 +31,38 @@ interface Step5Props {
   isLoadingFields?: boolean;
 }
 
+type RuleTag = "approval" | "compliance" | "policy" | "payroll" | "fx";
+type TriggerType = "date" | "threshold" | "country_change" | "role_type";
+
 interface Rule {
   id: string;
-  type: "approval" | "compliance" | "policy";
+  tag: RuleTag;
+  triggerType: TriggerType;
   description: string;
+  linkedAction?: string;
 }
 
 const STARTER_RULES: Rule[] = [
   {
     id: "r1",
-    type: "approval",
-    description: "Tag Finance when payroll batch > 100k"
+    tag: "approval",
+    triggerType: "threshold",
+    description: "Tag Finance when payroll batch > 100k",
+    linkedAction: "Notify approver"
   },
   {
     id: "r2",
-    type: "compliance",
-    description: "Remind contractor 7 days before doc expiry"
+    tag: "compliance",
+    triggerType: "date",
+    description: "Remind contractor 7 days before doc expiry",
+    linkedAction: "Trigger compliance check"
   },
   {
     id: "r3",
-    type: "policy",
-    description: "Default paid leave: 5d (PH), 0d (NO), 0d (IN/XK) unless override"
+    tag: "policy",
+    triggerType: "country_change",
+    description: "Default paid leave: 5d (PH), 0d (NO), 0d (IN/XK) unless override",
+    linkedAction: "Auto-adjust"
   }
 ];
 
@@ -47,73 +70,48 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   const [rules, setRules] = useState<Rule[]>(
     formData.miniRules || STARTER_RULES
   );
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  
-  // Scenario state
-  const [scenarios, setScenarios] = useState<Scenario[]>(formData.scenarios || []);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
-  const [showCompare, setShowCompare] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<Rule | null>(null);
 
-  const handleEdit = (rule: Rule) => {
-    setEditingId(rule.id);
-    setEditValue(rule.description);
+  const handleOpenEditModal = (rule: Rule) => {
+    setEditFormData({ ...rule });
+    setEditModalOpen(true);
   };
 
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = () => {
+    if (!editFormData) return;
+    
     setRules(prev =>
       prev.map(r =>
-        r.id === id ? { ...r, description: editValue } : r
+        r.id === editFormData.id ? editFormData : r
       )
     );
-    setEditingId(null);
-    setEditValue("");
+    setEditModalOpen(false);
+    setEditFormData(null);
+    toast({
+      title: "Rule updated",
+      description: "Your changes have been saved"
+    });
   };
 
   const handleDelete = (id: string) => {
     setRules(prev => prev.filter(r => r.id !== id));
+    toast({
+      title: "Rule deleted",
+      description: "The rule has been removed"
+    });
   };
 
   const handleAddRule = () => {
     const newRule: Rule = {
       id: `r${Date.now()}`,
-      type: "policy",
-      description: "New rule (click to edit)"
+      tag: "policy",
+      triggerType: "threshold",
+      description: "New rule (click ⋮ to edit)",
+      linkedAction: "Auto-adjust"
     };
     setRules(prev => [...prev, newRule]);
-    handleEdit(newRule);
-  };
-
-  const handleSaveScenario = (scenario: Scenario) => {
-    if (editingScenario) {
-      setScenarios(prev => prev.map(s => s.id === scenario.id ? scenario : s));
-      toast({
-        title: "Scenario updated",
-        description: "Your scenario has been updated successfully"
-      });
-    } else {
-      setScenarios(prev => [...prev, scenario]);
-      toast({
-        title: "Scenario saved!",
-        description: "I'll keep this ready for future payroll runs."
-      });
-    }
-    setIsDrawerOpen(false);
-    setEditingScenario(null);
-  };
-
-  const handleEditScenario = (scenario: Scenario) => {
-    setEditingScenario(scenario);
-    setIsDrawerOpen(true);
-  };
-
-  const handleDeleteScenario = (id: string) => {
-    setScenarios(prev => prev.filter(s => s.id !== id));
-    toast({
-      title: "Scenario removed",
-      description: "The scenario has been deleted"
-    });
+    handleOpenEditModal(newRule);
   };
 
   const handleSave = () => {
@@ -127,25 +125,34 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
     }
 
     toast({
-      title: scenarios.length > 0 ? "You're all set" : "Mini-Rules saved",
-      description: scenarios.length > 0 
-        ? "Fronted now understands how to adapt automatically."
-        : `${rules.length} rules configured`
+      title: "Mini-Rules saved",
+      description: `${rules.length} rules configured successfully`
     });
 
     onComplete("mini_rules_setup", {
-      miniRules: rules,
-      scenarios: scenarios
+      miniRules: rules
     });
   };
 
-  const getTypeColor = (type: Rule["type"]) => {
+  const getTagColor = (tag: RuleTag) => {
     const colors = {
       approval: "bg-amber-500/10 text-amber-600 border-amber-500/20",
       compliance: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-      policy: "bg-green-500/10 text-green-600 border-green-500/20"
+      policy: "bg-green-500/10 text-green-600 border-green-500/20",
+      payroll: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+      fx: "bg-orange-500/10 text-orange-600 border-orange-500/20"
     };
-    return colors[type];
+    return colors[tag];
+  };
+
+  const getTriggerTypeLabel = (type: TriggerType) => {
+    const labels = {
+      date: "Date",
+      threshold: "Threshold",
+      country_change: "Country Change",
+      role_type: "Role Type"
+    };
+    return labels[type];
   };
 
   return (
@@ -158,6 +165,17 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
             Mini-Rules Setup
           </h3>
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10"
+        >
+          <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Mini-Rules keep your operations agile — tag, adjust, and automate checks anytime.
+          </p>
+        </motion.div>
       </div>
 
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
@@ -166,7 +184,7 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
           {!isLoadingFields && (
             <Button size="sm" variant="outline" onClick={handleAddRule}>
               <Plus className="h-3 w-3 mr-1" />
-              Add
+              Add Rule
             </Button>
           )}
         </div>
@@ -178,173 +196,171 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
           </div>
         ) : (
           rules.map((rule) => (
-          <div
-            key={rule.id}
-            className="p-3 rounded-lg border border-border/50 bg-card hover:shadow-sm transition-shadow"
-          >
-            <div className="flex items-start gap-2">
-              <Badge variant="secondary" className={cn("mt-1 text-xs", getTypeColor(rule.type))}>
-                {rule.type}
-              </Badge>
-              <div className="flex-1 min-w-0">
-                {editingId === rule.id ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSaveEdit(rule.id);
-                        if (e.key === "Escape") setEditingId(null);
-                      }}
-                      autoFocus
-                      className="text-sm"
-                    />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => handleSaveEdit(rule.id)}>
-                        Save
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm">{rule.description}</p>
-                )}
-              </div>
-              {editingId !== rule.id && (
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0"
-                    onClick={() => handleEdit(rule)}
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(rule.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-          ))
-        )}
-      </div>
-
-      {/* Scenario Builder Section */}
-      {!isLoadingFields && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4 space-y-4"
-        >
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">
-                💡 Want to test alternate rule setups or payroll conditions?
-              </p>
-            </div>
-          </div>
-          
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => setIsDrawerOpen(true)}
-            className="w-full sm:w-auto"
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            Add Scenario
-          </Button>
-
-          {/* Scenario Cards */}
-          {scenarios.length > 0 && (
-            <div className="space-y-3 pt-2">
-              {!showCompare ? (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Saved Scenarios</Label>
-                    {scenarios.length >= 2 && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setShowCompare(!showCompare)}
-                        className="h-7 text-xs"
-                      >
-                        <GitCompare className="h-3 w-3 mr-1" />
-                        Compare Scenarios
-                      </Button>
+            <div
+              key={rule.id}
+              className="p-3 rounded-lg border border-border/50 bg-card hover:shadow-sm transition-shadow"
+            >
+              <div className="flex items-start gap-2">
+                <Badge variant="secondary" className={cn("mt-1 text-xs", getTagColor(rule.tag))}>
+                  {rule.tag}
+                </Badge>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm mb-2">{rule.description}</p>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Zap className="h-3 w-3" />
+                      {getTriggerTypeLabel(rule.triggerType)}
+                    </span>
+                    {rule.linkedAction && (
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        {rule.linkedAction}
+                      </span>
                     )}
                   </div>
-                  <AnimatePresence mode="popLayout">
-                    {scenarios.map((scenario, index) => (
-                      <ScenarioPreviewCard
-                        key={scenario.id}
-                        scenario={scenario}
-                        onEdit={handleEditScenario}
-                        onDelete={handleDeleteScenario}
-                        index={index}
-                      />
-                    ))}
-                  </AnimatePresence>
-                  <div className="flex items-start gap-2 p-3 bg-card/50 rounded-lg border border-border/30">
-                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-muted-foreground">
-                      Scenario rules make your operations adaptive and self-tuning.
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Scenario Comparison</Label>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setShowCompare(false)}
-                      className="h-7 text-xs"
+                      className="h-7 w-7 p-0"
                     >
-                      Back to Cards
+                      <MoreVertical className="h-3 w-3" />
                     </Button>
-                  </div>
-                  <ScenarioCompareView scenarios={scenarios} />
-                </div>
-              )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
+                      <Tag className="h-3 w-3 mr-2" />
+                      Edit Tags
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
+                      <Zap className="h-3 w-3 mr-2" />
+                      Change Trigger Type
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
+                      Update Description
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleDelete(rule.id)}
+                      className="text-sm text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Delete Rule
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          )}
-        </motion.div>
-      )}
+          ))
+        )}
+      </div>
 
       {isLoadingFields ? (
         <Skeleton className="h-11 w-full" />
       ) : (
         <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
-        {externalProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "Save Rules & Continue"
-        )}
+          {externalProcessing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "Save Rules & Continue"
+          )}
         </Button>
       )}
 
-      {/* Scenario Builder Drawer */}
-      <ScenarioBuilderDrawer
-        open={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-        onSave={handleSaveScenario}
-        editingScenario={editingScenario}
-      />
+      {/* Edit Rule Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Edit Rule</DialogTitle>
+          </DialogHeader>
+          
+          {editFormData && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="tag" className="text-sm">Rule Tag</Label>
+                <Select
+                  value={editFormData.tag}
+                  onValueChange={(val: RuleTag) => setEditFormData(prev => prev ? { ...prev, tag: val } : null)}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="approval">Approval</SelectItem>
+                    <SelectItem value="compliance">Compliance</SelectItem>
+                    <SelectItem value="policy">Policy</SelectItem>
+                    <SelectItem value="payroll">Payroll</SelectItem>
+                    <SelectItem value="fx">FX</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="triggerType" className="text-sm">Trigger Type</Label>
+                <Select
+                  value={editFormData.triggerType}
+                  onValueChange={(val: TriggerType) => setEditFormData(prev => prev ? { ...prev, triggerType: val } : null)}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">Date</SelectItem>
+                    <SelectItem value="threshold">Threshold</SelectItem>
+                    <SelectItem value="country_change">Country Change</SelectItem>
+                    <SelectItem value="role_type">Role Type</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="linkedAction" className="text-sm">Linked Action</Label>
+                <Select
+                  value={editFormData.linkedAction || "none"}
+                  onValueChange={(val) => setEditFormData(prev => prev ? { ...prev, linkedAction: val === "none" ? undefined : val } : null)}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="Trigger compliance check">Trigger compliance check</SelectItem>
+                    <SelectItem value="Notify approver">Notify approver</SelectItem>
+                    <SelectItem value="Auto-adjust">Auto-adjust</SelectItem>
+                    <SelectItem value="Send alert">Send alert</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm">Description</Label>
+                <Input
+                  id="description"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData(prev => prev ? { ...prev, description: e.target.value } : null)}
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" onClick={() => setEditModalOpen(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveEdit} className="flex-1">
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
