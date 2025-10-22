@@ -28,23 +28,15 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   candidate,
   onComplete,
 }) => {
-  const [formData, setFormData] = useState({
-    nationalId: "",
-    taxResidence: "",
-    bankAccount: "",
-    emergencyContact: "",
-    additionalInfo: "",
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendForm = async () => {
     setIsSubmitting(true);
 
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    toast.success(`I've sent the secure onboarding form to ${candidate.name}. You'll be notified when it's completed and ready for contract generation.`, {
+    toast.success(`✅ Secure onboarding form sent to ${candidate.name}. You'll be notified once it's completed.`, {
       duration: 5000,
     });
     setIsSubmitting(false);
@@ -77,9 +69,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           transition={{ delay: 0.2, duration: 0.3 }}
           className="mt-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
         >
-          <p className="text-sm font-medium text-foreground mb-1">Onboarding Data Collection Form</p>
+          <p className="text-sm font-medium text-foreground mb-1">Onboarding Data Collection Form Preview</p>
           <p className="text-xs text-muted-foreground mb-2">
-            Purpose: Collect missing information to finalize the employment contract.
+            This form will be sent to the candidate to collect missing information needed to finalize the employment contract.
           </p>
           <p className="text-xs text-muted-foreground">
             Note: Fronted ensures personal data is stored securely and shared only with authorized HR and payroll admins.
@@ -92,85 +84,56 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           <span>GDPR & {candidate.country} Employment Law Compliant</span>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+        {/* Form fields preview (read-only for admin) */}
+        <div className="mt-6 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="nationalId" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               National ID / Passport
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              id="nationalId"
-              placeholder="Enter national ID or passport number"
-              value={formData.nationalId}
-              onChange={(e) =>
-                setFormData({ ...formData, nationalId: e.target.value })
-              }
-              required
-            />
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              To be filled by candidate
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="taxResidence" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               Tax Residence
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              id="taxResidence"
-              placeholder="Country of tax residence"
-              value={formData.taxResidence}
-              onChange={(e) =>
-                setFormData({ ...formData, taxResidence: e.target.value })
-              }
-              required
-            />
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              To be filled by candidate
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bankAccount" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               Bank Account Details
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              id="bankAccount"
-              placeholder="IBAN or local bank account number"
-              value={formData.bankAccount}
-              onChange={(e) =>
-                setFormData({ ...formData, bankAccount: e.target.value })
-              }
-              required
-            />
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              To be filled by candidate
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="emergencyContact" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               Emergency Contact
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              id="emergencyContact"
-              placeholder="Name and phone number"
-              value={formData.emergencyContact}
-              onChange={(e) =>
-                setFormData({ ...formData, emergencyContact: e.target.value })
-              }
-              required
-            />
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              To be filled by candidate
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="additionalInfo">
+            <Label>
               Additional Information
               <span className="text-muted-foreground text-xs ml-2">(Optional)</span>
             </Label>
-            <Input
-              id="additionalInfo"
-              placeholder="Any other relevant information"
-              value={formData.additionalInfo}
-              onChange={(e) =>
-                setFormData({ ...formData, additionalInfo: e.target.value })
-              }
-            />
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+              To be filled by candidate
+            </div>
           </div>
 
           {/* Preview message */}
@@ -187,6 +150,13 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             </div>
           </div>
 
+          {/* Micro-tip */}
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground italic">
+              These fields will be filled by the candidate — not you.
+            </p>
+          </div>
+
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
             <Button
@@ -199,14 +169,15 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               Cancel
             </Button>
             <Button
-              type="submit"
+              type="button"
+              onClick={handleSendForm}
               disabled={isSubmitting}
               className="flex-1"
             >
               {isSubmitting ? "Sending..." : "Send Form"}
             </Button>
           </div>
-        </form>
+        </div>
       </SheetContent>
     </Sheet>
   );
