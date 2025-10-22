@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,19 +15,6 @@ export const ContractFlowNotification: React.FC<ContractFlowNotificationProps> =
   candidates,
   onPrepareDrafts,
 }) => {
-  const message = "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
-  const words = message.split(' ');
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentWordIndex < words.length) {
-      const timer = setTimeout(() => {
-        setCurrentWordIndex(prev => prev + 1);
-      }, 150); // 150ms per word
-      return () => clearTimeout(timer);
-    }
-  }, [currentWordIndex, words.length]);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -35,29 +22,6 @@ export const ContractFlowNotification: React.FC<ContractFlowNotificationProps> =
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="space-y-4"
     >
-      {/* Kurt's message */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
-      >
-        <p className="text-sm">
-          {words.map((word, index) => (
-            <span
-              key={index}
-              className={`transition-colors duration-150 ${
-                index < currentWordIndex
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              {word}{index < words.length - 1 ? ' ' : ''}
-            </span>
-          ))}
-        </p>
-      </motion.div>
-
       {/* Candidate list */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}

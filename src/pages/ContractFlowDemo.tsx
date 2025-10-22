@@ -100,25 +100,15 @@ const ContractFlowDemo = () => {
                           </span>
                         ))}
                       </p>
-                      {contractFlow.phase === "notification" && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.5 }}
-                          className="mt-6"
-                        >
-                          <Button 
-                            onClick={() => { 
-                              contractFlow.prepareDrafts(); 
-                            }}
-                            size="lg"
-                            className="bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
-                          >
-                            Prepare Drafts
-                          </Button>
-                        </motion.div>
-                      )}
                     </div>
+                    {contractFlow.phase === "notification" && (
+                      <ContractFlowNotification 
+                        candidates={contractFlow.selectedCandidates} 
+                        onPrepareDrafts={() => { 
+                          contractFlow.prepareDrafts(); 
+                        }} 
+                      />
+                    )}
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
