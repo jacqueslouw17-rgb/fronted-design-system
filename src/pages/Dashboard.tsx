@@ -20,6 +20,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Timeline } from "@/components/AgentContextualTimeline";
 import type { TimelineEvent } from "@/components/AgentContextualTimeline";
 import confetti from "canvas-confetti";
+import { useContractFlow } from "@/hooks/useContractFlow";
+import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
+import { ContractDraftWorkspace } from "@/components/contract-flow/ContractDraftWorkspace";
+import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
+import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
+import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
+import { ActiveContractorsWidget } from "@/components/contract-flow/ActiveContractorsWidget";
 
 interface DashboardProps {
   userData?: {
@@ -46,6 +53,11 @@ const Dashboard = ({
   const [isAgentOpen, setIsAgentOpen] = useState(false);
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // V3 Contract Flow State
+  const contractFlow = useContractFlow();
+  const [v3KurtMessage, setV3KurtMessage] = useState("");
+  const [v3ShowContractors, setV3ShowContractors] = useState(false);
   
   // V4 Payroll Demo State
   type Phase = "idle" | "processing" | "results" | "audit";
@@ -104,6 +116,13 @@ const Dashboard = ({
       setV4Message(msg);
       speak(msg);
       setV4Phase("idle");
+    } else if (version === "v3") {
+      // Initialize v3 contract flow
+      const timer = setTimeout(() => {
+        contractFlow.startFlow();
+        setV3KurtMessage("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
+      }, 2000);
+      return () => clearTimeout(timer);
     } else {
       // Reset to closed when switching back to v1
       setIsAgentOpen(false);
