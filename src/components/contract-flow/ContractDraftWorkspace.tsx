@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InlineEditContext } from "@/components/InlineEditContext";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
-import { FileText, CheckCircle2 } from "lucide-react";
+import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { ContractCarousel } from "./ContractCarousel";
+import { ContextualBadge } from "./ContextualBadge";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -47,11 +49,13 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 }) => {
   const [isTyping, setIsTyping] = useState(true);
   const [content, setContent] = useState("");
+  const [showCarousel, setShowCarousel] = useState(false);
   const fullContent = getContractContent(candidate);
 
   useEffect(() => {
     setIsTyping(true);
     setContent("");
+    setShowCarousel(false);
     
     // Simulate typing effect
     let currentIndex = 0;
@@ -61,12 +65,119 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         currentIndex += Math.floor(Math.random() * 3) + 1; // Variable speed
       } else {
         setIsTyping(false);
+        setShowCarousel(true);
         clearInterval(typingInterval);
       }
     }, 10);
 
     return () => clearInterval(typingInterval);
   }, [candidate.id, fullContent]);
+
+  // Carousel pages
+  const carouselPages = [
+    {
+      id: "summary",
+      title: "Page 1: Summary & Compensation",
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Position</p>
+              <p className="text-sm font-medium text-foreground">{candidate.role}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Salary</p>
+              <p className="text-sm font-medium text-foreground">{candidate.salary}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Start Date</p>
+              <p className="text-sm font-medium text-foreground">{candidate.startDate}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">PTO</p>
+              <p className="text-sm font-medium text-foreground">{candidate.pto}</p>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground mb-2">Benefits Package</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <Briefcase className="h-3 w-3 text-primary" />
+                <span className="text-foreground">Standard health coverage</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <Shield className="h-3 w-3 text-primary" />
+                <span className="text-foreground">Professional development budget</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "legal",
+      title: "Page 2: Legal & Compliance Clauses",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-xs font-medium text-foreground">Clause 6: Overtime Pay</p>
+                <ContextualBadge
+                  text="AI Context"
+                  explanation={`Overtime pay adjusted for ${candidate.country}. Want to sync this across NO/XK for parity?`}
+                  onApplyGlobally={() => console.log("Apply globally")}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Overtime compensation follows {candidate.country} labor law standards.
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-xs font-medium text-foreground mb-2">IP Assignment</p>
+              <p className="text-xs text-muted-foreground">
+                All intellectual property created during employment belongs to the company.
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-xs font-medium text-foreground mb-2">Notice Period</p>
+              <p className="text-xs text-muted-foreground">
+                {candidate.noticePeriod} notice required as per local regulations.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "signoff",
+      title: "Page 3: Sign-off & Signatures",
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <p className="text-xs font-medium text-foreground mb-2">Employer Signature</p>
+            <div className="h-16 border-b-2 border-dashed border-border mb-2 flex items-end pb-2">
+              <span className="text-sm italic text-muted-foreground">Company Representative</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Date: {new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+            <p className="text-xs font-medium text-foreground mb-2">Employee Signature</p>
+            <div className="h-16 border-b-2 border-dashed border-border mb-2 flex items-end pb-2">
+              <span className="text-sm italic text-muted-foreground">{candidate.name}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">To be signed via: {candidate.signingPortal}</p>
+          </div>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-success/5 border border-success/20">
+            <FileText className="h-4 w-4 text-success" />
+            <p className="text-xs text-muted-foreground">
+              Contract ready for review and signature
+            </p>
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <motion.div
@@ -169,11 +280,34 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </span>
         </div>
 
-        <div className="flex-1 mb-4">
+        {/* Genie message */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
+          className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4"
+        >
+          <p className="text-sm text-foreground">
+            Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
+          </p>
+        </motion.div>
+
+        <div className="flex-1 mb-4 overflow-y-auto">
           <InlineEditContext
             content={content}
-            className="h-full overflow-y-auto"
+            className="min-h-[400px] mb-4"
           />
+
+          {/* Carousel navigation appears after typing */}
+          {showCarousel && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ContractCarousel pages={carouselPages} />
+            </motion.div>
+          )}
         </div>
 
         <Button

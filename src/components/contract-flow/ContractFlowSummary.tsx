@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PackageOpen, FileCheck, Home } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { CertificateCard } from "./CertificateCard";
+import { useToast } from "@/hooks/use-toast";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -18,7 +20,10 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   onSyncLogs,
   onOpenDashboard,
 }) => {
-  const message = "All three contracts are finalized, Joe. Your new hires are officially onboarded and ready. Shall I send welcome packs or sync compliance logs next?";
+  const { toast } = useToast();
+  const [selectedCertificate, setSelectedCertificate] = useState<Candidate | null>(null);
+  
+  const message = "✨ Contracts complete. Payroll flow unlocked. All signatures received. Certificates ready — stored under Contracts > Certificates of Contract.";
   const words = message.split(' ');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
@@ -61,35 +66,35 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         </p>
       </motion.div>
 
-      {/* Summary card */}
+      {/* Certificate cards with hover actions */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.3 }}
       >
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Contracts Finalized</h3>
-          <div className="space-y-3">
-            {candidates.map((candidate, index) => (
-              <motion.div
-                key={candidate.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-                className="flex items-center gap-3 p-3 rounded-lg bg-success/5 border border-success/20"
-              >
-                <span className="text-2xl">{candidate.flag}</span>
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">{candidate.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {candidate.role} • Starts {candidate.startDate}
-                  </p>
-                </div>
-                <FileCheck className="h-5 w-5 text-success" />
-              </motion.div>
-            ))}
-          </div>
-        </Card>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Certificates of Contract</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {candidates.map((candidate, index) => (
+            <CertificateCard
+              key={candidate.id}
+              candidate={candidate}
+              index={index}
+              onView={() => setSelectedCertificate(candidate)}
+              onGeneratePayslip={() => 
+                toast({ 
+                  title: "Payslip Generated", 
+                  description: `Payslip for ${candidate.name} is ready` 
+                })
+              }
+              onAttachPolicy={() => 
+                toast({ 
+                  title: "Policy Attached", 
+                  description: `Benefit policy attached to ${candidate.name}'s contract` 
+                })
+              }
+            />
+          ))}
+        </div>
       </motion.div>
 
       {/* Action buttons */}

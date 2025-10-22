@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { StatusChip } from "./StatusChip";
 
 interface ContractFlowNotificationProps {
   candidates: Candidate[];
@@ -44,11 +45,18 @@ export const ContractFlowNotification: React.FC<ContractFlowNotificationProps> =
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-                className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                whileHover={{ scale: 1.02, borderColor: "hsl(var(--primary) / 0.3)" }}
+                className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all duration-200 border border-transparent"
               >
                 <span className="text-2xl">{candidate.flag}</span>
                 <div className="flex-1">
-                  <p className="font-medium text-foreground">{candidate.name}</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium text-foreground">{candidate.name}</p>
+                    <StatusChip 
+                      type="ready" 
+                      label={`${candidate.countryCode} Offer Ready`} 
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {candidate.role}, {candidate.country}
                   </p>

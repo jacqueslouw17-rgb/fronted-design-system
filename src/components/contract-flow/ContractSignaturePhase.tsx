@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, PenTool } from "lucide-react";
+import { CheckCircle2, PenTool, Send, FileCheck, Award } from "lucide-react";
 import confetti from "canvas-confetti";
 import type { Candidate } from "@/hooks/useContractFlow";
+
+type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
 interface ContractSignaturePhaseProps {
   candidates: Candidate[];
@@ -18,6 +20,9 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
 }) => {
   const [signingIndex, setSigningIndex] = useState(0);
   const [signedCandidates, setSignedCandidates] = useState<string[]>([]);
+  const [candidateSteps, setCandidateSteps] = useState<Record<string, SigningStep>>(
+    candidates.reduce((acc, c) => ({ ...acc, [c.id]: "drafting" }), {})
+  );
 
   useEffect(() => {
     // Trigger confetti
@@ -52,12 +57,25 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
       return () => clearTimeout(timer);
     }
 
-    const timer = setTimeout(() => {
-      setSignedCandidates(prev => [...prev, candidates[signingIndex].id]);
-      setSigningIndex(prev => prev + 1);
-    }, 1500);
+    const currentCandidate = candidates[signingIndex];
+    const steps: SigningStep[] = ["drafting", "sent", "signing", "certified"];
+    let stepIndex = 0;
 
-    return () => clearTimeout(timer);
+    const stepInterval = setInterval(() => {
+      if (stepIndex < steps.length) {
+        setCandidateSteps(prev => ({
+          ...prev,
+          [currentCandidate.id]: steps[stepIndex],
+        }));
+        stepIndex++;
+      } else {
+        clearInterval(stepInterval);
+        setSignedCandidates(prev => [...prev, currentCandidate.id]);
+        setSigningIndex(prev => prev + 1);
+      }
+    }, 500);
+
+    return () => clearInterval(stepInterval);
   }, [signingIndex, candidates, onComplete]);
 
   const progress = (signedCandidates.length / candidates.length) * 100;
@@ -100,6 +118,16 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
           {candidates.map((candidate, index) => {
             const isSigned = signedCandidates.includes(candidate.id);
             const isCurrent = index === signingIndex;
+            const currentStep = candidateSteps[candidate.id] || "drafting";
+
+            const stepConfig = {
+              drafting: { icon: PenTool, label: "Drafting", color: "text-muted-foreground" },
+              sent: { icon: Send, label: "Sent to Contractor", color: "text-primary" },
+              signing: { icon: PenTool, label: "Signing", color: "text-primary" },
+              certified: { icon: Award, label: "Certified", color: "text-success" },
+            };
+
+            const { icon: StepIcon, label: stepLabel, color: stepColor } = stepConfig[currentStep];
 
             return (
               <motion.div
@@ -139,7 +167,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <div className="space-y-3 pt-3 border-t border-border">
                       <div className="space-y-1">
                         <p className="text-xs text-muted-foreground">Signing via</p>
                         <p className="text-xs font-medium text-foreground">
@@ -147,27 +175,37 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
                         </p>
                       </div>
 
-                      {isSigned ? (
-                        <motion.div
-                          initial={{ scale: 0, rotate: -180 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ type: "spring", duration: 0.5 }}
-                        >
-                          <Badge variant="default" className="bg-success/10 text-success hover:bg-success/20">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Signed
-                          </Badge>
-                        </motion.div>
-                      ) : isCurrent ? (
-                        <motion.div
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ repeat: Infinity, duration: 1.5 }}
-                        >
-                          <PenTool className="h-5 w-5 text-primary" />
-                        </motion.div>
-                      ) : (
-                        <Badge variant="secondary">Pending</Badge>
-                      )}
+                      {/* Step sequence visualization */}
+                      <div className="flex items-center gap-2">
+                        {isSigned ? (
+                          <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", duration: 0.5 }}
+                          >
+                            <Badge variant="default" className="bg-success/10 text-success hover:bg-success/20">
+                              <Award className="h-3 w-3 mr-1" />
+                              Certified
+                            </Badge>
+                          </motion.div>
+                        ) : isCurrent ? (
+                          <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center gap-2"
+                          >
+                            <motion.div
+                              animate={{ scale: [1, 1.1, 1] }}
+                              transition={{ repeat: Infinity, duration: 1.5 }}
+                            >
+                              <StepIcon className={`h-4 w-4 ${stepColor}`} />
+                            </motion.div>
+                            <span className={`text-xs font-medium ${stepColor}`}>{stepLabel}</span>
+                          </motion.div>
+                        ) : (
+                          <Badge variant="secondary">Pending</Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>
