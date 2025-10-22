@@ -86,12 +86,9 @@ export const useContractFlow = () => {
   }, []);
 
   const nextDraft = useCallback(() => {
-    if (currentDraftIndex < selectedCandidates.length - 1) {
-      setCurrentDraftIndex(prev => prev + 1);
-    } else {
-      setPhase("reviewing");
-    }
-  }, [currentDraftIndex, selectedCandidates.length]);
+    // For demo purposes, skip directly to reviewing after first draft
+    setPhase("reviewing");
+  }, []);
 
   const addReviewComment = useCallback((candidateId: string, comment: string) => {
     setReviewComments(prev => ({ ...prev, [candidateId]: comment }));
