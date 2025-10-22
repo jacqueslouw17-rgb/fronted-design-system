@@ -17,7 +17,7 @@ import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 const ContractFlowDemo = () => {
-  const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
+  // const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
   const { toast } = useToast();
   const contractFlow = useContractFlow();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
@@ -33,7 +33,7 @@ const ContractFlowDemo = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       contractFlow.startFlow();
-      speak("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
+      // speak("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -78,7 +78,7 @@ const ContractFlowDemo = () => {
                         candidates={contractFlow.selectedCandidates} 
                         onPrepareDrafts={() => { 
                           contractFlow.prepareDrafts(); 
-                          speak("I've selected the localized contract templates."); 
+                          // speak("I've selected the localized contract templates."); 
                         }} 
                       />
                     )}
@@ -91,9 +91,9 @@ const ContractFlowDemo = () => {
                     index={contractFlow.currentDraftIndex} 
                     total={contractFlow.selectedCandidates.length} 
                     onNext={() => { 
-                      if (contractFlow.currentDraftIndex === contractFlow.selectedCandidates.length - 1) speak("All drafts are ready."); 
+                      // if (contractFlow.currentDraftIndex === contractFlow.selectedCandidates.length - 1) speak("All drafts are ready."); 
                       contractFlow.nextDraft(); 
-                    }} 
+                    }}
                   />
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
@@ -102,8 +102,8 @@ const ContractFlowDemo = () => {
                     candidates={contractFlow.selectedCandidates} 
                     onStartSigning={() => { 
                       contractFlow.startSigning(); 
-                      speak("Preparing for e-signature."); 
-                    }} 
+                      // speak("Preparing for e-signature."); 
+                    }}
                   />
                 </motion.div>
               ) : contractFlow.phase === "signing" ? (
@@ -112,8 +112,8 @@ const ContractFlowDemo = () => {
                     candidates={contractFlow.selectedCandidates} 
                     onComplete={() => { 
                       contractFlow.completeFlow(); 
-                      speak("All three contracts are finalized."); 
-                    }} 
+                      // speak("All three contracts are finalized."); 
+                    }}
                   />
                 </motion.div>
               ) : contractFlow.phase === "complete" ? (
