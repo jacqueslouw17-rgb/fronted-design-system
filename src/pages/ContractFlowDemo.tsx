@@ -34,7 +34,9 @@ const ContractFlowDemo = () => {
     role: "admin"
   };
 
-  const idleMessage = "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
+  const idleMessage = version === "v5" 
+    ? "I've prepared contract drafts for all three candidates based on your requirements."
+    : "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
   const idleWords = idleMessage.split(' ');
 
   const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
@@ -141,7 +143,7 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "generating" ? (
                 <motion.div key="generating" className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-2xl space-y-6 text-center">
+                  <div className="flex flex-col items-center justify-center space-y-6">
                     <AudioWaveVisualizer isActive={true} />
                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
                       <span className="animate-pulse">Preparing contracts</span>
