@@ -40,21 +40,28 @@ const ContractFlowDemo = () => {
   const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
   
   useEffect(() => {
-    if (contractFlow.phase === "prompt" && !isTypingPrompt) {
-      setIsTypingPrompt(true);
+    if (contractFlow.phase === "prompt") {
+      setIsTypingPrompt(false);
       setPromptText("");
-      let charIndex = 0;
-      const typeInterval = setInterval(() => {
-        if (charIndex < mockPrompt.length) {
-          setPromptText(mockPrompt.substring(0, charIndex + 1));
-          charIndex++;
-        } else {
-          clearInterval(typeInterval);
-        }
-      }, 50);
-      return () => clearInterval(typeInterval);
+      setCurrentWordIndex(0);
+      
+      // Start typing after a brief delay
+      const startDelay = setTimeout(() => {
+        setIsTypingPrompt(true);
+        let charIndex = 0;
+        const typeInterval = setInterval(() => {
+          if (charIndex < mockPrompt.length) {
+            setPromptText(mockPrompt.substring(0, charIndex + 1));
+            charIndex++;
+          } else {
+            clearInterval(typeInterval);
+          }
+        }, 50);
+      }, 300);
+      
+      return () => clearTimeout(startDelay);
     }
-  }, [contractFlow.phase, isTypingPrompt]);
+  }, [contractFlow.phase]);
 
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {

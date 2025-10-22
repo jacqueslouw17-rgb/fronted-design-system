@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export type ContractFlowPhase = 
   | "prompt"
@@ -76,6 +76,15 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   const [currentDraftIndex, setCurrentDraftIndex] = useState(0);
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [signedCandidates, setSignedCandidates] = useState<string[]>([]);
+
+  // Reset phase when version changes
+  useEffect(() => {
+    setPhase(version === "v5" ? "prompt" : "idle");
+    setSelectedCandidates([]);
+    setCurrentDraftIndex(0);
+    setReviewComments({});
+    setSignedCandidates([]);
+  }, [version]);
 
   const startPromptFlow = useCallback(() => {
     setPhase("generating");
