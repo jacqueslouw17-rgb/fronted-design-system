@@ -31,7 +31,7 @@ const ContractFlowDemo = () => {
     role: "admin"
   };
 
-  const idleMessage = "Ask me anything or use voice input to get started";
+  const idleMessage = "Hey Joe, looks like three shortlisted candidates are ready for contract drafting. Would you like me to prepare their drafts?";
   const idleWords = idleMessage.split(' ');
 
   useEffect(() => {
@@ -83,10 +83,10 @@ const ContractFlowDemo = () => {
               {contractFlow.phase === "idle" || contractFlow.phase === "notification" ? (
                 <motion.div key="notification" className="flex flex-col items-center justify-center min-h-full p-8">
                   <div className="w-full max-w-2xl space-y-6">
-                    <div className="text-center mb-8 flex flex-col items-center">
+                    <div className="text-center mb-8 flex flex-col items-center space-y-4">
                       <AudioWaveVisualizer isActive={false} />
                       <h2 className="text-3xl font-bold text-foreground mt-6">Hi Joe, ready to finalize your hires?</h2>
-                      <p className="text-muted-foreground mt-2">
+                      <p className="text-base max-w-xl">
                         {idleWords.map((word, index) => (
                           <span
                             key={index}
@@ -100,16 +100,25 @@ const ContractFlowDemo = () => {
                           </span>
                         ))}
                       </p>
+                      {contractFlow.phase === "notification" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="mt-6"
+                        >
+                          <Button 
+                            onClick={() => { 
+                              contractFlow.prepareDrafts(); 
+                            }}
+                            size="lg"
+                            className="bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
+                          >
+                            Prepare Drafts
+                          </Button>
+                        </motion.div>
+                      )}
                     </div>
-                    {contractFlow.phase === "notification" && (
-                      <ContractFlowNotification 
-                        candidates={contractFlow.selectedCandidates} 
-                        onPrepareDrafts={() => { 
-                          contractFlow.prepareDrafts(); 
-                          // speak("I've selected the localized contract templates."); 
-                        }} 
-                      />
-                    )}
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
