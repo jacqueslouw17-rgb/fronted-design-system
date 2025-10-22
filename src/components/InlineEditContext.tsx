@@ -44,6 +44,35 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
     };
   }, []);
 
+  // Format content with enhanced heading hierarchy
+  const formatContent = (text: string) => {
+    const lines = text.split('\n');
+    return lines.map((line, index) => {
+      // Check if line is a numbered heading (e.g., "1. POSITION AND DUTIES")
+      const isHeading = /^\d+\.\s+[A-Z\s]+$/.test(line.trim());
+      // Check if line is the main title
+      const isTitle = line.trim() === 'EMPLOYMENT AGREEMENT';
+      
+      if (isTitle) {
+        return (
+          <div key={index} className="font-semibold mb-4">
+            {line}
+          </div>
+        );
+      } else if (isHeading) {
+        return (
+          <div key={index} className="font-semibold mt-6 mb-2">
+            {line}
+          </div>
+        );
+      } else if (line.trim()) {
+        return <div key={index}>{line}</div>;
+      } else {
+        return <div key={index} className="h-4" />;
+      }
+    });
+  };
+
   return (
     <div
       ref={containerRef}
@@ -54,9 +83,9 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
       )}
     >
       <div 
-        className="prose prose-sm max-w-none text-foreground transition-all duration-300 whitespace-pre-wrap"
+        className="prose prose-sm max-w-none text-foreground transition-all duration-300"
       >
-        {content}
+        {formatContent(content)}
       </div>
       {children}
     </div>
