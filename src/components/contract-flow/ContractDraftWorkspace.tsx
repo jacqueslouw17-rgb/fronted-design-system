@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InlineEditContext } from "@/components/InlineEditContext";
+import { InlineToolbar } from "@/components/InlineToolbar";
+import { AIPromptInput } from "@/components/AIPromptInput";
+import { AIProcessingState } from "@/components/AIProcessingState";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
+import { toast } from "sonner";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -51,6 +55,11 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [isTyping, setIsTyping] = useState(true);
   const [content, setContent] = useState("");
   const [showCarousel, setShowCarousel] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [toolbarVisible, setToolbarVisible] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+  const [promptVisible, setPromptVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fullContent = getContractContent(candidate);
 
   useEffect(() => {
@@ -73,6 +82,54 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
     return () => clearInterval(typingInterval);
   }, [candidate.id, fullContent]);
+
+  const handleTextSelect = (text: string, position: { x: number; y: number }) => {
+    if (text) {
+      setSelectedText(text);
+      setToolbarVisible(true);
+      setToolbarPosition(position);
+      setPromptVisible(false);
+    } else {
+      setToolbarVisible(false);
+      setPromptVisible(false);
+    }
+  };
+
+  const handleAskAI = () => {
+    setPromptVisible(true);
+  };
+
+  const handleQuickAction = (action: string) => {
+    if (action === "improve") {
+      handlePromptSubmit("Improve the writing of this text");
+    }
+  };
+
+  const handlePromptSubmit = async (prompt: string) => {
+    setIsProcessing(true);
+    setToolbarVisible(false);
+    setPromptVisible(false);
+
+    // Simulate AI processing
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Apply transformation based on prompt
+    let transformedText = selectedText;
+    if (prompt.toLowerCase().includes("improve") || prompt.toLowerCase().includes("rewrite")) {
+      transformedText = selectedText
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    } else if (prompt.toLowerCase().includes("simplify")) {
+      transformedText = selectedText.toLowerCase();
+    }
+
+    const newContent = content.replace(selectedText, transformedText);
+    setContent(newContent);
+    setIsProcessing(false);
+
+    toast.success("Text updated successfully");
+  };
 
   // Carousel pages
   const carouselPages = [
@@ -297,8 +354,24 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           <div className="pr-4">
             <InlineEditContext
               content={content}
+              onContentChange={setContent}
+              onSelect={handleTextSelect}
               className="min-h-[400px] mb-4"
-            />
+            >
+              <InlineToolbar
+                visible={toolbarVisible && !isProcessing}
+                position={toolbarPosition}
+                onAskAI={handleAskAI}
+                onQuickAction={handleQuickAction}
+              />
+              <AIPromptInput
+                visible={promptVisible && !isProcessing}
+                position={toolbarPosition}
+                onSubmit={handlePromptSubmit}
+                onClose={() => setPromptVisible(false)}
+              />
+              <AIProcessingState visible={isProcessing} />
+            </InlineEditContext>
 
             {/* Carousel navigation appears after typing */}
             {showCarousel && (
