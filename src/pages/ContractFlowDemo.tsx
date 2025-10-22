@@ -12,6 +12,8 @@ import { ContractDraftWorkspace } from "@/components/contract-flow/ContractDraft
 import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
 import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
+import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
+import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
@@ -192,6 +194,13 @@ const ContractFlowDemo = () => {
                 <motion.div key="offer-accepted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
                   <CandidateConfirmationScreen
                     candidates={contractFlow.selectedCandidates}
+                    onProceed={() => contractFlow.proceedToDataCollection()}
+                  />
+                </motion.div>
+              ) : contractFlow.phase === "data-collection" ? (
+                <motion.div key="data-collection" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
+                  <CandidateConfirmationScreen
+                    candidates={contractFlow.selectedCandidates}
                     onProceed={() => contractFlow.prepareDrafts()}
                   />
                 </motion.div>
@@ -256,13 +265,34 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "complete" ? (
                 <motion.div key="complete" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-3xl">
-                    <ContractFlowSummary 
-                      candidates={contractFlow.selectedCandidates} 
-                      onSendWelcomePacks={() => toast({ title: "📦 Welcome Packs Sent" })} 
-                      onSyncLogs={() => toast({ title: "📋 Logs Synced" })} 
-                      onOpenDashboard={() => toast({ title: "✅ Dashboard Updated" })} 
-                    />
+                  <div className="w-full max-w-3xl space-y-8">
+                    {/* Data Transition Compliance Note */}
+                    <div className="space-y-6">
+                      {contractFlow.selectedCandidates.map((candidate, index) => (
+                        <motion.div
+                          key={candidate.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.2, duration: 0.4 }}
+                        >
+                          <ComplianceTransitionNote candidateName={candidate.name} />
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Contract Flow Summary */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: contractFlow.selectedCandidates.length * 0.2 + 0.3, duration: 0.4 }}
+                    >
+                      <ContractFlowSummary 
+                        candidates={contractFlow.selectedCandidates} 
+                        onSendWelcomePacks={() => toast({ title: "📦 Welcome Packs Sent" })} 
+                        onSyncLogs={() => toast({ title: "📋 Logs Synced" })} 
+                        onOpenDashboard={() => toast({ title: "✅ Dashboard Updated" })} 
+                      />
+                    </motion.div>
                   </div>
                 </motion.div>
               ) : null}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle, FileText, Send } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
+import { toast } from "sonner";
 
 interface CandidateConfirmationScreenProps {
   candidates: Candidate[];
@@ -38,13 +39,25 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   };
 
   const handleFormComplete = (candidateId: string) => {
-    setCandidateDataStatus((prev) =>
-      prev.map((status) =>
+    setCandidateDataStatus((prev) => {
+      const updated = prev.map((status) =>
         status.id === candidateId
           ? { ...status, dataComplete: true, missingFields: [] }
           : status
-      )
-    );
+      );
+      
+      // Check if all data is now complete
+      const allComplete = updated.every((status) => status.dataComplete);
+      if (allComplete) {
+        setTimeout(() => {
+          toast.success("✅ All required information received from all candidates. Contract drafts are prefilled and ready for your review!", {
+            duration: 5000,
+          });
+        }, 500);
+      }
+      
+      return updated;
+    });
     setDrawerOpen(false);
   };
 
@@ -67,10 +80,10 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           className="text-center space-y-3"
         >
           <h2 className="text-3xl font-bold text-foreground">
-            🎉 Great news — your selected candidates have accepted their offers!
+            🎉 Great news — these candidates have accepted their offers!
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Ready to finalize contracts and kick off onboarding?
+            Are you ready to finalize the formalities, sign their contracts, and start onboarding?
           </p>
         </motion.div>
 
@@ -82,7 +95,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
         >
           <p className="text-sm text-foreground">
-            Let's confirm each candidate's details and prepare their contracts with localized compliance templates.
+            Before we create their contracts, let's make sure we have all required personal details.
           </p>
         </motion.div>
 
@@ -139,29 +152,41 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                       </div>
 
                       {!isComplete && dataStatus && (
-                        <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-border">
-                          <p className="text-xs text-muted-foreground mb-2">Missing information:</p>
-                          <div className="flex flex-wrap gap-2">
+                        <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
+                          <p className="text-xs font-medium text-foreground mb-2">⚠️ Missing Details:</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
                             {dataStatus.missingFields.map((field) => (
                               <Badge key={field} variant="secondary" className="text-xs">
                                 {field}
                               </Badge>
                             ))}
                           </div>
+                          <p className="text-xs text-muted-foreground">
+                            Would you like me to send a secure onboarding form to the candidate to complete these details?
+                          </p>
                         </div>
                       )}
 
                       <div className="flex gap-2">
                         {!isComplete ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleSendForm(candidate.id)}
-                            className="flex items-center gap-2"
-                          >
-                            <Send className="h-3 w-3" />
-                            Send Onboarding Form
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleSendForm(candidate.id)}
+                              className="flex items-center gap-2"
+                            >
+                              <Send className="h-3 w-3" />
+                              Send Form
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex items-center gap-2"
+                            >
+                              Edit Manually
+                            </Button>
+                          </>
                         ) : (
                           <Button
                             size="sm"

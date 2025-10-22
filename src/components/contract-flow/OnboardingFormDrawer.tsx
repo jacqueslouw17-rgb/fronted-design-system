@@ -44,7 +44,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    toast.success("Onboarding form sent successfully");
+    toast.success(`I've sent the secure onboarding form to ${candidate.name}. You'll be notified when it's completed and ready for contract generation.`, {
+      duration: 5000,
+    });
     setIsSubmitting(false);
     onComplete();
     onOpenChange(false);
@@ -68,15 +70,19 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           </SheetDescription>
         </SheetHeader>
 
-        {/* Genie message */}
+        {/* Info message */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.3 }}
           className="mt-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
         >
-          <p className="text-sm text-foreground">
-            Fronted ensures personal data is stored securely and shared only with authorized HR and payroll admins.
+          <p className="text-sm font-medium text-foreground mb-1">Onboarding Data Collection Form</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            Purpose: Collect missing information to finalize the employment contract.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Note: Fronted ensures personal data is stored securely and shared only with authorized HR and payroll admins.
           </p>
         </motion.div>
 
