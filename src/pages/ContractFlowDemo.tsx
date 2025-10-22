@@ -14,6 +14,7 @@ import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 const ContractFlowDemo = () => {
   const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
@@ -38,7 +39,8 @@ const ContractFlowDemo = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <RoleLensProvider initialRole="admin">
+      <div className="min-h-screen flex w-full bg-background">
       {/* Left Sidebar */}
       <NavSidebar 
         onGenieToggle={() => {}}
@@ -131,6 +133,7 @@ const ContractFlowDemo = () => {
         </main>
       </div>
     </div>
+    </RoleLensProvider>
   );
 };
 
