@@ -21,6 +21,7 @@ const ContractFlowDemo = () => {
   const { toast } = useToast();
   const contractFlow = useContractFlow();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
+  const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
 
   const userData = {
     firstName: "Joe",
@@ -30,9 +31,22 @@ const ContractFlowDemo = () => {
     role: "admin"
   };
 
+  const idleMessage = "Ask me anything or use voice input to get started";
+  const idleWords = idleMessage.split(' ');
+
+  useEffect(() => {
+    if (contractFlow.phase === "idle" && currentWordIndex < idleWords.length) {
+      const timer = setTimeout(() => {
+        setCurrentWordIndex(prev => prev + 1);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [currentWordIndex, contractFlow.phase, idleWords.length]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       contractFlow.startFlow();
+      setCurrentWordIndex(0); // Reset for notification phase
       // speak("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
     }, 1000);
     return () => clearTimeout(timer);
@@ -72,6 +86,20 @@ const ContractFlowDemo = () => {
                     <div className="text-center mb-8 flex flex-col items-center">
                       <AudioWaveVisualizer isActive={false} />
                       <h2 className="text-3xl font-bold text-foreground mt-6">Hi Joe, ready to finalize your hires?</h2>
+                      <p className="text-muted-foreground mt-2">
+                        {idleWords.map((word, index) => (
+                          <span
+                            key={index}
+                            className={`transition-colors duration-150 ${
+                              index < currentWordIndex
+                                ? 'text-foreground font-medium'
+                                : 'text-muted-foreground'
+                            }`}
+                          >
+                            {word}{index < idleWords.length - 1 ? ' ' : ''}
+                          </span>
+                        ))}
+                      </p>
                     </div>
                     {contractFlow.phase === "notification" && (
                       <ContractFlowNotification 

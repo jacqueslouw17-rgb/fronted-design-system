@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +18,19 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   onSyncLogs,
   onOpenDashboard,
 }) => {
+  const message = "All three contracts are finalized, Joe. Your new hires are officially onboarded and ready. Shall I send welcome packs or sync compliance logs next?";
+  const words = message.split(' ');
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentWordIndex < words.length) {
+      const timer = setTimeout(() => {
+        setCurrentWordIndex(prev => prev + 1);
+      }, 150); // 150ms per word
+      return () => clearTimeout(timer);
+    }
+  }, [currentWordIndex, words.length]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,9 +45,19 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         transition={{ delay: 0.2, duration: 0.3 }}
         className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-6"
       >
-        <p className="text-base text-foreground">
-          All three contracts are finalized, Joe. Your new hires are officially onboarded and ready. 
-          Shall I send welcome packs or sync compliance logs next?
+        <p className="text-base">
+          {words.map((word, index) => (
+            <span
+              key={index}
+              className={`transition-colors duration-150 ${
+                index < currentWordIndex
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              {word}{index < words.length - 1 ? ' ' : ''}
+            </span>
+          ))}
         </p>
       </motion.div>
 
