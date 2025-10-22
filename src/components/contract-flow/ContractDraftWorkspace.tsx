@@ -28,7 +28,22 @@ const getContractContent = (candidate: Candidate) => {
 This Employment Agreement ("Agreement") is entered into between Fronted AS ("Company") and ${candidate.name} ("Employee").
 
 1. POSITION AND DUTIES
-Employee will serve as ${candidate.role}, reporting to the Head of Engineering. Employee agrees to perform duties as assigned by the Company.`;
+Employee will serve as ${candidate.role}, reporting to the Head of Engineering. Employee agrees to perform duties as assigned by the Company.
+
+2. COMPENSATION
+Employee will receive a salary of ${candidate.salary}, payable in ${candidate.currency} on a monthly basis.
+
+3. START DATE
+Employment will commence on ${candidate.startDate}.
+
+4. NOTICE PERIOD
+Either party may terminate this Agreement with ${candidate.noticePeriod} written notice.
+
+5. PAID TIME OFF
+Employee is entitled to ${candidate.pto} of paid time off annually.
+
+6. GOVERNING LAW
+This Agreement shall be governed by the laws of ${candidate.country}.`;
 };
 
 export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({

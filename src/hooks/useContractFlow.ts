@@ -37,34 +37,6 @@ export const useMockCandidates = (): Candidate[] => [
     pto: "15 days/year",
     currency: "PHP",
     signingPortal: "PH eSign Portal"
-  },
-  {
-    id: "2",
-    name: "Oskar Nilsen",
-    role: "DevOps Engineer",
-    country: "Norway",
-    countryCode: "NO",
-    flag: "🇳🇴",
-    salary: "NOK 65,000/mo",
-    startDate: "Nov 15, 2025",
-    noticePeriod: "60 days",
-    pto: "25 days/year",
-    currency: "NOK",
-    signingPortal: "NO Altinn"
-  },
-  {
-    id: "3",
-    name: "Arta Krasniqi",
-    role: "QA Specialist",
-    country: "Kosovo",
-    countryCode: "XK",
-    flag: "🇽🇰",
-    salary: "€2,800/mo",
-    startDate: "Dec 10, 2025",
-    noticePeriod: "15 days",
-    pto: "20 days/year",
-    currency: "EUR",
-    signingPortal: "XK AuthChain"
   }
 ];
 
