@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, FileText, Send } from "lucide-react";
+import { CheckCircle2, AlertCircle, FileText, Send, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ interface CandidateData {
   id: string;
   dataComplete: boolean;
   missingFields: string[];
+  waitingForCandidate?: boolean;
 }
 
 export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenProps> = ({
@@ -36,15 +37,35 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   const handleSendForm = (candidateId: string) => {
     setSelectedCandidateId(candidateId);
     setDrawerOpen(true);
+    
+    // Update status to waiting after form is sent
+    setCandidateDataStatus((prev) =>
+      prev.map((status) =>
+        status.id === candidateId
+          ? { ...status, waitingForCandidate: true }
+          : status
+      )
+    );
   };
 
   const handleFormComplete = (candidateId: string) => {
+    const candidate = candidates.find((c) => c.id === candidateId);
+    
     setCandidateDataStatus((prev) => {
       const updated = prev.map((status) =>
         status.id === candidateId
-          ? { ...status, dataComplete: true, missingFields: [] }
+          ? { ...status, dataComplete: true, missingFields: [], waitingForCandidate: false }
           : status
       );
+      
+      // Show Genie notification for individual candidate
+      if (candidate) {
+        setTimeout(() => {
+          toast.success(`✅ ${candidate.name} has completed their onboarding form. All details synced and the contract is ready for review.`, {
+            duration: 5000,
+          });
+        }, 500);
+      }
       
       // Check if all data is now complete
       const allComplete = updated.every((status) => status.dataComplete);
@@ -53,7 +74,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           toast.success("✅ All required information received from all candidates. Contract drafts are prefilled and ready for your review!", {
             duration: 5000,
           });
-        }, 500);
+        }, 1000);
       }
       
       return updated;
@@ -104,6 +125,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           {candidates.map((candidate, index) => {
             const dataStatus = candidateDataStatus.find((s) => s.id === candidate.id);
             const isComplete = dataStatus?.dataComplete || false;
+            const isWaiting = dataStatus?.waitingForCandidate || false;
 
             return (
               <motion.div
@@ -124,9 +146,14 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                           </p>
                         </div>
                         {isComplete ? (
-                          <Badge variant="default" className="flex items-center gap-1 bg-success/10 text-success border-success/20">
+                          <Badge variant="default" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20">
                             <CheckCircle2 className="h-3 w-3" />
-                            Data Complete
+                            Ready for Contract
+                          </Badge>
+                        ) : isWaiting ? (
+                          <Badge variant="outline" className="flex items-center gap-1 border-muted-foreground/30 text-muted-foreground bg-muted/20 animate-pulse">
+                            <Clock className="h-3 w-3" />
+                            Waiting for Details
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="flex items-center gap-1 border-warning text-warning">
@@ -151,7 +178,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                         </div>
                       </div>
 
-                      {!isComplete && dataStatus && (
+                      {!isComplete && !isWaiting && dataStatus && (
                         <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
                           <p className="text-xs font-medium text-foreground mb-2">⚠️ Missing Details:</p>
                           <div className="flex flex-wrap gap-2 mb-3">
@@ -167,8 +194,37 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                         </div>
                       )}
 
+                      {isWaiting && (
+                        <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-muted-foreground/20">
+                          <p className="text-xs font-medium text-foreground mb-1">🕓 Form Sent</p>
+                          <p className="text-xs text-muted-foreground">
+                            Waiting for {candidate.name} to complete the onboarding form. You'll be notified once they submit it.
+                          </p>
+                        </div>
+                      )}
+
                       <div className="flex gap-2">
-                        {!isComplete ? (
+                        {isComplete ? (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            disabled
+                            className="flex items-center gap-2"
+                          >
+                            <CheckCircle2 className="h-3 w-3" />
+                            Ready for Contract
+                          </Button>
+                        ) : isWaiting ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled
+                            className="flex items-center gap-2"
+                          >
+                            <Clock className="h-3 w-3" />
+                            Waiting for Candidate
+                          </Button>
+                        ) : (
                           <>
                             <Button
                               size="sm"
@@ -187,16 +243,6 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                               Edit Manually
                             </Button>
                           </>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            disabled
-                            className="flex items-center gap-2"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                            Ready for Contract
-                          </Button>
                         )}
                       </div>
                     </div>
