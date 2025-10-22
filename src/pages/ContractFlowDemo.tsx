@@ -69,7 +69,7 @@ const ContractFlowDemo = () => {
               {contractFlow.phase === "idle" || contractFlow.phase === "notification" ? (
                 <motion.div key="notification" className="flex flex-col items-center justify-center min-h-full p-8">
                   <div className="w-full max-w-2xl space-y-6">
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-8 flex flex-col items-center">
                       <AudioWaveVisualizer isActive={false} />
                       <h2 className="text-3xl font-bold text-foreground mt-6">Hi Joe, ready to finalize your hires?</h2>
                     </div>
