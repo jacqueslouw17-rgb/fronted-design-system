@@ -37,6 +37,34 @@ export const useMockCandidates = (): Candidate[] => [
     pto: "15 days/year",
     currency: "PHP",
     signingPortal: "PH eSign Portal"
+  },
+  {
+    id: "2",
+    name: "Oskar Nilsen",
+    role: "DevOps Engineer",
+    country: "Norway",
+    countryCode: "NO",
+    flag: "🇳🇴",
+    salary: "NOK 65,000/mo",
+    startDate: "Nov 15, 2025",
+    noticePeriod: "60 days",
+    pto: "25 days/year",
+    currency: "NOK",
+    signingPortal: "NO Altinn"
+  },
+  {
+    id: "3",
+    name: "Arta Krasniqi",
+    role: "QA Specialist",
+    country: "Kosovo",
+    countryCode: "XK",
+    flag: "🇽🇰",
+    salary: "€2,800/mo",
+    startDate: "Dec 10, 2025",
+    noticePeriod: "15 days",
+    pto: "20 days/year",
+    currency: "EUR",
+    signingPortal: "XK AuthChain"
   }
 ];
 
@@ -58,12 +86,9 @@ export const useContractFlow = () => {
   }, []);
 
   const nextDraft = useCallback(() => {
-    if (currentDraftIndex < selectedCandidates.length - 1) {
-      setCurrentDraftIndex(prev => prev + 1);
-    } else {
-      setPhase("reviewing");
-    }
-  }, [currentDraftIndex, selectedCandidates.length]);
+    // For demo purposes, skip directly to reviewing after first draft
+    setPhase("reviewing");
+  }, []);
 
   const addReviewComment = useCallback((candidateId: string, comment: string) => {
     setReviewComments(prev => ({ ...prev, [candidateId]: comment }));
