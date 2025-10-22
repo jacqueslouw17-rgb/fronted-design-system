@@ -20,6 +20,7 @@ interface OnboardingFormDrawerProps {
   onOpenChange: (open: boolean) => void;
   candidate: Candidate;
   onComplete: () => void;
+  onSent: () => void;
 }
 
 export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
@@ -27,6 +28,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   onOpenChange,
   candidate,
   onComplete,
+  onSent,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +42,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
       duration: 5000,
     });
     setIsSubmitting(false);
-    onComplete();
+    onSent();
     onOpenChange(false);
   };
 

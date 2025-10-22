@@ -37,7 +37,9 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   const handleSendForm = (candidateId: string) => {
     setSelectedCandidateId(candidateId);
     setDrawerOpen(true);
-    
+  };
+
+  const handleFormSent = (candidateId: string) => {
     // Update status to waiting after form is sent
     setCandidateDataStatus((prev) =>
       prev.map((status) =>
@@ -46,6 +48,11 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           : status
       )
     );
+
+    // Automatically complete after 5 seconds
+    setTimeout(() => {
+      handleFormComplete(candidateId);
+    }, 5000);
   };
 
   const handleFormComplete = (candidateId: string) => {
@@ -297,6 +304,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           onOpenChange={setDrawerOpen}
           candidate={selectedCandidate}
           onComplete={() => handleFormComplete(selectedCandidate.id)}
+          onSent={() => handleFormSent(selectedCandidate.id)}
         />
       )}
     </>
