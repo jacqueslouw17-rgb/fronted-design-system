@@ -190,14 +190,7 @@ const ContractFlowDemo = () => {
                     )}
                   </div>
                 </motion.div>
-              ) : contractFlow.phase === "offer-accepted" ? (
-                <motion.div key="offer-accepted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
-                  <CandidateConfirmationScreen
-                    candidates={contractFlow.selectedCandidates}
-                    onProceed={() => contractFlow.proceedToDataCollection()}
-                  />
-                </motion.div>
-              ) : contractFlow.phase === "data-collection" ? (
+              ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
                 <motion.div key="data-collection" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
                   <CandidateConfirmationScreen
                     candidates={contractFlow.selectedCandidates}
