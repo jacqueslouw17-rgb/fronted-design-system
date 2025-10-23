@@ -162,6 +162,7 @@ const AdminOnboarding = () => {
       completeStep("intro_trust_model");
       setExpandedStep(null);
       setIsProcessing(false);
+      scrollToTop();
       
       // Wait before speaking about org details
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -243,6 +244,7 @@ const AdminOnboarding = () => {
       completeStep("org_profile");
       setExpandedStep(null);
       setIsProcessing(false);
+      scrollToTop();
       
       // Wait before moving to step 3
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -307,6 +309,7 @@ const AdminOnboarding = () => {
       completeStep("localization_country_blocks");
       setExpandedStep(null);
       setIsProcessing(false);
+      scrollToTop();
       
       // Wait before moving to step 4
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -375,6 +378,7 @@ const AdminOnboarding = () => {
       completeStep("integrations_connect");
       setExpandedStep(null);
       setIsProcessing(false);
+      scrollToTop();
       
       // Wait before moving to step 5
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -422,6 +426,7 @@ const AdminOnboarding = () => {
       completeStep("mini_rules_setup");
       setExpandedStep(null);
       setIsProcessing(false);
+      scrollToTop();
       
       // Wait before moving to finish step
       await new Promise(resolve => setTimeout(resolve, 600));
