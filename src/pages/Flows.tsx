@@ -195,8 +195,8 @@ const Flows = () => {
       path: "/flows/contract-flow"
     },
     {
-      id: "f2.1-candidate-onboarding",
-      title: "Flow 2.1 — Candidate Onboarding",
+      id: "candidate-data-collection",
+      title: "Candidate Data Collection",
       description: "Child flow triggered during F2: collects candidate information, validates compliance requirements, and completes pre-employment data collection",
       steps: 7,
       patterns: ["genie-onboarding", "step-card-progress", "inline-edit"],
@@ -283,7 +283,7 @@ const Flows = () => {
                 onMouseEnter={() => setHoveredFlow("f2-shortlist-to-contract")}
                 onMouseLeave={() => setHoveredFlow(null)}
               >
-                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "f2.1-candidate-onboarding" ? "ring-2 ring-primary/50" : ""}`}>
+                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "candidate-data-collection" ? "ring-2 ring-primary/50" : ""}`}>
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
@@ -306,32 +306,32 @@ const Flows = () => {
               </Link>
             </div>
 
-            {/* Row 2: F2.1 (Child Flow) */}
+            {/* Row 2: Candidate Data Collection (Child Flow) */}
             <div className="flex items-start gap-6 pl-[calc(50%+1.5rem)]">
               {/* Curved arrows from F2 */}
               <div className="flex flex-col items-center -mt-12 -ml-12">
                 <div 
-                  className={`transition-colors ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "f2.1-candidate-onboarding" ? "text-primary" : "text-muted-foreground"}`}
-                  onMouseEnter={() => setHoveredFlow("f2.1-candidate-onboarding")}
+                  className={`transition-colors ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "candidate-data-collection" ? "text-primary" : "text-muted-foreground"}`}
+                  onMouseEnter={() => setHoveredFlow("candidate-data-collection")}
                 >
                   <ArrowDownRight className="h-8 w-8" strokeWidth={2} />
                 </div>
               </div>
 
               <Link 
-                key="f2.1-candidate-onboarding" 
+                key="candidate-data-collection" 
                 to="/candidate-onboarding/1"
                 className="flex-1"
-                onMouseEnter={() => setHoveredFlow("f2.1-candidate-onboarding")}
+                onMouseEnter={() => setHoveredFlow("candidate-data-collection")}
                 onMouseLeave={() => setHoveredFlow(null)}
               >
-                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "f2.1-candidate-onboarding" ? "ring-2 ring-primary/50" : ""}`}>
+                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "candidate-data-collection" ? "ring-2 ring-primary/50" : ""}`}>
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
                         <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 2.1 — Candidate Onboarding</CardTitle>
+                      <CardTitle className="text-lg">Candidate Data Collection</CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">Child flow triggered during F2: collects candidate information, validates compliance requirements, and completes pre-employment data collection</CardDescription>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
@@ -350,7 +350,7 @@ const Flows = () => {
 
               {/* Curved arrow back to F2 */}
               <div 
-                className={`transition-colors ${hoveredFlow === "f2.1-candidate-onboarding" || hoveredFlow === "f2-shortlist-to-contract" ? "text-primary" : "text-muted-foreground"}`}
+                className={`transition-colors ${hoveredFlow === "candidate-data-collection" || hoveredFlow === "f2-shortlist-to-contract" ? "text-primary" : "text-muted-foreground"}`}
                 onMouseEnter={() => setHoveredFlow("f2-shortlist-to-contract")}
               >
                 <ArrowUpRight className="h-8 w-8 mt-8" strokeWidth={2} />

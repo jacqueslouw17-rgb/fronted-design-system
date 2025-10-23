@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import confetti from "canvas-confetti";
 
 type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
@@ -40,8 +41,13 @@ export default function CandidateOnboardingFlow() {
   const { candidateId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [kurtMessage, setKurtMessage] = useState(
+    "Let's complete a few quick details so we can finalize your contract."
+  );
   const [formData, setFormData] = useState<FormData>({
     fullName: "Maria Santos",
     email: "maria.santos@example.com",
@@ -76,6 +82,14 @@ export default function CandidateOnboardingFlow() {
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex]);
+      
+      // Auto-speak on first step
+      if (nextIndex === 1 && !isSpeaking) {
+        setIsSpeaking(true);
+        speak(kurtMessage, () => {
+          setIsSpeaking(false);
+        });
+      }
     }
   };
 
@@ -173,19 +187,31 @@ export default function CandidateOnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/[0.02] to-secondary/[0.03]">
-      {/* Top instructional header - F1 pattern */}
+      {/* Top instructional header - Candidate Data Collection */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto p-6">
           <div className="mb-4">
             <h1 className="text-3xl font-bold mb-2">Let's finalize your details 🚀</h1>
-            <p className="text-foreground/60">
-              We just need a few more items to prepare your contract and onboarding checklist.
+            {/* Reading overlay with word highlighting */}
+            <p className="text-foreground/60 relative">
+              {kurtMessage.split(' ').map((word, index) => (
+                <span
+                  key={index}
+                  className={`transition-colors duration-200 ${
+                    isSpeaking && currentWordIndex === index
+                      ? 'text-foreground/90 font-medium'
+                      : ''
+                  }`}
+                >
+                  {word}{' '}
+                </span>
+              ))}
             </p>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="scale-75">
-                <AudioWaveVisualizer isActive={false} />
+                <AudioWaveVisualizer isActive={isSpeaking} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Progress</p>
