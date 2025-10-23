@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +21,10 @@ import {
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
-import VoiceTypeToggle from "@/components/dashboard/VoiceTypeToggle";
 import confetti from "canvas-confetti";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import NavSidebar from "@/components/dashboard/NavSidebar";
+import Topbar from "@/components/dashboard/Topbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface DashboardProps {
   userData?: {
@@ -118,9 +119,8 @@ const Dashboard = ({
   const [showCompletionToast, setShowCompletionToast] = useState(contractsCompleted);
   const [isListening, setIsListening] = useState(false);
   const [promptInput, setPromptInput] = useState("");
-  const [inputMode, setInputMode] = useState<"voice" | "text">("text");
+  const [isGenieOpen, setIsGenieOpen] = useState(true);
   const { isListening: sttListening, transcript, startListening, stopListening } = useSpeechToText();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Confetti celebration on contract completion
   useEffect(() => {
@@ -160,18 +160,10 @@ const Dashboard = ({
 
   // Sync transcript with input
   useEffect(() => {
-    if (transcript && inputMode === "voice") {
+    if (transcript) {
       setPromptInput(transcript);
     }
-  }, [transcript, inputMode]);
-
-  const handleVoiceToggle = () => {
-    if (inputMode === "voice" && sttListening) {
-      stopListening();
-      setIsListening(false);
-    }
-    setInputMode(inputMode === "voice" ? "text" : "voice");
-  };
+  }, [transcript]);
 
   const handleMicClick = () => {
     if (isListening) {
@@ -224,9 +216,7 @@ const Dashboard = ({
 
   const handleAskGenie = (widgetTitle: string) => {
     setPromptInput(`Tell me more about ${widgetTitle}`);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    setIsGenieOpen(true);
   };
 
   const handleExport = (widgetTitle: string) => {
@@ -246,9 +236,23 @@ const Dashboard = ({
 
   return (
     <RoleLensProvider initialRole="admin">
-      <main className="flex h-screen bg-background text-foreground overflow-hidden">
-        {/* Left Panel - Dashboard Metrics - 60% */}
-        <section className="w-[60%] flex flex-col p-8 overflow-y-auto">
+      <TooltipProvider>
+        <div className="flex h-screen bg-background text-foreground overflow-hidden">
+          {/* Left Navigation Sidebar */}
+          <NavSidebar 
+            onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
+            isGenieOpen={isGenieOpen}
+          />
+
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Top Header */}
+            <Topbar userName={`${userData.firstName} ${userData.lastName}`} />
+
+            {/* Dashboard Content */}
+            <main className="flex-1 flex overflow-hidden">
+              {/* Left Panel - Dashboard Metrics */}
+              <section className={`${isGenieOpen ? 'w-[60%]' : 'w-full'} flex flex-col p-8 overflow-y-auto transition-all`}>
           <div className="space-y-6">
             {/* Header */}
             <div>
@@ -335,8 +339,9 @@ const Dashboard = ({
           </div>
         </section>
 
-        {/* Right Panel - Genie Assistant - 40% */}
-        <aside className="w-[40%] border-l border-border bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] flex flex-col items-center justify-center p-8 relative overflow-hidden">
+        {/* Right Panel - Genie Assistant */}
+        {isGenieOpen && (
+          <aside className="w-[40%] border-l border-border bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] flex flex-col items-center justify-center p-8 relative overflow-hidden">
           {/* Stunning gradient background */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -381,55 +386,23 @@ const Dashboard = ({
               </div>
             </motion.div>
 
-            {/* Voice/Type Mode Toggle */}
-            <VoiceTypeToggle mode={inputMode} onToggle={handleVoiceToggle} isListening={isListening} />
-
             {/* Input Area */}
             <div className="w-full space-y-3">
-              {inputMode === "voice" ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex flex-col items-center gap-3"
-                >
-                  <Button
-                    onClick={handleMicClick}
-                    className={
-                      isListening
-                        ? "bg-destructive hover:bg-destructive/90 w-full"
-                        : "bg-gradient-to-r from-primary to-secondary w-full"
-                    }
-                    size="lg"
-                  >
-                    <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
-                    <span>{isListening ? "Stop" : "Speak"}</span>
-                  </Button>
-                  {transcript && (
-                    <Card className="w-full">
-                      <CardContent className="p-3">
-                        <p className="text-sm">{transcript}</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-2"
-                >
-                  <Input
-                    ref={textareaRef as any}
-                    value={promptInput}
-                    onChange={(e) => setPromptInput(e.target.value)}
-                    placeholder="Ask me anything..."
-                    className="w-full"
-                  />
-                  <Button className="w-full bg-gradient-primary" disabled={!promptInput.trim()}>
-                    Ask Genie
-                  </Button>
-                </motion.div>
-              )}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-2"
+              >
+                <Input
+                  value={promptInput}
+                  onChange={(e) => setPromptInput(e.target.value)}
+                  placeholder="Ask me anything..."
+                  className="w-full"
+                />
+                <Button className="w-full bg-gradient-primary" disabled={!promptInput.trim()}>
+                  Ask Genie
+                </Button>
+              </motion.div>
             </div>
 
             {/* Quick Suggestions */}
@@ -461,7 +434,11 @@ const Dashboard = ({
             </div>
           </div>
         </aside>
+        )}
       </main>
+    </div>
+  </div>
+      </TooltipProvider>
     </RoleLensProvider>
   );
 };
