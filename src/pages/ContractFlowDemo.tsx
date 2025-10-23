@@ -128,6 +128,8 @@ const ContractFlowDemo = () => {
       
       if (phaseKey === "offer-accepted" || phaseKey === "data-collection") {
         message = "Let's finalize contracts and complete onboarding.";
+      } else if (phaseKey === "bundle-creation") {
+        message = "Select documents to include in the signing package";
       }
       
       if (message) {
@@ -364,9 +366,34 @@ const ContractFlowDemo = () => {
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
                   <div className="w-full max-w-4xl space-y-8">
-                    <div className="space-y-2">
+                    {/* Audio Wave Visualizer - Centered */}
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex justify-center"
+                    >
+                      <AudioWaveVisualizer 
+                        isActive={!hasSpokenPhase["bundle-creation"]} 
+                        isListening={true}
+                        isDetectingVoice={isSpeaking}
+                      />
+                    </motion.div>
+
+                    {/* Header - Centered */}
+                    <div className="text-center space-y-2">
                       <h1 className="text-3xl font-bold text-foreground">Contract Bundle</h1>
-                      <p className="text-base text-muted-foreground">Select documents to include in the signing package</p>
+                      <p className="text-base text-muted-foreground">
+                        {"Select documents to include in the signing package".split(' ').map((word, index) => (
+                          <span
+                            key={index}
+                            className={`transition-colors duration-200 ${
+                              isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                            }`}
+                          >
+                            {word}{" "}
+                          </span>
+                        ))}
+                      </p>
                     </div>
                     {contractFlow.selectedCandidates.map((candidate) => (
                       <div key={candidate.id} className="space-y-6">
