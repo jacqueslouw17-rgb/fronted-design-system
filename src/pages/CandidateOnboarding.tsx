@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { CandidateOnboardingCard } from "@/components/contract-flow/CandidateOnboardingCard";
 import { OnboardingFormDrawer } from "@/components/contract-flow/OnboardingFormDrawer";
 import { SendFormModal } from "@/components/contract-flow/SendFormModal";
@@ -104,10 +105,11 @@ const CandidateOnboarding = () => {
   const [isGenieOpen, setIsGenieOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
-      <NavSidebar onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} isGenieOpen={isGenieOpen} />
-      <div className="flex-1 flex flex-col">
-        <Topbar userName="Admin" />
+    <RoleLensProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <NavSidebar onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} isGenieOpen={isGenieOpen} />
+        <div className="flex-1 flex flex-col">
+          <Topbar userName="Admin" />
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto px-6 py-8 max-w-7xl">
             {/* Header */}
@@ -237,7 +239,8 @@ const CandidateOnboarding = () => {
           onComplete={handleValidationComplete}
         />
       )}
-    </div>
+      </div>
+    </RoleLensProvider>
   );
 };
 
