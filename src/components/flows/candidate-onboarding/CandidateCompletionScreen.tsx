@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +12,7 @@ interface CandidateCompletionScreenProps {
 }
 
 const CandidateCompletionScreen = ({ candidateName }: CandidateCompletionScreenProps) => {
+  const navigate = useNavigate();
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -56,15 +58,9 @@ const CandidateCompletionScreen = ({ candidateName }: CandidateCompletionScreenP
         duration: 3000,
       });
 
-      // Close tab or redirect after toast appears
+      // Navigate back to flows overview
       setTimeout(() => {
-        // Try to close the tab/window (works if opened by script)
-        window.close();
-        
-        // Fallback: redirect to a thank you page or login
-        setTimeout(() => {
-          window.location.href = '/auth';
-        }, 500);
+        navigate('/flows');
       }, 500);
     }, 300);
   };
