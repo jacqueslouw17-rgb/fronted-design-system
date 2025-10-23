@@ -364,54 +364,56 @@ const ContractFlowDemo = () => {
                   />
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
-                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full p-8">
-                  <div className="w-full max-w-4xl mx-auto space-y-8">
-                    {/* Back Button */}
-                    <div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="gap-2"
-                        onClick={() => {
-                          // Navigate back to contract creation
-                          const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
-                          navigate(`/flows/contract-creation?ids=${ids}`);
-                        }}
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                      </Button>
-                    </div>
-
-                    {/* Audio Wave Visualizer - Centered */}
-                    <motion.div
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex justify-center"
+                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
+                  {/* Back Button - Consistent positioning */}
+                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => {
+                        // Navigate back to contract creation
+                        const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
+                        navigate(`/flows/contract-creation?ids=${ids}`);
+                      }}
                     >
-                      <AudioWaveVisualizer 
-                        isActive={!hasSpokenPhase["bundle-creation"]} 
-                        isListening={true}
-                        isDetectingVoice={isSpeaking}
-                      />
-                    </motion.div>
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                  </div>
 
-                    {/* Header - Centered */}
-                    <div className="text-center space-y-2">
-                      <h1 className="text-3xl font-bold text-foreground">Contract Bundle</h1>
-                      <p className="text-base text-muted-foreground">
-                        {"Select documents to include in the signing package".split(' ').map((word, index) => (
-                          <span
-                            key={index}
-                            className={`transition-colors duration-200 ${
-                              isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                            }`}
-                          >
-                            {word}{" "}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
+                  {/* Main Content */}
+                  <div className="flex-1 flex flex-col items-center justify-center p-8">
+                    <div className="w-full max-w-4xl space-y-8">
+                      {/* Audio Wave Visualizer - Centered */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex justify-center"
+                      >
+                        <AudioWaveVisualizer 
+                          isActive={!hasSpokenPhase["bundle-creation"]} 
+                          isListening={true}
+                          isDetectingVoice={isSpeaking}
+                        />
+                      </motion.div>
+
+                      {/* Header - Centered */}
+                      <div className="text-center space-y-2">
+                        <h1 className="text-3xl font-bold text-foreground">Contract Bundle</h1>
+                        <p className="text-base text-muted-foreground">
+                          {"Select documents to include in the signing package".split(' ').map((word, index) => (
+                            <span
+                              key={index}
+                              className={`transition-colors duration-200 ${
+                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                              }`}
+                            >
+                              {word}{" "}
+                            </span>
+                          ))}
+                        </p>
+                      </div>
                     {contractFlow.selectedCandidates.map((candidate) => (
                       <div key={candidate.id} className="space-y-6">
                         <div className="flex items-center gap-3">
@@ -442,13 +444,15 @@ const ContractFlowDemo = () => {
                           toast({ title: "Signing packs generated for all candidates" });
                           contractFlow.proceedFromBundle();
                         }}
-                        className="w-full" 
                         size="lg"
+                        className="w-full"
                       >
-                        Generate Signing Pack
+                        <FileCheck className="mr-2 h-5 w-5" />
+                        Generate Signing Packs
                       </Button>
                     </motion.div>
                   </div>
+                </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
                 <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">
