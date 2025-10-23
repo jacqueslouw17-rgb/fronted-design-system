@@ -4,12 +4,26 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
+import Topbar from "@/components/dashboard/Topbar";
+import NavSidebar from "@/components/dashboard/NavSidebar";
+import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
+import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const idsParam = searchParams.get("ids");
   const allCandidates = useMockCandidates();
+  const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
+
+  const userData = {
+    firstName: "Joe",
+    lastName: "User",
+    email: "joe@example.com",
+    country: "United States",
+    role: "admin"
+  };
 
   const selected: Candidate[] = useMemo(() => {
     if (!idsParam) return allCandidates.filter(c => c.status === "Hired");
@@ -32,32 +46,59 @@ const ContractCreation: React.FC = () => {
   if (!current) return null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-        <Link to="/flows/contract-flow" aria-label="Back to pipeline">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </Link>
-      </header>
-
-      <main>
-        <ContractCreationScreen
-          candidate={current}
-          currentIndex={index}
-          totalCandidates={selected.length}
-          onNext={() => {
-            if (index < selected.length - 1) {
-              setIndex((i) => i + 1);
-            } else {
-              // Navigate to bundle creation phase
-              navigate("/flows/contract-flow?phase=bundle-creation");
-            }
-          }}
+    <RoleLensProvider initialRole="admin">
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Left Sidebar */}
+        <NavSidebar 
+          onGenieToggle={() => {}}
+          isGenieOpen={false}
+          disabled={true}
         />
-      </main>
-    </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Topbar */}
+          <Topbar 
+            userName={`${userData.firstName} ${userData.lastName}`}
+            version="v3"
+            onVersionChange={() => {}}
+            isDrawerOpen={isDrawerOpen}
+            onDrawerToggle={toggleDrawer}
+          />
+
+          <main className="flex-1 flex overflow-hidden">
+            {/* Dashboard Drawer */}
+            <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+
+            {/* Contract Creation Area */}
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
+              <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
+                <Link to="/flows/contract-flow" aria-label="Back to pipeline">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </Button>
+                </Link>
+              </div>
+
+              <ContractCreationScreen
+                candidate={current}
+                currentIndex={index}
+                totalCandidates={selected.length}
+                onNext={() => {
+                  if (index < selected.length - 1) {
+                    setIndex((i) => i + 1);
+                  } else {
+                    // Navigate to bundle creation phase
+                    navigate("/flows/contract-flow?phase=bundle-creation");
+                  }
+                }}
+              />
+            </div>
+          </main>
+        </div>
+      </div>
+    </RoleLensProvider>
   );
 };
 
