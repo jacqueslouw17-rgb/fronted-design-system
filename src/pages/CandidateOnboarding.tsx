@@ -10,19 +10,15 @@ import confetti from "canvas-confetti";
 
 // Step components
 import CandidateStep1Welcome from "@/components/flows/candidate-onboarding/CandidateStep1Welcome";
-import CandidateStep2Personal from "@/components/flows/candidate-onboarding/CandidateStep2Personal";
-import CandidateStep3Tax from "@/components/flows/candidate-onboarding/CandidateStep3Tax";
-import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
-import CandidateStep5Emergency from "@/components/flows/candidate-onboarding/CandidateStep5Emergency";
-import CandidateStep6Review from "@/components/flows/candidate-onboarding/CandidateStep6Review";
+import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
+import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
+import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
 
 const FLOW_STEPS = [
-  { id: "welcome_consent", title: "Welcome & Consent", stepNumber: 1 },
-  { id: "personal_identity", title: "Personal & Identity", stepNumber: 2 },
-  { id: "tax_residency", title: "Tax Residency", stepNumber: 3 },
-  { id: "bank_details", title: "Bank Details", stepNumber: 4 },
-  { id: "emergency_contact", title: "Emergency Contact", stepNumber: 5 },
-  { id: "review_submit", title: "Review & Submit", stepNumber: 6 }
+  { id: "welcome_start", title: "Welcome", stepNumber: 1 },
+  { id: "personal_details", title: "Personal Details", stepNumber: 2 },
+  { id: "compliance_docs", title: "Compliance", stepNumber: 3 },
+  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 4 }
 ];
 
 const CandidateOnboarding = () => {
@@ -32,10 +28,10 @@ const CandidateOnboarding = () => {
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.candidate.onboarding",
-    "welcome_consent"
+    "welcome_start"
   );
 
-  const [expandedStep, setExpandedStep] = useState<string | null>("welcome_consent");
+  const [expandedStep, setExpandedStep] = useState<string | null>("welcome_start");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -48,7 +44,11 @@ const CandidateOnboarding = () => {
       fullName: "Maria Santos",
       email: "maria.santos@example.com",
       companyName: "Fronted Inc",
-      jobTitle: "Senior Developer"
+      jobTitle: "Senior Developer",
+      role: "Senior Developer",
+      startDate: "2024-02-01",
+      employmentType: "contractor", // contractor or employee
+      country: "PH" // PH, NO, XK
     });
   }, [updateFormData]);
 
@@ -226,7 +226,7 @@ const CandidateOnboarding = () => {
                     ref={(el) => (stepRefs.current[step.id] = el)}
                     className="pt-6"
                   >
-                    {step.id === "welcome_consent" && (
+                    {step.id === "welcome_start" && (
                       <CandidateStep1Welcome
                         formData={state.formData}
                         onComplete={handleStepComplete}
@@ -234,40 +234,24 @@ const CandidateOnboarding = () => {
                         isLoadingFields={isLoadingFields}
                       />
                     )}
-                    {step.id === "personal_identity" && (
-                      <CandidateStep2Personal
+                    {step.id === "personal_details" && (
+                      <CandidateStep2PersonalDetails
                         formData={state.formData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
                       />
                     )}
-                    {step.id === "tax_residency" && (
-                      <CandidateStep3Tax
+                    {step.id === "compliance_docs" && (
+                      <CandidateStep3Compliance
                         formData={state.formData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
                       />
                     )}
-                    {step.id === "bank_details" && (
-                      <CandidateStep4Bank
-                        formData={state.formData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "emergency_contact" && (
-                      <CandidateStep5Emergency
-                        formData={state.formData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "review_submit" && (
-                      <CandidateStep6Review
+                    {step.id === "confirm_submit" && (
+                      <CandidateStep4Confirm
                         formData={state.formData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
