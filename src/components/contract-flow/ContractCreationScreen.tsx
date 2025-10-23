@@ -142,7 +142,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="p-8 max-w-7xl mx-auto space-y-6"
+      className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
       {/* Audio Wave Visualizer - Centered */}
       <motion.div
@@ -174,16 +174,8 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         </p>
       </div>
 
-      {/* Tabs for List/Pipeline View */}
-      <Tabs defaultValue="list" className="w-full">
-        <TabsList className="grid w-64 mx-auto grid-cols-2">
-          <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="list" className="mt-6">
-          {/* Original Form View */}
-          <div className="space-y-6">{/* ... keep existing code */}
+      {/* Contract Form View */}
+      <div className="space-y-6">{/* ... keep existing code */}
 
       {/* Genie Message */}
       <motion.div
@@ -345,50 +337,16 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         </div>
       </Card>
 
-          {/* Navigation */}
-          <div className="flex justify-end gap-3">
-            <Button onClick={handleNext} size="lg" className="gap-2">
-              <Sparkles className="h-5 w-5" />
-              {currentIndex + 1 === totalCandidates 
-                ? "Next: Review Contract Bundle" 
-                : "Review Next Candidate"}
-            </Button>
-          </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="pipeline" className="mt-6 space-y-6">
-          {/* Genie Interaction */}
-          <GenieInteractionBar
-            message="Track all candidates through the contract lifecycle. Cards auto-update as each stage progresses."
-            actions={[
-              {
-                label: "Yes, Start Onboarding",
-                onClick: () => {
-                  toast.success("Starting onboarding checklist for Maria Santos");
-                },
-              },
-              {
-                label: "Later",
-                onClick: () => {
-                  toast.info("You can start onboarding anytime from the dashboard");
-                },
-              },
-            ]}
-          />
-
-          {/* Pipeline View */}
-          <PipelineView contractors={mockContractors} />
-
-          {/* Action Button */}
-          <div className="flex justify-center pt-4">
-            <Button onClick={handleNext} size="lg" className="gap-2">
-              <Sparkles className="h-5 w-5" />
-              Continue to Bundle Review
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Navigation */}
+      <div className="flex justify-end gap-3">
+        <Button onClick={handleNext} size="lg" className="gap-2">
+          <Sparkles className="h-5 w-5" />
+          {currentIndex + 1 === totalCandidates 
+            ? "Next: Review Contract Bundle" 
+            : "Review Next Candidate"}
+        </Button>
+      </div>
+      </div>
     </motion.div>
   );
 };

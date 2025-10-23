@@ -33,14 +33,13 @@ const ContractCreation: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="max-w-7xl mx-auto px-6 pt-6 pb-2 flex items-center gap-3">
+      <header className="max-w-7xl mx-auto px-6 pt-4 pb-2">
         <Link to="/flows/contract-flow" aria-label="Back to pipeline">
           <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
         </Link>
-        <h1 className="text-lg font-semibold text-foreground">Contract Drafting</h1>
       </header>
 
       <main>
