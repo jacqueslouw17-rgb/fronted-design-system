@@ -850,6 +850,23 @@ const AdminOnboarding = () => {
           margin: isKurtVisible ? '0' : '0 auto'
         }}
       >
+        {/* Header with Animation */}
+        <div className="text-center space-y-6 mb-8">
+          {/* Decorative animated bars */}
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome to Fronted
+          </h1>
+        </div>
+
         {/* Progress Bar with Drawer Toggle */}
         <div className="flex items-center gap-2">
           <TooltipProvider>
