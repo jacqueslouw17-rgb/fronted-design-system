@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Workflow, Plus, ArrowRight, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, Workflow, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useRoleLens } from "@/contexts/RoleLensContext";
 
 const Flows = () => {
   const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
-  const [hoveredFlow, setHoveredFlow] = useState<string | null>(null);
-  const { currentLens } = useRoleLens();
 
   const patterns = [
     {
@@ -231,216 +228,62 @@ const Flows = () => {
           </p>
         </div>
 
-{currentLens.role === 'admin' ? (
-          // Admin Flow Map Layout
-          <div className="space-y-12">
-            {/* Row 1: F1 → F2 */}
-            <div className="flex items-center gap-6">
-              <Link 
-                key="f1-admin-onboarding" 
-                to="/flows/admin/onboarding"
-                className="flex-1"
-                onMouseEnter={() => setHoveredFlow("f1-admin-onboarding")}
-                onMouseLeave={() => setHoveredFlow(null)}
-              >
-                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "f1-admin-onboarding" || hoveredFlow === "f2-shortlist-to-contract" ? "ring-2 ring-primary/50" : ""}`}>
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 1 — Admin Onboarding</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3</CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Arrow */}
-              <div 
-                className={`transition-colors ${hoveredFlow === "f1-admin-onboarding" || hoveredFlow === "f2-shortlist-to-contract" ? "text-primary" : "text-muted-foreground"}`}
-                onMouseEnter={() => {
-                  setHoveredFlow("f1-admin-onboarding");
-                  setTimeout(() => setHoveredFlow("f2-shortlist-to-contract"), 300);
-                }}
-              >
-                <ArrowRight className="h-8 w-8" strokeWidth={2} />
-              </div>
-
-              <Link 
-                key="f2-shortlist-to-contract" 
-                to="/flows/contract-flow"
-                className="flex-1"
-                onMouseEnter={() => setHoveredFlow("f2-shortlist-to-contract")}
-                onMouseLeave={() => setHoveredFlow(null)}
-              >
-                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "candidate-data-collection" ? "ring-2 ring-primary/50" : ""}`}>
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 2 — Hiring and Contract</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion</CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">6 steps</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-
-            {/* Row 2: Candidate Data Collection (Child Flow) */}
-            <div className="flex items-start gap-6 pl-[calc(50%+1.5rem)]">
-              {/* Curved arrows from F2 */}
-              <div className="flex flex-col items-center -mt-12 -ml-12">
-                <div 
-                  className={`transition-colors ${hoveredFlow === "f2-shortlist-to-contract" || hoveredFlow === "candidate-data-collection" ? "text-primary" : "text-muted-foreground"}`}
-                  onMouseEnter={() => setHoveredFlow("candidate-data-collection")}
-                >
-                  <ArrowDownRight className="h-8 w-8" strokeWidth={2} />
-                </div>
-              </div>
-
-              <Link 
-                key="candidate-data-collection" 
-                to="/candidate-onboarding/1"
-                className="flex-1"
-                onMouseEnter={() => setHoveredFlow("candidate-data-collection")}
-                onMouseLeave={() => setHoveredFlow(null)}
-              >
-                <Card className={`hover:shadow-lg transition-all group h-full ${hoveredFlow === "candidate-data-collection" ? "ring-2 ring-primary/50" : ""}`}>
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
-                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Candidate Data Collection</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">Child flow triggered during F2: collects candidate information, validates compliance requirements, and completes pre-employment data collection</CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                      <Badge variant="outline" className="text-xs">Child Flow</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Curved arrow back to F2 */}
-              <div 
-                className={`transition-colors ${hoveredFlow === "candidate-data-collection" || hoveredFlow === "f2-shortlist-to-contract" ? "text-primary" : "text-muted-foreground"}`}
-                onMouseEnter={() => setHoveredFlow("f2-shortlist-to-contract")}
-              >
-                <ArrowUpRight className="h-8 w-8 mt-8" strokeWidth={2} />
-              </div>
-            </div>
-
-            {/* Row 3: F3 Coming Soon */}
-            <div className="flex items-center gap-6 pl-[calc(50%+1.5rem)]">
-              {/* Arrow from F2 */}
-              <div 
-                className="text-muted-foreground/30"
-              >
-                <ArrowRight className="h-8 w-8" strokeWidth={2} />
-              </div>
-
-              <Card className="flex-1 opacity-60 cursor-not-allowed">
+        {/* Flow Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {flows.filter(f => !f.comingSoon).map((flow) => (
+            <Link key={flow.id} to={flow.path}>
+              <Card className="hover:shadow-lg transition-all group h-full">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 rounded-xl bg-slate-500/10 border border-slate-500/20">
-                      <Workflow className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
+                      <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                     </div>
-                    <CardTitle className="text-lg">Flow 3 — Document Bundle & Signature</CardTitle>
-                    <Badge variant="secondary" className="ml-auto">Coming Soon</Badge>
+                    <CardTitle className="text-lg">{flow.title}</CardTitle>
                   </div>
-                  <CardDescription className="line-clamp-3">Upcoming flow for document bundling, e-signature collection, and contract finalization</CardDescription>
+                  <CardDescription className="line-clamp-3">{flow.description}</CardDescription>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                    <span className="font-medium">5 steps (planned)</span>
+                    <span className="font-medium">{flow.steps} steps</span>
+                    <span>•</span>
+                    <span>{flow.patterns.length} patterns</span>
                   </div>
                 </CardHeader>
-              </Card>
-            </div>
-          </div>
-        ) : (
-          // Original Grid Layout for Non-Admin
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {flows.filter(f => !f.comingSoon).map((flow) => (
-              <Link key={flow.id} to={flow.path}>
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">{flow.title}</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">{flow.description}</CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">{flow.steps} steps</span>
-                      <span>•</span>
-                      <span>{flow.patterns.length} patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      {flow.patterns.slice(0, 3).map((patternId) => {
-                        const pattern = getPatternById(patternId);
-                        return (
-                          <Badge
-                            key={patternId}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-muted transition-colors text-xs"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedPattern(patternId);
-                            }}
-                          >
-                            {pattern?.name}
-                          </Badge>
-                        );
-                      })}
-                      {flow.patterns.length > 3 && (
+                <CardContent className="space-y-3">
+                  <div className="flex flex-wrap gap-1.5">
+                    {flow.patterns.slice(0, 3).map((patternId) => {
+                      const pattern = getPatternById(patternId);
+                      return (
                         <Badge
-                          variant="outline"
-                          className="text-xs"
+                          key={patternId}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-muted transition-colors text-xs"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedPattern(patternId);
+                          }}
                         >
-                          +{flow.patterns.length - 3}
+                          {pattern?.name}
                         </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
+                      );
+                    })}
+                    {flow.patterns.length > 3 && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        +{flow.patterns.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                    View flow
+                    <ArrowLeft className="w-3.5 h-3.5 ml-1 rotate-180 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Pattern Detail Drawer */}
