@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useEffect } from "react";
 import confetti from "canvas-confetti";
 
 type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
@@ -82,16 +83,23 @@ export default function CandidateOnboardingFlow() {
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex]);
-      
-      // Auto-speak on first step
-      if (nextIndex === 1 && !isSpeaking) {
+    }
+  };
+
+  // Auto-speak when entering the form (after welcome screen)
+  useEffect(() => {
+    if (currentStep !== "welcome" && currentStep !== "complete" && !isSpeaking) {
+      // Delay to ensure the component is mounted
+      const timer = setTimeout(() => {
         setIsSpeaking(true);
         speak(kurtMessage, () => {
           setIsSpeaking(false);
         });
-      }
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
-  };
+  }, [currentStep]);
 
   const handleBack = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

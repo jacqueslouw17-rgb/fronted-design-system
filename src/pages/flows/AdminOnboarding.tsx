@@ -48,12 +48,31 @@ const AdminOnboarding = () => {
   const [kurtMessage, setKurtMessage] = useState(
     "Click 'Speak' below to get started with your setup."
   );
+  const [welcomeMessage] = useState(
+    "Let me guide you through setting up your global payroll system."
+  );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
+  const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Auto-speak welcome message on page load
+  useEffect(() => {
+    if (!hasWelcomeSpoken) {
+      const timer = setTimeout(() => {
+        setHasWelcomeSpoken(true);
+        setIsSpeaking(true);
+        speak(welcomeMessage, () => {
+          setIsSpeaking(false);
+        });
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasWelcomeSpoken, welcomeMessage, speak]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -756,6 +775,22 @@ const AdminOnboarding = () => {
           <h1 className="text-3xl font-bold text-foreground">
             Welcome to Fronted
           </h1>
+          
+          {/* Subtext with reading overlay */}
+          <p className="text-foreground/60 relative max-w-2xl mx-auto">
+            {welcomeMessage.split(' ').map((word, index) => (
+              <span
+                key={index}
+                className={`transition-colors duration-200 ${
+                  isSpeaking && currentWordIndex === index
+                    ? 'text-foreground/90 font-medium'
+                    : ''
+                }`}
+              >
+                {word}{' '}
+              </span>
+            ))}
+          </p>
         </div>
 
         {/* Progress Bar */}
