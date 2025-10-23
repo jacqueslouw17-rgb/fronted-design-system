@@ -33,40 +33,68 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   candidate,
   onGenerateBundle,
 }) => {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: "employment-agreement",
-      title: "Employment Agreement",
-      icon: <FileText className="h-8 w-8 text-primary" />,
-      description: "Main employment contract with salary, duties, and terms",
-      required: true,
-      selected: true,
-    },
-    {
-      id: "nda",
-      title: "Non-Disclosure Agreement",
-      icon: <Handshake className="h-8 w-8 text-primary" />,
-      description: "Confidentiality and proprietary information protection",
-      required: true,
-      selected: true,
-    },
-    {
-      id: "policy-acknowledgment",
-      title: "Policy Acknowledgment",
-      icon: <ScrollText className="h-8 w-8 text-primary" />,
-      description: "Company policies, code of conduct, and workplace guidelines",
-      required: false,
-      selected: true,
-    },
-    {
-      id: "contractor-addendum",
-      title: "Contractor Addendum",
-      icon: <Settings className="h-8 w-8 text-primary" />,
-      description: "Additional terms for contractor-specific arrangements",
-      required: false,
-      selected: candidate.country === "Kosovo", // Auto-select for certain countries
-    },
-  ]);
+  const employmentType = candidate.employmentType || "contractor";
+  
+  // Generate documents based on employment type
+  const generateDocuments = (): Document[] => {
+    if (employmentType === "employee") {
+      return [
+        {
+          id: "employment-agreement",
+          title: "Employment Agreement",
+          icon: <FileText className="h-8 w-8 text-primary" />,
+          description: "Main employment contract with salary, duties, and terms",
+          required: true,
+          selected: true,
+        },
+        {
+          id: "country-compliance",
+          title: "Country Compliance Attachments",
+          icon: <ScrollText className="h-8 w-8 text-primary" />,
+          description: `${candidate.countryCode}-specific compliance documents and mandatory clauses`,
+          required: true,
+          selected: true,
+        },
+        {
+          id: "nda-policy",
+          title: "NDA / Policy Docs",
+          icon: <Handshake className="h-8 w-8 text-primary" />,
+          description: "Non-disclosure agreement and company policy acknowledgment",
+          required: false,
+          selected: true,
+        },
+      ];
+    } else {
+      return [
+        {
+          id: "contractor-agreement",
+          title: "Contractor Agreement",
+          icon: <FileText className="h-8 w-8 text-primary" />,
+          description: "Independent contractor agreement with scope and terms",
+          required: true,
+          selected: true,
+        },
+        {
+          id: "nda",
+          title: "Non-Disclosure Agreement",
+          icon: <Handshake className="h-8 w-8 text-primary" />,
+          description: "Confidentiality and proprietary information protection",
+          required: false,
+          selected: true,
+        },
+        {
+          id: "data-privacy",
+          title: `Data Privacy Addendum (${candidate.countryCode})`,
+          icon: <ScrollText className="h-8 w-8 text-primary" />,
+          description: "Country-specific data protection and privacy requirements",
+          required: false,
+          selected: candidate.countryCode === "PH",
+        },
+      ];
+    }
+  };
+  
+  const [documents, setDocuments] = useState<Document[]>(generateDocuments());
 
   const [currentIndex, setCurrentIndex] = useState(0);
 

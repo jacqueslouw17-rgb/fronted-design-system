@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, PenTool, Send, FileCheck, Award } from "lucide-react";
+import { CheckCircle2, PenTool, Send, FileCheck, Award, Bot } from "lucide-react";
 import confetti from "canvas-confetti";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -23,6 +24,10 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
   const [candidateSteps, setCandidateSteps] = useState<Record<string, SigningStep>>(
     candidates.reduce((acc, c) => ({ ...acc, [c.id]: "drafting" }), {})
   );
+  const [signatureStatus, setSignatureStatus] = useState<Record<string, SignatureStatus>>(
+    candidates.reduce((acc, c) => ({ ...acc, [c.id]: "sent" as SignatureStatus }), {})
+  );
+  const [genieMessage, setGenieMessage] = useState("Preparing for e-signature via localized legal channels…");
 
   useEffect(() => {
     // Trigger confetti
@@ -53,13 +58,18 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
 
   useEffect(() => {
     if (signingIndex >= candidates.length) {
+      setGenieMessage("✅ All contracts signed and certified! Ready to start onboarding.");
       const timer = setTimeout(onComplete, 1500);
       return () => clearTimeout(timer);
     }
 
     const currentCandidate = candidates[signingIndex];
     const steps: SigningStep[] = ["drafting", "sent", "signing", "certified"];
+    const statusSteps: SignatureStatus[] = ["sent", "viewed", "signed", "signed"];
     let stepIndex = 0;
+
+    // Update Genie message
+    setGenieMessage(`Sending contract bundle to ${currentCandidate.name} via ${currentCandidate.signingPortal}...`);
 
     const stepInterval = setInterval(() => {
       if (stepIndex < steps.length) {
@@ -67,13 +77,31 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
           ...prev,
           [currentCandidate.id]: steps[stepIndex],
         }));
+        
+        // Update signature status
+        if (stepIndex < statusSteps.length) {
+          setSignatureStatus(prev => ({
+            ...prev,
+            [currentCandidate.id]: statusSteps[stepIndex],
+          }));
+        }
+        
+        // Update Genie message based on step
+        if (steps[stepIndex] === "sent") {
+          setGenieMessage(`📧 Contract sent to ${currentCandidate.name}. Awaiting their signature...`);
+        } else if (steps[stepIndex] === "signing") {
+          setGenieMessage(`🖊️ ${currentCandidate.name} is reviewing and signing the contract...`);
+        } else if (steps[stepIndex] === "certified") {
+          setGenieMessage(`✅ ${currentCandidate.name}'s contract is signed and certified!`);
+        }
+        
         stepIndex++;
       } else {
         clearInterval(stepInterval);
         setSignedCandidates(prev => [...prev, currentCandidate.id]);
         setSigningIndex(prev => prev + 1);
       }
-    }, 500);
+    }, 1000);
 
     return () => clearInterval(stepInterval);
   }, [signingIndex, candidates, onComplete]);
@@ -87,16 +115,20 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      {/* Kurt's message */}
+      {/* Genie message */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1, duration: 0.3 }}
+        key={genieMessage}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
         className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
       >
-        <p className="text-sm text-foreground">
-          Preparing for e-signature via localized legal channels…
-        </p>
+        <div className="flex items-start gap-3">
+          <Bot className="h-5 w-5 text-primary mt-0.5" />
+          <p className="text-sm text-foreground">
+            {genieMessage}
+          </p>
+        </div>
       </motion.div>
 
       {/* Progress bar */}
@@ -175,7 +207,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
                         </p>
                       </div>
 
-                      {/* Step sequence visualization */}
+                      {/* Signature status tracker */}
                       <div className="flex items-center gap-2">
                         {isSigned ? (
                           <motion.div
@@ -183,27 +215,17 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: "spring", duration: 0.5 }}
                           >
-                            <Badge variant="default" className="bg-success/10 text-success hover:bg-success/20">
-                              <Award className="h-3 w-3 mr-1" />
-                              Certified
-                            </Badge>
+                            <SignatureTracker status="signed" />
                           </motion.div>
                         ) : isCurrent ? (
                           <motion.div
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center gap-2"
                           >
-                            <motion.div
-                              animate={{ scale: [1, 1.1, 1] }}
-                              transition={{ repeat: Infinity, duration: 1.5 }}
-                            >
-                              <StepIcon className={`h-4 w-4 ${stepColor}`} />
-                            </motion.div>
-                            <span className={`text-xs font-medium ${stepColor}`}>{stepLabel}</span>
+                            <SignatureTracker status={signatureStatus[candidate.id] || "sent"} />
                           </motion.div>
                         ) : (
-                          <Badge variant="secondary">Pending</Badge>
+                          <SignatureTracker status="sent" />
                         )}
                       </div>
                     </div>

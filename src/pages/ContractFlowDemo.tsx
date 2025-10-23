@@ -14,6 +14,7 @@ import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBo
 import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
 import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
+import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
@@ -274,6 +275,13 @@ const ContractFlowDemo = () => {
                       onProceed={() => contractFlow.prepareDrafts()}
                     />
                   </div>
+                </motion.div>
+              ) : contractFlow.phase === "contract-creation" ? (
+                <motion.div key="contract-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ContractCreationScreen
+                    candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]}
+                    onNext={() => contractFlow.proceedToBundle()}
+                  />
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">

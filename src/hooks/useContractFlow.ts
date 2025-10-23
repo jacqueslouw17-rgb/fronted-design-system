@@ -7,6 +7,7 @@ export type ContractFlowPhase =
   | "notification"
   | "offer-accepted"
   | "data-collection" 
+  | "contract-creation"
   | "drafting"
   | "bundle-creation" 
   | "reviewing" 
@@ -113,8 +114,12 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   }, []);
 
   const prepareDrafts = useCallback(() => {
-    setPhase("bundle-creation");
+    setPhase("contract-creation");
     setCurrentDraftIndex(0);
+  }, []);
+
+  const proceedToBundle = useCallback(() => {
+    setPhase("bundle-creation");
   }, []);
 
   const proceedFromBundle = useCallback(() => {
@@ -167,6 +172,7 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     proceedToDataCollection,
     proceedToDrafting,
     prepareDrafts,
+    proceedToBundle,
     proceedFromBundle,
     nextDraft,
     addReviewComment,

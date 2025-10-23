@@ -68,11 +68,27 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         </p>
       </motion.div>
 
+      {/* Onboarding Checklist Prompt */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.3 }}
+        className="rounded-lg border border-primary/20 bg-primary/5 p-4"
+      >
+        <p className="text-sm text-foreground mb-3">
+          💼 Shall I start their onboarding checklist now?
+        </p>
+        <div className="flex gap-2">
+          <Button size="sm" variant="default">Yes, Start Onboarding</Button>
+          <Button size="sm" variant="outline">Later</Button>
+        </div>
+      </motion.div>
+
       {/* Certificate cards with hover actions */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.3 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
       >
         <h3 className="text-lg font-semibold text-foreground mb-4">Certificates of Contract</h3>
         <div className="grid grid-cols-3 gap-4">
