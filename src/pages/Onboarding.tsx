@@ -311,7 +311,7 @@ const Index = () => {
 
   // Show dashboard if onboarding is complete
   if (showDashboard) {
-    return <Dashboard userData={formData} onboardingHistory={chatHistory} />;
+    return <Dashboard userData={formData} />;
   }
 
   return (

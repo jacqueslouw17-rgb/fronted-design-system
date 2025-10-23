@@ -1,32 +1,29 @@
-import { useState, useEffect } from "react";
-import Topbar from "@/components/dashboard/Topbar";
-import NavSidebar from "@/components/dashboard/NavSidebar";
-import AgentDrawer from "@/components/dashboard/AgentDrawer";
-import WidgetGrid from "@/components/dashboard/WidgetGrid";
-import { RoleLensProvider } from "@/contexts/RoleLensContext";
-import AgentMain from "@/components/dashboard/AgentMain";
-import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
-import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, TrendingUp, Activity, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { 
+  CheckCircle2, 
+  X, 
+  Mic, 
+  Users, 
+  DollarSign, 
+  FileCheck, 
+  TrendingUp, 
+  Clock, 
+  AlertCircle, 
+  Download, 
+  MessageSquare, 
+  ExternalLink 
+} from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { useToast } from "@/hooks/use-toast";
-import { Timeline } from "@/components/AgentContextualTimeline";
-import type { TimelineEvent } from "@/components/AgentContextualTimeline";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import VoiceTypeToggle from "@/components/dashboard/VoiceTypeToggle";
 import confetti from "canvas-confetti";
-import { useContractFlow } from "@/hooks/useContractFlow";
-import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
-import { ContractDraftWorkspace } from "@/components/contract-flow/ContractDraftWorkspace";
-import { ContractReviewBoard } from "@/components/contract-flow/ContractReviewBoard";
-import { ContractSignaturePhase } from "@/components/contract-flow/ContractSignaturePhase";
-import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
-import { ActiveContractorsWidget } from "@/components/contract-flow/ActiveContractorsWidget";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface DashboardProps {
   userData?: {
@@ -36,8 +33,74 @@ interface DashboardProps {
     country: string;
     role: string;
   };
-  onboardingHistory?: Array<{ role: string; content: string }>;
 }
+
+// Metric Widget Component with hover toolbar
+const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, onDetails }: any) => {
+  const [showToolbar, setShowToolbar] = useState(false);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      onMouseEnter={() => setShowToolbar(true)}
+      onMouseLeave={() => setShowToolbar(false)}
+      className="relative"
+    >
+      <Card className="hover:shadow-lg transition-all h-full">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{value}</div>
+          <p className={`text-xs mt-1 ${trend.startsWith('+') ? 'text-accent' : trend.startsWith('-') ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+            {trend} from last month
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Hover Micro-Toolbar */}
+      <AnimatePresence>
+        {showToolbar && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-2 right-2 flex gap-1 bg-card/95 backdrop-blur-sm border border-border rounded-lg p-1 shadow-lg z-10"
+          >
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-7 w-7"
+              onClick={onAskGenie}
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-7 w-7"
+              onClick={onExport}
+            >
+              <Download className="h-3.5 w-3.5" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-7 w-7"
+              onClick={onDetails}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 const Dashboard = ({ 
   userData = {
@@ -46,46 +109,22 @@ const Dashboard = ({
     email: "joe@example.com",
     country: "United States",
     role: "admin"
-  },
-  onboardingHistory = []
+  }
 }: DashboardProps) => {
-  // Check URL params for role and confetti
+  // Check URL params for contract completion state
   const searchParams = new URLSearchParams(window.location.search);
-  const urlRole = searchParams.get('role') as 'admin' | 'contractor' | 'employee' | null;
-  const shouldShowConfetti = searchParams.get('confetti') === 'true';
-  const initialRole = urlRole || (userData.role as any) || 'admin';
+  const contractsCompleted = searchParams.get('contracts_completed') === 'true';
   
-  // Override userData if coming from contractor onboarding
-  const effectiveUserData = shouldShowConfetti && initialRole === 'contractor' 
-    ? { ...userData, firstName: "Marya", lastName: "Santos", email: "marya.santos@example.com" }
-    : userData;
-  
-  const [version, setVersion] = useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
-  const [isAgentOpen, setIsAgentOpen] = useState(false);
-  const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  // V3 Contract Flow State
-  const contractFlow = useContractFlow();
-  const [v3KurtMessage, setV3KurtMessage] = useState("");
-  const [v3ShowContractors, setV3ShowContractors] = useState(false);
-  
-  // V4 Payroll Demo State
-  type Phase = "idle" | "processing" | "results" | "audit";
-  const [v4Phase, setV4Phase] = useState<Phase>("idle");
-  const [v4Message, setV4Message] = useState("Welcome! I'm ready to help you run October payroll.");
-  const [v4IsProcessing, setV4IsProcessing] = useState(false);
-  const [v4PayrollData, setV4PayrollData] = useState<any[]>([]);
-  const [v4ShowSkeleton, setV4ShowSkeleton] = useState(false);
-  const [v4ComplianceScore, setV4ComplianceScore] = useState(0);
-  const [v4GeloCompact, setV4GeloCompact] = useState(false);
-  const [v4AuditExpanded, setV4AuditExpanded] = useState(true);
-  const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
-  const { toast } = useToast();
-  
-  // Confetti celebration on mount (conditionally based on URL param)
+  const [showCompletionToast, setShowCompletionToast] = useState(contractsCompleted);
+  const [isListening, setIsListening] = useState(false);
+  const [promptInput, setPromptInput] = useState("");
+  const [inputMode, setInputMode] = useState<"voice" | "text">("text");
+  const { isListening: sttListening, transcript, startListening, stopListening } = useSpeechToText();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Confetti celebration on contract completion
   useEffect(() => {
-    if (shouldShowConfetti) {
+    if (contractsCompleted) {
       const duration = 3000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
@@ -117,628 +156,312 @@ const Dashboard = ({
 
       return () => clearInterval(interval);
     }
-  }, [shouldShowConfetti]);
-  
-  // When switching to v2, auto-open the agent
+  }, [contractsCompleted]);
+
+  // Sync transcript with input
   useEffect(() => {
-    if (version === "v2") {
-      setIsAgentOpen(true);
-    } else if (version === "v4") {
-      // Initialize v4 payroll demo
-      const msg = "Welcome! I'm ready to help you run October payroll.";
-      setV4Message(msg);
-      speak(msg);
-      setV4Phase("idle");
-    } else if (version === "v3") {
-      // Initialize v3 contract flow
-      const timer = setTimeout(() => {
-        contractFlow.startFlow();
-        setV3KurtMessage("Hey Joe, looks like three shortlisted candidates are ready for contract drafting.");
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (transcript && inputMode === "voice") {
+      setPromptInput(transcript);
+    }
+  }, [transcript, inputMode]);
+
+  const handleVoiceToggle = () => {
+    if (inputMode === "voice" && sttListening) {
+      stopListening();
+      setIsListening(false);
+    }
+    setInputMode(inputMode === "voice" ? "text" : "voice");
+  };
+
+  const handleMicClick = () => {
+    if (isListening) {
+      stopListening();
+      setIsListening(false);
     } else {
-      // Reset to closed when switching back to v1
-      setIsAgentOpen(false);
+      startListening();
+      setIsListening(true);
     }
-  }, [version]);
-
-  const startV4Payroll = async () => {
-    const msg1 = "On it. Loading payroll batch #2025-10.";
-    setV4Message(msg1);
-    speak(msg1);
-    setV4IsProcessing(true);
-    
-    // Wait for Gelo to finish speaking (~2s) before showing dashboard
-    setTimeout(() => {
-      setV4Phase("processing");
-      setV4ShowSkeleton(true);
-    }, 2400);
-
-    setTimeout(() => {
-      setV4PayrollData([
-        { country: "PH", flag: "🇵🇭", currency: "PHP", total: "₱5.3 M", fxRate: "62.1", fee: "€42", eta: "2 d", status: "processing" },
-      ]);
-    }, 3200);
-
-    setTimeout(() => {
-      setV4PayrollData(prev => [...prev,
-        { country: "NO", flag: "🇳🇴", currency: "NOK", total: "190 K", fxRate: "11.4", fee: "€30", eta: "1 d", status: "processing" },
-      ]);
-    }, 3800);
-
-    setTimeout(() => {
-      setV4PayrollData(prev => [...prev,
-        { country: "PL", flag: "🇵🇱", currency: "PLN", total: "420 K", fxRate: "4.3", fee: "€28", eta: "1 d", status: "processing" },
-      ]);
-    }, 4400);
-
-    setTimeout(() => {
-      setV4ShowSkeleton(false);
-      setV4PayrollData(prev => prev.map(row => ({ ...row, status: "complete" })));
-      setV4ComplianceScore(96);
-      setV4IsProcessing(false);
-      
-      // Wait a moment before speaking completion message
-      setTimeout(() => {
-        const msg2 = "Payroll batch completed. Would you like to send for CFO approval?";
-        setV4Message(msg2);
-        speak(msg2);
-        
-        // Wait for Gelo to finish speaking before showing results phase
-        setTimeout(() => {
-          setV4Phase("results");
-          
-          toast({
-            title: "✅ Processing Complete",
-            description: "3 currency batches processed successfully",
-          });
-        }, 3500);
-      }, 800);
-    }, 5500);
   };
 
-  const sendV4ForApproval = () => {
-    const msg = "Sent to Howard. You can track status here in the audit timeline.";
-    setV4Message(msg);
-    speak(msg);
-    
-    toast({
-      title: "📤 Sent for Approval",
-      description: "Howard (CFO) will review the batch",
-    });
+  const widgets = [
+    {
+      title: "Total Contractors",
+      value: "24",
+      trend: "+12%",
+      icon: Users,
+    },
+    {
+      title: "Monthly Payroll",
+      value: "$145,000",
+      trend: "+8%",
+      icon: DollarSign,
+    },
+    {
+      title: "Compliance Score",
+      value: "98%",
+      trend: "+2%",
+      icon: FileCheck,
+    },
+    {
+      title: "Active Contracts",
+      value: "18",
+      trend: "+4",
+      icon: TrendingUp,
+    },
+    {
+      title: "Pending Actions",
+      value: "3",
+      trend: "-2",
+      icon: AlertCircle,
+    },
+    {
+      title: "Avg Response Time",
+      value: "2.4h",
+      trend: "-0.5h",
+      icon: Clock,
+    },
+  ];
 
-    setTimeout(() => {
-      setV4Phase("audit");
-      setV4GeloCompact(true);
-      setV4AuditExpanded(true);
-    }, 600);
-  };
-
-  const completeV4Flow = () => {
-    const msg = "Payroll run completed. CFO approved. Compliance 96%. All reports archived under /finance/oct-2025.";
-    setV4Message(msg);
-    speak(msg);
-
-    toast({
-      title: "✅ All Complete",
-      description: "Payroll archived and documented",
-    });
-    
-    setTimeout(() => {
-      setV4Phase("idle");
-      setV4GeloCompact(false);
-      setV4AuditExpanded(true);
-      
-      // Reset state
-      setV4PayrollData([]);
-      setV4ComplianceScore(0);
-    }, 3000);
-  };
-
-  // Handle transition loading state for v3
-  useEffect(() => {
-    if (version === "v3") {
-      setIsTransitioning(true);
-      const timer = setTimeout(() => setIsTransitioning(false), 400);
-      return () => clearTimeout(timer);
+  const handleAskGenie = (widgetTitle: string) => {
+    setPromptInput(`Tell me more about ${widgetTitle}`);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
     }
-  }, [isDrawerOpen]);
+  };
 
-  // V2 mode: Agent is always open on the right initially, but can be closed
-  const isV2AgentOpen = version === "v2" ? isAgentOpen : false;
-  const isV1AgentOpen = version === "v1" ? isAgentOpen : false;
+  const handleExport = (widgetTitle: string) => {
+    console.log(`Export ${widgetTitle} data`);
+    // Implement export logic
+  };
+
+  const handleDetails = (widgetTitle: string) => {
+    console.log(`View ${widgetTitle} details`);
+    // Implement detail view logic
+  };
+
+  const handleStartOnboarding = () => {
+    setShowCompletionToast(false);
+    window.location.href = "/candidate-onboarding/1";
+  };
 
   return (
-    <RoleLensProvider initialRole={initialRole}>
-      <div className="min-h-screen flex w-full bg-background">
-        {/* Left Sidebar - always visible */}
-        <NavSidebar 
-          onGenieToggle={() => {
-            if (version === "v1") {
-              setIsAgentOpen(!isAgentOpen);
-            }
-          }} 
-          isGenieOpen={version === "v1" && isV1AgentOpen}
-          disabled={version === "v2" || version === "v3"}
-        />
-
-        {/* V1: Agent Panel from LEFT (40% width, pushes dashboard) */}
-        {version === "v1" && isV1AgentOpen && (
-          <div className="w-[40%] border-r border-border flex-shrink-0">
-            <AgentDrawer
-              isOpen={isV1AgentOpen}
-              onClose={() => setIsAgentOpen(false)}
-              userData={effectiveUserData}
-              chatHistory={onboardingHistory}
-            />
-          </div>
-        )}
-
-        {/* Main Content - adapts to agent panel width */}
-        {version === "v4" ? (
-          // V4 Layout: Payroll Demo - Dashboard left, Gelo right
-          <div className="flex-1 flex flex-col min-w-0">
-            <Topbar 
-              userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
-              version={version}
-              onVersionChange={(v) => setVersion(v)}
-            />
-            
-            <main className="flex-1 flex overflow-hidden">
-              <AnimatePresence mode="wait">
-                {v4Phase === "idle" ? (
-                  // Full Gelo view
-                  <motion.div
-                    key="gelo-full"
-                    initial={{ width: "100%" }}
-                    animate={{ width: "100%" }}
-                    exit={{ width: "50%" }}
-                    transition={{ duration: 0.24, ease: "easeOut" }}
-                    className="h-full flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]"
-                  >
-                    {/* Subtle wave header */}
-                    <div className="relative z-10 flex flex-col items-center space-y-4">
-                      <AudioWaveVisualizer isActive={false} />
-                      <div className="text-center space-y-2">
-                        <h2 className="text-3xl font-bold text-foreground">Hi {effectiveUserData.firstName}, what would you like to know?</h2>
-                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                          {v4Message.split(' ').map((word, index) => (
-                            <span
-                              key={index}
-                              className={`transition-colors duration-150 ${
-                                index === currentWordIndex - 1
-                                  ? 'text-foreground font-semibold'
-                                  : index < currentWordIndex - 1
-                                  ? 'text-foreground/70 font-medium'
-                                  : 'text-muted-foreground'
-                              }`}
-                            >
-                              {word}{index < v4Message.split(' ').length - 1 ? ' ' : ''}
-                            </span>
-                          ))}
-                        </p>
-                      </div>
-                    </div>
-
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="mt-8 z-10"
-                    >
-                      <Button 
-                        size="lg"
-                        onClick={startV4Payroll}
-                        className="px-8 bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                      >
-                        Run October Payroll
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                ) : (
-                  <>
-                    {/* Dashboard Panel - 50% left */}
-                    <motion.div
-                      key="dashboard-left"
-                      initial={{ x: "-100%", opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: "-100%", opacity: 0 }}
-                      transition={{ duration: 0.28, ease: "easeInOut" }}
-                      className="w-[50%] h-full overflow-y-auto p-8 space-y-6 border-r border-border"
-                    >
-                      {/* Payroll Widget */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.08, duration: 0.4 }}
-                      >
-                        <Card className="p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Payroll Summary</h3>
-                            <Badge variant="secondary">Batch #2025-10</Badge>
-                          </div>
-
-                          {v4ShowSkeleton ? (
-                            <div className="space-y-3">
-                              <Skeleton className="h-12 w-full" />
-                              <Skeleton className="h-12 w-full" />
-                              <Skeleton className="h-12 w-full" />
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_auto] gap-3 text-xs font-medium text-muted-foreground pb-2 border-b">
-                                <div>Country</div>
-                                <div>Currency</div>
-                                <div>Total</div>
-                                <div>FX Rate</div>
-                                <div>Fee</div>
-                                <div>ETA</div>
-                                <div>Status</div>
-                              </div>
-                              {v4PayrollData.map((row, idx) => (
-                                <motion.div
-                                  key={idx}
-                                  initial={{ x: -20, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  transition={{ delay: 0.3 + idx * 0.08, duration: 0.15, ease: "easeOut" }}
-                                  className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_auto] gap-3 text-sm py-3 px-2 rounded-lg hover:bg-muted/50 transition-colors items-center"
-                                >
-                                  <div className="flex items-center gap-2 whitespace-nowrap">
-                                    <span>{row.flag}</span>
-                                    <span className="font-medium">{row.country}</span>
-                                  </div>
-                                  <div>{row.currency}</div>
-                                  <div className="font-medium">{row.total}</div>
-                                  <div>{row.fxRate}</div>
-                                  <div>{row.fee}</div>
-                                  <div>{row.eta}</div>
-                                  <div className="whitespace-nowrap">
-                                    {row.status === "complete" ? (
-                                      <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                        Complete
-                                      </Badge>
-                                    ) : (
-                                      <Badge variant="secondary">
-                                        <motion.div
-                                          animate={{ rotate: 360 }}
-                                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                          className="h-3 w-3 border-2 border-primary/30 border-t-primary rounded-full mr-1"
-                                        />
-                                        Processing
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </motion.div>
-                              ))}
-                            </div>
-                          )}
-                        </Card>
-                      </motion.div>
-
-                      {/* Compliance Widget */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.16, duration: 0.4 }}
-                      >
-                        <Card className="p-6">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">Compliance Status</h3>
-                            {v4Phase !== "processing" && v4ComplianceScore > 0 && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.4, duration: 0.2, type: "spring" }}
-                              >
-                                <Badge className="text-lg px-4 py-1">
-                                  {v4ComplianceScore}% Compliant
-                                </Badge>
-                              </motion.div>
-                            )}
-                          </div>
-                          {v4ShowSkeleton && <Skeleton className="h-20 w-full mt-4" />}
-                        </Card>
-                      </motion.div>
-
-                      {/* FX Insight Card */}
-                      {v4Phase === "results" && (
-                        <motion.div
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.5, duration: 0.3 }}
-                        >
-                          <Card className="p-6 border-primary/30 bg-primary/5">
-                            <div className="flex items-start gap-3">
-                              <TrendingUp className="h-5 w-5 text-primary mt-1" />
-                              <div>
-                                <h4 className="font-medium mb-1">FX Variance Detected</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  +1.2% cost variance compared to last month. Consider locking rates for next batch.
-                                </p>
-                              </div>
-                            </div>
-                          </Card>
-                        </motion.div>
-                      )}
-
-                    </motion.div>
-
-                    {/* Gelo Panel - 50% right */}
-                    <motion.div
-                      key="gelo-right"
-                      initial={{ width: "100%" }}
-                      animate={{ width: "50%" }}
-                      exit={{ width: "100%" }}
-                      transition={{ 
-                        duration: 0.5,
-                        ease: [0.4, 0, 0.2, 1]
-                      }}
-                      className="h-full flex flex-col items-start relative overflow-hidden"
-                    >
-                      {v4GeloCompact ? (
-                        // Compact Header State with Contextual Content
-                        <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
-                          {/* Compact Header */}
-                            <div className="flex-shrink-0 mb-6 flex justify-center">
-                              <div className="scale-75">
-                                <AudioWaveVisualizer isActive={false} />
-                              </div>
-                            </div>
-
-                          {/* Chat Bubble */}
-                          <div className="flex-shrink-0 mb-6 bg-card border border-border rounded-lg p-4 shadow-sm">
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              {v4Message}
-                            </p>
-                          </div>
-
-                          {/* Contextual Content Area */}
-                          <div className="flex-1 space-y-4 min-h-0">
-                            {/* Audit Timeline - Collapsible */}
-                            {v4Phase === "audit" && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ 
-                                  delay: 0.5,
-                                  duration: 0.6,
-                                  ease: [0.4, 0, 0.2, 1]
-                                }}
-                              >
-                                <Collapsible 
-                                  open={v4AuditExpanded} 
-                                  onOpenChange={setV4AuditExpanded}
-                                >
-                                  <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-                                    <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                                      <div className="flex items-center gap-2">
-                                        <Activity className="w-4 h-4 text-primary" />
-                                        <h3 className="font-semibold text-sm">Audit Timeline</h3>
-                                      </div>
-                                      <ChevronDown className={`w-4 h-4 transition-transform ${v4AuditExpanded ? 'rotate-180' : ''}`} />
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                      <div className="p-4 pt-0">
-                                        <Timeline 
-                                          events={[
-                                            {
-                                              id: "1",
-                                              type: "payroll",
-                                              status: "success",
-                                              title: "Payroll Initiated",
-                                              description: "3 countries, €42,150 total",
-                                              timestamp: new Date(Date.now() - 300000),
-                                              actor: "genie",
-                                              actorName: "Gelo"
-                                            },
-                                            {
-                                              id: "2",
-                                              type: "compliance",
-                                              status: "success",
-                                              title: "Compliance Checks",
-                                              description: "All regions verified",
-                                              timestamp: new Date(Date.now() - 240000),
-                                              actor: "system",
-                                              actorName: "System"
-                                            },
-                                            {
-                                              id: "3",
-                                              type: "approval",
-                                              status: "pending",
-                                              title: "CFO Approval Pending",
-                                              description: "Sent to Howard for review",
-                                              timestamp: new Date(),
-                                              actor: "genie",
-                                              actorName: "Gelo"
-                                            }
-                                          ]}
-                                          showFilters={false}
-                                          maxHeight="400px"
-                                        />
-                                      </div>
-                                    </CollapsibleContent>
-                                  </div>
-                                </Collapsible>
-                              </motion.div>
-                            )}
-
-                            {/* Action Buttons */}
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.2 }}
-                              className="flex gap-3 flex-wrap"
-                            >
-                              {v4Phase === "results" && (
-                                <>
-                                  <Button 
-                                    onClick={sendV4ForApproval}
-                                    size="lg"
-                                    className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
-                                  >
-                                    Send for CFO Approval
-                                  </Button>
-                                  <Button 
-                                    variant="outline"
-                                    size="lg"
-                                    onClick={() => {
-                                      setV4Phase("idle");
-                                      setV4Message("Ready for the next payroll run!");
-                                      setV4GeloCompact(false);
-                                      speak("Ready for the next payroll run!");
-                                    }}
-                                    className="min-w-[200px]"
-                                  >
-                                    Start Over
-                                  </Button>
-                                </>
-                              )}
-
-                              {v4Phase === "audit" && (
-                                <Button 
-                                  onClick={completeV4Flow} 
-                                  size="lg"
-                                  className="min-w-[200px]"
-                                >
-                                  Complete & Archive
-                                </Button>
-                              )}
-                            </motion.div>
-                          </div>
-                        </div>
-                      ) : (
-                        // Full Centered State
-                        <>
-                          <div className="w-full h-full flex items-center justify-center relative z-10 px-8">
-                            <div className="text-center space-y-4">
-                              <AudioWaveVisualizer isActive={false} />
-                              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                                {v4Message.split(' ').map((word, index) => (
-                                  <span
-                                    key={index}
-                                    className={`transition-colors duration-150 ${
-                                      index === currentWordIndex - 1
-                                        ? 'text-foreground font-semibold'
-                                        : index < currentWordIndex - 1
-                                        ? 'text-foreground/70 font-medium'
-                                        : 'text-muted-foreground'
-                                    }`}
-                                  >
-                                    {word}{index < v4Message.split(' ').length - 1 ? ' ' : ''}
-                                  </span>
-                                ))}
-                              </p>
-                            </div>
-                          </div>
-
-                          {v4Phase === "results" && (
-                            <motion.div
-                              initial={{ y: 20, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{ delay: 0.4 }}
-                              className="mt-8 flex gap-3 flex-wrap justify-center"
-                            >
-                              <Button 
-                                onClick={sendV4ForApproval}
-                                className="min-w-[200px] bg-gradient-to-r from-primary to-secondary"
-                              >
-                                Send for CFO Approval
-                              </Button>
-                              <Button 
-                                variant="outline"
-                                onClick={() => {
-                                  setV4Phase("idle");
-                                  setV4Message("Ready for the next payroll run!");
-                                  setV4GeloCompact(false);
-                                  speak("Ready for the next payroll run!");
-                                }}
-                                className="min-w-[200px]"
-                              >
-                                Start Over
-                              </Button>
-                            </motion.div>
-                          )}
-                        </>
-                      )}
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </main>
-          </div>
-        ) : version === "v3" ? (
-          // V3 Layout: Agent-first with toggleable dashboard drawer
-          <>
-            <div className="flex-1 flex flex-col min-w-0">
-              <Topbar 
-                userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
-                version={version}
-                onVersionChange={(v) => setVersion(v)}
-                isDrawerOpen={isDrawerOpen}
-                onDrawerToggle={toggleDrawer}
-              />
-              
-              <main className="flex-1 flex overflow-hidden">
-                {/* Dashboard Drawer */}
-                <DashboardDrawer isOpen={isDrawerOpen} userData={effectiveUserData} />
-                
-                {/* Agent Main Area */}
-                <AnimatePresence mode="wait">
-                  {isTransitioning ? (
-                    <motion.div
-                      key="skeleton"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex-1 flex items-center justify-center p-8"
-                    >
-                      <div className="max-w-2xl w-full space-y-8">
-                        <Skeleton className="h-48 w-48 rounded-full mx-auto" />
-                        <Skeleton className="h-8 w-3/4 mx-auto" />
-                        <Skeleton className="h-32 w-full" />
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <AgentMain 
-                      key="agent"
-                      userData={effectiveUserData} 
-                      isDrawerOpen={isDrawerOpen} 
-                    />
-                  )}
-                </AnimatePresence>
-              </main>
+    <RoleLensProvider initialRole="admin">
+      <main className="flex h-screen bg-background text-foreground overflow-hidden">
+        {/* Left Panel - Dashboard Metrics - 60% */}
+        <section className="w-[60%] flex flex-col p-8 overflow-y-auto">
+          <div className="space-y-6">
+            {/* Header */}
+            <div>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <p className="text-muted-foreground mt-1">
+                Welcome back, {userData.firstName}! Here's your organization overview.
+              </p>
             </div>
-          </>
-        ) : (
-          // V1 & V2 Layout (existing)
-          <div className="flex-1 flex flex-col min-w-0">
-            <Topbar 
-              userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
-              version={version}
-              onVersionChange={(v) => setVersion(v)}
-              isAgentOpen={isAgentOpen}
-              onAgentToggle={() => setIsAgentOpen(!isAgentOpen)}
-            />
 
-            <main className="flex-1 p-6 overflow-y-auto">
-              <WidgetGrid userData={effectiveUserData} />
-            </main>
-          </div>
-        )}
+            {/* State B: Contract Completion Toast */}
+            <AnimatePresence>
+              {showCompletionToast && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
+                  <Card className="border-accent/20 bg-accent/5">
+                    <CardContent className="p-4 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="p-2 rounded-lg bg-accent/10">
+                          <CheckCircle2 className="h-5 w-5 text-accent" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">
+                            ✨ Contracts signed. You can now start onboarding
+                          </p>
+                          <Button
+                            onClick={handleStartOnboarding}
+                            className="mt-3 bg-gradient-primary"
+                            size="sm"
+                          >
+                            Start Onboarding Now
+                          </Button>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => setShowCompletionToast(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        {/* V2: Agent Panel on RIGHT (50% width, pushes dashboard) */}
-        {version === "v2" && isV2AgentOpen && (
-          <div className="w-[50%] border-l border-border flex-shrink-0">
-            <AgentDrawer
-              isOpen={isV2AgentOpen}
-              onClose={() => setIsAgentOpen(false)}
-              userData={effectiveUserData}
-              chatHistory={onboardingHistory}
-            />
+            {/* Metric Widgets Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {widgets.map((widget, idx) => (
+                <MetricWidget
+                  key={idx}
+                  {...widget}
+                  onAskGenie={() => handleAskGenie(widget.title)}
+                  onExport={() => handleExport(widget.title)}
+                  onDetails={() => handleDetails(widget.title)}
+                />
+              ))}
+            </div>
+
+            {/* State A: Quick Action for empty state */}
+            {widgets[0].value === "0" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <Card className="border-primary/20">
+                  <CardContent className="p-6 text-center">
+                    <Users className="h-12 w-12 text-primary mx-auto mb-3" />
+                    <h3 className="font-semibold text-lg mb-2">No contractors yet</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Get started by inviting your first contractor to the platform
+                    </p>
+                    <Button className="bg-gradient-primary">
+                      Invite First Contractor
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </div>
-        )}
-      </div>
+        </section>
+
+        {/* Right Panel - Genie Assistant - 40% */}
+        <aside className="w-[40%] border-l border-border bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] flex flex-col items-center justify-center p-8 relative overflow-hidden">
+          {/* Stunning gradient background */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.1, 0.15, 0.1],
+              }}
+              transition={{
+                duration: 12,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute w-[40rem] h-[30rem] rounded-full blur-[120px]"
+              style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
+            />
+          </motion.div>
+
+          {/* Genie Content */}
+          <div className="relative z-10 flex flex-col items-center space-y-6 w-full max-w-lg">
+            {/* Audio Wave Visualizer */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center space-y-4"
+            >
+              <AudioWaveVisualizer isActive={isListening} />
+
+              {/* Greeting */}
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Hi {userData.firstName}, what would you like to know?
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  I'm here to help you manage your workforce
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Voice/Type Mode Toggle */}
+            <VoiceTypeToggle mode={inputMode} onToggle={handleVoiceToggle} isListening={isListening} />
+
+            {/* Input Area */}
+            <div className="w-full space-y-3">
+              {inputMode === "voice" ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center gap-3"
+                >
+                  <Button
+                    onClick={handleMicClick}
+                    className={
+                      isListening
+                        ? "bg-destructive hover:bg-destructive/90 w-full"
+                        : "bg-gradient-to-r from-primary to-secondary w-full"
+                    }
+                    size="lg"
+                  >
+                    <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
+                    <span>{isListening ? "Stop" : "Speak"}</span>
+                  </Button>
+                  {transcript && (
+                    <Card className="w-full">
+                      <CardContent className="p-3">
+                        <p className="text-sm">{transcript}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-2"
+                >
+                  <Input
+                    ref={textareaRef as any}
+                    value={promptInput}
+                    onChange={(e) => setPromptInput(e.target.value)}
+                    placeholder="Ask me anything..."
+                    className="w-full"
+                  />
+                  <Button className="w-full bg-gradient-primary" disabled={!promptInput.trim()}>
+                    Ask Genie
+                  </Button>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Quick Suggestions */}
+            <div className="w-full space-y-2">
+              <p className="text-xs text-muted-foreground text-center">Quick suggestions</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Badge 
+                  variant="secondary" 
+                  className="cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setPromptInput("Show me pending approvals")}
+                >
+                  Pending approvals
+                </Badge>
+                <Badge 
+                  variant="secondary" 
+                  className="cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setPromptInput("What's my compliance status?")}
+                >
+                  Compliance status
+                </Badge>
+                <Badge 
+                  variant="secondary" 
+                  className="cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setPromptInput("Run October payroll")}
+                >
+                  Run payroll
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </main>
     </RoleLensProvider>
   );
 };
