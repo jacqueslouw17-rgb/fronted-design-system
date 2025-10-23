@@ -244,7 +244,7 @@ const ContractFlowDemo = () => {
                       />
                       <div className="text-center space-y-2">
                         <h1 className="text-3xl font-bold text-foreground">
-                          Great news — these candidates have accepted their offers!
+                          Great news - two more candidates accepted their offers!
                         </h1>
                         <p className="text-foreground/60 relative max-w-2xl mx-auto">
                           {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
