@@ -7,7 +7,7 @@ import { CheckCircle2, ArrowRight } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -16,7 +16,7 @@ interface ContractFlowSummaryProps {
 export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   candidates,
 }) => {
-  const navigate = useNavigate();
+  
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -115,12 +115,14 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
           Ready to start onboarding your new team members?
         </p>
         <Button 
-          onClick={() => navigate('/flows/dashboard-admin')} 
+          asChild
           size="lg"
           className="bg-gradient-primary"
         >
-          Go to Admin Dashboard
-          <ArrowRight className="h-4 w-4 ml-2" />
+          <Link to="/flows/dashboard-admin" className="inline-flex items-center">
+            Go to Admin Dashboard
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Link>
         </Button>
       </motion.div>
     </div>
