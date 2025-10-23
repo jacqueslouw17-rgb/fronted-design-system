@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowRight, Sparkles, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
 
 interface Step7Props {
   formData: Record<string, any>;
@@ -12,7 +13,26 @@ interface Step7Props {
   isLoadingFields?: boolean;
 }
 
-const Step7Finish = ({ formData, isProcessing: externalProcessing }: Step7Props) => {
+const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }: Step7Props) => {
+  const navigate = useNavigate();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleFinish = useCallback(async () => {
+    // Complete the step
+    onComplete("transparency_pledge");
+    
+    // Navigate to dashboard
+    setIsTransitioning(true);
+    setTimeout(() => {
+      navigate('/dashboard');
+      
+      // After 2-3 seconds on dashboard, auto-navigate to contract flow
+      setTimeout(() => {
+        navigate('/flows/contract-flow');
+      }, 2500);
+    }, 800);
+  }, [navigate, onComplete]);
+
   const completedItems = [
     { label: "Organization profile", icon: CheckCircle2, done: !!formData.companyName },
     { label: "Country blocks loaded", icon: CheckCircle2, done: !!formData.selectedCountries },
@@ -63,21 +83,24 @@ const Step7Finish = ({ formData, isProcessing: externalProcessing }: Step7Props)
 
       {/* CTA */}
       <div className="space-y-3">
-        <Link to="/dashboard">
-          <Button size="lg" className="w-full" disabled={externalProcessing}>
-            {externalProcessing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Loading Dashboard...
-              </>
-            ) : (
-              <>
-                Open Dashboard
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </>
-            )}
-          </Button>
-        </Link>
+        <Button 
+          size="lg" 
+          className="w-full" 
+          disabled={externalProcessing || isTransitioning}
+          onClick={handleFinish}
+        >
+          {externalProcessing || isTransitioning ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Loading Dashboard...
+            </>
+          ) : (
+            <>
+              Finish & Launch
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </>
+          )}
+        </Button>
         <p className="text-xs text-center text-muted-foreground">
           Your dashboard is ready with Agent-First view
         </p>

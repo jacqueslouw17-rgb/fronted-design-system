@@ -457,7 +457,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <Button
               type="button"
               onClick={handleSendForm}
-              disabled={isSubmitting || isSavingDraft || !candidate.email || showEmploymentConfirm}
+              disabled={isSubmitting || isSavingDraft || !candidate.email}
               className="flex-1"
             >
               {isSubmitting ? "Sending..." : (isResend ? "Resend Form" : "Send Form")}
