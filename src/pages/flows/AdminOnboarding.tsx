@@ -53,7 +53,7 @@ const AdminOnboarding = () => {
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
-  const [isKurtVisible, setIsKurtVisible] = useState(true);
+  const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -769,85 +769,12 @@ const AdminOnboarding = () => {
              style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
-      {/* Left Section - Agent */}
-      {isKurtVisible && (
-        <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '50%' }}>
-          <div className="relative z-10 flex flex-col items-center space-y-6">
-            {/* Audio Wave Visualizer or Loading Dots */}
-            <div className="flex flex-col items-center space-y-4">
-            {isProcessing ? (
-              <LoadingDots isActive={isProcessing} />
-            ) : (
-              <AudioWaveVisualizer 
-                isActive={isSpeaking} 
-                isListening={isListening}
-                isDetectingVoice={isDetectingVoice}
-              />
-            )}
-
-              {/* Title and dynamic subtext */}
-              <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold text-foreground">
-                  Welcome to Fronted
-                </h1>
-                <p className="text-sm max-w-md mx-auto">
-                  {kurtMessage.split(' ').map((word, index) => (
-                    <span
-                      key={index}
-                      className={`transition-colors duration-150 ${
-                        hasFinishedReading
-                          ? `${messageStyle}` 
-                          : index === currentWordIndex - 1 
-                          ? `${messageStyle} font-semibold` 
-                          : index < currentWordIndex - 1
-                          ? `${messageStyle} font-medium`
-                          : 'text-muted-foreground/60'
-                      }`}
-                    >
-                      {word}{index < kurtMessage.split(' ').length - 1 ? ' ' : ''}
-                    </span>
-                  ))}
-                </p>
-              </div>
-            </div>
-
-            {/* Speak button or Listening indicator */}
-            {!hasActivatedSpeech ? (
-              <Button
-                size="lg"
-                onClick={handleSpeakClick}
-                className="mt-4"
-              >
-                <Mic className="h-4 w-4 mr-2" />
-                Speak
-              </Button>
-            ) : isListening ? (
-              <div className="flex items-center justify-center gap-3">
-                <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
-                  <Mic className="h-4 w-4" />
-                  <span>Listening...</span>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={stopListening}
-                >
-                  Stop
-                </Button>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      )}
-
       {/* Right Section - Steps & Progress */}
-      <aside 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 transition-all duration-300"
+      <div 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto"
         style={{ 
-          width: isKurtVisible ? '50%' : '100%', 
-          minWidth: '380px',
-          maxWidth: isKurtVisible ? '50%' : '600px',
-          margin: isKurtVisible ? '0' : '0 auto'
+          width: '100%',
+          maxWidth: '800px'
         }}
       >
         {/* Header with Animation */}
@@ -867,28 +794,9 @@ const AdminOnboarding = () => {
           </h1>
         </div>
 
-        {/* Progress Bar with Drawer Toggle */}
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
-                  onClick={() => setIsKurtVisible(!isKurtVisible)}
-                >
-                  <PanelLeft className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-white/90 text-foreground border-white/20">
-                <p className="text-xs">{isKurtVisible ? "Collapse Kurt" : "Expand Kurt"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <div className="flex-1">
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-          </div>
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
         </div>
 
         {/* Step Cards */}
@@ -918,7 +826,7 @@ const AdminOnboarding = () => {
             );
           })}
         </div>
-      </aside>
+      </div>
     </main>
   );
 };
