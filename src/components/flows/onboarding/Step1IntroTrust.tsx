@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, MessageSquare, Loader2, Key, Sparkles, Mail, Globe } from "lucide-react";
+import { CheckCircle2, Loader2, Key, Sparkles, Mail, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -19,7 +18,6 @@ interface Step1Props {
 
 const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false, isLoadingFields = false }: Step1Props) => {
   const [privacyAccepted, setPrivacyAccepted] = useState(formData.privacyAccepted || false);
-  const [inputMode, setInputMode] = useState(formData.defaultInputMode || "chat");
   const [email, setEmail] = useState(formData.email || "");
   const [password, setPassword] = useState(formData.password || "");
   const [showPassword, setShowPassword] = useState(false);
@@ -102,7 +100,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
     
     onComplete("intro_trust_model", {
       privacyAccepted,
-      defaultInputMode: inputMode,
+      defaultInputMode: "chat", // Always default to chat mode
       email,
       password,
       preferredLanguage
@@ -323,7 +321,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
       </div>
 
       {/* Privacy & Preferences Section */}
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+      <div className="bg-card/40 border border-border/40 rounded-lg p-4">
         <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-primary/8 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
           <Checkbox
             id="privacy"
@@ -334,30 +332,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
           <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90 pointer-events-none">
             I accept the privacy policy and agree to data processing for contractor management purposes
           </Label>
-        </div>
-
-        <div className="space-y-2.5 pt-3 border-t border-border/40">
-          <Label className="text-xs font-bold uppercase tracking-wide text-foreground">
-            Preferred Input Mode
-          </Label>
-          <RadioGroup value={inputMode} onValueChange={setInputMode}>
-            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'chat' ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/8 border-transparent'}`}>
-              <RadioGroupItem value="chat" id="chat" />
-              <Label htmlFor="chat" className="cursor-pointer flex items-center gap-2 text-sm">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                <span>Chat with Kurt <span className="text-xs text-muted-foreground">(Recommended)</span></span>
-              </Label>
-            </div>
-            <div className={`flex items-center space-x-2 p-2 rounded-md transition-colors border ${inputMode === 'manual' ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/8 border-transparent'}`}>
-              <RadioGroupItem value="manual" id="manual" />
-              <Label htmlFor="manual" className="cursor-pointer text-sm">
-                Manual forms <span className="text-xs text-muted-foreground">(Traditional)</span>
-              </Label>
-            </div>
-          </RadioGroup>
-          <p className="text-xs text-muted-foreground italic">
-            You can switch between modes anytime
-          </p>
         </div>
       </div>
 
