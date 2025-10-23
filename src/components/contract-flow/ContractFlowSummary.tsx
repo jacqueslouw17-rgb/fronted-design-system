@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useNavigate } from "react-router-dom";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -14,6 +16,7 @@ interface ContractFlowSummaryProps {
 export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   candidates,
 }) => {
+  const navigate = useNavigate();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -101,16 +104,24 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         ))}
       </motion.div>
 
-      {/* Next Step Placeholder */}
+      {/* Next Step Action */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="mt-12 p-6 rounded-lg bg-muted/30 border border-border"
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-12 flex flex-col items-center gap-4"
       >
         <p className="text-sm text-muted-foreground text-center">
-          📌 Next workflow: Contractor Onboarding — My Checklist
+          Ready to start onboarding your new team members?
         </p>
+        <Button 
+          onClick={() => navigate('/flows/dashboard-admin')} 
+          size="lg"
+          className="bg-gradient-primary"
+        >
+          Go to Admin Dashboard
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
       </motion.div>
     </div>
   );
