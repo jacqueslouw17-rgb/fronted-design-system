@@ -110,8 +110,8 @@ const CandidateOnboarding = () => {
         if (isDemoMode) {
           navigate('/flows');
         } else {
-          // In production, show success screen or redirect
-          navigate('/onboarding/success');
+          // In production, redirect to dashboard
+          navigate('/dashboard');
         }
       }, 3000);
     }
