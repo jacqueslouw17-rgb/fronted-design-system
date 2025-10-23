@@ -43,15 +43,14 @@ const CandidateOnboarding = () => {
 
   // Prefill demo data
   useEffect(() => {
-    if (isDemoMode) {
-      updateFormData({
-        fullName: "Maria Santos",
-        email: "maria.santos@example.com",
-        companyName: "Fronted Inc",
-        jobTitle: "Senior Developer"
-      });
-    }
-  }, [isDemoMode, updateFormData]);
+    // Always prefill for demo/preview purposes
+    updateFormData({
+      fullName: "Maria Santos",
+      email: "maria.santos@example.com",
+      companyName: "Fronted Inc",
+      jobTitle: "Senior Developer"
+    });
+  }, [updateFormData]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
