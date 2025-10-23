@@ -54,23 +54,103 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   };
 
   const handleSendForm = (candidateId: string) => {
-    setCandidateDataStatus((prev) =>
-      prev.map((status) =>
-        status.id === candidateId
-          ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
-          : status
-      )
-    );
+    // Special demo flow for Oskar (id "2") - auto-progress through statuses
+    const isOskar = candidateId === "2";
+    
+    if (isOskar) {
+      // Step 1: Form sent
+      setCandidateDataStatus((prev) =>
+        prev.map((status) =>
+          status.id === candidateId
+            ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
+            : status
+        )
+      );
 
-    toast.success("Form sent to candidate. Awaiting completion.", {
-      duration: 3000,
-      icon: "📧",
-    });
+      toast.success("Form sent to Oskar. Watch the status change...", {
+        duration: 2000,
+        icon: "📧",
+      });
 
-    // Simulate candidate submission after 3 seconds
-    setTimeout(() => {
-      handleCandidateSubmit(candidateId);
-    }, 3000);
+      // Step 2: Form viewed (after 2.5 seconds)
+      setTimeout(() => {
+        setCandidateDataStatus((prev) =>
+          prev.map((status) =>
+            status.id === candidateId
+              ? { ...status, status: "awaiting_submission" as OnboardingStatus }
+              : status
+          )
+        );
+        toast.info("Oskar viewed the form", {
+          duration: 2000,
+          icon: "👀",
+        });
+      }, 2500);
+
+      // Step 3: Data submitted - start validating (after 5 seconds)
+      setTimeout(() => {
+        setCandidateDataStatus((prev) =>
+          prev.map((status) =>
+            status.id === candidateId
+              ? { ...status, status: "validating" as OnboardingStatus }
+              : status
+          )
+        );
+        setValidatingCandidateId(candidateId);
+        toast.info("Oskar submitted the form. Validating...", {
+          duration: 2000,
+          icon: "✍️",
+        });
+      }, 5000);
+
+      // Step 4: Validation complete (after 7.5 seconds)
+      setTimeout(() => {
+        setCandidateDataStatus((prev) => {
+          const updated = prev.map((status) =>
+            status.id === candidateId
+              ? { ...status, status: "ready_for_contract" as OnboardingStatus }
+              : status
+          );
+
+          // Check if all complete
+          const allComplete = updated.every((s) => s.status === "ready_for_contract");
+          if (allComplete) {
+            setTimeout(() => {
+              toast.success(
+                "✅ All required information received from all candidates. Contract drafts are prefilled and ready for your review!",
+                { duration: 5000 }
+              );
+            }, 500);
+          }
+
+          return updated;
+        });
+        setValidatingCandidateId(null);
+        toast.success("Oskar's data validated successfully!", {
+          duration: 2000,
+          icon: "✅",
+        });
+      }, 7500);
+    } else {
+      // Regular flow for other candidates
+      setCandidateDataStatus((prev) =>
+        prev.map((status) =>
+          status.id === candidateId
+            ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
+            : status
+        )
+      );
+
+      toast.success("Form sent to candidate. Awaiting completion.", {
+        duration: 3000,
+        icon: "📧",
+      });
+
+      // Simulate candidate submission after 3 seconds
+      setTimeout(() => {
+        handleCandidateSubmit(candidateId);
+      }, 3000);
+    }
   };
 
   const handleCandidateSubmit = (candidateId: string) => {
