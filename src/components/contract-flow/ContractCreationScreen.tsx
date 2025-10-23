@@ -175,7 +175,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       </div>
 
       {/* Tabs for List/Pipeline View */}
-      <Tabs defaultValue="pipeline" className="w-full">
+      <Tabs defaultValue="list" className="w-full">
         <TabsList className="grid w-64 mx-auto grid-cols-2">
           <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
