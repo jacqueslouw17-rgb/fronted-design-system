@@ -1,21 +1,17 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import KurtAvatar from "@/components/KurtAvatar";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
-  onStartOnboarding: () => void;
-  onBackToDashboard: () => void;
 }
 
 export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   candidates,
-  onStartOnboarding,
-  onBackToDashboard,
 }) => {
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
@@ -27,9 +23,18 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         className="text-center space-y-4"
       >
         <div className="flex justify-center">
-          <div className="h-20 w-20 rounded-full bg-success/10 flex items-center justify-center">
-            <Sparkles className="h-10 w-10 text-success" />
-          </div>
+          <motion.div
+            animate={{ 
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <KurtAvatar size="default" />
+          </motion.div>
         </div>
         <h1 className="text-4xl font-bold text-foreground">
           🎉 Contracts Signed — You're All Set!
@@ -39,35 +44,11 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         </p>
       </motion.div>
 
-      {/* Primary CTAs */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="flex flex-col sm:flex-row gap-3"
-      >
-        <Button
-          onClick={onStartOnboarding}
-          className="flex-1"
-          size="lg"
-        >
-          Start Onboarding
-        </Button>
-        <Button
-          onClick={onBackToDashboard}
-          variant="outline"
-          className="flex-1"
-          size="lg"
-        >
-          Back to Dashboard
-        </Button>
-      </motion.div>
-
       {/* Signed Contractors Badges */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
         className="space-y-3"
       >
         {candidates.map((candidate, index) => (
@@ -99,7 +80,7 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
         className="mt-12 p-6 rounded-lg bg-muted/30 border border-border"
       >
         <p className="text-sm text-muted-foreground text-center">

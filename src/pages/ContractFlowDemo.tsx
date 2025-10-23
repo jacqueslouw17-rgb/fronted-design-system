@@ -306,8 +306,6 @@ const ContractFlowDemo = () => {
                     >
                       <ContractFlowSummary 
                         candidates={contractFlow.selectedCandidates} 
-                        onStartOnboarding={() => toast({ title: "🚀 Starting Onboarding Flow" })} 
-                        onBackToDashboard={() => toast({ title: "✅ Returning to Dashboard" })} 
                       />
                     </motion.div>
                   </div>
