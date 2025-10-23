@@ -130,6 +130,9 @@ const ContractFlowDemo = () => {
         message = "Let's finalize contracts and complete onboarding.";
       } else if (phaseKey === "bundle-creation") {
         message = "Select documents to include in the signing package";
+      } else if (phaseKey === "drafting" && contractFlow.selectedCandidates[contractFlow.currentDraftIndex]) {
+        const candidate = contractFlow.selectedCandidates[contractFlow.currentDraftIndex];
+        message = `${candidate.name} ${candidate.role} ${candidate.country}`;
       }
       
       if (message) {
@@ -144,7 +147,7 @@ const ContractFlowDemo = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, [contractFlow.phase, hasSpokenPhase, speak]);
+  }, [contractFlow.phase, hasSpokenPhase, speak, contractFlow.currentDraftIndex, contractFlow.selectedCandidates]);
 
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
@@ -455,16 +458,67 @@ const ContractFlowDemo = () => {
                 </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
-                <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">
-                  <ContractDraftWorkspace 
-                    candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
-                    index={contractFlow.currentDraftIndex} 
-                    total={contractFlow.selectedCandidates.length} 
-                    onNext={() => { 
-                      // if (contractFlow.currentDraftIndex === contractFlow.selectedCandidates.length - 1) speak("All drafts are ready."); 
-                      contractFlow.nextDraft(); 
-                    }}
-                  />
+                <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
+                  {/* Back Button - Consistent positioning */}
+                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => {
+                        // Navigate back to bundle creation
+                        navigate("/flows/contract-flow?phase=bundle-creation");
+                      }}
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                  </div>
+
+                  {/* Main Content */}
+                  <div className="flex-1 flex flex-col items-center p-8">
+                    <div className="w-full max-w-7xl space-y-8">
+                      {/* Audio Wave Visualizer - Centered */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex justify-center"
+                      >
+                        <AudioWaveVisualizer 
+                          isActive={!hasSpokenPhase["drafting"]} 
+                          isListening={true}
+                          isDetectingVoice={isSpeaking}
+                        />
+                      </motion.div>
+
+                      {/* Header - Centered */}
+                      <div className="text-center space-y-2">
+                        <h1 className="text-3xl font-bold text-foreground">Contract Drafting in Progress</h1>
+                        <p className="text-base text-muted-foreground">
+                          {`${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.name} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.role} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.country}`.split(' ').map((word, index) => (
+                            <span
+                              key={index}
+                              className={`transition-colors duration-200 ${
+                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                              }`}
+                            >
+                              {word}{" "}
+                            </span>
+                          ))}
+                        </p>
+                      </div>
+
+                      {/* Contract Workspace */}
+                      <ContractDraftWorkspace 
+                        candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
+                        index={contractFlow.currentDraftIndex} 
+                        total={contractFlow.selectedCandidates.length} 
+                        onNext={() => { 
+                          contractFlow.nextDraft(); 
+                        }}
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
                 <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">

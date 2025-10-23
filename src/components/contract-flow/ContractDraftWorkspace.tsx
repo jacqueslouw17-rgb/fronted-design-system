@@ -242,16 +242,16 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="h-full flex gap-4"
+      className="h-full flex gap-4 items-start"
     >
-      {/* Left: Candidate card */}
+      {/* Left: Candidate card - Fixed height */}
       <motion.div
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.3 }}
         className="w-80 flex-shrink-0"
       >
-        <Card className="p-6 h-full">
+        <Card className="p-6 overflow-auto" style={{ maxHeight: '600px' }}>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-4xl">{candidate.flag}</span>
             <div className="flex-1">
@@ -338,7 +338,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </span>
         </div>
 
-        {/* Genie message */}
+        {/* Genie message - Aligned with left box */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
