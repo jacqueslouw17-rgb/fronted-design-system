@@ -117,7 +117,6 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   }, []);
 
   const prepareDrafts = useCallback(() => {
-    console.log("prepareDrafts called - changing phase to contract-creation");
     setPhase("contract-creation");
     setCurrentDraftIndex(0);
   }, []);
@@ -136,6 +135,11 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
 
   const proceedFromBundle = useCallback(() => {
     setPhase("drafting");
+  }, []);
+
+  const goToBundleCreation = useCallback(() => {
+    setPhase("bundle-creation");
+    setCurrentDraftIndex(0);
   }, []);
 
   const nextDraft = useCallback(() => {
@@ -190,6 +194,7 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     prepareDrafts,
     proceedToBundle,
     proceedFromBundle,
+    goToBundleCreation,
     nextDraft,
     addReviewComment,
     proceedToDocumentBundle,

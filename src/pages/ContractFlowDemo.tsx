@@ -25,7 +25,7 @@ import NavSidebar from "@/components/dashboard/NavSidebar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -39,6 +39,7 @@ const ContractFlowDemo = () => {
   const [isSpeaking, setIsSpeaking] = React.useState(false);
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const userData = {
     firstName: "Joe",
@@ -151,6 +152,16 @@ const ContractFlowDemo = () => {
       return () => clearTimeout(timer);
     }
   }, [currentWordIndex, idleWords.length]);
+
+  // Check for phase query param and transition
+  useEffect(() => {
+    const phaseParam = searchParams.get("phase");
+    if (phaseParam === "bundle-creation") {
+      contractFlow.goToBundleCreation();
+      // Clear the query param
+      navigate("/flows/contract-flow", { replace: true });
+    }
+  }, [searchParams, contractFlow, navigate]);
 
   return (
     <RoleLensProvider initialRole="admin">

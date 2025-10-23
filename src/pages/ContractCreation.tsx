@@ -51,7 +51,8 @@ const ContractCreation: React.FC = () => {
             if (index < selected.length - 1) {
               setIndex((i) => i + 1);
             } else {
-              navigate("/flows/contract-flow");
+              // Navigate to bundle creation phase
+              navigate("/flows/contract-flow?phase=bundle-creation");
             }
           }}
         />
