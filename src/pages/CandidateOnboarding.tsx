@@ -146,8 +146,8 @@ const CandidateOnboarding = () => {
               Thanks! We're preparing your contract. You'll receive an email shortly to review and sign.
             </p>
           </div>
-          <Button size="lg" onClick={() => navigate('/flows')}>
-            Back to Flows
+          <Button size="lg" onClick={() => navigate('/')}>
+            Back to Overview
           </Button>
         </div>
       </div>
@@ -163,7 +163,7 @@ const CandidateOnboarding = () => {
             variant="ghost" 
             size="sm" 
             className="mb-4"
-            onClick={() => navigate('/flows')}
+            onClick={() => navigate('/')}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
