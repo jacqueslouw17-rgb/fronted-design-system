@@ -24,6 +24,11 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: "default"
     variant: "secondary",
     color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   },
+  waiting_for_candidate: {
+    label: "Waiting for Candidate",
+    variant: "secondary",
+    color: "bg-amber-500/10 text-amber-600 border-amber-500/20 animate-pulse",
+  },
   validating: {
     label: "Validating...",
     variant: "outline",

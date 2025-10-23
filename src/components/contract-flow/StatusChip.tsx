@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type StatusType = "ready" | "pending" | "review";
+type StatusType = "ready" | "pending" | "review" | "waiting";
 
 interface StatusChipProps {
   type: StatusType;
@@ -24,6 +24,10 @@ export const StatusChip: React.FC<StatusChipProps> = ({ type, label, className }
     review: {
       icon: AlertCircle,
       className: "bg-primary/10 text-primary hover:bg-primary/20 border-primary/20",
+    },
+    waiting: {
+      icon: Clock,
+      className: "bg-warning/10 text-warning hover:bg-warning/20 border-warning/20 animate-pulse",
     },
   };
 

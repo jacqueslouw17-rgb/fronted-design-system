@@ -4,7 +4,8 @@ export type OnboardingStatus =
   | "awaiting_data" 
   | "awaiting_submission" 
   | "ready_for_contract"
-  | "validating";
+  | "validating"
+  | "waiting_for_candidate";
 
 export interface OnboardingCandidate {
   id: string;

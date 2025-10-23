@@ -79,14 +79,25 @@ const ContractFlowDemo = () => {
     }
   }, [currentWordIndex, idleWords.length]);
 
+  // Auto-transition from initial landing to candidates view
   useEffect(() => {
     if (contractFlow.phase === "idle" && (version === "v3" || version === "v5")) {
       const timer = setTimeout(() => {
-        contractFlow.startFlow();
-      }, 3000); // Changed to 3 seconds
+        // Show toast notification
+        toast({
+          title: "🎉 New hire detected",
+          description: "Genie is preparing onboarding for your candidates...",
+          duration: 3000,
+        });
+        
+        // Transition to candidates view
+        setTimeout(() => {
+          contractFlow.startFlow();
+        }, 500);
+      }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [contractFlow.phase, version]);
+  }, [contractFlow.phase, version, toast]);
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -240,23 +251,20 @@ const ContractFlowDemo = () => {
                       </p>
                     </motion.div>
 
-                    {/* Genie Message */}
+                    {/* Genie Message Bubble */}
                     <motion.div
-                      initial={{ opacity: 0, y: -10 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 max-w-4xl mx-auto"
+                      transition={{ delay: 0.3, duration: 0.4 }}
+                      className="max-w-2xl mx-auto"
                     >
-                      <div className="flex items-start gap-3">
-                        <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-foreground mb-1">
-                            Genie will handle the details
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Once candidates submit their forms, I'll validate all compliance requirements and notify your ATS automatically. No manual steps needed.
-                          </p>
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                        <div className="mt-0.5">
+                          <Bot className="h-5 w-5 text-primary" />
                         </div>
+                        <p className="text-sm text-foreground/80">
+                          I've automatically sent onboarding forms to each candidate. Once they complete their details, I'll validate everything and notify you when they're ready for contract generation.
+                        </p>
                       </div>
                     </motion.div>
 
