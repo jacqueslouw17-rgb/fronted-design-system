@@ -237,304 +237,197 @@ const DashboardAdmin = () => {
             <main className="flex-1 flex overflow-hidden">
               {/* Left Panel - Dashboard Metrics */}
               <section className={`${isGenieOpen ? 'w-[60%]' : 'w-full'} flex flex-col p-8 overflow-y-auto transition-all`}>
-          <div className="space-y-6">
-            {/* Header */}
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-muted-foreground mt-1">
-                Welcome back, Joe! Here's your organization overview.
-              </p>
-            </div>
-
-            {/* Success Toast */}
-            <AnimatePresence>
-              {showSuccessBanner && (
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <Card className="border-accent/20 bg-accent/5">
-                    <CardContent className="p-4 flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className="p-2 rounded-lg bg-accent/10">
-                          <CheckCircle2 className="h-5 w-5 text-accent" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-foreground">
-                            ✨ Contracts signed. You can now start onboarding
-                          </p>
-                          <Button
-                            onClick={handleStartOnboarding}
-                            className="mt-3 bg-gradient-primary"
-                            size="sm"
-                          >
-                            Start Onboarding Now
-                          </Button>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => setShowSuccessBanner(false)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Metric Widgets Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Audio Wave Visualizer */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col items-center space-y-4"
-          >
-            <AudioWaveVisualizer isActive={isListening} />
-
-            {/* Hero Section */}
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                Hi Joe, what would you like to do next?
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Genie will guide you based on completed contract steps.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Success Banner */}
-          <AnimatePresence>
-            {showSuccessBanner && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="w-full"
-              >
-                <Card className="border-accent/20 bg-accent/5">
-                  <CardContent className="p-4 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg bg-accent/10">
-                        <CheckCircle2 className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          ✨ Contracts complete. All signatures received.
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          You can now start onboarding.
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 -mt-1"
-                      onClick={() => setShowSuccessBanner(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Smart CTA Block */}
-          <AnimatePresence>
-            {showCtaBlock && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                className="w-full"
-              >
-                <Card className="border-primary/20 bg-card">
-                  <CardContent className="p-4">
-                    <p className="text-sm text-foreground mb-3">
-                      Would you like me to start their onboarding checklist?
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div>
+                    <h1 className="text-3xl font-bold">Dashboard</h1>
+                    <p className="text-muted-foreground mt-1">
+                      Welcome back, Joe! Here's your organization overview.
                     </p>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={handleStartOnboarding}
-                        className="bg-gradient-primary"
+                  </div>
+
+                  {/* Success Toast */}
+                  <AnimatePresence>
+                    {showSuccessBanner && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
                       >
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Yes, Start Onboarding
-                      </Button>
-                      <Button variant="secondary" onClick={handleLater}>
-                        Later
+                        <Card className="border-accent/20 bg-accent/5">
+                          <CardContent className="p-4 flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 flex-1">
+                              <div className="p-2 rounded-lg bg-accent/10">
+                                <CheckCircle2 className="h-5 w-5 text-accent" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-medium text-foreground">
+                                  ✨ Contracts signed. You can now start onboarding
+                                </p>
+                                <Button
+                                  onClick={handleStartOnboarding}
+                                  className="mt-3 bg-gradient-primary"
+                                  size="sm"
+                                >
+                                  Start Onboarding Now
+                                </Button>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => setShowSuccessBanner(false)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Metric Widgets Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {widgets.map((widget, idx) => (
+                      <MetricWidget
+                        key={idx}
+                        {...widget}
+                        onAskGenie={() => handleAskGenie(widget.title)}
+                        onExport={() => handleExport(widget.title)}
+                        onDetails={() => handleDetails(widget.title)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Right Panel - Genie Assistant */}
+              {isGenieOpen && (
+                <aside className="w-[40%] border-l border-border bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] flex flex-col items-center justify-center p-8 relative overflow-hidden">
+                  {/* Stunning gradient background */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 2 }}
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+                  >
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        opacity: [0.1, 0.15, 0.1],
+                      }}
+                      transition={{
+                        duration: 12,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="absolute w-[40rem] h-[30rem] rounded-full blur-[120px]"
+                      style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
+                    />
+                  </motion.div>
+
+                  {/* Genie Content */}
+                  <div className="relative z-10 flex flex-col items-center space-y-6 w-full max-w-lg">
+                    {/* Audio Wave Visualizer */}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.6 }}
+                      className="flex flex-col items-center space-y-4"
+                    >
+                      <AudioWaveVisualizer isActive={isListening} />
+
+                      {/* Greeting */}
+                      <div className="text-center space-y-2">
+                        <h2 className="text-2xl font-bold text-foreground">
+                          Hi Joe, what would you like to know?
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                          I'm here to help you manage your workforce
+                        </p>
+                      </div>
+                    </motion.div>
+
+                    {/* Smart CTA Block */}
+                    <AnimatePresence>
+                      {showCtaBlock && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3 }}
+                          className="w-full"
+                        >
+                          <Card className="border-primary/20 bg-card">
+                            <CardContent className="p-4">
+                              <p className="text-sm text-foreground mb-3">
+                                Would you like me to start their onboarding checklist?
+                              </p>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={handleStartOnboarding}
+                                  className="bg-gradient-primary"
+                                >
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  Yes, Start Onboarding
+                                </Button>
+                                <Button variant="secondary" onClick={handleLater}>
+                                  Later
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Input Area */}
+                    <div className="w-full space-y-3">
+                      <Input
+                        value={promptInput}
+                        onChange={(e) => setPromptInput(e.target.value)}
+                        placeholder="Ask me anything..."
+                        className="w-full"
+                      />
+                      <Button className="w-full bg-gradient-primary" disabled={!promptInput.trim()}>
+                        Ask Genie
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          {/* Voice Input Control */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center gap-3 w-full"
-          >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                onClick={() => setIsListening(!isListening)}
-                className={
-                  isListening
-                    ? "bg-destructive hover:bg-destructive/90"
-                    : "bg-gradient-to-r from-primary to-secondary"
-                }
-              >
-                <Mic className={`h-5 w-5 mr-2 ${isListening ? 'animate-pulse' : ''}`} />
-                <span>{isListening ? "Stop" : "Speak"}</span>
-              </Button>
-            </motion.div>
-            <Input
-              value={promptInput}
-              onChange={(e) => setPromptInput(e.target.value)}
-              placeholder="Or type your question here..."
-              className="flex-1"
-            />
-          </motion.div>
+                    {/* Quick Suggestions */}
+                    <div className="w-full space-y-2">
+                      <p className="text-xs text-muted-foreground text-center">Quick suggestions</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Badge 
+                          variant="secondary" 
+                          className="cursor-pointer hover:bg-primary/10 transition-colors"
+                          onClick={() => setPromptInput("Show me pending approvals")}
+                        >
+                          Pending approvals
+                        </Badge>
+                        <Badge 
+                          variant="secondary" 
+                          className="cursor-pointer hover:bg-primary/10 transition-colors"
+                          onClick={() => setPromptInput("What's my compliance status?")}
+                        >
+                          Compliance status
+                        </Badge>
+                        <Badge 
+                          variant="secondary" 
+                          className="cursor-pointer hover:bg-primary/10 transition-colors"
+                          onClick={() => setPromptInput("Run October payroll")}
+                        >
+                          Run payroll
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+              )}
+            </main>
+          </div>
         </div>
-      </section>
-
-      {/* Right Panel - Dashboard Cards - 40% width */}
-      <aside className="w-[40%] border-l border-border bg-card flex flex-col h-screen overflow-y-auto">
-            {/* Stunning gradient background */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 2 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
-            >
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.1, 0.15, 0.1],
-                }}
-                transition={{
-                  duration: 12,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute w-[40rem] h-[30rem] rounded-full blur-[120px]"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--secondary) / 0.15))' }}
-              />
-            </motion.div>
-
-            {/* Genie Content */}
-            <div className="relative z-10 flex flex-col items-center space-y-6 w-full max-w-lg">
-              {/* Audio Wave Visualizer */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="flex flex-col items-center space-y-4"
-              >
-                <AudioWaveVisualizer isActive={isListening} />
-
-                {/* Greeting */}
-                <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Hi Joe, what would you like to know?
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    I'm here to help you manage your workforce
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Smart CTA Block */}
-              <AnimatePresence>
-                {showCtaBlock && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full"
-                  >
-                    <Card className="border-primary/20 bg-card">
-                      <CardContent className="p-4">
-                        <p className="text-sm text-foreground mb-3">
-                          Would you like me to start their onboarding checklist?
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleStartOnboarding}
-                            className="bg-gradient-primary"
-                          >
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            Yes, Start Onboarding
-                          </Button>
-                          <Button variant="secondary" onClick={handleLater}>
-                            Later
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Input Area */}
-              <div className="w-full space-y-3">
-                <Input
-                  value={promptInput}
-                  onChange={(e) => setPromptInput(e.target.value)}
-                  placeholder="Ask me anything..."
-                  className="w-full"
-                />
-                <Button className="w-full bg-gradient-primary" disabled={!promptInput.trim()}>
-                  Ask Genie
-                </Button>
-              </div>
-
-              {/* Quick Suggestions */}
-              <div className="w-full space-y-2">
-                <p className="text-xs text-muted-foreground text-center">Quick suggestions</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <Badge 
-                    variant="secondary" 
-                    className="cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => setPromptInput("Show me pending approvals")}
-                  >
-                    Pending approvals
-                  </Badge>
-                  <Badge 
-                    variant="secondary" 
-                    className="cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => setPromptInput("What's my compliance status?")}
-                  >
-                    Compliance status
-                  </Badge>
-                  <Badge 
-                    variant="secondary" 
-                    className="cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => setPromptInput("Run October payroll")}
-                  >
-                    Run payroll
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </aside>
-        )}
-      </main>
-    </div>
-  </div>
 
         {/* People List Drawer */}
         <Drawer open={showPeopleDrawer} onOpenChange={setShowPeopleDrawer}>
