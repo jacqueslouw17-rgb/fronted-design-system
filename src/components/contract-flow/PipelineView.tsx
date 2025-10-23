@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircle2, Eye, Send, Settings } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { usePipelineAnimation } from "@/hooks/usePipelineAnimation";
 import { toast } from "sonner";
 
 interface Contractor {
@@ -17,13 +17,15 @@ interface Contractor {
   role: string;
   salary: string;
   status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified";
+  formSent?: boolean;
+  dataReceived?: boolean;
 }
 
 interface PipelineViewProps {
   contractors: Contractor[];
   className?: string;
-  autoAnimate?: boolean;
-  animationInterval?: number;
+  onContractorUpdate?: (contractors: Contractor[]) => void;
+  onDraftContract?: (contractorIds: string[]) => void;
 }
 
 const statusConfig = {
@@ -76,13 +78,107 @@ const columns = [
 export const PipelineView: React.FC<PipelineViewProps> = ({ 
   contractors: initialContractors, 
   className,
-  autoAnimate = false,
-  animationInterval = 3000,
+  onContractorUpdate,
+  onDraftContract,
 }) => {
-  const contractors = usePipelineAnimation(initialContractors, autoAnimate, animationInterval);
+  const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
     return contractors.filter((c) => c.status === status);
+  };
+
+  const handleSelectAll = (status: typeof columns[number], checked: boolean) => {
+    const statusContractors = getContractorsByStatus(status);
+    const newSelected = new Set(selectedIds);
+    
+    if (checked) {
+      statusContractors.forEach(c => newSelected.add(c.id));
+    } else {
+      statusContractors.forEach(c => newSelected.delete(c.id));
+    }
+    
+    setSelectedIds(newSelected);
+  };
+
+  const handleSelectContractor = (id: string, checked: boolean) => {
+    const newSelected = new Set(selectedIds);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleSendForm = (contractorId: string) => {
+    const updated = contractors.map(c => 
+      c.id === contractorId 
+        ? { ...c, status: "data-pending" as const, formSent: true }
+        : c
+    );
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    
+    const contractor = contractors.find(c => c.id === contractorId);
+    toast.success(`Form sent to ${contractor?.name}`);
+  };
+
+  const handleBulkSendForms = () => {
+    const selectedInOfferAccepted = contractors.filter(
+      c => selectedIds.has(c.id) && c.status === "offer-accepted"
+    );
+    
+    const updated = contractors.map(c => 
+      selectedIds.has(c.id) && c.status === "offer-accepted"
+        ? { ...c, status: "data-pending" as const, formSent: true }
+        : c
+    );
+    
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    setSelectedIds(new Set());
+    
+    toast.success(`Forms sent to ${selectedInOfferAccepted.length} candidates`);
+  };
+
+  const handleMarkDataReceived = (contractorId: string) => {
+    const updated = contractors.map(c => 
+      c.id === contractorId 
+        ? { ...c, status: "drafting" as const, dataReceived: true }
+        : c
+    );
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    
+    const contractor = contractors.find(c => c.id === contractorId);
+    toast.success(`${contractor?.name} is ready for contract drafting`);
+  };
+
+  const handleDraftContract = (contractorIds: string[]) => {
+    onDraftContract?.(contractorIds);
+  };
+
+  const handleBulkDraft = () => {
+    const selectedInDrafting = Array.from(selectedIds).filter(id => 
+      contractors.find(c => c.id === id && c.status === "drafting")
+    );
+    
+    if (selectedInDrafting.length > 0) {
+      handleDraftContract(selectedInDrafting);
+      setSelectedIds(new Set());
+    }
+  };
+
+  // Check if all contractors in a status are selected
+  const areAllSelected = (status: typeof columns[number]) => {
+    const statusContractors = getContractorsByStatus(status);
+    return statusContractors.length > 0 && statusContractors.every(c => selectedIds.has(c.id));
+  };
+
+  // Get count of selected in a status
+  const getSelectedCount = (status: typeof columns[number]) => {
+    return getContractorsByStatus(status).filter(c => selectedIds.has(c.id)).length;
   };
 
   return (
@@ -105,14 +201,58 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 "p-3 rounded-t-lg border-t border-x",
                 config.color
               )}>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-sm text-foreground">
-                    {config.label}
-                  </h3>
-                  <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                    {items.length}
-                  </Badge>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    {/* Select All for data-pending and drafting columns */}
+                    {(status === "offer-accepted" || status === "data-pending" || status === "drafting") && items.length > 0 && (
+                      <Checkbox
+                        checked={areAllSelected(status)}
+                        onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
+                        className="h-4 w-4"
+                      />
+                    )}
+                    <h3 className="font-medium text-sm text-foreground">
+                      {config.label}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getSelectedCount(status) > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {getSelectedCount(status)} selected
+                      </span>
+                    )}
+                    <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                      {items.length}
+                    </Badge>
+                  </div>
                 </div>
+                
+                {/* Bulk Actions */}
+                {status === "offer-accepted" && getSelectedCount(status) > 0 && (
+                  <div className="mt-2">
+                    <Button 
+                      size="sm" 
+                      className="w-full text-xs h-7"
+                      onClick={handleBulkSendForms}
+                    >
+                      <Send className="h-3 w-3 mr-1" />
+                      Send Forms ({getSelectedCount(status)})
+                    </Button>
+                  </div>
+                )}
+                
+                {status === "drafting" && getSelectedCount(status) > 0 && (
+                  <div className="mt-2">
+                    <Button 
+                      size="sm" 
+                      className="w-full text-xs h-7"
+                      onClick={handleBulkDraft}
+                    >
+                      <FileEdit className="h-3 w-3 mr-1" />
+                      Draft Contracts ({getSelectedCount(status)})
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Column Body */}
@@ -134,27 +274,35 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         scale: { duration: 0.2 }
                       }}
                     >
-                      <Card className="hover:shadow-card transition-shadow cursor-pointer">
-                        <CardContent className="p-3 space-y-2">
-                          {/* Contractor Header */}
-                          <div className="flex items-start gap-2">
-                            <Avatar className="h-8 w-8 bg-primary/10">
-                              <AvatarFallback className="text-xs">
-                                {contractor.name.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-sm text-foreground truncate">
-                                  {contractor.name}
-                                </span>
-                                <span className="text-base">{contractor.countryFlag}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {contractor.role}
-                              </p>
+                    <Card className="hover:shadow-card transition-shadow cursor-pointer">
+                      <CardContent className="p-3 space-y-2">
+                        {/* Contractor Header with Checkbox */}
+                        <div className="flex items-start gap-2">
+                          {(status === "offer-accepted" || status === "data-pending" || status === "drafting") && (
+                            <Checkbox
+                              checked={selectedIds.has(contractor.id)}
+                              onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
+                              className="h-4 w-4 mt-1"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          )}
+                          <Avatar className="h-8 w-8 bg-primary/10">
+                            <AvatarFallback className="text-xs">
+                              {contractor.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-sm text-foreground truncate">
+                                {contractor.name}
+                              </span>
+                              <span className="text-base">{contractor.countryFlag}</span>
                             </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {contractor.role}
+                            </p>
                           </div>
+                        </div>
 
                           {/* Details */}
                           <div className="space-y-1">
@@ -188,7 +336,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 className="flex-1 text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toast.success(`Sending form to ${contractor.name}`);
+                                  handleSendForm(contractor.id);
                                 }}
                               >
                                 <Send className="h-3 w-3 mr-1" />
@@ -198,29 +346,59 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           )}
 
                           {status === "data-pending" && (
-                            <div className="flex gap-2 pt-2">
+                            <div className="space-y-2 pt-2">
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1 text-xs h-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info(`Viewing form for ${contractor.name}`);
+                                  }}
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View Form
+                                </Button>
+                                <Button 
+                                  variant="outline"
+                                  size="sm" 
+                                  className="flex-1 text-xs h-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.success(`Resending form to ${contractor.name}`);
+                                  }}
+                                >
+                                  <Send className="h-3 w-3 mr-1" />
+                                  Resend
+                                </Button>
+                              </div>
                               <Button 
-                                variant="outline" 
                                 size="sm" 
-                                className="flex-1 text-xs h-8"
+                                className="w-full text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toast.info(`Viewing form for ${contractor.name}`);
+                                  handleMarkDataReceived(contractor.id);
                                 }}
                               >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Form
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Mark Data Received
                               </Button>
+                            </div>
+                          )}
+
+                          {status === "drafting" && (
+                            <div className="pt-2">
                               <Button 
                                 size="sm" 
-                                className="flex-1 text-xs h-8"
+                                className="w-full text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toast.success(`Resending form to ${contractor.name}`);
+                                  handleDraftContract([contractor.id]);
                                 }}
                               >
-                                <Send className="h-3 w-3 mr-1" />
-                                Resend
+                                <FileEdit className="h-3 w-3 mr-1" />
+                                Draft Contract
                               </Button>
                             </div>
                           )}

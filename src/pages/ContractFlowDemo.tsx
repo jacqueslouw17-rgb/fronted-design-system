@@ -324,10 +324,17 @@ const ContractFlowDemo = () => {
                               countryFlag: candidate.flag,
                               role: candidate.role,
                               salary: candidate.salary,
-                              status: index === 0 ? "data-pending" as const : "offer-accepted" as const,
+                              status: "offer-accepted" as const,
+                              formSent: false,
+                              dataReceived: false,
                             }))}
-                            autoAnimate={true}
-                            animationInterval={2500}
+                            onDraftContract={(ids) => {
+                              // Navigate to contract creation for selected contractors
+                              toast({
+                                title: `Opening draft workspace for ${ids.length} contractor(s)`,
+                              });
+                              contractFlow.prepareDrafts();
+                            }}
                           />
                         </TabsContent>
                       </Tabs>
