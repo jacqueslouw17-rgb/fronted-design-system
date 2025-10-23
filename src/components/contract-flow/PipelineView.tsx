@@ -163,6 +163,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     toast.success(`${contractor?.name} is ready for contract drafting`);
   };
 
+  const handleFormSubmitted = (contractorId: string) => {
+    // Simulate candidate submitting the form - auto-move to drafting
+    handleMarkDataReceived(contractorId);
+  };
+
   const handleDraftContract = (contractorIds: string[]) => {
     onDraftContract?.(contractorIds);
   };
@@ -354,43 +359,30 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           )}
 
                           {status === "data-pending" && (
-                            <div className="space-y-2 pt-2">
-                              <div className="flex gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="flex-1 text-xs h-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info(`Viewing form for ${contractor.name}`);
-                                  }}
-                                >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View Form
-                                </Button>
-                                <Button 
-                                  variant="outline"
-                                  size="sm" 
-                                  className="flex-1 text-xs h-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.success(`Resending form to ${contractor.name}`);
-                                  }}
-                                >
-                                  <Send className="h-3 w-3 mr-1" />
-                                  Resend
-                                </Button>
-                              </div>
+                            <div className="flex gap-2 pt-2">
                               <Button 
+                                variant="outline" 
                                 size="sm" 
-                                className="w-full text-xs h-8"
+                                className="flex-1 text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleMarkDataReceived(contractor.id);
+                                  toast.info(`Viewing form for ${contractor.name}`);
                                 }}
                               >
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Mark Data Received
+                                <Eye className="h-3 w-3 mr-1" />
+                                View Form
+                              </Button>
+                              <Button 
+                                variant="outline"
+                                size="sm" 
+                                className="flex-1 text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenConfigure(contractor);
+                                }}
+                              >
+                                <Send className="h-3 w-3 mr-1" />
+                                Resend
                               </Button>
                             </div>
                           )}
@@ -483,7 +475,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
           employmentTypeSource: "suggested",
         } : {} as any}
         onComplete={() => {
-          toast.success("Configuration complete");
+          // Simulate candidate completing form - auto-move to drafting
+          if (selectedContractor) {
+            handleFormSubmitted(selectedContractor.id);
+          }
           setConfigureDrawerOpen(false);
         }}
         onSent={() => {

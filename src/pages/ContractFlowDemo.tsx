@@ -330,9 +330,6 @@ const ContractFlowDemo = () => {
                             }))}
                             onDraftContract={(ids) => {
                               // Navigate to contract creation for selected contractors
-                              toast({
-                                title: `Opening draft workspace for ${ids.length} contractor(s)`,
-                              });
                               contractFlow.prepareDrafts();
                             }}
                           />
