@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot } from "lucide-react";
+import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +52,46 @@ const ContractFlowDemo = () => {
   const idleWords = idleMessage.split(' ');
 
   const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
+
+  // KPI Widgets data
+  const widgets = [
+    {
+      title: "Total Contractors",
+      value: contractFlow.selectedCandidates.length.toString(),
+      trend: "+100%",
+      icon: Users,
+    },
+    {
+      title: "Monthly Payroll",
+      value: "Pending",
+      trend: "Starts after onboarding",
+      icon: DollarSign,
+    },
+    {
+      title: "Compliance Score",
+      value: "100%",
+      trend: "All certified",
+      icon: FileCheck,
+    },
+    {
+      title: "Active Contracts",
+      value: contractFlow.selectedCandidates.length.toString(),
+      trend: "+100%",
+      icon: TrendingUp,
+    },
+    {
+      title: "Pending Actions",
+      value: "2",
+      trend: "Send onboarding forms",
+      icon: AlertCircle,
+    },
+    {
+      title: "Avg Response Time",
+      value: "N/A",
+      trend: "No data yet",
+      icon: Clock,
+    },
+  ];
   
   useEffect(() => {
     if (contractFlow.phase === "prompt") {
@@ -246,11 +287,32 @@ const ContractFlowDemo = () => {
                             </div>
                           </motion.div>
 
-                          {/* Candidate Cards */}
-                          <CandidateConfirmationScreen
-                            candidates={contractFlow.selectedCandidates}
-                            onProceed={() => contractFlow.prepareDrafts()}
-                          />
+                          {/* KPI Metric Widgets Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                            {widgets.map((widget, idx) => (
+                              <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                              >
+                                <Card className="hover:shadow-lg transition-all h-full">
+                                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                      <widget.icon className="h-4 w-4 text-primary" />
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="text-2xl font-bold">{widget.value}</div>
+                                    <p className={`text-xs mt-1 ${widget.trend.startsWith('+') ? 'text-accent' : 'text-muted-foreground'}`}>
+                                      {widget.trend}
+                                    </p>
+                                  </CardContent>
+                                </Card>
+                              </motion.div>
+                            ))}
+                          </div>
                         </TabsContent>
 
                         <TabsContent value="pipeline">
