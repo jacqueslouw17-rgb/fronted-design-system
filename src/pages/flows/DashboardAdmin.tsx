@@ -264,7 +264,10 @@ const DashboardAdmin = () => {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Top Header */}
-            <Topbar userName="Joe User" />
+            <Topbar 
+              userName="Joe User" 
+              onPeopleClick={() => setShowPeopleDrawer(true)}
+            />
 
             {/* Dashboard Content */}
             <main className="flex-1 flex overflow-hidden">

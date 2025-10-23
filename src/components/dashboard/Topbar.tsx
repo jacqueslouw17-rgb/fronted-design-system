@@ -1,4 +1,4 @@
-import { Search, ArrowLeft, PanelLeftOpen, MoreVertical } from "lucide-react";
+import { Search, ArrowLeft, PanelLeftOpen, MoreVertical, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -33,9 +33,10 @@ interface TopbarProps {
   onAgentToggle?: () => void;
   isDrawerOpen?: boolean;
   onDrawerToggle?: () => void;
+  onPeopleClick?: () => void;
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, onPeopleClick }: TopbarProps) => {
   const navigate = useNavigate();
   const initials = userName
     .split(" ")
@@ -95,6 +96,18 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
 
       {/* Actions */}
       <div className="flex items-center gap-3">
+        {/* People Button - for DashboardAdmin */}
+        {onPeopleClick && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPeopleClick}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            People
+          </Button>
+        )}
+        
         {/* Agent Toggle - only shown in v2, left of notifications */}
         {version === "v2" && onAgentToggle && (
           <Button
