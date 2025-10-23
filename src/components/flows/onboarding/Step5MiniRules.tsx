@@ -158,22 +158,37 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   return (
     <div className="max-w-xl mx-auto space-y-6">
       {/* Header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
           <Shield className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Mini-Rules Setup
           </h3>
         </div>
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Create smart automation rules that help Kurt handle routine tasks without your input. These rules trigger specific actions based on conditions you define.
+          </p>
+        </div>
+        
+        {/* Example Rules Card */}
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10"
+          className="bg-primary/5 border border-primary/10 rounded-lg p-4 space-y-2"
         >
-          <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Mini-Rules keep your operations agile — tag, adjust, and automate checks anytime.
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <p className="text-sm font-medium text-foreground">Example Rules:</p>
+          </div>
+          <ul className="text-xs text-muted-foreground space-y-1.5 ml-4">
+            <li>• <span className="font-medium">Auto-approve</span> expense claims under $50 from trusted contractors</li>
+            <li>• <span className="font-medium">Flag</span> invoices over $5,000 for dual approval</li>
+            <li>• <span className="font-medium">Send reminder</span> 3 days before contract renewal dates</li>
+          </ul>
+          <p className="text-xs text-muted-foreground mt-2">
+            You can customize the starter rules below or create your own from scratch.
           </p>
         </motion.div>
       </div>

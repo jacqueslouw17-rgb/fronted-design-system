@@ -310,7 +310,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Day</Label>
+            <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Date</Label>
             {isLoadingData || isLoadingFields ? (
               <>
                 <Skeleton className="h-9 w-full" />

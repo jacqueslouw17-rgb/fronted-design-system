@@ -3,8 +3,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, MessageSquare, Loader2, Key, Sparkles } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle2, MessageSquare, Loader2, Key, Sparkles, Mail, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface Step1Props {
   formData: Record<string, any>;
@@ -14,12 +17,14 @@ interface Step1Props {
   isLoadingFields?: boolean;
 }
 
-const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false }: Step1Props) => {
+const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false, isLoadingFields = false }: Step1Props) => {
   const [privacyAccepted, setPrivacyAccepted] = useState(formData.privacyAccepted || false);
   const [inputMode, setInputMode] = useState(formData.defaultInputMode || "chat");
+  const [email, setEmail] = useState(formData.email || "");
   const [password, setPassword] = useState(formData.password || "");
   const [showPassword, setShowPassword] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [preferredLanguage, setPreferredLanguage] = useState(formData.preferredLanguage || "en");
 
   // Password validation rules
   const passwordRules = {
@@ -49,12 +54,58 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
   };
 
   const handleContinue = () => {
-    if (!privacyAccepted || !password) return;
+    if (!privacyAccepted) {
+      toast({
+        title: "Privacy acceptance required",
+        description: "Please accept the privacy terms to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!password) {
+      toast({
+        title: "Password required",
+        description: "Please create a password to secure your account",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const allRulesValid = Object.values(passwordRules).every(valid => valid);
+    if (!allRulesValid) {
+      toast({
+        title: "Password requirements not met",
+        description: "Please ensure your password meets all security requirements",
+        variant: "destructive"
+      });
+      return;
+    }
     
     onComplete("intro_trust_model", {
       privacyAccepted,
       defaultInputMode: inputMode,
-      password
+      email,
+      password,
+      preferredLanguage
     });
   };
 
@@ -137,40 +188,68 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
         <div className="space-y-2.5">
           <div className="flex items-center gap-2">
-            <Key className="h-3.5 w-3.5 text-primary" />
+            <Mail className="h-3.5 w-3.5 text-primary" />
             <Label className="text-xs font-bold uppercase tracking-wide text-foreground">
-              Create Your Password
+              Account Setup
             </Label>
           </div>
           <p className="text-xs text-muted-foreground">
-            Set up a secure password for your account
+            Create your secure account credentials
           </p>
         </div>
 
         <div className="space-y-3">
+          {/* Email Field */}
           <div className="space-y-2">
-            <div className="relative">
+            <Label htmlFor="email" className="text-sm">
+              Email Address <span className="text-destructive">*</span>
+            </Label>
+            {isLoadingFields ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
               <Input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setIsPasswordFocused(true)}
-                onBlur={() => setIsPasswordFocused(false)}
-                placeholder="Enter a strong password"
-                autoComplete="new-password"
-                className="pr-10"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                autoComplete="email"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span className="text-xs font-medium">{showPassword ? "Hide" : "Show"}</span>
-              </button>
-            </div>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm">
+              Password <span className="text-destructive">*</span>
+            </Label>
+            {isLoadingFields ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
+                    placeholder="Enter a strong password"
+                    autoComplete="new-password"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <span className="text-xs font-medium">{showPassword ? "Hide" : "Show"}</span>
+                  </button>
+                </div>
 
             {/* Password Rules */}
-            {isPasswordFocused && (
+            {isPasswordFocused && password && (
               <div className="bg-card border border-border/60 rounded-md p-3 space-y-1.5 animate-fade-in">
                 <p className="text-xs font-medium text-foreground/80 mb-2">Password must contain:</p>
                 <div className="space-y-1.5">
@@ -195,18 +274,51 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
                 </div>
               </div>
             )}
+          </>
+            )}
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={generateStrongPassword}
-            className="w-full"
-            size="sm"
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-2" />
-            Let Kurt Suggest a Strong Password
-          </Button>
+          {!isLoadingFields && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={generateStrongPassword}
+              className="w-full"
+              size="sm"
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-2" />
+              Let Kurt Suggest a Strong Password
+            </Button>
+          )}
+
+          {/* Preferred Language */}
+          <div className="space-y-2 pt-2 border-t border-border/40">
+            <div className="flex items-center gap-2">
+              <Globe className="h-3.5 w-3.5 text-primary" />
+              <Label htmlFor="language" className="text-sm">
+                Preferred Language <span className="text-destructive">*</span>
+              </Label>
+            </div>
+            {isLoadingFields ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="no">Norwegian (Norsk)</SelectItem>
+                  <SelectItem value="es">Spanish (Español)</SelectItem>
+                  <SelectItem value="fr">French (Français)</SelectItem>
+                  <SelectItem value="de">German (Deutsch)</SelectItem>
+                  <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                  <SelectItem value="hi">Hindi (हिन्दी)</SelectItem>
+                  <SelectItem value="tl">Tagalog</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
       </div>
 
@@ -251,21 +363,25 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
 
       {/* Action Button */}
       <div className="pt-1">
-        <Button
-          onClick={handleContinue}
-          disabled={!privacyAccepted || !password || isProcessing}
-          className="w-full"
-          size="lg"
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            "Get Started"
-          )}
-        </Button>
+        {isLoadingFields ? (
+          <Skeleton className="h-11 w-full" />
+        ) : (
+          <Button
+            onClick={handleContinue}
+            disabled={!privacyAccepted || !email || !password || isProcessing}
+            className="w-full"
+            size="lg"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Get Started"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

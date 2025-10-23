@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, TrendingUp, FileSignature, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { TooltipExplain } from "@/components/cost/TooltipExplain";
 
 interface Step4Props {
   formData: Record<string, any>;
@@ -153,13 +154,29 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
           handleTestAlert
         )}
 
-        {renderIntegrationCard(
-          <TrendingUp className="h-4 w-4 text-primary" />,
-          "FX Provider",
-          "Real-time exchange rates",
-          fxStatus,
-          () => handleConnect("fx")
-        )}
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1">
+                  <p className="text-sm font-medium">Partnered FX Provider: Wise</p>
+                  <TooltipExplain 
+                    formula="Pre-integrated FX provider with real-time rates"
+                    source="Automatically configured for optimal conversion rates"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Real-time exchange rates included</p>
+              </div>
+            </div>
+            <Badge variant="default" className="bg-primary/10 text-primary border-0 text-xs">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Active
+            </Badge>
+          </div>
+        </div>
 
         {renderIntegrationCard(
           <FileSignature className="h-4 w-4 text-primary" />,
@@ -178,7 +195,7 @@ const Step4Integrations = ({ formData, onComplete, isProcessing: externalProcess
         onClick={handleContinue}
         size="lg"
         className="w-full"
-        disabled={slackStatus !== "connected" || fxStatus !== "connected" || externalProcessing}
+        disabled={slackStatus !== "connected" || externalProcessing}
       >
         {externalProcessing ? (
           <>
