@@ -330,6 +330,7 @@ const ContractFlowDemo = () => {
                             }))}
                             onDraftContract={(ids) => {
                               // Navigate to contract creation for selected contractors
+                              console.log("Draft contract clicked, calling prepareDrafts");
                               contractFlow.prepareDrafts();
                             }}
                           />

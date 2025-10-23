@@ -169,6 +169,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleDraftContract = (contractorIds: string[]) => {
+    console.log("handleDraftContract called with ids:", contractorIds);
+    console.log("onDraftContract callback exists:", !!onDraftContract);
     onDraftContract?.(contractorIds);
   };
 
