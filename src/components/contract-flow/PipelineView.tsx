@@ -1,10 +1,11 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePipelineAnimation } from "@/hooks/usePipelineAnimation";
 
 interface Contractor {
   id: string;
@@ -19,6 +20,8 @@ interface Contractor {
 interface PipelineViewProps {
   contractors: Contractor[];
   className?: string;
+  autoAnimate?: boolean;
+  animationInterval?: number;
 }
 
 const statusConfig = {
@@ -57,7 +60,14 @@ const columns = [
   "certified",
 ] as const;
 
-export const PipelineView: React.FC<PipelineViewProps> = ({ contractors, className }) => {
+export const PipelineView: React.FC<PipelineViewProps> = ({ 
+  contractors: initialContractors, 
+  className,
+  autoAnimate = false,
+  animationInterval = 3000,
+}) => {
+  const contractors = usePipelineAnimation(initialContractors, autoAnimate, animationInterval);
+  
   const getContractorsByStatus = (status: typeof columns[number]) => {
     return contractors.filter((c) => c.status === status);
   };
@@ -97,61 +107,69 @@ export const PipelineView: React.FC<PipelineViewProps> = ({ contractors, classNa
                 "min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg",
                 config.color
               )}>
-                {items.map((contractor, index) => (
-                  <motion.div
-                    key={contractor.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card className="hover:shadow-card transition-shadow cursor-pointer">
-                      <CardContent className="p-3 space-y-2">
-                        {/* Contractor Header */}
-                        <div className="flex items-start gap-2">
-                          <Avatar className="h-8 w-8 bg-primary/10">
-                            <AvatarFallback className="text-xs">
-                              {contractor.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1">
-                              <span className="font-medium text-sm text-foreground truncate">
-                                {contractor.name}
-                              </span>
-                              <span className="text-base">{contractor.countryFlag}</span>
+                <AnimatePresence mode="popLayout">
+                  {items.map((contractor, index) => (
+                    <motion.div
+                      key={contractor.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ 
+                        layout: { duration: 0.5, type: "spring" },
+                        opacity: { duration: 0.2 },
+                        scale: { duration: 0.2 }
+                      }}
+                    >
+                      <Card className="hover:shadow-card transition-shadow cursor-pointer">
+                        <CardContent className="p-3 space-y-2">
+                          {/* Contractor Header */}
+                          <div className="flex items-start gap-2">
+                            <Avatar className="h-8 w-8 bg-primary/10">
+                              <AvatarFallback className="text-xs">
+                                {contractor.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-sm text-foreground truncate">
+                                  {contractor.name}
+                                </span>
+                                <span className="text-base">{contractor.countryFlag}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {contractor.role}
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {contractor.role}
-                            </p>
                           </div>
-                        </div>
 
-                        {/* Details */}
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Salary</span>
-                            <span className="font-medium text-foreground">{contractor.salary}</span>
+                          {/* Details */}
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Salary</span>
+                              <span className="font-medium text-foreground">{contractor.salary}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Country</span>
+                              <span className="font-medium text-foreground">{contractor.country}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Country</span>
-                            <span className="font-medium text-foreground">{contractor.country}</span>
-                          </div>
-                        </div>
 
-                        {/* Status Badge */}
-                        {status === "certified" && (
-                          <Badge 
-                            variant="outline" 
-                            className={cn("w-full justify-center text-xs", config.badgeColor)}
-                          >
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            {config.label}
-                          </Badge>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                          {/* Status Badge */}
+                          {status === "certified" && (
+                            <Badge 
+                              variant="outline" 
+                              className={cn("w-full justify-center text-xs", config.badgeColor)}
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              {config.label}
+                            </Badge>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </motion.div>
           );

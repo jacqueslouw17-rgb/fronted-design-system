@@ -16,6 +16,8 @@ import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSumm
 import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
+import { PipelineView } from "@/components/contract-flow/PipelineView";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
@@ -185,68 +187,89 @@ const ContractFlowDemo = () => {
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }} 
                   exit={{ opacity: 0 }} 
-                  className="p-8"
+                  className="flex-1 overflow-y-auto"
                 >
-                  <div className="max-w-7xl mx-auto space-y-6">
-                    {/* AudioWaveVisualizer stays at top */}
+                  <div className="max-w-7xl mx-auto p-8 space-y-8">
+                    {/* Kurt Agent - Centered at Top */}
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex justify-center"
+                      className="flex flex-col items-center space-y-4"
                     >
                       <AudioWaveVisualizer 
                         isActive={!hasSpokenPhase["offer-accepted"]} 
                         isListening={true}
                         isDetectingVoice={isSpeaking}
                       />
-                    </motion.div>
-
-                    {/* Main heading */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-center space-y-2"
-                    >
-                      <h1 className="text-3xl font-bold">
-                        Great news — these candidates have accepted their offers!
-                      </h1>
-                      <p className="text-foreground/60 relative max-w-3xl mx-auto">
-                        {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
-                          <span
-                            key={index}
-                            className={`transition-colors duration-200 ${
-                              isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                            }`}
-                          >
-                            {word}{" "}
-                          </span>
-                        ))}
-                      </p>
-                    </motion.div>
-
-                    {/* Genie Message Bubble */}
-                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                      className="max-w-2xl mx-auto"
-                    >
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                        <div className="mt-0.5">
-                          <Bot className="h-5 w-5 text-primary" />
-                        </div>
-                        <p className="text-sm text-foreground/80">
-                          Review the details below and send onboarding forms to collect any missing information. I'll validate everything and notify you when they're ready for contract generation.
+                      <div className="text-center space-y-2">
+                        <h1 className="text-3xl font-bold text-foreground">
+                          Great news — these candidates have accepted their offers!
+                        </h1>
+                        <p className="text-foreground/60 relative max-w-2xl mx-auto">
+                          {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
+                            <span
+                              key={index}
+                              className={`transition-colors duration-200 ${
+                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                              }`}
+                            >
+                              {word}{" "}
+                            </span>
+                          ))}
                         </p>
                       </div>
                     </motion.div>
 
-                    {/* Candidate Cards */}
-                    <CandidateConfirmationScreen
-                      candidates={contractFlow.selectedCandidates}
-                      onProceed={() => contractFlow.prepareDrafts()}
-                    />
+                    {/* Pipeline Tracking - Full Width */}
+                    <div className="space-y-4">
+                      <Tabs defaultValue="pipeline" className="w-full">
+                        <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
+                          <TabsTrigger value="list">List View</TabsTrigger>
+                          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="list" className="space-y-6">
+                          {/* Genie Message Bubble */}
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3, duration: 0.4 }}
+                            className="max-w-3xl mx-auto"
+                          >
+                            <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                              <div className="mt-0.5">
+                                <Bot className="h-5 w-5 text-primary" />
+                              </div>
+                              <p className="text-sm text-foreground/80">
+                                Review the details below and send onboarding forms to collect any missing information. I'll validate everything and notify you when they're ready for contract generation.
+                              </p>
+                            </div>
+                          </motion.div>
+
+                          {/* Candidate Cards */}
+                          <CandidateConfirmationScreen
+                            candidates={contractFlow.selectedCandidates}
+                            onProceed={() => contractFlow.prepareDrafts()}
+                          />
+                        </TabsContent>
+
+                        <TabsContent value="pipeline">
+                          <PipelineView 
+                            contractors={contractFlow.selectedCandidates.map((candidate, index) => ({
+                              id: candidate.id,
+                              name: candidate.name,
+                              country: candidate.country,
+                              countryFlag: candidate.flag,
+                              role: candidate.role,
+                              salary: candidate.salary,
+                              status: index === 0 ? "data-pending" as const : "offer-accepted" as const,
+                            }))}
+                            autoAnimate={true}
+                            animationInterval={2500}
+                          />
+                        </TabsContent>
+                      </Tabs>
+                    </div>
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (
