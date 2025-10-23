@@ -518,6 +518,71 @@ const DesignSystem = () => {
                   </CardContent>
                 </Card>
               </Link>
+
+              <Link to="/flows/candidate-onboarding">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 transition-all duration-200 group-hover:bg-violet-600 group-hover:border-violet-600">
+                        <UserCheck className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg">Flow 2.1 — Candidate Onboarding</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">4 steps</span>
+                      <span>•</span>
+                      <span>4 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/onboarding');
+                        }}
+                      >
+                        Genie-Led Conversational
+                      </Badge>
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/confirmation-modal');
+                        }}
+                      >
+                        Smart Approval
+                      </Badge>
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/compliance-checklist');
+                        }}
+                      >
+                        Compliance Checklist
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        +1
+                      </Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
           </TabsContent>
 
