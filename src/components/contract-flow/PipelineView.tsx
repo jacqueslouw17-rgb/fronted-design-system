@@ -16,7 +16,7 @@ interface Contractor {
   countryFlag: string;
   role: string;
   salary: string;
-  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "certified";
+  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified";
 }
 
 interface PipelineViewProps {
@@ -47,6 +47,16 @@ const statusConfig = {
     color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
     badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
   },
+  "trigger-onboarding": {
+    label: "Trigger Onboarding",
+    color: "bg-primary/10 border-primary/20",
+    badgeColor: "bg-primary/20 text-primary border-primary/30",
+  },
+  "onboarding-pending": {
+    label: "Onboarding Pending",
+    color: "bg-primary/10 border-primary/20",
+    badgeColor: "bg-primary/20 text-primary border-primary/30",
+  },
   "certified": {
     label: "Certified ✅",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
@@ -59,6 +69,7 @@ const columns = [
   "data-pending",
   "drafting",
   "awaiting-signature",
+  "trigger-onboarding",
   "certified",
 ] as const;
 
@@ -211,6 +222,39 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 <Send className="h-3 w-3 mr-1" />
                                 Resend
                               </Button>
+                            </div>
+                          )}
+
+                          {/* Onboarding Trigger - Special Card */}
+                          {status === "trigger-onboarding" && (
+                            <div className="pt-2 space-y-2">
+                              <div className="text-xs text-foreground/80 bg-primary/5 p-2 rounded border border-primary/10">
+                                Would you like me to start their onboarding checklist?
+                              </div>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  className="flex-1 text-xs h-8 bg-gradient-primary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.success(`Starting onboarding for ${contractor.name}`);
+                                  }}
+                                >
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Yes, Start
+                                </Button>
+                                <Button 
+                                  variant="outline"
+                                  size="sm" 
+                                  className="flex-1 text-xs h-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info("You can start onboarding anytime");
+                                  }}
+                                >
+                                  Later
+                                </Button>
+                              </div>
                             </div>
                           )}
 

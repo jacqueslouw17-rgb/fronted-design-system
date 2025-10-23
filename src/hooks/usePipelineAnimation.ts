@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-type ContractorStatus = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "certified";
+type ContractorStatus = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified";
 
 interface Contractor {
   id: string;
@@ -17,6 +17,8 @@ const statusProgression: ContractorStatus[] = [
   "data-pending",
   "drafting",
   "awaiting-signature",
+  "trigger-onboarding",
+  "onboarding-pending",
   "certified",
 ];
 
@@ -44,9 +46,12 @@ export const usePipelineAnimation = (
         const currentIndex = statusProgression.indexOf(contractorToProgress.status);
         const nextStatus = statusProgression[currentIndex + 1] || "certified";
 
+        // Skip onboarding-pending in auto-animation, go straight from trigger to certified
+        const finalStatus = nextStatus === "onboarding-pending" ? "certified" : nextStatus;
+
         return current.map((c) =>
           c.id === contractorToProgress.id
-            ? { ...c, status: nextStatus }
+            ? { ...c, status: finalStatus }
             : c
         );
       });

@@ -67,7 +67,7 @@ const mockContractors = [
     countryFlag: "🇵🇭",
     role: "Software Engineer",
     salary: "$4,200/mo",
-    status: "certified" as const,
+    status: "trigger-onboarding" as const,
   },
   {
     id: "2",
@@ -76,7 +76,7 @@ const mockContractors = [
     countryFlag: "🇳🇴",
     role: "Product Designer",
     salary: "$5,800/mo",
-    status: "certified" as const,
+    status: "trigger-onboarding" as const,
   },
   {
     id: "3",
@@ -159,8 +159,6 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 const DashboardAdmin = () => {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
-  const [showSuccessBanner, setShowSuccessBanner] = useState(true);
-  const [showCtaBlock, setShowCtaBlock] = useState(false);
   const [showPeopleDrawer, setShowPeopleDrawer] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [isGenieOpen, setIsGenieOpen] = useState(true);
@@ -172,22 +170,6 @@ const DashboardAdmin = () => {
       setPromptInput(transcript);
     }
   }, [transcript]);
-
-  // Auto-fade in CTA block after 1s
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowCtaBlock(true);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleStartOnboarding = () => {
-    navigate("/flows/candidate-onboarding-checklist");
-  };
-
-  const handleLater = () => {
-    setShowCtaBlock(false);
-  };
 
   const handleMicClick = () => {
     if (isListening) {
@@ -296,48 +278,6 @@ const DashboardAdmin = () => {
                       </TabsList>
 
                       <TabsContent value="list" className="space-y-6">
-                        {/* Success Banner */}
-                        <AnimatePresence>
-                          {showSuccessBanner && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -20 }}
-                              className="max-w-4xl mx-auto"
-                            >
-                              <Card className="border-accent/20 bg-accent/5">
-                                <CardContent className="p-4 flex items-start justify-between gap-3">
-                                  <div className="flex items-start gap-3 flex-1">
-                                    <div className="p-2 rounded-lg bg-accent/10">
-                                      <CheckCircle2 className="h-5 w-5 text-accent" />
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="font-medium text-foreground">
-                                        ✨ Contracts signed. You can now start onboarding
-                                      </p>
-                                      <Button
-                                        onClick={handleStartOnboarding}
-                                        className="mt-3 bg-gradient-primary"
-                                        size="sm"
-                                      >
-                                        Start Onboarding Now
-                                      </Button>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6"
-                                    onClick={() => setShowSuccessBanner(false)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </CardContent>
-                              </Card>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-
                         {/* Metric Widgets Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
                           {widgets.map((widget, idx) => (
