@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Bot } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -72,11 +73,31 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         </p>
       </motion.div>
 
+      {/* Genie Confirmation Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+      >
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4 flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-foreground">
+                ✅ Status updated — You can track contract progress in Dashboard → People → Pipeline View.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Signed Contractors Badges */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
         className="space-y-3"
       >
         {candidates.map((candidate, index) => (
@@ -84,7 +105,7 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
             key={candidate.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 + index * 0.1 }}
+            transition={{ delay: 0.5 + index * 0.1 }}
             className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card/50"
           >
             <Avatar className="h-10 w-10 bg-primary/10">
@@ -108,7 +129,7 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
         className="mt-12 flex flex-col items-center gap-4"
       >
         <p className="text-sm text-muted-foreground text-center">
@@ -119,7 +140,7 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
           size="lg"
           className="bg-gradient-primary"
         >
-          <Link to="/flows/dashboard-admin" className="inline-flex items-center">
+          <Link to="/flows/dashboard-admin?contracts_completed=true" className="inline-flex items-center">
             Go to Admin Dashboard
             <ArrowRight className="h-4 w-4 ml-2" />
           </Link>

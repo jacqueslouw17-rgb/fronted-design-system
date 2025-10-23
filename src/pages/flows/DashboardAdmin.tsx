@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Users, 
   DollarSign, 
@@ -26,6 +27,7 @@ import NavSidebar from "@/components/dashboard/NavSidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { PipelineView } from "@/components/contract-flow/PipelineView";
 
 interface Worker {
   id: string;
@@ -53,6 +55,37 @@ const mockWorkers: Worker[] = [
     countryFlag: "🇳🇴",
     role: "Product Designer",
     status: "certified",
+  },
+];
+
+// Mock contractors for pipeline view
+const mockContractors = [
+  {
+    id: "1",
+    name: "Maria Santos",
+    country: "Philippines",
+    countryFlag: "🇵🇭",
+    role: "Software Engineer",
+    salary: "$4,200/mo",
+    status: "certified" as const,
+  },
+  {
+    id: "2",
+    name: "Oskar Nielsen",
+    country: "Norway",
+    countryFlag: "🇳🇴",
+    role: "Product Designer",
+    salary: "$5,800/mo",
+    status: "certified" as const,
+  },
+  {
+    id: "3",
+    name: "Arta Krasniqi",
+    country: "Kosovo",
+    countryFlag: "🇽🇰",
+    role: "Full Stack Developer",
+    salary: "$3,900/mo",
+    status: "certified" as const,
   },
 ];
 
@@ -429,43 +462,56 @@ const DashboardAdmin = () => {
           </div>
         </div>
 
-        {/* People List Drawer */}
+        {/* People Drawer with Tabs */}
         <Drawer open={showPeopleDrawer} onOpenChange={setShowPeopleDrawer}>
-          <DrawerContent>
+          <DrawerContent className="max-h-[85vh]">
             <DrawerHeader>
-              <DrawerTitle>Certified Workers</DrawerTitle>
+              <DrawerTitle>People</DrawerTitle>
             </DrawerHeader>
-            <div className="px-6 pb-6 space-y-3">
-              {mockWorkers.map((worker) => (
-                <Card key={worker.id} className="hover:shadow-card transition-shadow">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={worker.avatarUrl} />
-                        <AvatarFallback>
-                          {worker.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{worker.name}</p>
-                          <span className="text-lg">{worker.countryFlag}</span>
+            <div className="px-6 pb-6">
+              <Tabs defaultValue="list" className="w-full">
+                <TabsList className="grid w-full max-w-[300px] grid-cols-2">
+                  <TabsTrigger value="list">List View</TabsTrigger>
+                  <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="list" className="space-y-3 mt-4">
+                  {mockWorkers.map((worker) => (
+                    <Card key={worker.id} className="hover:shadow-card transition-shadow">
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={worker.avatarUrl} />
+                            <AvatarFallback>
+                              {worker.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{worker.name}</p>
+                              <span className="text-lg">{worker.countryFlag}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{worker.role}</p>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">{worker.role}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Certified
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        View Contract
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Certified
+                          </Badge>
+                          <Button variant="outline" size="sm">
+                            View Contract
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </TabsContent>
+
+                <TabsContent value="pipeline" className="mt-4">
+                  <PipelineView contractors={mockContractors} />
+                </TabsContent>
+              </Tabs>
             </div>
           </DrawerContent>
         </Drawer>
