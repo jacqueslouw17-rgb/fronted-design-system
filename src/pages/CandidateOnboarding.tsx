@@ -14,6 +14,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
 import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
 import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
+import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 
 const FLOW_STEPS = [
   { id: "personal_details", title: "Personal Details", stepNumber: 1 },
@@ -34,6 +35,7 @@ const CandidateOnboarding = () => {
   const [expandedStep, setExpandedStep] = useState<string | null>("personal_details");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
+  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
 const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Text-to-Speech (Kurt voice over)
@@ -109,21 +111,9 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
       await new Promise(resolve => setTimeout(resolve, 400));
       setIsLoadingFields(false);
     } else {
-      // All steps complete - navigate directly to dashboard with contractor role
-      toast({
-        title: "Onboarding Complete!",
-        description: "Thank you! We're preparing your contract now.",
-      });
-
-      // Redirect immediately to dashboard with contractor role and trigger confetti
-      setTimeout(() => {
-        if (isDemoMode) {
-          navigate('/flows');
-        } else {
-          // Navigate to dashboard with contractor role and confetti trigger
-          navigate('/dashboard?role=contractor&confetti=true');
-        }
-      }, 800);
+      // All steps complete - show completion screen
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setShowCompletionScreen(true);
     }
   };
 
@@ -143,6 +133,11 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
     }
   };
 
+
+  // Show completion screen if all steps done
+  if (showCompletionScreen) {
+    return <CandidateCompletionScreen candidateName={state.formData.fullName} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
