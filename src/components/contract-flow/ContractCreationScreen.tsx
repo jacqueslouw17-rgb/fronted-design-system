@@ -271,7 +271,9 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       <div className="flex justify-end gap-3">
         <Button onClick={handleNext} size="lg" className="gap-2">
           <Sparkles className="h-5 w-5" />
-          Next: Review Documents
+          {currentIndex + 1 === totalCandidates 
+            ? "Next: Review Contract Bundle" 
+            : "Review Next Candidate"}
         </Button>
       </div>
     </motion.div>
