@@ -122,7 +122,7 @@ const CandidateStep2Personal = ({
                 </Button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
                 <div className="flex flex-col items-center justify-center gap-2">
                   <Upload className="h-6 w-6 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">Click to upload</p>
