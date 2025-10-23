@@ -1,12 +1,10 @@
 import { useState } from "react";
 
 export type OnboardingStatus = 
-  | "awaiting_data" 
-  | "awaiting_submission" 
+  | "not_sent"
+  | "awaiting_info" 
   | "ready_for_contract"
   | "validating"
-  | "waiting_for_candidate"
-  | "candidate_data_ready"
   | "drafting"
   | "awaiting_signature"
   | "signed";
@@ -40,7 +38,7 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       flag: "🇵🇭",
       salary: "₱85,000/month",
       startDate: "2025-11-15",
-      status: "awaiting_data",
+      status: "not_sent",
       employmentType: "contractor",
       employmentTypeSource: "ats",
       documents: ["Contractor Agreement", "NDA", "Data Privacy Addendum (PH)"],
@@ -54,7 +52,7 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       flag: "🇳🇴",
       salary: "kr 65,000/month",
       startDate: "2025-11-20",
-      status: "awaiting_data",
+      status: "not_sent",
       employmentType: "contractor",
       employmentTypeSource: "suggested",
       documents: ["Contractor Agreement", "NDA"],
@@ -68,7 +66,8 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       flag: "🇮🇳",
       salary: "₹95,000/month",
       startDate: "2025-12-01",
-      status: "awaiting_data",
+      status: "not_sent",
+      employmentType: "employee",
       employmentTypeSource: "suggested",
       documents: [],
     },
@@ -109,7 +108,7 @@ export const useCandidateOnboarding = () => {
         c.id === candidateId
           ? {
               ...c,
-              status: "awaiting_submission",
+              status: "awaiting_info",
               formSentAt: new Date().toISOString(),
             }
           : c

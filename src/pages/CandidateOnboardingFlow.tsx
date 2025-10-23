@@ -15,7 +15,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from 
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 
-type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "bank" | "emergency" | "review" | "complete";
+type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
 
 interface FormData {
   fullName: string;
@@ -63,7 +63,7 @@ export default function CandidateOnboardingFlow() {
   const [agreed, setAgreed] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
 
-  const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "bank", "emergency", "review"];
+  const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "review"];
   const currentStepIndex = steps.indexOf(currentStep);
   const progressPercent = ((currentStepIndex) / (steps.length - 1)) * 100;
 
@@ -163,36 +163,40 @@ export default function CandidateOnboardingFlow() {
     );
   }
 
-  // Step-based layout (similar to AdminOnboarding)
+  // Step-based layout (matching F1 Admin Onboarding pattern)
   const stepConfigs = [
-    { id: "personal", title: "Personal Information", desc: "Basic details about you", icon: FileText },
-    { id: "address", title: "Address & Residency", desc: "Where you live and work", icon: FileText },
-    { id: "tax", title: "Tax & Compliance", desc: "Required for legal compliance", icon: FileText },
-    { id: "bank", title: "Bank Details", desc: "For salary payments", icon: FileText },
-    { id: "emergency", title: "Emergency Contact", desc: "Optional but recommended", icon: FileText },
+    { id: "personal", title: "Personal Info", desc: "Basic details about you", icon: FileText },
+    { id: "address", title: "Work & Pay Details", desc: "Role and compensation", icon: FileText },
+    { id: "tax", title: "Compliance Requirements", desc: "Required for legal compliance", icon: FileText },
     { id: "review", title: "Review & Submit", desc: "Confirm your details", icon: CheckCircle2 },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/[0.02] to-secondary/[0.03]">
-      {/* Top instructional header */}
+      {/* Top instructional header - F1 pattern */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center gap-6">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-2">Candidate Onboarding</h1>
-              <p className="text-sm text-muted-foreground">
-                Complete your information to finalize your employment with Fronted
-              </p>
-            </div>
+          <div className="mb-4">
+            <h1 className="text-3xl font-bold mb-2">Let's finalize your details 🚀</h1>
+            <p className="text-foreground/60">
+              We just need a few more items to prepare your contract and onboarding checklist.
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="scale-75">
                 <AudioWaveVisualizer isActive={false} />
               </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Step {currentStepIndex} of {steps.length - 2}</p>
-                <Progress value={progressPercent} className="h-1.5 w-32 mt-1" />
+              <div>
+                <p className="text-xs text-muted-foreground">Progress</p>
+                <div className="flex items-center gap-2">
+                  <Progress value={progressPercent} className="h-1.5 w-32" />
+                  <span className="text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
+                </div>
               </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Step {currentStepIndex} of {stepConfigs.length}
             </div>
           </div>
         </div>
@@ -204,9 +208,17 @@ export default function CandidateOnboardingFlow() {
           {/* Left: Progress sidebar with step cards */}
           <div className="w-80 flex-shrink-0 space-y-3">
             {stepConfigs.map((step, idx) => {
-              const stepIndex = steps.indexOf(step.id as OnboardingStep);
+              // Map to actual step IDs in flow
+              const stepMapping: Record<string, OnboardingStep> = {
+                "personal": "personal",
+                "address": "address",
+                "tax": "tax",
+                "review": "review"
+              };
+              const mappedStepId = stepMapping[step.id];
+              const stepIndex = steps.indexOf(mappedStepId);
               const isCompleted = currentStepIndex > stepIndex;
-              const isActive = currentStep === step.id;
+              const isActive = currentStep === mappedStepId;
 
               return (
                 <StepCard
@@ -420,140 +432,6 @@ export default function CandidateOnboardingFlow() {
                       </div>
                     )}
 
-                    {/* Bank Details */}
-                    {currentStep === "bank" && (
-                      <div className="space-y-6">
-                        <div className="space-y-2">
-                          <h2 className="text-2xl font-bold">Bank Details</h2>
-                          <p className="text-foreground/60">For salary payments</p>
-                        </div>
-
-                        {renderGenieTip("Your bank details are encrypted and used only for salary deposits.")}
-
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="bankName">Bank Name</Label>
-                            <Input
-                              id="bankName"
-                              value={formData.bankName}
-                              onChange={(e) => updateFormData({ bankName: e.target.value })}
-                              placeholder="BDO Unibank"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="accountNumber">Account Number / IBAN</Label>
-                            <Input
-                              id="accountNumber"
-                              value={formData.accountNumber}
-                              onChange={(e) => updateFormData({ accountNumber: e.target.value })}
-                              placeholder="1234567890"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="swiftBic">SWIFT/BIC Code</Label>
-                              <Input
-                                id="swiftBic"
-                                value={formData.swiftBic}
-                                onChange={(e) => updateFormData({ swiftBic: e.target.value })}
-                                placeholder="BNORPHMM"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="currency">Preferred Currency</Label>
-                              <Select value={formData.currency} onValueChange={(value) => updateFormData({ currency: value })}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="PHP">PHP (₱)</SelectItem>
-                                  <SelectItem value="USD">USD ($)</SelectItem>
-                                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                                  <SelectItem value="NOK">NOK (kr)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button variant="outline" onClick={handleBack} className="flex-1">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                          </Button>
-                          <Button onClick={handleNext} className="flex-1">
-                            Continue
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Emergency Contact */}
-                    {currentStep === "emergency" && (
-                      <div className="space-y-6">
-                        <div className="space-y-2">
-                          <h2 className="text-2xl font-bold">Emergency Contact</h2>
-                          <p className="text-foreground/60">Optional but recommended</p>
-                        </div>
-
-                        {renderGenieTip("This person will be contacted in case of emergencies during your employment.")}
-
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="emergencyName">Full Name</Label>
-                            <Input
-                              id="emergencyName"
-                              value={formData.emergencyName}
-                              onChange={(e) => updateFormData({ emergencyName: e.target.value })}
-                              placeholder="John Doe"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="emergencyPhone">Phone Number</Label>
-                            <Input
-                              id="emergencyPhone"
-                              type="tel"
-                              value={formData.emergencyPhone}
-                              onChange={(e) => updateFormData({ emergencyPhone: e.target.value })}
-                              placeholder="+63 912 345 6789"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="emergencyRelation">Relationship</Label>
-                            <Select value={formData.emergencyRelation} onValueChange={(value) => updateFormData({ emergencyRelation: value })}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select relationship" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="spouse">Spouse</SelectItem>
-                                <SelectItem value="parent">Parent</SelectItem>
-                                <SelectItem value="sibling">Sibling</SelectItem>
-                                <SelectItem value="friend">Friend</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button variant="outline" onClick={handleBack} className="flex-1">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                          </Button>
-                          <Button onClick={handleNext} className="flex-1">
-                            Continue
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Review & Submit */}
                     {currentStep === "review" && (
                       <div className="space-y-6">
@@ -562,55 +440,41 @@ export default function CandidateOnboardingFlow() {
                           <p className="text-foreground/60">Please review your information</p>
                         </div>
 
+
                         {renderGenieTip("Once submitted, your details will be securely sent to Fronted for processing.")}
 
                         <div className="space-y-4">
                           <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-                            <h3 className="font-medium text-sm">Personal Information</h3>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                              <div>
-                                <p className="text-muted-foreground">Name</p>
-                                <p className="font-medium">{formData.fullName}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Email</p>
-                                <p className="font-medium">{formData.email}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Phone</p>
-                                <p className="font-medium">{formData.phone || "Not provided"}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Country</p>
-                                <p className="font-medium">{formData.country}</p>
-                              </div>
+                            <h3 className="font-semibold">Personal Information</h3>
+                            <div className="text-sm space-y-1">
+                              <p><span className="text-muted-foreground">Name:</span> {formData.fullName}</p>
+                              <p><span className="text-muted-foreground">Email:</span> {formData.email}</p>
+                              <p><span className="text-muted-foreground">Phone:</span> {formData.phone}</p>
                             </div>
                           </div>
 
                           <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-                            <h3 className="font-medium text-sm">Bank Details</h3>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                              <div>
-                                <p className="text-muted-foreground">Bank</p>
-                                <p className="font-medium">{formData.bankName || "Not provided"}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Currency</p>
-                                <p className="font-medium">{formData.currency}</p>
-                              </div>
+                            <h3 className="font-semibold">Address & Residency</h3>
+                            <div className="text-sm space-y-1">
+                              <p><span className="text-muted-foreground">Address:</span> {formData.address}</p>
+                              <p><span className="text-muted-foreground">City:</span> {formData.city}</p>
+                              <p><span className="text-muted-foreground">Country:</span> {formData.country}</p>
                             </div>
                           </div>
 
-                          <div className="flex items-start gap-3 p-4 border rounded-lg">
-                            <Checkbox 
-                              id="agree" 
-                              checked={agreed}
-                              onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                            />
-                            <label htmlFor="agree" className="text-sm leading-relaxed cursor-pointer">
-                              I confirm that all information provided is accurate and complete. I understand that this data will be used for employment purposes at Fronted.
-                            </label>
+                          <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                            <h3 className="font-semibold">Tax & Compliance</h3>
+                            <div className="text-sm space-y-1">
+                              <p><span className="text-muted-foreground">TIN:</span> {formData.tin}</p>
+                            </div>
                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-4 border rounded-lg">
+                          <Checkbox checked={agreed} onCheckedChange={(checked) => setAgreed(!!checked)} id="agree" />
+                          <Label htmlFor="agree" className="text-sm cursor-pointer">
+                            I confirm that all information provided is accurate and complete
+                          </Label>
                         </div>
 
                         <div className="flex gap-3">
@@ -618,12 +482,8 @@ export default function CandidateOnboardingFlow() {
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back
                           </Button>
-                          <Button 
-                            onClick={handleSubmit} 
-                            className="flex-1"
-                            disabled={!agreed}
-                          >
-                            Submit Onboarding
+                          <Button onClick={handleSubmit} disabled={!agreed} className="flex-1">
+                            Submit Details
                             <CheckCircle2 className="ml-2 h-4 w-4" />
                           </Button>
                         </div>

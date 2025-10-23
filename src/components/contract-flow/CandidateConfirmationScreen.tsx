@@ -58,7 +58,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
       flag: candidate.flag,
       salary: candidate.salary,
       startDate: candidate.startDate || "TBD",
-      status: dataStatus?.status || "awaiting_data",
+      status: dataStatus?.status || "not_sent",
     };
   };
 
@@ -76,7 +76,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
       setCandidateDataStatus((prev) =>
         prev.map((status) =>
           status.id === candidateId
-            ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
+            ? { ...status, status: "awaiting_info" as OnboardingStatus }
             : status
         )
       );
@@ -91,7 +91,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
         setCandidateDataStatus((prev) =>
           prev.map((status) =>
             status.id === candidateId
-              ? { ...status, status: "awaiting_submission" as OnboardingStatus }
+              ? { ...status, status: "awaiting_info" as OnboardingStatus }
               : status
           )
         );
@@ -150,7 +150,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
       setCandidateDataStatus((prev) =>
         prev.map((status) =>
           status.id === candidateId
-            ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
+            ? { ...status, status: "awaiting_info" as OnboardingStatus }
             : status
         )
       );
@@ -278,8 +278,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
             setDrawerOpen(false);
           }}
           isResend={
-            selectedCandidateStatus === "awaiting_submission" || 
-            selectedCandidateStatus === "waiting_for_candidate"
+            selectedCandidateStatus === "awaiting_info"
           }
         />
       )}

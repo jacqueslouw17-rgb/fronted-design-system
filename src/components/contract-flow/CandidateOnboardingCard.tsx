@@ -14,19 +14,14 @@ interface CandidateOnboardingCardProps {
 }
 
 const statusConfig: Record<OnboardingStatus, { label: string; variant: "default" | "secondary" | "outline" | "destructive"; color: string }> = {
-  awaiting_data: {
+  not_sent: {
+    label: "Not Sent",
+    variant: "secondary",
+    color: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+  },
+  awaiting_info: {
     label: "Awaiting Info",
     variant: "default",
-    color: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-  },
-  awaiting_submission: {
-    label: "Awaiting Data Submission",
-    variant: "secondary",
-    color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-  },
-  waiting_for_candidate: {
-    label: "Waiting for Candidate",
-    variant: "secondary",
     color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   },
   validating: {
@@ -36,11 +31,6 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: "default"
   },
   ready_for_contract: {
     label: "Ready for Contract",
-    variant: "default",
-    color: "bg-green-500/10 text-green-600 border-green-500/20",
-  },
-  candidate_data_ready: {
-    label: "Candidate Data Ready",
     variant: "default",
     color: "bg-green-500/10 text-green-600 border-green-500/20",
   },
@@ -68,8 +58,8 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
   isValidating = false,
 }) => {
   const statusInfo = statusConfig[candidate.status];
-  const canSendForm = candidate.status === "awaiting_data";
-  const canResendForm = candidate.status === "awaiting_submission" || candidate.status === "waiting_for_candidate";
+  const canSendForm = candidate.status === "not_sent";
+  const canResendForm = candidate.status === "awaiting_info";
   const isComplete = candidate.status === "ready_for_contract";
 
   return (
@@ -136,7 +126,7 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
               onClick={onConfigure}
               className="flex-1 gap-2"
             >
-              {candidate.status === "awaiting_data" ? (
+              {candidate.status === "not_sent" ? (
                 <>
                   <Settings className="h-4 w-4" />
                   Configure
