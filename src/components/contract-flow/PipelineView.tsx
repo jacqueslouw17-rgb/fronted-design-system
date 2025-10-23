@@ -2,10 +2,12 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePipelineAnimation } from "@/hooks/usePipelineAnimation";
+import { toast } from "sonner";
 
 interface Contractor {
   id: string;
@@ -155,7 +157,64 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           </div>
 
-                          {/* Status Badge */}
+                          {/* Action Buttons based on status */}
+                          {status === "offer-accepted" && (
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1 text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.info(`Configuring form for ${contractor.name}`);
+                                }}
+                              >
+                                <Settings className="h-3 w-3 mr-1" />
+                                Configure
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                className="flex-1 text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.success(`Sending form to ${contractor.name}`);
+                                }}
+                              >
+                                <Send className="h-3 w-3 mr-1" />
+                                Send Form
+                              </Button>
+                            </div>
+                          )}
+
+                          {status === "data-pending" && (
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1 text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.info(`Viewing form for ${contractor.name}`);
+                                }}
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                View Form
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                className="flex-1 text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.success(`Resending form to ${contractor.name}`);
+                                }}
+                              >
+                                <Send className="h-3 w-3 mr-1" />
+                                Resend
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Status Badge for certified */}
                           {status === "certified" && (
                             <Badge 
                               variant="outline" 
