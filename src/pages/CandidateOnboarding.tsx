@@ -9,16 +9,14 @@ import ProgressBar from "@/components/ProgressBar";
 import confetti from "canvas-confetti";
 
 // Step components
-import CandidateStep1Welcome from "@/components/flows/candidate-onboarding/CandidateStep1Welcome";
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
 import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
 import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
 
 const FLOW_STEPS = [
-  { id: "welcome_start", title: "Welcome", stepNumber: 1 },
-  { id: "personal_details", title: "Personal Details", stepNumber: 2 },
-  { id: "compliance_docs", title: "Compliance", stepNumber: 3 },
-  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 4 }
+  { id: "personal_details", title: "Personal Details", stepNumber: 1 },
+  { id: "compliance_docs", title: "Compliance", stepNumber: 2 },
+  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 3 }
 ];
 
 const CandidateOnboarding = () => {
@@ -28,10 +26,10 @@ const CandidateOnboarding = () => {
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.candidate.onboarding",
-    "welcome_start"
+    "personal_details"
   );
 
-  const [expandedStep, setExpandedStep] = useState<string | null>("welcome_start");
+  const [expandedStep, setExpandedStep] = useState<string | null>("personal_details");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -189,8 +187,11 @@ const CandidateOnboarding = () => {
 
           {/* Title */}
           <h1 className="text-3xl font-bold text-foreground">
-            {state.formData.companyName ? `Welcome to ${state.formData.companyName}` : 'Welcome to Fronted'}
+            Hi {state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!
           </h1>
+          <p className="text-muted-foreground text-lg">
+            Let's complete a few quick details so we can finalize your contract.
+          </p>
         </div>
 
         {/* Progress Bar */}
@@ -226,14 +227,6 @@ const CandidateOnboarding = () => {
                     ref={(el) => (stepRefs.current[step.id] = el)}
                     className="pt-6"
                   >
-                    {step.id === "welcome_start" && (
-                      <CandidateStep1Welcome
-                        formData={state.formData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
                     {step.id === "personal_details" && (
                       <CandidateStep2PersonalDetails
                         formData={state.formData}
