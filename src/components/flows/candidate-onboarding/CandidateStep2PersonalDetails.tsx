@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,17 @@ const CandidateStep2PersonalDetails = ({
     phoneNumber: formData.phoneNumber || "",
     preferredLanguage: formData.preferredLanguage || "EN"
   });
+
+  // Sync with formData when it changes
+  useEffect(() => {
+    setData({
+      fullName: formData.fullName || "",
+      email: formData.email || "",
+      homeAddress: formData.homeAddress || "",
+      phoneNumber: formData.phoneNumber || "",
+      preferredLanguage: formData.preferredLanguage || "EN"
+    });
+  }, [formData]);
 
   const handleContinue = () => {
     onComplete("personal_details", data);
