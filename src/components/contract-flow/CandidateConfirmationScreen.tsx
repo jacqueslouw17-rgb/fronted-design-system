@@ -57,7 +57,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
     setCandidateDataStatus((prev) =>
       prev.map((status) =>
         status.id === candidateId
-          ? { ...status, status: "awaiting_submission" as OnboardingStatus }
+          ? { ...status, status: "waiting_for_candidate" as OnboardingStatus }
           : status
       )
     );
@@ -112,6 +112,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
 
   const allDataComplete = candidateDataStatus.every((s) => s.status === "ready_for_contract");
   const selectedCandidate = candidates.find((c) => c.id === selectedCandidateId);
+  const selectedCandidateStatus = candidateDataStatus.find((s) => s.id === selectedCandidateId)?.status;
 
   return (
     <>
@@ -179,9 +180,13 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
             toast.success("Form configuration saved.", { duration: 2000 });
           }}
           onSent={() => {
+            handleSendForm(selectedCandidate.id);
             setDrawerOpen(false);
-            toast.success("Form sent successfully.", { duration: 2000 });
           }}
+          isResend={
+            selectedCandidateStatus === "awaiting_submission" || 
+            selectedCandidateStatus === "waiting_for_candidate"
+          }
         />
       )}
     </>

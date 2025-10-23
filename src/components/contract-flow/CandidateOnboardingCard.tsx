@@ -69,7 +69,7 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
 }) => {
   const statusInfo = statusConfig[candidate.status];
   const canSendForm = candidate.status === "awaiting_data";
-  const canResendForm = candidate.status === "awaiting_submission";
+  const canResendForm = candidate.status === "awaiting_submission" || candidate.status === "waiting_for_candidate";
   const isComplete = candidate.status === "ready_for_contract";
 
   return (

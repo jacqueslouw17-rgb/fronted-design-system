@@ -29,6 +29,7 @@ interface OnboardingFormDrawerProps {
   candidate: Candidate;
   onComplete: () => void;
   onSent: () => void;
+  isResend?: boolean;
 }
 
 interface CustomField {
@@ -42,6 +43,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   candidate,
   onComplete,
   onSent,
+  isResend = false,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
@@ -62,7 +64,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // ATS notification
-    toast.success(`✅ Secure onboarding form sent to ${candidate.name}. You'll be notified once it's completed.`, {
+    toast.success(`✅ Secure onboarding form ${isResend ? 'resent' : 'sent'} to ${candidate.name}. You'll be notified once it's completed.`, {
       duration: 5000,
     });
     
@@ -458,7 +460,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               disabled={isSubmitting || isSavingDraft || !candidate.email || showEmploymentConfirm}
               className="flex-1"
             >
-              {isSubmitting ? "Sending..." : "Send Form"}
+              {isSubmitting ? "Sending..." : (isResend ? "Resend Form" : "Send Form")}
             </Button>
           </div>
         </div>
