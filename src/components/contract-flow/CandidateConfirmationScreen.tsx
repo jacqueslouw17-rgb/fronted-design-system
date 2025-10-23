@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, FileText, Send, Clock } from "lucide-react";
+import { CheckCircle2, AlertCircle, FileText, Send, Clock, Settings } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { toast } from "sonner";
@@ -102,7 +102,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
             🎉 Great news — these candidates have accepted their offers!
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Are you ready to finalize the formalities, sign their contracts, and start onboarding?
+            Let's finalize the formalities, sign the contracts, and start onboarding.
           </p>
         </motion.div>
 
@@ -144,9 +144,9 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                           </p>
                         </div>
                         {isComplete ? (
-                          <Badge variant="default" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20">
+                          <Badge variant="default" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20 animate-pulse">
                             <CheckCircle2 className="h-3 w-3" />
-                            Ready for Contract
+                            Ready for Onboarding
                           </Badge>
                         ) : isWaiting ? (
                           <Badge variant="outline" className="flex items-center gap-1 border-muted-foreground/30 text-muted-foreground bg-muted/20 animate-pulse">
@@ -203,25 +203,47 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
 
                       <div className="flex gap-2">
                         {isComplete ? (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            disabled
-                            className="flex items-center gap-2"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                            Ready for Contract
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              disabled
+                              className="flex items-center gap-2"
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                              Ready for Onboarding
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSendForm(candidate.id)}
+                              className="flex items-center gap-2"
+                            >
+                              <Settings className="h-3 w-3" />
+                              View Form
+                            </Button>
+                          </>
                         ) : isWaiting ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled
-                            className="flex items-center gap-2"
-                          >
-                            <Clock className="h-3 w-3" />
-                            Waiting for Candidate
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled
+                              className="flex items-center gap-2"
+                            >
+                              <Clock className="h-3 w-3" />
+                              Waiting for Candidate
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleSendForm(candidate.id)}
+                              className="flex items-center gap-2 text-xs"
+                            >
+                              <Settings className="h-3 w-3" />
+                              View Form
+                            </Button>
+                          </>
                         ) : (
                           <>
                             <Button
@@ -236,9 +258,11 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => handleSendForm(candidate.id)}
                               className="flex items-center gap-2"
                             >
-                              Edit Manually
+                              <Settings className="h-3 w-3" />
+                              Configure Form
                             </Button>
                           </>
                         )}

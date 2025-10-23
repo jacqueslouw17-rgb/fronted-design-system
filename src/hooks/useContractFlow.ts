@@ -26,6 +26,8 @@ export interface Candidate {
   pto: string;
   currency: string;
   signingPortal: string;
+  status: "Shortlisted" | "Hired";
+  email?: string;
 }
 
 export const useMockCandidates = (): Candidate[] => [
@@ -41,7 +43,9 @@ export const useMockCandidates = (): Candidate[] => [
     noticePeriod: "30 days",
     pto: "15 days/year",
     currency: "PHP",
-    signingPortal: "PH eSign Portal"
+    signingPortal: "PH eSign Portal",
+    status: "Hired",
+    email: "maria.santos@example.com"
   },
   {
     id: "2",
@@ -55,21 +59,9 @@ export const useMockCandidates = (): Candidate[] => [
     noticePeriod: "60 days",
     pto: "25 days/year",
     currency: "NOK",
-    signingPortal: "NO Altinn"
-  },
-  {
-    id: "3",
-    name: "Arta Krasniqi",
-    role: "QA Specialist",
-    country: "Kosovo",
-    countryCode: "XK",
-    flag: "🇽🇰",
-    salary: "€2,800/mo",
-    startDate: "Dec 10, 2025",
-    noticePeriod: "15 days",
-    pto: "20 days/year",
-    currency: "EUR",
-    signingPortal: "XK AuthChain"
+    signingPortal: "NO Altinn",
+    status: "Hired",
+    email: "oskar.nilsen@example.com"
   }
 ];
 
@@ -98,7 +90,8 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
 
   const startFlow = useCallback(() => {
     setPhase("offer-accepted");
-    setSelectedCandidates(useMockCandidates());
+    // Only show candidates with "Hired" status
+    setSelectedCandidates(useMockCandidates().filter(c => c.status === "Hired"));
   }, []);
 
   const proceedToDataCollection = useCallback(() => {
