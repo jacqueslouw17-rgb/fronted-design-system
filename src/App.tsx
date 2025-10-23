@@ -13,6 +13,7 @@ import ProfileSettings from "./pages/ProfileSettings";
 // Flows
 import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
+import DashboardAdmin from "./pages/flows/DashboardAdmin";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
 import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
@@ -81,6 +82,7 @@ const App = () => (
         {/* Flows Routes */}
         <Route path="/flows" element={<Flows />} />
         <Route path="/flows/admin/onboarding" element={<AdminOnboarding />} />
+        <Route path="/flows/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
         <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
         <Route path="/candidate-onboarding/:candidateId?" element={<CandidateOnboardingFlow />} />
