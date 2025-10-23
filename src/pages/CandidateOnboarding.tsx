@@ -155,29 +155,63 @@ const CandidateOnboarding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mb-4"
-            onClick={() => navigate('/')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
+      {/* Static background (performance-safe) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+      </div>
+
+      {/* Left Section - Header */}
+      <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '50%' }}>
+        <div className="relative z-10 flex flex-col items-center space-y-6">
+          {/* Decorative element */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
+          </div>
+
+          {/* Title and description */}
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold">Candidate Onboarding</h1>
-            <p className="text-muted-foreground">
-              {isDemoMode ? "Demo: Complete your onboarding in a few quick steps" : "Complete your onboarding to get started"}
+            <h1 className="text-3xl font-bold text-foreground">
+              {state.formData.companyName ? `Welcome to ${state.formData.companyName}` : 'Candidate Onboarding'}
+            </h1>
+            <p className="text-sm max-w-md mx-auto text-muted-foreground">
+              {isDemoMode 
+                ? "Demo: Complete your onboarding in a few quick steps" 
+                : "Complete your onboarding to get started with your new role"}
             </p>
           </div>
         </div>
+      </section>
 
+      {/* Right Section - Steps & Progress */}
+      <aside 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10"
+        style={{ 
+          width: '50%', 
+          minWidth: '380px',
+          maxWidth: '50%'
+        }}
+      >
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="flex-1">
           <ProgressBar 
             currentStep={FLOW_STEPS.findIndex(s => s.id === state.currentStep) + 1} 
             totalSteps={FLOW_STEPS.length}
@@ -185,7 +219,7 @@ const CandidateOnboarding = () => {
         </div>
 
         {/* Step Cards */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {FLOW_STEPS.map((step) => {
             const isCompleted = state.completedSteps.includes(step.id);
             const isCurrent = state.currentStep === step.id;
@@ -196,72 +230,75 @@ const CandidateOnboarding = () => {
             const status = isCompleted ? "completed" : isCurrent ? "active" : "pending";
 
             return (
-              <div
+              <StepCard
                 key={step.id}
-                ref={(el) => (stepRefs.current[step.id] = el)}
+                title={step.title}
+                stepNumber={step.stepNumber}
+                status={status}
+                isExpanded={isExpanded}
+                onClick={() => canExpand && handleStepClick(step.id)}
               >
-                <StepCard
-                  title={step.title}
-                  stepNumber={step.stepNumber}
-                  status={status}
-                  isExpanded={isExpanded}
-                  onClick={() => canExpand && handleStepClick(step.id)}
-                >
-                  {step.id === "welcome_consent" && (
-                    <CandidateStep1Welcome
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                  {step.id === "personal_identity" && (
-                    <CandidateStep2Personal
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                  {step.id === "tax_residency" && (
-                    <CandidateStep3Tax
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                  {step.id === "bank_details" && (
-                    <CandidateStep4Bank
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                  {step.id === "emergency_contact" && (
-                    <CandidateStep5Emergency
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                  {step.id === "review_submit" && (
-                    <CandidateStep6Review
-                      formData={state.formData}
-                      onComplete={handleStepComplete}
-                      isProcessing={isProcessing}
-                      isLoadingFields={isLoadingFields}
-                    />
-                  )}
-                </StepCard>
-              </div>
+                {isExpanded && (
+                  <div 
+                    ref={(el) => (stepRefs.current[step.id] = el)}
+                    className="pt-6"
+                  >
+                    {step.id === "welcome_consent" && (
+                      <CandidateStep1Welcome
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "personal_identity" && (
+                      <CandidateStep2Personal
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "tax_residency" && (
+                      <CandidateStep3Tax
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "bank_details" && (
+                      <CandidateStep4Bank
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "emergency_contact" && (
+                      <CandidateStep5Emergency
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "review_submit" && (
+                      <CandidateStep6Review
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                  </div>
+                )}
+              </StepCard>
             );
           })}
         </div>
-      </div>
-    </div>
+      </aside>
+    </main>
   );
 };
 
