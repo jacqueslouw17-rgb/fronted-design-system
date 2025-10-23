@@ -106,19 +106,19 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
+        className="rounded-xl bg-primary/5 border border-primary/10 p-4"
       >
-        <p className="text-sm text-foreground">
+        <p className="text-sm text-foreground/90">
           There are multiple documents to sign for full compliance. I've grouped them for you.
         </p>
       </motion.div>
 
       {/* Carousel header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Package className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Signing Bundle</h3>
-          <Badge variant="secondary">{selectedCount} documents</Badge>
+          <h3 className="text-lg font-semibold text-foreground">Signing Bundle</h3>
+          <Badge variant="secondary" className="text-xs">{selectedCount} documents</Badge>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -126,10 +126,11 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
             size="sm"
             onClick={handlePrev}
             disabled={currentIndex === 0}
+            className="h-8 w-8 p-0"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm font-medium text-foreground min-w-[3rem] text-center">
             {currentIndex + 1} / {documents.length}
           </span>
           <Button
@@ -137,6 +138,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
             size="sm"
             onClick={handleNext}
             disabled={currentIndex === documents.length - 1}
+            className="h-8 w-8 p-0"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

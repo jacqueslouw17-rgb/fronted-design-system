@@ -277,17 +277,17 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-3xl">
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Contract Bundle</h2>
-                      <p className="text-muted-foreground">Select documents to include in the signing package</p>
+                  <div className="w-full max-w-4xl space-y-8">
+                    <div className="space-y-2">
+                      <h1 className="text-3xl font-bold text-foreground">Contract Bundle</h1>
+                      <p className="text-base text-muted-foreground">Select documents to include in the signing package</p>
                     </div>
                     {contractFlow.selectedCandidates.map((candidate) => (
-                      <div key={candidate.id} className="mb-8">
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="text-3xl">{candidate.flag}</span>
+                      <div key={candidate.id} className="space-y-6">
+                        <div className="flex items-center gap-3">
+                          <span className="text-4xl">{candidate.flag}</span>
                           <div>
-                            <h3 className="font-semibold text-foreground">{candidate.name}</h3>
+                            <h2 className="text-xl font-semibold text-foreground">{candidate.name}</h2>
                             <p className="text-sm text-muted-foreground">{candidate.role} • {candidate.country}</p>
                           </div>
                         </div>
