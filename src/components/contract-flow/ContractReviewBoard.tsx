@@ -33,7 +33,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
       >
         <p className="text-sm text-foreground">
-          All drafts are ready. Would you like to review before sending?
+          All contracts ready. Review and send to candidates for signature.
         </p>
       </motion.div>
 
@@ -138,7 +138,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           className="w-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
           size="lg"
         >
-          Proceed to Signature
+          Send to Candidates
         </Button>
       </motion.div>
     </motion.div>
