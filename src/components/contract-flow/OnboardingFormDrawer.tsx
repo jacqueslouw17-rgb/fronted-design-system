@@ -22,7 +22,6 @@ import {
 import { Shield, CheckCircle2, Plus, Bot } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
-import KurtAvatar from "@/components/KurtAvatar";
 
 interface OnboardingFormDrawerProps {
   open: boolean;
@@ -107,9 +106,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           className="mt-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
         >
           <div className="flex items-start gap-3">
-            <div className="h-8 w-8">
-              <KurtAvatar />
-            </div>
+            <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-xs font-medium text-foreground mb-1">Kurt will handle the details</p>
               <p className="text-xs text-muted-foreground">

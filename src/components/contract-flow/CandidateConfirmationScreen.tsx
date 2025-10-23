@@ -144,12 +144,12 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                           </p>
                         </div>
                         {isComplete ? (
-                          <Badge variant="default" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20 animate-pulse">
+                          <Badge variant="default" className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20">
                             <CheckCircle2 className="h-3 w-3" />
                             Ready for Onboarding
                           </Badge>
                         ) : isWaiting ? (
-                          <Badge variant="outline" className="flex items-center gap-1 border-muted-foreground/30 text-muted-foreground bg-muted/20 animate-pulse">
+                          <Badge variant="outline" className="flex items-center gap-1 border-muted-foreground/30 text-muted-foreground bg-muted/20">
                             <Clock className="h-3 w-3" />
                             Waiting for Details
                           </Badge>
