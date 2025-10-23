@@ -80,26 +80,6 @@ const ContractFlowDemo = () => {
     }
   }, [currentWordIndex, idleWords.length]);
 
-  // Auto-transition from initial landing to candidates view
-  useEffect(() => {
-    if (contractFlow.phase === "idle" && (version === "v3" || version === "v5")) {
-      const timer = setTimeout(() => {
-        // Show toast notification
-        toast({
-          title: "🎉 New hire detected",
-          description: "Genie is preparing onboarding for your candidates...",
-          duration: 3000,
-        });
-        
-        // Transition to candidates view
-        setTimeout(() => {
-          contractFlow.startFlow();
-        }, 500);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [contractFlow.phase, version, toast]);
-
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex w-full bg-background">
@@ -169,53 +149,6 @@ const ContractFlowDemo = () => {
                         <span className="animate-bounce" style={{ animationDelay: "150ms" }}>.</span>
                         <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
                       </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ) : contractFlow.phase === "idle" || contractFlow.phase === "notification" ? (
-                <motion.div key="notification" className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-3xl space-y-6">
-                    <div className="text-center flex flex-col items-center space-y-4">
-                      <AudioWaveVisualizer isActive={false} />
-                      <h2 className="text-4xl font-bold text-foreground mt-6">Hi Joe, what would you like to know?</h2>
-                      <p className="text-base text-muted-foreground">
-                        Ask me anything or use voice input to get started
-                      </p>
-                    </div>
-
-                    {/* Large chat input area */}
-                    <div className="mt-8">
-                      <div className="relative">
-                        <textarea
-                          placeholder="Type your message or click the mic to speak..."
-                          rows={6}
-                          className="w-full rounded-lg border border-border bg-background p-4 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                          disabled
-                        />
-                        <button
-                          className="absolute bottom-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
-                          disabled
-                        >
-                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Speak button */}
-                      <div className="flex justify-center mt-4">
-                        <Button variant="outline" size="lg" className="gap-2" disabled>
-                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                          </svg>
-                          Speak
-                        </Button>
-                      </div>
-
-                      {/* Helper text */}
-                      <p className="text-center text-sm text-muted-foreground mt-4">
-                        Press Enter to send • Shift+Enter for new line
-                      </p>
                     </div>
                   </div>
                 </motion.div>

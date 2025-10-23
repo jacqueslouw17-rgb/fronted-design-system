@@ -76,16 +76,18 @@ export const useMockCandidates = (): Candidate[] => [
 ];
 
 export const useContractFlow = (version: "v3" | "v5" = "v3") => {
-  const [phase, setPhase] = useState<ContractFlowPhase>(version === "v5" ? "prompt" : "idle");
-  const [selectedCandidates, setSelectedCandidates] = useState<Candidate[]>([]);
+  const [phase, setPhase] = useState<ContractFlowPhase>(version === "v5" ? "prompt" : "offer-accepted");
+  const [selectedCandidates, setSelectedCandidates] = useState<Candidate[]>(
+    version === "v3" ? useMockCandidates().filter(c => c.status === "Hired") : []
+  );
   const [currentDraftIndex, setCurrentDraftIndex] = useState(0);
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [signedCandidates, setSignedCandidates] = useState<string[]>([]);
 
   // Reset phase when version changes
   useEffect(() => {
-    setPhase(version === "v5" ? "prompt" : "idle");
-    setSelectedCandidates([]);
+    setPhase(version === "v5" ? "prompt" : "offer-accepted");
+    setSelectedCandidates(version === "v3" ? useMockCandidates().filter(c => c.status === "Hired") : []);
     setCurrentDraftIndex(0);
     setReviewComments({});
     setSignedCandidates([]);
@@ -154,8 +156,8 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   }, []);
 
   const resetFlow = useCallback(() => {
-    setPhase(version === "v5" ? "prompt" : "idle");
-    setSelectedCandidates([]);
+    setPhase(version === "v5" ? "prompt" : "offer-accepted");
+    setSelectedCandidates(version === "v3" ? useMockCandidates().filter(c => c.status === "Hired") : []);
     setCurrentDraftIndex(0);
     setReviewComments({});
     setSignedCandidates([]);

@@ -21,15 +21,10 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
     // Complete the step
     onComplete("transparency_pledge");
     
-    // Navigate to dashboard
+    // Navigate directly to contract flow
     setIsTransitioning(true);
     setTimeout(() => {
-      navigate('/dashboard');
-      
-      // After 2-3 seconds on dashboard, auto-navigate to contract flow
-      setTimeout(() => {
-        navigate('/flows/contract-flow');
-      }, 2500);
+      navigate('/flows/contract-flow');
     }, 800);
   }, [navigate, onComplete]);
 
