@@ -14,6 +14,7 @@ import ProfileSettings from "./pages/ProfileSettings";
 import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
+import CandidateOnboarding from "./pages/CandidateOnboarding";
 import StepCardPattern from "./pages/StepCardPattern";
 import ContextualDrawerPattern from "./pages/ContextualDrawerPattern";
 import HoverToolbarPattern from "./pages/HoverToolbarPattern";
@@ -80,6 +81,7 @@ const App = () => (
         <Route path="/flows" element={<Flows />} />
         <Route path="/flows/admin/onboarding" element={<AdminOnboarding />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
+        <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />

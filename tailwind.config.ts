@@ -202,6 +202,17 @@ export default {
             transform: "translateX(0)",
           },
         },
+        "glow": {
+          "0%": {
+            boxShadow: "0 0 0 0 hsl(142 76% 36% / 0)",
+          },
+          "50%": {
+            boxShadow: "0 0 20px 5px hsl(142 76% 36% / 0.3)",
+          },
+          "100%": {
+            boxShadow: "0 0 0 0 hsl(142 76% 36% / 0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -211,6 +222,7 @@ export default {
         "kurt-breathe": "kurt-breathe 4s ease-in-out infinite",
         "fade-in": "fade-in 0.3s ease-out",
         "slide-in-left": "slide-in-left 0.3s ease-out",
+        "glow": "glow 0.5s ease-out",
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",

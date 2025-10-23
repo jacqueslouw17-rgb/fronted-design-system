@@ -190,6 +190,14 @@ const Flows = () => {
       steps: 6,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
       path: "/flows/contract-flow"
+    },
+    {
+      id: "f2-child-candidate-onboarding",
+      title: "Flow 2.1 — Candidate Onboarding",
+      description: "Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration",
+      steps: 4,
+      patterns: ["genie-onboarding", "smart-approval", "compliance-checklist", "narrated-insight"],
+      path: "/flows/candidate-onboarding"
     }
   ];
 
