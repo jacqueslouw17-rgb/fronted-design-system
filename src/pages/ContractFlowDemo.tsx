@@ -15,6 +15,7 @@ import { ContractSignaturePhase } from "@/components/contract-flow/ContractSigna
 import { ContractFlowSummary } from "@/components/contract-flow/ContractFlowSummary";
 import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceTransitionNote";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
+import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import NavSidebar from "@/components/dashboard/NavSidebar";
@@ -280,8 +281,18 @@ const ContractFlowDemo = () => {
                   <ContractReviewBoard 
                     candidates={contractFlow.selectedCandidates} 
                     onStartSigning={() => { 
+                      contractFlow.proceedToDocumentBundle(); 
+                      // speak("Preparing document bundles."); 
+                    }}
+                  />
+                </motion.div>
+              ) : contractFlow.phase === "document-bundle-signature" ? (
+                <motion.div key="document-bundle-signature" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <DocumentBundleSignature 
+                    candidates={contractFlow.selectedCandidates} 
+                    onSendBundle={() => { 
                       contractFlow.startSigning(); 
-                      // speak("Preparing for e-signature."); 
+                      // speak("Sending bundles for signature."); 
                     }}
                   />
                 </motion.div>

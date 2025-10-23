@@ -11,6 +11,7 @@ export type ContractFlowPhase =
   | "drafting"
   | "bundle-creation" 
   | "reviewing" 
+  | "document-bundle-signature"
   | "signing" 
   | "complete";
 
@@ -151,6 +152,10 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     setReviewComments(prev => ({ ...prev, [candidateId]: comment }));
   }, []);
 
+  const proceedToDocumentBundle = useCallback(() => {
+    setPhase("document-bundle-signature");
+  }, []);
+
   const startSigning = useCallback(() => {
     setPhase("signing");
   }, []);
@@ -186,6 +191,7 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     proceedFromBundle,
     nextDraft,
     addReviewComment,
+    proceedToDocumentBundle,
     startSigning,
     signContract,
     completeFlow,
