@@ -324,9 +324,9 @@ const ContractFlowDemo = () => {
                               countryFlag: candidate.flag,
                               role: candidate.role,
                               salary: candidate.salary,
-                              status: "offer-accepted" as const,
-                              formSent: false,
-                              dataReceived: false,
+                              status: index === 0 ? "drafting" as const : "offer-accepted" as const,
+                              formSent: index === 0,
+                              dataReceived: index === 0,
                             }))}
                             onDraftContract={(ids) => {
                               // Navigate to contract creation for selected contractors
