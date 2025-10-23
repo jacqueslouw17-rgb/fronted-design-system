@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, CheckCircle2, Plus, Bot } from "lucide-react";
+import { Shield, CheckCircle2, Plus, Bot, Pencil, Check, X } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 
@@ -46,6 +46,8 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
+  const [editingLabel, setEditingLabel] = useState("");
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
@@ -85,6 +87,28 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
       label: "Custom Field",
     };
     setCustomFields([...customFields, newField]);
+  };
+
+  const handleStartEdit = (field: CustomField) => {
+    setEditingFieldId(field.id);
+    setEditingLabel(field.label);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingFieldId && editingLabel.trim()) {
+      setCustomFields(
+        customFields.map((field) =>
+          field.id === editingFieldId ? { ...field, label: editingLabel.trim() } : field
+        )
+      );
+      setEditingFieldId(null);
+      setEditingLabel("");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingFieldId(null);
+    setEditingLabel("");
   };
 
   return (
@@ -216,7 +240,52 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               {/* Custom fields */}
               {customFields.map((field) => (
                 <div key={field.id} className="space-y-2">
-                  <Label>{field.label}</Label>
+                  {editingFieldId === field.id ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={editingLabel}
+                        onChange={(e) => setEditingLabel(e.target.value)}
+                        className="flex-1"
+                        placeholder="Field name"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSaveEdit();
+                          if (e.key === "Escape") handleCancelEdit();
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleSaveEdit}
+                        className="h-8 w-8 text-primary hover:bg-primary/10"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleCancelEdit}
+                        className="h-8 w-8 text-muted-foreground hover:bg-muted"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <Label>{field.label}</Label>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleStartEdit(field)}
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                   <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
                 </div>
               ))}
