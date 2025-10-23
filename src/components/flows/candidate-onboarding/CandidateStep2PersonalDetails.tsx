@@ -67,8 +67,9 @@ const CandidateStep2PersonalDetails = ({
               id="email"
               type="email"
               value={data.email}
+              readOnly
               disabled
-              className="bg-muted cursor-not-allowed"
+              className="bg-muted/50 text-muted-foreground cursor-not-allowed"
             />
             <p className="text-xs text-muted-foreground">Email cannot be changed</p>
           </div>
