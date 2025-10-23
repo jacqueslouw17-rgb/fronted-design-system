@@ -21,7 +21,6 @@ import Step2OrgProfile from "@/components/flows/onboarding/Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
-import Step6Pledge from "@/components/flows/onboarding/Step6Pledge";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
@@ -30,8 +29,7 @@ const FLOW_STEPS = [
   { id: "localization_country_blocks", title: "Localization & Countries", stepNumber: 3 },
   { id: "integrations_connect", title: "Integrations", stepNumber: 4 },
   { id: "mini_rules_setup", title: "Mini-Rules", stepNumber: 5 },
-  { id: "transparency_pledge_esign", title: "Transparency Pledge", stepNumber: 6 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 7 }
+  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 6 }
 ];
 
 const AdminOnboarding = () => {
@@ -416,54 +414,17 @@ const AdminOnboarding = () => {
       resetTranscript();
     }
     
-    // STEP 5 → STEP 6
+    // STEP 5 → STEP 6 (Finish)
     else if (state.currentStep === "mini_rules_setup") {
       setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1200));
       
       completeStep("mini_rules_setup");
       setExpandedStep(null);
       setIsProcessing(false);
       
-      // Wait before moving to step 6
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const confirmMessage = "Rules saved! One last step—our Transparency Pledge. It's our commitment to you. Ready to review and sign?";
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      // Set loading state FIRST, before expanding step 6
-      setIsLoadingFields(true);
-      goToStep("transparency_pledge_esign");
-      setExpandedStep("transparency_pledge_esign");
-      scrollToStep("transparency_pledge_esign");
-      
-      stop();
-      speak(confirmMessage, async () => {
-        setIsSpeaking(false);
-        
-        // Keep skeleton visible briefly
-        await new Promise(resolve => setTimeout(resolve, 400));
-        setIsLoadingFields(false);
-        setHasFinishedReading(true);
-        setHasAutoStarted(false);
-      });
-      
-      resetTranscript();
-    }
-    
-    // STEP 6 → STEP 7
-    else if (state.currentStep === "transparency_pledge_esign") {
-      setIsProcessing(true);
+      // Wait before moving to finish step
       await new Promise(resolve => setTimeout(resolve, 600));
-      
-      updateFormData({ pledgeSigned: true, signedAt: new Date().toISOString() });
-      completeStep("transparency_pledge_esign");
-      setExpandedStep(null);
-      setIsProcessing(false);
       
       const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or would you prefer to explore the dashboard?";
       setKurtMessage(confirmMessage);
@@ -736,8 +697,6 @@ const AdminOnboarding = () => {
         return <Step4Integrations {...stepProps} />;
       case "mini_rules_setup":
         return <Step5MiniRules {...stepProps} />;
-      case "transparency_pledge_esign":
-        return <Step6Pledge {...stepProps} />;
       case "finish_dashboard_transition":
         return <Step7Finish {...stepProps} />;
       default:
