@@ -1,159 +1,111 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PackageOpen, FileCheck, Home } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar } from "@/components/ui/avatar";
+import { CheckCircle2, Sparkles } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
-import { CertificateCard } from "./CertificateCard";
-import { useToast } from "@/hooks/use-toast";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
-  onSendWelcomePacks: () => void;
-  onSyncLogs: () => void;
-  onOpenDashboard: () => void;
+  onStartOnboarding: () => void;
+  onBackToDashboard: () => void;
 }
 
 export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   candidates,
-  onSendWelcomePacks,
-  onSyncLogs,
-  onOpenDashboard,
+  onStartOnboarding,
+  onBackToDashboard,
 }) => {
-  const { toast } = useToast();
-  const [selectedCertificate, setSelectedCertificate] = useState<Candidate | null>(null);
-  const [welcomePacksSent, setWelcomePacksSent] = useState(false);
-  const [logsSynced, setLogsSynced] = useState(false);
-  
-  const message = "✨ Contracts complete. Payroll flow unlocked. All signatures received. Certificates ready — stored under Contracts > Certificates of Contract.";
-  const words = message.split(' ');
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentWordIndex < words.length) {
-      const timer = setTimeout(() => {
-        setCurrentWordIndex(prev => prev + 1);
-      }, 150); // 150ms per word
-      return () => clearTimeout(timer);
-    }
-  }, [currentWordIndex, words.length]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      {/* Kurt's message */}
+    <div className="space-y-8 max-w-3xl mx-auto">
+      {/* Celebration Header */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-6"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+        className="text-center space-y-4"
       >
-        <p className="text-base">
-          {words.map((word, index) => (
-            <span
-              key={index}
-              className={`transition-colors duration-150 ${
-                index < currentWordIndex
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground'
-              }`}
-            >
-              {word}{index < words.length - 1 ? ' ' : ''}
-            </span>
-          ))}
+        <div className="flex justify-center">
+          <div className="h-20 w-20 rounded-full bg-success/10 flex items-center justify-center">
+            <Sparkles className="h-10 w-10 text-success" />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold text-foreground">
+          🎉 Contracts Signed — You're All Set!
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          Perfect — compliance verified and contract copies stored securely.
         </p>
       </motion.div>
 
-      {/* Onboarding Checklist Prompt */}
+      {/* Primary CTAs */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.3 }}
-        className="rounded-lg border border-primary/20 bg-primary/5 p-4"
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="flex flex-col sm:flex-row gap-3"
       >
-        <p className="text-sm text-foreground mb-3">
-          💼 Shall I start their onboarding checklist now?
-        </p>
-        <div className="flex gap-2">
-          <Button size="sm" variant="default">Yes, Start Onboarding</Button>
-          <Button size="sm" variant="outline">Later</Button>
-        </div>
+        <Button
+          onClick={onStartOnboarding}
+          className="flex-1"
+          size="lg"
+        >
+          Start Onboarding
+        </Button>
+        <Button
+          onClick={onBackToDashboard}
+          variant="outline"
+          className="flex-1"
+          size="lg"
+        >
+          Back to Dashboard
+        </Button>
       </motion.div>
 
-      {/* Certificate cards with hover actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.3 }}
-      >
-        <h3 className="text-lg font-semibold text-foreground mb-4">Certificates of Contract</h3>
-        <div className="grid grid-cols-3 gap-4">
-          {candidates.map((candidate, index) => (
-            <CertificateCard
-              key={candidate.id}
-              candidate={candidate}
-              index={index}
-              onView={() => setSelectedCertificate(candidate)}
-              onGeneratePayslip={() => 
-                toast({ 
-                  title: "Payslip Generated", 
-                  description: `Payslip for ${candidate.name} is ready` 
-                })
-              }
-              onAttachPolicy={() => 
-                toast({ 
-                  title: "Policy Attached", 
-                  description: `Benefit policy attached to ${candidate.name}'s contract` 
-                })
-              }
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Action buttons */}
+      {/* Signed Contractors Badges */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.3 }}
-        className="flex gap-3"
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="space-y-3"
       >
-        <Button
-          onClick={() => {
-            setWelcomePacksSent(true);
-            onSendWelcomePacks();
-          }}
-          variant="outline"
-          className="flex-1"
-          disabled={welcomePacksSent}
-        >
-          <PackageOpen className="h-4 w-4 mr-2" />
-          {welcomePacksSent ? "Welcome Packs Sent" : "Send Welcome Packs"}
-        </Button>
-        <Button
-          onClick={() => {
-            setLogsSynced(true);
-            onSyncLogs();
-          }}
-          variant="outline"
-          className="flex-1"
-          disabled={logsSynced}
-        >
-          <FileCheck className="h-4 w-4 mr-2" />
-          {logsSynced ? "Logs Synced" : "Sync Logs"}
-        </Button>
-        <Button
-          onClick={onOpenDashboard}
-          className="flex-1 bg-gradient-to-r from-primary to-secondary"
-        >
-          <Home className="h-4 w-4 mr-2" />
-          Open Dashboard
-        </Button>
+        {candidates.map((candidate, index) => (
+          <motion.div
+            key={candidate.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 + index * 0.1 }}
+            className="flex items-center gap-3 p-4 rounded-lg border border-border bg-card/50"
+          >
+            <Avatar className="h-10 w-10 bg-primary/10">
+              <span className="text-lg">{candidate.flag}</span>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground">{candidate.name}</span>
+              </div>
+              <p className="text-sm text-muted-foreground">{candidate.role}</p>
+            </div>
+            <Badge variant="default" className="bg-success/10 text-success hover:bg-success/20">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Contract Signed
+            </Badge>
+          </motion.div>
+        ))}
       </motion.div>
-    </motion.div>
+
+      {/* Next Step Placeholder */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-12 p-6 rounded-lg bg-muted/30 border border-border"
+      >
+        <p className="text-sm text-muted-foreground text-center">
+          📌 Next workflow: Contractor Onboarding — My Checklist
+        </p>
+      </motion.div>
+    </div>
   );
 };
