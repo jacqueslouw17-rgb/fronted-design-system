@@ -49,10 +49,16 @@ const Dashboard = ({
   },
   onboardingHistory = []
 }: DashboardProps) => {
-  // Check URL params for role
+  // Check URL params for role and confetti
   const searchParams = new URLSearchParams(window.location.search);
   const urlRole = searchParams.get('role') as 'admin' | 'contractor' | 'employee' | null;
+  const shouldShowConfetti = searchParams.get('confetti') === 'true';
   const initialRole = urlRole || (userData.role as any) || 'admin';
+  
+  // Override userData if coming from contractor onboarding
+  const effectiveUserData = shouldShowConfetti && initialRole === 'contractor' 
+    ? { ...userData, firstName: "Marya", lastName: "Santos", email: "marya.santos@example.com" }
+    : userData;
   
   const [version, setVersion] = useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const [isAgentOpen, setIsAgentOpen] = useState(false);
@@ -77,39 +83,41 @@ const Dashboard = ({
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
   const { toast } = useToast();
   
-  // Confetti celebration on mount
+  // Confetti celebration on mount (conditionally based on URL param)
   useEffect(() => {
-    const duration = 3000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+    if (shouldShowConfetti) {
+      const duration = 3000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
 
-    const randomInRange = (min: number, max: number) => {
-      return Math.random() * (max - min) + min;
-    };
+      const randomInRange = (min: number, max: number) => {
+        return Math.random() * (max - min) + min;
+      };
 
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
 
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
 
-      const particleCount = 50 * (timeLeft / duration);
+        const particleCount = 50 * (timeLeft / duration);
 
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-      });
-    }, 250);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [shouldShowConfetti]);
   
   // When switching to v2, auto-open the agent
   useEffect(() => {
@@ -260,7 +268,7 @@ const Dashboard = ({
             <AgentDrawer
               isOpen={isV1AgentOpen}
               onClose={() => setIsAgentOpen(false)}
-              userData={userData}
+              userData={effectiveUserData}
               chatHistory={onboardingHistory}
             />
           </div>
@@ -271,7 +279,7 @@ const Dashboard = ({
           // V4 Layout: Payroll Demo - Dashboard left, Gelo right
           <div className="flex-1 flex flex-col min-w-0">
             <Topbar 
-              userName={`${userData.firstName} ${userData.lastName}`}
+              userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
               version={version}
               onVersionChange={(v) => setVersion(v)}
             />
@@ -292,7 +300,7 @@ const Dashboard = ({
                     <div className="relative z-10 flex flex-col items-center space-y-4">
                       <AudioWaveVisualizer isActive={false} />
                       <div className="text-center space-y-2">
-                        <h2 className="text-3xl font-bold text-foreground">Hi {userData.firstName}, what would you like to know?</h2>
+                        <h2 className="text-3xl font-bold text-foreground">Hi {effectiveUserData.firstName}, what would you like to know?</h2>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
                           {v4Message.split(' ').map((word, index) => (
                             <span
@@ -664,7 +672,7 @@ const Dashboard = ({
           <>
             <div className="flex-1 flex flex-col min-w-0">
               <Topbar 
-                userName={`${userData.firstName} ${userData.lastName}`}
+                userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
                 version={version}
                 onVersionChange={(v) => setVersion(v)}
                 isDrawerOpen={isDrawerOpen}
@@ -673,7 +681,7 @@ const Dashboard = ({
               
               <main className="flex-1 flex overflow-hidden">
                 {/* Dashboard Drawer */}
-                <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+                <DashboardDrawer isOpen={isDrawerOpen} userData={effectiveUserData} />
                 
                 {/* Agent Main Area */}
                 <AnimatePresence mode="wait">
@@ -694,7 +702,7 @@ const Dashboard = ({
                   ) : (
                     <AgentMain 
                       key="agent"
-                      userData={userData} 
+                      userData={effectiveUserData} 
                       isDrawerOpen={isDrawerOpen} 
                     />
                   )}
@@ -706,7 +714,7 @@ const Dashboard = ({
           // V1 & V2 Layout (existing)
           <div className="flex-1 flex flex-col min-w-0">
             <Topbar 
-              userName={`${userData.firstName} ${userData.lastName}`}
+              userName={`${effectiveUserData.firstName} ${effectiveUserData.lastName}`}
               version={version}
               onVersionChange={(v) => setVersion(v)}
               isAgentOpen={isAgentOpen}
@@ -714,7 +722,7 @@ const Dashboard = ({
             />
 
             <main className="flex-1 p-6 overflow-y-auto">
-              <WidgetGrid userData={userData} />
+              <WidgetGrid userData={effectiveUserData} />
             </main>
           </div>
         )}
@@ -725,7 +733,7 @@ const Dashboard = ({
             <AgentDrawer
               isOpen={isV2AgentOpen}
               onClose={() => setIsAgentOpen(false)}
-              userData={userData}
+              userData={effectiveUserData}
               chatHistory={onboardingHistory}
             />
           </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFlowState } from "@/hooks/useFlowState";
 import { toast } from "@/hooks/use-toast";
@@ -32,7 +32,6 @@ const CandidateOnboarding = () => {
   const [expandedStep, setExpandedStep] = useState<string | null>("personal_details");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Prefill demo data
@@ -87,30 +86,21 @@ const CandidateOnboarding = () => {
       await new Promise(resolve => setTimeout(resolve, 400));
       setIsLoadingFields(false);
     } else {
-      // All steps complete - show success
-      setShowSuccess(true);
-      
-      // Confetti animation
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
+      // All steps complete - navigate directly to dashboard with contractor role
       toast({
         title: "Onboarding Complete!",
         description: "Thank you! We're preparing your contract now.",
       });
 
-      // Redirect after delay
+      // Redirect immediately to dashboard with contractor role and trigger confetti
       setTimeout(() => {
         if (isDemoMode) {
           navigate('/flows');
         } else {
-          // In production, redirect to dashboard
-          navigate('/dashboard');
+          // Navigate to dashboard with contractor role and confetti trigger
+          navigate('/dashboard?role=contractor&confetti=true');
         }
-      }, 3000);
+      }, 800);
     }
   };
 
@@ -130,26 +120,6 @@ const CandidateOnboarding = () => {
     }
   };
 
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-6 animate-scale-in">
-          <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold">All Set!</h1>
-            <p className="text-muted-foreground">
-              Thanks! We're preparing your contract. You'll receive an email shortly to review and sign.
-            </p>
-          </div>
-          <Button size="lg" onClick={() => navigate('/')}>
-            Back to Overview
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
