@@ -761,7 +761,7 @@ const AdminOnboarding = () => {
         }}
       >
         {/* Header with Animation */}
-        <div className="text-center space-y-6 mb-8">
+        <div className="text-center space-y-2 mb-8">
           {/* Decorative animated bars */}
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
@@ -777,7 +777,7 @@ const AdminOnboarding = () => {
           </h1>
           
           {/* Subtext with reading overlay */}
-          <p className="text-foreground/60 relative max-w-2xl mx-auto mt-2">
+          <p className="text-foreground/60 relative max-w-2xl mx-auto">
             {welcomeMessage.split(' ').map((word, index) => (
               <span
                 key={index}
