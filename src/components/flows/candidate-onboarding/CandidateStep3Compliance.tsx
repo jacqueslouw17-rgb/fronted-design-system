@@ -3,8 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, FileText, X } from "lucide-react";
 
 interface Step3Props {
   formData: Record<string, any>;
@@ -19,8 +18,7 @@ const CandidateStep3Compliance = ({
   isProcessing = false, 
   isLoadingFields = false 
 }: Step3Props) => {
-  // For demo, we'll use employment type and country from formData
-  const employmentType = formData.employmentType || "contractor"; // contractor or employee
+  const isContractor = formData.employmentType === "contractor";
   const country = formData.country || "PH"; // PH, NO, XK
   
   const [data, setData] = useState({
@@ -32,11 +30,9 @@ const CandidateStep3Compliance = ({
     personnummer: formData.personnummer || "",
     bankIBAN: formData.bankIBAN || "",
     idCardFile: formData.idCardFile || null,
-    startDate: formData.startDate || "",
   });
 
   const [fileName, setFileName] = useState<string>("");
-  const [dateWarning, setDateWarning] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -55,32 +51,15 @@ const CandidateStep3Compliance = ({
     setData({ ...data, [fieldName]: null });
   };
 
-  const handleStartDateChange = (value: string) => {
-    setData({ ...data, startDate: value });
-    
-    // Check for date validation issues
-    const selectedDate = new Date(value);
-    const today = new Date();
-    const diffDays = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 3600 * 24));
-    
-    if (diffDays > 30) {
-      setDateWarning("The start date appears to be more than 30 days in the past. Please verify this is correct.");
-    } else {
-      setDateWarning(null);
-    }
-  };
-
   const handleContinue = () => {
     onComplete("compliance_docs", data);
   };
 
   // Validate based on employment type and country
   const isValid = () => {
-    if (!data.startDate) return false;
-    
-    if (employmentType === "contractor" && country === "PH") {
+    if (isContractor && country === "PH") {
       return data.nationalIdFile && data.tinNumber;
-    } else if (employmentType === "employee" && country === "PH") {
+    } else if (!isContractor && country === "PH") {
       return data.sssNumber && data.philHealthNumber && data.pagIbigNumber;
     } else if (country === "NO") {
       return data.personnummer && data.bankIBAN;
@@ -92,7 +71,7 @@ const CandidateStep3Compliance = ({
 
   const renderFields = () => {
     // Contractor PH
-    if (employmentType === "contractor" && country === "PH") {
+    if (isContractor && country === "PH") {
       return (
         <>
           <div className="space-y-2">
@@ -150,7 +129,7 @@ const CandidateStep3Compliance = ({
     }
     
     // Employee PH
-    if (employmentType === "employee" && country === "PH") {
+    if (!isContractor && country === "PH") {
       return (
         <>
           <div className="space-y-2">
@@ -267,9 +246,9 @@ const CandidateStep3Compliance = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Compliance Documents</h3>
+        <h3 className="text-xl font-semibold">Compliance Requirements</h3>
         <p className="text-sm text-muted-foreground">
-          Based on your employment type and location, we need the following information.
+          Required documents for legal compliance in {country === "PH" ? "Philippines" : country === "NO" ? "Norway" : "Kosovo"}
         </p>
       </div>
 
@@ -282,23 +261,6 @@ const CandidateStep3Compliance = ({
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date *</Label>
-            <Input
-              id="startDate"
-              type="date"
-              value={data.startDate}
-              onChange={(e) => handleStartDateChange(e.target.value)}
-            />
-          </div>
-
-          {dateWarning && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{dateWarning}</AlertDescription>
-            </Alert>
-          )}
-
           {renderFields()}
         </div>
       )}
