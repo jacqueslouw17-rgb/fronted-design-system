@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { CheckCircle2 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
-import KurtAvatar from "@/components/KurtAvatar";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -20,21 +20,10 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="text-center space-y-4"
+        className="text-center space-y-6"
       >
         <div className="flex justify-center">
-          <motion.div
-            animate={{ 
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <KurtAvatar size="default" />
-          </motion.div>
+          <AudioWaveVisualizer isActive={true} />
         </div>
         <h1 className="text-4xl font-bold text-foreground">
           🎉 Contracts Signed — You're All Set!
