@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Sparkles, AlertCircle } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { PipelineView } from "./PipelineView";
+import { GenieInteractionBar } from "./GenieInteractionBar";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -104,13 +107,44 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     }
   };
 
+  // Mock data for pipeline view
+  const mockContractors = [
+    {
+      id: "1",
+      name: candidate.name,
+      country: candidate.country,
+      countryFlag: candidate.flag,
+      role: candidate.role,
+      salary: candidate.salary,
+      status: "drafting" as const,
+    },
+    {
+      id: "2",
+      name: "Maria Santos",
+      country: "Philippines",
+      countryFlag: "🇵🇭",
+      role: "Backend Developer",
+      salary: "$4,500/mo",
+      status: "data-pending" as const,
+    },
+    {
+      id: "3",
+      name: "Liam Chen",
+      country: "Singapore",
+      countryFlag: "🇸🇬",
+      role: "Product Designer",
+      salary: "$6,200/mo",
+      status: "awaiting-signature" as const,
+    },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="p-8 max-w-6xl mx-auto space-y-6"
+      className="p-8 max-w-7xl mx-auto space-y-6"
     >
-      {/* Audio Wave Visualizer */}
+      {/* Audio Wave Visualizer - Centered */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -123,37 +157,33 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         />
       </motion.div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-4xl">{candidate.flag}</span>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-foreground">Contract Creation</h1>
-              <Badge variant={employmentType === "employee" ? "default" : "secondary"} className="text-sm">
-                {employmentType === "employee" ? "Employee" : "Contractor"}
-              </Badge>
-            </div>
-            <p className="text-foreground/60 relative">
-              {subtextWords.map((word, index) => (
-                <span
-                  key={index}
-                  className={`transition-colors duration-200 ${
-                    isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                  }`}
-                >
-                  {word}{" "}
-                </span>
-              ))}
-            </p>
-          </div>
-        </div>
-        {totalCandidates > 1 && (
-          <Badge variant="outline" className="text-sm">
-            Candidate {currentIndex + 1} of {totalCandidates}
-          </Badge>
-        )}
+      {/* Header - Centered */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-foreground">Contract Drafting in Progress</h1>
+        <p className="text-foreground/60 relative max-w-2xl mx-auto">
+          {subtextWords.map((word, index) => (
+            <span
+              key={index}
+              className={`transition-colors duration-200 ${
+                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+              }`}
+            >
+              {word}{" "}
+            </span>
+          ))}
+        </p>
       </div>
+
+      {/* Tabs for List/Pipeline View */}
+      <Tabs defaultValue="pipeline" className="w-full">
+        <TabsList className="grid w-64 mx-auto grid-cols-2">
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="mt-6">
+          {/* Original Form View */}
+          <div className="space-y-6">{/* ... keep existing code */}
 
       {/* Genie Message */}
       <motion.div
@@ -315,15 +345,50 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         </div>
       </Card>
 
-      {/* Navigation */}
-      <div className="flex justify-end gap-3">
-        <Button onClick={handleNext} size="lg" className="gap-2">
-          <Sparkles className="h-5 w-5" />
-          {currentIndex + 1 === totalCandidates 
-            ? "Next: Review Contract Bundle" 
-            : "Review Next Candidate"}
-        </Button>
-      </div>
+          {/* Navigation */}
+          <div className="flex justify-end gap-3">
+            <Button onClick={handleNext} size="lg" className="gap-2">
+              <Sparkles className="h-5 w-5" />
+              {currentIndex + 1 === totalCandidates 
+                ? "Next: Review Contract Bundle" 
+                : "Review Next Candidate"}
+            </Button>
+          </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pipeline" className="mt-6 space-y-6">
+          {/* Genie Interaction */}
+          <GenieInteractionBar
+            message="Track all candidates through the contract lifecycle. Cards auto-update as each stage progresses."
+            actions={[
+              {
+                label: "Yes, Start Onboarding",
+                onClick: () => {
+                  toast.success("Starting onboarding checklist for Maria Santos");
+                },
+              },
+              {
+                label: "Later",
+                onClick: () => {
+                  toast.info("You can start onboarding anytime from the dashboard");
+                },
+              },
+            ]}
+          />
+
+          {/* Pipeline View */}
+          <PipelineView contractors={mockContractors} />
+
+          {/* Action Button */}
+          <div className="flex justify-center pt-4">
+            <Button onClick={handleNext} size="lg" className="gap-2">
+              <Sparkles className="h-5 w-5" />
+              Continue to Bundle Review
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 };

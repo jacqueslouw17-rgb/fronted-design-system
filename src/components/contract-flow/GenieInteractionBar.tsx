@@ -23,7 +23,7 @@ export const GenieInteractionBar: React.FC<GenieInteractionBarProps> = ({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
+      className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 max-w-3xl mx-auto"
     >
       <div className="flex items-start gap-3">
         <Bot className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
@@ -35,12 +35,11 @@ export const GenieInteractionBar: React.FC<GenieInteractionBarProps> = ({
               {actions.map((action, index) => (
                 <Button
                   key={index}
-                  variant="outline"
+                  variant={index === 0 ? "default" : "outline"}
                   size="sm"
                   onClick={action.onClick}
                   className="gap-2"
                 >
-                  {action.icon}
                   {action.label}
                 </Button>
               ))}
