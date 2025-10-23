@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mic, Send } from "lucide-react";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { toast } from "sonner";
+import { useRoleLens } from "@/contexts/RoleLensContext";
 
 interface AgentMainProps {
   userData: any;
@@ -13,9 +14,14 @@ interface AgentMainProps {
 }
 
 const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
+  const { currentLens } = useRoleLens();
   const [inputValue, setInputValue] = useState("");
   const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError } = useSpeechToText();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Check if this is a contractor who just completed onboarding
+  const isContractor = currentLens.role === 'contractor';
+  const candidateName = isContractor ? userData.firstName : userData.firstName;
 
   // Update textarea with transcript as user speaks
   useEffect(() => {
@@ -70,10 +76,13 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           {/* Title */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground">
-              Hi {userData.firstName}, what would you like to know?
+              {isContractor ? `Welcome aboard, ${candidateName}! 🎉` : `Hi ${userData.firstName}, what would you like to know?`}
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Ask me anything or use voice input to get started
+              {isContractor 
+                ? "We're preparing your contract. You'll receive an email shortly to review and sign."
+                : "Ask me anything or use voice input to get started"
+              }
             </p>
           </div>
         </motion.div>

@@ -42,8 +42,8 @@ export default function CandidateOnboardingFlow() {
   
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
   const [formData, setFormData] = useState<FormData>({
-    fullName: "Maria Santos",
-    email: "maria.santos@example.com",
+    fullName: "Marya Santos",
+    email: "marya.santos@example.com",
     phone: "",
     address: "",
     city: "",
@@ -61,7 +61,7 @@ export default function CandidateOnboardingFlow() {
   });
   const [agreed, setAgreed] = useState(false);
 
-  const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "bank", "emergency", "review", "complete"];
+  const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "bank", "emergency", "review"];
   const currentStepIndex = steps.indexOf(currentStep);
   const progressPercent = ((currentStepIndex) / (steps.length - 1)) * 100;
 
@@ -84,8 +84,6 @@ export default function CandidateOnboardingFlow() {
   };
 
   const handleSubmit = () => {
-    setCurrentStep("complete");
-    
     // Confetti celebration
     confetti({
       particleCount: 100,
@@ -99,9 +97,12 @@ export default function CandidateOnboardingFlow() {
     });
 
     // Simulate backend update
+    console.log("Candidate onboarding complete:", candidateId, formData);
+    
+    // Navigate directly to dashboard as contractor
     setTimeout(() => {
-      console.log("Candidate onboarding complete:", candidateId, formData);
-    }, 500);
+      navigate("/dashboard?role=contractor");
+    }, 1000);
   };
 
   const renderGenieTip = (message: string) => (
@@ -158,49 +159,6 @@ export default function CandidateOnboardingFlow() {
     );
   }
 
-  // Complete Screen
-  if (currentStep === "complete") {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="max-w-2xl w-full text-center space-y-8"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            >
-              <CheckCircle2 className="h-24 w-24 text-success mx-auto" />
-            </motion.div>
-            
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold">
-                All Set! ✨
-              </h1>
-              <p className="text-xl text-foreground/70">
-                Your details have been securely sent to Fronted
-              </p>
-            </div>
-
-            {renderGenieTip("Your information is now being processed. You'll receive your contract documents shortly!")}
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="outline" onClick={() => navigate("/")}>
-                Return to Dashboard
-              </Button>
-              <Button onClick={() => navigate("/")}>
-                Track Contract Status
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   // Form Steps
   return (
