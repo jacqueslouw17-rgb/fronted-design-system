@@ -10,10 +10,6 @@ interface NavSidebarProps {
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: DollarSign, label: "Payroll", active: false },
-  { icon: FileCheck, label: "Compliance", active: false },
-  { icon: Headphones, label: "Support", active: false },
-  { icon: Settings, label: "Settings", active: false },
 ];
 
 const NavSidebar = ({ onGenieToggle, isGenieOpen, disabled }: NavSidebarProps) => {

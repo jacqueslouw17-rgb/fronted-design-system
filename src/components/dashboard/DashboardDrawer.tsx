@@ -62,58 +62,6 @@ const DashboardDrawer = ({ isOpen, userData }: DashboardDrawerProps) => {
         icon: Clock,
       },
     ],
-    hr: [
-      {
-        title: "Onboarding Queue",
-        value: "5",
-        trend: "+2 this week",
-        icon: Users,
-      },
-      {
-        title: "Pending Contracts",
-        value: "8",
-        trend: "3 need review",
-        icon: FileCheck,
-      },
-      {
-        title: "Policy Updates",
-        value: "2",
-        trend: "Requires approval",
-        icon: AlertCircle,
-      },
-      {
-        title: "Support Tickets",
-        value: "12",
-        trend: "4 unresolved",
-        icon: Clock,
-      },
-    ],
-    cfo: [
-      {
-        title: "Monthly Payroll",
-        value: "$145,000",
-        trend: "+8%",
-        icon: DollarSign,
-      },
-      {
-        title: "FX Impact",
-        value: "$2,340",
-        trend: "Savings this month",
-        icon: TrendingUp,
-      },
-      {
-        title: "Trust Index",
-        value: "87",
-        trend: "+5 pts",
-        icon: FileCheck,
-      },
-      {
-        title: "Pending Approvals",
-        value: "3",
-        trend: "Awaiting review",
-        icon: AlertCircle,
-      },
-    ],
     contractor: [
       {
         title: "Next Payroll",
@@ -132,6 +80,26 @@ const DashboardDrawer = ({ isOpen, userData }: DashboardDrawerProps) => {
         value: "0",
         trend: "All resolved",
         icon: AlertCircle,
+      },
+    ],
+    employee: [
+      {
+        title: "Next Payroll",
+        value: "5 days",
+        trend: "On track",
+        icon: DollarSign,
+      },
+      {
+        title: "Time Off Balance",
+        value: "12 days",
+        trend: "Available",
+        icon: Clock,
+      },
+      {
+        title: "Benefits Status",
+        value: "Active",
+        trend: "All enrolled",
+        icon: FileCheck,
       },
     ],
   };

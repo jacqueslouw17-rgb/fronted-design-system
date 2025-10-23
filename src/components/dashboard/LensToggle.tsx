@@ -15,9 +15,8 @@ const LensToggle = () => {
 
   const roles: { value: UserRole; label: string; icon: typeof Shield; description: string }[] = [
     { value: 'admin', label: 'Admin', icon: Shield, description: 'Global overview & controls' },
-    { value: 'hr', label: 'HR Lead', icon: Users, description: 'Onboarding & contracts' },
-    { value: 'cfo', label: 'CFO', icon: DollarSign, description: 'Finance & approvals' },
     { value: 'contractor', label: 'Contractor', icon: User, description: 'Self-service portal' },
+    { value: 'employee', label: 'Employee', icon: Users, description: 'Payroll & benefits' },
   ];
 
   return (

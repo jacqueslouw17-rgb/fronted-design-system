@@ -1,4 +1,5 @@
 import DashboardWidget from "./DashboardWidget";
+import ContractProgressCard from "./ContractProgressCard";
 import { DollarSign, Users, FileCheck, TrendingUp, Clock, AlertCircle } from "lucide-react";
 import { useRoleLens } from "@/contexts/RoleLensContext";
 import { motion } from "framer-motion";
@@ -50,58 +51,6 @@ const WidgetGrid = ({ userData }: WidgetGridProps) => {
         icon: Clock,
       },
     ],
-    hr: [
-      {
-        title: "Onboarding Queue",
-        value: "5",
-        trend: "+2 this week",
-        icon: Users,
-      },
-      {
-        title: "Pending Contracts",
-        value: "8",
-        trend: "3 need review",
-        icon: FileCheck,
-      },
-      {
-        title: "Policy Updates",
-        value: "2",
-        trend: "Requires approval",
-        icon: AlertCircle,
-      },
-      {
-        title: "Support Tickets",
-        value: "12",
-        trend: "4 unresolved",
-        icon: Clock,
-      },
-    ],
-    cfo: [
-      {
-        title: "Monthly Payroll",
-        value: "$145,000",
-        trend: "+8%",
-        icon: DollarSign,
-      },
-      {
-        title: "FX Impact",
-        value: "$2,340",
-        trend: "Savings this month",
-        icon: TrendingUp,
-      },
-      {
-        title: "Trust Index",
-        value: "87",
-        trend: "+5 pts",
-        icon: FileCheck,
-      },
-      {
-        title: "Pending Approvals",
-        value: "3",
-        trend: "Awaiting review",
-        icon: AlertCircle,
-      },
-    ],
     contractor: [
       {
         title: "Next Payroll",
@@ -122,15 +71,34 @@ const WidgetGrid = ({ userData }: WidgetGridProps) => {
         icon: AlertCircle,
       },
     ],
+    employee: [
+      {
+        title: "Next Payroll",
+        value: "5 days",
+        trend: "On track",
+        icon: DollarSign,
+      },
+      {
+        title: "Time Off Balance",
+        value: "12 days",
+        trend: "Available",
+        icon: Clock,
+      },
+      {
+        title: "Benefits Status",
+        value: "Active",
+        trend: "All enrolled",
+        icon: FileCheck,
+      },
+    ],
   };
 
   const widgets = allWidgets[currentLens.role];
 
   const greetings = {
     admin: "Here's your organization overview today.",
-    hr: "Here's your onboarding and contracts overview.",
-    cfo: "Here's your financial overview today.",
     contractor: "Here's your account status.",
+    employee: "Here's your dashboard overview.",
   };
 
   return (
@@ -153,6 +121,21 @@ const WidgetGrid = ({ userData }: WidgetGridProps) => {
 
       {/* Widget Grid - Responsive: stacks on small, 2 cols on md, 3 cols on lg+ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {/* Show Contract Progress Card for contractor/employee */}
+        {(currentLens.role === 'contractor' || currentLens.role === 'employee') && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="sm:col-span-2"
+          >
+            <ContractProgressCard 
+              candidateName={userData.firstName}
+              onSendMessage={(msg) => console.log('Message:', msg)}
+            />
+          </motion.div>
+        )}
+        
         {widgets.map((widget, idx) => (
           <motion.div
             key={`${currentLens.role}-${idx}`}

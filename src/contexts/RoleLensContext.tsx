@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-export type UserRole = 'admin' | 'hr' | 'cfo' | 'contractor';
+export type UserRole = 'admin' | 'contractor' | 'employee';
 
 export interface RoleLensConfig {
   role: UserRole;
@@ -28,35 +28,23 @@ const roleLensConfigs: Record<UserRole, RoleLensConfig> = {
       canManageUsers: true,
     },
   },
-  hr: {
-    role: 'hr',
-    tone: 'Warm, supportive',
-    uiFocus: 'Onboarding, contracts',
-    defaultWidgets: ['onboarding-steps', 'policy-rules', 'pending-contracts', 'support-tickets'],
-    permissions: {
-      canApprovePayroll: false,
-      canEditContracts: true,
-      canViewAnalytics: false,
-      canManageUsers: true,
-    },
-  },
-  cfo: {
-    role: 'cfo',
-    tone: 'Concise, analytical',
-    uiFocus: 'Costs, FX, approvals',
-    defaultWidgets: ['trust-gauge', 'fx-breakdown', 'monthly-payroll', 'compliance-score'],
-    permissions: {
-      canApprovePayroll: true,
-      canEditContracts: false,
-      canViewAnalytics: true,
-      canManageUsers: false,
-    },
-  },
   contractor: {
     role: 'contractor',
     tone: 'Friendly, reassuring',
     uiFocus: 'Self-service, payout status',
     defaultWidgets: ['next-payroll', 'contract-status', 'support-tickets'],
+    permissions: {
+      canApprovePayroll: false,
+      canEditContracts: false,
+      canViewAnalytics: false,
+      canManageUsers: false,
+    },
+  },
+  employee: {
+    role: 'employee',
+    tone: 'Warm, supportive',
+    uiFocus: 'Payroll, benefits, time off',
+    defaultWidgets: ['next-payroll', 'contract-status', 'benefits-summary', 'time-off-balance'],
     permissions: {
       canApprovePayroll: false,
       canEditContracts: false,
