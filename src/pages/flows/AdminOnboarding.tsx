@@ -777,7 +777,7 @@ const AdminOnboarding = () => {
           </h1>
           
           {/* Subtext with reading overlay */}
-          <p className="text-foreground/60 relative max-w-2xl mx-auto">
+          <p className="text-foreground/60 relative max-w-2xl mx-auto mt-2">
             {welcomeMessage.split(' ').map((word, index) => (
               <span
                 key={index}
