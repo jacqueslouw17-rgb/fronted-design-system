@@ -9,6 +9,7 @@ import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import ContractProgressCard from "@/components/dashboard/ContractProgressCard";
 import { CheckCircle2, TrendingUp, Activity, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -687,11 +688,20 @@ const Dashboard = ({
                       </div>
                     </motion.div>
                   ) : (
-                    <AgentMain 
-                      key="agent"
-                      userData={userData} 
-                      isDrawerOpen={isDrawerOpen} 
-                    />
+                    <div key="agent-with-status" className="flex-1 flex flex-col overflow-auto">
+                      <AgentMain 
+                        userData={userData} 
+                        isDrawerOpen={isDrawerOpen} 
+                      />
+                      <div className="w-full border-t border-border/50 bg-background/80">
+                        <div className="max-w-3xl mx-auto p-6">
+                          <ContractProgressCard 
+                            candidateName={userData.firstName}
+                            showCompletion
+                          />
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </AnimatePresence>
               </main>
