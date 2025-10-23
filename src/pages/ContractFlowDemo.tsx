@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock } from "lucide-react";
+import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -364,8 +364,25 @@ const ContractFlowDemo = () => {
                   />
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
-                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-4xl space-y-8">
+                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full p-8">
+                  <div className="w-full max-w-4xl mx-auto space-y-8">
+                    {/* Back Button */}
+                    <div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="gap-2"
+                        onClick={() => {
+                          // Navigate back to contract creation
+                          const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
+                          navigate(`/flows/contract-creation?ids=${ids}`);
+                        }}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                    </div>
+
                     {/* Audio Wave Visualizer - Centered */}
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
