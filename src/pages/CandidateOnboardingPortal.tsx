@@ -50,7 +50,8 @@ const CandidateOnboardingPortal = () => {
       setIsLoading(false);
     };
 
-    if (token) {
+    // Allow demo mode without token
+    if (token || window.location.pathname.includes('demo')) {
       validateToken();
     } else {
       toast.error("Invalid onboarding link");

@@ -81,6 +81,7 @@ const App = () => (
         <Route path="/flows" element={<Flows />} />
           <Route path="/flows/admin/onboarding" element={<AdminOnboarding />} />
           <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
+          <Route path="/flows/candidate-portal-demo" element={<CandidateOnboardingPortal />} />
           <Route path="/portal/onboarding/:token" element={<CandidateOnboardingPortal />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />

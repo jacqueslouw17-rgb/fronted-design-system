@@ -186,10 +186,18 @@ const Flows = () => {
     {
       id: "f2-shortlist-to-contract",
       title: "Flow 2 — Hiring and Contract",
-      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
+      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow. Admin view with candidate dashboard in the Candidates tab.",
       steps: 6,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
       path: "/flows/contract-flow"
+    },
+    {
+      id: "f2-candidate-portal",
+      title: "Flow 2.1 — Candidate Onboarding Portal",
+      description: "Candidate-facing onboarding experience: progressive stepper for personal details, tax info, bank details, and compliance documents. Triggered automatically when admin flow detects hired candidates.",
+      steps: 7,
+      patterns: ["step-card-progress", "narrated-insight", "smart-approval"],
+      path: "/flows/candidate-portal-demo"
     }
   ];
 
