@@ -26,31 +26,33 @@ const CandidateStep6Review = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
       <div className="space-y-2">
         <h3 className="text-xl font-semibold">Review & Submit</h3>
         <p className="text-sm text-muted-foreground">
-          Please review your information before submitting. You can go back to edit any section if needed.
+          Please review your information before submitting. You can expand each section to verify details.
         </p>
       </div>
 
       {isLoadingFields ? (
-        <div className="space-y-4">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
       ) : (
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="welcome">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <User className="h-4 w-4 text-primary" />
-                <span className="font-medium">Welcome & Consent</span>
+        <Accordion type="single" collapsible className="w-full space-y-2">
+          <AccordionItem value="welcome" className="border rounded-lg bg-card/30 px-4">
+            <AccordionTrigger className="hover:no-underline py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Welcome & Consent</span>
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-2 text-sm pt-2">
+              <div className="space-y-2 text-sm pt-1 pb-3 px-1">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Full Name:</span>
                   <span className="font-medium">{formData.fullName}</span>
@@ -59,23 +61,25 @@ const CandidateStep6Review = ({
                   <span className="text-muted-foreground">Email:</span>
                   <span className="font-medium">{formData.email}</span>
                 </div>
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>GDPR Consent Accepted</span>
+                <div className="flex items-center gap-2 text-primary">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span className="text-xs">GDPR Consent Accepted</span>
                 </div>
               </div>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="personal">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <FileText className="h-4 w-4 text-primary" />
-                <span className="font-medium">Personal & Identity</span>
+          <AccordionItem value="personal" className="border rounded-lg bg-card/30 px-4">
+            <AccordionTrigger className="hover:no-underline py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <FileText className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Personal & Identity</span>
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-2 text-sm pt-2">
+              <div className="space-y-2 text-sm pt-1 pb-3 px-1">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Date of Birth:</span>
                   <span className="font-medium">{formData.dateOfBirth}</span>
@@ -88,23 +92,25 @@ const CandidateStep6Review = ({
                   <span className="text-muted-foreground">National ID:</span>
                   <span className="font-medium">{formData.nationalId}</span>
                 </div>
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>ID Document Uploaded</span>
+                <div className="flex items-center gap-2 text-primary">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span className="text-xs">ID Document Uploaded</span>
                 </div>
               </div>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="tax">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <FileText className="h-4 w-4 text-primary" />
-                <span className="font-medium">Tax Residency</span>
+          <AccordionItem value="tax" className="border rounded-lg bg-card/30 px-4">
+            <AccordionTrigger className="hover:no-underline py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <FileText className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Tax Residency</span>
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-2 text-sm pt-2">
+              <div className="space-y-2 text-sm pt-1 pb-3 px-1">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax Country:</span>
                   <span className="font-medium">{formData.taxCountry}</span>
@@ -117,15 +123,17 @@ const CandidateStep6Review = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="bank">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <CreditCard className="h-4 w-4 text-primary" />
-                <span className="font-medium">Bank Details</span>
+          <AccordionItem value="bank" className="border rounded-lg bg-card/30 px-4">
+            <AccordionTrigger className="hover:no-underline py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <CreditCard className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Bank Details</span>
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-2 text-sm pt-2">
+              <div className="space-y-2 text-sm pt-1 pb-3 px-1">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Account Holder:</span>
                   <span className="font-medium">{formData.accountHolder}</span>
@@ -143,15 +151,17 @@ const CandidateStep6Review = ({
           </AccordionItem>
 
           {formData.emergencyName && (
-            <AccordionItem value="emergency">
-              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-primary" />
-                  <span className="font-medium">Emergency Contact</span>
+            <AccordionItem value="emergency" className="border rounded-lg bg-card/30 px-4">
+              <AccordionTrigger className="hover:no-underline py-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-md bg-primary/10">
+                    <Phone className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="text-sm font-medium">Emergency Contact</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-2 text-sm pt-2">
+                <div className="space-y-2 text-sm pt-1 pb-3 px-1">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Name:</span>
                     <span className="font-medium">{formData.emergencyName}</span>
