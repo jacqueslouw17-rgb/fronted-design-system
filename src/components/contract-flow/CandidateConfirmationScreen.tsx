@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Bot, Sparkles } from "lucide-react";
@@ -31,6 +31,20 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [validatingCandidateId, setValidatingCandidateId] = useState<string | null>(null);
+  const [hasAutoStarted, setHasAutoStarted] = useState(false);
+
+  // Auto-start Maria Santos status progression on mount
+  useEffect(() => {
+    if (!hasAutoStarted && candidates.length > 0) {
+      setHasAutoStarted(true);
+      const mariaId = "1"; // Maria Santos
+      
+      // Start the automatic progression after a brief delay
+      setTimeout(() => {
+        handleSendForm(mariaId);
+      }, 1000);
+    }
+  }, [hasAutoStarted, candidates.length]);
 
   // Convert Candidate to OnboardingCandidate format
   const getOnboardingCandidate = (candidate: Candidate): OnboardingCandidate => {
@@ -54,10 +68,10 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   };
 
   const handleSendForm = (candidateId: string) => {
-    // Special demo flow for Oskar (id "2") - auto-progress through statuses
-    const isOskar = candidateId === "2";
+    // Special demo flow for Maria Santos (id "1") - auto-progress through statuses
+    const isMaria = candidateId === "1";
     
-    if (isOskar) {
+    if (isMaria) {
       // Step 1: Form sent
       setCandidateDataStatus((prev) =>
         prev.map((status) =>
@@ -67,7 +81,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
         )
       );
 
-      toast.success("Form sent to Oskar. Watch the status change...", {
+      toast.success("Form sent to Maria Santos. Watch the status change...", {
         duration: 2000,
         icon: "📧",
       });
@@ -81,7 +95,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
               : status
           )
         );
-        toast.info("Oskar viewed the form", {
+        toast.info("Maria viewed the form", {
           duration: 2000,
           icon: "👀",
         });
@@ -97,7 +111,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           )
         );
         setValidatingCandidateId(candidateId);
-        toast.info("Oskar submitted the form. Validating...", {
+        toast.info("Maria submitted the form. Validating...", {
           duration: 2000,
           icon: "✍️",
         });
@@ -126,7 +140,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
           return updated;
         });
         setValidatingCandidateId(null);
-        toast.success("Oskar's data validated successfully!", {
+        toast.success("Maria's data validated successfully!", {
           duration: 2000,
           icon: "✅",
         });
