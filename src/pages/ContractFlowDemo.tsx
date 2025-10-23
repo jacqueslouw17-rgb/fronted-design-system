@@ -25,6 +25,7 @@ import NavSidebar from "@/components/dashboard/NavSidebar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { useNavigate } from "react-router-dom";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -37,6 +38,7 @@ const ContractFlowDemo = () => {
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
   const [isSpeaking, setIsSpeaking] = React.useState(false);
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
 
   const userData = {
     firstName: "Joe",
@@ -329,9 +331,9 @@ const ContractFlowDemo = () => {
                               dataReceived: index === 0,
                             }))}
                             onDraftContract={(ids) => {
-                              // Navigate to contract creation for selected contractors
-                              console.log("Draft contract clicked, calling prepareDrafts");
-                              contractFlow.prepareDrafts();
+                              // Navigate to dedicated contract creation page with selected ids
+                              const params = new URLSearchParams({ ids: ids.join(',') }).toString();
+                              navigate(`/flows/contract-creation?${params}`);
                             }}
                           />
                         </TabsContent>

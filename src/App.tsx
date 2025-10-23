@@ -16,6 +16,7 @@ import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
 import DashboardAdmin from "./pages/flows/DashboardAdmin";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
+import ContractCreation from "./pages/ContractCreation";
 import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -87,6 +88,7 @@ const App = () => (
         <Route path="/flows/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
+        <Route path="/flows/contract-creation" element={<ContractCreation />} />
         <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
         <Route path="/candidate-onboarding/:candidateId?" element={<CandidateOnboardingFlow />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
