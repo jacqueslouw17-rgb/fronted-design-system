@@ -123,7 +123,11 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
       >
 
         {/* Candidate cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={`grid gap-4 ${
+          candidates.length === 2 
+            ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' 
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        }`}>
           {candidates.map((candidate, index) => {
             const onboardingCandidate = getOnboardingCandidate(candidate);
             
