@@ -1,246 +1,267 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Bot, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import NavSidebar from "@/components/dashboard/NavSidebar";
-import Topbar from "@/components/dashboard/Topbar";
-import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
-import { RoleLensProvider } from "@/contexts/RoleLensContext";
-import { CandidateOnboardingCard } from "@/components/contract-flow/CandidateOnboardingCard";
-import { OnboardingFormDrawer } from "@/components/contract-flow/OnboardingFormDrawer";
-import { SendFormModal } from "@/components/contract-flow/SendFormModal";
-import { GenieValidation } from "@/components/contract-flow/GenieValidation";
-import { useCandidateOnboarding } from "@/hooks/useCandidateOnboarding";
+import { useFlowState } from "@/hooks/useFlowState";
+import { toast } from "@/hooks/use-toast";
+import StepCard from "@/components/StepCard";
+import ProgressBar from "@/components/ProgressBar";
+import confetti from "canvas-confetti";
+
+// Step components
+import CandidateStep1Welcome from "@/components/flows/candidate-onboarding/CandidateStep1Welcome";
+import CandidateStep2Personal from "@/components/flows/candidate-onboarding/CandidateStep2Personal";
+import CandidateStep3Tax from "@/components/flows/candidate-onboarding/CandidateStep3Tax";
+import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
+import CandidateStep5Emergency from "@/components/flows/candidate-onboarding/CandidateStep5Emergency";
+import CandidateStep6Review from "@/components/flows/candidate-onboarding/CandidateStep6Review";
+
+const FLOW_STEPS = [
+  { id: "welcome_consent", title: "Welcome & Consent", stepNumber: 1 },
+  { id: "personal_identity", title: "Personal & Identity", stepNumber: 2 },
+  { id: "tax_residency", title: "Tax Residency", stepNumber: 3 },
+  { id: "bank_details", title: "Bank Details", stepNumber: 4 },
+  { id: "emergency_contact", title: "Emergency Contact", stepNumber: 5 },
+  { id: "review_submit", title: "Review & Submit", stepNumber: 6 }
+];
 
 const CandidateOnboarding = () => {
-  const {
-    candidates,
-    selectedCandidate,
-    isDrawerOpen,
-    isSendModalOpen,
-    validatingCandidateId,
-    allCandidatesReady,
-    openDrawer,
-    closeDrawer,
-    openSendModal,
-    closeSendModal,
-    sendForm,
-    submitCandidateData,
-  } = useCandidateOnboarding();
+  const navigate = useNavigate();
+  const { token } = useParams<{ token: string }>();
+  const isDemoMode = window.location.pathname.includes('demo');
+  
+  const { state, updateFormData, completeStep, goToStep } = useFlowState(
+    "flows.candidate.onboarding",
+    "welcome_consent"
+  );
 
-  const [showValidation, setShowValidation] = useState(false);
-  const [validatingCandidate, setValidatingCandidate] = useState<any>(null);
+  const [expandedStep, setExpandedStep] = useState<string | null>("welcome_consent");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoadingFields, setIsLoadingFields] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const handleSendFormConfirm = () => {
-    if (!selectedCandidate) return;
+  // Prefill demo data
+  useEffect(() => {
+    if (isDemoMode) {
+      updateFormData({
+        fullName: "Maria Santos",
+        email: "maria.santos@example.com",
+        companyName: "Fronted Inc",
+        jobTitle: "Senior Developer"
+      });
+    }
+  }, [isDemoMode, updateFormData]);
 
-    sendForm(selectedCandidate.id);
-    closeSendModal();
-
-    // Show toast with envelope animation
-    toast.success(
-      `Form sent to ${selectedCandidate.name}. Awaiting completion.`,
-      {
-        duration: 5000,
-        icon: "📧",
-      }
-    );
-
-    // Simulate candidate submitting form after 3 seconds (for demo)
+  // Scroll to step helper
+  const scrollToStep = (stepId: string) => {
     setTimeout(() => {
-      if (selectedCandidate) {
-        handleCandidateSubmit(selectedCandidate.id);
+      const stepElement = stepRefs.current[stepId];
+      if (stepElement) {
+        stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 3000);
+    }, 100);
   };
 
-  const handleCandidateSubmit = (candidateId: string) => {
-    const candidate = candidates.find((c) => c.id === candidateId);
-    if (!candidate) return;
+  // Handle step completion
+  const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
+    if (data) {
+      updateFormData(data);
+    }
 
-    setValidatingCandidate(candidate);
-    setShowValidation(true);
+    setIsProcessing(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    // The GenieValidation component will handle the validation animation
-    // and call submitCandidateData when complete
-  };
+    completeStep(stepId);
+    setExpandedStep(null);
+    setIsProcessing(false);
 
-  const handleValidationComplete = () => {
-    setShowValidation(false);
-    if (validatingCandidate) {
-      submitCandidateData(validatingCandidate.id);
+    // Navigate to next step
+    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    const nextStep = FLOW_STEPS[currentIndex + 1];
 
-      // Show success notifications
-      toast.success(
-        `✅ ${validatingCandidate.name} completed onboarding form. Contract ready to draft.`,
-        {
-          duration: 5000,
-        }
-      );
+    if (nextStep) {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setIsLoadingFields(true);
+      goToStep(nextStep.id);
+      setExpandedStep(nextStep.id);
+      scrollToStep(nextStep.id);
 
-      // Simulate ATS notification
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setIsLoadingFields(false);
+    } else {
+      // All steps complete - show success
+      setShowSuccess(true);
+      
+      // Confetti animation
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      toast({
+        title: "Onboarding Complete!",
+        description: "Thank you! We're preparing your contract now.",
+      });
+
+      // Redirect after delay
       setTimeout(() => {
-        toast.success("🔗 ATS notified of completed onboarding data.", {
-          duration: 3000,
-        });
-      }, 1000);
-
-      setValidatingCandidate(null);
+        if (isDemoMode) {
+          navigate('/flows');
+        } else {
+          // In production, show success screen or redirect
+          navigate('/onboarding/success');
+        }
+      }, 3000);
     }
   };
 
-  const handleGenerateContracts = () => {
-    toast.success("Generating localized contracts for all candidates...", {
-      duration: 3000,
-      icon: "📝",
-    });
-    // Navigate to contract generation flow
-    setTimeout(() => {
-      window.location.href = "/flows/contract-flow";
-    }, 1500);
+  // Handle step click
+  const handleStepClick = (stepId: string) => {
+    const stepIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
+    
+    // Only allow clicking on completed steps or current step
+    if (stepIndex <= currentStepIndex) {
+      if (expandedStep === stepId) {
+        setExpandedStep(null);
+      } else {
+        setExpandedStep(stepId);
+        scrollToStep(stepId);
+      }
+    }
   };
 
-  const [isGenieOpen, setIsGenieOpen] = useState(false);
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center space-y-6 animate-scale-in">
+          <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold">All Set!</h1>
+            <p className="text-muted-foreground">
+              Thanks! We're preparing your contract. You'll receive an email shortly to review and sign.
+            </p>
+          </div>
+          <Button size="lg" onClick={() => navigate('/flows')}>
+            Back to Flows
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <RoleLensProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <NavSidebar onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} isGenieOpen={isGenieOpen} />
-        <div className="flex-1 flex flex-col">
-          <Topbar userName="Admin" />
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-6 py-8 max-w-7xl">
-            {/* Header */}
-            <div className="mb-8">
-              <Link to="/flows">
-                <Button variant="ghost" size="sm" className="mb-4">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Flows
-                </Button>
-              </Link>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold mb-2">
-                    Candidate Onboarding
-                  </h1>
-                  <p className="text-muted-foreground">
-                    Great news — these candidates have accepted their offers! Let's
-                    finalize the formalities, sign the contracts, and start onboarding.
-                  </p>
-                </div>
-                {allCandidatesReady && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                  >
-                    <Button
-                      size="lg"
-                      onClick={handleGenerateContracts}
-                      className="gap-2"
-                    >
-                      <Sparkles className="h-5 w-5" />
-                      Generate Contracts
-                    </Button>
-                  </motion.div>
-                )}
-              </div>
-            </div>
-
-            {/* Genie Message */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mb-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
-            >
-              <div className="flex items-start gap-3">
-                <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    Genie will handle the details
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Once candidates submit their forms, I'll validate all compliance
-                    requirements and notify your ATS automatically. No manual steps
-                    needed.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Candidate Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <AnimatePresence mode="popLayout">
-                {candidates.map((candidate, index) => (
-                  <motion.div
-                    key={candidate.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <CandidateOnboardingCard
-                      candidate={candidate}
-                      onConfigure={() => openDrawer(candidate)}
-                      onSendForm={() => openSendModal(candidate)}
-                      isValidating={validatingCandidateId === candidate.id}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mb-4"
+            onClick={() => navigate('/flows')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold">Candidate Onboarding</h1>
+            <p className="text-muted-foreground">
+              {isDemoMode ? "Demo: Complete your onboarding in a few quick steps" : "Complete your onboarding to get started"}
+            </p>
           </div>
-        </main>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <ProgressBar 
+            currentStep={FLOW_STEPS.findIndex(s => s.id === state.currentStep) + 1} 
+            totalSteps={FLOW_STEPS.length}
+          />
+        </div>
+
+        {/* Step Cards */}
+        <div className="space-y-4">
+          {FLOW_STEPS.map((step) => {
+            const isCompleted = state.completedSteps.includes(step.id);
+            const isCurrent = state.currentStep === step.id;
+            const isExpanded = expandedStep === step.id;
+            const canExpand = isCompleted || isCurrent;
+            
+            // Determine status
+            const status = isCompleted ? "completed" : isCurrent ? "active" : "pending";
+
+            return (
+              <div
+                key={step.id}
+                ref={(el) => (stepRefs.current[step.id] = el)}
+              >
+                <StepCard
+                  title={step.title}
+                  stepNumber={step.stepNumber}
+                  status={status}
+                  isExpanded={isExpanded}
+                  onClick={() => canExpand && handleStepClick(step.id)}
+                >
+                  {step.id === "welcome_consent" && (
+                    <CandidateStep1Welcome
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                  {step.id === "personal_identity" && (
+                    <CandidateStep2Personal
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                  {step.id === "tax_residency" && (
+                    <CandidateStep3Tax
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                  {step.id === "bank_details" && (
+                    <CandidateStep4Bank
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                  {step.id === "emergency_contact" && (
+                    <CandidateStep5Emergency
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                  {step.id === "review_submit" && (
+                    <CandidateStep6Review
+                      formData={state.formData}
+                      onComplete={handleStepComplete}
+                      isProcessing={isProcessing}
+                      isLoadingFields={isLoadingFields}
+                    />
+                  )}
+                </StepCard>
+              </div>
+            );
+          })}
+        </div>
       </div>
-
-      <DashboardDrawer isOpen={isGenieOpen} userData={{ name: "Admin", role: "Administrator" }} />
-
-      {/* Onboarding Form Drawer */}
-      {selectedCandidate && (
-        <OnboardingFormDrawer
-          open={isDrawerOpen}
-          onOpenChange={closeDrawer}
-          candidate={{
-            id: selectedCandidate.id,
-            name: selectedCandidate.name,
-            email: selectedCandidate.email,
-            role: selectedCandidate.role,
-            country: selectedCandidate.country,
-            countryCode: selectedCandidate.country.slice(0, 2).toUpperCase(),
-            flag: selectedCandidate.flag,
-            salary: selectedCandidate.salary,
-            startDate: selectedCandidate.startDate,
-            status: selectedCandidate.status === "ready_for_contract" ? "Hired" : "Shortlisted",
-            noticePeriod: "30 days",
-            pto: "20 days",
-            currency: selectedCandidate.salary.match(/[^\d\s,.]+/)?.[0] || "USD",
-            signingPortal: "DocuSign",
-          }}
-          onComplete={() => {}}
-          onSent={() => {
-            toast.success("Form configuration saved.", { duration: 2000 });
-          }}
-        />
-      )}
-
-      {/* Send Form Modal */}
-      <SendFormModal
-        open={isSendModalOpen}
-        onOpenChange={closeSendModal}
-        candidate={selectedCandidate}
-        onConfirm={handleSendFormConfirm}
-      />
-
-      {/* Genie Validation Overlay */}
-      {showValidation && validatingCandidate && (
-        <GenieValidation
-          candidate={validatingCandidate}
-          onComplete={handleValidationComplete}
-        />
-      )}
-      </div>
-    </RoleLensProvider>
+    </div>
   );
 };
 
