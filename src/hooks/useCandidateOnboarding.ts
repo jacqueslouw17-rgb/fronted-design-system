@@ -5,7 +5,11 @@ export type OnboardingStatus =
   | "awaiting_submission" 
   | "ready_for_contract"
   | "validating"
-  | "waiting_for_candidate";
+  | "waiting_for_candidate"
+  | "candidate_data_ready"
+  | "drafting"
+  | "awaiting_signature"
+  | "signed";
 
 export interface OnboardingCandidate {
   id: string;
@@ -20,6 +24,9 @@ export interface OnboardingCandidate {
   formSentAt?: string;
   dataSubmittedAt?: string;
   validatedAt?: string;
+  employmentType?: "contractor" | "employee";
+  employmentTypeSource?: "ats" | "suggested";
+  documents?: string[];
 }
 
 export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
@@ -34,6 +41,9 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       salary: "₱85,000/month",
       startDate: "2025-11-15",
       status: "awaiting_data",
+      employmentType: "contractor",
+      employmentTypeSource: "ats",
+      documents: ["Contractor Agreement", "NDA", "Data Privacy Addendum (PH)"],
     },
     {
       id: "2",
@@ -45,6 +55,9 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       salary: "kr 65,000/month",
       startDate: "2025-11-20",
       status: "awaiting_data",
+      employmentType: "contractor",
+      employmentTypeSource: "suggested",
+      documents: ["Contractor Agreement", "NDA"],
     },
     {
       id: "3",
@@ -56,6 +69,8 @@ export const useMockOnboardingCandidates = (): OnboardingCandidate[] => {
       salary: "₹95,000/month",
       startDate: "2025-12-01",
       status: "awaiting_data",
+      employmentTypeSource: "suggested",
+      documents: [],
     },
   ];
 };

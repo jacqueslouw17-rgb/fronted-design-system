@@ -244,15 +244,15 @@ const ContractFlowDemo = () => {
                       className="text-center space-y-2"
                     >
                       <h1 className="text-3xl font-bold">
-                        🎉 Great news — these candidates have accepted their offers!
+                        Great news — these candidates have accepted their offers!
                       </h1>
                       <p className="text-muted-foreground max-w-3xl mx-auto">
-                        Let's finalize the formalities, sign the contracts, and start onboarding.
+                        Let's finalize contracts and complete onboarding.
                       </p>
                     </motion.div>
 
                     {/* Genie Message Bubble */}
-                    <motion.div
+                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3, duration: 0.4 }}
@@ -263,7 +263,7 @@ const ContractFlowDemo = () => {
                           <Bot className="h-5 w-5 text-primary" />
                         </div>
                         <p className="text-sm text-foreground/80">
-                          I've automatically sent onboarding forms to each candidate. Once they complete their details, I'll validate everything and notify you when they're ready for contract generation.
+                          Review the details below and send onboarding forms to collect any missing information. I'll validate everything and notify you when they're ready for contract generation.
                         </p>
                       </div>
                     </motion.div>

@@ -28,6 +28,9 @@ export interface Candidate {
   signingPortal: string;
   status: "Shortlisted" | "Hired";
   email?: string;
+  employmentType?: "contractor" | "employee";
+  employmentTypeSource?: "ats" | "suggested";
+  documents?: string[];
 }
 
 export const useMockCandidates = (): Candidate[] => [
@@ -45,7 +48,10 @@ export const useMockCandidates = (): Candidate[] => [
     currency: "PHP",
     signingPortal: "PH eSign Portal",
     status: "Hired",
-    email: "maria.santos@example.com"
+    email: "maria.santos@example.com",
+    employmentType: "contractor",
+    employmentTypeSource: "ats",
+    documents: ["Contractor Agreement", "NDA", "Data Privacy Addendum (PH)"],
   },
   {
     id: "2",
@@ -61,7 +67,10 @@ export const useMockCandidates = (): Candidate[] => [
     currency: "NOK",
     signingPortal: "NO Altinn",
     status: "Hired",
-    email: "oskar.nilsen@example.com"
+    email: "oskar.nilsen@example.com",
+    employmentType: "employee",
+    employmentTypeSource: "suggested",
+    documents: ["Employment Agreement", "Country Compliance Attachments", "NDA / Policy Docs"],
   }
 ];
 

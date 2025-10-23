@@ -48,6 +48,12 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState("");
+  const [employmentType, setEmploymentType] = useState<"contractor" | "employee" | null>(
+    candidate.employmentType || null
+  );
+  const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(
+    !candidate.employmentType && candidate.employmentTypeSource === "suggested"
+  );
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
@@ -173,9 +179,117 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
           </div>
 
+          {/* Employment Type */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Employment Type
+              {candidate.employmentTypeSource === "ats" && (
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>
+              )}
+            </Label>
+            {candidate.employmentTypeSource === "ats" ? (
+              <>
+                <Input 
+                  value={candidate.employmentType === "contractor" ? "Contractor" : "Employee"} 
+                  disabled 
+                  className="bg-muted/50" 
+                />
+                <p className="text-xs text-muted-foreground">Locked from ATS</p>
+              </>
+            ) : showEmploymentConfirm ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    Based on {candidate.country} hiring model and job category, I suggest: <span className="font-semibold text-foreground">{employmentType === "contractor" ? "Contractor" : "Employee"}</span>
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={employmentType === "contractor" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setEmploymentType("contractor");
+                      setShowEmploymentConfirm(false);
+                    }}
+                    className="flex-1"
+                  >
+                    ✅ Contractor
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={employmentType === "employee" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setEmploymentType("employee");
+                      setShowEmploymentConfirm(false);
+                    }}
+                    className="flex-1"
+                  >
+                    💼 Employee
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Input 
+                  value={employmentType === "contractor" ? "Contractor" : "Employee"} 
+                  disabled 
+                  className="bg-muted/50" 
+                />
+                <p className="text-xs text-muted-foreground">Confirmed by admin</p>
+              </>
+            )}
+          </div>
+
+          {/* Document Bundle Preview */}
+          {employmentType && (
+            <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
+              <Label className="text-xs font-medium">Contract Documents to be Generated</Label>
+              <div className="space-y-1.5">
+                {employmentType === "contractor" ? (
+                  <>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>📄</span>
+                      <span>Contractor Agreement</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>📄</span>
+                      <span>NDA</span>
+                    </div>
+                    {candidate.country === "Philippines" && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span>📄</span>
+                        <span>Data Privacy Addendum (PH)</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>📄</span>
+                      <span>Employment Agreement</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>📄</span>
+                      <span>Country Compliance Attachments</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>📄</span>
+                      <span>NDA / Policy Docs</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Pending fields */}
           <div className="pt-4 border-t border-border">
-            <p className="text-xs font-medium text-muted-foreground mb-4">Pending from Candidate</p>
+            <p className="text-xs font-medium text-muted-foreground mb-4">
+              Required Fields <Badge variant="secondary" className="ml-2 text-xs">Pending from Candidate</Badge>
+            </p>
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -341,7 +455,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <Button
               type="button"
               onClick={handleSendForm}
-              disabled={isSubmitting || isSavingDraft}
+              disabled={isSubmitting || isSavingDraft || !candidate.email || showEmploymentConfirm}
               className="flex-1"
             >
               {isSubmitting ? "Sending..." : "Send Form"}

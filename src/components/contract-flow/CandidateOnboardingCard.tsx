@@ -39,6 +39,26 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: "default"
     variant: "default",
     color: "bg-green-500/10 text-green-600 border-green-500/20",
   },
+  candidate_data_ready: {
+    label: "Candidate Data Ready",
+    variant: "default",
+    color: "bg-green-500/10 text-green-600 border-green-500/20",
+  },
+  drafting: {
+    label: "Contract Generation in Progress",
+    variant: "outline",
+    color: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  },
+  awaiting_signature: {
+    label: "Awaiting Signature",
+    variant: "secondary",
+    color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  },
+  signed: {
+    label: "Signed & Ready for Onboarding",
+    variant: "default",
+    color: "bg-green-500/10 text-green-600 border-green-500/20",
+  },
 };
 
 export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = ({
