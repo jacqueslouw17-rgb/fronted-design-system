@@ -19,9 +19,9 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
   const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError } = useSpeechToText();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Check if this is a contractor who just completed onboarding
-  const isContractor = currentLens.role === 'contractor';
-  const candidateName = isContractor ? userData.firstName : userData.firstName;
+  // Check if this is a contractor or employee who just completed onboarding
+  const isContractorOrEmployee = currentLens.role === 'contractor' || currentLens.role === 'employee';
+  const candidateName = userData.firstName;
 
   // Update textarea with transcript as user speaks
   useEffect(() => {
@@ -76,10 +76,10 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
           {/* Title */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground">
-              {isContractor ? `Welcome aboard, ${candidateName}! 🎉` : `Hi ${userData.firstName}, what would you like to know?`}
+              {isContractorOrEmployee ? `Welcome aboard, ${candidateName}! 🎉` : `Hi ${userData.firstName}, what would you like to know?`}
             </h1>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              {isContractor 
+              {isContractorOrEmployee 
                 ? "We're preparing your contract. You'll receive an email shortly to review and sign."
                 : "Ask me anything or use voice input to get started"
               }
