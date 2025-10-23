@@ -121,8 +121,16 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
   }, []);
 
   const proceedToBundle = useCallback(() => {
-    setPhase("bundle-creation");
-  }, []);
+    // Check if there are more candidates to process
+    if (currentDraftIndex < selectedCandidates.length - 1) {
+      // Move to next candidate in contract creation
+      setCurrentDraftIndex(prev => prev + 1);
+    } else {
+      // All candidates processed, move to bundle creation
+      setPhase("bundle-creation");
+      setCurrentDraftIndex(0); // Reset for bundle creation
+    }
+  }, [currentDraftIndex, selectedCandidates.length]);
 
   const proceedFromBundle = useCallback(() => {
     setPhase("drafting");

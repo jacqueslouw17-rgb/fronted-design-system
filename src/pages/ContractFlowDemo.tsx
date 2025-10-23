@@ -210,9 +210,11 @@ const ContractFlowDemo = () => {
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (
-                <motion.div key="contract-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div key={`contract-creation-${contractFlow.currentDraftIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <ContractCreationScreen
                     candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]}
+                    currentIndex={contractFlow.currentDraftIndex}
+                    totalCandidates={contractFlow.selectedCandidates.length}
                     onNext={() => contractFlow.proceedToBundle()}
                   />
                 </motion.div>

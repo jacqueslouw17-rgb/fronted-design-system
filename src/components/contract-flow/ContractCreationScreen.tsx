@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Bot, Sparkles, AlertCircle } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
@@ -15,11 +14,15 @@ import { toast } from "sonner";
 interface ContractCreationScreenProps {
   candidate: Candidate;
   onNext: () => void;
+  currentIndex?: number;
+  totalCandidates?: number;
 }
 
 export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   candidate,
   onNext,
+  currentIndex = 0,
+  totalCandidates = 1,
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
@@ -88,10 +91,20 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         <div className="flex items-center gap-3">
           <span className="text-4xl">{candidate.flag}</span>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Contract Creation</h1>
-            <p className="text-muted-foreground">{candidate.name} • {candidate.role}</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-foreground">Contract Creation</h1>
+              <Badge variant={employmentType === "employee" ? "default" : "secondary"} className="text-sm">
+                {employmentType === "employee" ? "Employee" : "Contractor"}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground">{candidate.name} • {candidate.role} • {candidate.country}</p>
           </div>
         </div>
+        {totalCandidates > 1 && (
+          <Badge variant="outline" className="text-sm">
+            Candidate {currentIndex + 1} of {totalCandidates}
+          </Badge>
+        )}
       </div>
 
       {/* Genie Message */}
@@ -109,158 +122,149 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       </motion.div>
 
       {/* Employment Type Toggle */}
-      <Card className="p-6">
-        <Tabs value={employmentType} onValueChange={(v) => setEmploymentType(v as "employee" | "contractor")}>
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-            <TabsTrigger value="employee">Employee Agreement</TabsTrigger>
-            <TabsTrigger value="contractor">Contractor Agreement</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={employmentType} className="mt-6 space-y-6">
-            {/* Auto-populated fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Full Legal Name</Label>
-                <Input
-                  value={contractData.fullName}
-                  onChange={(e) => setContractData({ ...contractData, fullName: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={contractData.email}
-                  onChange={(e) => setContractData({ ...contractData, email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Input
-                  value={contractData.role}
-                  onChange={(e) => setContractData({ ...contractData, role: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Start Date
-                  {errors.startDate && (
-                    <span className="text-destructive text-xs ml-2">Required</span>
-                  )}
-                </Label>
-                <Input
-                  type="date"
-                  value={contractData.startDate}
-                  onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
-                  className={errors.startDate ? "border-destructive" : ""}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Monthly Salary / Compensation
-                  {errors.salary && (
-                    <span className="text-destructive text-xs ml-2">Required</span>
-                  )}
-                </Label>
-                <Input
-                  value={contractData.salary}
-                  onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
-                  className={errors.salary ? "border-destructive" : ""}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Country of Employment</Label>
-                <Input value={contractData.country} disabled />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Work Location</Label>
-                <Input
-                  value={contractData.workLocation}
-                  onChange={(e) => setContractData({ ...contractData, workLocation: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Work Hours {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">Optional</Badge>}</Label>
-                <Input
-                  value={contractData.workHours}
-                  onChange={(e) => setContractData({ ...contractData, workHours: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Social ID / Tax ID {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">If provided</Badge>}</Label>
-                <Input
-                  value={contractData.socialId}
-                  onChange={(e) => setContractData({ ...contractData, socialId: e.target.value })}
-                  placeholder="Optional"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Employer Legal Entity</Label>
-                <Input value={contractData.employerEntity} disabled />
-              </div>
-            </div>
-
-            {/* Compliance Preview */}
-            <CompliancePreviewCard
-              country={candidate.country}
-              countryCode={candidate.countryCode}
-              flag={candidate.flag}
-              employmentType={employmentType}
+      <Card className="p-6 space-y-6">
+        {/* Auto-populated fields */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Full Legal Name</Label>
+            <Input
+              value={contractData.fullName}
+              onChange={(e) => setContractData({ ...contractData, fullName: e.target.value })}
             />
+          </div>
 
-            {/* Admin Additional Inputs */}
-            <div className="space-y-4 pt-4 border-t border-border">
-              <h3 className="text-sm font-medium text-foreground">Additional Contract Terms</h3>
-              
-              <div className="space-y-2">
-                <Label>Optional Clauses</Label>
-                <Textarea
-                  value={contractData.optionalClauses}
-                  onChange={(e) => setContractData({ ...contractData, optionalClauses: e.target.value })}
-                  placeholder="Add any additional clauses or terms..."
-                  rows={3}
-                />
-              </div>
+          <div className="space-y-2">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              value={contractData.email}
+              onChange={(e) => setContractData({ ...contractData, email: e.target.value })}
+            />
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Variable Pay / Bonus Config</Label>
-                  <Input
-                    value={contractData.variablePay}
-                    onChange={(e) => setContractData({ ...contractData, variablePay: e.target.value })}
-                    placeholder="e.g., 10% annual bonus"
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label>Role</Label>
+            <Input
+              value={contractData.role}
+              onChange={(e) => setContractData({ ...contractData, role: e.target.value })}
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label>Payment Schedule</Label>
-                  <Input
-                    value={contractData.paymentSchedule}
-                    onChange={(e) => setContractData({ ...contractData, paymentSchedule: e.target.value })}
-                  />
-                </div>
-              </div>
+          <div className="space-y-2">
+            <Label>
+              Start Date
+              {errors.startDate && (
+                <span className="text-destructive text-xs ml-2">Required</span>
+              )}
+            </Label>
+            <Input
+              type="date"
+              value={contractData.startDate}
+              onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
+              className={errors.startDate ? "border-destructive" : ""}
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label>Custom Attachments (NDA, Policies)</Label>
-                <Input
-                  value={contractData.customAttachments}
-                  onChange={(e) => setContractData({ ...contractData, customAttachments: e.target.value })}
-                  placeholder="e.g., NDA, Company Policy Handbook"
-                />
-              </div>
+          <div className="space-y-2">
+            <Label>
+              Monthly Salary / Compensation
+              {errors.salary && (
+                <span className="text-destructive text-xs ml-2">Required</span>
+              )}
+            </Label>
+            <Input
+              value={contractData.salary}
+              onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
+              className={errors.salary ? "border-destructive" : ""}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Country of Employment</Label>
+            <Input value={contractData.country} disabled />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Work Location</Label>
+            <Input
+              value={contractData.workLocation}
+              onChange={(e) => setContractData({ ...contractData, workLocation: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Work Hours {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">Optional</Badge>}</Label>
+            <Input
+              value={contractData.workHours}
+              onChange={(e) => setContractData({ ...contractData, workHours: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Social ID / Tax ID {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">If provided</Badge>}</Label>
+            <Input
+              value={contractData.socialId}
+              onChange={(e) => setContractData({ ...contractData, socialId: e.target.value })}
+              placeholder="Optional"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Employer Legal Entity</Label>
+            <Input value={contractData.employerEntity} disabled />
+          </div>
+        </div>
+
+        {/* Compliance Preview */}
+        <CompliancePreviewCard
+          country={candidate.country}
+          countryCode={candidate.countryCode}
+          flag={candidate.flag}
+          employmentType={employmentType}
+        />
+
+        {/* Admin Additional Inputs */}
+        <div className="space-y-4 pt-4 border-t border-border">
+          <h3 className="text-sm font-medium text-foreground">Additional Contract Terms</h3>
+          
+          <div className="space-y-2">
+            <Label>Optional Clauses</Label>
+            <Textarea
+              value={contractData.optionalClauses}
+              onChange={(e) => setContractData({ ...contractData, optionalClauses: e.target.value })}
+              placeholder="Add any additional clauses or terms..."
+              rows={3}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Variable Pay / Bonus Config</Label>
+              <Input
+                value={contractData.variablePay}
+                onChange={(e) => setContractData({ ...contractData, variablePay: e.target.value })}
+                placeholder="e.g., 10% annual bonus"
+              />
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <div className="space-y-2">
+              <Label>Payment Schedule</Label>
+              <Input
+                value={contractData.paymentSchedule}
+                onChange={(e) => setContractData({ ...contractData, paymentSchedule: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Custom Attachments (NDA, Policies)</Label>
+            <Input
+              value={contractData.customAttachments}
+              onChange={(e) => setContractData({ ...contractData, customAttachments: e.target.value })}
+              placeholder="e.g., NDA, Company Policy Handbook"
+            />
+          </div>
+        </div>
       </Card>
 
       {/* Navigation */}
