@@ -24,7 +24,7 @@ import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 const ContractFlowDemo = () => {
-  // const { speak } = useTextToSpeech({ lang: 'en-US', voiceName: 'norwegian', pitch: 1.1 });
+  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { toast } = useToast();
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
@@ -32,6 +32,8 @@ const ContractFlowDemo = () => {
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
   const [promptText, setPromptText] = React.useState("");
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
+  const [isSpeaking, setIsSpeaking] = React.useState(false);
+  const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
 
   const userData = {
     firstName: "Joe",
@@ -71,6 +73,30 @@ const ContractFlowDemo = () => {
       return () => clearTimeout(startDelay);
     }
   }, [contractFlow.phase]);
+
+  // Auto-speak for each phase (once per phase)
+  useEffect(() => {
+    const phaseKey = contractFlow.phase;
+    if (!hasSpokenPhase[phaseKey]) {
+      let message = "";
+      
+      if (phaseKey === "offer-accepted" || phaseKey === "data-collection") {
+        message = "Let's finalize contracts and complete onboarding.";
+      }
+      
+      if (message) {
+        const timer = setTimeout(() => {
+          setIsSpeaking(true);
+          speak(message, () => {
+            setIsSpeaking(false);
+          });
+          setHasSpokenPhase(prev => ({ ...prev, [phaseKey]: true }));
+        }, 1000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [contractFlow.phase, hasSpokenPhase, speak]);
 
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
@@ -168,7 +194,11 @@ const ContractFlowDemo = () => {
                       animate={{ opacity: 1, y: 0 }}
                       className="flex justify-center"
                     >
-                      <AudioWaveVisualizer isActive={false} />
+                      <AudioWaveVisualizer 
+                        isActive={!hasSpokenPhase["offer-accepted"]} 
+                        isListening={true}
+                        isDetectingVoice={isSpeaking}
+                      />
                     </motion.div>
 
                     {/* Main heading */}
@@ -181,8 +211,17 @@ const ContractFlowDemo = () => {
                       <h1 className="text-3xl font-bold">
                         Great news — these candidates have accepted their offers!
                       </h1>
-                      <p className="text-muted-foreground max-w-3xl mx-auto">
-                        Let's finalize contracts and complete onboarding.
+                      <p className="text-foreground/60 relative max-w-3xl mx-auto">
+                        {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
+                          <span
+                            key={index}
+                            className={`transition-colors duration-200 ${
+                              isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                            }`}
+                          >
+                            {word}{" "}
+                          </span>
+                        ))}
                       </p>
                     </motion.div>
 

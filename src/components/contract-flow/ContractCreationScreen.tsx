@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Bot, Sparkles, AlertCircle } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -26,6 +28,13 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasSpoken, setHasSpoken] = useState(false);
+  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  
+  const subtextMessage = `${candidate.name} • ${candidate.role} • ${candidate.country}`;
+  const subtextWords = subtextMessage.split(' ');
+
   const [contractData, setContractData] = useState({
     fullName: candidate.name,
     email: candidate.email || "",
@@ -44,6 +53,21 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Auto-speak on mount
+  useEffect(() => {
+    if (!hasSpoken) {
+      const timer = setTimeout(() => {
+        setHasSpoken(true);
+        setIsSpeaking(true);
+        speak(subtextMessage, () => {
+          setIsSpeaking(false);
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasSpoken, subtextMessage, speak]);
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
@@ -86,6 +110,19 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       animate={{ opacity: 1 }}
       className="p-8 max-w-6xl mx-auto space-y-6"
     >
+      {/* Audio Wave Visualizer */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-center"
+      >
+        <AudioWaveVisualizer 
+          isActive={!hasSpoken} 
+          isListening={true}
+          isDetectingVoice={isSpeaking}
+        />
+      </motion.div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -97,7 +134,18 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
                 {employmentType === "employee" ? "Employee" : "Contractor"}
               </Badge>
             </div>
-            <p className="text-muted-foreground">{candidate.name} • {candidate.role} • {candidate.country}</p>
+            <p className="text-foreground/60 relative">
+              {subtextWords.map((word, index) => (
+                <span
+                  key={index}
+                  className={`transition-colors duration-200 ${
+                    isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                  }`}
+                >
+                  {word}{" "}
+                </span>
+              ))}
+            </p>
           </div>
         </div>
         {totalCandidates > 1 && (

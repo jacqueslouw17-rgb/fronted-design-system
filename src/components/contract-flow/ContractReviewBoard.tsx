@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -17,6 +19,27 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   onStartSigning,
 }) => {
   const [globalComment, setGlobalComment] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasSpoken, setHasSpoken] = useState(false);
+  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  
+  const subtextMessage = "All contracts ready. Review and send to candidates for signature.";
+  const subtextWords = subtextMessage.split(' ');
+
+  // Auto-speak on mount
+  useEffect(() => {
+    if (!hasSpoken) {
+      const timer = setTimeout(() => {
+        setHasSpoken(true);
+        setIsSpeaking(true);
+        speak(subtextMessage, () => {
+          setIsSpeaking(false);
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasSpoken, subtextMessage, speak]);
 
   return (
     <motion.div
@@ -25,6 +48,19 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      {/* Audio Wave Visualizer */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-center"
+      >
+        <AudioWaveVisualizer 
+          isActive={!hasSpoken} 
+          isListening={true}
+          isDetectingVoice={isSpeaking}
+        />
+      </motion.div>
+
       {/* Kurt's message */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -32,8 +68,17 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         transition={{ delay: 0.2, duration: 0.3 }}
         className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
       >
-        <p className="text-sm text-foreground">
-          All contracts ready. Review and send to candidates for signature.
+        <p className="text-foreground/60 relative text-center">
+          {subtextWords.map((word, index) => (
+            <span
+              key={index}
+              className={`transition-colors duration-200 ${
+                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+              }`}
+            >
+              {word}{" "}
+            </span>
+          ))}
         </p>
       </motion.div>
 

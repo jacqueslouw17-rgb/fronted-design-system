@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { CheckCircle2 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface ContractFlowSummaryProps {
   candidates: Candidate[];
@@ -13,6 +14,28 @@ interface ContractFlowSummaryProps {
 export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
   candidates,
 }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasSpoken, setHasSpoken] = useState(false);
+  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  
+  const subtextMessage = "Perfect — compliance verified and contract copies stored securely.";
+  const subtextWords = subtextMessage.split(' ');
+
+  // Auto-speak on mount
+  useEffect(() => {
+    if (!hasSpoken) {
+      const timer = setTimeout(() => {
+        setHasSpoken(true);
+        setIsSpeaking(true);
+        speak(subtextMessage, () => {
+          setIsSpeaking(false);
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasSpoken, subtextMessage, speak]);
+
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       {/* Celebration Header */}
@@ -23,13 +46,26 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         className="text-center space-y-6"
       >
         <div className="flex justify-center">
-          <AudioWaveVisualizer isActive={true} />
+          <AudioWaveVisualizer 
+            isActive={!hasSpoken} 
+            isListening={true}
+            isDetectingVoice={isSpeaking}
+          />
         </div>
         <h1 className="text-4xl font-bold text-foreground">
           🎉 Contracts Signed — You're All Set!
         </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Perfect — compliance verified and contract copies stored securely.
+        <p className="text-foreground/60 relative max-w-xl mx-auto">
+          {subtextWords.map((word, index) => (
+            <span
+              key={index}
+              className={`transition-colors duration-200 ${
+                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+              }`}
+            >
+              {word}{" "}
+            </span>
+          ))}
         </p>
       </motion.div>
 
