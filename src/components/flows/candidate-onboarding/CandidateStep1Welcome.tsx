@@ -27,11 +27,63 @@ const CandidateStep1Welcome = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Welcome!</h3>
+    <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
+      {/* How Kurt Works Section */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <CheckCircle2 className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            Your AI Assistant
+          </h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          Once you're onboarded, Kurt will help you navigate your dashboard and answer questions
+        </p>
+        
+        <div className="space-y-2">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-primary">1</span>
+            </div>
+            <div>
+              <p className="font-medium text-sm mb-0.5">Kurt helps you understand</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                The AI assistant answers questions about your contract and benefits
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-primary">2</span>
+            </div>
+            <div>
+              <p className="font-medium text-sm mb-0.5">You stay in control</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                All important actions require your explicit approval
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-primary">3</span>
+            </div>
+            <div>
+              <p className="font-medium text-sm mb-0.5">Full transparency</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                All updates and changes are visible in your dashboard
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Welcome & Information Section */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+          What We Need
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Let's get you set up quickly and securely. Your information will be used to generate your employment contract.
+          We'll collect your personal details, tax information, and payment details to generate your employment contract.
         </p>
       </div>
 

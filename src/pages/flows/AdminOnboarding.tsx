@@ -43,7 +43,7 @@ const AdminOnboarding = () => {
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { isListening, transcript, startListening, stopListening, resetTranscript, error: sttError, isSupported, isDetectingVoice } = useSpeechToText();
 
-  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+  const [expandedStep, setExpandedStep] = useState<string | null>("intro_trust_model");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
