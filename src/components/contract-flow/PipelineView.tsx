@@ -5,13 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, CheckSquare } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 
 interface Contractor {
   id: string;
@@ -469,130 +466,32 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       </div>
 
       {/* Configuration Drawer */}
-      <Drawer open={configureDrawerOpen} onOpenChange={setConfigureDrawerOpen}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader>
-            <DrawerTitle>Configure Contract Details</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-6 pb-6 overflow-y-auto">
-            {selectedContractor && (
-              <div className="space-y-6">
-                {/* Contractor Header */}
-                <div className="flex items-center gap-3 pb-4 border-b">
-                  <span className="text-4xl">{selectedContractor.countryFlag}</span>
-                  <div>
-                    <h3 className="text-xl font-semibold">{selectedContractor.name}</h3>
-                    <p className="text-sm text-muted-foreground">{selectedContractor.role} • {selectedContractor.country}</p>
-                  </div>
-                </div>
-
-                {/* Form Fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Full Legal Name</Label>
-                    <Input defaultValue={selectedContractor.name} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" placeholder="Enter email" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Role</Label>
-                    <Input defaultValue={selectedContractor.role} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input type="date" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Monthly Salary / Compensation</Label>
-                    <Input defaultValue={selectedContractor.salary} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Country of Employment</Label>
-                    <Input defaultValue={selectedContractor.country} disabled />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Work Location</Label>
-                    <Input defaultValue="Remote" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Work Hours</Label>
-                    <Input defaultValue="Flexible" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Social ID / Tax ID</Label>
-                    <Input placeholder="Optional" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Employer Legal Entity</Label>
-                    <Input defaultValue={selectedContractor.countryFlag === "🇵🇭" ? "Fronted PH" : "Fronted NO"} disabled />
-                  </div>
-                </div>
-
-                {/* Additional Terms */}
-                <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-sm font-medium">Additional Contract Terms</h3>
-                  
-                  <div className="space-y-2">
-                    <Label>Optional Clauses</Label>
-                    <Textarea
-                      placeholder="Add any additional clauses or terms..."
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Variable Pay / Bonus Config</Label>
-                      <Input placeholder="e.g., 10% annual bonus" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Payment Schedule</Label>
-                      <Input defaultValue="Monthly" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Custom Attachments (NDA, Policies)</Label>
-                    <Input placeholder="e.g., NDA, Company Policy Handbook" />
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setConfigureDrawerOpen(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      toast.success(`Configuration saved for ${selectedContractor.name}`);
-                      setConfigureDrawerOpen(false);
-                    }}
-                    className="flex-1"
-                  >
-                    Save Configuration
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <OnboardingFormDrawer
+        open={configureDrawerOpen}
+        onOpenChange={setConfigureDrawerOpen}
+        candidate={selectedContractor ? {
+          id: selectedContractor.id,
+          name: selectedContractor.name,
+          role: selectedContractor.role,
+          country: selectedContractor.country,
+          countryCode: selectedContractor.country === "Philippines" ? "PH" : selectedContractor.country === "Norway" ? "NO" : "XK",
+          flag: selectedContractor.countryFlag,
+          salary: selectedContractor.salary,
+          email: "",
+          employmentType: "contractor",
+          startDate: "",
+          employmentTypeSource: "suggested",
+        } : {} as any}
+        onComplete={() => {
+          toast.success("Configuration complete");
+          setConfigureDrawerOpen(false);
+        }}
+        onSent={() => {
+          if (selectedContractor) {
+            handleSendForm(selectedContractor.id);
+          }
+        }}
+      />
     </div>
   );
 };
