@@ -155,7 +155,7 @@ const CandidateOnboarding = () => {
   }
 
   return (
-    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -175,11 +175,12 @@ const CandidateOnboarding = () => {
              style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
-      {/* Left Section - Header */}
-      <section className="flex-shrink-0 flex flex-col items-center justify-center p-8 relative" style={{ width: '50%' }}>
-        <div className="relative z-10 flex flex-col items-center space-y-6">
-          {/* Decorative element */}
-          <div className="flex items-center justify-center gap-2 mb-4">
+      {/* Main Content - Centered Single Column */}
+      <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
+        {/* Header with Animation */}
+        <div className="text-center space-y-6 mb-8">
+          {/* Decorative animated bars */}
+          <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
             <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
             <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
@@ -187,31 +188,14 @@ const CandidateOnboarding = () => {
             <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
           </div>
 
-          {/* Title and description */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">
-              {state.formData.companyName ? `Welcome to ${state.formData.companyName}` : 'Candidate Onboarding'}
-            </h1>
-            <p className="text-sm max-w-md mx-auto text-muted-foreground">
-              {isDemoMode 
-                ? "Demo: Complete your onboarding in a few quick steps" 
-                : "Complete your onboarding to get started with your new role"}
-            </p>
-          </div>
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-foreground">
+            {state.formData.companyName ? `Welcome to ${state.formData.companyName}` : 'Welcome to Fronted'}
+          </h1>
         </div>
-      </section>
 
-      {/* Right Section - Steps & Progress */}
-      <aside 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10"
-        style={{ 
-          width: '50%', 
-          minWidth: '380px',
-          maxWidth: '50%'
-        }}
-      >
         {/* Progress Bar */}
-        <div className="flex-1">
+        <div className="mb-8">
           <ProgressBar 
             currentStep={FLOW_STEPS.findIndex(s => s.id === state.currentStep) + 1} 
             totalSteps={FLOW_STEPS.length}
@@ -297,8 +281,8 @@ const CandidateOnboarding = () => {
             );
           })}
         </div>
-      </aside>
-    </main>
+      </div>
+    </div>
   );
 };
 
