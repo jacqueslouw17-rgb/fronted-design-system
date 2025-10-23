@@ -57,7 +57,13 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
   onSendForm,
   isValidating = false,
 }) => {
-  const statusInfo = statusConfig[candidate.status];
+  // Fallback for undefined status
+  const statusInfo = statusConfig[candidate.status] || {
+    label: "Unknown Status",
+    variant: "secondary" as const,
+    color: "bg-gray-500/10 text-gray-600 border-gray-500/20",
+  };
+  
   const canSendForm = candidate.status === "not_sent";
   const canResendForm = candidate.status === "awaiting_info";
   const isComplete = candidate.status === "ready_for_contract";

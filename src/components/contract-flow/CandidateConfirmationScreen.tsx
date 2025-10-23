@@ -25,7 +25,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   const [candidateDataStatus, setCandidateDataStatus] = useState<CandidateData[]>(
     candidates.map((c) => ({
       id: c.id,
-      status: "waiting_for_candidate" as OnboardingStatus,
+      status: "not_sent" as OnboardingStatus,
     }))
   );
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
