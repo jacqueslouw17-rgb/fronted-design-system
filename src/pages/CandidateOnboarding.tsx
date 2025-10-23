@@ -39,7 +39,7 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
   // Text-to-Speech (Kurt voice over)
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'male', rate: 1.05 });
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [hasAutoSpoken, setHasAutoSpoken] = useState(false);
+  const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const welcomeMessage = "Let's complete a few quick details so we can finalize your contract.";
 
   // Prefill demo data
@@ -55,24 +55,22 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
       employmentType: "contractor", // contractor or employee
       country: "PH" // PH, NO, XK
     });
-}, [updateFormData]);
+  }, [updateFormData]);
 
-  // Auto-speak welcome subtext on mount
+  // Auto-speak welcome message on page load
   useEffect(() => {
-    if (!hasAutoSpoken) {
-      const t = setTimeout(() => {
+    if (!hasWelcomeSpoken) {
+      const timer = setTimeout(() => {
+        setHasWelcomeSpoken(true);
         setIsSpeaking(true);
         speak(welcomeMessage, () => {
           setIsSpeaking(false);
         });
-        setHasAutoSpoken(true);
-      }, 600);
-      return () => {
-        clearTimeout(t);
-        stop();
-      };
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [hasAutoSpoken, speak, stop, welcomeMessage]);
+  }, [hasWelcomeSpoken, welcomeMessage, speak]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -170,7 +168,7 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
       {/* Main Content - Centered Single Column */}
       <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
         {/* Header with Animation */}
-        <div className="text-center space-y-6 mb-8">
+        <div className="text-center space-y-2 mb-8">
           {/* Decorative animated bars */}
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
@@ -184,7 +182,9 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
           <h1 className="text-3xl font-bold text-foreground">
             Hi {state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!
           </h1>
-          <p className="text-foreground/60 text-lg relative">
+          
+          {/* Subtext with reading overlay */}
+          <p className="text-foreground/60 relative max-w-2xl mx-auto">
             {welcomeMessage.split(' ').map((word, index) => (
               <span
                 key={index}
