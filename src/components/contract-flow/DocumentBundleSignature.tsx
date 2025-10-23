@@ -50,8 +50,9 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [signingStatus, setSigningStatus] = useState<Record<string, "pending" | "signed" | "error">>(
     {}
   );
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
-  const { speak, currentWordIndex } = useTextToSpeech({ rate: 0.9 });
+  const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   
   const subtextMessage = "Review document bundles for each candidate and prepare for signature collection";
   const subtextWords = subtextMessage.split(" ");
@@ -112,12 +113,14 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
     }
   };
 
-  // Auto-speak welcome message on mount
+  // Auto-speak welcome message on mount (match Flow 1 pattern)
   useEffect(() => {
     if (!hasWelcomeSpoken) {
       const timer = setTimeout(() => {
+        setHasWelcomeSpoken(true);
+        setIsSpeaking(true);
         speak(subtextMessage, () => {
-          setHasWelcomeSpoken(true);
+          setIsSpeaking(false);
         });
       }, 1000);
 
@@ -209,19 +212,17 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
           <AudioWaveVisualizer 
             isActive={!hasWelcomeSpoken} 
             isListening={true}
-            isDetectingVoice={currentWordIndex > 0}
+            isDetectingVoice={isSpeaking}
           />
         </div>
         <h1 className="text-3xl font-bold">Document Bundle & Signature</h1>
-        <p className="max-w-2xl mx-auto">
-          {subtextWords.map((word, idx) => (
+        <p className="text-foreground/60 relative max-w-2xl mx-auto">
+          {subtextWords.map((word, index) => (
             <span
-              key={idx}
-              className={
-                currentWordIndex === idx + 1
-                  ? "text-foreground/90 font-medium"
-                  : "text-foreground/60"
-              }
+              key={index}
+              className={`transition-colors duration-200 ${
+                isSpeaking && currentWordIndex === index ? 'text-foreground/90 font-medium' : ''
+              }`}
             >
               {word}{" "}
             </span>
