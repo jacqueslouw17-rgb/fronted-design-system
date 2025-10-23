@@ -7,6 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import confetti from "canvas-confetti";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -32,7 +34,13 @@ const CandidateOnboarding = () => {
   const [expandedStep, setExpandedStep] = useState<string | null>("personal_details");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Text-to-Speech (Kurt voice over)
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'male', rate: 1.05 });
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasAutoSpoken, setHasAutoSpoken] = useState(false);
+  const welcomeMessage = "Let's complete a few quick details so we can finalize your contract.";
 
   // Prefill demo data
   useEffect(() => {
@@ -47,7 +55,24 @@ const CandidateOnboarding = () => {
       employmentType: "contractor", // contractor or employee
       country: "PH" // PH, NO, XK
     });
-  }, [updateFormData]);
+}, [updateFormData]);
+
+  // Auto-speak welcome subtext on mount
+  useEffect(() => {
+    if (!hasAutoSpoken) {
+      const t = setTimeout(() => {
+        setIsSpeaking(true);
+        speak(welcomeMessage, () => {
+          setIsSpeaking(false);
+        });
+        setHasAutoSpoken(true);
+      }, 600);
+      return () => {
+        clearTimeout(t);
+        stop();
+      };
+    }
+  }, [hasAutoSpoken, speak, stop, welcomeMessage]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -159,8 +184,17 @@ const CandidateOnboarding = () => {
           <h1 className="text-3xl font-bold text-foreground">
             Hi {state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Let's complete a few quick details so we can finalize your contract.
+          <p className="text-foreground/60 text-lg relative">
+            {welcomeMessage.split(' ').map((word, index) => (
+              <span
+                key={index}
+                className={`transition-colors duration-200 ${
+                  isSpeaking && currentWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                }`}
+              >
+                {word}{' '}
+              </span>
+            ))}
           </p>
         </div>
 
