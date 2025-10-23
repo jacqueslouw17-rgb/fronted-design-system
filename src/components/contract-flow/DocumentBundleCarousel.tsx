@@ -27,11 +27,13 @@ interface Document {
 interface DocumentBundleCarouselProps {
   candidate: Candidate;
   onGenerateBundle: (selectedDocs: string[]) => void;
+  hideButton?: boolean;
 }
 
 export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   candidate,
   onGenerateBundle,
+  hideButton = false,
 }) => {
   const employmentType = candidate.employmentType || "contractor";
   
@@ -268,9 +270,11 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
       </div>
 
       {/* Generate bundle button */}
-      <Button onClick={handleGenerate} className="w-full" size="lg">
-        Generate Signing Pack ({selectedCount} documents)
-      </Button>
+      {!hideButton && (
+        <Button onClick={handleGenerate} className="w-full" size="lg">
+          Generate Signing Pack
+        </Button>
+      )}
     </div>
   );
 };

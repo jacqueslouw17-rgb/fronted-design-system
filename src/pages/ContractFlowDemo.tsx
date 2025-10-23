@@ -237,12 +237,30 @@ const ContractFlowDemo = () => {
                         <DocumentBundleCarousel
                           candidate={candidate}
                           onGenerateBundle={(docs) => {
-                            toast({ title: `Bundle created with ${docs.length} documents` });
-                            contractFlow.proceedFromBundle();
+                            // Just store selection, don't proceed yet
                           }}
+                          hideButton={true}
                         />
                       </div>
                     ))}
+                    {/* Single Generate button for all candidates */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="pt-4"
+                    >
+                      <Button 
+                        onClick={() => {
+                          toast({ title: "Signing packs generated for all candidates" });
+                          contractFlow.proceedFromBundle();
+                        }}
+                        className="w-full" 
+                        size="lg"
+                      >
+                        Generate Signing Pack
+                      </Button>
+                    </motion.div>
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
