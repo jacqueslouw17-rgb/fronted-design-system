@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import ProfileSettings from "./pages/ProfileSettings";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 // Flows
 import Flows from "./pages/Flows";
@@ -70,8 +71,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <FeedbackBubble />
-      <Routes>
+        <RoleLensProvider initialRole="admin">
+          <FeedbackBubble />
+          <Routes>
         <Route path="/" element={<DesignSystem />} />
         <Route path="/design-system" element={<DesignSystem />} />
         <Route path="/onboarding" element={<Onboarding />} />
@@ -133,6 +135,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </RoleLensProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
