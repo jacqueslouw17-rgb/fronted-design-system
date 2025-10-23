@@ -21,6 +21,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bot, FileText, Shield, Clock, CheckCircle2, Mail, AlertCircle } from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { Candidate } from "@/hooks/useContractFlow";
 
 interface DocumentBundleSignatureProps {
@@ -49,6 +50,11 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [signingStatus, setSigningStatus] = useState<Record<string, "pending" | "signed" | "error">>(
     {}
   );
+  const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
+  const { speak, currentWordIndex } = useTextToSpeech({ rate: 0.9 });
+  
+  const subtextMessage = "Review document bundles for each candidate and prepare for signature collection";
+  const subtextWords = subtextMessage.split(" ");
 
   // Generate document bundles for each candidate
   const getDocumentsForCandidate = (candidate: Candidate): DocumentType[] => {
@@ -105,6 +111,19 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
       ];
     }
   };
+
+  // Auto-speak welcome message on mount
+  useEffect(() => {
+    if (!hasWelcomeSpoken) {
+      const timer = setTimeout(() => {
+        speak(subtextMessage, () => {
+          setHasWelcomeSpoken(true);
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasWelcomeSpoken, speak, subtextMessage]);
 
   // Auto-animate contracts on mount
   useEffect(() => {
@@ -184,14 +203,29 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="text-center space-y-4"
+        className="text-center space-y-2"
       >
         <div className="flex justify-center">
-          <AudioWaveVisualizer isActive={bundleStatus === "preparing"} />
+          <AudioWaveVisualizer 
+            isActive={!hasWelcomeSpoken} 
+            isListening={true}
+            isDetectingVoice={currentWordIndex > 0}
+          />
         </div>
-        <h1 className="text-3xl font-bold">Step 3 — Document Bundle & Signature</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Review document bundles for each candidate and prepare for signature collection
+        <h1 className="text-3xl font-bold">Document Bundle & Signature</h1>
+        <p className="max-w-2xl mx-auto">
+          {subtextWords.map((word, idx) => (
+            <span
+              key={idx}
+              className={
+                currentWordIndex === idx + 1
+                  ? "text-foreground/90 font-medium"
+                  : "text-foreground/60"
+              }
+            >
+              {word}{" "}
+            </span>
+          ))}
         </p>
       </motion.div>
 
