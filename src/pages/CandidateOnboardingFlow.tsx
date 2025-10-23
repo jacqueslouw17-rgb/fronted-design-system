@@ -207,16 +207,15 @@ export default function CandidateOnboardingFlow() {
               const stepIndex = steps.indexOf(step.id as OnboardingStep);
               const isCompleted = currentStepIndex > stepIndex;
               const isActive = currentStep === step.id;
-              const Icon = step.icon;
 
               return (
                 <StepCard
                   key={step.id}
                   title={step.title}
+                  stepNumber={idx + 1}
                   status={isCompleted ? "completed" : isActive ? "active" : "pending"}
-                  icon={<Icon className="h-5 w-5" />}
-                  expanded={expandedStep === step.id}
-                  onToggle={() => {
+                  isExpanded={expandedStep === step.id}
+                  onClick={() => {
                     if (isActive) {
                       setExpandedStep(expandedStep === step.id ? null : step.id);
                     }
