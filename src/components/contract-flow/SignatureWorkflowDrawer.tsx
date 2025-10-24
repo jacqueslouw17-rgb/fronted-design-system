@@ -103,12 +103,6 @@ const getSignatureSteps = (candidate: Candidate | null): SignatureStep[] => {
       name: "Joe User",
       status: "current",
     },
-    {
-      id: "hr",
-      role: "HR Manager",
-      name: "Sarah Johnson",
-      status: "pending",
-    },
   ];
 };
 
