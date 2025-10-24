@@ -127,11 +127,22 @@ const ContractFlowDemo = () => {
   // Auto-speak for each phase (once per phase)
   useEffect(() => {
     const phaseKey = contractFlow.phase;
-    if (!hasSpokenPhase[phaseKey]) {
+    const movedParam = searchParams.get("moved") === "true";
+    
+    // Create a unique key that includes the moved state for data-collection phase
+    const uniquePhaseKey = (phaseKey === "data-collection" && movedParam) 
+      ? `${phaseKey}-moved` 
+      : phaseKey;
+    
+    if (!hasSpokenPhase[uniquePhaseKey]) {
       let message = "";
       
       if (phaseKey === "offer-accepted" || phaseKey === "data-collection") {
-        message = "Let's finalize contracts and complete onboarding.";
+        if (movedParam) {
+          message = "Great, contracts sent to candidates via their preferred signing portals.";
+        } else {
+          message = "Let's finalize contracts and complete onboarding.";
+        }
       } else if (phaseKey === "bundle-creation") {
         message = "Select documents to include in the signing package";
       } else if (phaseKey === "drafting" && contractFlow.selectedCandidates[contractFlow.currentDraftIndex]) {
@@ -145,13 +156,13 @@ const ContractFlowDemo = () => {
           speak(message, () => {
             setIsSpeaking(false);
           });
-          setHasSpokenPhase(prev => ({ ...prev, [phaseKey]: true }));
+          setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
         }, 1000);
         
         return () => clearTimeout(timer);
       }
     }
-  }, [contractFlow.phase, hasSpokenPhase, speak, contractFlow.currentDraftIndex, contractFlow.selectedCandidates]);
+  }, [contractFlow.phase, hasSpokenPhase, speak, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
 
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
@@ -277,7 +288,10 @@ const ContractFlowDemo = () => {
                         className="flex flex-col items-center space-y-4"
                       >
                         <AudioWaveVisualizer 
-                          isActive={!hasSpokenPhase["offer-accepted"]} 
+                          isActive={searchParams.get("moved") === "true" 
+                            ? !hasSpokenPhase["data-collection-moved"]
+                            : !hasSpokenPhase["offer-accepted"]
+                          } 
                           isListening={true}
                           isDetectingVoice={isSpeaking}
                         />
