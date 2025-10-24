@@ -608,7 +608,8 @@ const ContractFlowDemo = () => {
                       contractFlow.backToDrafting();
                     }}
                     onStartSigning={() => { 
-                      // Navigate back to pipeline with moved status
+                      // Update phase and navigate back to pipeline
+                      contractFlow.proceedToDataCollection();
                       toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
                       navigate("/flows/contract-flow?phase=data-collection&moved=true");
                     }}
