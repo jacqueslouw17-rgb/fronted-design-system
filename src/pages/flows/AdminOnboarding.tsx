@@ -552,7 +552,7 @@ const AdminOnboarding = () => {
           }
         }
       } catch (error) {
-        console.error("Error saving onboarding data:", error);
+        console.error("Error saving onboarding data:", error instanceof Error ? error.message : 'Unknown error');
       }
       
       // Show loading for a moment

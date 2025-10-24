@@ -94,14 +94,12 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const payload = JSON.parse(payloadString);
-    console.log("Received Slack interaction:", payload.type);
+    // Slack interaction received (no payload data logged)
 
     const { actions, response_url } = payload;
 
     // Check if user clicked "Resolved"
     if (actions && actions[0]?.value === "resolved") {
-      console.log("Resolving feedback and deleting message...");
-
       // Delete the original message
       const deleteResponse = await fetch(response_url, {
         method: "POST",
@@ -113,9 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (!deleteResponse.ok) {
-        console.error("Failed to delete message:", await deleteResponse.text());
-      } else {
-        console.log("✅ Feedback message deleted successfully");
+        console.error("Failed to delete Slack message");
       }
     }
 

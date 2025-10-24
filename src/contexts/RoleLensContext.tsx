@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export type UserRole = 'admin' | 'contractor' | 'employee';
 
@@ -58,20 +59,53 @@ interface RoleLensContextType {
   currentLens: RoleLensConfig;
   setRole: (role: UserRole) => void;
   hasPermission: (permission: keyof RoleLensConfig['permissions']) => boolean;
+  loading: boolean;
 }
 
 const RoleLensContext = createContext<RoleLensContextType | null>(null);
 
 export const RoleLensProvider = ({ children, initialRole = 'admin' }: { children: ReactNode; initialRole?: UserRole }) => {
   const [currentRole, setCurrentRole] = useState<UserRole>(initialRole);
+  const [loading, setLoading] = useState(true);
   const currentLens = roleLensConfigs[currentRole] || roleLensConfigs.admin;
+
+  useEffect(() => {
+    const loadUserRole = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.user) {
+          setLoading(false);
+          return;
+        }
+
+        // Load role from database
+        const { data: roles, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .limit(1)
+          .single();
+
+        if (!error && roles) {
+          setCurrentRole(roles.role as UserRole);
+        }
+      } catch (err) {
+        console.error('Error loading user role:', err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserRole();
+  }, []);
 
   const hasPermission = (permission: keyof RoleLensConfig['permissions']) => {
     return currentLens.permissions[permission];
   };
 
   return (
-    <RoleLensContext.Provider value={{ currentLens, setRole: setCurrentRole, hasPermission }}>
+    <RoleLensContext.Provider value={{ currentLens, setRole: setCurrentRole, hasPermission, loading }}>
       {children}
     </RoleLensContext.Provider>
   );
