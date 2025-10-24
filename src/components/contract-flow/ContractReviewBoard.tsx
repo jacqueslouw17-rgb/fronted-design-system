@@ -79,7 +79,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       </motion.div>
 
       {/* Header - Centered below visualizer */}
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-2 mb-8">
         <h1 className="text-3xl font-bold text-foreground">Review Contracts</h1>
         <p className="text-base text-muted-foreground">
           All contracts ready. Review and send to candidates for signature.
