@@ -258,61 +258,56 @@ const ContractFlowDemo = () => {
                   className="flex-1 overflow-y-auto"
                 >
                   <div className="max-w-7xl mx-auto p-8 space-y-8">
+                    {/* Kurt Agent or Contract Status Message - Centered at Top */}
                     {showContractSignedMessage ? (
-                      /* Contract Signed Message - Only for fully signed */
                       <ContractSignedMessage 
                         mode="signed"
                         onReadingComplete={() => {
-                          // After reading, hide the message and show pipeline with trigger-onboarding cards
+                          // After reading, just hide the message component
                           setTimeout(() => {
                             setShowContractSignedMessage(false);
-                            navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
                           }, 2000);
                         }}
                       />
                     ) : (
-                      <>
-                        {/* Kurt Agent - Centered at Top */}
-                        <motion.div
-                          initial={{ opacity: 0, y: -20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex flex-col items-center space-y-4"
-                        >
-                          <AudioWaveVisualizer 
-                            isActive={!hasSpokenPhase["offer-accepted"]} 
-                            isListening={true}
-                            isDetectingVoice={isSpeaking}
-                          />
-                          <div className="text-center space-y-2">
-                            <h1 className="text-3xl font-bold text-foreground">
-                              {searchParams.get("moved") === "true" 
-                                ? "Contracts sent - awaiting signatures"
-                                : "Great news - two more candidates accepted their offers!"
-                              }
-                            </h1>
-                            <p className="text-foreground/60 relative max-w-2xl mx-auto">
-                              {(searchParams.get("moved") === "true" 
-                                ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Let's finalize contracts and complete onboarding."
-                              ).split(' ').map((word, index) => (
-                                <span
-                                  key={index}
-                                  className={`transition-colors duration-200 ${
-                                    isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                                  }`}
-                                >
-                                  {word}{" "}
-                                </span>
-                              ))}
-                            </p>
-                          </div>
-                        </motion.div>
-                      </>
+                      <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center space-y-4"
+                      >
+                        <AudioWaveVisualizer 
+                          isActive={!hasSpokenPhase["offer-accepted"]} 
+                          isListening={true}
+                          isDetectingVoice={isSpeaking}
+                        />
+                        <div className="text-center space-y-2">
+                          <h1 className="text-3xl font-bold text-foreground">
+                            {searchParams.get("moved") === "true" 
+                              ? "Contracts sent - awaiting signatures"
+                              : "Great news - two more candidates accepted their offers!"
+                            }
+                          </h1>
+                          <p className="text-foreground/60 relative max-w-2xl mx-auto">
+                            {(searchParams.get("moved") === "true" 
+                              ? "Great, contracts sent to candidates via their preferred signing portals."
+                              : "Let's finalize contracts and complete onboarding."
+                            ).split(' ').map((word, index) => (
+                              <span
+                                key={index}
+                                className={`transition-colors duration-200 ${
+                                  isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                                }`}
+                              >
+                                {word}{" "}
+                              </span>
+                            ))}
+                          </p>
+                        </div>
+                      </motion.div>
                     )}
 
                     {/* Pipeline Tracking - Full Width */}
-                    {!showContractSignedMessage && (
-                      <div className="space-y-4">
+                    <div className="space-y-4">
                       <Tabs defaultValue="pipeline" className="w-full">
                         <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
                           <TabsTrigger value="list">Metrics</TabsTrigger>
@@ -473,7 +468,6 @@ const ContractFlowDemo = () => {
                         </TabsContent>
                       </Tabs>
                     </div>
-                    )}
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (
