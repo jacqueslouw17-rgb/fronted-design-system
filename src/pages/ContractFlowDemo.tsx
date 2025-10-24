@@ -288,23 +288,6 @@ const ContractFlowDemo = () => {
                         </TabsList>
 
                         <TabsContent value="list" className="space-y-6">
-                          {/* Genie Message Bubble */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, duration: 0.4 }}
-                            className="max-w-3xl mx-auto"
-                          >
-                            <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                              <div className="mt-0.5">
-                                <Bot className="h-5 w-5 text-primary" />
-                              </div>
-                              <p className="text-sm text-foreground/80">
-                                Review the details below and send onboarding forms to collect any missing information. I'll validate everything and notify you when they're ready for contract generation.
-                              </p>
-                            </div>
-                          </motion.div>
-
                           {/* KPI Metric Widgets Grid */}
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
                             {widgets.map((widget, idx) => (
