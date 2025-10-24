@@ -165,7 +165,6 @@ const ContractFlowDemo = () => {
   useEffect(() => {
     const phaseParam = searchParams.get("phase");
     const signedParam = searchParams.get("signed");
-    const movedParam = searchParams.get("moved");
     
     if (phaseParam === "bundle-creation") {
       contractFlow.goToBundleCreation();
@@ -175,12 +174,6 @@ const ContractFlowDemo = () => {
     
     if (signedParam === "true") {
       setShowContractSignedMessage(true);
-      setContractMessageMode("signed");
-    }
-    
-    if (movedParam === "true") {
-      setShowContractSignedMessage(true);
-      setContractMessageMode("sent");
     }
   }, [searchParams, contractFlow, navigate]);
 
@@ -266,17 +259,14 @@ const ContractFlowDemo = () => {
                 >
                   <div className="max-w-7xl mx-auto p-8 space-y-8">
                     {showContractSignedMessage ? (
-                      /* Contract Signed/Sent Message */
+                      /* Contract Signed Message - Only for fully signed */
                       <ContractSignedMessage 
-                        mode={contractMessageMode}
+                        mode="signed"
                         onReadingComplete={() => {
-                          // After reading, hide the message and show pipeline with moved cards
+                          // After reading, hide the message and show pipeline with trigger-onboarding cards
                           setTimeout(() => {
                             setShowContractSignedMessage(false);
-                            if (contractMessageMode === "signed") {
-                              navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
-                            }
-                            // For "sent" mode, keep the moved param so cards stay in awaiting-signature
+                            navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
                           }, 2000);
                         }}
                       />
@@ -295,10 +285,16 @@ const ContractFlowDemo = () => {
                           />
                           <div className="text-center space-y-2">
                             <h1 className="text-3xl font-bold text-foreground">
-                              Great news - two more candidates accepted their offers!
+                              {searchParams.get("moved") === "true" 
+                                ? "Contracts sent - awaiting signatures"
+                                : "Great news - two more candidates accepted their offers!"
+                              }
                             </h1>
                             <p className="text-foreground/60 relative max-w-2xl mx-auto">
-                              {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
+                              {(searchParams.get("moved") === "true" 
+                                ? "Great, contracts sent to candidates via their preferred signing portals."
+                                : "Let's finalize contracts and complete onboarding."
+                              ).split(' ').map((word, index) => (
                                 <span
                                   key={index}
                                   className={`transition-colors duration-200 ${
