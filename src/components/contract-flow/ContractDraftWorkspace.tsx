@@ -326,22 +326,22 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.3 }}
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col max-h-[600px]"
       >
         {/* Genie message - Aligned with left box */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.3 }}
-          className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4"
+          className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4 flex-shrink-0"
         >
           <p className="text-sm text-foreground">
             Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
           </p>
         </motion.div>
 
-        <ScrollArea className="flex-1 mb-4 max-h-[600px]">
-          <div className="pr-4">
+        <ScrollArea className="flex-1 overflow-auto">
+          <div className="pr-4 pb-4">
             <InlineEditContext
               content={content}
               onContentChange={setContent}
@@ -369,20 +369,21 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
+                className="mb-4"
               >
                 <ContractCarousel pages={carouselPages} />
               </motion.div>
             )}
+
+            <Button
+              onClick={onNext}
+              disabled={isTyping}
+              className="w-full"
+            >
+              {index === total - 1 ? "Review All Drafts" : "Next Draft"}
+            </Button>
           </div>
         </ScrollArea>
-
-        <Button
-          onClick={onNext}
-          disabled={isTyping}
-          className="w-full"
-        >
-          {index === total - 1 ? "Review All Drafts" : "Next Draft"}
-        </Button>
       </motion.div>
     </motion.div>
   );
