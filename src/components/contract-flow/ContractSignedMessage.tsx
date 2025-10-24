@@ -7,14 +7,29 @@ import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 
 interface ContractSignedMessageProps {
   onReadingComplete?: () => void;
+  mode?: "sent" | "signed"; // "sent" = contracts sent to candidates, "signed" = contracts fully signed
 }
 
 export const ContractSignedMessage: React.FC<ContractSignedMessageProps> = ({
   onReadingComplete,
+  mode = "signed",
 }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState("Perfect, compliance verified and contract copies stored securely.");
+  
+  const initialMessage = mode === "sent" 
+    ? "Great, contracts sent to candidates via their preferred signing portals."
+    : "Perfect, compliance verified and contract copies stored securely.";
+    
+  const secondMessage = mode === "sent"
+    ? "Moving candidates to awaiting signature."
+    : "Onboarding invites sent to candidates.";
+    
+  const heading = mode === "sent"
+    ? "Contracts sent - awaiting signatures"
+    : "Contract signed - you're all set!";
+  
+  const [currentMessage, setCurrentMessage] = useState(initialMessage);
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
   const words = currentMessage.split(' ');
@@ -24,11 +39,11 @@ export const ContractSignedMessage: React.FC<ContractSignedMessageProps> = ({
       const timer = setTimeout(() => {
         setHasSpoken(true);
         setIsSpeaking(true);
-        speak(currentMessage, () => {
+        speak(initialMessage, () => {
           setIsSpeaking(false);
           // Wait a moment then trigger the next step
           setTimeout(() => {
-            setCurrentMessage("Onboarding invites sent to candidates.");
+            setCurrentMessage(secondMessage);
             onReadingComplete?.();
           }, 1000);
         });
@@ -36,7 +51,7 @@ export const ContractSignedMessage: React.FC<ContractSignedMessageProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [hasSpoken, currentMessage, speak, onReadingComplete]);
+  }, [hasSpoken, initialMessage, secondMessage, speak, onReadingComplete]);
 
   return (
     <motion.div
@@ -60,7 +75,7 @@ export const ContractSignedMessage: React.FC<ContractSignedMessageProps> = ({
 
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">Contract signed - you're all set!</h1>
+        <h1 className="text-3xl font-bold text-foreground">{heading}</h1>
         <p className="text-base text-muted-foreground">
           {words.map((word, index) => (
             <span

@@ -40,6 +40,7 @@ const ContractFlowDemo = () => {
   const [isSpeaking, setIsSpeaking] = React.useState(false);
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
   const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
+  const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -164,6 +165,7 @@ const ContractFlowDemo = () => {
   useEffect(() => {
     const phaseParam = searchParams.get("phase");
     const signedParam = searchParams.get("signed");
+    const movedParam = searchParams.get("moved");
     
     if (phaseParam === "bundle-creation") {
       contractFlow.goToBundleCreation();
@@ -173,6 +175,12 @@ const ContractFlowDemo = () => {
     
     if (signedParam === "true") {
       setShowContractSignedMessage(true);
+      setContractMessageMode("signed");
+    }
+    
+    if (movedParam === "true") {
+      setShowContractSignedMessage(true);
+      setContractMessageMode("sent");
     }
   }, [searchParams, contractFlow, navigate]);
 
@@ -258,13 +266,17 @@ const ContractFlowDemo = () => {
                 >
                   <div className="max-w-7xl mx-auto p-8 space-y-8">
                     {showContractSignedMessage ? (
-                      /* Contract Signed Message */
+                      /* Contract Signed/Sent Message */
                       <ContractSignedMessage 
+                        mode={contractMessageMode}
                         onReadingComplete={() => {
-                          // After reading, hide the message and show pipeline with trigger-onboarding cards
+                          // After reading, hide the message and show pipeline with moved cards
                           setTimeout(() => {
                             setShowContractSignedMessage(false);
-                            navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
+                            if (contractMessageMode === "signed") {
+                              navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
+                            }
+                            // For "sent" mode, keep the moved param so cards stay in awaiting-signature
                           }, 2000);
                         }}
                       />
