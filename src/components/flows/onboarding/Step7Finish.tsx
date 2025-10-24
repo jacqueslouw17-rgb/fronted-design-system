@@ -23,13 +23,13 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
     // Complete the step first
     onComplete("transparency_pledge");
     
-    // Start transition immediately
+    // Start transition with longer delay
     setIsTransitioning(true);
     
-    // Navigate after a brief delay for smooth transition
+    // Navigate after a longer delay for smoother transition
     setTimeout(() => {
       navigate('/flows/contract-flow');
-    }, 1200);
+    }, 2800);
   }, [navigate, onComplete]);
 
   const completedItems = [
@@ -47,17 +47,23 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
         {isTransitioning ? (
           <motion.div
             key="transitioning"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-background"
           >
             <div className="flex flex-col items-center space-y-6">
               <AudioWaveVisualizer isActive={true} />
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold">Launching Contract Flow</h3>
-                <p className="text-muted-foreground">Preparing your candidates...</p>
-              </div>
+              <motion.div 
+                className="text-center space-y-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <h3 className="text-2xl font-bold">Setting up your workspace...</h3>
+                <p className="text-muted-foreground">This will just take a moment</p>
+              </motion.div>
             </div>
           </motion.div>
         ) : (

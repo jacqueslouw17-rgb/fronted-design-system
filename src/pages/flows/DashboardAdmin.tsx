@@ -39,24 +39,8 @@ interface Worker {
   avatarUrl?: string;
 }
 
-const mockWorkers: Worker[] = [
-  {
-    id: "1",
-    name: "Maria Santos",
-    country: "Philippines",
-    countryFlag: "🇵🇭",
-    role: "Software Engineer",
-    status: "certified",
-  },
-  {
-    id: "2",
-    name: "Oskar Nielsen",
-    country: "Norway",
-    countryFlag: "🇳🇴",
-    role: "Product Designer",
-    status: "certified",
-  },
-];
+// Empty state for first time users
+const mockWorkers: Worker[] = [];
 
 // Mock contractors for pipeline view - empty state for first time
 const mockContractors: any[] = [];
@@ -153,44 +137,8 @@ const DashboardAdmin = () => {
     }
   };
 
-  const widgets = [
-    {
-      title: "Total Contractors",
-      value: mockWorkers.length.toString(),
-      trend: "+100%",
-      icon: Users,
-    },
-    {
-      title: "Monthly Payroll",
-      value: "Pending",
-      trend: "Starts after onboarding",
-      icon: DollarSign,
-    },
-    {
-      title: "Compliance Score",
-      value: "100%",
-      trend: "All certified",
-      icon: FileCheck,
-    },
-    {
-      title: "Active Contracts",
-      value: mockWorkers.length.toString(),
-      trend: "+100%",
-      icon: TrendingUp,
-    },
-    {
-      title: "Pending Actions",
-      value: "1",
-      trend: "Start onboarding",
-      icon: AlertCircle,
-    },
-    {
-      title: "Avg Response Time",
-      value: "N/A",
-      trend: "No data yet",
-      icon: Clock,
-    },
-  ];
+  // Empty widgets for first time users
+  const widgets: any[] = [];
 
   const handleAskGenie = (widgetTitle: string) => {
     setPromptInput(`Tell me more about ${widgetTitle}`);
@@ -307,36 +255,50 @@ const DashboardAdmin = () => {
                 </TabsList>
                 
                 <TabsContent value="list" className="space-y-3 mt-4">
-                  {mockWorkers.map((worker) => (
-                    <Card key={worker.id} className="hover:shadow-card transition-shadow">
-                      <CardContent className="p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarImage src={worker.avatarUrl} />
-                            <AvatarFallback>
-                              {worker.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium">{worker.name}</p>
-                              <span className="text-lg">{worker.countryFlag}</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{worker.role}</p>
-                          </div>
+                  {mockWorkers.length === 0 ? (
+                    <Card className="border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12">
+                        <div className="rounded-full bg-muted p-4 mb-4">
+                          <Users className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Certified
-                          </Badge>
-                          <Button variant="outline" size="sm">
-                            View Contract
-                          </Button>
-                        </div>
+                        <h3 className="text-lg font-semibold mb-2">No people yet</h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-md">
+                          Your team members will appear here once you start onboarding contractors.
+                        </p>
                       </CardContent>
                     </Card>
-                  ))}
+                  ) : (
+                    mockWorkers.map((worker) => (
+                      <Card key={worker.id} className="hover:shadow-card transition-shadow">
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={worker.avatarUrl} />
+                              <AvatarFallback>
+                                {worker.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{worker.name}</p>
+                                <span className="text-lg">{worker.countryFlag}</span>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{worker.role}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Certified
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              View Contract
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </TabsContent>
 
                 <TabsContent value="pipeline" className="mt-4">
