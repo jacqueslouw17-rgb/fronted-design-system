@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft } from "lucide-react";
@@ -18,6 +18,7 @@ import { ComplianceTransitionNote } from "@/components/contract-flow/ComplianceT
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
+import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
@@ -38,6 +39,7 @@ const ContractFlowDemo = () => {
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
   const [isSpeaking, setIsSpeaking] = React.useState(false);
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
+  const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -161,10 +163,16 @@ const ContractFlowDemo = () => {
   // Check for phase query param and transition
   useEffect(() => {
     const phaseParam = searchParams.get("phase");
+    const signedParam = searchParams.get("signed");
+    
     if (phaseParam === "bundle-creation") {
       contractFlow.goToBundleCreation();
       // Clear the query param
       navigate("/flows/contract-flow", { replace: true });
+    }
+    
+    if (signedParam === "true") {
+      setShowContractSignedMessage(true);
     }
   }, [searchParams, contractFlow, navigate]);
 
@@ -249,38 +257,54 @@ const ContractFlowDemo = () => {
                   className="flex-1 overflow-y-auto"
                 >
                   <div className="max-w-7xl mx-auto p-8 space-y-8">
-                    {/* Kurt Agent - Centered at Top */}
-                    <motion.div
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center space-y-4"
-                    >
-                      <AudioWaveVisualizer 
-                        isActive={!hasSpokenPhase["offer-accepted"]} 
-                        isListening={true}
-                        isDetectingVoice={isSpeaking}
+                    {showContractSignedMessage ? (
+                      /* Contract Signed Message */
+                      <ContractSignedMessage 
+                        onReadingComplete={() => {
+                          // After reading, hide the message and show pipeline with trigger-onboarding cards
+                          setTimeout(() => {
+                            setShowContractSignedMessage(false);
+                            navigate("/flows/contract-flow?phase=data-collection&onboarding=true", { replace: true });
+                          }, 2000);
+                        }}
                       />
-                      <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold text-foreground">
-                          Great news - two more candidates accepted their offers!
-                        </h1>
-                        <p className="text-foreground/60 relative max-w-2xl mx-auto">
-                          {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
-                            <span
-                              key={index}
-                              className={`transition-colors duration-200 ${
-                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                              }`}
-                            >
-                              {word}{" "}
-                            </span>
-                          ))}
-                        </p>
-                      </div>
-                    </motion.div>
+                    ) : (
+                      <>
+                        {/* Kurt Agent - Centered at Top */}
+                        <motion.div
+                          initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex flex-col items-center space-y-4"
+                        >
+                          <AudioWaveVisualizer 
+                            isActive={!hasSpokenPhase["offer-accepted"]} 
+                            isListening={true}
+                            isDetectingVoice={isSpeaking}
+                          />
+                          <div className="text-center space-y-2">
+                            <h1 className="text-3xl font-bold text-foreground">
+                              Great news - two more candidates accepted their offers!
+                            </h1>
+                            <p className="text-foreground/60 relative max-w-2xl mx-auto">
+                              {"Let's finalize contracts and complete onboarding.".split(' ').map((word, index) => (
+                                <span
+                                  key={index}
+                                  className={`transition-colors duration-200 ${
+                                    isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
+                                  }`}
+                                >
+                                  {word}{" "}
+                                </span>
+                              ))}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
 
                     {/* Pipeline Tracking - Full Width */}
-                    <div className="space-y-4">
+                    {!showContractSignedMessage && (
+                      <div className="space-y-4">
                       <Tabs defaultValue="pipeline" className="w-full">
                         <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
                           <TabsTrigger value="list">Metrics</TabsTrigger>
@@ -328,9 +352,11 @@ const ContractFlowDemo = () => {
                                 countryFlag: candidate.flag,
                                 role: candidate.role,
                                 salary: candidate.salary,
-                                status: (searchParams.get("phase") === "data-collection" && searchParams.get("moved") === "true") 
-                                  ? "awaiting-signature" as const 
-                                  : (index === 0 ? "drafting" as const : "offer-accepted" as const),
+                                 status: (searchParams.get("phase") === "data-collection" && searchParams.get("moved") === "true") 
+                                   ? "awaiting-signature" as const 
+                                   : (searchParams.get("onboarding") === "true")
+                                     ? "trigger-onboarding" as const
+                                     : (index === 0 ? "drafting" as const : "offer-accepted" as const),
                                 formSent: index === 0,
                                 dataReceived: index === 0,
                               })),
@@ -431,10 +457,15 @@ const ContractFlowDemo = () => {
                               const params = new URLSearchParams({ ids: ids.join(',') }).toString();
                               navigate(`/flows/contract-creation?${params}`);
                             }}
+                            onSignatureComplete={() => {
+                              // Navigate to show signed message
+                              navigate("/flows/contract-flow?phase=data-collection&signed=true");
+                            }}
                           />
                         </TabsContent>
                       </Tabs>
                     </div>
+                    )}
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (

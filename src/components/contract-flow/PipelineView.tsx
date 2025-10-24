@@ -30,6 +30,7 @@ interface PipelineViewProps {
   className?: string;
   onContractorUpdate?: (contractors: Contractor[]) => void;
   onDraftContract?: (contractorIds: string[]) => void;
+  onSignatureComplete?: () => void;
 }
 
 const statusConfig = {
@@ -84,6 +85,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   className,
   onContractorUpdate,
   onDraftContract,
+  onSignatureComplete,
 }) => {
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -148,7 +150,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleSignatureComplete = () => {
-    toast.success("Contract finalized and ready for onboarding");
+    onSignatureComplete?.();
     setSignatureDrawerOpen(false);
   };
 
