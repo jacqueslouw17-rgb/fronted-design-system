@@ -164,6 +164,15 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   };
 
   const handleUploadDocument = () => {
+    // Update the document status from "missing" to "ready"
+    setDocuments(prevDocs =>
+      prevDocs.map(doc =>
+        doc.name === selectedDoc
+          ? { ...doc, status: "ready" as const, action: "Preview" }
+          : doc
+      )
+    );
+
     toast({
       title: "Document uploaded",
       description: `${selectedDoc} has been added successfully.`,
