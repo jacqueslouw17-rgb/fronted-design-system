@@ -328,7 +328,9 @@ const ContractFlowDemo = () => {
                                 countryFlag: candidate.flag,
                                 role: candidate.role,
                                 salary: candidate.salary,
-                                status: index === 0 ? "drafting" as const : "offer-accepted" as const,
+                                status: (searchParams.get("phase") === "data-collection" && searchParams.get("moved") === "true") 
+                                  ? "awaiting-signature" as const 
+                                  : (index === 0 ? "drafting" as const : "offer-accepted" as const),
                                 formSent: index === 0,
                                 dataReceived: index === 0,
                               })),
@@ -606,10 +608,9 @@ const ContractFlowDemo = () => {
                       contractFlow.backToDrafting();
                     }}
                     onStartSigning={() => { 
-                      // Move candidates to awaiting signature and return to pipeline
-                      contractFlow.completeFlow();
+                      // Navigate back to pipeline with moved status
                       toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
-                      navigate("/flows/contract-flow?phase=data-collection");
+                      navigate("/flows/contract-flow?phase=data-collection&moved=true");
                     }}
                   />
                 </motion.div>
