@@ -89,33 +89,6 @@ export const ContractSignedMessage: React.FC<ContractSignedMessageProps> = ({
           ))}
         </p>
       </div>
-
-      {/* Genie Message Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-      >
-        <Card className="p-4 border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Bot className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-sm text-foreground flex-1">
-              {words.map((word, index) => (
-                <span
-                  key={index}
-                  className={`transition-colors duration-200 ${
-                    isSpeaking && currentWordIndex === index ? 'text-primary font-medium' : ''
-                  }`}
-                >
-                  {word}{" "}
-                </span>
-              ))}
-            </p>
-          </div>
-        </Card>
-      </motion.div>
     </motion.div>
   );
 };

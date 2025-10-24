@@ -150,6 +150,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleSignatureComplete = () => {
+    // Move the contractor who was signing to trigger-onboarding
+    if (selectedForSignature) {
+      const updated = contractors.map(c => 
+        c.id === selectedForSignature.id 
+          ? { ...c, status: "trigger-onboarding" as const }
+          : c
+      );
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+    }
+    
     onSignatureComplete?.();
     setSignatureDrawerOpen(false);
   };

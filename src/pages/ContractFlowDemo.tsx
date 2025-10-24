@@ -461,8 +461,7 @@ const ContractFlowDemo = () => {
                               navigate(`/flows/contract-creation?${params}`);
                             }}
                             onSignatureComplete={() => {
-                              // Navigate to show signed message
-                              navigate("/flows/contract-flow?phase=data-collection&signed=true");
+                              // Don't navigate - just let the card move in pipeline
                             }}
                           />
                         </TabsContent>
