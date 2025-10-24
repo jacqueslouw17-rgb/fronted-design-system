@@ -297,16 +297,16 @@ const ContractFlowDemo = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                <Card className="hover:shadow-lg transition-all h-full border-primary/20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+                                <Card className="hover:shadow-lg transition-all h-full">
                                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
-                                    <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-secondary shadow-sm">
-                                      <widget.icon className="h-4 w-4 text-primary-foreground" />
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                      <widget.icon className="h-4 w-4 text-primary" />
                                     </div>
                                   </CardHeader>
                                   <CardContent>
-                                    <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{widget.value}</div>
-                                    <p className={`text-xs mt-1 font-medium ${widget.trend.startsWith('+') ? 'text-accent' : 'text-muted-foreground'}`}>
+                                    <div className="text-2xl font-bold">{widget.value}</div>
+                                    <p className={`text-xs mt-1 ${widget.trend.startsWith('+') ? 'text-accent' : 'text-muted-foreground'}`}>
                                       {widget.trend}
                                     </p>
                                   </CardContent>
