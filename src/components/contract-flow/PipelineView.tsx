@@ -424,7 +424,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 className="flex-1 text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toast.info(`Viewing form for ${contractor.name}`);
+                                  handleOpenConfigure(contractor);
                                 }}
                               >
                                 <Eye className="h-3 w-3 mr-1" />
@@ -436,7 +436,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 className="flex-1 text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleOpenConfigure(contractor);
+                                  toast.info(`Resending form to ${contractor.name}`);
                                 }}
                               >
                                 <Send className="h-3 w-3 mr-1" />
