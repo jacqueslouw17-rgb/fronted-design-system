@@ -5,11 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
+import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 
 interface Contractor {
@@ -90,6 +91,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
   const [documentDrawerOpen, setDocumentDrawerOpen] = useState(false);
   const [selectedForDocuments, setSelectedForDocuments] = useState<Candidate | null>(null);
+  const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
+  const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
     return contractors.filter((c) => c.status === status);
@@ -120,6 +123,33 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     };
     setSelectedForDocuments(candidate);
     setDocumentDrawerOpen(true);
+  };
+
+  const handleOpenSignatureWorkflow = (contractor: Contractor) => {
+    // Convert Contractor to Candidate format
+    const candidate: Candidate = {
+      id: contractor.id,
+      name: contractor.name,
+      role: contractor.role,
+      country: contractor.country,
+      countryCode: contractor.country === "Philippines" ? "PH" : "NO",
+      flag: contractor.countryFlag,
+      salary: contractor.salary,
+      currency: contractor.salary.includes("PHP") ? "PHP" : "NOK",
+      startDate: "TBD",
+      noticePeriod: "30 days",
+      pto: "15 days",
+      employmentType: "contractor",
+      signingPortal: "",
+      status: "Hired",
+    };
+    setSelectedForSignature(candidate);
+    setSignatureDrawerOpen(true);
+  };
+
+  const handleSignatureComplete = () => {
+    toast.success("Contract finalized and ready for onboarding");
+    setSignatureDrawerOpen(false);
   };
 
   const handleSelectAll = (status: typeof columns[number], checked: boolean) => {
@@ -437,11 +467,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 className="w-full text-xs h-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleOpenDocumentBundle(contractor);
+                                  handleOpenSignatureWorkflow(contractor);
                                 }}
                               >
-                                <FileText className="h-3 w-3 mr-1" />
-                                View Documents
+                                <FileSignature className="h-3 w-3 mr-1" />
+                                View Signatures
                               </Button>
                             </div>
                           )}
@@ -536,6 +566,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         open={documentDrawerOpen}
         onOpenChange={setDocumentDrawerOpen}
         candidate={selectedForDocuments}
+      />
+
+      {/* Signature Workflow Drawer */}
+      <SignatureWorkflowDrawer
+        open={signatureDrawerOpen}
+        onOpenChange={setSignatureDrawerOpen}
+        candidate={selectedForSignature}
+        onComplete={handleSignatureComplete}
       />
     </div>
   );

@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, CheckCircle2, AlertTriangle, File } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { FileText, CheckCircle2, AlertTriangle, File, Upload } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import type { Candidate } from "@/hooks/useContractFlow";
 
 interface Document {
@@ -79,7 +83,7 @@ const getStatusIcon = (status: Document["status"]) => {
     case "ready":
       return <CheckCircle2 className="h-4 w-4 text-success" />;
     case "missing":
-      return <AlertTriangle className="h-4 w-4 text-warning" />;
+      return <AlertTriangle className="h-4 w-4 text-destructive" />;
     case "not-sent":
       return <File className="h-4 w-4 text-muted-foreground" />;
   }
@@ -89,31 +93,31 @@ const getStatusBadge = (status: Document["status"]) => {
   switch (status) {
     case "drafted":
       return (
-        <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
-          <CheckCircle2 className="h-3 w-3 mr-1" />
-          Drafted
-        </Badge>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-success/10 border border-success/20">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span className="text-sm font-medium text-success">Drafted</span>
+        </div>
       );
     case "ready":
       return (
-        <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
-          <CheckCircle2 className="h-3 w-3 mr-1" />
-          Ready
-        </Badge>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-success/10 border border-success/20">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span className="text-sm font-medium text-success">Ready</span>
+        </div>
       );
     case "missing":
       return (
-        <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">
-          <AlertTriangle className="h-3 w-3 mr-1" />
-          Missing
-        </Badge>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-destructive/10 border border-destructive/20">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <span className="text-sm font-medium text-destructive">Missing</span>
+        </div>
       );
     case "not-sent":
       return (
-        <Badge variant="secondary" className="bg-muted text-muted-foreground">
-          <File className="h-3 w-3 mr-1" />
-          Not Sent
-        </Badge>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted border border-border">
+          <File className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Not Sent</span>
+        </div>
       );
   }
 };
@@ -126,6 +130,22 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
   const documents = getDocumentsForCandidate(candidate);
   const documentCount = documents.length;
   const hasIssues = documents.some(d => d.status === "missing");
+  const [addDocDialogOpen, setAddDocDialogOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+
+  const handleAddDocument = (docName: string) => {
+    setSelectedDoc(docName);
+    setAddDocDialogOpen(true);
+  };
+
+  const handleUploadDocument = () => {
+    toast({
+      title: "Document uploaded",
+      description: `${selectedDoc} has been added successfully.`,
+    });
+    setAddDocDialogOpen(false);
+    setSelectedDoc(null);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -203,7 +223,14 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
                         size="sm"
                         className="text-xs h-7"
                         onClick={() => {
-                          // Handle document action
+                          if (doc.action === "Add") {
+                            handleAddDocument(doc.name);
+                          } else {
+                            toast({
+                              title: doc.action,
+                              description: `${doc.action} ${doc.name}`,
+                            });
+                          }
                         }}
                       >
                         {doc.action}
@@ -216,9 +243,9 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
 
             {/* Action Footer */}
             {hasIssues && (
-              <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
-                <p className="text-sm text-warning flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
+              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
                   Some documents are missing or incomplete. Please resolve before sending.
                 </p>
               </div>
@@ -226,6 +253,43 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
           </div>
         )}
       </SheetContent>
+
+      {/* Add Document Dialog */}
+      <Dialog open={addDocDialogOpen} onOpenChange={setAddDocDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add {selectedDoc}</DialogTitle>
+            <DialogDescription>
+              Upload the required document to complete the bundle.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="document-upload">Document File</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="document-upload"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Supported formats: PDF, DOC, DOCX (max 10MB)
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDocDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUploadDocument}>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Document
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
