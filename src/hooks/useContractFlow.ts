@@ -181,6 +181,11 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     setSignedCandidates([]);
   }, [version]);
 
+  const backToDrafting = useCallback(() => {
+    setPhase("drafting");
+    setCurrentDraftIndex(selectedCandidates.length - 1); // Go to last draft
+  }, [selectedCandidates.length]);
+
   return {
     phase,
     selectedCandidates,
@@ -202,5 +207,6 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     signContract,
     completeFlow,
     resetFlow,
+    backToDrafting,
   };
 };

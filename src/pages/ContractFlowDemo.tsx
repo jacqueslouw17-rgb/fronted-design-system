@@ -603,8 +603,7 @@ const ContractFlowDemo = () => {
                   <ContractReviewBoard 
                     candidates={contractFlow.selectedCandidates} 
                     onBack={() => {
-                      // Navigate back one step in the flow
-                      navigate("/flows/contract-flow?phase=drafting");
+                      contractFlow.backToDrafting();
                     }}
                     onStartSigning={() => { 
                       // Move candidates to awaiting signature and return to pipeline
