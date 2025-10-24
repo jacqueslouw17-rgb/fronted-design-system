@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
+import { CheckCircle2, DollarSign, Calendar, Clock, ArrowLeft } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -12,11 +12,13 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 interface ContractReviewBoardProps {
   candidates: Candidate[];
   onStartSigning: () => void;
+  onBack?: () => void;
 }
 
 export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   candidates,
   onStartSigning,
+  onBack,
 }) => {
   const [globalComment, setGlobalComment] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -48,6 +50,27 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4 mb-6">
+        {onBack && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        )}
+        <div className="flex-1">
+          <h2 className="text-xl font-semibold text-foreground mb-1">Review Contracts</h2>
+          <p className="text-sm text-muted-foreground">
+            All contracts ready. Review and send to candidates for signature.
+          </p>
+        </div>
+      </div>
+
       {/* Audio Wave Visualizer */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -59,27 +82,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           isListening={true}
           isDetectingVoice={isSpeaking}
         />
-      </motion.div>
-
-      {/* Kurt's message */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
-      >
-        <p className="text-foreground/60 relative text-center">
-          {subtextWords.map((word, index) => (
-            <span
-              key={index}
-              className={`transition-colors duration-200 ${
-                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-              }`}
-            >
-              {word}{" "}
-            </span>
-          ))}
-        </p>
       </motion.div>
 
       {/* Review cards */}

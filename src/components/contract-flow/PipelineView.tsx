@@ -5,10 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircle2, Eye, Send, Settings, FileEdit } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
+import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
+import type { Candidate } from "@/hooks/useContractFlow";
 
 interface Contractor {
   id: string;
@@ -86,6 +88,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [documentDrawerOpen, setDocumentDrawerOpen] = useState(false);
+  const [selectedForDocuments, setSelectedForDocuments] = useState<Candidate | null>(null);
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
     return contractors.filter((c) => c.status === status);
@@ -94,6 +98,28 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const handleOpenConfigure = (contractor: Contractor) => {
     setSelectedContractor(contractor);
     setConfigureDrawerOpen(true);
+  };
+
+  const handleOpenDocumentBundle = (contractor: Contractor) => {
+    // Convert Contractor to Candidate format
+    const candidate: Candidate = {
+      id: contractor.id,
+      name: contractor.name,
+      role: contractor.role,
+      country: contractor.country,
+      countryCode: contractor.country === "Philippines" ? "PH" : "NO",
+      flag: contractor.countryFlag,
+      salary: contractor.salary,
+      currency: contractor.salary.includes("PHP") ? "PHP" : "NOK",
+      startDate: "TBD",
+      noticePeriod: "30 days",
+      pto: "15 days",
+      employmentType: "contractor",
+      signingPortal: "",
+      status: "Hired",
+    };
+    setSelectedForDocuments(candidate);
+    setDocumentDrawerOpen(true);
   };
 
   const handleSelectAll = (status: typeof columns[number], checked: boolean) => {
@@ -403,6 +429,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
+                          {status === "awaiting-signature" && (
+                            <div className="pt-2">
+                              <Button 
+                                variant="outline"
+                                size="sm" 
+                                className="w-full text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenDocumentBundle(contractor);
+                                }}
+                              >
+                                <FileText className="h-3 w-3 mr-1" />
+                                View Documents
+                              </Button>
+                            </div>
+                          )}
+
                           {/* Onboarding Trigger - Special Card */}
                           {status === "trigger-onboarding" && (
                             <div className="pt-2 space-y-2">
@@ -486,6 +529,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
             handleSendForm(selectedContractor.id);
           }
         }}
+      />
+
+      {/* Document Bundle Drawer */}
+      <DocumentBundleDrawer
+        open={documentDrawerOpen}
+        onOpenChange={setDocumentDrawerOpen}
+        candidate={selectedForDocuments}
       />
     </div>
   );

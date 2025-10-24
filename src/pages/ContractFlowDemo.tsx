@@ -602,9 +602,15 @@ const ContractFlowDemo = () => {
                 <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">
                   <ContractReviewBoard 
                     candidates={contractFlow.selectedCandidates} 
+                    onBack={() => {
+                      // Navigate back one step in the flow
+                      navigate("/flows/contract-flow?phase=drafting");
+                    }}
                     onStartSigning={() => { 
-                      contractFlow.proceedToDocumentBundle(); 
-                      // speak("Preparing document bundles."); 
+                      // Move candidates to awaiting signature and return to pipeline
+                      contractFlow.completeFlow();
+                      toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
+                      navigate("/flows/contract-flow?phase=data-collection");
                     }}
                   />
                 </motion.div>
