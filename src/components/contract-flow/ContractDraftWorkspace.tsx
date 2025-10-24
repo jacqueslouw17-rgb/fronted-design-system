@@ -328,16 +328,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         transition={{ delay: 0.2, duration: 0.3 }}
         className="flex-1 flex flex-col"
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Contract Draft</h3>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {index + 1} of {total}
-          </span>
-        </div>
-
         {/* Genie message - Aligned with left box */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
