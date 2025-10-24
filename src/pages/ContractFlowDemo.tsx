@@ -128,17 +128,25 @@ const ContractFlowDemo = () => {
   useEffect(() => {
     const phaseKey = contractFlow.phase;
     const movedParam = searchParams.get("moved") === "true";
+    const allSignedParam = searchParams.get("allSigned") === "true";
     
-    // Create a unique key that includes the moved state for data-collection phase
-    const uniquePhaseKey = (phaseKey === "data-collection" && movedParam) 
-      ? `${phaseKey}-moved` 
-      : phaseKey;
+    // Create a unique key that includes the moved/signed state for data-collection phase
+    let uniquePhaseKey: string = phaseKey;
+    if (phaseKey === "data-collection" || phaseKey === "offer-accepted") {
+      if (allSignedParam) {
+        uniquePhaseKey = `${phaseKey}-all-signed`;
+      } else if (movedParam) {
+        uniquePhaseKey = `${phaseKey}-moved`;
+      }
+    }
     
     if (!hasSpokenPhase[uniquePhaseKey]) {
       let message = "";
       
       if (phaseKey === "offer-accepted" || phaseKey === "data-collection") {
-        if (movedParam) {
+        if (allSignedParam) {
+          message = "Both candidates have signed! Let's trigger their onboarding checklists.";
+        } else if (movedParam) {
           message = "Great, contracts sent to candidates via their preferred signing portals.";
         } else {
           message = "Let's finalize contracts and complete onboarding.";
@@ -288,24 +296,31 @@ const ContractFlowDemo = () => {
                         className="flex flex-col items-center space-y-4"
                       >
                         <AudioWaveVisualizer 
-                          isActive={searchParams.get("moved") === "true" 
-                            ? !hasSpokenPhase["data-collection-moved"]
-                            : !hasSpokenPhase["offer-accepted"]
+                          isActive={
+                            searchParams.get("allSigned") === "true"
+                              ? !hasSpokenPhase["data-collection-all-signed"]
+                              : searchParams.get("moved") === "true" 
+                                ? !hasSpokenPhase["data-collection-moved"]
+                                : !hasSpokenPhase["offer-accepted"]
                           } 
                           isListening={true}
                           isDetectingVoice={isSpeaking}
                         />
                         <div className="text-center space-y-2">
                           <h1 className="text-3xl font-bold text-foreground">
-                            {searchParams.get("moved") === "true" 
-                              ? "Contracts sent - awaiting signatures"
-                              : "Great news - two more candidates accepted their offers!"
+                            {searchParams.get("allSigned") === "true"
+                              ? "All contracts signed!"
+                              : searchParams.get("moved") === "true" 
+                                ? "Contracts sent - awaiting signatures"
+                                : "Great news - two more candidates accepted their offers!"
                             }
                           </h1>
                           <p className="text-foreground/60 relative max-w-2xl mx-auto">
-                            {(searchParams.get("moved") === "true" 
-                              ? "Great, contracts sent to candidates via their preferred signing portals."
-                              : "Let's finalize contracts and complete onboarding."
+                            {(searchParams.get("allSigned") === "true"
+                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                              : searchParams.get("moved") === "true" 
+                                ? "Great, contracts sent to candidates via their preferred signing portals."
+                                : "Let's finalize contracts and complete onboarding."
                             ).split(' ').map((word, index) => (
                               <span
                                 key={index}
@@ -490,7 +505,8 @@ const ContractFlowDemo = () => {
                               navigate(`/flows/contract-creation?${params}`);
                             }}
                             onSignatureComplete={() => {
-                              // Don't navigate - just let the card move in pipeline
+                              // Navigate with allSigned param to show new heading/subtext
+                              navigate("/flows/contract-flow?phase=data-collection&allSigned=true");
                             }}
                           />
                         </TabsContent>
