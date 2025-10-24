@@ -16,7 +16,7 @@ import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { ArrowLeft, Mic, PanelRightClose, PanelRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Dashboard from "./Dashboard";
+import DashboardAdmin from "./flows/DashboardAdmin";
 
 type StepStatus = "pending" | "active" | "completed";
 
@@ -311,7 +311,7 @@ const Index = () => {
 
   // Show dashboard if onboarding is complete
   if (showDashboard) {
-    return <Dashboard userData={formData} />;
+    return <DashboardAdmin />;
   }
 
   return (

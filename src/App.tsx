@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackBubble } from "@/components/FeedbackBubble";
 import DesignSystem from "./pages/DesignSystem";
 import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
+import DashboardAdmin from "./pages/flows/DashboardAdmin";
 import Auth from "./pages/Auth";
 import ProfileSettings from "./pages/ProfileSettings";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -14,7 +14,6 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 // Flows
 import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
-import DashboardAdmin from "./pages/flows/DashboardAdmin";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
 import ContractCreation from "./pages/ContractCreation";
 import CandidateOnboarding from "./pages/CandidateOnboarding";
@@ -79,7 +78,7 @@ const App = () => (
         <Route path="/design-system" element={<DesignSystem />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<DashboardAdmin />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />
         
         {/* Flows Routes */}

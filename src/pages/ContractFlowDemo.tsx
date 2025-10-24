@@ -19,6 +19,7 @@ import { ContractCreationScreen } from "@/components/contract-flow/ContractCreat
 import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBundleSignature";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
+import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
@@ -304,6 +305,20 @@ const ContractFlowDemo = () => {
                           </p>
                         </div>
                       </motion.div>
+                    )}
+
+                    {/* Agent Chat Box */}
+                    {!showContractSignedMessage && (
+                      <AgentChatBox
+                        onSendMessage={(msg) => {
+                          toast({ 
+                            title: "Message sent to Genie",
+                            description: `"${msg}"` 
+                          });
+                          // TODO: Integrate with actual AI agent
+                        }}
+                        placeholder="Ask Genie anything..."
+                      />
                     )}
 
                     {/* Pipeline Tracking - Full Width */}
