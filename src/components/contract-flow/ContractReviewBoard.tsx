@@ -50,9 +50,9 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      {/* Header with Back Button */}
-      <div className="flex items-center gap-4 mb-6">
-        {onBack && (
+      {/* Back Button */}
+      {onBack && (
+        <div className="mb-6">
           <Button
             variant="ghost"
             size="sm"
@@ -62,14 +62,8 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-        )}
-        <div className="flex-1">
-          <h2 className="text-xl font-semibold text-foreground mb-1">Review Contracts</h2>
-          <p className="text-sm text-muted-foreground">
-            All contracts ready. Review and send to candidates for signature.
-          </p>
         </div>
-      </div>
+      )}
 
       {/* Audio Wave Visualizer */}
       <motion.div
@@ -83,6 +77,14 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           isDetectingVoice={isSpeaking}
         />
       </motion.div>
+
+      {/* Header - Centered below visualizer */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-foreground">Review Contracts</h1>
+        <p className="text-base text-muted-foreground">
+          All contracts ready. Review and send to candidates for signature.
+        </p>
+      </div>
 
       {/* Review cards */}
       <div className="grid grid-cols-3 gap-4">
