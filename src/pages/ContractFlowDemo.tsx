@@ -289,7 +289,7 @@ const ContractFlowDemo = () => {
 
                         <TabsContent value="list" className="space-y-6">
                           {/* KPI Metric Widgets Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                             {widgets.map((widget, idx) => (
                               <motion.div
                                 key={idx}
@@ -297,19 +297,25 @@ const ContractFlowDemo = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                <Card className="hover:shadow-lg transition-all h-full">
-                                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
-                                    <div className="p-2 rounded-lg bg-primary/10">
-                                      <widget.icon className="h-4 w-4 text-primary" />
+                                <Card className={`p-6 hover:shadow-xl transition-all duration-300 h-full border-border/40 ${
+                                  idx === 0 ? 'bg-primary/[0.03]' : 'bg-card'
+                                }`}>
+                                  <div className="flex items-start justify-between mb-6">
+                                    <h3 className="text-sm font-medium text-muted-foreground">
+                                      {widget.title}
+                                    </h3>
+                                    <div className="h-12 w-12 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+                                      <widget.icon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                                     </div>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <div className="text-2xl font-bold">{widget.value}</div>
-                                    <p className={`text-xs mt-1 ${widget.trend.startsWith('+') ? 'text-accent' : 'text-muted-foreground'}`}>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div className="text-4xl font-bold text-foreground tracking-tight">
+                                      {widget.value}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground font-medium">
                                       {widget.trend}
                                     </p>
-                                  </CardContent>
+                                  </div>
                                 </Card>
                               </motion.div>
                             ))}
