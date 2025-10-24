@@ -21,15 +21,15 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
 
   const handleFinish = useCallback(async () => {
     // Complete the step first
-    onComplete("transparency_pledge");
+    onComplete("finish_dashboard_transition");
     
-    // Start transition with longer delay
+    // Start transition with brief delay
     setIsTransitioning(true);
     
-    // Navigate after a longer delay for smoother transition
+    // Navigate to Admin Dashboard
     setTimeout(() => {
-      navigate('/flows/contract-flow');
-    }, 2800);
+      navigate('/dashboard');
+    }, 1200);
   }, [navigate, onComplete]);
 
   const completedItems = [
