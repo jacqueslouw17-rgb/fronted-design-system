@@ -401,7 +401,7 @@ const AdaptiveWidgetGridPattern = () => {
             )}
             <div className="flex gap-2">
               <Button className="flex-1">Open in Full View</Button>
-              <Button variant="outline">Ask Genie</Button>
+              <Button variant="outline">Ask Kurt</Button>
             </div>
           </div>
         </SheetContent>

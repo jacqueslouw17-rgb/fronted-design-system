@@ -326,12 +326,12 @@ const ContractFlowDemo = () => {
                       <AgentChatBox
                         onSendMessage={(msg) => {
                           toast({ 
-                            title: "Message sent to Genie",
+                            title: "Message sent to Kurt",
                             description: `"${msg}"` 
                           });
                           // TODO: Integrate with actual AI agent
                         }}
-                        placeholder="Ask Genie anything..."
+                        placeholder="Ask Kurt anything..."
                       />
                     )}
 

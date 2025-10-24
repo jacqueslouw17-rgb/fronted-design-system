@@ -121,7 +121,7 @@ const NarratedInsightPattern = () => {
                           Up 5 points since last pay cycle due to SLA compliance and on-time payments.
                         </p>
                         <Button variant="link" className="h-auto p-0 text-xs mt-2" size="sm">
-                          Ask Genie › <ArrowRight className="h-3 w-3 ml-1" />
+                          Ask Kurt › <ArrowRight className="h-3 w-3 ml-1" />
                         </Button>
                       </div>
                     </div>
@@ -371,7 +371,7 @@ const NarratedInsightPattern = () => {
                       This insight includes an action you can take right away.
                     </p>
                     <Button variant="link" className="h-auto p-0 text-xs" size="sm">
-                      Ask Genie › <ArrowRight className="h-3 w-3 ml-1" />
+                      Ask Kurt › <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                   </div>
                 </HoverCardContent>

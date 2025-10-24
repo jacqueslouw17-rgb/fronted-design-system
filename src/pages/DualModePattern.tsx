@@ -268,7 +268,7 @@ const DualModePattern = () => {
                 <div className="p-4 border-t">
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Ask Genie to draft a contract..."
+                      placeholder="Ask Kurt to draft a contract..."
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
@@ -405,14 +405,14 @@ const DualModePattern = () => {
 
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    Need help? Switch to Chat Mode and ask Genie.
+                    Need help? Switch to Chat Mode and ask Kurt.
                   </p>
                   <Button 
                     variant="outline" 
                     className="w-full"
                     onClick={() => handleModeSwitch("chat")}
                   >
-                    Ask Genie for Help
+                    Ask Kurt for Help
                   </Button>
                 </div>
               </Card>

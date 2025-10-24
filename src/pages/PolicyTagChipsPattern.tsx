@@ -481,10 +481,10 @@ const PolicyTagChipsPattern = () => {
                   </div>
                 </div>
 
-                {/* Genie Integration Hint */}
+                {/* Kurt Integration Hint */}
                 <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
                   <p className="text-xs text-muted-foreground">
-                    💡 <strong>Genie Tip:</strong> You can ask Genie to explain this policy or suggest changes based on your workflow patterns.
+                    💡 <strong>Kurt Tip:</strong> You can ask Kurt to explain this policy or suggest changes based on your workflow patterns.
                   </p>
                 </div>
               </div>
