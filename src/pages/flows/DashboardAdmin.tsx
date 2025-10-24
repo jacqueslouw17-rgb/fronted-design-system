@@ -58,36 +58,8 @@ const mockWorkers: Worker[] = [
   },
 ];
 
-// Mock contractors for pipeline view
-const mockContractors = [
-  {
-    id: "1",
-    name: "Maria Santos",
-    country: "Philippines",
-    countryFlag: "🇵🇭",
-    role: "Software Engineer",
-    salary: "$4,200/mo",
-    status: "trigger-onboarding" as const,
-  },
-  {
-    id: "2",
-    name: "Oskar Nielsen",
-    country: "Norway",
-    countryFlag: "🇳🇴",
-    role: "Product Designer",
-    salary: "$5,800/mo",
-    status: "trigger-onboarding" as const,
-  },
-  {
-    id: "3",
-    name: "Arta Krasniqi",
-    country: "Kosovo",
-    countryFlag: "🇽🇰",
-    role: "Full Stack Developer",
-    salary: "$3,900/mo",
-    status: "certified" as const,
-  },
-];
+// Mock contractors for pipeline view - empty state for first time
+const mockContractors: any[] = [];
 
 // Metric Widget Component with hover toolbar
 const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, onDetails }: any) => {
@@ -264,8 +236,8 @@ const DashboardAdmin = () => {
                   >
                     <AudioWaveVisualizer isActive={false} isListening={true} />
                     <div className="text-center space-y-2">
-                      <h1 className="text-3xl font-bold text-foreground">Hi Joe, what would you like to know?</h1>
-                      <p className="text-muted-foreground">I'm here to help you manage your workforce</p>
+                      <h1 className="text-3xl font-bold text-foreground">Welcome back, Joe! 👋</h1>
+                      <p className="text-muted-foreground">You're all set. Start by sending an offer to your first contractor.</p>
                     </div>
                   </motion.div>
 
@@ -278,22 +250,40 @@ const DashboardAdmin = () => {
                       </TabsList>
 
                       <TabsContent value="list" className="space-y-6">
-                        {/* Metric Widgets Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                          {widgets.map((widget, idx) => (
-                            <MetricWidget
-                              key={idx}
-                              {...widget}
-                              onAskGenie={() => handleAskGenie(widget.title)}
-                              onExport={() => handleExport(widget.title)}
-                              onDetails={() => handleDetails(widget.title)}
-                            />
-                          ))}
+                        {/* Empty State for Metrics */}
+                        <div className="max-w-5xl mx-auto">
+                          <Card className="border-dashed">
+                            <CardContent className="flex flex-col items-center justify-center py-12">
+                              <div className="rounded-full bg-muted p-4 mb-4">
+                                <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                              <h3 className="text-lg font-semibold mb-2">No metrics yet</h3>
+                              <p className="text-sm text-muted-foreground text-center max-w-md">
+                                Your metrics will appear here once you start sending offers and onboarding contractors.
+                              </p>
+                            </CardContent>
+                          </Card>
                         </div>
                       </TabsContent>
 
                       <TabsContent value="pipeline">
-                        <PipelineView contractors={mockContractors} />
+                        {mockContractors.length === 0 ? (
+                          <div className="max-w-5xl mx-auto">
+                            <Card className="border-dashed">
+                              <CardContent className="flex flex-col items-center justify-center py-12">
+                                <div className="rounded-full bg-muted p-4 mb-4">
+                                  <Users className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
+                                <p className="text-sm text-muted-foreground text-center max-w-md">
+                                  Send your first offer to a contractor to see them in your pipeline.
+                                </p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        ) : (
+                          <PipelineView contractors={mockContractors} />
+                        )}
                       </TabsContent>
                     </Tabs>
                   </div>
