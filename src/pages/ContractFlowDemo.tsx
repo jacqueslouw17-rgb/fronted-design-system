@@ -476,7 +476,7 @@ const ContractFlowDemo = () => {
 
                       {/* Header - Centered */}
                       <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold text-foreground">Contract Drafting in Progress</h1>
+                        <h1 className="text-3xl font-bold text-foreground">Preparing signing packs</h1>
                         <p className="text-base text-muted-foreground">
                           {`${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.name} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.role} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.country}`.split(' ').map((word, index) => (
                             <span
