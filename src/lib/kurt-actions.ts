@@ -146,18 +146,18 @@ export async function executeIntentAction(
         };
       
       case 'draft_contract':
-        if (entities.person) {
-          actions.toast('info', `Focusing draft button for ${entities.person}`);
-          actions.highlightElement('[data-testid="draft-contract"]');
-        } else {
-          actions.navigateTo('/flows/contract-flow');
-        }
+        // First switch to pipeline tab
+        actions.click('[data-testid="tab-pipeline"]');
+        
+        // Wait a moment for tab to switch, then click prepare drafts
+        setTimeout(() => {
+          actions.click('[data-testid="prepare-drafts"]');
+        }, 300);
+        
         return {
           success: true,
-          message: entities.person 
-            ? `Highlighted draft button for ${entities.person}`
-            : 'Navigated to contract flow',
-          action: 'navigate'
+          message: 'Switched to pipeline view and preparing drafts',
+          action: 'workflow'
         };
       
       case 'review_signatures':

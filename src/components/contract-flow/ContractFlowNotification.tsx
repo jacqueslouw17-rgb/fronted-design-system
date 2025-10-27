@@ -73,6 +73,7 @@ export const ContractFlowNotification: React.FC<ContractFlowNotificationProps> =
           >
             <Button
               onClick={onPrepareDrafts}
+              data-testid="prepare-drafts"
               className="w-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
             >
               Prepare Drafts
