@@ -11,6 +11,7 @@ import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
 
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -28,6 +29,7 @@ const CandidateOnboarding = () => {
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
   const isDemoMode = window.location.pathname.includes('demo');
+  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.candidate.onboarding",
@@ -45,6 +47,11 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const welcomeMessage = "Let's complete a few quick details so we can finalize your contract.";
+
+  // Sync local speaking state with agent state
+  useEffect(() => {
+    setAgentSpeaking(isSpeaking);
+  }, [isSpeaking, setAgentSpeaking]);
 
   // Prefill demo data
   useEffect(() => {

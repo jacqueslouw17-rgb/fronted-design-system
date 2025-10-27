@@ -13,6 +13,7 @@ export type AgentState = {
   open: boolean;
   messages: AgentMessage[];
   loading: boolean;
+  isSpeaking: boolean;
   lastAction?: { type: string; payload: any };
   context?: string; // Current flow/page context
 };
@@ -21,6 +22,7 @@ interface AgentStore extends AgentState {
   setOpen: (open: boolean) => void;
   addMessage: (message: Omit<AgentMessage, 'id' | 'ts'>) => void;
   setLoading: (loading: boolean) => void;
+  setIsSpeaking: (isSpeaking: boolean) => void;
   setLastAction: (action: { type: string; payload: any }) => void;
   setContext: (context: string) => void;
   clearMessages: () => void;
@@ -33,6 +35,7 @@ export const useAgentState = create<AgentStore>()(
       open: false,
       messages: [],
       loading: false,
+      isSpeaking: false,
       lastAction: undefined,
       context: undefined,
 
@@ -49,6 +52,8 @@ export const useAgentState = create<AgentStore>()(
 
       setLoading: (loading) => set({ loading }),
 
+      setIsSpeaking: (isSpeaking) => set({ isSpeaking }),
+
       setLastAction: (action) => set({ lastAction: action }),
 
       setContext: (context) => set({ context }),
@@ -56,7 +61,7 @@ export const useAgentState = create<AgentStore>()(
       clearMessages: () => set({ messages: [] }),
 
       simulateResponse: async (userText: string) => {
-        const { addMessage, setLoading, context } = get();
+        const { addMessage, setLoading, setIsSpeaking, context } = get();
         
         setLoading(true);
 
@@ -80,6 +85,11 @@ export const useAgentState = create<AgentStore>()(
         });
 
         setLoading(false);
+        
+        // Simulate speaking for response duration
+        setIsSpeaking(true);
+        await new Promise((resolve) => setTimeout(resolve, response.length * 50)); // ~50ms per character
+        setIsSpeaking(false);
       },
     }),
     {

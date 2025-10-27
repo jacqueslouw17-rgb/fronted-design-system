@@ -19,12 +19,13 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   title = "Welcome back",
   subtitle = "How can I help you today?",
   showPulse = true,
-  isActive = false,
+  isActive: isActiveProp,
   placeholder = "Ask Kurt anything...",
   className = "",
 }) => {
   const [inputValue, setInputValue] = useState('');
-  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
+  const isActive = isActiveProp !== undefined ? isActiveProp : isSpeaking;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

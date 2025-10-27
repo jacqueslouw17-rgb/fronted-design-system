@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -36,6 +37,7 @@ const FLOW_STEPS = [
 
 const AdminOnboarding = () => {
   const navigate = useNavigate();
+  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const { state, logEvent, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.admin.f1.onboarding",
     "intro_trust_model"
@@ -60,6 +62,11 @@ const AdminOnboarding = () => {
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Sync local speaking state with agent state
+  useEffect(() => {
+    setAgentSpeaking(isSpeaking);
+  }, [isSpeaking, setAgentSpeaking]);
 
   // Auto-speak welcome message on page load
   useEffect(() => {

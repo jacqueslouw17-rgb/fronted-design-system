@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -32,10 +33,12 @@ const FLOW_STEPS = [
 
 const WorkerOnboarding = () => {
   const navigate = useNavigate();
+  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const [expandedStep, setExpandedStep] = useState<string>("welcome");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "worker_onboarding",
@@ -44,6 +47,11 @@ const WorkerOnboarding = () => {
 
   const { speak } = useTextToSpeech();
   const hasSpokenWelcome = useRef(false);
+
+  // Sync local speaking state with agent state
+  useEffect(() => {
+    setAgentSpeaking(isSpeaking);
+  }, [isSpeaking, setAgentSpeaking]);
 
   // Prefill demo data
   useEffect(() => {
@@ -59,7 +67,10 @@ const WorkerOnboarding = () => {
   useEffect(() => {
     if (!hasSpokenWelcome.current && state.currentStep === "welcome") {
       const welcomeText = "Hi Maria! Welcome to Fronted. We'll help you complete a few quick tasks so your first day is smooth and compliant.";
-      speak(welcomeText);
+      setIsSpeaking(true);
+      speak(welcomeText, () => {
+        setIsSpeaking(false);
+      });
       hasSpokenWelcome.current = true;
     }
   }, [state.currentStep, speak]);
