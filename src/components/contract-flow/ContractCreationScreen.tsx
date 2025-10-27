@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Sparkles, AlertCircle } from "lucide-react";
+import { Bot, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { PipelineView } from "./PipelineView";
 import { GenieInteractionBar } from "./GenieInteractionBar";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -34,6 +35,9 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const subtextMessage = `${candidate.name} • ${candidate.role} • ${candidate.country}`;
   const subtextWords = subtextMessage.split(' ');
@@ -71,6 +75,35 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       return () => clearTimeout(timer);
     }
   }, [hasSpoken, subtextMessage, speak]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    
+    // Add user message
+    addMessage({
+      role: 'user',
+      text: inputValue.trim(),
+    });
+
+    // Open the agent panel
+    setOpen(true);
+
+    // Simulate agent response
+    await simulateResponse(inputValue.trim());
+
+    setInputValue('');
+    setIsSubmitting(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
@@ -173,6 +206,39 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
           ))}
         </p>
       </div>
+
+      {/* Chat Input */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-xl mx-auto"
+      >
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Kurt anything..."
+              disabled={isSubmitting}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!inputValue.trim() || isSubmitting}
+              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              {isSubmitting ? (
+                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ArrowRight className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </div>
+        </form>
+      </motion.div>
 
       {/* Contract Form View */}
       <div className="space-y-6">{/* ... keep existing code */}
