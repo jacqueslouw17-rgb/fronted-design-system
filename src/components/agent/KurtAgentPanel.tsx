@@ -89,8 +89,9 @@ export const KurtAgentPanel: React.FC = () => {
         </div>
 
         {/* Messages Area */}
-        <ScrollArea className="flex-1 px-3 py-3" ref={scrollRef}>
-          <div className="space-y-3">
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full px-3 py-3">
+            <div className="space-y-3" ref={scrollRef}>
             <AnimatePresence mode="popLayout">
               {messages.map((msg) => (
                 <motion.div
@@ -143,8 +144,9 @@ export const KurtAgentPanel: React.FC = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-        </ScrollArea>
+            </div>
+          </ScrollArea>
+        </div>
 
         {/* Footer */}
         <div className="px-3 py-1.5 border-t border-border bg-muted/20">
