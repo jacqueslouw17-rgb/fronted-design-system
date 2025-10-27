@@ -558,7 +558,7 @@ const ContractFlowDemo = () => {
                       </div>
                       
                       {/* Agent Chat Box */}
-                      <div className="mb-6">
+                      <div className="mb-8">
                         <AgentChatBox
                           onSendMessage={(message) => {
                             toast({ title: "Message sent", description: message });

@@ -37,17 +37,17 @@ export const AgentChatBox: React.FC<AgentChatBoxProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="w-full max-w-3xl mx-auto"
+      className="w-full"
     >
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative flex items-center gap-2 bg-card rounded-full border border-border shadow-sm px-5 py-2.5">
+        <div className="relative flex items-center gap-3 bg-background rounded-full border border-border/50 px-6 py-3.5">
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground px-0"
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60 px-0 h-auto"
           />
           <Button
             type="submit"
