@@ -97,7 +97,7 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
               </div>
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 space-y-0">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-3">
               <p className="text-sm text-blue-600 dark:text-blue-400">
                 💡 <strong>What's next?</strong> Check your email for your first day schedule. 
                 Your manager will reach out shortly to welcome you to the team!
@@ -106,7 +106,7 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
 
             <Button 
               size="lg" 
-              className="w-full" 
+              className="w-full mt-3" 
               disabled={externalProcessing}
               onClick={handleFinish}
             >
