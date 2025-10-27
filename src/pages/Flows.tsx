@@ -181,7 +181,8 @@ const Flows = () => {
       description: "Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3",
       steps: 7,
       patterns: patterns.map(p => p.id),
-      path: "/flows/admin/onboarding"
+      path: "/flows/admin/onboarding",
+      comingSoon: false
     },
     {
       id: "f2-shortlist-to-contract",
@@ -189,24 +190,35 @@ const Flows = () => {
       description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
-      path: "/flows/contract-flow"
+      path: "/flows/contract-flow",
+      comingSoon: false
     },
     {
-      id: "candidate-data-collection",
-      title: "Candidate Data Collection",
-      description: "Child flow triggered during F2: collects candidate information, validates compliance requirements, and completes pre-employment data collection",
-      steps: 7,
-      patterns: ["genie-onboarding", "step-card-progress", "inline-edit"],
-      path: "/candidate-onboarding/1"
-    },
-    {
-      id: "f3-document-signature",
-      title: "Flow 3 — Document Bundle & Signature",
-      description: "Upcoming flow for document bundling, e-signature collection, and contract finalization",
+      id: "f3-candidate-onboarding",
+      title: "Flow 3 — Candidate Onboarding",
+      description: "Candidate-facing onboarding: collects personal information, tax details, compliance requirements, and completes pre-employment data collection with Kurt guidance",
       steps: 5,
-      patterns: ["contract-preview", "audit-trail"],
-      path: "#",
-      comingSoon: true
+      patterns: ["genie-onboarding", "step-card-progress", "inline-edit"],
+      path: "/candidate-onboarding/1",
+      comingSoon: false
+    },
+    {
+      id: "f4-worker-onboarding",
+      title: "Flow 4 — Worker Onboarding",
+      description: "New hire onboarding for workers: personal info, compliance docs, payroll setup, work agreements, and checklist completion guided by Kurt",
+      steps: 7,
+      patterns: ["genie-onboarding", "step-card-progress", "compliance-checklist"],
+      path: "/flows/worker-onboarding",
+      comingSoon: false
+    },
+    {
+      id: "f5-candidate-dashboard",
+      title: "Flow 5 — Candidate Dashboard",
+      description: "Post-onboarding home for candidates: checklist progress tracking, compliance status, payroll info, and AI-powered help with Genie",
+      steps: 1,
+      patterns: ["data-cards", "compliance-checklist", "genie-onboarding"],
+      path: "/candidate-dashboard",
+      comingSoon: false
     }
   ];
 
