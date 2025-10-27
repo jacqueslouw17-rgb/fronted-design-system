@@ -23,7 +23,7 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
     setIsTransitioning(true);
     
     setTimeout(() => {
-      navigate('/flows/dashboard-admin'); // Navigate to worker dashboard
+      navigate('/flows/candidate-dashboard');
     }, 1200);
   }, [navigate, onComplete]);
 
@@ -97,36 +97,31 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
               </div>
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 space-y-0">
               <p className="text-sm text-blue-600 dark:text-blue-400">
                 💡 <strong>What's next?</strong> Check your email for your first day schedule. 
                 Your manager will reach out shortly to welcome you to the team!
               </p>
             </div>
 
-            <div className="space-y-3">
-              <Button 
-                size="lg" 
-                className="w-full" 
-                disabled={externalProcessing}
-                onClick={handleFinish}
-              >
-                {externalProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Go to My Dashboard
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Your personalized dashboard is ready with all your onboarding tasks
-              </p>
-            </div>
+            <Button 
+              size="lg" 
+              className="w-full" 
+              disabled={externalProcessing}
+              onClick={handleFinish}
+            >
+              {externalProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  Go to My Dashboard
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>
