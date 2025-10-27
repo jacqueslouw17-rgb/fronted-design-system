@@ -556,6 +556,17 @@ const ContractFlowDemo = () => {
                           ))}
                         </p>
                       </div>
+                      
+                      {/* Agent Chat Box */}
+                      <div className="mb-6">
+                        <AgentChatBox
+                          onSendMessage={(message) => {
+                            toast({ title: "Message sent", description: message });
+                          }}
+                          placeholder="Ask Kurt anything..."
+                        />
+                      </div>
+
                     {contractFlow.selectedCandidates.map((candidate) => (
                       <div key={candidate.id} className="space-y-6">
                         <div className="flex items-center gap-3">
