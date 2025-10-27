@@ -406,6 +406,7 @@ const ContractFlowDemo = () => {
                                      : (index === 0 ? "drafting" as const : "offer-accepted" as const),
                                 formSent: index === 0,
                                 dataReceived: index === 0,
+                                employmentType: candidate.employmentType || "contractor",
                               })),
                               // Certified candidates
                               {
@@ -416,6 +417,7 @@ const ContractFlowDemo = () => {
                                 role: "Senior Backend Developer",
                                 salary: "£6,500/mo",
                                 status: "certified" as const,
+                                employmentType: "employee" as const,
                               },
                               {
                                 id: "cert-2",
@@ -425,6 +427,7 @@ const ContractFlowDemo = () => {
                                 role: "Product Manager",
                                 salary: "€5,200/mo",
                                 status: "certified" as const,
+                                employmentType: "contractor" as const,
                               },
                               {
                                 id: "cert-3",
@@ -434,6 +437,7 @@ const ContractFlowDemo = () => {
                                 role: "UI/UX Designer",
                                 salary: "¥650,000/mo",
                                 status: "certified" as const,
+                                employmentType: "contractor" as const,
                               },
                               {
                                 id: "cert-4",
@@ -443,6 +447,7 @@ const ContractFlowDemo = () => {
                                 role: "Data Scientist",
                                 salary: "€5,800/mo",
                                 status: "certified" as const,
+                                employmentType: "employee" as const,
                               },
                               {
                                 id: "cert-5",
@@ -452,6 +457,7 @@ const ContractFlowDemo = () => {
                                 role: "Mobile Developer",
                                 salary: "EGP 45,000/mo",
                                 status: "certified" as const,
+                                employmentType: "contractor" as const,
                               },
                               {
                                 id: "cert-6",
@@ -461,6 +467,7 @@ const ContractFlowDemo = () => {
                                 role: "QA Engineer",
                                 salary: "PLN 15,000/mo",
                                 status: "certified" as const,
+                                employmentType: "employee" as const,
                               },
                               {
                                 id: "cert-7",
@@ -470,6 +477,7 @@ const ContractFlowDemo = () => {
                                 role: "Full Stack Developer",
                                 salary: "R$ 18,000/mo",
                                 status: "certified" as const,
+                                employmentType: "contractor" as const,
                               },
                               {
                                 id: "cert-8",
@@ -479,6 +487,7 @@ const ContractFlowDemo = () => {
                                 role: "DevOps Engineer",
                                 salary: "₹2,50,000/mo",
                                 status: "certified" as const,
+                                employmentType: "employee" as const,
                               },
                               {
                                 id: "cert-9",
@@ -488,6 +497,7 @@ const ContractFlowDemo = () => {
                                 role: "Security Engineer",
                                 salary: "SEK 58,000/mo",
                                 status: "certified" as const,
+                                employmentType: "contractor" as const,
                               },
                               {
                                 id: "cert-10",
@@ -497,6 +507,7 @@ const ContractFlowDemo = () => {
                                 role: "Content Strategist",
                                 salary: "€3,200/mo",
                                 status: "certified" as const,
+                                employmentType: "employee" as const,
                               },
                             ]}
                             onDraftContract={(ids) => {

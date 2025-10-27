@@ -10,6 +10,9 @@ interface Contractor {
   role: string;
   salary: string;
   status: ContractorStatus;
+  employmentType?: "contractor" | "employee";
+  checklist?: any[];
+  checklistProgress?: number;
 }
 
 const statusProgression: ContractorStatus[] = [

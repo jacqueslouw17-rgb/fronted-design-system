@@ -5,13 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
 
 interface Contractor {
   id: string;
@@ -23,6 +25,9 @@ interface Contractor {
   status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified";
   formSent?: boolean;
   dataReceived?: boolean;
+  employmentType?: "contractor" | "employee";
+  checklist?: ChecklistRequirement[];
+  checklistProgress?: number;
 }
 
 interface PipelineViewProps {
@@ -60,9 +65,10 @@ const statusConfig = {
     badgeColor: "bg-primary/20 text-primary border-primary/30",
   },
   "onboarding-pending": {
-    label: "Onboarding Pending",
-    color: "bg-primary/10 border-primary/20",
-    badgeColor: "bg-primary/20 text-primary border-primary/30",
+    label: "In Onboarding",
+    color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
+    badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    tooltip: "Candidate is completing onboarding requirements",
   },
   "certified": {
     label: "Certified ✅",
@@ -77,6 +83,7 @@ const columns = [
   "drafting",
   "awaiting-signature",
   "trigger-onboarding",
+  "onboarding-pending",
   "certified",
 ] as const;
 
@@ -95,6 +102,34 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForDocuments, setSelectedForDocuments] = useState<Candidate | null>(null);
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
   const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
+  
+  // Monitor onboarding progress and auto-complete when 100%
+  React.useEffect(() => {
+    const completedContractors = contractors.filter(
+      c => c.status === "onboarding-pending" && c.checklistProgress === 100
+    );
+
+    if (completedContractors.length > 0) {
+      // Move to certified and show Genie message
+      const updated = contractors.map(c => 
+        completedContractors.some(cc => cc.id === c.id)
+          ? { ...c, status: "certified" as const }
+          : c
+      );
+      
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+
+      // Show Genie celebration message for each completed contractor
+      completedContractors.forEach((contractor, index) => {
+        setTimeout(() => {
+          toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
+            duration: 5000,
+          });
+        }, index * 1500);
+      });
+    }
+  }, [contractors, onContractorUpdate]);
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
     return contractors.filter((c) => c.status === status);
@@ -163,6 +198,68 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     
     onSignatureComplete?.();
     setSignatureDrawerOpen(false);
+  };
+
+  const handleStartOnboarding = (contractor: Contractor) => {
+    // Get country code for checklist
+    const countryCode = contractor.country === "Philippines" ? "PH" : 
+                       contractor.country === "Norway" ? "NO" : "XK";
+    
+    // Get employment type (default to contractor if not set)
+    const employmentType = contractor.employmentType || "contractor";
+    
+    // Get checklist for this profile
+    const checklistProfile = getChecklistForProfile(countryCode, employmentType === "contractor" ? "Contractor" : "Employee");
+    
+    if (!checklistProfile) {
+      toast.error("Could not load checklist for this profile");
+      return;
+    }
+
+    // Calculate initial progress
+    const completed = checklistProfile.requirements.filter(r => r.status === 'verified').length;
+    const total = checklistProfile.requirements.filter(r => r.required).length;
+    const progress = Math.round((completed / total) * 100);
+
+    // Move to onboarding-pending with checklist
+    const updated = contractors.map(c => 
+      c.id === contractor.id 
+        ? { 
+            ...c, 
+            status: "onboarding-pending" as const,
+            checklist: checklistProfile.requirements,
+            checklistProgress: progress
+          }
+        : c
+    );
+    
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+
+    // Show success toast
+    toast.success("✅ Onboarding checklist started", {
+      description: `Magic-link email sent to ${contractor.name.split(' ')[0]}`
+    });
+
+    // Simulate Genie message (this would integrate with your Genie system)
+    setTimeout(() => {
+      toast.info(`Great! I'm preparing ${contractor.name.split(' ')[0]}'s onboarding checklist. I'll notify you when it's completed.`, {
+        duration: 5000,
+      });
+    }, 1000);
+  };
+
+  const getChecklistStatusBadge = (status: ChecklistRequirement['status']) => {
+    switch (status) {
+      case 'verified':
+        return { color: 'bg-accent-green-fill text-accent-green-text border-accent-green-outline/30', icon: CheckCircle2 };
+      case 'pending_review':
+        return { color: 'bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30', icon: Loader2 };
+      case 'todo':
+        return { color: 'bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30', icon: AlertCircle };
+      default:
+        return { color: 'bg-muted text-muted-foreground', icon: AlertCircle };
+    }
   };
 
   const handleSelectAll = (status: typeof columns[number], checked: boolean) => {
@@ -501,7 +598,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="flex-1 text-xs h-8 bg-gradient-primary"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    toast.success(`Starting onboarding for ${contractor.name}`);
+                                    handleStartOnboarding(contractor);
                                   }}
                                 >
                                   <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -519,6 +616,51 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   Later
                                 </Button>
                               </div>
+                            </div>
+                          )}
+
+                          {/* Onboarding Progress Display */}
+                          {status === "onboarding-pending" && contractor.checklist && (
+                            <div className="pt-2 space-y-2">
+                              {/* Progress Bar */}
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Progress</span>
+                                  <span className="font-semibold text-foreground">{contractor.checklistProgress || 0}%</span>
+                                </div>
+                                <Progress value={contractor.checklistProgress || 0} className="h-1.5" />
+                              </div>
+
+                              {/* Top 3 Checklist Items */}
+                              <div className="space-y-1.5">
+                                {contractor.checklist.slice(0, 3).map((item) => {
+                                  const badge = getChecklistStatusBadge(item.status);
+                                  const Icon = badge.icon;
+                                  return (
+                                    <div key={item.id} className="flex items-center gap-1.5 text-xs">
+                                      <Icon className={cn("h-3 w-3 flex-shrink-0", 
+                                        item.status === 'verified' && "text-accent-green-text",
+                                        item.status === 'pending_review' && "text-accent-blue-text",
+                                        item.status === 'todo' && "text-accent-yellow-text"
+                                      )} />
+                                      <span className="truncate text-foreground/80">{item.label}</span>
+                                    </div>
+                                  );
+                                })}
+                                {contractor.checklist.length > 3 && (
+                                  <div className="text-xs text-muted-foreground italic">
+                                    +{contractor.checklist.length - 3} more items...
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Badge: Checklist in Progress */}
+                              <Badge 
+                                variant="outline" 
+                                className="w-full justify-center text-xs bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
+                              >
+                                📋 Checklist in Progress
+                              </Badge>
                             </div>
                           )}
 

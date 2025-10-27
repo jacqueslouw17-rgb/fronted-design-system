@@ -21,39 +21,32 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
       type: "Contractor",
       requirements: [
         {
-          id: "id_doc",
-          label: "Government ID",
+          id: "national_id",
+          label: "Upload National ID",
           required: true,
           status: "verified",
-          description: "Valid government-issued identification"
+          description: "Valid government-issued Philippine ID"
+        },
+        {
+          id: "tin",
+          label: "Confirm TIN Number",
+          required: true,
+          status: "pending_review",
+          description: "Tax Identification Number verification"
         },
         {
           id: "bank",
-          label: "Bank Account",
-          required: true,
-          status: "verified",
-          description: "Philippine bank account for payments"
-        },
-        {
-          id: "tax",
-          label: "Tax Residency",
-          required: true,
-          status: "pending_review",
-          description: "TIN and tax residency declaration"
-        },
-        {
-          id: "policy",
-          label: "Policy Acknowledgment",
+          label: "Add Bank Account for Payroll",
           required: true,
           status: "todo",
-          description: "Company policies and contractor agreement"
+          description: "Philippine bank account for salary payments"
         },
         {
-          id: "nda",
-          label: "NDA Signature",
+          id: "privacy",
+          label: "Accept Data Privacy Notice",
           required: true,
           status: "todo",
-          description: "Non-disclosure agreement signature"
+          description: "Data privacy policy acknowledgment"
         }
       ]
     },
@@ -62,44 +55,71 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
       type: "Employee",
       requirements: [
         {
-          id: "id_doc",
-          label: "Government ID",
+          id: "national_id",
+          label: "Upload National ID",
           required: true,
           status: "verified",
-          description: "Valid government-issued identification"
+          description: "Valid government-issued Philippine ID"
         },
         {
-          id: "bank",
-          label: "Bank Account",
-          required: true,
-          status: "verified",
-          description: "Philippine bank account for salary"
-        },
-        {
-          id: "philhealth",
-          label: "PhilHealth",
+          id: "tin",
+          label: "Confirm TIN Number",
           required: true,
           status: "pending_review",
-          description: "PhilHealth membership number"
+          description: "Tax Identification Number verification"
         },
         {
-          id: "tax",
-          label: "Tax Information",
+          id: "benefits",
+          label: "Bank + PhilHealth + SSS",
           required: true,
           status: "todo",
-          description: "TIN and BIR 2316 submission"
+          description: "Bank account, PhilHealth and SSS details"
         },
         {
-          id: "policy",
-          label: "Policy Acknowledgment",
+          id: "handbook",
+          label: "Sign Employee Handbook",
           required: true,
           status: "todo",
-          description: "Employee handbook and policies"
+          description: "Employee handbook acknowledgment and signature"
         }
       ]
     }
   },
   XK: {
+    Contractor: {
+      country: "XK",
+      type: "Contractor",
+      requirements: [
+        {
+          id: "tax_residency",
+          label: "Confirm Tax Residency",
+          required: true,
+          status: "verified",
+          description: "Tax residency confirmation for Kosovo"
+        },
+        {
+          id: "bank",
+          label: "Add International Bank (IBAN)",
+          required: true,
+          status: "pending_review",
+          description: "International bank account (IBAN)"
+        },
+        {
+          id: "id_doc",
+          label: "Upload National ID / Passport",
+          required: true,
+          status: "todo",
+          description: "Valid Kosovo ID or passport"
+        },
+        {
+          id: "handbook",
+          label: "E-Sign Contractor Handbook",
+          required: true,
+          status: "todo",
+          description: "Electronic signature on contractor handbook"
+        }
+      ]
+    },
     Employee: {
       country: "XK",
       type: "Employee",
@@ -126,40 +146,6 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
           description: "Employee contract and policies"
         }
       ]
-    },
-    Contractor: {
-      country: "XK",
-      type: "Contractor",
-      requirements: [
-        {
-          id: "id_doc",
-          label: "ID / Passport",
-          required: true,
-          status: "verified",
-          description: "Valid Kosovo ID or passport"
-        },
-        {
-          id: "bank",
-          label: "IBAN",
-          required: true,
-          status: "pending_review",
-          description: "International bank account number"
-        },
-        {
-          id: "tax",
-          label: "Tax Registration",
-          required: true,
-          status: "todo",
-          description: "Kosovo tax registration certificate"
-        },
-        {
-          id: "policy",
-          label: "Policy Acknowledgment",
-          required: true,
-          status: "todo",
-          description: "Contractor agreement"
-        }
-      ]
     }
   },
   NO: {
@@ -168,32 +154,32 @@ export const checklistData: Record<string, Record<string, ChecklistProfile>> = {
       type: "Employee",
       requirements: [
         {
-          id: "id_doc",
-          label: "ID / Fødselsnummer",
+          id: "tax_form",
+          label: "Submit Tax Residency Form",
           required: true,
           status: "verified",
-          description: "Norwegian national ID or birth number"
+          description: "Norwegian tax residency documentation"
         },
         {
-          id: "tax_card",
-          label: "Tax Card (Skattekort)",
+          id: "bank",
+          label: "Add Norwegian Bank Account",
           required: true,
           status: "todo",
-          description: "Norwegian tax deduction card"
+          description: "Norwegian bank account for salary"
         },
         {
-          id: "benefits",
-          label: "Benefits Setup",
-          required: false,
-          status: "todo",
-          description: "Optional pension and insurance enrollment"
-        },
-        {
-          id: "2fa",
-          label: "Two-Factor Authentication",
+          id: "health_pension",
+          label: "Accept Health & Pension Policy",
           required: true,
           status: "todo",
-          description: "Enable 2FA for secure access"
+          description: "Health insurance and pension enrollment"
+        },
+        {
+          id: "id_doc",
+          label: "Upload ID (EU/Passport)",
+          required: true,
+          status: "todo",
+          description: "EU ID or passport verification"
         }
       ]
     },
