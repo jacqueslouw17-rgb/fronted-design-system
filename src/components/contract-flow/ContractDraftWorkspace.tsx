@@ -289,7 +289,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
             <div className="pt-4 border-t border-border">
               <p className="text-xs text-muted-foreground mb-2">Key Clauses</p>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
                 <ClauseTooltip
                   clauseNumber="2"
                   title="Compensation Structure"
