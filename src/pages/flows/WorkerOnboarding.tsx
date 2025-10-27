@@ -120,22 +120,34 @@ const WorkerOnboarding = () => {
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-20 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Back button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+      {/* Static background (performance-safe) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+      </div>
+
+      {/* Main Content - Steps & Progress */}
+      <div 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto"
+        style={{ 
+          width: '100%',
+          maxWidth: '800px'
+        }}
+      >
 
         {/* Header with Animation */}
         <div className="text-center space-y-2 mb-8">
@@ -165,7 +177,7 @@ const WorkerOnboarding = () => {
         </div>
 
         {/* Steps */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-8">
           {FLOW_STEPS.map((step, index) => {
             const isCompleted = state.completedSteps.includes(step.id);
             const isCurrent = state.currentStep === step.id;
@@ -256,7 +268,7 @@ const WorkerOnboarding = () => {
           })}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
