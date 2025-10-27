@@ -61,7 +61,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [promptVisible, setPromptVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isProgressing, setIsProgressing] = useState(false);
   const fullContent = getContractContent(candidate);
 
   useEffect(() => {
@@ -389,23 +388,11 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             )}
 
             <Button
-              onClick={() => {
-                setIsProgressing(true);
-                setTimeout(() => {
-                  onNext();
-                }, 800);
-              }}
-              disabled={isTyping || isProgressing}
+              onClick={onNext}
+              disabled={isTyping}
               className="w-full"
             >
-              {isProgressing ? (
-                <>
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                  {index === total - 1 ? "Preparing review..." : "Loading next..."}
-                </>
-              ) : (
-                <>{index === total - 1 ? "Review All Drafts" : "Next Draft"}</>
-              )}
+              {index === total - 1 ? "Review All Drafts" : "Next Draft"}
             </Button>
           </div>
         </ScrollArea>
