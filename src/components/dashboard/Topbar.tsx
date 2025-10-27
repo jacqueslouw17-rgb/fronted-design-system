@@ -1,5 +1,4 @@
-import { Search, ArrowLeft, PanelLeftOpen } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ArrowLeft, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -55,7 +54,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
 
   return (
     <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-      {/* Brand & Search */}
+      {/* Brand */}
       <div className="flex items-center gap-4 flex-1">
         <Button
           variant="ghost"
@@ -81,14 +80,11 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           </Select>
         )}
         
-        <h1 className="text-xl font-bold text-primary">Fronted</h1>
-        <div className="relative max-w-md flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            className="pl-10"
-          />
-        </div>
+        <img 
+          src={new URL('../assets/fronted-logo.png', import.meta.url).href}
+          alt="Fronted"
+          className="h-6 w-auto"
+        />
       </div>
 
       {/* Actions */}
