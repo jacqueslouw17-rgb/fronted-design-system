@@ -10,7 +10,7 @@ import { Sparkles, Bot } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
-import { ContractFlowHeader } from "./ContractFlowHeader";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -119,11 +119,11 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       animate={{ opacity: 1 }}
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
-      <ContractFlowHeader
+      <AgentHeader
         title="Contract Drafting in Progress"
         subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
-        showAudioWave={true}
-        isAudioActive={true}
+        showPulse={true}
+        isActive={false}
       />
 
       {/* Contract Form View */}
