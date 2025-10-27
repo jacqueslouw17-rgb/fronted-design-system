@@ -29,6 +29,7 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -36,6 +37,7 @@ const ContractFlowDemo = () => {
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
+  const { setOpen, addMessage, simulateResponse } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
   const [promptText, setPromptText] = React.useState("");
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
@@ -560,8 +562,18 @@ const ContractFlowDemo = () => {
                       {/* Agent Chat Box */}
                       <div className="mb-8">
                         <AgentChatBox
-                          onSendMessage={(message) => {
-                            toast({ title: "Message sent", description: message });
+                          onSendMessage={async (message) => {
+                            // Add user message
+                            addMessage({
+                              role: 'user',
+                              text: message,
+                            });
+                            
+                            // Open the agent panel
+                            setOpen(true);
+                            
+                            // Simulate agent response
+                            await simulateResponse(message);
                           }}
                           placeholder="Ask Kurt anything..."
                         />
