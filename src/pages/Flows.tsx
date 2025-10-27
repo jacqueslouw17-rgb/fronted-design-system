@@ -241,7 +241,7 @@ const Flows = () => {
         </div>
 
         {/* Flow Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {flows.filter(f => !f.comingSoon).map((flow) => (
             <Link key={flow.id} to={flow.path}>
               <Card className="hover:shadow-lg transition-all group h-full">
