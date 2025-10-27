@@ -44,11 +44,6 @@ export function createKurtActions(navigate: NavigateFunction): KurtActions {
       }
       
       navigate(fullRoute);
-      
-      toast({
-        title: 'Navigation',
-        description: `Navigated to ${route}`,
-      });
     },
     
     openDrawer(id: string, params?: any) {
@@ -59,11 +54,6 @@ export function createKurtActions(navigate: NavigateFunction): KurtActions {
       if (drawerTrigger instanceof HTMLElement) {
         drawerTrigger.click();
       }
-      
-      toast({
-        title: 'Drawer Opened',
-        description: `Opened ${id}`,
-      });
     },
     
     click(selector: string) {
@@ -72,17 +62,6 @@ export function createKurtActions(navigate: NavigateFunction): KurtActions {
       const element = document.querySelector(selector);
       if (element instanceof HTMLElement) {
         element.click();
-        
-        toast({
-          title: 'Element Clicked',
-          description: `Clicked ${selector}`,
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Element Not Found',
-          description: `Could not find ${selector}`,
-        });
       }
     },
     
@@ -93,17 +72,6 @@ export function createKurtActions(navigate: NavigateFunction): KurtActions {
       if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
         element.value = value;
         element.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        toast({
-          title: 'Field Updated',
-          description: `Set ${selector} to "${value}"`,
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Field Not Found',
-          description: `Could not find ${selector}`,
-        });
       }
     },
     
