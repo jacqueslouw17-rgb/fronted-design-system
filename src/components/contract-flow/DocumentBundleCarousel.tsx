@@ -164,48 +164,36 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
         <p className="text-base text-muted-foreground">
           Select documents to include in the signing package
         </p>
+        
+        {/* Chat Input - directly below subtitle */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="w-full max-w-3xl mx-auto pt-4"
+        >
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask Kurt anything..."
+                disabled={isSubmitting}
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!inputValue.trim() || isSubmitting}
+                className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+        </motion.div>
       </div>
-
-      {/* Chat Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="w-full max-w-3xl mx-auto mb-8"
-      >
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Kurt anything..."
-              disabled={isSubmitting}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!inputValue.trim() || isSubmitting}
-              className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </form>
-      </motion.div>
-
-      {/* Genie message */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="rounded-xl bg-primary/5 border border-primary/10 p-4"
-      >
-        <p className="text-sm text-foreground/90">
-          There are multiple documents to sign for full compliance. I've grouped them for you.
-        </p>
-      </motion.div>
 
       {/* Carousel header */}
       <div className="flex items-center justify-between">
