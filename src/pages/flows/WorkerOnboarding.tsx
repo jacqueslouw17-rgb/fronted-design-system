@@ -8,6 +8,7 @@ import { useFlowState } from "@/hooks/useFlowState";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -167,27 +168,15 @@ const WorkerOnboarding = () => {
         }}
       >
 
-        {/* Header with Animation */}
-        <div className="text-center space-y-2 mb-8">
-          {/* Decorative animated bars */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-foreground">
-            Welcome to Fronted
-          </h1>
-          
-          {/* Subtext */}
-          <p className="text-foreground/60 relative max-w-2xl mx-auto">
-            Complete your onboarding to get ready for your first day.
-          </p>
-        </div>
+        {/* Header with Agent */}
+        <AgentHeader
+          title="Welcome to Fronted"
+          subtitle="Complete your onboarding to get ready for your first day."
+          showPulse={true}
+          isActive={false}
+          placeholder="Ask Kurt anything..."
+          className="mb-8"
+        />
 
         {/* Progress bar */}
         <div className="mb-8">

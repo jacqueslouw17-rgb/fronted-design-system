@@ -9,6 +9,7 @@ import ProgressBar from "@/components/ProgressBar";
 import confetti from "canvas-confetti";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -169,36 +170,15 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
       {/* Main Content - Centered Single Column */}
       <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
-        {/* Header with Animation */}
-        <div className="text-center space-y-2 mb-8">
-          {/* Decorative animated bars */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-foreground">
-            Hi {state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!
-          </h1>
-          
-          {/* Subtext with reading overlay */}
-          <p className="text-foreground/60 relative max-w-2xl mx-auto">
-            {welcomeMessage.split(' ').map((word, index) => (
-              <span
-                key={index}
-                className={`transition-colors duration-200 ${
-                  isSpeaking && currentWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                }`}
-              >
-                {word}{' '}
-              </span>
-            ))}
-          </p>
-        </div>
+        {/* Header with Agent */}
+        <AgentHeader
+          title={`Hi ${state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}
+          subtitle="Let's complete a few quick details so we can finalize your contract."
+          showPulse={true}
+          isActive={isSpeaking}
+          placeholder="Ask Kurt anything..."
+          className="mb-8"
+        />
 
         {/* Progress Bar */}
         <div className="mb-8">

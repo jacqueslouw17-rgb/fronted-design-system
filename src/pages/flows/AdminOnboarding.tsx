@@ -14,6 +14,7 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -770,38 +771,15 @@ const AdminOnboarding = () => {
           maxWidth: '800px'
         }}
       >
-        {/* Header with Animation */}
-        <div className="text-center space-y-2 mb-8">
-          {/* Decorative animated bars */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
-            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-foreground">
-            Welcome to Fronted
-          </h1>
-          
-          {/* Subtext with reading overlay */}
-          <p className="text-foreground/60 relative max-w-2xl mx-auto">
-            {welcomeMessage.split(' ').map((word, index) => (
-              <span
-                key={index}
-                className={`transition-colors duration-200 ${
-                  isSpeaking && currentWordIndex === index
-                    ? 'text-foreground/90 font-medium'
-                    : ''
-                }`}
-              >
-                {word}{' '}
-              </span>
-            ))}
-          </p>
-        </div>
+        {/* Header with Agent */}
+        <AgentHeader
+          title="Welcome to Fronted"
+          subtitle="Let me guide you through setting up your global payroll system."
+          showPulse={true}
+          isActive={isSpeaking}
+          placeholder="Ask Kurt anything..."
+          className="mb-8"
+        />
 
         {/* Progress Bar */}
         <div className="mb-8">
