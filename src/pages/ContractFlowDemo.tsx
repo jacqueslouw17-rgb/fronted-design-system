@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft, X } from "lucide-react";
+import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft, X, BarChart3, GitBranch } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -311,8 +311,14 @@ const ContractFlowDemo = () => {
                     <div className="space-y-4">
                       <Tabs defaultValue="pipeline" className="w-full">
                         <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
-                          <TabsTrigger value="list">Metrics</TabsTrigger>
-                          <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+                          <TabsTrigger value="list" className="flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4" />
+                            Metrics
+                          </TabsTrigger>
+                          <TabsTrigger value="pipeline" className="flex items-center gap-2">
+                            <GitBranch className="h-4 w-4" />
+                            Pipeline View
+                          </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="list" className="space-y-6">
