@@ -79,34 +79,25 @@ const WorkerCompletionScreen = ({ workerName = "there" }: WorkerCompletionScreen
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="bg-card/50 border border-border rounded-lg p-6 space-y-3"
+              className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
             >
-              <p className="text-sm text-muted-foreground">
-                Your onboarding is complete. HR will guide you through your first day, and you can access your dashboard anytime.
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                💡 <strong>What's next?</strong> Check your email for your first day schedule. Your manager will reach out shortly to welcome you to the team!
               </p>
-              <div className="pt-2">
-                <p className="text-xs text-muted-foreground">
-                  Check your email for:
-                </p>
-                <ul className="text-xs text-muted-foreground text-left mt-2 space-y-1">
-                  <li>• First day schedule</li>
-                  <li>• Team introduction</li>
-                  <li>• Equipment tracking (if applicable)</li>
-                </ul>
-              </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
+              className="pt-2"
             >
               <Button
                 onClick={() => navigate("/flows/candidate-dashboard")}
                 size="lg"
                 className="w-full"
               >
-                Go to Your Dashboard
+                Go to My Dashboard
               </Button>
             </motion.div>
           </div>

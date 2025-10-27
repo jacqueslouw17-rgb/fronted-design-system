@@ -133,8 +133,7 @@ const CandidateDashboard = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Top Header */}
             <Topbar 
-              userName={candidateProfile.name} 
-              onPeopleClick={() => {}}
+              userName={candidateProfile.name}
             />
 
             {/* Dashboard Content */}

@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Users, 
@@ -21,7 +18,6 @@ import {
 } from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import NavSidebar from "@/components/dashboard/NavSidebar";
 import Topbar from "@/components/dashboard/Topbar";
@@ -115,7 +111,6 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 const DashboardAdmin = () => {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
-  const [showPeopleDrawer, setShowPeopleDrawer] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [isGenieOpen, setIsGenieOpen] = useState(true);
   const { isListening: sttListening, transcript, startListening, stopListening } = useSpeechToText();
@@ -167,8 +162,7 @@ const DashboardAdmin = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Top Header */}
             <Topbar 
-              userName="Joe User" 
-              onPeopleClick={() => setShowPeopleDrawer(true)}
+              userName="Joe User"
             />
 
             {/* Dashboard Content */}
@@ -240,74 +234,6 @@ const DashboardAdmin = () => {
             </main>
           </div>
         </div>
-
-        {/* People Drawer with Tabs */}
-        <Drawer open={showPeopleDrawer} onOpenChange={setShowPeopleDrawer}>
-          <DrawerContent className="max-h-[85vh]">
-            <DrawerHeader>
-              <DrawerTitle>People</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-6 pb-6">
-              <Tabs defaultValue="list" className="w-full">
-                <TabsList className="grid w-full max-w-[300px] grid-cols-2">
-                  <TabsTrigger value="list">Metrics</TabsTrigger>
-                  <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="list" className="space-y-3 mt-4">
-                  {mockWorkers.length === 0 ? (
-                    <Card className="border-dashed">
-                      <CardContent className="flex flex-col items-center justify-center py-12">
-                        <div className="rounded-full bg-muted p-4 mb-4">
-                          <Users className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                        <h3 className="text-lg font-semibold mb-2">No people yet</h3>
-                        <p className="text-sm text-muted-foreground text-center max-w-md">
-                          Your team members will appear here once you start onboarding contractors.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    mockWorkers.map((worker) => (
-                      <Card key={worker.id} className="hover:shadow-card transition-shadow">
-                        <CardContent className="p-4 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar>
-                              <AvatarImage src={worker.avatarUrl} />
-                              <AvatarFallback>
-                                {worker.name.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium">{worker.name}</p>
-                                <span className="text-lg">{worker.countryFlag}</span>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{worker.role}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Certified
-                            </Badge>
-                            <Button variant="outline" size="sm">
-                              View Contract
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </TabsContent>
-
-                <TabsContent value="pipeline" className="mt-4">
-                  <PipelineView contractors={mockContractors} />
-                </TabsContent>
-              </Tabs>
-            </div>
-          </DrawerContent>
-        </Drawer>
       </TooltipProvider>
     </RoleLensProvider>
   );

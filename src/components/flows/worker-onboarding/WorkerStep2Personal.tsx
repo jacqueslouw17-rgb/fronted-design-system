@@ -7,6 +7,8 @@ import { ArrowRight, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
+import NationalitySelect from "@/components/shared/NationalitySelect";
+import DateOfBirthPicker from "@/components/shared/DateOfBirthPicker";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -20,7 +22,7 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
     fullName: formData.workerName || "",
     email: formData.email || "",
     phone: formData.phone || "",
-    dateOfBirth: formData.dateOfBirth || "",
+    dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
     nationality: formData.nationality || "",
     address: formData.address || ""
   });
@@ -30,9 +32,13 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
   const handleContinue = () => {
     try {
       // Validate using Zod schema
-      personalInfoSchema.parse(data);
+      const dataToValidate = {
+        ...data,
+        dateOfBirth: data.dateOfBirth ? data.dateOfBirth.toISOString().split('T')[0] : ""
+      };
+      personalInfoSchema.parse(dataToValidate);
       setValidationError("");
-      onComplete("personal", data);
+      onComplete("personal", dataToValidate);
     } catch (error) {
       if (error instanceof z.ZodError) {
         setValidationError(error.errors[0].message);
@@ -103,25 +109,15 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input
-            id="dateOfBirth"
-            type="date"
-            value={data.dateOfBirth}
-            onChange={(e) => setData({ ...data, dateOfBirth: e.target.value })}
-          />
-        </div>
+        <DateOfBirthPicker
+          value={data.dateOfBirth}
+          onChange={(date) => setData({ ...data, dateOfBirth: date })}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="nationality">Nationality</Label>
-          <Input
-            id="nationality"
-            value={data.nationality}
-            onChange={(e) => setData({ ...data, nationality: e.target.value })}
-            placeholder="e.g., Filipino"
-          />
-        </div>
+        <NationalitySelect
+          value={data.nationality}
+          onValueChange={(value) => setData({ ...data, nationality: value })}
+        />
 
         <div className="space-y-2">
           <Label htmlFor="address">Residential Address</Label>
