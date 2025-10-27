@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Calendar, FileCheck, TrendingUp, ListChecks } fr
 import ProgressBar from "@/components/ProgressBar";
 import ChecklistItemCard from "@/components/candidate/ChecklistItemCard";
 import MetricTile from "@/components/candidate/MetricTile";
+import OnboardingChecklistSection from "@/components/candidate/OnboardingChecklistSection";
 import { getChecklistForProfile, ChecklistRequirement } from "@/data/candidateChecklistData";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -148,7 +149,11 @@ const CandidateDashboard = () => {
           </TabsList>
 
           {/* Checklist Tab */}
-          <TabsContent value="checklist" className="space-y-6">
+          <TabsContent value="checklist" className="space-y-8">
+            {/* Onboarding Checklist Section */}
+            <OnboardingChecklistSection />
+
+            {/* Setup Progress Section */}
             {!allCompleted && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
