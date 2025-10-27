@@ -49,10 +49,10 @@ const AdminOnboarding = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [kurtMessage, setKurtMessage] = useState(
-    "Click 'Speak' below to get started with your setup."
-  );
   const [welcomeMessage] = useState(
+    "Let me guide you through setting up your global payroll system."
+  );
+  const [kurtMessage, setKurtMessage] = useState(
     "Let me guide you through setting up your global payroll system."
   );
   const [messageStyle, setMessageStyle] = useState("text-muted-foreground");
