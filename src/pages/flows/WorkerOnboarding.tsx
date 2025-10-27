@@ -9,6 +9,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -139,7 +140,8 @@ const WorkerOnboarding = () => {
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
   return (
-    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+    <AgentLayout context="Worker Onboarding">
+      <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -276,6 +278,7 @@ const WorkerOnboarding = () => {
         </div>
       </div>
     </main>
+    </AgentLayout>
   );
 };
 

@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -743,7 +744,8 @@ const AdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+    <AgentLayout context="Admin Onboarding">
+      <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -815,6 +817,7 @@ const AdminOnboarding = () => {
         </div>
       </div>
     </main>
+    </AgentLayout>
   );
 };
 

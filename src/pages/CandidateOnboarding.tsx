@@ -10,6 +10,7 @@ import confetti from "canvas-confetti";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -148,7 +149,8 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+    <AgentLayout context="Candidate Onboarding">
+      <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -245,6 +247,7 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
         </div>
       </div>
     </div>
+    </AgentLayout>
   );
 };
 
