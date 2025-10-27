@@ -47,7 +47,7 @@ const WorkerOnboarding = () => {
 
   const { speak, currentWordIndex } = useTextToSpeech();
   const hasSpokenWelcome = useRef(false);
-  const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted. We'll help you complete a few quick tasks so your first day is smooth and compliant.");
+  const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted - we'll help you complete a few quick tasks so your first day is smooth and compliant.");
 
   // Sync local speaking state with agent state
   useEffect(() => {
