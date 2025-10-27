@@ -149,10 +149,13 @@ export async function executeIntentAction(
         // First switch to pipeline tab
         actions.click('[data-testid="tab-pipeline"]');
         
-        // Wait a moment for tab to switch, then click prepare drafts
+        // Wait for tab to switch, then click the first draft contract button
         setTimeout(() => {
-          actions.click('[data-testid="prepare-drafts"]');
-        }, 300);
+          const firstDraftButton = document.querySelector('[data-testid^="draft-contract-"]');
+          if (firstDraftButton instanceof HTMLElement) {
+            firstDraftButton.click();
+          }
+        }, 500);
         
         return {
           success: true,

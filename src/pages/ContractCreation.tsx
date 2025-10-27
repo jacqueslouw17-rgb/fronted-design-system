@@ -8,6 +8,8 @@ import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -60,30 +62,41 @@ const ContractCreation: React.FC = () => {
           <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
           {/* Contract Creation Area */}
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
-            <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-              <Link to="/flows/contract-flow" aria-label="Back to pipeline">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
-              </Link>
-            </div>
+          <AgentLayout context="Contract Drafting">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
+              <div className="max-w-7xl mx-auto p-8 space-y-8">
+                {/* Agent Header with Back Button */}
+                <div className="space-y-4">
+                  <Link to="/flows/contract-flow" aria-label="Back to pipeline">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                  </Link>
+                  
+                  <AgentHeader 
+                    title="Contract Drafting"
+                    subtitle={`Let's create the employment contract for ${current.name}`}
+                    placeholder="Ask Kurt for help..."
+                  />
+                </div>
 
-            <ContractCreationScreen
-              candidate={current}
-              currentIndex={index}
-              totalCandidates={selected.length}
-              onNext={() => {
-                if (index < selected.length - 1) {
-                  setIndex((i) => i + 1);
-                } else {
-                  // Navigate to bundle creation phase
-                  navigate("/flows/contract-flow?phase=bundle-creation");
-                }
-              }}
-            />
-          </div>
+                <ContractCreationScreen
+                  candidate={current}
+                  currentIndex={index}
+                  totalCandidates={selected.length}
+                  onNext={() => {
+                    if (index < selected.length - 1) {
+                      setIndex((i) => i + 1);
+                    } else {
+                      // Navigate to bundle creation phase
+                      navigate("/flows/contract-flow?phase=bundle-creation");
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </AgentLayout>
         </main>
       </div>
     </RoleLensProvider>

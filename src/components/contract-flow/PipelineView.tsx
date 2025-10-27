@@ -708,6 +708,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 size="sm" 
                                 className="w-full text-xs h-8"
                                 disabled={transitioningIds.has(contractor.id)}
+                                data-testid={`draft-contract-${contractor.id}`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDraftContract([contractor.id]);
