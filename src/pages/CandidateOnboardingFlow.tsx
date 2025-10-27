@@ -15,7 +15,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from 
 import { useToast } from "@/hooks/use-toast";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useEffect } from "react";
-import confetti from "canvas-confetti";
+import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 
 type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
 
@@ -110,13 +110,6 @@ export default function CandidateOnboardingFlow() {
   };
 
   const handleSubmit = () => {
-    // Confetti celebration
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-
     toast({
       title: "✅ Onboarding Complete!",
       description: "Your details have been securely sent to Fronted.",
@@ -125,10 +118,8 @@ export default function CandidateOnboardingFlow() {
     // Simulate backend update
     console.log("Candidate onboarding complete:", candidateId, formData);
     
-    // Navigate directly to dashboard as contractor
-    setTimeout(() => {
-      navigate("/dashboard?role=contractor");
-    }, 1000);
+    // Show completion screen
+    setCurrentStep("complete");
   };
 
   const renderGenieTip = (message: string) => (
@@ -144,6 +135,11 @@ export default function CandidateOnboardingFlow() {
       <p className="text-sm text-foreground/80">{message}</p>
     </motion.div>
   );
+
+  // Completion Screen
+  if (currentStep === "complete") {
+    return <CandidateCompletionScreen candidateName={formData.fullName} />;
+  }
 
   // Welcome Screen
   if (currentStep === "welcome") {

@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { toast } from "@/hooks/use-toast";
-import KurtAvatar from "@/components/KurtAvatar";
 
 interface CandidateCompletionScreenProps {
   candidateName?: string;
@@ -43,27 +40,17 @@ const CandidateCompletionScreen = ({ candidateName }: CandidateCompletionScreenP
     frame();
   }, []);
 
-  const handleClose = () => {
-    setIsClosing(true);
-    
-    setTimeout(() => {
-      // Show Genie toast
-      toast({
-        description: (
-          <div className="flex items-center gap-2">
-            <KurtAvatar size="sm" />
-            <span>I'll notify you once your contract is ready for review!</span>
-          </div>
-        ),
-        duration: 3000,
-      });
-
-      // Navigate back to flows overview
+  useEffect(() => {
+    // Auto-transition to dashboard after 2 seconds
+    const timer = setTimeout(() => {
+      setIsClosing(true);
       setTimeout(() => {
-        navigate('/flows');
+        navigate('/candidate-dashboard');
       }, 500);
-    }, 300);
-  };
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] flex items-center justify-center p-4">
@@ -87,20 +74,22 @@ const CandidateCompletionScreen = ({ candidateName }: CandidateCompletionScreenP
 
               {/* Headline */}
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-foreground">All Set!</h2>
+                <h2 className="text-2xl font-bold text-foreground">You're all set 🎉</h2>
                 <p className="text-muted-foreground">
-                  Thanks! We're preparing your contract. You'll receive an email shortly with next steps.
+                  Thanks for completing onboarding. We're finalizing your workspace.
                 </p>
               </div>
 
-              {/* Close Button */}
-              <Button 
-                size="lg" 
-                className="w-full"
-                onClick={handleClose}
-              >
-                Close
-              </Button>
+              {/* Dashboard preview skeleton */}
+              <div className="space-y-3 pt-2">
+                <div className="h-12 bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50 rounded animate-pulse" />
+                <div className="h-8 bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40 rounded animate-pulse" />
+                <div className="h-8 bg-gradient-to-r from-muted/30 via-muted/10 to-muted/30 rounded animate-pulse" />
+              </div>
+              
+              <p className="text-xs text-center text-muted-foreground pt-2">
+                Loading your dashboard...
+              </p>
             </div>
           </motion.div>
         ) : null}
