@@ -6,7 +6,7 @@ export type AgentMessage = {
   role: 'user' | 'kurt';
   text: string;
   ts: string;
-  actions?: Array<{ type: 'navigate' | 'focus' | 'applyChange'; payload: any }>;
+  actions?: Array<{ type: string; payload: any }>;
 };
 
 export type AgentState = {
@@ -60,32 +60,58 @@ export const useAgentState = create<AgentStore>()(
 
       clearMessages: () => set({ messages: [] }),
 
-      simulateResponse: async (userText: string) => {
-        const { addMessage, setLoading, context } = get();
-        
-        setLoading(true);
+  simulateResponse: async (userText: string) => {
+    const { addMessage, setLoading, context } = get();
+    
+    setLoading(true);
 
-        // Simulate network latency
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Simulate network latency
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
-        // Mock response based on context and user query
-        let response = "I can help you with that. Let me check the details...";
-        
-        if (userText.toLowerCase().includes('contract')) {
-          response = "I've reviewed the contract details. Everything looks compliant and ready to proceed.";
-        } else if (userText.toLowerCase().includes('status')) {
-          response = `Currently viewing: ${context || 'Dashboard'}. All systems are running smoothly.`;
-        } else if (userText.toLowerCase().includes('help')) {
-          response = "I can assist with contracts, compliance, onboarding, and general questions. What would you like to know?";
-        }
+    // Use intent router to match user utterance
+    const { matchIntent, getIntentDescription } = await import('@/lib/intent-router');
+    const { createKurtActions, executeIntentAction } = await import('@/lib/kurt-actions');
+    
+    // Match intent
+    const match = matchIntent(userText);
+    const description = getIntentDescription(match);
+    
+    console.log('[Kurt] Matched intent:', match);
+    
+    // Create actions (we'll need to pass navigate from router context)
+    // For now, mock the navigation
+    const mockNavigate = (path: string) => {
+      console.log('[Kurt] Would navigate to:', path);
+      window.location.pathname = path;
+    };
+    
+    const actions = createKurtActions(mockNavigate as any);
+    
+    // Execute action
+    const result = await executeIntentAction(match.intent, match.entities, actions);
+    
+    // Generate response message
+    let response = description;
+    if (match.confidence < 0.5) {
+      response = "I'm not sure I understood that. " + response;
+    }
+    
+    // Add context if available
+    if (context) {
+      response += ` (Context: ${context})`;
+    }
 
-        addMessage({
-          role: 'kurt',
-          text: response,
-        });
+    addMessage({
+      role: 'kurt',
+      text: response,
+      actions: result.success ? [{ 
+        type: result.action || 'info', 
+        payload: { ...match.entities, description } 
+      }] : undefined
+    });
 
-        setLoading(false);
-      },
+    setLoading(false);
+  },
     }),
     {
       name: 'agent-state',
