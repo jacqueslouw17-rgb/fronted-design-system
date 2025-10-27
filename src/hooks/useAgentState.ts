@@ -84,6 +84,10 @@ export const useAgentState = create<AgentStore>()(
     }),
     {
       name: 'agent-state',
+      partialize: (state) => ({
+        messages: state.messages,
+        context: state.context,
+      }),
     }
   )
 );
