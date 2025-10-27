@@ -28,6 +28,7 @@ interface Contractor {
   employmentType?: "contractor" | "employee";
   checklist?: ChecklistRequirement[];
   checklistProgress?: number;
+  isTransitioning?: boolean;
 }
 
 interface PipelineViewProps {
@@ -102,6 +103,33 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForDocuments, setSelectedForDocuments] = useState<Candidate | null>(null);
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
   const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
+  const [transitioningIds, setTransitioningIds] = useState<Set<string>>(new Set());
+  
+  // Handle smooth transition from drafting to awaiting-signature
+  React.useEffect(() => {
+    const newContractors = initialContractors.filter(c => !contractors.find(existing => existing.id === c.id));
+    const statusChanges = initialContractors.filter(initial => {
+      const existing = contractors.find(c => c.id === initial.id);
+      return existing && existing.status === "drafting" && initial.status === "awaiting-signature";
+    });
+
+    if (statusChanges.length > 0) {
+      // Mark contractors as transitioning and keep them in drafting status temporarily
+      const idsToTransition = new Set(statusChanges.map(c => c.id));
+      setTransitioningIds(idsToTransition);
+      
+      // After brief delay, show loading state
+      setTimeout(() => {
+        // After another delay, complete the transition
+        setTimeout(() => {
+          setContractors(initialContractors);
+          setTransitioningIds(new Set());
+        }, 1200);
+      }, 800);
+    } else {
+      setContractors(initialContractors);
+    }
+  }, [initialContractors]);
   
   // Auto-progression animation for onboarding checklists
   React.useEffect(() => {
@@ -191,6 +219,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   }, [contractors, onContractorUpdate]);
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
+    // Include transitioning contractors in drafting column
+    if (status === "drafting") {
+      return contractors.filter((c) => c.status === status || transitioningIds.has(c.id));
+    }
+    // Exclude transitioning contractors from awaiting-signature column
+    if (status === "awaiting-signature") {
+      return contractors.filter((c) => c.status === status && !transitioningIds.has(c.id));
+    }
     return contractors.filter((c) => c.status === status);
   };
 
@@ -651,13 +687,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               <Button 
                                 size="sm" 
                                 className="w-full text-xs h-8"
+                                disabled={transitioningIds.has(contractor.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDraftContract([contractor.id]);
                                 }}
                               >
-                                <FileEdit className="h-3 w-3 mr-1" />
-                                Draft Contract
+                                {transitioningIds.has(contractor.id) ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    Sending...
+                                  </>
+                                ) : (
+                                  <>
+                                    <FileEdit className="h-3 w-3 mr-1" />
+                                    Draft Contract
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}
