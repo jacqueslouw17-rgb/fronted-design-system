@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
-import { ContractFlowHeader } from "./ContractFlowHeader";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -31,11 +31,11 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <ContractFlowHeader
+      <AgentHeader
         title="Review Contracts"
         subtitle="All contracts ready. Review and send to candidates for signature."
-        showAudioWave={true}
-        isAudioActive={true}
+        showPulse={true}
+        isActive={false}
       />
 
       {/* Review cards */}

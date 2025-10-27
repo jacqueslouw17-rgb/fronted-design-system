@@ -7,7 +7,7 @@ import { PenTool, Send, Award, Bot } from "lucide-react";
 import confetti from "canvas-confetti";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
-import { ContractFlowHeader } from "./ContractFlowHeader";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -116,11 +116,11 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <ContractFlowHeader
+      <AgentHeader
         title="Signature Phase"
         subtitle="Contracts sent. Track signing progress in real-time."
-        showAudioWave={true}
-        isAudioActive={true}
+        showPulse={true}
+        isActive={false}
       />
 
       {/* Genie message */}

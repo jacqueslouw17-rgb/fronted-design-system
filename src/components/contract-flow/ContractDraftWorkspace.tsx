@@ -14,7 +14,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
-import { ContractFlowHeader } from "./ContractFlowHeader";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -241,11 +241,11 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
   return (
     <div className="space-y-6">
-      <ContractFlowHeader
+      <AgentHeader
         title="Contract Workspace"
         subtitle={`Reviewing ${candidate.name}'s ${candidate.role} contract for ${candidate.country}`}
-        showAudioWave={true}
-        isAudioActive={true}
+        showPulse={true}
+        isActive={false}
       />
       
       <motion.div

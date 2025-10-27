@@ -13,7 +13,7 @@ import {
   Package,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
-import { ContractFlowHeader } from "./ContractFlowHeader";
+import { AgentHeader } from "@/components/agent/AgentHeader";
 
 interface Document {
   id: string;
@@ -132,12 +132,23 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
 
   return (
     <div className="space-y-6">
-      <ContractFlowHeader
+      <AgentHeader
         title="Contract Bundle"
         subtitle="Select documents to include in the signing package"
-        showAudioWave={true}
-        isAudioActive={true}
+        showPulse={true}
+        isActive={false}
       />
+
+      {/* Candidate info */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-4xl">{candidate.flag}</span>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">{candidate.name}</h3>
+          <p className="text-sm text-muted-foreground">
+            {candidate.role} • {candidate.country}
+          </p>
+        </div>
+      </div>
 
       {/* Carousel header */}
       <div className="flex items-center justify-between">
