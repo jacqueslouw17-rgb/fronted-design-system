@@ -167,13 +167,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     );
 
     if (completedContractors.length > 0) {
-      // Show Genie celebration message first
-      completedContractors.forEach((contractor) => {
-        toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
-          duration: 5000,
-        });
-      });
-
       // Then move to certified after brief delay
       setTimeout(() => {
         const updated = contractors.map(c => 
@@ -184,6 +177,15 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         
         setContractors(updated);
         onContractorUpdate?.(updated);
+
+        // Show Genie celebration message after moving to certified
+        setTimeout(() => {
+          completedContractors.forEach((contractor) => {
+            toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
+              duration: 5000,
+            });
+          });
+        }, 500);
       }, 1500);
     }
   }, [contractors, onContractorUpdate]);
@@ -731,17 +733,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   return (
                                     <motion.div 
                                       key={item.id} 
-                                      className="flex items-center gap-1.5 text-xs"
+                                      className="flex items-start gap-1.5 text-xs"
                                       animate={isProcessing ? { scale: [1, 1.02, 1] } : {}}
                                       transition={{ duration: 0.5, repeat: Infinity }}
                                     >
-                                      <Icon className={cn("h-3 w-3 flex-shrink-0", 
+                                      <Icon className={cn("h-3 w-3 flex-shrink-0 mt-0.5", 
                                         item.status === 'verified' && "text-accent-green-text",
                                         item.status === 'pending_review' && "text-accent-blue-text animate-spin",
                                         item.status === 'todo' && "text-accent-yellow-text"
                                       )} />
                                       <span className={cn(
-                                        "truncate",
+                                        "truncate leading-tight",
                                         item.status === 'verified' && "text-foreground/80",
                                         item.status === 'pending_review' && "text-foreground font-medium",
                                         item.status === 'todo' && "text-foreground/60"
