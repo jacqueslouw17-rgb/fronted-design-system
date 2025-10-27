@@ -1,4 +1,4 @@
-import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle, Calculator, HelpCircle, FileSignature, User, CheckCircle2 } from "lucide-react";
+import { LucideIcon, Box, CreditCard, CheckSquare, MessageSquare, Clock, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Sparkles, Brain, ListTodo, ShieldCheck, Activity, RefreshCw, Bell, LayoutGrid, FileText, DollarSign, Inbox, ClipboardCheck, Mic, BarChart3, Link2, ToggleLeft, ScrollText, Tags, MousePointerClick, PanelRightOpen, ListChecks, LayoutDashboard, UserPlus, ArrowRight, Menu, ChevronRight, Play, Pause, X, ChevronDown, TrendingUp, AlertCircle, Calculator, HelpCircle, FileSignature, User, CheckCircle2, Calendar, Globe } from "lucide-react";
 
 export interface ComponentReference {
   id: string;
@@ -916,6 +916,191 @@ export const componentsRegistry: ComponentReference[] = [
     usedInModules: ["Onboarding", "HR"],
     icon: CheckCircle2,
     filePath: "src/components/OnboardingStepProgress.tsx"
+  },
+  {
+    id: "standard-input",
+    name: "StandardInput",
+    description: "Standardized text input with label, error, help text, and lock states",
+    category: "UI",
+    states: [
+      { name: "default", description: "Editable field" },
+      { name: "locked", description: "Read-only with lock icon" },
+      { name: "completed", description: "Validated with checkmark" },
+      { name: "error", description: "Validation error state" }
+    ],
+    props: [
+      { name: "label", type: "string", description: "Field label" },
+      { name: "required", type: "boolean", description: "Required field indicator" },
+      { name: "error", type: "string", description: "Error message" },
+      { name: "helpText", type: "string", description: "Helper text below field" },
+      { name: "locked", type: "boolean", description: "Lock field from editing" }
+    ],
+    usedInPatterns: ["onboarding", "admin-onboarding", "candidate-onboarding", "worker-onboarding"],
+    usedInModules: ["All Modules"],
+    icon: FileText,
+    filePath: "src/components/shared/StandardInput.tsx"
+  },
+  {
+    id: "phone-input",
+    name: "PhoneInput",
+    description: "International phone input with country code selector and auto-formatting",
+    category: "UI",
+    states: [
+      { name: "default", description: "Editable with country selector" },
+      { name: "disabled", description: "Read-only state" },
+      { name: "error", description: "Validation error" }
+    ],
+    props: [
+      { name: "value", type: "string", description: "Phone number" },
+      { name: "countryCode", type: "string", description: "Selected country code" },
+      { name: "onChange", type: "function", description: "Value change handler" }
+    ],
+    usedInPatterns: ["onboarding", "admin-onboarding", "candidate-onboarding", "worker-onboarding"],
+    usedInModules: ["Onboarding", "HR", "Contracts"],
+    icon: User,
+    filePath: "src/components/shared/PhoneInput.tsx"
+  },
+  {
+    id: "currency-input",
+    name: "CurrencyInput",
+    description: "Currency input with auto-formatting and currency selector",
+    category: "UI",
+    states: [
+      { name: "default", description: "Editable with currency selector" },
+      { name: "locked-currency", description: "Currency fixed, amount editable" },
+      { name: "disabled", description: "Read-only" }
+    ],
+    props: [
+      { name: "value", type: "string | number", description: "Amount value" },
+      { name: "currency", type: "string", description: "Currency code" },
+      { name: "showCurrencySelect", type: "boolean", description: "Show currency dropdown" }
+    ],
+    usedInPatterns: ["onboarding", "payroll", "contracts", "cost-tax-visualizer"],
+    usedInModules: ["Payroll", "Contracts", "Finance"],
+    icon: DollarSign,
+    filePath: "src/components/shared/CurrencyInput.tsx"
+  },
+  {
+    id: "monthly-pay-schedule-input",
+    name: "MonthlyPayScheduleInput",
+    description: "Day-of-month input with validation for payroll schedules",
+    category: "UI",
+    states: [
+      { name: "valid", description: "Valid day selected" },
+      { name: "warning", description: "Day 29-31 with month-end warning" },
+      { name: "error", description: "Invalid day number" }
+    ],
+    props: [
+      { name: "value", type: "string | number", description: "Day of month" },
+      { name: "onChange", type: "function", description: "Value change handler" }
+    ],
+    usedInPatterns: ["onboarding", "admin-onboarding", "payroll"],
+    usedInModules: ["Payroll", "Admin"],
+    icon: Calendar,
+    filePath: "src/components/shared/MonthlyPayScheduleInput.tsx"
+  },
+  {
+    id: "date-of-birth-picker",
+    name: "DateOfBirthPicker",
+    description: "Date picker with restrictions for date of birth selection",
+    category: "UI",
+    states: [
+      { name: "closed", description: "Calendar hidden" },
+      { name: "open", description: "Calendar visible" },
+      { name: "selected", description: "Date chosen" }
+    ],
+    props: [
+      { name: "value", type: "Date", description: "Selected date" },
+      { name: "onChange", type: "function", description: "Date change handler" }
+    ],
+    usedInPatterns: ["onboarding", "candidate-onboarding", "worker-onboarding"],
+    usedInModules: ["Onboarding", "HR"],
+    icon: Calendar,
+    filePath: "src/components/shared/DateOfBirthPicker.tsx"
+  },
+  {
+    id: "nationality-select",
+    name: "NationalitySelect",
+    description: "Dropdown with country flags for nationality selection",
+    category: "UI",
+    states: [
+      { name: "closed", description: "Dropdown hidden" },
+      { name: "open", description: "Dropdown visible" },
+      { name: "selected", description: "Nationality chosen" }
+    ],
+    props: [
+      { name: "value", type: "string", description: "Country code" },
+      { name: "onValueChange", type: "function", description: "Selection handler" }
+    ],
+    usedInPatterns: ["onboarding", "candidate-onboarding", "worker-onboarding"],
+    usedInModules: ["Onboarding", "HR", "Compliance"],
+    icon: Globe,
+    filePath: "src/components/shared/NationalitySelect.tsx"
+  },
+  {
+    id: "person-mini-card",
+    name: "PersonMiniCard",
+    description: "Compact person card with avatar, flag badge, and selection",
+    category: "Pattern",
+    states: [
+      { name: "default", description: "Standard display" },
+      { name: "selected", description: "Checkbox checked" },
+      { name: "hover", description: "Elevated shadow on hover" }
+    ],
+    props: [
+      { name: "name", type: "string", description: "Person's name" },
+      { name: "role", type: "string", description: "Job title or role" },
+      { name: "countryFlag", type: "string", description: "Emoji flag" },
+      { name: "showCheckbox", type: "boolean", description: "Enable selection" },
+      { name: "isSelected", type: "boolean", description: "Selection state" }
+    ],
+    usedInPatterns: ["contract-pipeline", "dashboard", "candidate-onboarding"],
+    usedInModules: ["Dashboard", "Contracts", "HR"],
+    icon: User,
+    filePath: "src/components/shared/PersonMiniCard.tsx"
+  },
+  {
+    id: "standard-checklist-item",
+    name: "StandardChecklistItem",
+    description: "Standardized checklist item with status badge and description",
+    category: "Pattern",
+    states: [
+      { name: "pending", description: "Not started" },
+      { name: "in-progress", description: "Currently working" },
+      { name: "completed", description: "Checked off" },
+      { name: "overdue", description: "Past deadline" }
+    ],
+    props: [
+      { name: "title", type: "string", description: "Item title" },
+      { name: "description", type: "string", description: "Item details" },
+      { name: "checked", type: "boolean", description: "Completion state" },
+      { name: "status", type: "string", description: "Item status" }
+    ],
+    usedInPatterns: ["compliance-checklist", "candidate-onboarding", "worker-onboarding"],
+    usedInModules: ["Compliance", "Onboarding", "HR"],
+    icon: CheckSquare,
+    filePath: "src/components/shared/StandardChecklistItem.tsx"
+  },
+  {
+    id: "standard-progress",
+    name: "StandardProgress",
+    description: "Standardized progress bar with step counter and variants",
+    category: "UI",
+    states: [
+      { name: "default", description: "Primary gradient" },
+      { name: "secondary", description: "Secondary colors" },
+      { name: "accent", description: "Accent colors" }
+    ],
+    props: [
+      { name: "currentStep", type: "number", description: "Current step number" },
+      { name: "totalSteps", type: "number", description: "Total steps" },
+      { name: "variant", type: "string", description: "Color variant" },
+      { name: "showLabel", type: "boolean", description: "Show step counter" }
+    ],
+    usedInPatterns: ["onboarding", "admin-onboarding", "candidate-onboarding", "worker-onboarding", "smart-progress"],
+    usedInModules: ["All Modules"],
+    icon: Activity,
+    filePath: "src/components/shared/StandardProgress.tsx"
   }
 ];
 

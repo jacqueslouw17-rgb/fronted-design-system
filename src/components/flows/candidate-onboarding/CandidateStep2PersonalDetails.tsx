@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import StandardInput from "@/components/shared/StandardInput";
+import PhoneInput from "@/components/shared/PhoneInput";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -23,6 +22,7 @@ const CandidateStep2PersonalDetails = ({
     email: formData.email || "",
     homeAddress: formData.homeAddress || "",
     phoneNumber: formData.phoneNumber || "",
+    phoneCountryCode: formData.phoneCountryCode || "+47",
     preferredLanguage: formData.preferredLanguage || "EN"
   });
 
@@ -33,6 +33,7 @@ const CandidateStep2PersonalDetails = ({
       email: formData.email || "",
       homeAddress: formData.homeAddress || "",
       phoneNumber: formData.phoneNumber || "",
+      phoneCountryCode: formData.phoneCountryCode || "+47",
       preferredLanguage: formData.preferredLanguage || "EN"
     });
   }, [formData]);
@@ -58,64 +59,49 @@ const CandidateStep2PersonalDetails = ({
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name *</Label>
-            <Input
-              id="fullName"
-              value={data.fullName}
-              onChange={(e) => setData({ ...data, fullName: e.target.value })}
-              placeholder="Enter your full name"
-            />
-          </div>
+          <StandardInput
+            id="fullName"
+            label="Full Name"
+            value={data.fullName}
+            onChange={(value) => setData({ ...data, fullName: value })}
+            required
+            placeholder="Enter your full name"
+            helpText="As shown on your government ID"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={data.email}
-              readOnly
-              disabled
-              className="bg-muted/50 text-muted-foreground cursor-not-allowed"
-            />
-            <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-          </div>
+          <StandardInput
+            id="email"
+            label="Email"
+            value={data.email}
+            onChange={() => {}}
+            type="email"
+            required
+            locked
+            lockMessage="Email address is locked and cannot be changed"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="homeAddress">Home Address *</Label>
-            <Input
-              id="homeAddress"
-              value={data.homeAddress}
-              onChange={(e) => setData({ ...data, homeAddress: e.target.value })}
-              placeholder="Enter your home address"
-            />
-          </div>
+          <StandardInput
+            id="homeAddress"
+            label="Home Address"
+            value={data.homeAddress}
+            onChange={(value) => setData({ ...data, homeAddress: value })}
+            required
+            placeholder="Enter your full home address"
+            helpText="Street address, city, postal code, country"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number *</Label>
-            <Input
-              id="phoneNumber"
-              value={data.phoneNumber}
-              onChange={(e) => setData({ ...data, phoneNumber: e.target.value })}
-              placeholder="+1 234 567 8900"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="preferredLanguage">Preferred Language *</Label>
-            <Select value={data.preferredLanguage} onValueChange={(value) => setData({ ...data, preferredLanguage: value })}>
-              <SelectTrigger id="preferredLanguage">
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EN">English (EN only for pilot)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PhoneInput
+            value={data.phoneNumber}
+            onChange={(value) => setData({ ...data, phoneNumber: value })}
+            countryCode={data.phoneCountryCode}
+            onCountryCodeChange={(code) => setData({ ...data, phoneCountryCode: code })}
+            label="Phone Number"
+            required
+            helpText="We'll use this for important notifications"
+          />
         </div>
       )}
 
