@@ -99,7 +99,7 @@ export const useTextToSpeech = (config?: VoiceConfig) => {
 
     utteranceRef.current = utterance;
     synthRef.current.speak(utterance);
-  }, [config, voices, currentWordIndex]);
+  }, [config, voices]);
 
   const stop = useCallback(() => {
     if (synthRef.current) {

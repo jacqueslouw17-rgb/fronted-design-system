@@ -60,7 +60,8 @@ export const KurtAgentPanel: React.FC = () => {
         });
       }
     }
-  }, [loading, messages, readingMessageId, speak, setIsSpeaking]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, messages]);
 
   const handleCopy = () => {
     if (messages.length > 0) {
