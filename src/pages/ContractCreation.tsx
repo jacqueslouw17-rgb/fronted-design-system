@@ -50,8 +50,6 @@ const ContractCreation: React.FC = () => {
         {/* Topbar */}
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
-          version="v3"
-          onVersionChange={() => {}}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
         />
