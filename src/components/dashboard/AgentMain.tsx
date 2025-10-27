@@ -49,7 +49,6 @@ const AgentMain = ({ userData, isDrawerOpen = false }: AgentMainProps) => {
 
   const handleSend = () => {
     if (inputValue.trim()) {
-      toast.success(`Message sent: ${inputValue}`);
       setInputValue("");
       resetTranscript();
     }

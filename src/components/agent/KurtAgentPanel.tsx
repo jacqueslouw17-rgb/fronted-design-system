@@ -6,7 +6,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
-import { toast } from 'sonner';
 
 const loadingPhrases = [
   "Reading contract clauses...",
@@ -66,7 +65,6 @@ export const KurtAgentPanel: React.FC = () => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       navigator.clipboard.writeText(lastMessage.text);
-      toast.success('Copied to clipboard');
     }
   };
 
