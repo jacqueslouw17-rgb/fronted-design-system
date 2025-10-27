@@ -18,18 +18,25 @@ interface Step7Props {
 const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }: Step7Props) => {
   const navigate = useNavigate();
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const handleFinish = useCallback(async () => {
+    // Show button loading immediately
+    setIsButtonLoading(true);
+    
     // Complete the step first
     onComplete("finish_dashboard_transition");
     
-    // Start transition with brief delay
+    // Small delay before showing transition screen
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    // Start transition
     setIsTransitioning(true);
     
     // Navigate to Admin Dashboard
     setTimeout(() => {
       navigate('/dashboard');
-    }, 1200);
+    }, 1500);
   }, [navigate, onComplete]);
 
   const completedItems = [
@@ -47,24 +54,24 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
         {isTransitioning ? (
           <motion.div
             key="transitioning"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background"
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
           >
-            <div className="flex flex-col items-center space-y-6">
+            <motion.div 
+              className="flex flex-col items-center space-y-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
+            >
               <AudioWaveVisualizer isActive={true} />
-              <motion.div 
-                className="text-center space-y-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
+              <div className="text-center space-y-2">
                 <h3 className="text-2xl font-bold">Setting up your workspace...</h3>
                 <p className="text-muted-foreground">This will just take a moment</p>
-              </motion.div>
-            </div>
+              </div>
+            </motion.div>
           </motion.div>
         ) : (
           <motion.div
@@ -118,13 +125,13 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
               <Button 
                 size="lg" 
                 className="w-full" 
-                disabled={externalProcessing}
+                disabled={externalProcessing || isButtonLoading || isTransitioning}
                 onClick={handleFinish}
               >
-                {externalProcessing ? (
+                {(externalProcessing || isButtonLoading) ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
+                    Launching...
                   </>
                 ) : (
                   <>
