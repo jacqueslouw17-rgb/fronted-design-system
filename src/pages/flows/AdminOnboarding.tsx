@@ -783,10 +783,12 @@ const AdminOnboarding = () => {
         {/* Header with Agent */}
         <AgentHeader
           title="Welcome to Fronted"
-          subtitle="Let me guide you through setting up your global payroll system."
+          subtitle={kurtMessage}
           showPulse={true}
           isActive={isSpeaking}
           placeholder="Ask Kurt anything..."
+          currentWordIndex={currentWordIndex}
+          enableWordHighlight={isSpeaking}
           className="mb-8"
         />
 

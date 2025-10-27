@@ -182,10 +182,12 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
         {/* Header with Agent */}
         <AgentHeader
           title={`Hi ${state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}
-          subtitle="Let's complete a few quick details so we can finalize your contract."
+          subtitle={welcomeMessage}
           showPulse={true}
           isActive={isSpeaking}
           placeholder="Ask Kurt anything..."
+          currentWordIndex={currentWordIndex}
+          enableWordHighlight={isSpeaking}
           className="mb-8"
         />
 

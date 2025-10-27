@@ -13,6 +13,8 @@ interface AgentHeaderProps {
   isActive?: boolean;
   placeholder?: string;
   className?: string;
+  currentWordIndex?: number;
+  enableWordHighlight?: boolean;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -22,6 +24,8 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   isActive: isActiveProp,
   placeholder = "Ask Kurt anything...",
   className = "",
+  currentWordIndex = 0,
+  enableWordHighlight = false,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -73,7 +77,26 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       {/* Title & Subtitle */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-        <p className="text-muted-foreground">{subtitle}</p>
+        <p className="text-base">
+          {enableWordHighlight ? (
+            // Word-by-word highlighting when speaking
+            subtitle.split(' ').map((word, idx) => (
+              <span
+                key={idx}
+                className={
+                  idx < currentWordIndex
+                    ? 'text-foreground/90'
+                    : 'text-muted-foreground/40'
+                }
+              >
+                {word}{' '}
+              </span>
+            ))
+          ) : (
+            // Default static subtitle
+            <span className="text-muted-foreground">{subtitle}</span>
+          )}
+        </p>
       </div>
 
       {/* Chat Input */}

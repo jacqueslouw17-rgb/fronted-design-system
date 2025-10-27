@@ -45,8 +45,9 @@ const WorkerOnboarding = () => {
     "welcome"
   );
 
-  const { speak } = useTextToSpeech();
+  const { speak, currentWordIndex } = useTextToSpeech();
   const hasSpokenWelcome = useRef(false);
+  const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted. We'll help you complete a few quick tasks so your first day is smooth and compliant.");
 
   // Sync local speaking state with agent state
   useEffect(() => {
@@ -66,14 +67,13 @@ const WorkerOnboarding = () => {
   // Auto-speak welcome message
   useEffect(() => {
     if (!hasSpokenWelcome.current && state.currentStep === "welcome") {
-      const welcomeText = "Hi Maria! Welcome to Fronted. We'll help you complete a few quick tasks so your first day is smooth and compliant.";
       setIsSpeaking(true);
-      speak(welcomeText, () => {
+      speak(welcomeMessage, () => {
         setIsSpeaking(false);
       });
       hasSpokenWelcome.current = true;
     }
-  }, [state.currentStep, speak]);
+  }, [state.currentStep, speak, welcomeMessage]);
 
   const scrollToStep = (stepId: string) => {
     const element = document.getElementById(`step-${stepId}`);
@@ -184,10 +184,12 @@ const WorkerOnboarding = () => {
         {/* Header with Agent */}
         <AgentHeader
           title="Welcome to Fronted"
-          subtitle="Complete your onboarding to get ready for your first day."
+          subtitle={welcomeMessage}
           showPulse={true}
-          isActive={false}
+          isActive={isSpeaking}
           placeholder="Ask Kurt anything..."
+          currentWordIndex={currentWordIndex}
+          enableWordHighlight={isSpeaking}
           className="mb-8"
         />
 
