@@ -18,14 +18,14 @@ export const AgentLayout: React.FC<AgentLayoutProps> = ({ children, context }) =
   }, [context, setContext]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
+    <div className="flex h-full w-full">
       {/* Main Content Area - Animated Width */}
       <motion.div
         animate={{
           width: open ? '70%' : '100%',
         }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="overflow-auto"
+        className="h-full"
       >
         {children}
       </motion.div>
@@ -38,7 +38,7 @@ export const AgentLayout: React.FC<AgentLayoutProps> = ({ children, context }) =
             animate={{ width: '30%' }}
             exit={{ width: 0 }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="overflow-hidden"
+            className="h-full"
           >
             <KurtAgentPanel />
           </motion.div>
