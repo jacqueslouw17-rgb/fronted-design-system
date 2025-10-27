@@ -60,7 +60,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => (window.location.href = "/")}
+          onClick={() => navigate("/flows")}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
