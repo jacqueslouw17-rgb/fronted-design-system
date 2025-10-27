@@ -32,6 +32,8 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [validatingCandidateId, setValidatingCandidateId] = useState<string | null>(null);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
 
   // Auto-start Maria Santos status progression on mount
   useEffect(() => {
@@ -68,23 +70,34 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
   };
 
   const handleSendForm = (candidateId: string) => {
+    // Mark as sending
+    setSendingFormIds(prev => new Set([...prev, candidateId]));
+    
     // Special demo flow for Maria Santos (id "1") - auto-progress through statuses
     const isMaria = candidateId === "1";
     
     if (isMaria) {
-      // Step 1: Form sent
-      setCandidateDataStatus((prev) =>
-        prev.map((status) =>
-          status.id === candidateId
-            ? { ...status, status: "awaiting_info" as OnboardingStatus }
-            : status
-        )
-      );
+      // Step 1: Form sent (after brief loading delay)
+      setTimeout(() => {
+        setSendingFormIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(candidateId);
+          return newSet;
+        });
+        
+        setCandidateDataStatus((prev) =>
+          prev.map((status) =>
+            status.id === candidateId
+              ? { ...status, status: "awaiting_info" as OnboardingStatus }
+              : status
+          )
+        );
 
-      toast.success("Form sent to Maria Santos. Watch the status change...", {
-        duration: 2000,
-        icon: "📧",
-      });
+        toast.success("Form sent to Maria Santos. Watch the status change...", {
+          duration: 2000,
+          icon: "📧",
+        });
+      }, 1000);
 
       // Step 2: Form viewed (after 2.5 seconds)
       setTimeout(() => {
@@ -238,6 +251,7 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
                   onConfigure={() => handleConfigure(candidate.id)}
                   onSendForm={() => handleSendForm(candidate.id)}
                   isValidating={validatingCandidateId === candidate.id}
+                  isSending={sendingFormIds.has(candidate.id)}
                 />
               </motion.div>
             );
@@ -252,12 +266,28 @@ export const CandidateConfirmationScreen: React.FC<CandidateConfirmationScreenPr
             className="flex justify-center"
           >
             <Button
-              onClick={onProceed}
+              onClick={() => {
+                setIsGenerating(true);
+                toast.info("Generating contracts with AI...", { duration: 2000 });
+                setTimeout(() => {
+                  onProceed();
+                }, 1500);
+              }}
               size="lg"
               className="gap-2"
+              disabled={isGenerating}
             >
-              <Sparkles className="h-5 w-5" />
-              Generate Contracts
+              {isGenerating ? (
+                <>
+                  <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5" />
+                  Generate Contracts
+                </>
+              )}
             </Button>
           </motion.div>
         )}

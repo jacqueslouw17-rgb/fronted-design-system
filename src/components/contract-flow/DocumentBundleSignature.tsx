@@ -54,6 +54,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   );
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
+  const [isSendingBundle, setIsSendingBundle] = useState(false);
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   
   const subtextMessage = "Review document bundles for each candidate and prepare for signature collection";
@@ -447,11 +448,26 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                   </div>
                   <Button
                     size="lg"
-                    onClick={onSendBundle}
+                    onClick={() => {
+                      setIsSendingBundle(true);
+                      setTimeout(() => {
+                        handleIncludeAll();
+                      }, 1500);
+                    }}
+                    disabled={isSendingBundle}
                     className="w-full bg-gradient-to-r from-primary to-secondary"
                   >
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Bundle
+                    {isSendingBundle ? (
+                      <>
+                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                        Sending bundle...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send Bundle
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

@@ -25,6 +25,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   const [globalComment, setGlobalComment] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasSpoken, setHasSpoken] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   
   const subtextMessage = "All contracts ready. Review and send to candidates for signature.";
@@ -171,11 +172,24 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         transition={{ delay: 1, duration: 0.3 }}
       >
         <Button
-          onClick={onStartSigning}
+          onClick={() => {
+            setIsSending(true);
+            setTimeout(() => {
+              onStartSigning();
+            }, 1200);
+          }}
+          disabled={isSending}
           className="w-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
           size="lg"
         >
-          Send to Candidates
+          {isSending ? (
+            <>
+              <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+              Sending to candidates...
+            </>
+          ) : (
+            "Send to Candidates"
+          )}
         </Button>
       </motion.div>
     </motion.div>

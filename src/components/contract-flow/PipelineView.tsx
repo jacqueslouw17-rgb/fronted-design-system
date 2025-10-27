@@ -104,6 +104,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
   const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
   const [transitioningIds, setTransitioningIds] = useState<Set<string>>(new Set());
+  const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   
   // Handle smooth transition from drafting to awaiting-signature
   React.useEffect(() => {
@@ -381,16 +382,25 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleSendForm = (contractorId: string) => {
-    const updated = contractors.map(c => 
-      c.id === contractorId 
-        ? { ...c, status: "data-pending" as const, formSent: true }
-        : c
-    );
-    setContractors(updated);
-    onContractorUpdate?.(updated);
+    setSendingFormIds(prev => new Set([...prev, contractorId]));
     
-    const contractor = contractors.find(c => c.id === contractorId);
-    toast.success(`Form sent to ${contractor?.name}`);
+    setTimeout(() => {
+      const updated = contractors.map(c => 
+        c.id === contractorId 
+          ? { ...c, status: "data-pending" as const, formSent: true }
+          : c
+      );
+      setContractors(updated);
+      onContractorUpdate?.(updated);
+      setSendingFormIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(contractorId);
+        return newSet;
+      });
+      
+      const contractor = contractors.find(c => c.id === contractorId);
+      toast.success(`Form sent to ${contractor?.name}`);
+    }, 800);
   };
 
   const handleBulkSendForms = () => {
@@ -642,13 +652,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               <Button 
                                 size="sm" 
                                 className="flex-1 text-xs h-8"
+                                disabled={sendingFormIds.has(contractor.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleSendForm(contractor.id);
                                 }}
                               >
-                                <Send className="h-3 w-3 mr-1" />
-                                Send Form
+                                {sendingFormIds.has(contractor.id) ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    Sending...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="h-3 w-3 mr-1" />
+                                    Send Form
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}

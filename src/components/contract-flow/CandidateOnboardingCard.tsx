@@ -11,6 +11,7 @@ interface CandidateOnboardingCardProps {
   onConfigure: () => void;
   onSendForm: () => void;
   isValidating?: boolean;
+  isSending?: boolean;
 }
 
 const statusConfig: Record<OnboardingStatus, { label: string; variant: "default" | "secondary" | "outline" | "destructive"; color: string }> = {
@@ -56,6 +57,7 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
   onConfigure,
   onSendForm,
   isValidating = false,
+  isSending = false,
 }) => {
   // Fallback for undefined status
   const statusInfo = statusConfig[candidate.status] || {
@@ -148,11 +150,21 @@ export const CandidateOnboardingCard: React.FC<CandidateOnboardingCardProps> = (
               <Button
                 size="sm"
                 onClick={onSendForm}
+                disabled={isSending}
                 className="flex-1 gap-2"
                 variant={canResendForm ? "outline" : "default"}
               >
-                <Send className="h-4 w-4" />
-                {canResendForm ? "Resend Form" : "Send Form"}
+                {isSending ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    {canResendForm ? "Resend Form" : "Send Form"}
+                  </>
+                )}
               </Button>
             )}
           </div>
