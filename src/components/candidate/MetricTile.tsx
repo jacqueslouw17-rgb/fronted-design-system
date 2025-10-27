@@ -29,8 +29,8 @@ const MetricTile = ({ icon: Icon, label, value, status = 'neutral', trend, index
       <Card className="hover:shadow-lg transition-all h-full">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Icon className="h-4 w-4 text-primary" />
+          <div className="p-2 rounded-lg bg-orange-500/10">
+            <Icon className="h-4 w-4 text-orange-500" />
           </div>
         </CardHeader>
         <CardContent>
