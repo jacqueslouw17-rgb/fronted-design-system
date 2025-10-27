@@ -92,8 +92,9 @@ const App = () => (
         <Route path="/flows/contract-creation" element={<ContractCreation />} />
         <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
         <Route path="/candidate-onboarding/:candidateId?" element={<CandidateOnboardingFlow />} />
-        <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
         <Route path="/flows/worker-onboarding" element={<WorkerOnboarding />} />
+        <Route path="/flows/candidate-dashboard" element={<CandidateDashboard />} />
+        <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />

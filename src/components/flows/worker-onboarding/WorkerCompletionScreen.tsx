@@ -102,11 +102,11 @@ const WorkerCompletionScreen = ({ workerName = "there" }: WorkerCompletionScreen
               transition={{ delay: 0.5 }}
             >
               <Button
-                onClick={handleClose}
+                onClick={() => navigate("/flows/candidate-dashboard")}
                 size="lg"
                 className="w-full"
               >
-                Close
+                Go to Your Dashboard
               </Button>
             </motion.div>
           </div>

@@ -217,7 +217,7 @@ const Flows = () => {
       description: "Post-onboarding candidate checklist: guided progress, compliance states, payroll readiness, and AI help via Genie.",
       steps: 1,
       patterns: ["data-cards", "compliance-checklist", "genie-onboarding"],
-      path: "/candidate-dashboard",
+      path: "/flows/candidate-dashboard",
       comingSoon: false
     }
   ];
