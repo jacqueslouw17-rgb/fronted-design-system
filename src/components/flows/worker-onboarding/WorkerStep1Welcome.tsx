@@ -91,7 +91,7 @@ const WorkerStep1Welcome = ({ onComplete, isProcessing }: Step1Props) => {
       {/* Quick Info */}
       <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
         <p className="text-sm text-blue-600 dark:text-blue-400">
-          ⏱️ <strong>Estimated time:</strong> 10-15 minutes to complete all steps. You can save your progress and continue later if needed.
+          ⏱️ <strong>Estimated time:</strong> 7-15 minutes to complete all steps. You can save your progress and continue later if needed.
         </p>
       </div>
 

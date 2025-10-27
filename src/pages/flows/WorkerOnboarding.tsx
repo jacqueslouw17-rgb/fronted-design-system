@@ -137,46 +137,26 @@ const WorkerOnboarding = () => {
           Back to Home
         </Button>
 
-        {/* Header */}
-        <div className="text-center mb-8 space-y-4">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <motion.div
-              className="h-1 w-12 bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: 48 }}
-              transition={{ duration: 0.5 }}
-            />
-            <motion.div
-              className="h-1 w-12 bg-primary/60 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: 48 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            />
-            <motion.div
-              className="h-1 w-12 bg-primary/30 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: 48 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            />
+        {/* Header with Animation */}
+        <div className="text-center space-y-2 mb-8">
+          {/* Decorative animated bars */}
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-16 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            <div className="w-2 h-12 bg-primary/40 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
+            <div className="w-2 h-8 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
           </div>
 
-          <motion.h1
-            className="text-4xl font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Worker Onboarding
-          </motion.h1>
-
-          <motion.p
-            className="text-muted-foreground max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Complete your onboarding to get ready for your first day
-          </motion.p>
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome to Fronted
+          </h1>
+          
+          {/* Subtext */}
+          <p className="text-foreground/60 relative max-w-2xl mx-auto">
+            Complete your onboarding to get ready for your first day.
+          </p>
         </div>
 
         {/* Progress bar */}
