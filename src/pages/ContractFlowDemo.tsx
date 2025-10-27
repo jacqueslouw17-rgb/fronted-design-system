@@ -202,8 +202,6 @@ const ContractFlowDemo = () => {
       {/* Topbar */}
       <Topbar 
         userName={`${userData.firstName} ${userData.lastName}`}
-        version={version}
-        onVersionChange={setVersion}
         isDrawerOpen={isDrawerOpen}
         onDrawerToggle={toggleDrawer}
       />
