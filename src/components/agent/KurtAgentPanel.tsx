@@ -55,7 +55,7 @@ export const KurtAgentPanel: React.FC = () => {
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full h-full bg-background border-l border-border flex flex-col"
+        className="w-full h-full min-h-full bg-background border-l border-border flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background">
