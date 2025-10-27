@@ -637,38 +637,8 @@ const ContractFlowDemo = () => {
                   {/* Main Content */}
                   <div className="flex-1 flex flex-col items-center p-8">
                     <div className="w-full max-w-7xl space-y-8">
-                      {/* Audio Wave Visualizer - Centered */}
-                      <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex justify-center"
-                      >
-                        <AudioWaveVisualizer 
-                          isActive={!hasSpokenPhase["drafting"]} 
-                          isListening={true}
-                          isDetectingVoice={isSpeaking}
-                        />
-                      </motion.div>
-
-                      {/* Header - Centered */}
-                      <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold text-foreground">Preparing signing packs</h1>
-                        <p className="text-base text-muted-foreground">
-                          {`${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.name} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.role} • ${contractFlow.selectedCandidates[contractFlow.currentDraftIndex]?.country}`.split(' ').map((word, index) => (
-                            <span
-                              key={index}
-                              className={`transition-colors duration-200 ${
-                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                              }`}
-                            >
-                              {word}{" "}
-                            </span>
-                          ))}
-                        </p>
-                      </div>
-
                       {/* Contract Workspace */}
-                      <ContractDraftWorkspace 
+                      <ContractDraftWorkspace
                         candidate={contractFlow.selectedCandidates[contractFlow.currentDraftIndex]} 
                         index={contractFlow.currentDraftIndex} 
                         total={contractFlow.selectedCandidates.length} 
