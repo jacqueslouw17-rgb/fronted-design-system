@@ -47,7 +47,7 @@ export const AgentChatBox: React.FC<AgentChatBoxProps> = ({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground px-0 h-8"
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground pl-2 pr-0 h-8"
           />
           <Button
             type="submit"
