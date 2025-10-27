@@ -399,7 +399,7 @@ const DesignSystem = () => {
           </TabsContent>
 
           <TabsContent value="flows" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link to="/flows/admin/onboarding">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
@@ -639,6 +639,68 @@ const DesignSystem = () => {
                       </Badge>
                       <Badge variant="outline" className="text-xs">
                         +2
+                      </Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/flows/candidate-dashboard">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
+                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg">Flow 5 — Candidate Checklist</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      Post-onboarding home for candidates with a guided checklist, metrics, and AI help via Genie. Auto-hides completed items and celebrates completion.
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">1 step</span>
+                      <span>•</span>
+                      <span>3 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/data-summary');
+                        }}
+                      >
+                        Data Summary Cards
+                      </Badge>
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/compliance-checklist');
+                        }}
+                      >
+                        Compliance Checklist
+                      </Badge>
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePatternClick('/onboarding');
+                        }}
+                      >
+                        Genie-Led Conversational
                       </Badge>
                     </div>
                     <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
