@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 const CandidateDashboard = () => {
   // Demo data - in production this would come from user session/database
@@ -29,9 +31,7 @@ const CandidateDashboard = () => {
   const [activeTab, setActiveTab] = useState("checklist");
   const [checklistData, setChecklistData] = useState<ChecklistRequirement[]>([]);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
-  const [promptInput, setPromptInput] = useState("");
   const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
-  const [isGenieOpen, setIsGenieOpen] = useState(true);
   
   // Own checklist items
   const [ownChecklistItems, setOwnChecklistItems] = useState([
@@ -104,20 +104,6 @@ const CandidateDashboard = () => {
     ? [] 
     : checklistData;
 
-  const handleSubmitPrompt = () => {
-    if (promptInput.trim()) {
-      console.log("Kurt prompt:", promptInput);
-      // Here you would handle the AI chat interaction
-      setPromptInput("");
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmitPrompt();
-    }
-  };
-
   return (
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
@@ -130,48 +116,16 @@ const CandidateDashboard = () => {
           {/* Main Content Area - Full Width */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Dashboard Content */}
-            <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-              <div className="max-w-6xl mx-auto px-6 py-8">
-                {/* Kurt Agent Section - Centered */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center space-y-6 mb-8"
-                >
-                  {/* Audio Wave Visualizer with Pulsing Animation */}
-                  <AudioWaveVisualizer isActive={false} isListening={true} />
-                  
-                  {/* Heading and Subtext */}
-                  <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold text-foreground">
-                      Hi {candidateProfile.name.split(' ')[0]}, I'm here if you need help! 👋
-                    </h1>
-                    <p className="text-muted-foreground">
-                      Track your onboarding progress and access important information.
-                    </p>
-                  </div>
-
-                  {/* Chat Input Field */}
-                  <div className="w-full max-w-3xl">
-                    <div className="relative">
-                      <Input
-                        value={promptInput}
-                        onChange={(e) => setPromptInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Ask Kurt anything..."
-                        className="pr-12 h-12 text-base bg-background/50 backdrop-blur-sm"
-                      />
-                      <Button
-                        size="icon"
-                        onClick={handleSubmitPrompt}
-                        disabled={!promptInput.trim()}
-                        className="absolute right-1 top-1 h-10 w-10 rounded-md"
-                      >
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
+            <AgentLayout context="Candidate Dashboard">
+              <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
+                <div className="max-w-6xl mx-auto px-6 py-8">
+                  {/* Agent Header */}
+                  <AgentHeader
+                    title={`Hi ${candidateProfile.name.split(' ')[0]}, I'm here if you need help! 👋`}
+                    subtitle="Track your onboarding progress and access important information."
+                    showPulse={true}
+                    isActive={false}
+                  />
 
                 {/* Tabs with Toggle Switch Design */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -348,7 +302,8 @@ const CandidateDashboard = () => {
                 </Tabs>
               </div>
             </main>
-          </div>
+          </AgentLayout>
+        </div>
         </div>
       </TooltipProvider>
     </RoleLensProvider>
