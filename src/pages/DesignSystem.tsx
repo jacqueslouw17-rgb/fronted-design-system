@@ -526,7 +526,7 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 transition-all duration-200 group-hover:bg-violet-600 group-hover:border-violet-600">
                         <UserCheck className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Candidate Data Collection</CardTitle>
+                      <CardTitle className="text-lg">Flow 3 - Candidate Data Collection</CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">
                       Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration
