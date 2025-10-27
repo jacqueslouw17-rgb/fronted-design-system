@@ -353,49 +353,53 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         transition={{ delay: 0.2, duration: 0.3 }}
         className="flex-1 flex flex-col max-h-[600px]"
       >
-        {/* Genie message - Aligned with left box */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-          className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4 flex-shrink-0"
-        >
-          <p className="text-sm text-foreground">
-            Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
+        {/* Header */}
+        <div className="text-center space-y-2 mb-6 flex-shrink-0">
+          <h2 className="text-2xl font-bold text-foreground">Contract Workspace</h2>
+          <p className="text-base text-muted-foreground">
+            Review and customize the contract before sending
           </p>
-        </motion.div>
+        </div>
 
         {/* Chat Input */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-4 flex-shrink-0"
+          transition={{ delay: 0.3 }}
+          className="mb-6 flex-shrink-0"
         >
           <form onSubmit={handleSubmit} className="relative">
-            <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+            <div className="relative flex items-center gap-2 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow px-4 py-3">
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Kurt anything..."
                 disabled={isSubmitting}
-                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground"
               />
               <Button
                 type="submit"
                 size="icon"
                 disabled={!inputValue.trim() || isSubmitting}
-                className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="h-9 w-9 rounded-lg bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? (
-                  <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <ArrowRight className="h-3.5 w-3.5" />
-                )}
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </form>
+        </motion.div>
+
+        {/* Genie message */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, duration: 0.3 }}
+          className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4 flex-shrink-0"
+        >
+          <p className="text-sm text-foreground">
+            Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
+          </p>
         </motion.div>
 
         <ScrollArea className="flex-1 overflow-auto">

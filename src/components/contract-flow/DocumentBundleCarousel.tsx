@@ -158,6 +158,43 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-3 mb-6">
+        <h1 className="text-4xl font-bold text-foreground">Contract Bundle</h1>
+        <p className="text-base text-muted-foreground">
+          Select documents to include in the signing package
+        </p>
+      </div>
+
+      {/* Chat Input */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-3xl mx-auto mb-10"
+      >
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative flex items-center gap-2 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow px-4 py-3">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Kurt anything..."
+              disabled={isSubmitting}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!inputValue.trim() || isSubmitting}
+              className="h-9 w-9 rounded-lg bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </form>
+      </motion.div>
+
       {/* Genie message */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -168,39 +205,6 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
         <p className="text-sm text-foreground/90">
           There are multiple documents to sign for full compliance. I've grouped them for you.
         </p>
-      </motion.div>
-
-      {/* Chat Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="w-full max-w-xl mx-auto"
-      >
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Kurt anything..."
-              disabled={isSubmitting}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!inputValue.trim() || isSubmitting}
-              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            >
-              {isSubmitting ? (
-                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <ArrowRight className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
-        </form>
       </motion.div>
 
       {/* Carousel header */}

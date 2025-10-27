@@ -92,7 +92,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       </motion.div>
 
       {/* Header - Centered below visualizer */}
-      <div className="text-center space-y-2 mb-8">
+      <div className="text-center space-y-2 mb-6">
         <h1 className="text-3xl font-bold text-foreground">Review Contracts</h1>
         <p className="text-base text-muted-foreground">
           All contracts ready. Review and send to candidates for signature.
@@ -104,28 +104,28 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="w-full max-w-xl mx-auto mb-8"
+        className="w-full max-w-3xl mx-auto mb-10"
       >
         <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+          <div className="relative flex items-center gap-2 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow px-4 py-3">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask Kurt anything..."
               disabled={isSubmitting}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground"
             />
             <Button
               type="submit"
               size="icon"
               disabled={!inputValue.trim() || isSubmitting}
-              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="h-9 w-9 rounded-lg bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
-                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-4 w-4" />
               )}
             </Button>
           </div>
