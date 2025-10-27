@@ -310,11 +310,12 @@ const CandidateDashboard = () => {
                   <TabsContent value="metrics" className="space-y-6">
                     <h2 className="text-lg font-semibold">Your Overview</h2>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <MetricTile
                         icon={FileCheck}
                         label="Next Pay ETA"
                         value="Jan 31, 2025"
+                        trend="15 days until payment"
                         status="success"
                         index={0}
                       />
@@ -322,13 +323,15 @@ const CandidateDashboard = () => {
                         icon={FileCheck}
                         label="Contract Status"
                         value="Signed"
+                        trend="All documents complete"
                         status="success"
                         index={1}
                       />
                       <MetricTile
                         icon={TrendingUp}
-                        label="Compliance %"
+                        label="Compliance"
                         value={`${progressPercentage}%`}
+                        trend={progressPercentage === 100 ? "All requirements met" : `${totalItems - completedItems} items remaining`}
                         status={progressPercentage === 100 ? 'success' : 'warning'}
                         index={2}
                       />
@@ -336,6 +339,7 @@ const CandidateDashboard = () => {
                         icon={ListChecks}
                         label="Open Tasks"
                         value={`${totalItems - completedItems}`}
+                        trend={totalItems - completedItems === 0 ? "Nothing to do" : "Action required"}
                         status={totalItems - completedItems === 0 ? 'success' : 'neutral'}
                         index={3}
                       />
