@@ -27,6 +27,8 @@ import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -211,133 +213,99 @@ const ContractFlowDemo = () => {
         {/* Dashboard Drawer */}
         <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
-          {/* Contract Flow Main Area */}
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
-            <AnimatePresence mode="wait">
-              {contractFlow.phase === "prompt" ? (
-                <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="w-full max-w-2xl space-y-6">
-                    <div className="text-center mb-8">
-                      <h2 className="text-3xl font-bold text-foreground mb-2">Contract Flow Assistant</h2>
-                      <p className="text-muted-foreground">What would you like me to help you with?</p>
-                    </div>
-                    <div className="relative">
-                      <div className="border border-border rounded-lg bg-background p-4 shadow-lg">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="text"
-                            value={promptText}
-                            readOnly
-                            placeholder="Type your request..."
-                            className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
-                          />
-                          {promptText.length === mockPrompt.length && (
-                            <Button 
-                              onClick={() => contractFlow.startPromptFlow()}
-                              className="whitespace-nowrap"
-                            >
-                              Generate
-                            </Button>
-                          )}
+          {/* Contract Flow Main Area with Agent Layout */}
+          <AgentLayout context="Contract Flow">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
+              <AnimatePresence mode="wait">
+                {contractFlow.phase === "prompt" ? (
+                  <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
+                    <div className="w-full max-w-2xl space-y-6">
+                      <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-foreground mb-2">Contract Flow Assistant</h2>
+                        <p className="text-muted-foreground">What would you like me to help you with?</p>
+                      </div>
+                      <div className="relative">
+                        <div className="border border-border rounded-lg bg-background p-4 shadow-lg">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={promptText}
+                              readOnly
+                              placeholder="Type your request..."
+                              className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                            />
+                            {promptText.length === mockPrompt.length && (
+                              <Button 
+                                onClick={() => contractFlow.startPromptFlow()}
+                                className="whitespace-nowrap"
+                              >
+                                Generate
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ) : contractFlow.phase === "generating" ? (
-                <motion.div key="generating" className="flex flex-col items-center justify-center min-h-full p-8">
-                  <div className="flex flex-col items-center justify-center space-y-6">
-                    <AudioWaveVisualizer isActive={true} />
-                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                      <span className="animate-pulse">Preparing contracts</span>
-                      <span className="flex gap-1">
-                        <span className="animate-bounce" style={{ animationDelay: "0ms" }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: "150ms" }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
-                      </span>
+                  </motion.div>
+                ) : contractFlow.phase === "generating" ? (
+                  <motion.div key="generating" className="flex flex-col items-center justify-center min-h-full p-8">
+                    <div className="flex flex-col items-center justify-center space-y-6">
+                      <AudioWaveVisualizer isActive={true} />
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <span className="animate-pulse">Preparing contracts</span>
+                        <span className="flex gap-1">
+                          <span className="animate-bounce" style={{ animationDelay: "0ms" }}>.</span>
+                          <span className="animate-bounce" style={{ animationDelay: "150ms" }}>.</span>
+                          <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
-                <motion.div 
-                  key="data-collection" 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }} 
-                  exit={{ opacity: 0 }} 
-                  className="flex-1 overflow-y-auto"
-                >
-                  <div className="max-w-7xl mx-auto p-8 space-y-8">
-                    {/* Kurt Agent or Contract Status Message - Centered at Top */}
-                    {showContractSignedMessage ? (
-                      <ContractSignedMessage 
-                        mode="signed"
-                        onReadingComplete={() => {
-                          // After reading, just hide the message component
-                          setTimeout(() => {
-                            setShowContractSignedMessage(false);
-                          }, 2000);
-                        }}
-                      />
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center space-y-4"
-                      >
-                        <AudioWaveVisualizer 
+                  </motion.div>
+                ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
+                  <motion.div 
+                    key="data-collection" 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }} 
+                    className="flex-1 overflow-y-auto"
+                  >
+                    <div className="max-w-7xl mx-auto p-8 space-y-8">
+                      {/* Agent Header or Contract Status Message */}
+                      {showContractSignedMessage ? (
+                        <ContractSignedMessage 
+                          mode="signed"
+                          onReadingComplete={() => {
+                            setTimeout(() => {
+                              setShowContractSignedMessage(false);
+                            }, 2000);
+                          }}
+                        />
+                      ) : (
+                        <AgentHeader
+                          title={
+                            searchParams.get("allSigned") === "true"
+                              ? "All contracts signed!"
+                              : searchParams.get("moved") === "true" 
+                                ? "Contracts sent - awaiting signatures"
+                                : "Great news - two more candidates accepted their offers!"
+                          }
+                          subtitle={
+                            searchParams.get("allSigned") === "true"
+                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                              : searchParams.get("moved") === "true" 
+                                ? "Great, contracts sent to candidates via their preferred signing portals."
+                                : "Let's finalize contracts and complete onboarding."
+                          }
+                          showPulse={true}
                           isActive={
                             searchParams.get("allSigned") === "true"
                               ? !hasSpokenPhase["data-collection-all-signed"]
                               : searchParams.get("moved") === "true" 
                                 ? !hasSpokenPhase["data-collection-moved"]
                                 : !hasSpokenPhase["offer-accepted"]
-                          } 
-                          isListening={true}
-                          isDetectingVoice={isSpeaking}
+                          }
                         />
-                        <div className="text-center space-y-2">
-                          <h1 className="text-3xl font-bold text-foreground">
-                            {searchParams.get("allSigned") === "true"
-                              ? "All contracts signed!"
-                              : searchParams.get("moved") === "true" 
-                                ? "Contracts sent - awaiting signatures"
-                                : "Great news - two more candidates accepted their offers!"
-                            }
-                          </h1>
-                          <p className="text-foreground/60 relative max-w-2xl mx-auto">
-                            {(searchParams.get("allSigned") === "true"
-                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                              : searchParams.get("moved") === "true" 
-                                ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Let's finalize contracts and complete onboarding."
-                            ).split(' ').map((word, index) => (
-                              <span
-                                key={index}
-                                className={`transition-colors duration-200 ${
-                                  isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                                }`}
-                              >
-                                {word}{" "}
-                              </span>
-                            ))}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Agent Chat Box */}
-                    {!showContractSignedMessage && (
-                      <AgentChatBox
-                        onSendMessage={(msg) => {
-                          toast({ 
-                            title: "Message sent to Kurt",
-                            description: `"${msg}"` 
-                          });
-                          // TODO: Integrate with actual AI agent
-                        }}
-                        placeholder="Ask Kurt anything..."
-                      />
-                    )}
+                      )}
 
                     {/* Pipeline Tracking - Full Width */}
                     <div className="space-y-4">
@@ -759,17 +727,18 @@ const ContractFlowDemo = () => {
                       transition={{ delay: 0.3, duration: 0.4 }}
                     >
                       <ContractFlowSummary 
-                        candidates={contractFlow.selectedCandidates} 
-                      />
-                    </motion.div>
-                  </div>
+                         candidates={contractFlow.selectedCandidates} 
+                       />
+                     </motion.div>
+                   </div>
                 </motion.div>
               ) : null}
             </AnimatePresence>
           </div>
-        </main>
-      </div>
-    </RoleLensProvider>
+        </AgentLayout>
+      </main>
+    </div>
+  </RoleLensProvider>
   );
 };
 

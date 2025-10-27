@@ -16,13 +16,13 @@ import {
   MessageSquare,
   ExternalLink
 } from "lucide-react";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useNavigate } from "react-router-dom";
-import { useSpeechToText } from "@/hooks/useSpeechToText";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
 interface Worker {
   id: string;
@@ -109,43 +109,6 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
-  const [isListening, setIsListening] = useState(false);
-  const [promptInput, setPromptInput] = useState("");
-  const [isGenieOpen, setIsGenieOpen] = useState(true);
-  const { isListening: sttListening, transcript, startListening, stopListening } = useSpeechToText();
-
-  // Sync transcript with input
-  useEffect(() => {
-    if (transcript) {
-      setPromptInput(transcript);
-    }
-  }, [transcript]);
-
-  const handleMicClick = () => {
-    if (isListening) {
-      stopListening();
-      setIsListening(false);
-    } else {
-      startListening();
-      setIsListening(true);
-    }
-  };
-
-  // Empty widgets for first time users
-  const widgets: any[] = [];
-
-  const handleAskGenie = (widgetTitle: string) => {
-    setPromptInput(`Tell me more about ${widgetTitle}`);
-    setIsGenieOpen(true);
-  };
-
-  const handleExport = (widgetTitle: string) => {
-    console.log(`Export ${widgetTitle} data`);
-  };
-
-  const handleDetails = (widgetTitle: string) => {
-    console.log(`View ${widgetTitle} details`);
-  };
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -156,76 +119,67 @@ const DashboardAdmin = () => {
             userName="Joe User"
           />
 
-          {/* Main Content Area - Full Width */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Dashboard Content */}
-            <main className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-              {/* Main Dashboard Area - Single Column Centered */}
-              <div className="flex-1 overflow-y-auto">
-                <div className="max-w-7xl mx-auto p-8 space-y-8">
-                  {/* Kurt Agent - Centered at Top */}
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center space-y-4"
-                  >
-                    <AudioWaveVisualizer isActive={false} isListening={true} />
-                    <div className="text-center space-y-2">
-                      <h1 className="text-3xl font-bold text-foreground">Welcome back, Joe! 👋</h1>
-                      <p className="text-muted-foreground">You're all set. Start by sending an offer to your first contractor.</p>
-                    </div>
-                  </motion.div>
+          {/* Main Content Area with Agent Layout */}
+          <AgentLayout context="Admin Dashboard">
+            <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
+              <div className="max-w-7xl mx-auto p-8 space-y-8">
+                {/* Agent Header */}
+                <AgentHeader
+                  title="Welcome back, Joe! 👋"
+                  subtitle="You're all set. Start by sending an offer to your first contractor."
+                  showPulse={true}
+                  isActive={false}
+                />
 
-                  {/* People Pipeline Tracking - Full Width */}
-                  <div className="space-y-4">
-                    <Tabs defaultValue="pipeline" className="w-full">
-                      <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
-                        <TabsTrigger value="list">Metrics</TabsTrigger>
-                        <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
-                      </TabsList>
+                {/* People Pipeline Tracking - Full Width */}
+                <div className="space-y-4">
+                  <Tabs defaultValue="pipeline" className="w-full">
+                    <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
+                      <TabsTrigger value="list">Metrics</TabsTrigger>
+                      <TabsTrigger value="pipeline">Pipeline View</TabsTrigger>
+                    </TabsList>
 
-                      <TabsContent value="list" className="space-y-6">
-                        {/* Empty State for Metrics */}
+                    <TabsContent value="list" className="space-y-6">
+                      {/* Empty State for Metrics */}
+                      <div className="max-w-5xl mx-auto">
+                        <Card className="border-dashed">
+                          <CardContent className="flex flex-col items-center justify-center py-12">
+                            <div className="rounded-full bg-muted p-4 mb-4">
+                              <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">No metrics yet</h3>
+                            <p className="text-sm text-muted-foreground text-center max-w-md">
+                              Your metrics will appear here once you start sending offers and onboarding contractors.
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="pipeline">
+                      {mockContractors.length === 0 ? (
                         <div className="max-w-5xl mx-auto">
                           <Card className="border-dashed">
                             <CardContent className="flex flex-col items-center justify-center py-12">
                               <div className="rounded-full bg-muted p-4 mb-4">
-                                <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                                <Users className="h-8 w-8 text-muted-foreground" />
                               </div>
-                              <h3 className="text-lg font-semibold mb-2">No metrics yet</h3>
+                              <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
                               <p className="text-sm text-muted-foreground text-center max-w-md">
-                                Your metrics will appear here once you start sending offers and onboarding contractors.
+                                Send your first offer to a contractor to see them in your pipeline.
                               </p>
                             </CardContent>
                           </Card>
                         </div>
-                      </TabsContent>
-
-                      <TabsContent value="pipeline">
-                        {mockContractors.length === 0 ? (
-                          <div className="max-w-5xl mx-auto">
-                            <Card className="border-dashed">
-                              <CardContent className="flex flex-col items-center justify-center py-12">
-                                <div className="rounded-full bg-muted p-4 mb-4">
-                                  <Users className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
-                                <p className="text-sm text-muted-foreground text-center max-w-md">
-                                  Send your first offer to a contractor to see them in your pipeline.
-                                </p>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        ) : (
-                          <PipelineView contractors={mockContractors} />
-                        )}
-                      </TabsContent>
-                    </Tabs>
-                  </div>
+                      ) : (
+                        <PipelineView contractors={mockContractors} />
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
             </main>
-          </div>
+          </AgentLayout>
         </div>
       </TooltipProvider>
     </RoleLensProvider>
