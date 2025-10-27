@@ -6,7 +6,7 @@ import { componentsRegistry, ComponentReference } from "@/data/componentsRegistr
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
 import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
 import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
 
 const patterns = [
@@ -308,6 +308,10 @@ const DesignSystem = () => {
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
   const [selectedPattern, setSelectedPattern] = useState<typeof normalizedPatterns[0] | null>(null);
   const [patternDrawerOpen, setPatternDrawerOpen] = useState(false);
+  
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const defaultTab = tabParam === "flows" || tabParam === "components" ? tabParam : "patterns";
 
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
@@ -335,7 +339,7 @@ const DesignSystem = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="patterns" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
             <TabsTrigger value="patterns">Patterns</TabsTrigger>
             <TabsTrigger value="flows">Flows</TabsTrigger>
