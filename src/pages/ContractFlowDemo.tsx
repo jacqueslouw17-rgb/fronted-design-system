@@ -543,7 +543,7 @@ const ContractFlowDemo = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate("/flows/contract-flow?phase=data-collection")}
+                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow?phase=data-collection"); }}
                       aria-label="Close and return to pipeline"
                     >
                       <X className="h-4 w-4" />
@@ -642,7 +642,7 @@ const ContractFlowDemo = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate("/flows/contract-flow?phase=data-collection")}
+                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow?phase=data-collection"); }}
                       aria-label="Close and return to pipeline"
                     >
                       <X className="h-4 w-4" />
@@ -710,7 +710,7 @@ const ContractFlowDemo = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate("/flows/contract-flow?phase=data-collection")}
+                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow?phase=data-collection"); }}
                       aria-label="Close and return to pipeline"
                     >
                       <X className="h-4 w-4" />
@@ -736,7 +736,7 @@ const ContractFlowDemo = () => {
                       contractFlow.startSigning(); 
                       // speak("Sending bundles for signature."); 
                     }}
-                    onClose={() => navigate("/flows/contract-flow?phase=data-collection")}
+                    onClose={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow?phase=data-collection"); }}
                   />
                 </motion.div>
               ) : contractFlow.phase === "signing" ? (
