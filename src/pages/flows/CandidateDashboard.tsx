@@ -118,7 +118,7 @@ const CandidateDashboard = () => {
             {/* Dashboard Content */}
             <AgentLayout context="Candidate Dashboard">
               <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-                <div className="max-w-6xl mx-auto px-6 py-8">
+                <div className="max-w-6xl mx-auto p-8 space-y-8">
                   {/* Agent Header */}
                   <AgentHeader
                     title={`Hi ${candidateProfile.name.split(' ')[0]}, I'm here if you need help! 👋`}
@@ -128,6 +128,7 @@ const CandidateDashboard = () => {
                   />
 
                 {/* Tabs with Toggle Switch Design */}
+                <div className="space-y-4">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
                     <TabsTrigger value="checklist" className="flex items-center gap-2">
@@ -300,6 +301,7 @@ const CandidateDashboard = () => {
                     </div>
                   </TabsContent>
                 </Tabs>
+                </div>
               </div>
             </main>
           </AgentLayout>
