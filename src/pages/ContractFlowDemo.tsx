@@ -23,7 +23,6 @@ import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
-import NavSidebar from "@/components/dashboard/NavSidebar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -199,28 +198,20 @@ const ContractFlowDemo = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex w-full bg-background">
-      {/* Left Sidebar */}
-      <NavSidebar 
-        onGenieToggle={() => {}}
-        isGenieOpen={false}
-        disabled={true}
+      <div className="min-h-screen flex flex-col w-full bg-background">
+      {/* Topbar */}
+      <Topbar 
+        userName={`${userData.firstName} ${userData.lastName}`}
+        version={version}
+        onVersionChange={setVersion}
+        isDrawerOpen={isDrawerOpen}
+        onDrawerToggle={toggleDrawer}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`}
-          version={version}
-          onVersionChange={setVersion}
-          isDrawerOpen={isDrawerOpen}
-          onDrawerToggle={toggleDrawer}
-        />
-
-        <main className="flex-1 flex overflow-hidden">
-          {/* Dashboard Drawer */}
-          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+      <main className="flex-1 flex overflow-hidden">
+        {/* Dashboard Drawer */}
+        <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
           {/* Contract Flow Main Area */}
           <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
@@ -780,7 +771,6 @@ const ContractFlowDemo = () => {
           </div>
         </main>
       </div>
-    </div>
     </RoleLensProvider>
   );
 };
