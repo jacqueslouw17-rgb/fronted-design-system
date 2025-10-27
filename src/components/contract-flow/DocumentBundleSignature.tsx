@@ -202,20 +202,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto p-8 relative">
-      {/* Close button */}
-      {onClose && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="absolute top-4 right-6"
-          aria-label="Close and return to pipeline"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
-
+    <div className="space-y-8 max-w-7xl mx-auto p-8">
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

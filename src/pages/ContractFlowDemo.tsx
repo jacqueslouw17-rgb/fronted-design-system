@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft } from "lucide-react";
+import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -525,8 +525,8 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  {/* Back Button - Consistent positioning */}
-                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2">
+                  {/* Navigation - Back and Close buttons */}
+                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -539,6 +539,14 @@ const ContractFlowDemo = () => {
                     >
                       <ArrowLeft className="h-4 w-4" />
                       Back
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/flows/contract-flow")}
+                      aria-label="Close and return to pipeline"
+                    >
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
 
@@ -617,8 +625,8 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
                 <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  {/* Back Button - Consistent positioning */}
-                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2">
+                  {/* Navigation - Back and Close buttons */}
+                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -630,6 +638,14 @@ const ContractFlowDemo = () => {
                     >
                       <ArrowLeft className="h-4 w-4" />
                       Back
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/flows/contract-flow")}
+                      aria-label="Close and return to pipeline"
+                    >
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
 
@@ -679,20 +695,38 @@ const ContractFlowDemo = () => {
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
-                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8">
-                  <ContractReviewBoard 
-                    candidates={contractFlow.selectedCandidates} 
-                    onBack={() => {
-                      contractFlow.backToDrafting();
-                    }}
-                    onStartSigning={() => { 
-                      // Update phase and navigate back to pipeline
-                      contractFlow.proceedToDataCollection();
-                      toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
-                      navigate("/flows/contract-flow?phase=data-collection&moved=true");
-                    }}
-                    onClose={() => navigate("/flows/contract-flow")}
-                  />
+                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
+                  {/* Navigation - Back and Close buttons */}
+                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => contractFlow.backToDrafting()}
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate("/flows/contract-flow")}
+                      aria-label="Close and return to pipeline"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex-1 p-8">
+                    <ContractReviewBoard 
+                      candidates={contractFlow.selectedCandidates} 
+                      onStartSigning={() => { 
+                        // Update phase and navigate back to pipeline
+                        contractFlow.proceedToDataCollection();
+                        toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
+                        navigate("/flows/contract-flow?phase=data-collection&moved=true");
+                      }}
+                    />
+                  </div>
                 </motion.div>
               ) : contractFlow.phase === "document-bundle-signature" ? (
                 <motion.div key="document-bundle-signature" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

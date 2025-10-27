@@ -133,20 +133,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   };
 
   return (
-    <div className="space-y-6 relative">
-      {/* Close button */}
-      {onClose && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="absolute -top-12 right-0"
-          aria-label="Close and return to pipeline"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
-
+    <div className="space-y-6">
       {/* Genie message */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}

@@ -50,35 +50,8 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6 relative"
+      className="space-y-6"
     >
-      {/* Navigation buttons */}
-      <div className="flex items-center justify-between mb-6">
-        {/* Back Button */}
-        {onBack && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        )}
-        {/* Close button */}
-        {onClose && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="gap-2 ml-auto"
-            aria-label="Close and return to pipeline"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
 
       {/* Audio Wave Visualizer */}
       <motion.div
