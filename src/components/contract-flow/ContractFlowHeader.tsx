@@ -43,13 +43,13 @@ export const ContractFlowHeader: React.FC<ContractFlowHeaderProps> = ({
   };
 
   return (
-    <div className="w-full space-y-6 mb-10">
+    <div className="w-full space-y-8 mb-12">
       {/* Audio Wave Visualizer */}
       {showAudioWave && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center"
+          className="flex justify-center mb-12"
         >
           <AudioWaveVisualizer 
             isActive={isAudioActive} 
@@ -60,12 +60,12 @@ export const ContractFlowHeader: React.FC<ContractFlowHeaderProps> = ({
       )}
 
       {/* Header - Centered */}
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-6">
         <motion.h1 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-4xl font-bold text-foreground"
+          className="text-5xl font-bold text-foreground px-4"
         >
           {title}
         </motion.h1>
@@ -73,20 +73,20 @@ export const ContractFlowHeader: React.FC<ContractFlowHeaderProps> = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-base text-muted-foreground"
+          className="text-lg text-muted-foreground px-4"
         >
           {subtitle}
         </motion.p>
         
-        {/* Chat Input - directly below subtitle */}
+        {/* Chat Input - directly below subtitle with enhanced styling */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="w-full max-w-3xl mx-auto pt-4"
+          className="w-full max-w-4xl mx-auto pt-8 px-4"
         >
           <form onSubmit={handleSubmit} className="relative">
-            <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
+            <div className="relative flex items-center gap-3 bg-card rounded-2xl border border-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow px-6 py-4">
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -99,7 +99,7 @@ export const ContractFlowHeader: React.FC<ContractFlowHeaderProps> = ({
                 type="submit"
                 size="icon"
                 disabled={!inputValue.trim() || isSubmitting}
-                className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="h-11 w-11 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
                 <ArrowRight className="h-4 w-4" />
               </Button>
