@@ -6,16 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
+import { Sparkles, Bot } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { PipelineView } from "./PipelineView";
-import { GenieInteractionBar } from "./GenieInteractionBar";
-import { useAgentState } from "@/hooks/useAgentState";
+import { ContractFlowHeader } from "./ContractFlowHeader";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -32,15 +27,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [hasSpoken, setHasSpoken] = useState(false);
-  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
-  const { setOpen, addMessage, simulateResponse } = useAgentState();
-  const [inputValue, setInputValue] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const subtextMessage = `${candidate.name} • ${candidate.role} • ${candidate.country}`;
-  const subtextWords = subtextMessage.split(' ');
 
   const [contractData, setContractData] = useState({
     fullName: candidate.name,
@@ -60,50 +46,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Auto-speak on mount
-  useEffect(() => {
-    if (!hasSpoken) {
-      const timer = setTimeout(() => {
-        setHasSpoken(true);
-        setIsSpeaking(true);
-        speak(subtextMessage, () => {
-          setIsSpeaking(false);
-        });
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [hasSpoken, subtextMessage, speak]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    
-    // Add user message
-    addMessage({
-      role: 'user',
-      text: inputValue.trim(),
-    });
-
-    // Open the agent panel
-    setOpen(true);
-
-    // Simulate agent response
-    await simulateResponse(inputValue.trim());
-
-    setInputValue('');
-    setIsSubmitting(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
@@ -177,64 +119,12 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       animate={{ opacity: 1 }}
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
-      {/* Audio Wave Visualizer - Centered */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex justify-center"
-      >
-        <AudioWaveVisualizer 
-          isActive={!hasSpoken} 
-          isListening={true}
-          isDetectingVoice={isSpeaking}
-        />
-      </motion.div>
-
-      {/* Header - Centered */}
-      <div className="text-center space-y-2 mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Contract Drafting in Progress</h1>
-        <p className="text-foreground/60 relative max-w-2xl mx-auto">
-          {subtextWords.map((word, index) => (
-            <span
-              key={index}
-              className={`transition-colors duration-200 ${
-                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-              }`}
-            >
-              {word}{" "}
-            </span>
-          ))}
-        </p>
-      </div>
-
-      {/* Chat Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="w-full max-w-3xl mx-auto mb-8"
-      >
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Kurt anything..."
-              disabled={isSubmitting}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!inputValue.trim() || isSubmitting}
-              className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </form>
-      </motion.div>
+      <ContractFlowHeader
+        title="Contract Drafting in Progress"
+        subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
+        showAudioWave={true}
+        isAudioActive={true}
+      />
 
       {/* Contract Form View */}
       <div className="space-y-6">{/* ... keep existing code */}

@@ -3,19 +3,18 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { InlineEditContext } from "@/components/InlineEditContext";
 import { InlineToolbar } from "@/components/InlineToolbar";
 import { AIPromptInput } from "@/components/AIPromptInput";
 import { AIProcessingState } from "@/components/AIProcessingState";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield, ArrowRight } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, Bot, FileText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
-import { useAgentState } from "@/hooks/useAgentState";
+import { ContractFlowHeader } from "./ContractFlowHeader";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -64,28 +63,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProgressing, setIsProgressing] = useState(false);
   const fullContent = getContractContent(candidate);
-  const { setOpen, addMessage, simulateResponse } = useAgentState();
-  const [inputValue, setInputValue] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    addMessage({ role: 'user', text: inputValue.trim() });
-    setOpen(true);
-    await simulateResponse(inputValue.trim());
-    setInputValue('');
-    setIsSubmitting(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
 
   useEffect(() => {
     setIsTyping(true);
@@ -263,12 +240,20 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="h-full flex gap-4 items-start"
-    >
+    <div className="space-y-6">
+      <ContractFlowHeader
+        title="Contract Workspace"
+        subtitle={`Reviewing ${candidate.name}'s ${candidate.role} contract for ${candidate.country}`}
+        showAudioWave={true}
+        isAudioActive={true}
+      />
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="h-full flex gap-4 items-start"
+      >
       {/* Left: Candidate card - Fixed height */}
       <motion.div
         initial={{ x: -20, opacity: 0 }}
@@ -353,53 +338,19 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         transition={{ delay: 0.2, duration: 0.3 }}
         className="flex-1 flex flex-col max-h-[600px]"
       >
-        {/* Header */}
-        <div className="text-center space-y-2 mb-6 flex-shrink-0">
-          <h2 className="text-2xl font-bold text-foreground">Contract Workspace</h2>
-          <p className="text-base text-muted-foreground">
-            Review and customize the contract before sending
-          </p>
-        </div>
-
-        {/* Chat Input */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-4 flex-shrink-0"
-        >
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask Kurt anything..."
-                disabled={isSubmitting}
-                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!inputValue.trim() || isSubmitting}
-                className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-        </motion.div>
-
         {/* Genie message */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4, duration: 0.3 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
           className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4 mb-4 flex-shrink-0"
         >
-          <p className="text-sm text-foreground">
-            Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
-          </p>
+          <div className="flex items-start gap-3">
+            <Bot className="h-5 w-5 text-primary mt-0.5" />
+            <p className="text-sm text-foreground">
+              Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
+            </p>
+          </div>
         </motion.div>
 
         <ScrollArea className="flex-1 overflow-auto">
@@ -460,5 +411,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </ScrollArea>
       </motion.div>
     </motion.div>
+    </div>
   );
 };

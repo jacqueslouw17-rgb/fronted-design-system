@@ -4,20 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import {
   FileText,
   Handshake,
   ScrollText,
-  Settings,
   ChevronLeft,
   ChevronRight,
   Package,
-  X,
-  ArrowRight,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
-import { useAgentState } from "@/hooks/useAgentState";
+import { ContractFlowHeader } from "./ContractFlowHeader";
 
 interface Document {
   id: string;
@@ -104,28 +100,6 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   
   const [documents, setDocuments] = useState<Document[]>(generateDocuments());
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { setOpen, addMessage, simulateResponse } = useAgentState();
-  const [inputValue, setInputValue] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    addMessage({ role: 'user', text: inputValue.trim() });
-    setOpen(true);
-    await simulateResponse(inputValue.trim());
-    setInputValue('');
-    setIsSubmitting(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
 
   const toggleDocument = (id: string) => {
     setDocuments((prev) =>
@@ -158,42 +132,12 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-3 mb-6">
-        <h1 className="text-4xl font-bold text-foreground">Contract Bundle</h1>
-        <p className="text-base text-muted-foreground">
-          Select documents to include in the signing package
-        </p>
-        
-        {/* Chat Input - directly below subtitle */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="w-full max-w-3xl mx-auto pt-4"
-        >
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative flex items-center gap-2 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm px-5 py-3.5">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask Kurt anything..."
-                disabled={isSubmitting}
-                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!inputValue.trim() || isSubmitting}
-                className="h-10 w-10 rounded-xl bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-        </motion.div>
-      </div>
+      <ContractFlowHeader
+        title="Contract Bundle"
+        subtitle="Select documents to include in the signing package"
+        showAudioWave={true}
+        isAudioActive={true}
+      />
 
       {/* Carousel header */}
       <div className="flex items-center justify-between">
