@@ -14,7 +14,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { Input } from "@/components/ui/input";
-import NavSidebar from "@/components/dashboard/NavSidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -122,20 +121,14 @@ const CandidateDashboard = () => {
   return (
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
-        <div className="flex h-screen bg-background text-foreground overflow-hidden">
-          {/* Left Navigation Sidebar */}
-          <NavSidebar 
-            onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
-            isGenieOpen={isGenieOpen}
+        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
+          {/* Top Header */}
+          <Topbar 
+            userName={candidateProfile.name}
           />
 
-          {/* Main Content Area */}
+          {/* Main Content Area - Full Width */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Top Header */}
-            <Topbar 
-              userName={candidateProfile.name}
-            />
-
             {/* Dashboard Content */}
             <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
               <div className="max-w-6xl mx-auto px-6 py-8">

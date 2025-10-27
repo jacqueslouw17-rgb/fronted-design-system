@@ -379,14 +379,14 @@ export const componentsRegistry: ComponentReference[] = [
   {
     id: "nav-sidebar",
     name: "NavSidebar",
-    description: "Collapsible navigation with role-based menu items",
-    category: "Dashboard",
+    description: "Collapsible navigation with role-based menu items (Pattern only - not actively used in flows)",
+    category: "Pattern",
     states: [
       { name: "expanded", description: "Full width with labels" },
       { name: "collapsed", description: "Icon-only mini mode" }
     ],
-    usedInPatterns: ["dashboard"],
-    usedInModules: ["Dashboard"],
+    usedInPatterns: [],
+    usedInModules: [],
     icon: Menu,
     filePath: "src/components/dashboard/NavSidebar.tsx"
   },

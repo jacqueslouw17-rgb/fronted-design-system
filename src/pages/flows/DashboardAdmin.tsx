@@ -19,7 +19,6 @@ import {
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useNavigate } from "react-router-dom";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
-import NavSidebar from "@/components/dashboard/NavSidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
@@ -151,20 +150,14 @@ const DashboardAdmin = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <TooltipProvider>
-        <div className="flex h-screen bg-background text-foreground overflow-hidden">
-          {/* Left Navigation Sidebar */}
-          <NavSidebar 
-            onGenieToggle={() => setIsGenieOpen(!isGenieOpen)} 
-            isGenieOpen={isGenieOpen}
+        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
+          {/* Top Header */}
+          <Topbar 
+            userName="Joe User"
           />
 
-          {/* Main Content Area */}
+          {/* Main Content Area - Full Width */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Top Header */}
-            <Topbar 
-              userName="Joe User"
-            />
-
             {/* Dashboard Content */}
             <main className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
               {/* Main Dashboard Area - Single Column Centered */}
