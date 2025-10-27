@@ -212,9 +212,9 @@ const Flows = () => {
       comingSoon: false
     },
     {
-      id: "f5-candidate-dashboard",
-      title: "Flow 5 — Candidate Dashboard",
-      description: "Post-onboarding home for candidates: checklist progress tracking, compliance status, payroll info, and AI-powered help with Genie",
+      id: "f5-candidate-checklist",
+      title: "Flow 5 — Candidate Checklist",
+      description: "Post-onboarding candidate checklist: guided progress, compliance states, payroll readiness, and AI help via Genie.",
       steps: 1,
       patterns: ["data-cards", "compliance-checklist", "genie-onboarding"],
       path: "/candidate-dashboard",
