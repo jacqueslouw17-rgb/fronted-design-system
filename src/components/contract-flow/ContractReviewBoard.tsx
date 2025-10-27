@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, DollarSign, Calendar, Clock, ArrowLeft, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, DollarSign, Calendar, Clock, ArrowLeft, X, ArrowRight } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -27,9 +29,31 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   const [hasSpoken, setHasSpoken] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const subtextMessage = "All contracts ready. Review and send to candidates for signature.";
   const subtextWords = subtextMessage.split(' ');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    addMessage({ role: 'user', text: inputValue.trim() });
+    setOpen(true);
+    await simulateResponse(inputValue.trim());
+    setInputValue('');
+    setIsSubmitting(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   // Auto-speak on mount
   useEffect(() => {
@@ -74,6 +98,39 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           All contracts ready. Review and send to candidates for signature.
         </p>
       </div>
+
+      {/* Chat Input */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-xl mx-auto mb-8"
+      >
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Kurt anything..."
+              disabled={isSubmitting}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!inputValue.trim() || isSubmitting}
+              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              {isSubmitting ? (
+                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ArrowRight className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </div>
+        </form>
+      </motion.div>
 
       {/* Review cards */}
       <div className="grid grid-cols-3 gap-4">

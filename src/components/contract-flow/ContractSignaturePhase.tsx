@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, PenTool, Send, FileCheck, Award, Bot } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, PenTool, Send, FileCheck, Award, Bot, ArrowRight } from "lucide-react";
 import confetti from "canvas-confetti";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
+import { useAgentState } from "@/hooks/useAgentState";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -28,6 +31,28 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
     candidates.reduce((acc, c) => ({ ...acc, [c.id]: "sent" as SignatureStatus }), {})
   );
   const [genieMessage, setGenieMessage] = useState("Preparing for e-signature via localized legal channels…");
+  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    addMessage({ role: 'user', text: inputValue.trim() });
+    setOpen(true);
+    await simulateResponse(inputValue.trim());
+    setInputValue('');
+    setIsSubmitting(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   useEffect(() => {
     // Trigger confetti
@@ -129,6 +154,39 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
             {genieMessage}
           </p>
         </div>
+      </motion.div>
+
+      {/* Chat Input */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-xl mx-auto"
+      >
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Kurt anything..."
+              disabled={isSubmitting}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!inputValue.trim() || isSubmitting}
+              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              {isSubmitting ? (
+                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ArrowRight className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </div>
+        </form>
       </motion.div>
 
       {/* Progress bar */}

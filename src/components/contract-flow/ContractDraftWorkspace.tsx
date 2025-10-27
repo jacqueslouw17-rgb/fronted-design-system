@@ -3,17 +3,19 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { InlineEditContext } from "@/components/InlineEditContext";
 import { InlineToolbar } from "@/components/InlineToolbar";
 import { AIPromptInput } from "@/components/AIPromptInput";
 import { AIProcessingState } from "@/components/AIProcessingState";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield } from "lucide-react";
+import { FileText, CheckCircle2, DollarSign, Calendar, Briefcase, Shield, ArrowRight } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -62,6 +64,28 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProgressing, setIsProgressing] = useState(false);
   const fullContent = getContractContent(candidate);
+  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    addMessage({ role: 'user', text: inputValue.trim() });
+    setOpen(true);
+    await simulateResponse(inputValue.trim());
+    setInputValue('');
+    setIsSubmitting(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
 
   useEffect(() => {
     setIsTyping(true);
@@ -339,6 +363,39 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           <p className="text-sm text-foreground">
             Pulling {candidate.countryCode} standard contract and adapting for NO and XK using mini-rule inheritance. You can edit inline or review per page.
           </p>
+        </motion.div>
+
+        {/* Chat Input */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-4 flex-shrink-0"
+        >
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask Kurt anything..."
+                disabled={isSubmitting}
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!inputValue.trim() || isSubmitting}
+                className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              >
+                {isSubmitting ? (
+                  <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <ArrowRight className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </div>
+          </form>
         </motion.div>
 
         <ScrollArea className="flex-1 overflow-auto">
