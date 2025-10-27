@@ -65,52 +65,60 @@ export const useAgentState = create<AgentStore>()(
     
     setLoading(true);
 
-    // Simulate network latency
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    try {
+      // Simulate network latency
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    // Use intent router to match user utterance
-    const { matchIntent, getIntentDescription } = await import('@/lib/intent-router');
-    const { createKurtActions, executeIntentAction } = await import('@/lib/kurt-actions');
-    
-    // Match intent
-    const match = matchIntent(userText);
-    const description = getIntentDescription(match);
-    
-    console.log('[Kurt] Matched intent:', match);
-    
-    // Create actions (we'll need to pass navigate from router context)
-    // For now, mock the navigation
-    const mockNavigate = (path: string) => {
-      console.log('[Kurt] Would navigate to:', path);
-      window.location.pathname = path;
-    };
-    
-    const actions = createKurtActions(mockNavigate as any);
-    
-    // Execute action
-    const result = await executeIntentAction(match.intent, match.entities, actions);
-    
-    // Generate response message
-    let response = description;
-    if (match.confidence < 0.5) {
-      response = "I'm not sure I understood that. " + response;
+      // Use intent router to match user utterance
+      const { matchIntent, getIntentDescription } = await import('@/lib/intent-router');
+      const { createKurtActions, executeIntentAction } = await import('@/lib/kurt-actions');
+      
+      // Match intent
+      const match = matchIntent(userText);
+      const description = getIntentDescription(match);
+      
+      console.log('[Kurt] Matched intent:', match);
+      
+      // Create actions - use a mock navigate that doesn't reload
+      const mockNavigate = (path: string) => {
+        console.log('[Kurt] Navigate to:', path);
+        // Don't actually navigate - just log for now
+        // The actual navigation should be handled by the router
+      };
+      
+      const actions = createKurtActions(mockNavigate as any);
+      
+      // Execute action
+      const result = await executeIntentAction(match.intent, match.entities, actions);
+      
+      // Generate response message
+      let response = description;
+      if (match.confidence < 0.5) {
+        response = "I'm not sure I understood that. " + response;
+      }
+      
+      // Add context if available
+      if (context) {
+        response += ` (Context: ${context})`;
+      }
+
+      addMessage({
+        role: 'kurt',
+        text: response,
+        actions: result.success ? [{ 
+          type: result.action || 'info', 
+          payload: { ...match.entities, description } 
+        }] : undefined
+      });
+    } catch (error) {
+      console.error('[Kurt] Error processing message:', error);
+      addMessage({
+        role: 'kurt',
+        text: "Sorry, I encountered an error processing your request. Please try again.",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    // Add context if available
-    if (context) {
-      response += ` (Context: ${context})`;
-    }
-
-    addMessage({
-      role: 'kurt',
-      text: response,
-      actions: result.success ? [{ 
-        type: result.action || 'info', 
-        payload: { ...match.entities, description } 
-      }] : undefined
-    });
-
-    setLoading(false);
   },
     }),
     {
