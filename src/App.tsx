@@ -18,6 +18,7 @@ import ContractFlowDemo from "./pages/ContractFlowDemo";
 import ContractCreation from "./pages/ContractCreation";
 import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
+import WorkerOnboarding from "./pages/flows/WorkerOnboarding";
 import StepCardPattern from "./pages/StepCardPattern";
 import ContextualDrawerPattern from "./pages/ContextualDrawerPattern";
 import HoverToolbarPattern from "./pages/HoverToolbarPattern";
@@ -90,6 +91,7 @@ const App = () => (
         <Route path="/flows/contract-creation" element={<ContractCreation />} />
         <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
         <Route path="/candidate-onboarding/:candidateId?" element={<CandidateOnboardingFlow />} />
+        <Route path="/flows/worker-onboarding" element={<WorkerOnboarding />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />
