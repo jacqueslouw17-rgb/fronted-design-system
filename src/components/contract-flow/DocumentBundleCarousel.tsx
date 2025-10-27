@@ -13,6 +13,7 @@ import {
   Package,
 } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { AgentChatBox } from "./AgentChatBox";
 
 interface Document {
   id: string;
@@ -131,6 +132,28 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">Contract Bundle</h2>
+        <p className="text-muted-foreground">Select documents to include in the signing package</p>
+      </div>
+
+      {/* Chat Box */}
+      <div className="py-4">
+        <AgentChatBox placeholder="Ask Kurt anything..." />
+      </div>
+
+      {/* Candidate info */}
+      <div className="flex items-center gap-3 pt-4">
+        <span className="text-4xl">{candidate.flag}</span>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">{candidate.name}</h3>
+          <p className="text-sm text-muted-foreground">
+            {candidate.role} • {candidate.country}
+          </p>
+        </div>
+      </div>
+
       {/* Carousel header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
