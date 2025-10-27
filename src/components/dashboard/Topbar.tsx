@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import ToneChip from "./ToneChip";
-import LensToggle from "./LensToggle";
 import DrawerToggle from "./DrawerToggle";
 
 interface TopbarProps {
@@ -126,10 +125,6 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                   <span className="text-sm font-medium">Tone</span>
                   <ToneChip />
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">Lens</span>
-                  <LensToggle />
-                </div>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -137,7 +132,6 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           <>
             {/* Normal state - show actions directly */}
             <ToneChip />
-            <LensToggle />
           </>
         )}
         
