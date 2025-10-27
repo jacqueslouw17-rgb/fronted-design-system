@@ -406,6 +406,27 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     }
   };
 
+  const handleBulkStartOnboarding = () => {
+    const selectedForOnboarding = contractors.filter(
+      c => selectedIds.has(c.id) && c.status === "trigger-onboarding"
+    );
+    
+    if (selectedForOnboarding.length === 0) return;
+
+    // Start onboarding for each selected contractor
+    selectedForOnboarding.forEach((contractor) => {
+      handleStartOnboarding(contractor);
+    });
+    
+    // Clear selection
+    setSelectedIds(new Set());
+    
+    // Show bulk success toast
+    toast.success(`✅ Started onboarding for ${selectedForOnboarding.length} candidates`, {
+      duration: 4000,
+    });
+  };
+
   // Check if all contractors in a status are selected
   const areAllSelected = (status: typeof columns[number]) => {
     const statusContractors = getContractorsByStatus(status);
@@ -439,8 +460,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for data-pending and drafting columns */}
-                    {(status === "offer-accepted" || status === "data-pending" || status === "drafting") && items.length > 0 && (
+                    {/* Select All for data-pending, drafting, and trigger-onboarding columns */}
+                    {(status === "offer-accepted" || status === "data-pending" || status === "drafting" || status === "trigger-onboarding") && items.length > 0 && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -489,6 +510,19 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </Button>
                   </div>
                 )}
+                
+                {status === "trigger-onboarding" && getSelectedCount(status) > 0 && (
+                  <div className="mt-2">
+                    <Button 
+                      size="sm" 
+                      className="w-full text-xs h-7 bg-gradient-primary"
+                      onClick={handleBulkStartOnboarding}
+                    >
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      Start All ({getSelectedCount(status)})
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Column Body */}
@@ -514,7 +548,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                         {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {(status === "offer-accepted" || status === "data-pending" || status === "drafting") && (
+                          {(status === "offer-accepted" || status === "data-pending" || status === "drafting" || status === "trigger-onboarding") && (
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
                               onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
