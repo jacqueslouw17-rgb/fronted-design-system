@@ -589,6 +589,7 @@ const ContractFlowDemo = () => {
                             // Just store selection, don't proceed yet
                           }}
                           hideButton={true}
+                          onClose={() => navigate("/flows/contract-flow")}
                         />
                       </div>
                     ))}
@@ -690,6 +691,7 @@ const ContractFlowDemo = () => {
                       toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
                       navigate("/flows/contract-flow?phase=data-collection&moved=true");
                     }}
+                    onClose={() => navigate("/flows/contract-flow")}
                   />
                 </motion.div>
               ) : contractFlow.phase === "document-bundle-signature" ? (
@@ -700,6 +702,7 @@ const ContractFlowDemo = () => {
                       contractFlow.startSigning(); 
                       // speak("Sending bundles for signature."); 
                     }}
+                    onClose={() => navigate("/flows/contract-flow")}
                   />
                 </motion.div>
               ) : contractFlow.phase === "signing" ? (

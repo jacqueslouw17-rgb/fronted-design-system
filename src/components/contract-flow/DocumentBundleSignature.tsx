@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Bot, FileText, Shield, Clock, CheckCircle2, Mail, AlertCircle } from "lucide-react";
+import { Bot, FileText, Shield, Clock, CheckCircle2, Mail, AlertCircle, X } from "lucide-react";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { Candidate } from "@/hooks/useContractFlow";
@@ -27,6 +27,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
   onSendBundle: () => void;
+  onClose?: () => void;
 }
 
 type DocumentType = {
@@ -41,6 +42,7 @@ type BundleStatus = "preparing" | "ready" | "sending" | "sent";
 export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = ({
   candidates,
   onSendBundle,
+  onClose,
 }) => {
   const [bundleStatus, setBundleStatus] = useState<BundleStatus>("preparing");
   const [showKurtMessage, setShowKurtMessage] = useState(false);
@@ -200,7 +202,20 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto p-8">
+    <div className="space-y-8 max-w-7xl mx-auto p-8 relative">
+      {/* Close button */}
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="absolute top-4 right-6"
+          aria-label="Close and return to pipeline"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

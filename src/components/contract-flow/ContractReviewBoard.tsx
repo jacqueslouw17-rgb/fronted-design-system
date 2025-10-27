@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, DollarSign, Calendar, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle2, DollarSign, Calendar, Clock, ArrowLeft, X } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -13,12 +13,14 @@ interface ContractReviewBoardProps {
   candidates: Candidate[];
   onStartSigning: () => void;
   onBack?: () => void;
+  onClose?: () => void;
 }
 
 export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   candidates,
   onStartSigning,
   onBack,
+  onClose,
 }) => {
   const [globalComment, setGlobalComment] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -48,11 +50,12 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="space-y-6 relative"
     >
-      {/* Back Button */}
-      {onBack && (
-        <div className="mb-6">
+      {/* Navigation buttons */}
+      <div className="flex items-center justify-between mb-6">
+        {/* Back Button */}
+        {onBack && (
           <Button
             variant="ghost"
             size="sm"
@@ -62,8 +65,20 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-        </div>
-      )}
+        )}
+        {/* Close button */}
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="gap-2 ml-auto"
+            aria-label="Close and return to pipeline"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
 
       {/* Audio Wave Visualizer */}
       <motion.div
