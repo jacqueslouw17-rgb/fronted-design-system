@@ -9,18 +9,24 @@ import { useAgentState } from '@/hooks/useAgentState';
 import { toast } from 'sonner';
 
 const loadingPhrases = [
-  "Connecting signals...",
-  "Pulling context...",
-  "Analyzing request...",
-  "Gathering insights...",
-  "Processing...",
+  "Reading contract clauses...",
+  "Analyzing compliance requirements...",
+  "Checking tax regulations...",
+  "Reviewing payment terms...",
+  "Validating contract structure...",
+  "Cross-referencing policies...",
 ];
 
 export const KurtAgentPanel: React.FC = () => {
-  const { open, messages, loading, setOpen, context } = useAgentState();
+  const { open, messages, loading, setOpen, context, clearMessages } = useAgentState();
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Clear messages on mount
+  useEffect(() => {
+    clearMessages();
+  }, [clearMessages]);
 
   // Cycle through loading phrases
   useEffect(() => {
@@ -179,44 +185,49 @@ export const KurtAgentPanel: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* History Sheet */}
+      {/* History Sheet - Opens over entire viewport */}
       <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle className="text-sm font-semibold">History</SheetTitle>
-          </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-80px)] mt-4">
-            <div className="space-y-1">
-              {messages.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  No conversation history yet
-                </p>
-              ) : (
-                messages.map((msg, idx) => (
-                  <div
-                    key={msg.id}
-                    className="px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => setHistoryOpen(false)}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-xs font-medium text-foreground truncate flex-1">
-                        {msg.role === 'user' ? 'You' : 'Kurt'}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground whitespace-nowrap">
-                        {new Date(msg.ts).toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </p>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {msg.text}
-                    </p>
-                  </div>
-                ))
-              )}
+        <SheetContent 
+          side="right" 
+          className="w-full sm:max-w-xl p-0 fixed inset-y-0 right-0 z-50"
+        >
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground">Conversation History</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setHistoryOpen(false)}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          </ScrollArea>
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-4">
+                {messages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No conversation history yet
+                  </p>
+                ) : (
+                  messages.map((msg) => (
+                    <div key={msg.id} className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="font-medium capitalize">{msg.role === 'kurt' ? 'Kurt' : 'You'}</span>
+                        <span>
+                          {new Date(msg.ts).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground">{msg.text}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
     </>
