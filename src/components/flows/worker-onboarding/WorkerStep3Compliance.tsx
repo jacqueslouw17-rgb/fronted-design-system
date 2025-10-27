@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Upload, FileText } from "lucide-react";
+import { complianceDocSchema } from "@/lib/validation-schemas";
+import { z } from "zod";
+import { toast } from "sonner";
 
 interface Step3Props {
   formData: Record<string, any>;
@@ -25,7 +28,22 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
   });
 
   const handleContinue = () => {
-    onComplete("compliance", data);
+    try {
+      // Validate compliance document data
+      complianceDocSchema.parse({
+        tinNumber: data.tinNumber,
+        philHealthNumber: data.philHealthNumber,
+        nationalId: data.nationalId,
+        taxCard: data.nationalId // Using nationalId for taxCard validation as well
+      });
+      onComplete("compliance", data);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error("Please check your compliance information");
+      }
+    }
   };
 
   // Determine required fields based on country

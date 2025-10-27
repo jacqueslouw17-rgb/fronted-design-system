@@ -12,6 +12,8 @@ import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import { motion, AnimatePresence } from "framer-motion";
+import { orgProfileSchema, miniRuleSchema } from "@/lib/validation-schemas";
+import { z } from "zod";
 
 const SETTINGS_SECTIONS = [
   { id: "org-profile", title: "Organization Profile", step: 1 },
@@ -87,15 +89,43 @@ export default function ProfileSettings() {
     if (!userId || !data) return;
     
     try {
+      // Validate organization profile data
+      const validated = orgProfileSchema.parse({
+        company_name: data.companyName || data.company_name || '',
+        contact_email: data.primaryContactEmail || data.contact_email || '',
+        contact_phone: data.contact_phone || '',
+        website: data.website || '',
+        industry: data.industry || '',
+        company_size: data.company_size || '',
+        hq_country: data.hqCountry || data.hq_country || '',
+        default_currency: data.default_currency || '',
+        payroll_frequency: data.payrollFrequency || data.payroll_frequency || ''
+      });
+
       const { error } = await supabase
         .from("organization_profiles")
-        .upsert({ ...data, user_id: userId }, { onConflict: "user_id" });
+        .upsert({ 
+          user_id: userId,
+          company_name: validated.company_name,
+          contact_email: validated.contact_email,
+          contact_phone: validated.contact_phone || null,
+          website: validated.website || null,
+          industry: validated.industry || null,
+          company_size: validated.company_size || null,
+          hq_country: validated.hq_country || null,
+          default_currency: validated.default_currency || null,
+          payroll_frequency: validated.payroll_frequency || null
+        }, { onConflict: "user_id" });
 
       if (error) throw error;
       toast.success("Organization profile updated!");
       setFormData(prev => ({ ...prev, orgProfile: data }));
     } catch (error: any) {
-      toast.error(error.message);
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -122,20 +152,31 @@ export default function ProfileSettings() {
       await supabase.from("mini_rules").delete().eq("user_id", userId);
 
       if (data.rules && data.rules.length > 0) {
-        const rulesToInsert = data.rules.map((rule: any) => ({
-          user_id: userId,
-          rule_type: rule.type,
-          description: rule.description
-        }));
+        // Validate each rule before insertion
+        const validatedRules = data.rules.map((rule: any) => {
+          const validated = miniRuleSchema.parse({
+            rule_type: rule.type,
+            description: rule.description
+          });
+          return {
+            user_id: userId,
+            rule_type: validated.rule_type,
+            description: validated.description
+          };
+        });
 
-        const { error } = await supabase.from("mini_rules").insert(rulesToInsert);
+        const { error } = await supabase.from("mini_rules").insert(validatedRules);
         if (error) throw error;
       }
 
       toast.success("Mini rules updated!");
       setFormData(prev => ({ ...prev, miniRules: data }));
     } catch (error: any) {
-      toast.error(error.message);
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 

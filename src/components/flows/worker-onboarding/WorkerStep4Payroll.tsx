@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight } from "lucide-react";
+import { bankDetailsSchema } from "@/lib/validation-schemas";
+import { z } from "zod";
+import { toast } from "sonner";
 
 interface Step4Props {
   formData: Record<string, any>;
@@ -26,6 +29,22 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
   });
 
   const handleContinue = () => {
+    // Only validate bank details for employees
+    if (!isContractor) {
+      try {
+        bankDetailsSchema.parse({
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
+          swiftBic: data.swiftBic,
+          iban: data.iban
+        });
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          toast.error(error.errors[0].message);
+          return;
+        }
+      }
+    }
     onComplete("payroll", data);
   };
 

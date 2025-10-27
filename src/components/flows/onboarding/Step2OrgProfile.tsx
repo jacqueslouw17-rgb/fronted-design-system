@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import PayrollScenarioModal, { PayrollScenario } from "./PayrollScenarioModal";
 import PayrollScenarioCard from "./PayrollScenarioCard";
+import { orgProfileSchema } from "@/lib/validation-schemas";
+import { z } from "zod";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -61,19 +63,40 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!data.companyName.trim()) newErrors.companyName = "Company name is required";
-    if (!data.primaryContactName.trim()) newErrors.primaryContactName = "Contact name is required";
-    if (!data.primaryContactEmail.trim()) {
-      newErrors.primaryContactEmail = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.primaryContactEmail)) {
-      newErrors.primaryContactEmail = "Invalid email format";
+    try {
+      // Validate using Zod schema
+      orgProfileSchema.parse({
+        company_name: data.companyName,
+        contact_email: data.primaryContactEmail,
+        contact_phone: '',
+        website: '',
+        industry: '',
+        company_size: '',
+        hq_country: data.hqCountry,
+        default_currency: '',
+        payroll_frequency: data.payrollFrequency
+      });
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const field = err.path[0] as string;
+          // Map schema field names to component field names
+          const fieldMap: Record<string, string> = {
+            'company_name': 'companyName',
+            'contact_email': 'primaryContactEmail',
+            'hq_country': 'hqCountry',
+          };
+          const mappedField = fieldMap[field] || field;
+          newErrors[mappedField] = err.message;
+        });
+        setErrors(newErrors);
+        return false;
+      }
+      return false;
     }
-    if (!data.hqCountry) newErrors.hqCountry = "HQ country is required";
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = () => {

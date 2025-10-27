@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { personalInfoSchema } from "@/lib/validation-schemas";
+import { z } from "zod";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -26,13 +28,18 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
   const [validationError, setValidationError] = useState("");
 
   const handleContinue = () => {
-    // Simple validation
-    if (!data.fullName || !data.email || !data.phone) {
-      setValidationError("Please fill in all required fields");
-      return;
+    try {
+      // Validate using Zod schema
+      personalInfoSchema.parse(data);
+      setValidationError("");
+      onComplete("personal", data);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setValidationError(error.errors[0].message);
+      } else {
+        setValidationError("Please fill in all required fields correctly");
+      }
     }
-    setValidationError("");
-    onComplete("personal", data);
   };
 
   const isValid = data.fullName && data.email && data.phone;
