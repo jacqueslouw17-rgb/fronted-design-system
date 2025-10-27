@@ -103,6 +103,63 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
   const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
   
+  // Auto-progression animation for onboarding checklists
+  React.useEffect(() => {
+    const contractorsToProgress = contractors.filter(
+      c => c.status === "onboarding-pending" && 
+           c.checklist && 
+           c.checklist.some(item => item.status !== "verified")
+    );
+
+    if (contractorsToProgress.length === 0) return;
+
+    // Process one contractor's next item every 2.5 seconds
+    const timer = setTimeout(() => {
+      setContractors(current => {
+        return current.map(contractor => {
+          if (contractor.status !== "onboarding-pending" || !contractor.checklist) {
+            return contractor;
+          }
+
+          // Find next item to process (skip already verified ones)
+          const nextItemIndex = contractor.checklist.findIndex(
+            item => item.status !== "verified"
+          );
+
+          if (nextItemIndex === -1) return contractor;
+
+          const nextItem = contractor.checklist[nextItemIndex];
+
+          // If item is in 'todo' or not yet processing, set to 'pending_review' (spinner)
+          // If item is already 'pending_review', complete it to 'verified'
+          const updatedChecklist = contractor.checklist.map((item, idx) => {
+            if (idx !== nextItemIndex) return item;
+            
+            if (item.status === "todo") {
+              return { ...item, status: "pending_review" as const };
+            } else if (item.status === "pending_review") {
+              return { ...item, status: "verified" as const };
+            }
+            return item;
+          });
+
+          // Calculate new progress
+          const completed = updatedChecklist.filter(r => r.status === 'verified').length;
+          const total = updatedChecklist.filter(r => r.required).length;
+          const progress = Math.round((completed / total) * 100);
+
+          return {
+            ...contractor,
+            checklist: updatedChecklist,
+            checklistProgress: progress
+          };
+        });
+      });
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [contractors]);
+
   // Monitor onboarding progress and auto-complete when 100%
   React.useEffect(() => {
     const completedContractors = contractors.filter(
@@ -110,24 +167,24 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     );
 
     if (completedContractors.length > 0) {
-      // Move to certified and show Genie message
-      const updated = contractors.map(c => 
-        completedContractors.some(cc => cc.id === c.id)
-          ? { ...c, status: "certified" as const }
-          : c
-      );
-      
-      setContractors(updated);
-      onContractorUpdate?.(updated);
-
-      // Show Genie celebration message for each completed contractor
-      completedContractors.forEach((contractor, index) => {
-        setTimeout(() => {
-          toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
-            duration: 5000,
-          });
-        }, index * 1500);
+      // Show Genie celebration message first
+      completedContractors.forEach((contractor) => {
+        toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
+          duration: 5000,
+        });
       });
+
+      // Then move to certified after brief delay
+      setTimeout(() => {
+        const updated = contractors.map(c => 
+          completedContractors.some(cc => cc.id === c.id)
+            ? { ...c, status: "certified" as const }
+            : c
+        );
+        
+        setContractors(updated);
+        onContractorUpdate?.(updated);
+      }, 1500);
     }
   }, [contractors, onContractorUpdate]);
   
@@ -636,15 +693,26 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 {contractor.checklist.slice(0, 3).map((item) => {
                                   const badge = getChecklistStatusBadge(item.status);
                                   const Icon = badge.icon;
+                                  const isProcessing = item.status === 'pending_review';
                                   return (
-                                    <div key={item.id} className="flex items-center gap-1.5 text-xs">
+                                    <motion.div 
+                                      key={item.id} 
+                                      className="flex items-center gap-1.5 text-xs"
+                                      animate={isProcessing ? { scale: [1, 1.02, 1] } : {}}
+                                      transition={{ duration: 0.5, repeat: Infinity }}
+                                    >
                                       <Icon className={cn("h-3 w-3 flex-shrink-0", 
                                         item.status === 'verified' && "text-accent-green-text",
-                                        item.status === 'pending_review' && "text-accent-blue-text",
+                                        item.status === 'pending_review' && "text-accent-blue-text animate-spin",
                                         item.status === 'todo' && "text-accent-yellow-text"
                                       )} />
-                                      <span className="truncate text-foreground/80">{item.label}</span>
-                                    </div>
+                                      <span className={cn(
+                                        "truncate",
+                                        item.status === 'verified' && "text-foreground/80",
+                                        item.status === 'pending_review' && "text-foreground font-medium",
+                                        item.status === 'todo' && "text-foreground/60"
+                                      )}>{item.label}</span>
+                                    </motion.div>
                                   );
                                 })}
                                 {contractor.checklist.length > 3 && (
