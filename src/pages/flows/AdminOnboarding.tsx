@@ -86,7 +86,12 @@ const AdminOnboarding = () => {
 
   // Scroll to top helper
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const container = document.querySelector('.onboarding-scroll-container');
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Handle speak button click
@@ -692,11 +697,16 @@ const AdminOnboarding = () => {
     const status = getStepStatus(stepId);
     if (status !== "pending") {
       // Toggle: collapse if already expanded, expand if not
-      const newExpandedStep = expandedStep === stepId ? null : stepId;
+      const wasExpanded = expandedStep === stepId;
+      const newExpandedStep = wasExpanded ? null : stepId;
       setExpandedStep(newExpandedStep);
       goToStep(stepId);
+      
       if (newExpandedStep) {
-        scrollToStep(stepId);
+        // Scroll container to top when opening a step
+        setTimeout(() => {
+          scrollToTop();
+        }, 50);
       }
     }
   };
@@ -754,7 +764,7 @@ const AdminOnboarding = () => {
 
       {/* Right Section - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto"
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto onboarding-scroll-container"
         style={{ 
           width: '100%',
           maxWidth: '800px'

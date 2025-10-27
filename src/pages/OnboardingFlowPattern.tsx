@@ -37,7 +37,15 @@ const OnboardingFlowPattern = () => {
   };
 
   const handleStepClick = (stepId: string) => {
-    setExpandedStep(expandedStep === stepId ? null : stepId);
+    const wasExpanded = expandedStep === stepId;
+    setExpandedStep(wasExpanded ? null : stepId);
+    
+    // Scroll to top when opening a step
+    if (!wasExpanded) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
+    }
   };
 
   const handleSpeakClick = () => {

@@ -64,8 +64,18 @@ const WorkerOnboarding = () => {
 
   const scrollToStep = (stepId: string) => {
     const element = document.getElementById(`step-${stepId}`);
+    const container = document.querySelector('.onboarding-scroll-container');
+    
+    if (container) {
+      // Scroll container to top for clean step view
+      container.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    
+    // Then scroll to the specific step card
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
   };
 
@@ -106,9 +116,17 @@ const WorkerOnboarding = () => {
     const isCurrent = state.currentStep === stepId;
     
     if (isCompleted || isCurrent) {
-      setExpandedStep(expandedStep === stepId ? "" : stepId);
-      if (expandedStep !== stepId) {
-        scrollToStep(stepId);
+      const wasExpanded = expandedStep === stepId;
+      setExpandedStep(wasExpanded ? "" : stepId);
+      
+      if (!wasExpanded) {
+        // Scroll container to top when opening a step
+        const container = document.querySelector('.onboarding-scroll-container');
+        if (container) {
+          setTimeout(() => {
+            container.scrollTo({ top: 0, behavior: "smooth" });
+          }, 50);
+        }
       }
     }
   };
@@ -142,7 +160,7 @@ const WorkerOnboarding = () => {
 
       {/* Main Content - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto"
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto onboarding-scroll-container"
         style={{ 
           width: '100%',
           maxWidth: '800px'
