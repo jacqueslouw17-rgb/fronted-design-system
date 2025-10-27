@@ -2,16 +2,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft, Send } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import CandidateChecklistTab from "@/components/flows/candidate-onboarding/CandidateChecklistTab";
 import CandidateMetricsTab from "@/components/flows/candidate-onboarding/CandidateMetricsTab";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
   const [isGenieOpen, setIsGenieOpen] = useState(false);
   const [genieMessage, setGenieMessage] = useState("");
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content: "Hi! I'm Genie, your AI assistant. I can help you with questions about your onboarding, compliance requirements, payroll, or any documents you need to submit. What would you like to know?"
+    }
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
   
   // Mock candidate data - in real app, this would come from auth/context
   const candidateName = "Maria";
@@ -22,11 +36,46 @@ const CandidateDashboard = () => {
     setIsGenieOpen(true);
   };
 
-  const handleSendToGenie = () => {
-    // In real app, this would send to AI
-    console.log("Sending to Genie:", genieMessage);
+  const handleSendToGenie = async () => {
+    if (!genieMessage.trim()) return;
+    
+    const userMessage = genieMessage.trim();
+    
+    // Add user message to chat
+    setChatHistory(prev => [...prev, { role: "user", content: userMessage }]);
     setGenieMessage("");
-    setIsGenieOpen(false);
+    setIsTyping(true);
+    
+    // Simulate AI response (in real app, call AI API)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock AI responses based on keywords
+    let response = "";
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (lowerMessage.includes("document") || lowerMessage.includes("upload")) {
+      response = "You still need to upload your Policy Acknowledgment and NDA Signature. You can upload these in the Checklist tab. Just click on each item to see details and upload options.";
+    } else if (lowerMessage.includes("pay") || lowerMessage.includes("payroll") || lowerMessage.includes("salary")) {
+      response = "Your first payment is scheduled for January 25, 2025. Payroll is currently being set up. You'll receive an email notification once everything is ready!";
+    } else if (lowerMessage.includes("tax") || lowerMessage.includes("tin")) {
+      response = "Your Tax Residency document is currently under review by our compliance team. This typically takes 1-2 business days. I'll notify you once it's approved!";
+    } else if (lowerMessage.includes("contract") || lowerMessage.includes("agreement")) {
+      response = "Your contract is signed and active as of January 15, 2025. You can view it anytime in the Metrics tab by clicking 'View Contract'.";
+    } else if (lowerMessage.includes("complete") || lowerMessage.includes("done") || lowerMessage.includes("finish")) {
+      response = "You're 60% complete with your onboarding! You have 2 items remaining: Policy Acknowledgment and NDA Signature. Complete these in the Checklist tab to finish your setup.";
+    } else {
+      response = "I'm here to help! You can ask me about your documents, payroll, compliance requirements, or anything else related to your onboarding. What would you like to know?";
+    }
+    
+    setChatHistory(prev => [...prev, { role: "assistant", content: response }]);
+    setIsTyping(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendToGenie();
+    }
   };
 
   return (
@@ -99,31 +148,84 @@ const CandidateDashboard = () => {
 
       {/* Genie Chat Modal */}
       <Dialog open={isGenieOpen} onOpenChange={setIsGenieOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px] h-[600px] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Ask Genie
+              Chat with Genie
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              I'm here to help with any questions about your onboarding, documents, or pay.
-            </p>
-            <Textarea
-              placeholder="Type your question here..."
+          
+          {/* Chat Messages */}
+          <ScrollArea className="flex-1 pr-4">
+            <div className="space-y-4 py-4">
+              <AnimatePresence>
+                {chatHistory.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      }`}
+                    >
+                      {message.role === "assistant" && (
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles className="h-3 w-3" />
+                          <span className="text-xs font-medium">Genie</span>
+                        </div>
+                      )}
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="bg-muted rounded-lg p-3 max-w-[80%]">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-3 w-3" />
+                      <span className="text-xs font-medium">Genie</span>
+                    </div>
+                    <div className="flex gap-1 mt-1">
+                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
+                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
+                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </ScrollArea>
+          
+          {/* Input Area */}
+          <div className="flex gap-2 pt-4 border-t">
+            <Input
+              placeholder="Ask about your onboarding, pay, or documents..."
               value={genieMessage}
               onChange={(e) => setGenieMessage(e.target.value)}
-              rows={4}
+              onKeyPress={handleKeyPress}
+              disabled={isTyping}
             />
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsGenieOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSendToGenie} disabled={!genieMessage.trim()}>
-                Send
-              </Button>
-            </div>
+            <Button 
+              onClick={handleSendToGenie} 
+              disabled={!genieMessage.trim() || isTyping}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
