@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,9 @@ import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import NationalitySelect from "@/components/shared/NationalitySelect";
 import DateOfBirthPicker from "@/components/shared/DateOfBirthPicker";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -28,6 +31,34 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
   });
 
   const [validationError, setValidationError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const { speak } = useTextToSpeech();
+
+  // Simulate data retrieval with Kurt's voice
+  useEffect(() => {
+    if (isLoading) {
+      speak("Retrieving your details...");
+      
+      const timer = setTimeout(() => {
+        setData({
+          fullName: "Maria Santos",
+          email: "maria.santos@example.com",
+          phone: "+63 912 345 6789",
+          dateOfBirth: new Date(1995, 5, 15),
+          nationality: "Philippines",
+          address: "123 Main St, Manila"
+        });
+        setIsLoading(false);
+        
+        // Kurt speaks again after loading
+        setTimeout(() => {
+          speak("I've pre-filled your details. Please review and confirm they're correct.");
+        }, 500);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, speak]);
 
   const handleContinue = () => {
     try {
@@ -50,18 +81,60 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
 
   const isValid = data.fullName && data.email && data.phone;
 
-  if (isLoadingFields) {
+  if (isLoading || isLoadingFields) {
     return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
+      <div className="space-y-6 p-6">
+        <div className="flex flex-col items-center justify-center py-8 space-y-4">
+          <AudioWaveVisualizer isActive={true} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-2"
+          >
+            <h3 className="text-lg font-semibold">Retrieving your details...</h3>
+            <p className="text-sm text-muted-foreground">Please wait a moment</p>
+          </motion.div>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="space-y-6 p-6"
+      >
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Confirm Your Personal Information</h3>
         <p className="text-sm text-muted-foreground">
@@ -145,7 +218,8 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
         {isProcessing ? "Saving..." : "Continue"}
         <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
-    </div>
+    </motion.div>
+    </AnimatePresence>
   );
 };
 

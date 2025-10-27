@@ -50,7 +50,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-background"
           >
             <div className="flex flex-col items-center space-y-6">
@@ -93,10 +93,13 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
                 {completedItems.map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30"
-                    >
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3, ease: "easeOut" }}
+                    className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
+                  >
                       <Icon className={cn(
                         "h-3 w-3 flex-shrink-0",
                         item.done ? "text-green-600" : "text-muted-foreground"
@@ -104,7 +107,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
                       <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
                         {item.label}
                       </span>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>

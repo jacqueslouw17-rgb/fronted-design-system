@@ -28,11 +28,12 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
   }, [navigate, onComplete]);
 
   const completedItems = [
-    { label: "Personal information verified", icon: CheckCircle2, done: true },
-    { label: "Compliance documents uploaded", icon: CheckCircle2, done: true },
-    { label: "Payroll details configured", icon: CheckCircle2, done: true },
-    { label: "Work setup completed", icon: CheckCircle2, done: true },
-    { label: "Onboarding checklist reviewed", icon: CheckCircle2, done: true }
+    { label: "Personal information", icon: CheckCircle2, done: !!formData.fullName },
+    { label: "Compliance documents", icon: CheckCircle2, done: !!formData.taxNumber },
+    { label: "Payroll details", icon: CheckCircle2, done: !!formData.bankAccount },
+    { label: "Work setup", icon: CheckCircle2, done: !!formData.startDate },
+    { label: "Onboarding checklist", icon: CheckCircle2, done: true },
+    { label: "Profile ready", icon: CheckCircle2, done: true }
   ];
 
   return (
@@ -44,7 +45,7 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-background"
           >
             <div className="flex flex-col items-center space-y-6">
@@ -67,66 +68,79 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
+            {/* Header */}
             <div className="text-center space-y-2">
               <div className="flex justify-center mb-3">
                 <div className="p-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/20">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold">All Set! 🎉</h2>
+              <h2 className="text-2xl font-bold">You're All Set! 🎉</h2>
               <p className="text-sm text-muted-foreground">
-                You're ready to go! HR will guide you through your first day.
+                Your onboarding is complete
               </p>
             </div>
 
+            {/* What we configured */}
             <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
               <Label className="text-sm font-medium">What We've Completed</Label>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {completedItems.map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
+                    <motion.div
                       key={idx}
-                      className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05, duration: 0.3 }}
+                      className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
                     >
-                      <Icon className="h-3 w-3 flex-shrink-0 text-green-600" />
-                      <span className="text-foreground">{item.label}</span>
-                    </div>
+                      <Icon className={cn(
+                        "h-3 w-3 flex-shrink-0",
+                        item.done ? "text-green-600" : "text-muted-foreground"
+                      )} />
+                      <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
+                        {item.label}
+                      </span>
+                    </motion.div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-3">
-              <p className="text-sm text-blue-600 dark:text-blue-400">
-                💡 <strong>What's next?</strong> Check your email for your first day schedule. 
-                Your manager will reach out shortly to welcome you to the team!
+            {/* CTA */}
+            <div className="space-y-3">
+              <Button 
+                size="lg" 
+                className="w-full" 
+                disabled={externalProcessing}
+                onClick={handleFinish}
+              >
+                {externalProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Finish & Launch
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                Your dashboard is ready to view
               </p>
             </div>
-
-            <Button 
-              size="lg" 
-              className="w-full mt-3" 
-              disabled={externalProcessing}
-              onClick={handleFinish}
-            >
-              {externalProcessing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  Go to My Dashboard
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
+};
+
+const cn = (...classes: (string | boolean | undefined)[]) => {
+  return classes.filter(Boolean).join(" ");
 };
 
 export default WorkerStep7Finish;
