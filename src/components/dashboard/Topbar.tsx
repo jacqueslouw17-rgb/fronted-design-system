@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import frontedLogo from "@/assets/fronted-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,7 +82,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         )}
         
         <img 
-          src={new URL('../assets/fronted-logo.png', import.meta.url).href}
+          src={frontedLogo}
           alt="Fronted"
           className="h-6 w-auto"
         />
