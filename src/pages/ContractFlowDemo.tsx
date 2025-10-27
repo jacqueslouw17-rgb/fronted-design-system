@@ -485,9 +485,9 @@ const ContractFlowDemo = () => {
                           />
                         </TabsContent>
                       </Tabs>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (
                 <motion.div key={`contract-creation-${contractFlow.currentDraftIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <ContractCreationScreen

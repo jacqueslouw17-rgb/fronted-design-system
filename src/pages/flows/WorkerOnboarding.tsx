@@ -174,7 +174,7 @@ const WorkerOnboarding = () => {
 
       {/* Main Content - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto onboarding-scroll-container"
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto p-8 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
         style={{ 
           width: '100%',
           maxWidth: '800px'
@@ -190,16 +190,15 @@ const WorkerOnboarding = () => {
           placeholder="Ask Kurt anything..."
           currentWordIndex={currentWordIndex}
           enableWordHighlight={isSpeaking}
-          className="mb-8"
         />
 
         {/* Progress bar */}
-        <div className="mb-8">
+        <div>
           <ProgressBar currentStep={currentStepIndex + 1} totalSteps={FLOW_STEPS.length} />
         </div>
 
         {/* Steps */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4">
           {FLOW_STEPS.map((step, index) => {
             const isCompleted = state.completedSteps.includes(step.id);
             const isCurrent = state.currentStep === step.id;
