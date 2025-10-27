@@ -61,7 +61,7 @@ export const useAgentState = create<AgentStore>()(
       clearMessages: () => set({ messages: [] }),
 
       simulateResponse: async (userText: string) => {
-        const { addMessage, setLoading, setIsSpeaking, context } = get();
+        const { addMessage, setLoading, context } = get();
         
         setLoading(true);
 
@@ -85,11 +85,6 @@ export const useAgentState = create<AgentStore>()(
         });
 
         setLoading(false);
-        
-        // Simulate speaking for response duration
-        setIsSpeaking(true);
-        await new Promise((resolve) => setTimeout(resolve, response.length * 50)); // ~50ms per character
-        setIsSpeaking(false);
       },
     }),
     {

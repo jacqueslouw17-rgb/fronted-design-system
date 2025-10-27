@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useAgentState } from '@/hooks/useAgentState';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { toast } from 'sonner';
 
 const loadingPhrases = [
@@ -18,10 +19,12 @@ const loadingPhrases = [
 ];
 
 export const KurtAgentPanel: React.FC = () => {
-  const { open, messages, loading, setOpen, context, clearMessages } = useAgentState();
+  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking } = useAgentState();
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [readingMessageId, setReadingMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
   // Clear messages on mount
   useEffect(() => {
@@ -43,6 +46,21 @@ export const KurtAgentPanel: React.FC = () => {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, loading]);
+
+  // Auto-speak the latest Kurt message after loading completes
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'kurt' && readingMessageId !== lastMessage.id) {
+        setReadingMessageId(lastMessage.id);
+        setIsSpeaking(true);
+        speak(lastMessage.text, () => {
+          setIsSpeaking(false);
+          setReadingMessageId(null);
+        });
+      }
+    }
+  }, [loading, messages, readingMessageId, speak, setIsSpeaking]);
 
   const handleCopy = () => {
     if (messages.length > 0) {
@@ -122,15 +140,32 @@ export const KurtAgentPanel: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      // Agent response - thinking indicator + plain text
+                      // Agent response - thinking indicator + word-by-word reading
                       <div className="space-y-2 mb-6">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Lightbulb className="h-3.5 w-3.5" />
                           <span className="text-xs">Thought for 2s</span>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                            {msg.text}
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {readingMessageId === msg.id ? (
+                              // Currently being read - apply word-by-word highlighting
+                              msg.text.split(' ').map((word, idx) => (
+                                <span
+                                  key={idx}
+                                  className={
+                                    idx < currentWordIndex
+                                      ? 'text-foreground/90'
+                                      : 'text-muted-foreground/40'
+                                  }
+                                >
+                                  {word}{' '}
+                                </span>
+                              ))
+                            ) : (
+                              // Already read or not yet read
+                              <span className="text-foreground">{msg.text}</span>
+                            )}
                           </p>
                           <p className="text-[10px] text-muted-foreground">
                             {new Date(msg.ts).toLocaleTimeString([], { 
