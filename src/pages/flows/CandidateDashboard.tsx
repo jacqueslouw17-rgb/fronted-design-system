@@ -1,235 +1,240 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, ArrowLeft, Send } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import CandidateChecklistTab from "@/components/flows/candidate-onboarding/CandidateChecklistTab";
-import CandidateMetricsTab from "@/components/flows/candidate-onboarding/CandidateMetricsTab";
+import { ArrowLeft, ArrowRight, Calendar, FileCheck, TrendingUp, ListChecks } from "lucide-react";
+import ProgressBar from "@/components/ProgressBar";
+import ChecklistItemCard from "@/components/candidate/ChecklistItemCard";
+import MetricTile from "@/components/candidate/MetricTile";
+import { getChecklistForProfile, ChecklistRequirement } from "@/data/candidateChecklistData";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
+import confetti from "canvas-confetti";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { Input } from "@/components/ui/input";
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
-  const [isGenieOpen, setIsGenieOpen] = useState(false);
-  const [genieMessage, setGenieMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      content: "Hi! I'm Genie, your AI assistant. I can help you with questions about your onboarding, compliance requirements, payroll, or any documents you need to submit. What would you like to know?"
-    }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
   
-  // Mock candidate data - in real app, this would come from auth/context
-  const candidateName = "Maria";
-  const candidateCountry = "PH"; // Philippines
-  const candidateType = "Contractor";
+  // Demo data - in production this would come from user session/database
+  const [candidateProfile] = useState({
+    name: "Maria Santos",
+    country: "PH",
+    type: "Contractor" as const
+  });
 
-  const handleAskGenie = () => {
-    setIsGenieOpen(true);
-  };
+  const [activeTab, setActiveTab] = useState("checklist");
+  const [checklistData, setChecklistData] = useState<ChecklistRequirement[]>([]);
+  const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+  const [promptInput, setPromptInput] = useState("");
 
-  const handleSendToGenie = async () => {
-    if (!genieMessage.trim()) return;
-    
-    const userMessage = genieMessage.trim();
-    
-    // Add user message to chat
-    setChatHistory(prev => [...prev, { role: "user", content: userMessage }]);
-    setGenieMessage("");
-    setIsTyping(true);
-    
-    // Simulate AI response (in real app, call AI API)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock AI responses based on keywords
-    let response = "";
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes("document") || lowerMessage.includes("upload")) {
-      response = "You still need to upload your Policy Acknowledgment and NDA Signature. You can upload these in the Checklist tab. Just click on each item to see details and upload options.";
-    } else if (lowerMessage.includes("pay") || lowerMessage.includes("payroll") || lowerMessage.includes("salary")) {
-      response = "Your first payment is scheduled for January 25, 2025. Payroll is currently being set up. You'll receive an email notification once everything is ready!";
-    } else if (lowerMessage.includes("tax") || lowerMessage.includes("tin")) {
-      response = "Your Tax Residency document is currently under review by our compliance team. This typically takes 1-2 business days. I'll notify you once it's approved!";
-    } else if (lowerMessage.includes("contract") || lowerMessage.includes("agreement")) {
-      response = "Your contract is signed and active as of January 15, 2025. You can view it anytime in the Metrics tab by clicking 'View Contract'.";
-    } else if (lowerMessage.includes("complete") || lowerMessage.includes("done") || lowerMessage.includes("finish")) {
-      response = "You're 60% complete with your onboarding! You have 2 items remaining: Policy Acknowledgment and NDA Signature. Complete these in the Checklist tab to finish your setup.";
-    } else {
-      response = "I'm here to help! You can ask me about your documents, payroll, compliance requirements, or anything else related to your onboarding. What would you like to know?";
+  useEffect(() => {
+    // Load checklist data based on candidate profile
+    const profile = getChecklistForProfile(candidateProfile.country, candidateProfile.type);
+    if (profile) {
+      setChecklistData(profile.requirements);
     }
-    
-    setChatHistory(prev => [...prev, { role: "assistant", content: response }]);
-    setIsTyping(false);
+  }, [candidateProfile]);
+
+  // Calculate progress
+  const totalItems = checklistData.length;
+  const completedItems = checklistData.filter(item => item.status === 'verified').length;
+  const progressPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+  // Check if all items are completed
+  const allCompleted = totalItems > 0 && completedItems === totalItems;
+
+  // Show confetti when all completed
+  useEffect(() => {
+    if (allCompleted && !showCompletionMessage) {
+      setShowCompletionMessage(true);
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+  }, [allCompleted, showCompletionMessage]);
+
+  // Filter visible items (hide verified if all completed)
+  const visibleItems = allCompleted 
+    ? [] 
+    : checklistData;
+
+  const handleSubmitPrompt = () => {
+    if (promptInput.trim()) {
+      console.log("Kurt prompt:", promptInput);
+      // Here you would handle the AI chat interaction
+      setPromptInput("");
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendToGenie();
+    if (e.key === 'Enter') {
+      handleSubmitPrompt();
     }
   };
 
   return (
-    <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/flows')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
-
-      {/* Static background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-      </div>
-
-      {/* Main Content */}
-      <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto"
-        style={{ 
-          width: '100%',
-          maxWidth: '900px'
-        }}
-      >
-        {/* Genie Banner */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-sm text-foreground/80">
-              Hi {candidateName}, I'm here if you need help
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+      {/* Header */}
+      <div className="border-b border-border/40 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-4">
           <Button
-            onClick={handleAskGenie}
+            variant="ghost"
             size="sm"
-            variant="outline"
+            onClick={() => navigate("/flows")}
+            className="mb-2"
           >
-            Ask Genie
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Flows
           </Button>
         </div>
+      </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="checklist" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="checklist">Checklist</TabsTrigger>
-            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Kurt Agent Section - Centered */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center space-y-6 mb-8"
+        >
+          {/* Audio Wave Visualizer with Pulsing Animation */}
+          <AudioWaveVisualizer isActive={false} isListening={true} />
+          
+          {/* Heading and Subtext */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-foreground">
+              Hi {candidateProfile.name.split(' ')[0]}, I'm here if you need help! 👋
+            </h1>
+            <p className="text-muted-foreground">
+              Track your onboarding progress and access important information.
+            </p>
+          </div>
+
+          {/* Chat Input Field */}
+          <div className="w-full max-w-3xl">
+            <div className="relative">
+              <Input
+                value={promptInput}
+                onChange={(e) => setPromptInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask Kurt anything..."
+                className="pr-12 h-12 text-base bg-background/50 backdrop-blur-sm"
+              />
+              <Button
+                size="icon"
+                onClick={handleSubmitPrompt}
+                disabled={!promptInput.trim()}
+                className="absolute right-1 top-1 h-10 w-10 rounded-md"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tabs with Toggle Switch Design */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="checklist" className="flex items-center gap-2">
+              <ListChecks className="h-4 w-4" />
+              Checklist
+            </TabsTrigger>
+            <TabsTrigger value="metrics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Metrics
+            </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="checklist" className="mt-6">
-            <CandidateChecklistTab 
-              country={candidateCountry}
-              type={candidateType}
-            />
+
+          {/* Checklist Tab */}
+          <TabsContent value="checklist" className="space-y-6">
+            {!allCompleted && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Your Setup Progress</h2>
+                  <span className="text-sm font-medium">{progressPercentage}% Complete</span>
+                </div>
+                <ProgressBar currentStep={completedItems} totalSteps={totalItems} />
+              </div>
+            )}
+
+            <AnimatePresence mode="wait">
+              {allCompleted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="p-8 text-center bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                      className="inline-block mb-4"
+                    >
+                      <div className="p-4 rounded-full bg-green-500/20">
+                        <FileCheck className="h-12 w-12 text-green-600 dark:text-green-400" />
+                      </div>
+                    </motion.div>
+                    <h3 className="text-2xl font-bold mb-2">Excellent! You're fully set up.</h3>
+                    <p className="text-muted-foreground">
+                      You'll receive updates about pay, documents, and next steps right here.
+                    </p>
+                  </Card>
+                </motion.div>
+              ) : (
+                <div className="space-y-3">
+                  {visibleItems.map((requirement, index) => (
+                    <ChecklistItemCard
+                      key={requirement.id}
+                      requirement={requirement}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
           </TabsContent>
-          
-          <TabsContent value="metrics" className="mt-6">
-            <CandidateMetricsTab />
+
+          {/* Metrics Tab */}
+          <TabsContent value="metrics" className="space-y-6">
+            <h2 className="text-lg font-semibold">Your Overview</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <MetricTile
+                icon={Calendar}
+                label="Next Pay ETA"
+                value="Jan 31, 2025"
+                status="success"
+                index={0}
+              />
+              <MetricTile
+                icon={FileCheck}
+                label="Contract Status"
+                value="Signed"
+                status="success"
+                index={1}
+              />
+              <MetricTile
+                icon={TrendingUp}
+                label="Compliance %"
+                value={`${progressPercentage}%`}
+                status={progressPercentage === 100 ? 'success' : 'warning'}
+                index={2}
+              />
+              <MetricTile
+                icon={ListChecks}
+                label="Open Tasks"
+                value={`${totalItems - completedItems}`}
+                status={totalItems - completedItems === 0 ? 'success' : 'neutral'}
+                index={3}
+              />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Genie Chat Modal */}
-      <Dialog open={isGenieOpen} onOpenChange={setIsGenieOpen}>
-        <DialogContent className="sm:max-w-[600px] h-[600px] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              Chat with Genie
-            </DialogTitle>
-          </DialogHeader>
-          
-          {/* Chat Messages */}
-          <ScrollArea className="flex-1 pr-4">
-            <div className="space-y-4 py-4">
-              <AnimatePresence>
-                {chatHistory.map((message, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
-                        message.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                    >
-                      {message.role === "assistant" && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <Sparkles className="h-3 w-3" />
-                          <span className="text-xs font-medium">Genie</span>
-                        </div>
-                      )}
-                      <p className="text-sm">{message.content}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              {isTyping && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-muted rounded-lg p-3 max-w-[80%]">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-3 w-3" />
-                      <span className="text-xs font-medium">Genie</span>
-                    </div>
-                    <div className="flex gap-1 mt-1">
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </ScrollArea>
-          
-          {/* Input Area */}
-          <div className="flex gap-2 pt-4 border-t">
-            <Input
-              placeholder="Ask about your onboarding, pay, or documents..."
-              value={genieMessage}
-              onChange={(e) => setGenieMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={isTyping}
-            />
-            <Button 
-              onClick={handleSendToGenie} 
-              disabled={!genieMessage.trim() || isTyping}
-              size="icon"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </main>
+    </div>
   );
 };
 
