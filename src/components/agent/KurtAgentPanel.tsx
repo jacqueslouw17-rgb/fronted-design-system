@@ -4,7 +4,6 @@ import { X, Copy, History, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { toast } from 'sonner';
@@ -74,14 +73,13 @@ export const KurtAgentPanel: React.FC = () => {
   if (!open) return null;
 
   return (
-    <>
-      <motion.div
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="w-full h-full min-h-full bg-background border-l border-border flex flex-col"
-      >
+    <motion.div
+      initial={{ x: '100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '100%' }}
+      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      className="w-full h-full min-h-full bg-background border-l border-border flex flex-col relative"
+    >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background">
           <span className="font-semibold text-foreground text-sm">Kurt</span>
@@ -219,53 +217,66 @@ export const KurtAgentPanel: React.FC = () => {
             Agentic mode • Type to refine
           </p>
         </div>
-      </motion.div>
-
-      {/* History Sheet - Opens over entire viewport */}
-      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
-        <SheetContent 
-          side="right" 
-          className="w-full sm:max-w-xl p-0 fixed inset-y-0 right-0 z-50"
-        >
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h3 className="text-lg font-semibold text-foreground">Conversation History</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setHistoryOpen(false)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-4">
-                {messages.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    No conversation history yet
-                  </p>
-                ) : (
-                  messages.map((msg) => (
-                    <div key={msg.id} className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-medium capitalize">{msg.role === 'kurt' ? 'Kurt' : 'You'}</span>
-                        <span>
-                          {new Date(msg.ts).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground">{msg.text}</p>
-                    </div>
-                  ))
-                )}
+      {/* History Overlay - Opens within agent panel */}
+      <AnimatePresence>
+        {historyOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm z-40"
+              onClick={() => setHistoryOpen(false)}
+            />
+            
+            {/* History Panel */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="absolute inset-0 bg-background border-l border-border flex flex-col z-50"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <h3 className="text-sm font-semibold text-foreground">History</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setHistoryOpen(false)}
+                  className="h-7 w-7"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            </ScrollArea>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </>
+              <ScrollArea className="flex-1 px-4 py-4">
+                <div className="space-y-4">
+                  {messages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      No conversation history yet
+                    </p>
+                  ) : (
+                    messages.map((msg) => (
+                      <div key={msg.id} className="space-y-1">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="font-medium capitalize">{msg.role === 'kurt' ? 'Kurt' : 'You'}</span>
+                          <span>
+                            {new Date(msg.ts).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground">{msg.text}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
