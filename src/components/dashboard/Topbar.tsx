@@ -1,4 +1,4 @@
-import { Search, ArrowLeft, PanelLeftOpen, MoreVertical } from "lucide-react";
+import { Search, ArrowLeft, PanelLeftOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
-import ToneChip from "./ToneChip";
 import DrawerToggle from "./DrawerToggle";
 
 interface TopbarProps {
@@ -109,30 +108,6 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         {/* Drawer Toggle - only shown in v3 and v5 */}
         {(version === "v3" || version === "v5") && onDrawerToggle && (
           <DrawerToggle isOpen={isDrawerOpen || false} onClick={onDrawerToggle} />
-        )}
-        
-        {/* When agent is open, collapse actions into menu */}
-        {isAgentOpen ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <div className="p-2 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">Tone</span>
-                  <ToneChip />
-                </div>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <>
-            {/* Normal state - show actions directly */}
-            <ToneChip />
-          </>
         )}
         
         {/* Notifications */}
