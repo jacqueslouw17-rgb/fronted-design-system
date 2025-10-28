@@ -507,12 +507,35 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     
     if (selectedForOnboarding.length === 0) return;
 
-    // Start onboarding for each selected contractor
-    selectedForOnboarding.forEach((contractor) => {
-      handleStartOnboarding(contractor);
+    // Compute all updates in a single state change to avoid stale overwrites
+    const selectedSet = new Set(selectedForOnboarding.map(c => c.id));
+
+    const updated = contractors.map(c => {
+      if (!selectedSet.has(c.id)) return c;
+
+      const countryCode = c.country === "Philippines" ? "PH" : c.country === "Norway" ? "NO" : "XK";
+      const employmentType = c.employmentType || "contractor";
+      const checklistProfile = getChecklistForProfile(
+        countryCode,
+        employmentType === "contractor" ? "Contractor" : "Employee"
+      );
+
+      if (!checklistProfile) return c;
+
+      const completed = checklistProfile.requirements.filter(r => r.status === 'verified').length;
+      const total = checklistProfile.requirements.filter(r => r.required).length;
+      const progress = Math.round((completed / total) * 100);
+
+      return {
+        ...c,
+        status: "onboarding-pending" as const,
+        checklist: checklistProfile.requirements,
+        checklistProgress: progress
+      };
     });
     
-    // Clear selection
+    setContractors(updated);
+    onContractorUpdate?.(updated);
     setSelectedIds(new Set());
     
     // Show bulk success toast
