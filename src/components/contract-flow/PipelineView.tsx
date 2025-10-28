@@ -107,10 +107,29 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   const [signingTransitionIds, setSigningTransitionIds] = useState<Set<string>>(new Set());
   
-  // Handle smooth transitions between statuses
+  // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
     const newContractors = initialContractors.filter(c => !contractors.find(existing => existing.id === c.id));
-    
+
+    const statusIndex = (s: Contractor['status']) => columns.indexOf(s);
+
+    const mergeWithoutRegression = () => {
+      const merged = contractors.map(local => {
+        const incoming = initialContractors.find(i => i.id === local.id);
+        if (!incoming) return local;
+        // If this card is currently animating a transition, keep local state
+        if (transitioningIds.has(local.id) || signingTransitionIds.has(local.id)) return local;
+        const localIdx = statusIndex(local.status);
+        const incomingIdx = statusIndex(incoming.status);
+        // Never regress; only move forward
+        if (incomingIdx > localIdx) {
+          return { ...local, ...incoming, status: incoming.status };
+        }
+        return local;
+      });
+      return [...merged, ...newContractors];
+    };
+
     // Check for drafting -> awaiting-signature transitions
     const draftingTransitions = initialContractors.filter(initial => {
       const existing = contractors.find(c => c.id === initial.id);
@@ -127,12 +146,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       // Mark contractors as transitioning and keep them in drafting status temporarily
       const idsToTransition = new Set(draftingTransitions.map(c => c.id));
       setTransitioningIds(idsToTransition);
-      
-      // After brief delay, show loading state
+      // After brief delay, complete transition by merging (no regression)
       setTimeout(() => {
-        // After another delay, complete the transition
         setTimeout(() => {
-          setContractors(initialContractors);
+          setContractors(mergeWithoutRegression());
           setTransitioningIds(new Set());
         }, 1200);
       }, 800);
@@ -140,17 +157,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       // Mark contractors as transitioning from signing
       const idsToTransition = new Set(signingTransitions.map(c => c.id));
       setSigningTransitionIds(idsToTransition);
-      
-      // After brief delay, show loading state
+      // After brief delay, complete transition by merging (no regression)
       setTimeout(() => {
-        // After another delay, complete the transition
         setTimeout(() => {
-          setContractors(initialContractors);
+          setContractors(mergeWithoutRegression());
           setSigningTransitionIds(new Set());
         }, 1200);
       }, 800);
     } else {
-      setContractors(initialContractors);
+      // No explicit transitions detected – still merge to sync new items without regressions
+      setContractors(mergeWithoutRegression());
     }
   }, [initialContractors]);
   
