@@ -139,7 +139,7 @@ const WorkerOnboarding = () => {
 
   return (
     <AgentLayout context="Worker Onboarding">
-      <main className="flex h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+      <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -161,7 +161,7 @@ const WorkerOnboarding = () => {
 
       {/* Main Content - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto p-8 pb-32 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+        className="flex-shrink-0 flex flex-col min-h-screen p-8 pb-32 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
         style={{
           width: '100%',
           maxWidth: '800px'
