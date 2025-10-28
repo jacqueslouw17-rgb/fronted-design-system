@@ -853,30 +853,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               <div className="text-xs text-foreground/80 bg-primary/5 p-2 rounded border border-primary/10">
                                 Would you like me to start their onboarding checklist?
                               </div>
-                              <div className="flex gap-2">
-                                <Button 
-                                  size="sm" 
-                                  className="flex-1 text-xs h-8 bg-gradient-primary"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleStartOnboarding(contractor);
-                                  }}
-                                >
-                                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                                  Yes, Start
-                                </Button>
-                                <Button 
-                                  variant="outline"
-                                  size="sm" 
-                                  className="flex-1 text-xs h-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info("You can start onboarding anytime");
-                                  }}
-                                >
-                                  Later
-                                </Button>
-                              </div>
+                              <Button 
+                                size="sm" 
+                                className="w-full text-xs h-8 bg-gradient-primary"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartOnboarding(contractor);
+                                }}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Yes, Start
+                              </Button>
                             </div>
                           )}
 
