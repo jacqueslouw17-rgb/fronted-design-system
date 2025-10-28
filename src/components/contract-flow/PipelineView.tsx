@@ -106,6 +106,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [transitioningIds, setTransitioningIds] = useState<Set<string>>(new Set());
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   const [signingTransitionIds, setSigningTransitionIds] = useState<Set<string>>(new Set());
+  const [resentFormIds, setResentFormIds] = useState<Set<string>>(new Set());
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -792,13 +793,15 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 variant="outline"
                                 size="sm" 
                                 className="flex-1 text-xs h-8"
+                                disabled={resentFormIds.has(contractor.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  setResentFormIds(prev => new Set([...prev, contractor.id]));
                                   toast.info(`Resending form to ${contractor.name}`);
                                 }}
                               >
                                 <Send className="h-3 w-3 mr-1" />
-                                Resend
+                                {resentFormIds.has(contractor.id) ? 'Sent' : 'Resend'}
                               </Button>
                             </div>
                           )}
