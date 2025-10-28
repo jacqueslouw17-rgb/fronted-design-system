@@ -105,6 +105,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForSignature, setSelectedForSignature] = useState<Candidate | null>(null);
   const [transitioningIds, setTransitioningIds] = useState<Set<string>>(new Set());
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
+  const [signingTransitionIds, setSigningTransitionIds] = useState<Set<string>>(new Set());
   
   // Handle smooth transition from drafting to awaiting-signature
   React.useEffect(() => {
@@ -224,9 +225,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     if (status === "drafting") {
       return contractors.filter((c) => c.status === status || transitioningIds.has(c.id));
     }
-    // Exclude transitioning contractors from awaiting-signature column
+    // Handle awaiting-signature with both transition types
     if (status === "awaiting-signature") {
-      return contractors.filter((c) => c.status === status && !transitioningIds.has(c.id));
+      return contractors.filter((c) => 
+        (c.status === status || signingTransitionIds.has(c.id)) && 
+        !transitioningIds.has(c.id)
+      );
+    }
+    // Exclude signing-transitioning contractors from trigger-onboarding until transition completes
+    if (status === "trigger-onboarding") {
+      return contractors.filter((c) => c.status === status && !signingTransitionIds.has(c.id));
     }
     return contractors.filter((c) => c.status === status);
   };
@@ -281,15 +289,27 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleSignatureComplete = () => {
-    // Move the contractor who was signing to trigger-onboarding
+    // Move the contractor who was signing to trigger-onboarding with smooth transition
     if (selectedForSignature) {
-      const updated = contractors.map(c => 
-        c.id === selectedForSignature.id 
-          ? { ...c, status: "trigger-onboarding" as const }
-          : c
-      );
-      setContractors(updated);
-      onContractorUpdate?.(updated);
+      const contractorId = selectedForSignature.id;
+      
+      // Mark as transitioning
+      setSigningTransitionIds(new Set([contractorId]));
+      
+      // After brief delay, show loading state
+      setTimeout(() => {
+        // After another delay, complete the transition
+        setTimeout(() => {
+          const updated = contractors.map(c => 
+            c.id === contractorId 
+              ? { ...c, status: "trigger-onboarding" as const }
+              : c
+          );
+          setContractors(updated);
+          onContractorUpdate?.(updated);
+          setSigningTransitionIds(new Set());
+        }, 1200);
+      }, 800);
     }
     
     onSignatureComplete?.();
@@ -733,13 +753,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 variant="outline"
                                 size="sm" 
                                 className="w-full text-xs h-8"
+                                disabled={signingTransitionIds.has(contractor.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleOpenSignatureWorkflow(contractor);
                                 }}
                               >
-                                <FileSignature className="h-3 w-3 mr-1" />
-                                View Signatures
+                                {signingTransitionIds.has(contractor.id) ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <FileSignature className="h-3 w-3 mr-1" />
+                                    View Signatures
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}
