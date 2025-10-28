@@ -120,6 +120,44 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       animate={{ opacity: 1 }}
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
+      {/* Progress indicator - only show if multiple candidates */}
+      {totalCandidates > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-center gap-3 mb-2"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              Candidate
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-semibold text-foreground">
+                {currentIndex + 1}
+              </span>
+              <span className="text-sm text-muted-foreground">/</span>
+              <span className="text-sm text-muted-foreground">
+                {totalCandidates}
+              </span>
+            </div>
+          </div>
+          <div className="flex gap-1.5">
+            {Array.from({ length: totalCandidates }).map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  idx === currentIndex
+                    ? 'w-8 bg-primary'
+                    : idx < currentIndex
+                    ? 'w-1.5 bg-primary/40'
+                    : 'w-1.5 bg-border'
+                }`}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+      
       <AgentHeader
         title="Contract Drafting in Progress"
         subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
