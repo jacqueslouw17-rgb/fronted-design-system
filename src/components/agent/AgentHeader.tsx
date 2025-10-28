@@ -15,6 +15,7 @@ interface AgentHeaderProps {
   className?: string;
   currentWordIndex?: number;
   enableWordHighlight?: boolean;
+  hasChanges?: boolean;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -26,6 +27,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   className = "",
   currentWordIndex = 0,
   enableWordHighlight = false,
+  hasChanges = false,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -93,8 +95,10 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
               </span>
             ))
           ) : (
-            // Default static subtitle
-            <span className="text-muted-foreground">{subtitle}</span>
+            // Default static subtitle with darker color if there are changes
+            <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
+              {subtitle}
+            </span>
           )}
         </p>
       </div>

@@ -284,13 +284,7 @@ const ContractFlowDemo = () => {
                         />
                       ) : (
                         <AgentHeader
-                          title={
-                            searchParams.get("allSigned") === "true"
-                              ? "All contracts signed!"
-                              : searchParams.get("moved") === "true" 
-                                ? "Contracts sent - awaiting signatures"
-                                : "Great news - two more candidates accepted their offers!"
-                          }
+                          title="Welcome Joe, get to work!"
                           subtitle={
                             searchParams.get("allSigned") === "true"
                               ? "Both candidates have signed! Let's trigger their onboarding checklists."
@@ -299,6 +293,7 @@ const ContractFlowDemo = () => {
                                 : "Let's finalize contracts and complete onboarding."
                           }
                           showPulse={true}
+                          hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
                           isActive={
                             searchParams.get("allSigned") === "true"
                               ? !hasSpokenPhase["data-collection-all-signed"]
