@@ -85,10 +85,6 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
-    // First scroll to top of page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Then scroll to specific step if ref exists
     setTimeout(() => {
       const stepElement = stepRefs.current[stepId];
       if (stepElement) {
@@ -143,8 +139,7 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
         setExpandedStep(null);
       } else {
         setExpandedStep(stepId);
-        // Scroll to top when opening a step
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToStep(stepId);
       }
     }
   };

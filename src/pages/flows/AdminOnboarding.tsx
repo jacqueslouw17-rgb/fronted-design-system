@@ -93,16 +93,6 @@ const AdminOnboarding = () => {
     }, 100);
   };
 
-  // Scroll to top helper
-  const scrollToTop = () => {
-    const container = document.querySelector('.onboarding-scroll-container');
-    if (container) {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   // Handle speak button click
   const handleSpeakClick = () => {
     if (hasActivatedSpeech) return;
@@ -195,7 +185,6 @@ const AdminOnboarding = () => {
       completeStep("intro_trust_model");
       setExpandedStep(null);
       setIsProcessing(false);
-      scrollToTop();
       
       // Wait before speaking about org details
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -277,7 +266,6 @@ const AdminOnboarding = () => {
       completeStep("org_profile");
       setExpandedStep(null);
       setIsProcessing(false);
-      scrollToTop();
       
       // Wait before moving to step 3
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -342,7 +330,6 @@ const AdminOnboarding = () => {
       completeStep("localization_country_blocks");
       setExpandedStep(null);
       setIsProcessing(false);
-      scrollToTop();
       
       // Wait before moving to step 4
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -411,7 +398,6 @@ const AdminOnboarding = () => {
       completeStep("integrations_connect");
       setExpandedStep(null);
       setIsProcessing(false);
-      scrollToTop();
       
       // Wait before moving to step 5
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -459,7 +445,6 @@ const AdminOnboarding = () => {
       completeStep("mini_rules_setup");
       setExpandedStep(null);
       setIsProcessing(false);
-      scrollToTop();
       
       // Wait before moving to finish step
       await new Promise(resolve => setTimeout(resolve, 600));
@@ -669,11 +654,6 @@ const AdminOnboarding = () => {
     }
     completeStep(stepId);
     
-    // Smooth scroll to top after completing a step
-    setTimeout(() => {
-      scrollToTop();
-    }, 300);
-    
     const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
     if (currentIndex < FLOW_STEPS.length - 1) {
       const nextStep = FLOW_STEPS[currentIndex + 1];
@@ -712,9 +692,9 @@ const AdminOnboarding = () => {
       goToStep(stepId);
       
       if (newExpandedStep) {
-        // Scroll container to top when opening a step
+        // Scroll to the step when opening it
         setTimeout(() => {
-          scrollToTop();
+          scrollToStep(stepId);
         }, 50);
       }
     }

@@ -77,14 +77,7 @@ const WorkerOnboarding = () => {
 
   const scrollToStep = (stepId: string) => {
     const element = document.getElementById(`step-${stepId}`);
-    const container = document.querySelector('.onboarding-scroll-container');
     
-    if (container) {
-      // Scroll container to top for clean step view
-      container.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    
-    // Then scroll to the specific step card
     if (element) {
       setTimeout(() => {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -133,13 +126,7 @@ const WorkerOnboarding = () => {
       setExpandedStep(wasExpanded ? "" : stepId);
       
       if (!wasExpanded) {
-        // Scroll container to top when opening a step
-        const container = document.querySelector('.onboarding-scroll-container');
-        if (container) {
-          setTimeout(() => {
-            container.scrollTo({ top: 0, behavior: "smooth" });
-          }, 50);
-        }
+        scrollToStep(stepId);
       }
     }
   };
