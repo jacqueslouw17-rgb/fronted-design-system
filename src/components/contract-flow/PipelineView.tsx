@@ -107,17 +107,25 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   const [signingTransitionIds, setSigningTransitionIds] = useState<Set<string>>(new Set());
   
-  // Handle smooth transition from drafting to awaiting-signature
+  // Handle smooth transitions between statuses
   React.useEffect(() => {
     const newContractors = initialContractors.filter(c => !contractors.find(existing => existing.id === c.id));
-    const statusChanges = initialContractors.filter(initial => {
+    
+    // Check for drafting -> awaiting-signature transitions
+    const draftingTransitions = initialContractors.filter(initial => {
       const existing = contractors.find(c => c.id === initial.id);
       return existing && existing.status === "drafting" && initial.status === "awaiting-signature";
     });
 
-    if (statusChanges.length > 0) {
+    // Check for awaiting-signature -> trigger-onboarding transitions
+    const signingTransitions = initialContractors.filter(initial => {
+      const existing = contractors.find(c => c.id === initial.id);
+      return existing && existing.status === "awaiting-signature" && initial.status === "trigger-onboarding";
+    });
+
+    if (draftingTransitions.length > 0) {
       // Mark contractors as transitioning and keep them in drafting status temporarily
-      const idsToTransition = new Set(statusChanges.map(c => c.id));
+      const idsToTransition = new Set(draftingTransitions.map(c => c.id));
       setTransitioningIds(idsToTransition);
       
       // After brief delay, show loading state
@@ -126,6 +134,19 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         setTimeout(() => {
           setContractors(initialContractors);
           setTransitioningIds(new Set());
+        }, 1200);
+      }, 800);
+    } else if (signingTransitions.length > 0) {
+      // Mark contractors as transitioning from signing
+      const idsToTransition = new Set(signingTransitions.map(c => c.id));
+      setSigningTransitionIds(idsToTransition);
+      
+      // After brief delay, show loading state
+      setTimeout(() => {
+        // After another delay, complete the transition
+        setTimeout(() => {
+          setContractors(initialContractors);
+          setSigningTransitionIds(new Set());
         }, 1200);
       }, 800);
     } else {
@@ -289,27 +310,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   };
 
   const handleSignatureComplete = () => {
-    // Move the contractor who was signing to trigger-onboarding with smooth transition
+    // Move the contractor who was signing to trigger-onboarding
+    // The useEffect will handle the smooth transition animation
     if (selectedForSignature) {
-      const contractorId = selectedForSignature.id;
-      
-      // Mark as transitioning
-      setSigningTransitionIds(new Set([contractorId]));
-      
-      // After brief delay, show loading state
-      setTimeout(() => {
-        // After another delay, complete the transition
-        setTimeout(() => {
-          const updated = contractors.map(c => 
-            c.id === contractorId 
-              ? { ...c, status: "trigger-onboarding" as const }
-              : c
-          );
-          setContractors(updated);
-          onContractorUpdate?.(updated);
-          setSigningTransitionIds(new Set());
-        }, 1200);
-      }, 800);
+      const updated = contractors.map(c => 
+        c.id === selectedForSignature.id 
+          ? { ...c, status: "trigger-onboarding" as const }
+          : c
+      );
+      setContractors(updated);
+      onContractorUpdate?.(updated);
     }
     
     onSignatureComplete?.();
@@ -753,23 +763,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 variant="outline"
                                 size="sm" 
                                 className="w-full text-xs h-8"
-                                disabled={signingTransitionIds.has(contractor.id)}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleOpenSignatureWorkflow(contractor);
                                 }}
                               >
-                                {signingTransitionIds.has(contractor.id) ? (
-                                  <>
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                    Processing...
-                                  </>
-                                ) : (
-                                  <>
-                                    <FileSignature className="h-3 w-3 mr-1" />
-                                    View Signatures
-                                  </>
-                                )}
+                                <FileSignature className="h-3 w-3 mr-1" />
+                                View Signatures
                               </Button>
                             </div>
                           )}
