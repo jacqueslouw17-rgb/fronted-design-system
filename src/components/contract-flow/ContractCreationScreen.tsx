@@ -177,7 +177,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         <div className="flex items-start gap-3">
           <Bot className="h-5 w-5 text-primary mt-0.5" />
           <p className="text-sm text-foreground">
-            I've pre-filled the contract details from the onboarding form. Review and adjust as needed, then I'll generate the contract bundle.
+            I've pre-filled the contract details from the data collection form. Review and adjust as needed, then I'll generate the contract bundle.
           </p>
         </div>
       </motion.div>
