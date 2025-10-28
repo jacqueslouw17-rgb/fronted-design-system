@@ -111,6 +111,12 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
+  
+  // Check if user just completed onboarding
+  const searchParams = new URLSearchParams(window.location.search);
+  const isFirstTime = searchParams.get('onboarding') === 'complete';
+  
+  const welcomeTitle = isFirstTime ? "Welcome onboard, Joe! 🎉" : "Welcome back, Joe! 👋";
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -127,7 +133,7 @@ const DashboardAdmin = () => {
               <div className="max-w-7xl mx-auto p-8 space-y-8">
                 {/* Agent Header */}
                 <AgentHeader
-                  title="Welcome back, Joe! 👋"
+                  title={welcomeTitle}
                   subtitle="You're all set. Start by sending an offer to your first contractor."
                   showPulse={true}
                   isActive={false}

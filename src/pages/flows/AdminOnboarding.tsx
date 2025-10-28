@@ -557,8 +557,8 @@ const AdminOnboarding = () => {
       // Show loading for a moment
       await new Promise(resolve => setTimeout(resolve, 600));
       
-      // Navigate to dashboard
-      navigate('/dashboard');
+      // Navigate to dashboard with first-time flag
+      navigate('/dashboard?onboarding=complete');
     });
     
     resetTranscript();
