@@ -73,6 +73,25 @@ export const useMockCandidates = (): Candidate[] => [
     employmentType: "employee",
     employmentTypeSource: "suggested",
     documents: ["Employment Agreement", "Country Compliance Attachments", "NDA / Policy Docs"],
+  },
+  {
+    id: "3",
+    name: "Sarah Chen",
+    role: "Product Manager",
+    country: "Singapore",
+    countryCode: "SG",
+    flag: "🇸🇬",
+    salary: "SGD 8,500/mo",
+    startDate: "Dec 15, 2025",
+    noticePeriod: "30 days",
+    pto: "20 days/year",
+    currency: "SGD",
+    signingPortal: "SG MyInfo",
+    status: "Hired",
+    email: "sarah.chen@example.com",
+    employmentType: "employee",
+    employmentTypeSource: "ats",
+    documents: ["Employment Agreement", "Benefits Package", "NDA"],
   }
 ];
 
