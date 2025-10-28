@@ -15,6 +15,7 @@ interface SignatureWorkflowDrawerProps {
   onOpenChange: (open: boolean) => void;
   candidate: Candidate | null;
   onComplete?: () => void;
+  onSendForSignatures?: () => void;
 }
 
 interface SignatureStep {
@@ -144,11 +145,13 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   onOpenChange,
   candidate,
   onComplete,
+  onSendForSignatures,
 }) => {
   const [steps, setSteps] = useState<SignatureStep[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [addDocDialogOpen, setAddDocDialogOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   // Update steps and documents when candidate changes
   useEffect(() => {
@@ -158,9 +161,38 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
     }
   }, [candidate]);
 
+  const handleIncludeDocument = (docName: string) => {
+    // Update the document status from "not-sent" to "ready"
+    setDocuments(prevDocs =>
+      prevDocs.map(doc =>
+        doc.name === docName && doc.status === "not-sent"
+          ? { ...doc, status: "ready" as const, action: "Preview" }
+          : doc
+      )
+    );
+
+    toast({
+      title: "Document included",
+      description: `${docName} will be sent with the bundle.`,
+    });
+  };
+
   const handleAddDocument = (docName: string) => {
     setSelectedDoc(docName);
     setAddDocDialogOpen(true);
+  };
+
+  const handleSendForSignatures = () => {
+    setIsSending(true);
+    
+    setTimeout(() => {
+      toast({
+        title: "Documents sent",
+        description: "Signature request has been sent to all parties.",
+      });
+      onSendForSignatures?.();
+      setIsSending(false);
+    }, 800);
   };
 
   const handleUploadDocument = () => {
@@ -219,7 +251,8 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
   const signedCount = steps.filter(s => s.status === "signed").length;
   const totalCount = steps.length;
-  const hasDocIssues = documents.some(d => d.status === "missing");
+  const hasDocIssues = documents.some(d => d.status === "missing" || d.status === "not-sent");
+  const canSend = !hasDocIssues && !isSending;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -286,6 +319,8 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                           onClick={() => {
                             if (doc.action === "Add") {
                               handleAddDocument(doc.name);
+                            } else if (doc.action === "Include") {
+                              handleIncludeDocument(doc.name);
                             } else {
                               toast({
                                 title: doc.action,
@@ -310,6 +345,16 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                   </p>
                 </div>
               )}
+
+              {/* Send for Signatures Button */}
+              <Button
+                className="w-full"
+                disabled={!canSend}
+                onClick={handleSendForSignatures}
+              >
+                <FileSignature className="h-4 w-4 mr-2" />
+                {isSending ? "Sending..." : "Send for Signatures"}
+              </Button>
             </div>
 
             <Separator />

@@ -326,6 +326,24 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     setSignatureDrawerOpen(true);
   };
 
+  const handleSendForSignatures = () => {
+    // Keep the contractor in awaiting-signature status but mark as "resent"
+    if (selectedForSignature) {
+      const contractorId = selectedForSignature.id;
+      
+      // Add visual feedback that signatures have been sent
+      toast.success("Signature request sent", {
+        description: "All parties will be notified to sign the documents.",
+      });
+      
+      // Close the drawer
+      setSignatureDrawerOpen(false);
+      
+      // Note: Contractor stays in "awaiting-signature" until all parties sign
+      // The handleSignatureComplete callback will move them to "trigger-onboarding"
+    }
+  };
+
   const handleSignatureComplete = () => {
     // Move the contractor who was signing to trigger-onboarding
     // The useEffect will handle the smooth transition animation
@@ -991,6 +1009,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         onOpenChange={setSignatureDrawerOpen}
         candidate={selectedForSignature}
         onComplete={handleSignatureComplete}
+        onSendForSignatures={handleSendForSignatures}
       />
     </div>
   );
