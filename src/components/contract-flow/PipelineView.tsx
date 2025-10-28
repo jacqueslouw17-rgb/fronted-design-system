@@ -521,6 +521,27 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     });
   };
 
+  const handleBulkTriggerOnboarding = () => {
+    const selectedForTriggering = contractors.filter(
+      c => selectedIds.has(c.id) && c.status === "awaiting-signature"
+    );
+    
+    if (selectedForTriggering.length === 0) return;
+
+    // Move all selected contractors to trigger-onboarding
+    const updated = contractors.map(c => 
+      selectedIds.has(c.id) && c.status === "awaiting-signature"
+        ? { ...c, status: "trigger-onboarding" as const }
+        : c
+    );
+    
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    setSelectedIds(new Set());
+    
+    toast.success(`✅ ${selectedForTriggering.length} contractor${selectedForTriggering.length > 1 ? 's' : ''} ready for onboarding`);
+  };
+
   // Check if all contractors in a status are selected
   const areAllSelected = (status: typeof columns[number]) => {
     const statusContractors = getContractorsByStatus(status);
@@ -601,6 +622,19 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     >
                       <FileEdit className="h-3 w-3 mr-1" />
                       Draft Contracts ({getSelectedCount(status)})
+                    </Button>
+                  </div>
+                )}
+                
+                {status === "awaiting-signature" && getSelectedCount(status) > 0 && (
+                  <div className="mt-2">
+                    <Button 
+                      size="sm" 
+                      className="w-full text-xs h-7"
+                      onClick={handleBulkTriggerOnboarding}
+                    >
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      Trigger All ({getSelectedCount(status)})
                     </Button>
                   </div>
                 )}
