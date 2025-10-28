@@ -118,7 +118,7 @@ const CandidateDashboard = () => {
             {/* Dashboard Content */}
             <AgentLayout context="Candidate Dashboard">
               <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-                <div className="max-w-6xl mx-auto p-8 space-y-8">
+                <div className="max-w-6xl mx-auto p-8 pb-24 space-y-8">
                   {/* Agent Header */}
                   <AgentHeader
                     title={`Hi ${candidateProfile.name.split(' ')[0]}, I'm here if you need help! 👋`}

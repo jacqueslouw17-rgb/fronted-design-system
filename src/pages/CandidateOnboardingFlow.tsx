@@ -111,15 +111,15 @@ export default function CandidateOnboardingFlow() {
 
   const handleSubmit = () => {
     toast({
-      title: "✅ Onboarding Complete!",
-      description: "Your details have been securely sent to Fronted.",
+      title: "✅ Form Submitted Successfully!",
+      description: "Your information has been received.",
     });
 
     // Simulate backend update
     console.log("Candidate onboarding complete:", candidateId, formData);
     
-    // Show completion screen
-    setCurrentStep("complete");
+    // Navigate directly to dashboard
+    navigate('/candidate-dashboard');
   };
 
   const renderGenieTip = (message: string) => (
@@ -136,10 +136,6 @@ export default function CandidateOnboardingFlow() {
     </motion.div>
   );
 
-  // Completion Screen
-  if (currentStep === "complete") {
-    return <CandidateCompletionScreen candidateName={formData.fullName} />;
-  }
 
   // Welcome Screen
   if (currentStep === "welcome") {
