@@ -107,17 +107,17 @@ const CandidateDashboard = () => {
   return (
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
-        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
+        <div className="flex flex-col min-h-screen bg-background text-foreground">
           {/* Top Header */}
           <Topbar 
             userName={candidateProfile.name}
           />
 
           {/* Main Content Area - Full Width */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col">
             {/* Dashboard Content */}
             <AgentLayout context="Candidate Dashboard">
-              <main className="flex-1 overflow-y-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
+              <main className="flex-1 bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
                 <div className="max-w-6xl mx-auto p-8 pb-32 space-y-8">
                   {/* Agent Header */}
                   <AgentHeader
