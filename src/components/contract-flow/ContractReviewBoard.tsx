@@ -23,6 +23,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
 }) => {
   const [globalComment, setGlobalComment] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
 
   return (
     <motion.div
@@ -39,16 +40,29 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       />
 
       {/* Review cards */}
-      <div className="grid grid-cols-3 gap-4">
-        {candidates.map((candidate, index) => (
-          <motion.div
-            key={candidate.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
-          >
-            <Card className="p-5 hover:shadow-elevated transition-shadow">
-              <div className="space-y-4">
+      <div className={`grid gap-4 ${candidates.length <= 2 ? 'grid-cols-2 justify-center max-w-2xl mx-auto' : 'grid-cols-3'}`}>
+        {candidates.map((candidate, index) => {
+          const isLoading = loadingCardIds.has(candidate.id);
+          
+          return (
+            <motion.div
+              key={candidate.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
+            >
+              <Card className="p-5 hover:shadow-elevated transition-shadow relative overflow-hidden">
+                {/* Loading color animation overlay */}
+                {isLoading && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 pointer-events-none z-10"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{ duration: 1.2, ease: "easeInOut" }}
+                  />
+                )}
+                
+                <div className="space-y-4 relative">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-3xl">{candidate.flag}</span>
@@ -100,10 +114,11 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
                     Reviewed
                   </Badge>
                 </motion.div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+                </div>
+              </Card>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Comment section */}
@@ -137,9 +152,19 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         <Button
           onClick={() => {
             setIsSending(true);
+            
+            // Trigger loading animation for each card sequentially
+            candidates.forEach((candidate, index) => {
+              setTimeout(() => {
+                setLoadingCardIds(prev => new Set([...prev, candidate.id]));
+              }, index * 400); // Stagger by 400ms
+            });
+            
+            // After all cards are loaded, proceed to signing
+            const totalDelay = candidates.length * 400 + 1200;
             setTimeout(() => {
               onStartSigning();
-            }, 1200);
+            }, totalDelay);
           }}
           disabled={isSending}
           className="w-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
