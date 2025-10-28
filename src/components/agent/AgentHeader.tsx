@@ -16,6 +16,7 @@ interface AgentHeaderProps {
   currentWordIndex?: number;
   enableWordHighlight?: boolean;
   hasChanges?: boolean;
+  progressIndicator?: React.ReactNode;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -28,6 +29,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   currentWordIndex = 0,
   enableWordHighlight = false,
   hasChanges = false,
+  progressIndicator,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -102,6 +104,13 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
           )}
         </p>
       </div>
+
+      {/* Progress Indicator */}
+      {progressIndicator && (
+        <div className="w-full max-w-xl">
+          {progressIndicator}
+        </div>
+      )}
 
       {/* Chat Input */}
       <motion.div
