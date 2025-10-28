@@ -754,8 +754,8 @@ const AdminOnboarding = () => {
 
       {/* Right Section - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 py-8 space-y-6 relative z-10 mx-auto onboarding-scroll-container"
-        style={{ 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto px-6 pt-8 pb-32 space-y-6 relative z-10 mx-auto onboarding-scroll-container"
+        style={{
           width: '100%',
           maxWidth: '800px'
         }}

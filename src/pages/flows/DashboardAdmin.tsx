@@ -130,7 +130,7 @@ const DashboardAdmin = () => {
           {/* Main Content Area with Agent Layout */}
           <AgentLayout context="Admin Dashboard">
             <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-              <div className="max-w-7xl mx-auto p-8 space-y-8">
+              <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
                 {/* Agent Header */}
                 <AgentHeader
                   title={welcomeTitle}

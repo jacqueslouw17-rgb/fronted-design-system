@@ -161,8 +161,8 @@ const WorkerOnboarding = () => {
 
       {/* Main Content - Steps & Progress */}
       <div 
-        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto p-8 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
-        style={{ 
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto p-8 pb-32 space-y-8 relative z-10 mx-auto onboarding-scroll-container"
+        style={{
           width: '100%',
           maxWidth: '800px'
         }}

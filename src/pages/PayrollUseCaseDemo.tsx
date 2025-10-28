@@ -316,7 +316,7 @@ const PayrollUseCaseDemo = () => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: "100%", opacity: 0 }}
                 transition={{ duration: 0.28, ease: "easeInOut" }}
-                className="flex-1 h-screen overflow-y-auto p-8 space-y-6"
+                className="flex-1 h-screen overflow-y-auto p-8 pb-32 space-y-6"
               >
                 {/* Payroll Widget */}
                 <motion.div

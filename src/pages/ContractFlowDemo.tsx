@@ -271,7 +271,7 @@ const ContractFlowDemo = () => {
                     exit={{ opacity: 0 }} 
                     className="flex-1 overflow-y-auto"
                   >
-                    <div className="max-w-7xl mx-auto p-8 space-y-8">
+                    <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
                       {/* Agent Header or Contract Status Message */}
                       {showContractSignedMessage ? (
                         <ContractSignedMessage 
