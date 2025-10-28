@@ -120,12 +120,19 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       animate={{ opacity: 1 }}
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
+      <AgentHeader
+        title="Contract Drafting in Progress"
+        subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
+        showPulse={true}
+        isActive={false}
+      />
+
       {/* Progress indicator - only show if multiple candidates */}
       {totalCandidates > 1 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center gap-3 mb-2"
+          className="flex items-center justify-center gap-3"
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-muted-foreground">
@@ -157,13 +164,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
           </div>
         </motion.div>
       )}
-      
-      <AgentHeader
-        title="Contract Drafting in Progress"
-        subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
-        showPulse={true}
-        isActive={false}
-      />
 
       {/* Contract Form View */}
       <div className="space-y-6">{/* ... keep existing code */}
