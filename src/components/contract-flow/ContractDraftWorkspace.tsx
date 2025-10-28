@@ -388,7 +388,10 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             )}
 
             <Button
-              onClick={onNext}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                onNext();
+              }}
               disabled={isTyping}
               className="w-full"
             >

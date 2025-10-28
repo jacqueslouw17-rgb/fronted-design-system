@@ -125,6 +125,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   };
 
   const handleGenerate = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const selectedDocs = documents.filter((d) => d.selected).map((d) => d.id);
     onGenerateBundle(selectedDocs);
   };

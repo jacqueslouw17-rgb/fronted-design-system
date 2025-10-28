@@ -77,6 +77,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
 
   const handleNext = () => {
     if (handleValidate()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       toast.success("Contract details validated successfully");
       onNext();
     }

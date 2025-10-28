@@ -151,6 +151,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       >
         <Button
           onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             setIsSending(true);
             
             // Trigger loading animation for each card sequentially
