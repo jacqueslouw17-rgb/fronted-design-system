@@ -92,6 +92,25 @@ export const useMockCandidates = (): Candidate[] => [
     employmentType: "employee",
     employmentTypeSource: "ats",
     documents: ["Employment Agreement", "Benefits Package", "NDA"],
+  },
+  {
+    id: "4",
+    name: "James Wilson",
+    role: "Software Engineer",
+    country: "United Kingdom",
+    countryCode: "GB",
+    flag: "🇬🇧",
+    salary: "£5,500/mo",
+    startDate: "Dec 1, 2025",
+    noticePeriod: "30 days",
+    pto: "28 days/year",
+    currency: "GBP",
+    signingPortal: "UK DocuSign",
+    status: "Hired",
+    email: "james.wilson@example.com",
+    employmentType: "contractor",
+    employmentTypeSource: "ats",
+    documents: ["Contractor Agreement", "IR35 Assessment", "NDA"],
   }
 ];
 
