@@ -363,7 +363,7 @@ const ContractFlowDemo = () => {
                                    ? "awaiting-signature" as const 
                                    : (searchParams.get("onboarding") === "true")
                                      ? "trigger-onboarding" as const
-                                     : (index === 0 ? "drafting" as const : "offer-accepted" as const),
+                                     : (index === 0 ? "data-pending" as const : "offer-accepted" as const),
                                 formSent: index === 0,
                                 dataReceived: index === 0,
                                 employmentType: candidate.employmentType || "contractor",
