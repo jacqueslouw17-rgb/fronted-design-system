@@ -39,20 +39,35 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
       speak("Retrieving your details... Please wait a moment.");
       
       const timer = setTimeout(() => {
-        // Simulate data retrieval and auto-fill from formData
+        // Simulate data retrieval and auto-fill with mock data
         const fieldsToAutoFill = new Set<string>();
         const autoFilledData: any = {};
 
+        // Auto-fill TIN if not already present
         if (formData.tinNumber) {
           autoFilledData.tinNumber = formData.tinNumber;
           fieldsToAutoFill.add('tinNumber');
+        } else {
+          // Provide mock data to show Kurt fetched it
+          autoFilledData.tinNumber = "123-456-789-000";
+          fieldsToAutoFill.add('tinNumber');
         }
+
+        // Auto-fill PhilHealth if not already present
         if (formData.philHealthNumber) {
           autoFilledData.philHealthNumber = formData.philHealthNumber;
           fieldsToAutoFill.add('philHealthNumber');
+        } else if (country === "Philippines" && !isContractor) {
+          autoFilledData.philHealthNumber = "12-345678901-2";
+          fieldsToAutoFill.add('philHealthNumber');
         }
+
+        // Auto-fill National ID if not already present
         if (formData.nationalId) {
           autoFilledData.nationalId = formData.nationalId;
+          fieldsToAutoFill.add('nationalId');
+        } else {
+          autoFilledData.nationalId = "1234-5678-9012-3456";
           fieldsToAutoFill.add('nationalId');
         }
 
@@ -68,7 +83,7 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
 
       return () => clearTimeout(timer);
     }
-  }, [isAutoFilling, formData, speak]);
+  }, [isAutoFilling, formData, speak, country, isContractor]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });
