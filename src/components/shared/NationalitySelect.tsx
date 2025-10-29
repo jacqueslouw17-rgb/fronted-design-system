@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { useMemo } from "react";
 interface NationalitySelectProps {
   value: string;
   onValueChange: (value: string) => void;
@@ -29,12 +29,16 @@ const NationalitySelect = ({
   required = false,
   placeholder = "Select nationality" 
 }: NationalitySelectProps) => {
+  // Ensure we only pass valid values to Select so placeholder renders when invalid/empty
+  const allowedValues = useMemo(() => new Set(NATIONALITIES.map(n => n.value)), []);
+  const selectedValue = allowedValues.has(value) ? value : undefined;
+
   return (
     <div className="space-y-2">
       <Label htmlFor="nationality">
         {label} {required && "*"}
       </Label>
-      <Select value={value || undefined} onValueChange={onValueChange}>
+      <Select value={selectedValue} onValueChange={onValueChange}>
         <SelectTrigger id="nationality">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
