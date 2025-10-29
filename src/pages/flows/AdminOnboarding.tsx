@@ -803,7 +803,7 @@ const AdminOnboarding = () => {
           </div>
 
           {/* Subtitle with Mute Button */}
-          <div className="flex items-center justify-center gap-1.5 w-full max-w-xl">
+          <div className="flex items-center justify-center gap-2 w-full max-w-xl">
             <p className={`text-base text-center flex-1 ${
               isSpeaking && !isKurtMuted ? "" : "text-muted-foreground"
             }`}>
