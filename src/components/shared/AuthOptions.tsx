@@ -29,6 +29,8 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
   const handleMethodSelect = (method: string) => {
     if (method === "email") {
       setSelectedMethod("email");
+      // Immediately register email as the selected method
+      onComplete(method, {});
     } else {
       // For OAuth methods, complete immediately (placeholder)
       onComplete(method);
@@ -48,25 +50,15 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
       newErrors.password = "Password must be at least 8 characters";
     }
 
-    if (!privacyAccepted) {
-      newErrors.privacy = "You must accept the privacy policy";
-    }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     setErrors({});
+    // Update the parent with the full email data
     onComplete("email", { email, password, preferredLanguage });
   };
-
-  // Check if form is valid
-  const isFormValid = 
-    email.trim().length > 0 && 
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-    password.length >= 8 && 
-    privacyAccepted;
 
   return (
     <div className="space-y-4 max-w-md mx-auto">
