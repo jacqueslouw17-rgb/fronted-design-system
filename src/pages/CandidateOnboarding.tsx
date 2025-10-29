@@ -40,7 +40,8 @@ const CandidateOnboarding = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
-const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Text-to-Speech (Kurt voice over)
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'male', rate: 1.05 });
@@ -183,6 +184,8 @@ const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
           placeholder="Ask Kurt anything..."
           currentWordIndex={currentWordIndex}
           enableWordHighlight={isSpeaking}
+          isMuted={isKurtMuted}
+          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
           className="mb-8"
         />
 

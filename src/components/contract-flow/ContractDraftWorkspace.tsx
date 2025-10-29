@@ -15,6 +15,7 @@ import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -61,6 +62,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [promptVisible, setPromptVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
   const fullContent = getContractContent(candidate);
 
   useEffect(() => {
@@ -245,6 +247,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         subtitle={`Reviewing ${candidate.name}'s ${candidate.role} contract for ${candidate.country}`}
         showPulse={true}
         isActive={false}
+        isMuted={isKurtMuted}
+        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
       />
       
       <motion.div

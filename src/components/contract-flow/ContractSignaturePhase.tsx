@@ -8,6 +8,7 @@ import confetti from "canvas-confetti";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -29,6 +30,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
     candidates.reduce((acc, c) => ({ ...acc, [c.id]: "sent" as SignatureStatus }), {})
   );
   const [genieMessage, setGenieMessage] = useState("Preparing for e-signature via localized legal channels…");
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
 
   useEffect(() => {
     // Trigger confetti
@@ -121,6 +123,8 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         subtitle="Contracts sent. Track signing progress in real-time."
         showPulse={true}
         isActive={false}
+        isMuted={isKurtMuted}
+        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
       />
 
       {/* Genie message */}

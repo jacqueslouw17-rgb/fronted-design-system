@@ -45,6 +45,7 @@ const ContractFlowDemo = () => {
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
   const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
+  const [isKurtMuted, setIsKurtMuted] = React.useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -301,6 +302,8 @@ const ContractFlowDemo = () => {
                                 ? !hasSpokenPhase["data-collection-moved"]
                                 : !hasSpokenPhase["offer-accepted"]
                           }
+                          isMuted={isKurtMuted}
+                          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                         />
                       )}
 

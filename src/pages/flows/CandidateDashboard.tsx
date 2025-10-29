@@ -32,6 +32,7 @@ const CandidateDashboard = () => {
   const [checklistData, setChecklistData] = useState<ChecklistRequirement[]>([]);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
   
   // Own checklist items
   const [ownChecklistItems, setOwnChecklistItems] = useState([
@@ -125,6 +126,8 @@ const CandidateDashboard = () => {
                     subtitle="Track your onboarding progress and access important information."
                     showPulse={true}
                     isActive={false}
+                    isMuted={isKurtMuted}
+                    onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                   />
 
                 {/* Tabs with Toggle Switch Design */}

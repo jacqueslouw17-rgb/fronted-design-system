@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -24,6 +25,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   const [globalComment, setGlobalComment] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
 
   return (
     <motion.div
@@ -37,6 +39,8 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         subtitle="All contracts ready. Review and send to candidates for signature."
         showPulse={true}
         isActive={false}
+        isMuted={isKurtMuted}
+        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
       />
 
       {/* Review cards */}

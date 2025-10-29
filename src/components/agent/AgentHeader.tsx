@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AudioWaveVisualizer from '@/components/AudioWaveVisualizer';
+import KurtMuteToggle from '@/components/shared/KurtMuteToggle';
 import { useAgentState } from '@/hooks/useAgentState';
 
 interface AgentHeaderProps {
@@ -17,6 +18,8 @@ interface AgentHeaderProps {
   enableWordHighlight?: boolean;
   hasChanges?: boolean;
   progressIndicator?: React.ReactNode;
+  isMuted?: boolean;
+  onMuteToggle?: () => void;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -30,6 +33,8 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   enableWordHighlight = false,
   hasChanges = false,
   progressIndicator,
+  isMuted = false,
+  onMuteToggle,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -75,6 +80,13 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       {showPulse && (
         <div className="flex justify-center scale-75">
           <AudioWaveVisualizer isActive={isActive} isListening={true} />
+        </div>
+      )}
+
+      {/* Mute Toggle */}
+      {onMuteToggle && (
+        <div className="absolute top-4 right-4">
+          <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />
         </div>
       )}
 

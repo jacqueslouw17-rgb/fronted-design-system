@@ -111,6 +111,7 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);
@@ -137,6 +138,8 @@ const DashboardAdmin = () => {
                   subtitle="You're all set. Start by sending an offer to your first contractor."
                   showPulse={true}
                   isActive={false}
+                  isMuted={isKurtMuted}
+                  onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                 />
 
                 {/* People Pipeline Tracking - Full Width */}

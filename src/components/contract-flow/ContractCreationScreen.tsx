@@ -11,6 +11,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -46,6 +47,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
@@ -125,6 +127,8 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         subtitle={`${candidate.name} • ${candidate.role} • ${candidate.country}`}
         showPulse={true}
         isActive={false}
+        isMuted={isKurtMuted}
+        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         progressIndicator={
           totalCandidates > 1 ? (
             <motion.div
