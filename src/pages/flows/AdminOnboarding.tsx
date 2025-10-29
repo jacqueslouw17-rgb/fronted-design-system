@@ -791,7 +791,7 @@ const AdminOnboarding = () => {
         }}
       >
         {/* Header with Agent */}
-        <div className="flex flex-col items-center space-y-6 mb-8">
+        <div className="flex flex-col items-center space-y-4 mb-8">
           {/* Agent Pulse */}
           <div className="flex justify-center scale-75">
             <AudioWaveVisualizer isActive={isSpeaking && !isKurtMuted} isListening={true} />
@@ -803,7 +803,7 @@ const AdminOnboarding = () => {
           </div>
 
           {/* Subtitle with Mute Button */}
-          <div className="flex items-center justify-center gap-2 w-full max-w-xl">
+          <div className="flex items-center justify-center gap-1 w-full max-w-xl">
             <p className={`text-base text-center flex-1 ${
               isSpeaking && !isKurtMuted ? "" : "text-muted-foreground"
             }`}>
@@ -828,7 +828,7 @@ const AdminOnboarding = () => {
           </div>
 
           {/* Chat Input */}
-          <div className="w-full max-w-xl">
+          <div className="w-full max-w-xl mt-4">
             <form onSubmit={(e) => e.preventDefault()} className="relative">
               <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
                 <Input
