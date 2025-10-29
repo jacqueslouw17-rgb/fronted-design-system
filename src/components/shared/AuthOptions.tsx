@@ -50,7 +50,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
   return (
     <div className="space-y-4 max-w-md mx-auto">
       <div className="text-center space-y-2 mb-6">
-        <h3 className="text-lg font-semibold text-foreground">Choose how you'd like to sign in</h3>
+        <h3 className="text-lg font-semibold text-foreground">Choose how you'd like to sign up</h3>
       </div>
 
       {selectedMethod === null && (
@@ -58,7 +58,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent/50"
             onClick={() => handleMethodSelect("google")}
             disabled={isProcessing}
           >
@@ -69,7 +69,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent/50"
             onClick={() => handleMethodSelect("microsoft")}
             disabled={isProcessing}
           >
@@ -85,7 +85,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent/50"
             onClick={() => handleMethodSelect("email")}
             disabled={isProcessing}
           >
