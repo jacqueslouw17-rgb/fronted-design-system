@@ -132,17 +132,34 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
               placeholder="you@company.com"
             />
 
-            <StandardInput
-              id="password"
-              label="Password"
-              value={password}
-              onChange={setPassword}
-              type="password"
-              required
-              error={errors.password}
-              helpText="Minimum 8 characters"
-              placeholder="••••••••"
-            />
+            <div className="space-y-1">
+              <StandardInput
+                id="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                type="password"
+                required
+                error={errors.password}
+                helpText="Minimum 8 characters"
+                placeholder="••••••••"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const suggestedPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                    .map(b => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'[b % 72])
+                    .join('');
+                  setPassword(suggestedPassword);
+                  setErrors(prev => ({ ...prev, password: '' }));
+                }}
+                className="text-xs text-primary hover:text-primary/80 h-auto p-0"
+              >
+                ✨ Let Kurt suggest a password
+              </Button>
+            </div>
 
             <Button
               onClick={handleEmailSubmit}
