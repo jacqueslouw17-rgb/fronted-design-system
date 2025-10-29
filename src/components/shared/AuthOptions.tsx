@@ -181,57 +181,6 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
                 ✨ Let Kurt suggest a password
               </Button>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="language" className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                Preferred Language
-              </Label>
-              <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
-                <SelectTrigger id="language">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="no">Norwegian (Norsk)</SelectItem>
-                  <SelectItem value="es">Spanish (Español)</SelectItem>
-                  <SelectItem value="fr">French (Français)</SelectItem>
-                  <SelectItem value="de">German (Deutsch)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-start gap-3 pt-2">
-              <Checkbox
-                id="privacy"
-                checked={privacyAccepted}
-                onCheckedChange={(checked) => {
-                  setPrivacyAccepted(checked === true);
-                  if (checked) {
-                    setErrors(prev => ({ ...prev, privacy: '' }));
-                  }
-                }}
-                className="mt-1"
-              />
-              <label
-                htmlFor="privacy"
-                className="text-sm text-foreground leading-relaxed cursor-pointer"
-              >
-                I accept the privacy policy and agree to data processing for contractor management purposes
-              </label>
-            </div>
-            {errors.privacy && (
-              <p className="text-xs text-destructive">{errors.privacy}</p>
-            )}
-
-            <Button
-              onClick={handleEmailSubmit}
-              disabled={!isFormValid || isProcessing}
-              className="w-full h-12 text-base bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
-              size="lg"
-            >
-              {isProcessing ? "Processing..." : "Get Started"}
-            </Button>
           </motion.div>
         )}
       </AnimatePresence>
