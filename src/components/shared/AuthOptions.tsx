@@ -150,7 +150,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
               className="w-full"
               disabled={isProcessing}
             >
-              {isProcessing ? "Creating account..." : "Create account"}
+              {isProcessing ? "Setting up..." : "Get Started"}
             </Button>
           </motion.div>
         )}
