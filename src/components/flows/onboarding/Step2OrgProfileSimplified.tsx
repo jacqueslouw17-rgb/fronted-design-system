@@ -290,15 +290,15 @@ const Step2OrgProfileSimplified = ({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[250px]">
                         <p className="text-xs">
-                          Fronted automatically handles FX conversions using real-time exchange rates from our banking partners.
+                          Select a payment partner to help manage cross-border salary transfers and currency conversions.
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-foreground">FX Provider</p>
+                    <p className="text-xs font-medium text-foreground">Partner for International Payments (Optional)</p>
                     <p className="text-xs text-muted-foreground">
-                      Handled by Fronted — FX rates applied automatically
+                      Handled by Fronted — rates applied automatically
                     </p>
                   </div>
                 </div>

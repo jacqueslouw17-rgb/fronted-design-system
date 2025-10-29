@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Globe, Loader2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Globe, Loader2, Info } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -93,18 +94,33 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
   return (
     <div className="max-w-xl mx-auto space-y-6">
       {/* Header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 mb-3">
-          <Globe className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Localization & Country Blocks
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            Hiring Locations
           </h3>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[250px]">
+                <p className="text-xs">
+                  This helps us tailor compliance and payroll setup per location.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Select the countries where you plan to hire or manage employees.
+        </p>
       </div>
 
       {/* Country Selection */}
       <div className="space-y-3 bg-card/40 border border-border/40 rounded-lg p-4">
-        <Label className="text-sm font-medium">Select Countries</Label>
+        <Label className="text-sm font-medium">Countries</Label>
         {isLoadingFields ? (
           <div className="space-y-2">
             <Skeleton className="h-16 w-full" />
