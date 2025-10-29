@@ -1,9 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Mail, Chrome } from "lucide-react";
+import { Mail, Chrome, Globe } from "lucide-react";
 import { useState } from "react";
 import StandardInput from "./StandardInput";
 import { motion, AnimatePresence } from "framer-motion";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AuthOptionsProps {
   onComplete: (method: string, data?: Record<string, any>) => void;
@@ -14,6 +22,8 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleMethodSelect = (method: string) => {
@@ -38,14 +48,25 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
       newErrors.password = "Password must be at least 8 characters";
     }
 
+    if (!privacyAccepted) {
+      newErrors.privacy = "You must accept the privacy policy";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     setErrors({});
-    onComplete("email", { email, password });
+    onComplete("email", { email, password, preferredLanguage });
   };
+
+  // Check if form is valid
+  const isFormValid = 
+    email.trim().length > 0 && 
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    password.length >= 8 && 
+    privacyAccepted;
 
   return (
     <div className="space-y-4 max-w-md mx-auto">
@@ -160,6 +181,57 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
                 ✨ Let Kurt suggest a password
               </Button>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="language" className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Preferred Language
+              </Label>
+              <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="no">Norwegian (Norsk)</SelectItem>
+                  <SelectItem value="es">Spanish (Español)</SelectItem>
+                  <SelectItem value="fr">French (Français)</SelectItem>
+                  <SelectItem value="de">German (Deutsch)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-start gap-3 pt-2">
+              <Checkbox
+                id="privacy"
+                checked={privacyAccepted}
+                onCheckedChange={(checked) => {
+                  setPrivacyAccepted(checked === true);
+                  if (checked) {
+                    setErrors(prev => ({ ...prev, privacy: '' }));
+                  }
+                }}
+                className="mt-1"
+              />
+              <label
+                htmlFor="privacy"
+                className="text-sm text-foreground leading-relaxed cursor-pointer"
+              >
+                I accept the privacy policy and agree to data processing for contractor management purposes
+              </label>
+            </div>
+            {errors.privacy && (
+              <p className="text-xs text-destructive">{errors.privacy}</p>
+            )}
+
+            <Button
+              onClick={handleEmailSubmit}
+              disabled={!isFormValid || isProcessing}
+              className="w-full h-12 text-base bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+              size="lg"
+            >
+              {isProcessing ? "Processing..." : "Get Started"}
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>
