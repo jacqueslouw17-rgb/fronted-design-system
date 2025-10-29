@@ -35,10 +35,10 @@ const NationalitySelect = ({
         {label} {required && "*"}
       </Label>
       <Select value={value || undefined} onValueChange={onValueChange}>
-        <SelectTrigger id="nationality" className="text-foreground data-[placeholder]:text-muted-foreground">
+        <SelectTrigger id="nationality">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="bg-card z-50">
+        <SelectContent>
           {NATIONALITIES.map((nationality) => (
             <SelectItem key={nationality.value} value={nationality.value}>
               {nationality.label}
