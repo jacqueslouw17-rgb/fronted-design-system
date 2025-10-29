@@ -17,14 +17,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
-import Step2OrgProfile from "@/components/flows/onboarding/Step2OrgProfile";
+import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
+import PayrollSetupTracker from "@/components/shared/PayrollSetupTracker";
 
 const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Welcome & Setup", stepNumber: 1 },
@@ -61,6 +63,7 @@ const AdminOnboarding = () => {
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state
@@ -68,9 +71,9 @@ const AdminOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Auto-speak welcome message on page load
+  // Auto-speak welcome message on page load only if not muted
   useEffect(() => {
-    if (!hasWelcomeSpoken) {
+    if (!hasWelcomeSpoken && !isKurtMuted) {
       const timer = setTimeout(() => {
         setHasWelcomeSpoken(true);
         setIsSpeaking(true);
@@ -81,7 +84,7 @@ const AdminOnboarding = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [hasWelcomeSpoken, welcomeMessage, speak]);
+  }, [hasWelcomeSpoken, welcomeMessage, speak, isKurtMuted]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -91,6 +94,15 @@ const AdminOnboarding = () => {
         stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 100);
+  };
+
+  // Handle mute toggle
+  const handleMuteToggle = () => {
+    setIsKurtMuted(!isKurtMuted);
+    if (isSpeaking && !isKurtMuted) {
+      stop();
+      setIsSpeaking(false);
+    }
   };
 
   // Handle speak button click
@@ -110,11 +122,17 @@ const AdminOnboarding = () => {
     }, 2000);
     
     stop();
-    speak(initialMessage, () => {
+    if (!isKurtMuted) {
+      speak(initialMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+        setHasAutoStarted(false);
+      });
+    } else {
       setIsSpeaking(false);
       setHasFinishedReading(true);
       setHasAutoStarted(false);
-    });
+    }
   };
 
   // Auto-start listening after AI finishes speaking (only once per message)
@@ -713,7 +731,7 @@ const AdminOnboarding = () => {
       case "intro_trust_model":
         return <Step1IntroTrust {...stepProps} />;
       case "org_profile":
-        return <Step2OrgProfile {...stepProps} />;
+        return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
       case "integrations_connect":
@@ -721,7 +739,18 @@ const AdminOnboarding = () => {
       case "mini_rules_setup":
         return <Step5MiniRules {...stepProps} />;
       case "finish_dashboard_transition":
-        return <Step7Finish {...stepProps} />;
+        return (
+          <div className="space-y-6">
+            <PayrollSetupTracker onComplete={() => {
+              const finalMessage = "Nice work — everything's in motion now 🚀 I'll keep you posted here.";
+              setKurtMessage(finalMessage);
+              if (!isKurtMuted) {
+                speak(finalMessage);
+              }
+            }} />
+            <Step7Finish {...stepProps} />
+          </div>
+        );
       default:
         return null;
     }
@@ -761,16 +790,21 @@ const AdminOnboarding = () => {
         }}
       >
         {/* Header with Agent */}
-        <AgentHeader
-          title="Welcome to Fronted"
-          subtitle={kurtMessage}
-          showPulse={true}
-          isActive={isSpeaking}
-          placeholder="Ask Kurt anything..."
-          currentWordIndex={currentWordIndex}
-          enableWordHighlight={isSpeaking}
-          className="mb-8"
-        />
+        <div className="relative">
+          <AgentHeader
+            title="Welcome to Fronted"
+            subtitle={kurtMessage}
+            showPulse={true}
+            isActive={isSpeaking && !isKurtMuted}
+            placeholder="Ask Kurt anything..."
+            currentWordIndex={currentWordIndex}
+            enableWordHighlight={isSpeaking && !isKurtMuted}
+            className="mb-8"
+          />
+          <div className="absolute top-20 right-0">
+            <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
+          </div>
+        </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
