@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Building2, User, Calendar, Loader2, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -27,8 +28,7 @@ const Step2OrgProfileSimplified = ({
     companyName: formData.companyName || "",
     primaryContactName: formData.primaryContactName || "",
     primaryContactEmail: formData.primaryContactEmail || "",
-    primaryContactRole: formData.primaryContactRole || "Admin",
-    inviteEmail: formData.inviteEmail || "",
+    allowPayrollContracts: formData.allowPayrollContracts || false,
     hqCountry: formData.hqCountry || "",
     payrollFrequency: formData.payrollFrequency || "monthly",
     payoutDay: formData.payoutDay || "25",
@@ -43,8 +43,7 @@ const Step2OrgProfileSimplified = ({
         companyName: formData.companyName || "",
         primaryContactName: formData.primaryContactName || "",
         primaryContactEmail: formData.primaryContactEmail || "",
-        primaryContactRole: formData.primaryContactRole || "Admin",
-        inviteEmail: formData.inviteEmail || "",
+        allowPayrollContracts: formData.allowPayrollContracts || false,
         hqCountry: formData.hqCountry || "",
         payrollFrequency: formData.payrollFrequency || "monthly",
         payoutDay: formData.payoutDay || "25",
@@ -63,10 +62,6 @@ const Step2OrgProfileSimplified = ({
       newErrors.primaryContactEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    
-    if (data.inviteEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.inviteEmail)) {
-      newErrors.inviteEmail = "Invalid email format";
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -161,12 +156,12 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      {/* Primary Contact & Roles */}
+      {/* Primary Contact Person (Simplified for Internal Pilot) */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <User className="h-4 w-4 text-primary" />
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Primary Contact
+            Primary Contact Person (Simplified for Internal Pilot)
           </h3>
         </div>
         
@@ -175,11 +170,14 @@ const Step2OrgProfileSimplified = ({
             <>
               <Skeleton className="h-9 w-full" />
               <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-5 w-full" />
             </>
           ) : (
             <>
+              <p className="text-sm text-muted-foreground">
+                Only one person will be added during onboarding — the main admin contact.
+              </p>
+
               <StandardInput
                 id="contactName"
                 label="Name"
@@ -201,35 +199,27 @@ const Step2OrgProfileSimplified = ({
                 placeholder="john@fronted.com"
               />
 
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-sm">
-                  Role <span className="text-destructive">*</span>
-                </Label>
-                <Select value={data.primaryContactRole} onValueChange={(val) => setData(prev => ({ ...prev, primaryContactRole: val }))}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Admin">Admin</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Operations">Operations</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-start space-x-2 pt-2">
+                <Checkbox
+                  id="allowPayrollContracts"
+                  checked={data.allowPayrollContracts}
+                  onCheckedChange={(checked) => 
+                    setData(prev => ({ ...prev, allowPayrollContracts: checked as boolean }))
+                  }
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="allowPayrollContracts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Allow this person to also handle payroll and contracts.
+                  </label>
+                </div>
               </div>
 
-              <div className="pt-2 border-t border-border/50">
-                <StandardInput
-                  id="inviteEmail"
-                  label="Invite another team member (optional)"
-                  value={data.inviteEmail}
-                  onChange={(val) => setData(prev => ({ ...prev, inviteEmail: val }))}
-                  type="email"
-                  error={errors.inviteEmail}
-                  placeholder="colleague@fronted.com"
-                  helpText="You can add more team members later from Settings → Team Access."
-                />
-              </div>
+              <p className="text-xs text-muted-foreground">
+                For now, just add the main person responsible for setup. You can invite others later once Fronted goes live.
+              </p>
             </>
           )}
         </div>
