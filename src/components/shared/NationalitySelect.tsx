@@ -34,8 +34,8 @@ const NationalitySelect = ({
       <Label htmlFor="nationality">
         {label} {required && "*"}
       </Label>
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger id="nationality">
+      <Select value={value || undefined} onValueChange={onValueChange}>
+        <SelectTrigger id="nationality" className="text-foreground data-[placeholder]:text-muted-foreground">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="bg-card z-50">
