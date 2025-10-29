@@ -27,7 +27,6 @@ import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
-import PayrollSetupTracker from "@/components/shared/PayrollSetupTracker";
 
 const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Welcome & Setup", stepNumber: 1 },
@@ -755,18 +754,7 @@ const AdminOnboarding = () => {
       case "mini_rules_setup":
         return <Step5MiniRules {...stepProps} />;
       case "finish_dashboard_transition":
-        return (
-          <div className="space-y-6">
-            <PayrollSetupTracker onComplete={() => {
-              const finalMessage = "Nice work — everything's in motion now 🚀 I'll keep you posted here.";
-              setKurtMessage(finalMessage);
-              if (!isKurtMuted) {
-                speak(finalMessage);
-              }
-            }} />
-            <Step7Finish {...stepProps} />
-          </div>
-        );
+        return <Step7Finish {...stepProps} />;
       default:
         return null;
     }
