@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFlowState } from "@/hooks/useFlowState";
 import { toast } from "@/hooks/use-toast";
@@ -790,19 +791,60 @@ const AdminOnboarding = () => {
         }}
       >
         {/* Header with Agent */}
-        <div className="relative">
-          <AgentHeader
-            title="Welcome to Fronted"
-            subtitle={kurtMessage}
-            showPulse={true}
-            isActive={isSpeaking && !isKurtMuted}
-            placeholder="Ask Kurt anything..."
-            currentWordIndex={currentWordIndex}
-            enableWordHighlight={isSpeaking && !isKurtMuted}
-            className="mb-8"
-          />
-          <div className="absolute top-20 right-0">
+        <div className="flex flex-col items-center space-y-6 mb-8">
+          {/* Agent Pulse */}
+          <div className="flex justify-center scale-75">
+            <AudioWaveVisualizer isActive={isSpeaking && !isKurtMuted} isListening={true} />
+          </div>
+
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-foreground">Welcome to Fronted</h1>
+          </div>
+
+          {/* Subtitle with Mute Button */}
+          <div className="flex items-center justify-center gap-3 w-full max-w-xl">
+            <p className={`text-base text-center flex-1 ${
+              isSpeaking && !isKurtMuted ? "" : "text-muted-foreground"
+            }`}>
+              {isSpeaking && !isKurtMuted ? (
+                kurtMessage.split(' ').map((word, idx) => (
+                  <span
+                    key={idx}
+                    className={
+                      idx < currentWordIndex
+                        ? 'text-foreground/90'
+                        : 'text-muted-foreground/40'
+                    }
+                  >
+                    {word}{' '}
+                  </span>
+                ))
+              ) : (
+                kurtMessage
+              )}
+            </p>
             <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
+          </div>
+
+          {/* Chat Input */}
+          <div className="w-full max-w-xl">
+            <form onSubmit={(e) => e.preventDefault()} className="relative">
+              <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+                <Input
+                  placeholder="Ask Kurt anything..."
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled
+                  className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
 
