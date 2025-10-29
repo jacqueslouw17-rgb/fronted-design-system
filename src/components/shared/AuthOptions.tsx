@@ -58,7 +58,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent"
+            className="w-full justify-start gap-3 h-12 text-sm"
             onClick={() => handleMethodSelect("google")}
             disabled={isProcessing}
           >
@@ -69,7 +69,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent"
+            className="w-full justify-start gap-3 h-12 text-sm"
             onClick={() => handleMethodSelect("microsoft")}
             disabled={isProcessing}
           >
@@ -85,7 +85,7 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
           <Button
             variant="outline"
             size="lg"
-            className="w-full justify-start gap-3 h-12 text-sm hover:bg-accent"
+            className="w-full justify-start gap-3 h-12 text-sm"
             onClick={() => handleMethodSelect("email")}
             disabled={isProcessing}
           >
