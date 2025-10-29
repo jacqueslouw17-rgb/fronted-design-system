@@ -63,7 +63,7 @@ const AdminOnboarding = () => {
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state

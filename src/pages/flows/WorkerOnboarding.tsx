@@ -42,7 +42,7 @@ const WorkerOnboarding = () => {
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "worker_onboarding",
