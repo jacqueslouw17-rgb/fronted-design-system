@@ -160,15 +160,6 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
                 ✨ Let Kurt suggest a password
               </Button>
             </div>
-
-            <Button
-              onClick={handleEmailSubmit}
-              size="lg"
-              className="w-full"
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Setting up..." : "Get Started"}
-            </Button>
           </motion.div>
         )}
       </AnimatePresence>
