@@ -77,15 +77,12 @@ const AdminOnboarding = () => {
     if (!hasWelcomeSpoken && !isKurtMuted) {
       const timer = setTimeout(() => {
         setHasWelcomeSpoken(true);
-        setIsSpeaking(true);
-        speak(welcomeMessage, () => {
-          setIsSpeaking(false);
-        });
+        handleSpeak(welcomeMessage);
       }, 1000);
       
       return () => clearTimeout(timer);
     }
-  }, [hasWelcomeSpoken, welcomeMessage, speak, isKurtMuted]);
+  }, [hasWelcomeSpoken, welcomeMessage, isKurtMuted]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -101,8 +98,28 @@ const AdminOnboarding = () => {
   const handleMuteToggle = () => {
     setIsKurtMuted(!isKurtMuted);
     if (isSpeaking && !isKurtMuted) {
-      stop();
-      setIsSpeaking(false);
+      stop(); // Stop audio if currently speaking and switching to muted
+    }
+  };
+
+  // Helper function to handle speaking with mute awareness
+  const handleSpeak = (message: string, onEnd?: () => void) => {
+    setIsSpeaking(true);
+    setKurtMessage(message);
+    
+    if (!isKurtMuted) {
+      speak(message, () => {
+        setIsSpeaking(false);
+        onEnd?.();
+      });
+    } else {
+      // Simulate speaking duration when muted (visual only)
+      const words = message.split(' ').length;
+      const duration = words * 400; // ~400ms per word
+      setTimeout(() => {
+        setIsSpeaking(false);
+        onEnd?.();
+      }, duration);
     }
   };
 

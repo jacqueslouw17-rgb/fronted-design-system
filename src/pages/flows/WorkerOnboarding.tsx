@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { useFlowState } from "@/hooks/useFlowState";
@@ -11,6 +12,8 @@ import confetti from "canvas-confetti";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -39,13 +42,14 @@ const WorkerOnboarding = () => {
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isKurtMuted, setIsKurtMuted] = useState(true);
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "worker_onboarding",
     "welcome"
   );
 
-  const { speak, currentWordIndex } = useTextToSpeech();
+  const { speak, stop, currentWordIndex } = useTextToSpeech();
   const hasSpokenWelcome = useRef(false);
   const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted - we'll help you complete a few quick tasks so your first day is smooth and compliant.");
 
@@ -53,6 +57,34 @@ const WorkerOnboarding = () => {
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
+
+  // Handle mute toggle
+  const handleMuteToggle = () => {
+    setIsKurtMuted(!isKurtMuted);
+    if (isSpeaking && !isKurtMuted) {
+      stop();
+    }
+  };
+
+  // Helper function to handle speaking with mute awareness
+  const handleSpeak = (message: string, onEnd?: () => void) => {
+    setIsSpeaking(true);
+    
+    if (!isKurtMuted) {
+      speak(message, () => {
+        setIsSpeaking(false);
+        onEnd?.();
+      });
+    } else {
+      // Simulate speaking duration when muted (visual only)
+      const words = message.split(' ').length;
+      const duration = words * 400; // ~400ms per word
+      setTimeout(() => {
+        setIsSpeaking(false);
+        onEnd?.();
+      }, duration);
+    }
+  };
 
   // Prefill demo data
   useEffect(() => {
@@ -67,13 +99,10 @@ const WorkerOnboarding = () => {
   // Auto-speak welcome message
   useEffect(() => {
     if (!hasSpokenWelcome.current && state.currentStep === "welcome") {
-      setIsSpeaking(true);
-      speak(welcomeMessage, () => {
-        setIsSpeaking(false);
-      });
+      handleSpeak(welcomeMessage);
       hasSpokenWelcome.current = true;
     }
-  }, [state.currentStep, speak, welcomeMessage]);
+  }, [state.currentStep, welcomeMessage]);
 
   const scrollToStep = (stepId: string) => {
     const element = document.getElementById(`step-${stepId}`);
@@ -169,15 +198,62 @@ const WorkerOnboarding = () => {
       >
 
         {/* Header with Agent */}
-        <AgentHeader
-          title="Welcome to Fronted"
-          subtitle={welcomeMessage}
-          showPulse={true}
-          isActive={isSpeaking}
-          placeholder="Ask Kurt anything..."
-          currentWordIndex={currentWordIndex}
-          enableWordHighlight={isSpeaking}
-        />
+        <div className="flex flex-col items-center space-y-4 mb-8">
+          {/* Agent Pulse */}
+          <div className="flex justify-center scale-75">
+            <AudioWaveVisualizer isActive={isSpeaking} isListening={true} />
+          </div>
+
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-foreground">Welcome to Fronted</h1>
+          </div>
+
+          {/* Subtitle with Mute Button */}
+          <div className="flex items-center justify-center gap-0.5 w-full max-w-xl">
+            <p className={`text-base text-center flex-1 pr-1 ${
+              isSpeaking ? "" : "text-muted-foreground"
+            }`}>
+              {isSpeaking ? (
+                welcomeMessage.split(' ').map((word, idx) => (
+                  <span
+                    key={idx}
+                    className={
+                      idx < currentWordIndex
+                        ? 'text-foreground/90'
+                        : 'text-muted-foreground/40'
+                    }
+                  >
+                    {word}{' '}
+                  </span>
+                ))
+              ) : (
+                welcomeMessage
+              )}
+            </p>
+            <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
+          </div>
+
+          {/* Chat Input */}
+          <div className="w-full max-w-xl mt-4">
+            <form onSubmit={(e) => e.preventDefault()} className="relative">
+              <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
+                <Input
+                  placeholder="Ask Kurt anything..."
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled
+                  className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
 
         {/* Progress bar */}
         <div>
