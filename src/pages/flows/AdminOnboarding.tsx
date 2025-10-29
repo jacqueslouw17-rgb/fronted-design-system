@@ -264,6 +264,7 @@ const AdminOnboarding = () => {
           primaryContactName: "Joe Smith",
           primaryContactEmail: "joe@fronted.com",
           hqCountry: "NO",
+          payrollCurrency: "NOK",
           payrollFrequency: "monthly",
           payoutDay: "25",
           dualApproval: true

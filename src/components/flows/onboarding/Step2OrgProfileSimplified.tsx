@@ -28,8 +28,8 @@ const Step2OrgProfileSimplified = ({
     companyName: formData.companyName || "",
     primaryContactName: formData.primaryContactName || "",
     primaryContactEmail: formData.primaryContactEmail || "",
-    allowPayrollContracts: formData.allowPayrollContracts || false,
     hqCountry: formData.hqCountry || "",
+    payrollCurrency: formData.payrollCurrency || "",
     payrollFrequency: formData.payrollFrequency || "monthly",
     payoutDay: formData.payoutDay || "25",
   });
@@ -43,8 +43,8 @@ const Step2OrgProfileSimplified = ({
         companyName: formData.companyName || "",
         primaryContactName: formData.primaryContactName || "",
         primaryContactEmail: formData.primaryContactEmail || "",
-        allowPayrollContracts: formData.allowPayrollContracts || false,
         hqCountry: formData.hqCountry || "",
+        payrollCurrency: formData.payrollCurrency || "",
         payrollFrequency: formData.payrollFrequency || "monthly",
         payoutDay: formData.payoutDay || "25",
       });
@@ -62,6 +62,7 @@ const Step2OrgProfileSimplified = ({
       newErrors.primaryContactEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
+    if (!data.payrollCurrency) newErrors.payrollCurrency = "Payroll currency is required";
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -147,8 +148,30 @@ const Step2OrgProfileSimplified = ({
                 {errors.hqCountry && (
                   <p className="text-xs text-destructive">{errors.hqCountry}</p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payrollCurrency" className="text-sm">
+                  Payroll Currency <span className="text-destructive">*</span>
+                </Label>
+                <Select value={data.payrollCurrency} onValueChange={(val) => setData(prev => ({ ...prev, payrollCurrency: val }))}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Select payroll currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NOK">NOK - Norwegian Krone</SelectItem>
+                    <SelectItem value="PHP">PHP - Philippine Peso</SelectItem>
+                    <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                    <SelectItem value="EUR">EUR - Euro</SelectItem>
+                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.payrollCurrency && (
+                  <p className="text-xs text-destructive">{errors.payrollCurrency}</p>
+                )}
                 <p className="text-xs text-muted-foreground">
-                  Sets default currency and date formats
+                  Choose the currency you'll use for payroll. You can adjust this later for each country setup.
                 </p>
               </div>
             </>
@@ -156,12 +179,12 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      {/* Primary Contact Person (Simplified for Internal Pilot) */}
+      {/* Primary Admin Contact */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <User className="h-4 w-4 text-primary" />
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Primary Contact Person (Simplified for Internal Pilot)
+            Primary Admin Contact
           </h3>
         </div>
         
@@ -170,17 +193,12 @@ const Step2OrgProfileSimplified = ({
             <>
               <Skeleton className="h-9 w-full" />
               <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-5 w-full" />
             </>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">
-                Only one person will be added during onboarding — the main admin contact.
-              </p>
-
               <StandardInput
                 id="contactName"
-                label="Name"
+                label="Full Name"
                 value={data.primaryContactName}
                 onChange={(val) => setData(prev => ({ ...prev, primaryContactName: val }))}
                 required
@@ -199,26 +217,8 @@ const Step2OrgProfileSimplified = ({
                 placeholder="john@fronted.com"
               />
 
-              <div className="flex items-start space-x-2 pt-2">
-                <Checkbox
-                  id="allowPayrollContracts"
-                  checked={data.allowPayrollContracts}
-                  onCheckedChange={(checked) => 
-                    setData(prev => ({ ...prev, allowPayrollContracts: checked as boolean }))
-                  }
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <label
-                    htmlFor="allowPayrollContracts"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    Allow this person to also handle payroll and contracts.
-                  </label>
-                </div>
-              </div>
-
               <p className="text-xs text-muted-foreground">
-                For now, just add the main person responsible for setup. You can invite others later once Fronted goes live.
+                Add only the primary setup admin for this pilot. You can invite other team members once Fronted goes live.
               </p>
             </>
           )}
