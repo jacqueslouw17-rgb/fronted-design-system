@@ -107,19 +107,17 @@ const AdminOnboarding = () => {
     setIsSpeaking(true);
     setKurtMessage(message);
     
-    if (!isKurtMuted) {
-      speak(message, () => {
-        setIsSpeaking(false);
-        onEnd?.();
-      });
-    } else {
-      // Simulate speaking duration when muted (visual only)
-      const words = message.split(' ').length;
-      const duration = words * 400; // ~400ms per word
+    // Always call speak for word-by-word progression, but stop immediately if muted
+    speak(message, () => {
+      setIsSpeaking(false);
+      onEnd?.();
+    });
+    
+    // If muted, stop the audio immediately but keep visual indicators
+    if (isKurtMuted) {
       setTimeout(() => {
-        setIsSpeaking(false);
-        onEnd?.();
-      }, duration);
+        stop();
+      }, 50);
     }
   };
 
@@ -811,7 +809,7 @@ const AdminOnboarding = () => {
         <div className="flex flex-col items-center space-y-4 mb-8">
           {/* Agent Pulse */}
           <div className="flex justify-center scale-75">
-            <AudioWaveVisualizer isActive={isSpeaking && !isKurtMuted} isListening={true} />
+            <AudioWaveVisualizer isActive={isSpeaking} isListening={true} />
           </div>
 
           {/* Title */}
@@ -822,9 +820,9 @@ const AdminOnboarding = () => {
           {/* Subtitle with Mute Button */}
           <div className="flex items-center justify-center gap-0.5 w-full max-w-xl">
             <p className={`text-base text-center flex-1 pr-1 ${
-              isSpeaking && !isKurtMuted ? "" : "text-muted-foreground"
+              isSpeaking ? "" : "text-muted-foreground"
             }`}>
-              {isSpeaking && !isKurtMuted ? (
+              {isSpeaking ? (
                 kurtMessage.split(' ').map((word, idx) => (
                   <span
                     key={idx}

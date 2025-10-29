@@ -70,19 +70,17 @@ const WorkerOnboarding = () => {
   const handleSpeak = (message: string, onEnd?: () => void) => {
     setIsSpeaking(true);
     
-    if (!isKurtMuted) {
-      speak(message, () => {
-        setIsSpeaking(false);
-        onEnd?.();
-      });
-    } else {
-      // Simulate speaking duration when muted (visual only)
-      const words = message.split(' ').length;
-      const duration = words * 400; // ~400ms per word
+    // Always call speak for word-by-word progression, but stop immediately if muted
+    speak(message, () => {
+      setIsSpeaking(false);
+      onEnd?.();
+    });
+    
+    // If muted, stop the audio immediately but keep visual indicators
+    if (isKurtMuted) {
       setTimeout(() => {
-        setIsSpeaking(false);
-        onEnd?.();
-      }, duration);
+        stop();
+      }, 50);
     }
   };
 
