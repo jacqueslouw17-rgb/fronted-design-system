@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Mail, Chrome, Globe } from "lucide-react";
-import { useState } from "react";
+import { Mail, Chrome, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import StandardInput from "./StandardInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface AuthOptionsProps {
   onComplete: (method: string, data?: Record<string, any>) => void;
@@ -25,14 +27,70 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
   const [preferredLanguage, setPreferredLanguage] = useState("en");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [googleUser, setGoogleUser] = useState<{ email: string; name: string; avatar?: string } | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const handleMethodSelect = (method: string) => {
+  // Check for existing Google session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const user = session.user;
+        const userData = {
+          email: user.email || '',
+          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+          avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture
+        };
+        
+        setGoogleUser(userData);
+        // Notify parent that Google auth is complete
+        onComplete('google', userData);
+      }
+    };
+    
+    checkSession();
+  }, [onComplete]);
+
+  const handleMethodSelect = async (method: string) => {
     if (method === "email") {
       setSelectedMethod("email");
       // Immediately register email as the selected method
       onComplete(method, {});
+    } else if (method === "google") {
+      setIsAuthenticating(true);
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/flows/admin/onboarding`,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            }
+          }
+        });
+
+        if (error) {
+          toast({
+            title: "Authentication error",
+            description: error.message,
+            variant: "destructive"
+          });
+          setIsAuthenticating(false);
+        }
+        // If successful, user will be redirected and page will reload with session
+      } catch (error) {
+        console.error("Google auth error:", error);
+        toast({
+          title: "Authentication error",
+          description: "Failed to initiate Google sign-in",
+          variant: "destructive"
+        });
+        setIsAuthenticating(false);
+      }
     } else {
-      // For OAuth methods, complete immediately (placeholder)
+      // For other OAuth methods, complete immediately (placeholder)
       onComplete(method);
     }
   };
@@ -66,17 +124,43 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
         <h3 className="text-lg font-semibold text-foreground">Choose how you'd like to sign up</h3>
       </div>
 
-      {selectedMethod === null && (
+      {googleUser ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 rounded-lg border border-border bg-card space-y-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              {googleUser.avatar ? (
+                <img src={googleUser.avatar} alt={googleUser.name} className="h-10 w-10 rounded-full" />
+              ) : (
+                <Chrome className="h-5 w-5 text-primary" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">{googleUser.name}</p>
+              <p className="text-xs text-muted-foreground">{googleUser.email}</p>
+            </div>
+            <CheckCircle2 className="h-5 w-5 text-success" />
+          </div>
+          <p className="text-xs text-center text-muted-foreground">
+            Signed in with Google
+          </p>
+        </motion.div>
+      ) : selectedMethod === null && (
         <div className="space-y-3">
           <Button
             variant="outline"
             size="lg"
             className="w-full justify-start gap-3 h-12 text-sm hover:bg-primary/10 hover:text-foreground"
             onClick={() => handleMethodSelect("google")}
-            disabled={isProcessing}
+            disabled={isProcessing || isAuthenticating}
           >
             <Chrome className="h-5 w-5 text-[#4285F4]" />
-            <span className="flex-1 text-left">Continue with Google</span>
+            <span className="flex-1 text-left">
+              {isAuthenticating ? "Opening Google..." : "Continue with Google"}
+            </span>
           </Button>
 
           <Button
