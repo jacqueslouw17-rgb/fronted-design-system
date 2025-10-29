@@ -83,38 +83,36 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         </div>
       )}
 
-      {/* Mute Toggle */}
-      {onMuteToggle && (
-        <div className="absolute top-4 right-4">
-          <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />
-        </div>
-      )}
-
       {/* Title & Subtitle */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-        <p className="text-base">
-          {enableWordHighlight ? (
-            // Word-by-word highlighting when speaking
-            subtitle.split(' ').map((word, idx) => (
-              <span
-                key={idx}
-                className={
-                  idx < currentWordIndex
-                    ? 'text-foreground/90'
-                    : 'text-muted-foreground/40'
-                }
-              >
-                {word}{' '}
+        <div className="flex items-center justify-center gap-3">
+          <p className="text-base">
+            {enableWordHighlight ? (
+              // Word-by-word highlighting when speaking
+              subtitle.split(' ').map((word, idx) => (
+                <span
+                  key={idx}
+                  className={
+                    idx < currentWordIndex
+                      ? 'text-foreground/90'
+                      : 'text-muted-foreground/40'
+                  }
+                >
+                  {word}{' '}
+                </span>
+              ))
+            ) : (
+              // Default static subtitle with darker color if there are changes
+              <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
+                {subtitle}
               </span>
-            ))
-          ) : (
-            // Default static subtitle with darker color if there are changes
-            <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
-              {subtitle}
-            </span>
+            )}
+          </p>
+          {onMuteToggle && (
+            <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />
           )}
-        </p>
+        </div>
       </div>
 
       {/* Progress Indicator */}
