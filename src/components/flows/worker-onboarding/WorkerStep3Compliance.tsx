@@ -181,18 +181,6 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
         </p>
       </div>
 
-      {autoFilledFields.size > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800"
-        >
-          <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Kurt pre-filled your details from earlier — please review and confirm everything looks correct before submitting.
-          </p>
-        </motion.div>
-      )}
 
       <div className="space-y-4">
         {requiredDocs.map((doc) => (
