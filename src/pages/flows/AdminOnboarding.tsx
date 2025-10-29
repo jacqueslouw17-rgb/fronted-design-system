@@ -798,7 +798,7 @@ const AdminOnboarding = () => {
         <div className="flex flex-col items-center space-y-4 mb-8">
           {/* Agent Pulse */}
           <div className="flex justify-center scale-75">
-            <AudioWaveVisualizer isActive={isSpeaking} isListening={true} />
+            <AudioWaveVisualizer isActive={isSpeaking} />
           </div>
 
           {/* Title */}
