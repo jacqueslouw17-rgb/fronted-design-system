@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, Upload, FileText } from "lucide-react";
+import { ArrowRight, Upload, FileText, Sparkles } from "lucide-react";
 import { complianceDocSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface Step3Props {
   formData: Record<string, any>;
@@ -18,14 +21,66 @@ interface Step3Props {
 const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFields }: Step3Props) => {
   const country = formData.country || "Philippines";
   const isContractor = formData.employmentType === "contractor";
+  const { speak } = useTextToSpeech();
   
+  const [isAutoFilling, setIsAutoFilling] = useState(true);
+  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
-    tinNumber: formData.tinNumber || "",
-    philHealthNumber: formData.philHealthNumber || "",
-    nationalId: formData.nationalId || "",
+    tinNumber: "",
+    philHealthNumber: "",
+    nationalId: "",
     identityDocUploaded: false,
     taxDocUploaded: false
   });
+
+  // Auto-fill data from earlier steps with Kurt's voice
+  useEffect(() => {
+    if (isAutoFilling) {
+      speak("Retrieving your details... Please wait a moment.");
+      
+      const timer = setTimeout(() => {
+        // Simulate data retrieval and auto-fill from formData
+        const fieldsToAutoFill = new Set<string>();
+        const autoFilledData: any = {};
+
+        if (formData.tinNumber) {
+          autoFilledData.tinNumber = formData.tinNumber;
+          fieldsToAutoFill.add('tinNumber');
+        }
+        if (formData.philHealthNumber) {
+          autoFilledData.philHealthNumber = formData.philHealthNumber;
+          fieldsToAutoFill.add('philHealthNumber');
+        }
+        if (formData.nationalId) {
+          autoFilledData.nationalId = formData.nationalId;
+          fieldsToAutoFill.add('nationalId');
+        }
+
+        setData(prev => ({ ...prev, ...autoFilledData }));
+        setAutoFilledFields(fieldsToAutoFill);
+        setIsAutoFilling(false);
+
+        // Kurt speaks after loading
+        setTimeout(() => {
+          speak("I've pre-filled your details from earlier. Please review and confirm everything looks correct.");
+        }, 500);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isAutoFilling, formData, speak]);
+
+  const handleInputChange = (fieldName: string, value: string) => {
+    setData({ ...data, [fieldName]: value });
+    // Remove auto-fill indicator when user edits the field
+    if (autoFilledFields.has(fieldName)) {
+      setAutoFilledFields(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(fieldName);
+        return newSet;
+      });
+    }
+  };
 
   const handleContinue = () => {
     try {
@@ -68,6 +123,29 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
   const requiredDocs = getRequiredDocs();
   const isValid = data.identityDocUploaded || data.tinNumber; // Simplified validation
 
+  if (isAutoFilling) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4 p-6">
+        <AudioWaveVisualizer isActive={true} />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-2"
+        >
+          <h3 className="text-lg font-semibold">Retrieving your details...</h3>
+          <p className="text-sm text-muted-foreground">Please wait a moment</p>
+        </motion.div>
+        
+        <div className="space-y-4 w-full max-w-md">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      </div>
+    );
+  }
+
   if (isLoadingFields) {
     return (
       <div className="space-y-4 p-6">
@@ -88,14 +166,39 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
         </p>
       </div>
 
+      {autoFilledFields.size > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10"
+        >
+          <Sparkles className="h-5 w-5 text-primary mt-0.5" />
+          <p className="text-sm text-foreground/80">
+            Kurt pre-filled your details from earlier — please review and confirm everything looks correct before submitting.
+          </p>
+        </motion.div>
+      )}
+
       <div className="space-y-4">
         {requiredDocs.map((doc) => (
           <div key={doc.id} className="space-y-2">
-            <Label htmlFor={doc.id}>{doc.label}</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor={doc.id}>{doc.label}</Label>
+              {autoFilledFields.has(doc.field) && (
+                <motion.span
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-xs text-primary flex items-center gap-1"
+                >
+                  <Sparkles className="h-3 w-3" />
+                  Auto-filled by Kurt
+                </motion.span>
+              )}
+            </div>
             <Input
               id={doc.id}
               value={data[doc.field as keyof typeof data] as string}
-              onChange={(e) => setData({ ...data, [doc.field]: e.target.value })}
+              onChange={(e) => handleInputChange(doc.field, e.target.value)}
               placeholder={`Enter your ${doc.label.toLowerCase()}`}
             />
           </div>
