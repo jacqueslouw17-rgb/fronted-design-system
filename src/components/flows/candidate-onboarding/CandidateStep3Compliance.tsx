@@ -177,14 +177,14 @@ const CandidateStep3Compliance = ({
                 <div className="flex items-center justify-between">
                   <Label htmlFor="fullName">Full Name</Label>
                   {autoFilledFields.has('fullName') && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="text-xs text-primary flex items-center gap-1"
-                    >
-                      <Sparkles className="h-3 w-3" />
-                      Auto-filled by Kurt
-                    </motion.span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Auto-filled by Kurt
+                  </motion.span>
                   )}
                 </div>
                 <Input
@@ -199,14 +199,14 @@ const CandidateStep3Compliance = ({
                 <div className="flex items-center justify-between">
                   <Label htmlFor="email">Email Address</Label>
                   {autoFilledFields.has('email') && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="text-xs text-primary flex items-center gap-1"
-                    >
-                      <Sparkles className="h-3 w-3" />
-                      Auto-filled by Kurt
-                    </motion.span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Auto-filled by Kurt
+                  </motion.span>
                   )}
                 </div>
                 <Input
@@ -221,14 +221,14 @@ const CandidateStep3Compliance = ({
                 <div className="flex items-center justify-between">
                   <Label htmlFor="address">Address</Label>
                   {autoFilledFields.has('address') && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="text-xs text-primary flex items-center gap-1"
-                    >
-                      <Sparkles className="h-3 w-3" />
-                      Auto-filled by Kurt
-                    </motion.span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Auto-filled by Kurt
+                  </motion.span>
                   )}
                 </div>
                 <Input
@@ -279,7 +279,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -318,7 +318,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -340,7 +340,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -362,7 +362,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -391,7 +391,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -413,7 +413,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -473,7 +473,7 @@ const CandidateStep3Compliance = ({
                 <motion.span
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-primary flex items-center gap-1"
+                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
                 >
                   <Sparkles className="h-3 w-3" />
                   Auto-filled by Kurt
@@ -528,10 +528,10 @@ const CandidateStep3Compliance = ({
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10"
+              className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800"
             >
-              <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-              <p className="text-sm text-foreground/80">
+              <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <p className="text-sm text-blue-700 dark:text-blue-300">
                 Kurt pre-filled your details from earlier — please review and confirm everything looks correct before submitting.
               </p>
             </motion.div>

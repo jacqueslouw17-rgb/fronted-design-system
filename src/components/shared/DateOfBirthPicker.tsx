@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { motion } from "framer-motion";
 
 interface DateOfBirthPickerProps {
   value?: Date;
@@ -16,6 +17,7 @@ interface DateOfBirthPickerProps {
   label?: string;
   required?: boolean;
   placeholder?: string;
+  autoFilled?: boolean;
 }
 
 const DateOfBirthPicker = ({
@@ -23,13 +25,26 @@ const DateOfBirthPicker = ({
   onChange,
   label = "Date of Birth",
   required = false,
-  placeholder = "Pick a date"
+  placeholder = "Pick a date",
+  autoFilled = false
 }: DateOfBirthPickerProps) => {
   return (
     <div className="space-y-2">
-      <Label htmlFor="dateOfBirth">
-        {label} {required && "*"}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label htmlFor="dateOfBirth">
+          {label} {required && "*"}
+        </Label>
+        {autoFilled && (
+          <motion.span
+            initial={{ opacity: 0, x: -5 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+          >
+            <Sparkles className="h-3 w-3" />
+            Auto-filled by Kurt
+          </motion.span>
+        )}
+      </div>
       <Popover>
         <PopoverTrigger asChild>
           <Button

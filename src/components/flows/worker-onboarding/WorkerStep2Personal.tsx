@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, AlertCircle } from "lucide-react";
+import { ArrowRight, AlertCircle, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
@@ -21,6 +21,7 @@ interface Step2Props {
 }
 
 const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFields }: Step2Props) => {
+  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
     fullName: formData.workerName || "",
     email: formData.email || "",
@@ -40,14 +41,26 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
       speak("Retrieving your details...");
       
       const timer = setTimeout(() => {
+        const fieldsToAutoFill = new Set<string>();
+        
         setData({
           fullName: "Maria Santos",
           email: "maria.santos@example.com",
           phone: "+63 912 345 6789",
           dateOfBirth: new Date(1995, 5, 15),
-          nationality: "Philippines",
+          nationality: "PH",
           address: "123 Main St, Manila"
         });
+        
+        // Track which fields were auto-filled
+        fieldsToAutoFill.add('fullName');
+        fieldsToAutoFill.add('email');
+        fieldsToAutoFill.add('phone');
+        fieldsToAutoFill.add('dateOfBirth');
+        fieldsToAutoFill.add('nationality');
+        fieldsToAutoFill.add('address');
+        
+        setAutoFilledFields(fieldsToAutoFill);
         setIsLoading(false);
         
         // Kurt speaks again after loading
@@ -59,6 +72,40 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
       return () => clearTimeout(timer);
     }
   }, [isLoading, speak]);
+
+  const handleInputChange = (fieldName: string, value: string) => {
+    setData({ ...data, [fieldName]: value });
+    // Remove auto-fill indicator when user edits the field
+    if (autoFilledFields.has(fieldName)) {
+      setAutoFilledFields(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(fieldName);
+        return newSet;
+      });
+    }
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    setData({ ...data, dateOfBirth: date });
+    if (autoFilledFields.has('dateOfBirth')) {
+      setAutoFilledFields(prev => {
+        const newSet = new Set(prev);
+        newSet.delete('dateOfBirth');
+        return newSet;
+      });
+    }
+  };
+
+  const handleNationalityChange = (value: string) => {
+    setData({ ...data, nationality: value });
+    if (autoFilledFields.has('nationality')) {
+      setAutoFilledFields(prev => {
+        const newSet = new Set(prev);
+        newSet.delete('nationality');
+        return newSet;
+      });
+    }
+  };
 
   const handleContinue = () => {
     try {
@@ -142,6 +189,19 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
         </p>
       </div>
 
+      {autoFilledFields.size > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800"
+        >
+          <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            Kurt pre-filled your details from earlier — please review and confirm everything looks correct before submitting.
+          </p>
+        </motion.div>
+      )}
+
       {validationError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -151,53 +211,103 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="fullName">Full Name *</Label>
+            {autoFilledFields.has('fullName') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
           <Input
             id="fullName"
             value={data.fullName}
-            onChange={(e) => setData({ ...data, fullName: e.target.value })}
+            onChange={(e) => handleInputChange('fullName', e.target.value)}
             placeholder="Enter your full legal name"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="email">Email Address *</Label>
+            {autoFilledFields.has('email') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
           <Input
             id="email"
             type="email"
             value={data.email}
-            onChange={(e) => setData({ ...data, email: e.target.value })}
+            onChange={(e) => handleInputChange('email', e.target.value)}
             placeholder="your.email@example.com"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="phone">Phone Number *</Label>
+            {autoFilledFields.has('phone') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
           <Input
             id="phone"
             type="tel"
             value={data.phone}
-            onChange={(e) => setData({ ...data, phone: e.target.value })}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
             placeholder="+1 234 567 8900"
           />
         </div>
 
         <DateOfBirthPicker
           value={data.dateOfBirth}
-          onChange={(date) => setData({ ...data, dateOfBirth: date })}
+          onChange={handleDateChange}
+          autoFilled={autoFilledFields.has('dateOfBirth')}
         />
 
         <NationalitySelect
           value={data.nationality}
-          onValueChange={(value) => setData({ ...data, nationality: value })}
+          onValueChange={handleNationalityChange}
+          autoFilled={autoFilledFields.has('nationality')}
         />
 
         <div className="space-y-2">
-          <Label htmlFor="address">Residential Address</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="address">Residential Address</Label>
+            {autoFilledFields.has('address') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
           <Input
             id="address"
             value={data.address}
-            onChange={(e) => setData({ ...data, address: e.target.value })}
+            onChange={(e) => handleInputChange('address', e.target.value)}
             placeholder="Street, City, Postal Code"
           />
         </div>
