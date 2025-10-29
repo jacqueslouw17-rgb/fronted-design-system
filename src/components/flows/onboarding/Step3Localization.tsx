@@ -105,7 +105,7 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
               <TooltipTrigger asChild>
                 <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
               </TooltipTrigger>
-              <TooltipContent className="max-w-[250px]">
+              <TooltipContent side="right" align="center" className="max-w-[250px]">
                 <p className="text-xs">
                   This helps us tailor compliance and payroll setup per location.
                 </p>
