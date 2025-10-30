@@ -18,6 +18,7 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isUserEditingRef = useRef(false);
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
@@ -37,8 +38,15 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
   };
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    isUserEditingRef.current = true;
     const newContent = e.currentTarget.textContent || "";
     onContentChange?.(newContent);
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      isUserEditingRef.current = false;
+    }, 100);
   };
 
   useEffect(() => {
@@ -48,9 +56,9 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
     };
   }, []);
 
-  // Update content when it changes from parent
+  // Update content only when it changes from parent and user is not editing
   useEffect(() => {
-    if (contentRef.current && contentRef.current.textContent !== content) {
+    if (contentRef.current && !isUserEditingRef.current && contentRef.current.textContent !== content) {
       contentRef.current.textContent = content;
     }
   }, [content]);
@@ -68,10 +76,11 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
         ref={contentRef}
         contentEditable
         onInput={handleInput}
+        onBlur={handleBlur}
         suppressContentEditableWarning
         className={cn(
           "prose prose-sm max-w-none text-foreground transition-all duration-300",
-          "focus:outline-none whitespace-pre-wrap"
+          "focus:outline-none whitespace-pre-wrap min-h-[400px]"
         )}
       >
         {content}
