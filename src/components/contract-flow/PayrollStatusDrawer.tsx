@@ -1,5 +1,5 @@
 import React from "react";
-import { X, CheckCircle2, Clock, Circle, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, Circle, AlertCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,22 +74,12 @@ export const PayrollStatusDrawer: React.FC<PayrollStatusDrawerProps> = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader className="space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <SheetTitle className="text-2xl">Payroll Certification</SheetTitle>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-2xl">{contractor.countryFlag}</span>
-                <span>{contractor.name}</span>
-              </div>
+          <div className="space-y-1">
+            <SheetTitle className="text-2xl">Payroll Certification</SheetTitle>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-2xl">{contractor.countryFlag}</span>
+              <span>{contractor.name}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* Progress Overview */}
