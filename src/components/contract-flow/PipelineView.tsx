@@ -68,7 +68,7 @@ const statusConfig = {
     tooltip: "Contract sent — awaiting candidate review",
   },
   "trigger-onboarding": {
-    label: "Send for Signing",
+    label: "Onboard Candidate",
     color: "bg-primary/10 border-primary/20",
     badgeColor: "bg-primary/20 text-primary border-primary/30",
     tooltip: "Choose the files you want to send for signature",

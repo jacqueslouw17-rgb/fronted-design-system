@@ -479,7 +479,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
         </DialogContent>
       </Dialog>
 
-      {/* Send for Signing Confirmation */}
+      {/* Onboard Candidate Confirmation */}
       <SendForSigningConfirmation
         open={confirmationOpen}
         onOpenChange={setConfirmationOpen}
