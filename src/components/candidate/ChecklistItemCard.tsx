@@ -1,8 +1,16 @@
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, Clock, AlertCircle, ChevronDown } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, ChevronDown, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { ChecklistRequirement } from "@/data/candidateChecklistData";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ChecklistItemCardProps {
   requirement: ChecklistRequirement;
@@ -11,6 +19,15 @@ interface ChecklistItemCardProps {
 
 const ChecklistItemCard = ({ requirement, index }: ChecklistItemCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
+
+  const handleResendLink = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({
+      title: "Link resent successfully ✅",
+      description: "We've sent a secure link to complete this requirement.",
+    });
+  };
 
   const getStatusIcon = () => {
     switch (requirement.status) {
@@ -46,35 +63,56 @@ const ChecklistItemCard = ({ requirement, index }: ChecklistItemCardProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-    >
-      <Card 
-        className="p-4 cursor-pointer hover:shadow-md transition-all"
-        onClick={() => setIsExpanded(!isExpanded)}
+    <TooltipProvider>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            {getStatusIcon()}
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">
-                {requirement.label}
-                {requirement.required && <span className="text-destructive ml-1">*</span>}
-              </h4>
-              <p className={`text-xs ${getStatusColor()} mt-0.5`}>
-                {getStatusText()}
-              </p>
+        <Card 
+          className="p-4 cursor-pointer hover:shadow-md transition-all"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              {getStatusIcon()}
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">
+                  {requirement.label}
+                  {requirement.required && <span className="text-destructive ml-1">*</span>}
+                </h4>
+                <p className={`text-xs ${getStatusColor()} mt-0.5`}>
+                  {getStatusText()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {(requirement.status === 'pending_review' || requirement.status === 'todo') && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-3 text-xs"
+                      onClick={handleResendLink}
+                    >
+                      <Send className="h-3 w-3 mr-1" />
+                      Resend link
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Send secure upload link again</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </motion.div>
             </div>
           </div>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </motion.div>
-        </div>
 
         <AnimatePresence>
           {isExpanded && requirement.description && (
@@ -102,6 +140,7 @@ const ChecklistItemCard = ({ requirement, index }: ChecklistItemCardProps) => {
         </AnimatePresence>
       </Card>
     </motion.div>
+    </TooltipProvider>
   );
 };
 

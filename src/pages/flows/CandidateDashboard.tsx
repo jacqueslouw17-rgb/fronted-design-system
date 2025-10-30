@@ -133,14 +133,11 @@ const CandidateDashboard = () => {
                 {/* Tabs with Toggle Switch Design */}
                 <div className="space-y-4">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+                  {/* Metrics tab temporarily hidden for internal pilot */}
+                  <TabsList className="grid w-full max-w-md mx-auto grid-cols-1 mb-6">
                     <TabsTrigger value="checklist" className="flex items-center gap-2">
                       <ListChecks className="h-4 w-4" />
                       Checklist
-                    </TabsTrigger>
-                    <TabsTrigger value="metrics" className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      Metrics
                     </TabsTrigger>
                   </TabsList>
 
@@ -264,45 +261,6 @@ const CandidateDashboard = () => {
                     </AnimatePresence>
                   </TabsContent>
 
-                  {/* Metrics Tab */}
-                  <TabsContent value="metrics" className="space-y-6">
-                    <h2 className="text-lg font-semibold">Your Overview</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <MetricTile
-                        icon={FileCheck}
-                        label="Next Pay ETA"
-                        value="Jan 31, 2025"
-                        trend="15 days until payment"
-                        status="success"
-                        index={0}
-                      />
-                      <MetricTile
-                        icon={FileCheck}
-                        label="Contract Status"
-                        value="Signed"
-                        trend="All documents complete"
-                        status="success"
-                        index={1}
-                      />
-                      <MetricTile
-                        icon={TrendingUp}
-                        label="Compliance"
-                        value={`${progressPercentage}%`}
-                        trend={progressPercentage === 100 ? "All requirements met" : `${totalItems - completedItems} items remaining`}
-                        status={progressPercentage === 100 ? 'success' : 'warning'}
-                        index={2}
-                      />
-                      <MetricTile
-                        icon={ListChecks}
-                        label="Open Tasks"
-                        value={`${totalItems - completedItems}`}
-                        trend={totalItems - completedItems === 0 ? "Nothing to do" : "Action required"}
-                        status={totalItems - completedItems === 0 ? 'success' : 'neutral'}
-                        index={3}
-                      />
-                    </div>
-                  </TabsContent>
                 </Tabs>
                 </div>
               </div>
