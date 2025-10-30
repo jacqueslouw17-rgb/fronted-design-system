@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, FileCheck, TrendingUp, ListChecks } from "lucide-react";
 import ProgressBar from "@/components/ProgressBar";
 import ChecklistItemCard from "@/components/candidate/ChecklistItemCard";
@@ -28,7 +27,6 @@ const CandidateDashboard = () => {
     type: "Contractor" as const
   });
 
-  const [activeTab, setActiveTab] = useState("checklist");
   const [checklistData, setChecklistData] = useState<ChecklistRequirement[]>([]);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
@@ -130,19 +128,8 @@ const CandidateDashboard = () => {
                     onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                   />
 
-                {/* Tabs with Toggle Switch Design */}
-                <div className="space-y-4">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  {/* Metrics tab temporarily hidden for internal pilot */}
-                  <TabsList className="grid w-full max-w-md mx-auto grid-cols-1 mb-6">
-                    <TabsTrigger value="checklist" className="flex items-center gap-2">
-                      <ListChecks className="h-4 w-4" />
-                      Checklist
-                    </TabsTrigger>
-                  </TabsList>
-
-                  {/* Checklist Tab */}
-                  <TabsContent value="checklist" className="space-y-8">
+                {/* Checklist Content */}
+                <div className="space-y-8">
                     {/* Setup Progress Section */}
                     {!allCompleted && (
                       <div className="space-y-4">
@@ -259,9 +246,6 @@ const CandidateDashboard = () => {
                         </div>
                       )}
                     </AnimatePresence>
-                  </TabsContent>
-
-                </Tabs>
                 </div>
               </div>
             </main>
