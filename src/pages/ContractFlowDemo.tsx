@@ -30,6 +30,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
+import { KurtContextualTags } from "@/components/kurt";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -55,6 +56,13 @@ const ContractFlowDemo = () => {
     email: "joe@example.com",
     country: "United States",
     role: "admin"
+  };
+
+  const handleKurtAction = (action: string) => {
+    toast({
+      title: "Kurt is processing",
+      description: `Executing action: ${action}`,
+    });
   };
 
   const idleMessage = version === "v5" 
@@ -304,6 +312,13 @@ const ContractFlowDemo = () => {
                           }
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                          tags={
+                            <KurtContextualTags
+                              flowContext="checklist"
+                              onTagClick={handleKurtAction}
+                              disabled={false}
+                            />
+                          }
                         />
                       )}
 
