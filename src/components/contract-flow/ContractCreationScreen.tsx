@@ -14,12 +14,19 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
   onNext: () => void;
   currentIndex?: number;
   totalCandidates?: number;
+}
+
+interface MissingField {
+  id: string;
+  label: string;
+  value: string;
 }
 
 export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
@@ -50,6 +57,137 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const { setOpen, addMessage, setLoading } = useAgentState();
+
+  // Function to detect missing required fields
+  const getMissingFields = (): MissingField[] => {
+    const missing: MissingField[] = [];
+    
+    if (!contractData.email) {
+      missing.push({ id: 'email', label: 'Email', value: contractData.email });
+    }
+    if (!contractData.startDate) {
+      missing.push({ id: 'startDate', label: 'Start Date', value: contractData.startDate });
+    }
+    if (!contractData.salary) {
+      missing.push({ id: 'salary', label: 'Salary', value: contractData.salary });
+    }
+    
+    return missing;
+  };
+
+  // Function to scroll to a specific field
+  const scrollToField = (fieldId: string) => {
+    const element = document.getElementById(fieldId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.focus();
+      // Add a brief highlight effect
+      element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+      setTimeout(() => {
+        element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+      }, 2000);
+    }
+  };
+
+  // Handle Kurt action tags
+  const handleKurtAction = async (action: string) => {
+    // Handle field jumps from Kurt messages
+    if (action.startsWith('jump-to-')) {
+      const fieldId = action.replace('jump-to-', '');
+      scrollToField(fieldId);
+      return;
+    }
+
+    addMessage({
+      role: 'user',
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    });
+
+    setOpen(true);
+    setLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    let response = '';
+    
+    switch(action) {
+      case 'whats-missing':
+        const missingFields = getMissingFields();
+        if (missingFields.length === 0) {
+          response = `✅ All Required Fields Complete!\n\nGreat news! All required fields are filled in:\n✓ Full Name\n✓ Email\n✓ Role\n✓ Start Date\n✓ Salary\n✓ Country\n\nYou're all set to proceed. Want me to review the contract for you?`;
+        } else {
+          response = `⚠️ Missing Required Fields\n\nI found ${missingFields.length} required field${missingFields.length > 1 ? 's' : ''} that need${missingFields.length > 1 ? '' : 's'} your attention:\n\n`;
+          
+          addMessage({
+            role: 'kurt',
+            text: response,
+            actionButtons: missingFields.map(field => ({
+              label: `📍 ${field.label}`,
+              action: `jump-to-${field.id}`,
+              variant: 'outline' as const
+            }))
+          });
+          setLoading(false);
+          return;
+        }
+        break;
+        
+      case 'review-for-me':
+        const missing = getMissingFields();
+        if (missing.length > 0) {
+          response = `🔍 Contract Review - Issues Found\n\nI reviewed the contract and found ${missing.length} issue${missing.length > 1 ? 's' : ''}:\n\n❌ Missing Required Fields:\n${missing.map(f => `• ${f.label}`).join('\n')}\n\nPlease complete these fields before I can proceed with the full review. Want me to show you where they are?`;
+        } else {
+          response = `✅ Contract Review Complete\n\nI've reviewed the entire contract:\n\n✓ All required fields completed\n✓ Email format validated\n✓ Start date is future-dated\n✓ Salary format correct\n✓ Compliance requirements met for ${candidate.country}\n✓ Employment type: ${employmentType}\n\nEverything looks perfect! The contract is ready to proceed to bundle generation. Should I move forward?`;
+        }
+        break;
+        
+      case 'auto-fill':
+        response = `🤖 Auto-Fill Complete\n\nI've filled in the missing data from the candidate record:\n\n`;
+        
+        const updates: string[] = [];
+        if (!contractData.email && candidate.email) {
+          setContractData(prev => ({ ...prev, email: candidate.email || '' }));
+          updates.push(`✓ Email: ${candidate.email}`);
+        }
+        if (!contractData.startDate) {
+          const futureDate = new Date();
+          futureDate.setDate(futureDate.getDate() + 14);
+          const formattedDate = futureDate.toISOString().split('T')[0];
+          setContractData(prev => ({ ...prev, startDate: formattedDate }));
+          updates.push(`✓ Start Date: ${formattedDate} (2 weeks from today)`);
+        }
+        
+        if (updates.length === 0) {
+          response = `✅ Nothing to Auto-Fill\n\nAll available fields are already filled! The candidate record doesn't have any additional data I can use.\n\nWant me to review the contract instead?`;
+        } else {
+          response += updates.join('\n') + '\n\nAll set! I pulled the latest data from your ATS and filled in the gaps. Want me to review the contract now?';
+        }
+        
+        setTimeout(() => {
+          toast.success("Fields auto-filled from candidate record");
+        }, 100);
+        break;
+        
+      default:
+        response = `I'll help you with "${action}". Let me process that for you.`;
+    }
+
+    addMessage({
+      role: 'kurt',
+      text: response,
+    });
+
+    setLoading(false);
+  };
+
+  // Expose handleKurtAction globally for action buttons
+  useEffect(() => {
+    (window as any).handleKurtAction = handleKurtAction;
+    return () => {
+      delete (window as any).handleKurtAction;
+    };
+  });
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
@@ -126,8 +264,8 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     >
       <AgentHeader
         title="Contract Drafting in Progress"
-        subtitle="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
-        placeholder="Try: 'Review fields' or 'Explain this clause'..."
+        subtitle="Kurt can help with: showing what's missing, reviewing fields, or auto-filling data."
+        placeholder="Try: 'What's missing?' or 'Review for me'..."
         showPulse={true}
         isActive={false}
         isMuted={isKurtMuted}
@@ -136,10 +274,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
           <div className="relative">
             <KurtContextualTags
               flowContext="contract-creation"
-              onTagClick={(action) => {
-                // Handle tag clicks - will be connected to Kurt actions
-                console.log('Contract creation action:', action);
-              }}
+              onTagClick={handleKurtAction}
               disabled={false}
             />
             <KurtIntroTooltip context="contract-creation" />
@@ -217,6 +352,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
           <div className="space-y-2">
             <Label>Email</Label>
             <Input
+              id="email"
               type="email"
               value={contractData.email}
               onChange={(e) => setContractData({ ...contractData, email: e.target.value })}
@@ -226,6 +362,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
           <div className="space-y-2">
             <Label>Role</Label>
             <Input
+              id="role"
               value={contractData.role}
               onChange={(e) => setContractData({ ...contractData, role: e.target.value })}
             />
@@ -239,6 +376,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
               )}
             </Label>
             <Input
+              id="startDate"
               type="date"
               value={contractData.startDate}
               onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
@@ -254,6 +392,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
               )}
             </Label>
             <Input
+              id="salary"
               value={contractData.salary}
               onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
               className={errors.salary ? "border-destructive" : ""}

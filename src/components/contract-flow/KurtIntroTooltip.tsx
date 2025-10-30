@@ -52,7 +52,7 @@ export const KurtIntroTooltip: React.FC<KurtIntroTooltipProps> = ({
   const getMessage = () => {
     switch (context) {
       case "contract-creation":
-        return "Hi there! I can help review fields, generate bundles, or explain clauses — just click a tag below to start.";
+        return "Hi there! I can show you what's missing, review the contract, or auto-fill data — just click a tag below to start.";
       case "contract-bundle":
         return "I can auto-attach required documents, check compliance, or review the bundle for you.";
       case "contract-review":

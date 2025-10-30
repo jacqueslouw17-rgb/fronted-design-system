@@ -11,7 +11,9 @@ import {
   Wrench, 
   HelpCircle, 
   Database, 
-  Copy 
+  Copy,
+  AlertCircle,
+  Sparkles
 } from "lucide-react";
 
 interface KurtContextualTagsProps {
@@ -92,22 +94,22 @@ function getTagsForContext(context: FlowContext): Tag[] {
   const tagMap: Record<FlowContext, Tag[]> = {
     "contract-creation": [
       {
-        id: "track-progress",
-        label: "Track Progress",
-        description: "View onboarding progress for all candidates",
-        icon: <Clock className="h-3.5 w-3.5" />,
+        id: "whats-missing",
+        label: "What's Missing",
+        description: "Show incomplete required fields",
+        icon: <AlertCircle className="h-3.5 w-3.5" />,
       },
       {
-        id: "resend-link",
-        label: "Resend Link",
-        description: "Resend onboarding link to candidates",
-        icon: <Send className="h-3.5 w-3.5" />,
+        id: "review-for-me",
+        label: "Review for Me",
+        description: "Complete contract review and validation",
+        icon: <CheckSquare className="h-3.5 w-3.5" />,
       },
       {
-        id: "mark-complete",
-        label: "Mark Complete",
-        description: "Mark onboarding as complete",
-        icon: <CheckCircle className="h-3.5 w-3.5" />,
+        id: "auto-fill",
+        label: "Auto-Fill",
+        description: "Fill missing data from candidate record",
+        icon: <Sparkles className="h-3.5 w-3.5" />,
       },
     ],
     "contract-workspace": [
