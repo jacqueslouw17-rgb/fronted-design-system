@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FileText, Wand2, GitCompare, Database, Settings, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FlowContext } from "./KurtCoilot";
 
@@ -14,7 +13,6 @@ interface KurtContextualTagsProps {
 interface Tag {
   id: string;
   label: string;
-  icon: React.ReactNode;
   description: string;
 }
 
@@ -30,28 +28,27 @@ export const KurtContextualTags: React.FC<KurtContextualTagsProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn("flex flex-wrap gap-2 max-w-[320px]", className)}
+      className={cn("flex flex-wrap justify-center gap-2", className)}
     >
       {tags.map((tag, index) => (
         <motion.button
           key={tag.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.1 }}
-          whileHover={{ scale: disabled ? 1 : 1.05 }}
-          whileTap={{ scale: disabled ? 1 : 0.95 }}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.05, duration: 0.2 }}
+          whileHover={{ scale: disabled ? 1 : 1.02, y: -2 }}
+          whileTap={{ scale: disabled ? 1 : 0.98 }}
           onClick={() => !disabled && onTagClick(tag.id)}
           disabled={disabled}
           className={cn(
-            "inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium",
-            "bg-card border border-border shadow-sm",
+            "px-4 py-1.5 rounded-full text-xs font-medium",
+            "bg-primary/5 border border-primary/20",
             "transition-all duration-200",
-            !disabled && "hover:bg-primary/10 hover:text-primary hover:border-primary/30 cursor-pointer",
+            !disabled && "hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm cursor-pointer",
             disabled && "opacity-50 cursor-not-allowed"
           )}
           title={tag.description}
         >
-          {tag.icon}
           {tag.label}
         </motion.button>
       ))}
@@ -65,19 +62,31 @@ function getTagsForContext(context: FlowContext): Tag[] {
       {
         id: "quick-summary",
         label: "Quick Summary",
-        icon: <FileText className="h-3.5 w-3.5" />,
         description: "Generate a concise contract summary",
+      },
+      {
+        id: "check-fields",
+        label: "Check Fields",
+        description: "Verify all required fields are complete",
       },
       {
         id: "fix-clauses",
         label: "Fix Clauses",
-        icon: <Wand2 className="h-3.5 w-3.5" />,
         description: "Analyze and improve contract clauses",
+      },
+      {
+        id: "explain-term",
+        label: "Explain Term",
+        description: "Get clarification on legal terminology",
+      },
+      {
+        id: "pull-data",
+        label: "Pull Data",
+        description: "Retrieve candidate data from ATS",
       },
       {
         id: "compare-drafts",
         label: "Compare Drafts",
-        icon: <GitCompare className="h-3.5 w-3.5" />,
         description: "Compare different versions of the contract",
       },
     ],
@@ -85,13 +94,11 @@ function getTagsForContext(context: FlowContext): Tag[] {
       {
         id: "pull-org-data",
         label: "Pull Org Data",
-        icon: <Database className="h-3.5 w-3.5" />,
         description: "Retrieve organization data",
       },
       {
         id: "auto-payroll-setup",
         label: "Auto Payroll Setup",
-        icon: <Settings className="h-3.5 w-3.5" />,
         description: "Automatically configure payroll settings",
       },
     ],
@@ -99,13 +106,11 @@ function getTagsForContext(context: FlowContext): Tag[] {
       {
         id: "retrieve-info",
         label: "Retrieve Info",
-        icon: <Database className="h-3.5 w-3.5" />,
         description: "Pull candidate information",
       },
       {
         id: "verify-docs",
         label: "Verify Docs",
-        icon: <CheckCircle className="h-3.5 w-3.5" />,
         description: "Verify submitted documents",
       },
     ],
@@ -113,8 +118,17 @@ function getTagsForContext(context: FlowContext): Tag[] {
       {
         id: "track-progress",
         label: "Track Progress",
-        icon: <CheckCircle className="h-3.5 w-3.5" />,
         description: "View completion progress",
+      },
+      {
+        id: "resend-link",
+        label: "Resend Link",
+        description: "Resend onboarding link to candidate",
+      },
+      {
+        id: "mark-complete",
+        label: "Mark Complete",
+        description: "Mark checklist item as complete",
       },
     ],
     "payroll": [],

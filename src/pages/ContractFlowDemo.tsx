@@ -59,10 +59,17 @@ const ContractFlowDemo = () => {
   };
 
   const handleKurtAction = (action: string) => {
-    toast({
-      title: "Kurt is processing",
-      description: `Executing action: ${action}`,
+    // Add user message
+    addMessage({
+      role: 'user',
+      text: `Execute: ${action}`,
     });
+
+    // Open the agent panel
+    setOpen(true);
+
+    // Simulate response
+    simulateResponse(action);
   };
 
   const idleMessage = version === "v5" 
