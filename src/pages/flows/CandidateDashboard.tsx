@@ -261,8 +261,26 @@ const CandidateDashboard = () => {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <CardContent className="p-6">
-                        <div className="space-y-3">
-                          {contractor?.checklist.map((item, index) => (
+                            {progressPercentage < 100 ? (
+                              <div className="flex flex-col items-center justify-center py-12 px-6 text-center space-y-4">
+                                <div className="p-4 rounded-full bg-secondary/10">
+                                  <Loader2 className="h-8 w-8 text-secondary/60" />
+                                </div>
+                                <div className="space-y-2">
+                                  <h3 className="text-lg font-semibold">Payroll Certification Pending</h3>
+                                  <p className="text-sm text-muted-foreground max-w-md">
+                                    Complete your onboarding checklist above to unlock payroll certification. Once you've finished Step 1, we'll automatically begin setting up your payroll.
+                                  </p>
+                                </div>
+                                <div className="pt-2">
+                                  <Badge variant="outline" className="bg-secondary/5 text-secondary border-secondary/20">
+                                    Unlocks after Step 1 completion
+                                  </Badge>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {contractor?.checklist.map((item, index) => (
                             <motion.div
                               key={item.id}
                               initial={{ opacity: 0, x: -20 }}
@@ -293,8 +311,9 @@ const CandidateDashboard = () => {
                                 </div>
                               </div>
                             </motion.div>
-                          ))}
-                        </div>
+                                ))}
+                              </div>
+                            )}
                           </CardContent>
                         </CollapsibleContent>
                       </Card>
