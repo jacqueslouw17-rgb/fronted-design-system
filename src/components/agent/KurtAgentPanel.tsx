@@ -180,8 +180,8 @@ export const KurtAgentPanel: React.FC = () => {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full px-4 py-4">
+        <div className="flex-1 overflow-hidden overscroll-none">
+          <ScrollArea className="h-full px-4 py-4 overscroll-none">
             <div className="space-y-6" ref={scrollRef}>
               <AnimatePresence mode="popLayout">
                 {messages.map((msg) => (
