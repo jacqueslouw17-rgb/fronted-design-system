@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { bankDetailsSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 
 interface Step4Props {
   formData: Record<string, any>;
@@ -18,6 +20,9 @@ interface Step4Props {
 
 const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingFields }: Step4Props) => {
   const isContractor = formData.employmentType === "contractor";
+  const { speak } = useTextToSpeech();
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [autoFilledFields, setAutoFilledFields] = useState<string[]>([]);
   
   const [data, setData] = useState({
     bankName: formData.bankName || "",
@@ -27,6 +32,35 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
     payAcknowledged: false,
     invoiceRuleConfirmed: false
   });
+
+  // Auto-fill from ATS on mount for employees
+  useEffect(() => {
+    if (!isContractor && !formData.bankName) {
+      setIsAutoFilling(true);
+      speak("Retrieving your payroll details from the ATS...");
+      
+      setTimeout(() => {
+        const atsData = {
+          bankName: formData.country === "Philippines" ? "BDO Unibank" : "Wells Fargo",
+          accountNumber: "1234567890",
+          swiftBic: formData.country === "Philippines" ? "BNORPHMM" : "WFBIUS6S",
+          iban: formData.country === "Philippines" ? "" : "GB82WEST12345698765432"
+        };
+        
+        setData(prev => ({ ...prev, ...atsData }));
+        setAutoFilledFields(["bankName", "accountNumber", "swiftBic", "iban"]);
+        setIsAutoFilling(false);
+      }, 2000);
+    }
+  }, [isContractor, formData.country, formData.bankName, speak]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setData({ ...data, [field]: value });
+    // Remove auto-fill indicator when user edits
+    if (autoFilledFields.includes(field)) {
+      setAutoFilledFields(autoFilledFields.filter(f => f !== field));
+    }
+  };
 
   const handleContinue = () => {
     // Only validate bank details for employees
@@ -52,9 +86,12 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
     ? data.invoiceRuleConfirmed 
     : (data.bankName && data.accountNumber && data.payAcknowledged);
 
-  if (isLoadingFields) {
+  if (isLoadingFields || isAutoFilling) {
     return (
       <div className="space-y-4 p-6">
+        <div className="flex justify-center mb-4">
+          <AudioWaveVisualizer isActive={true} />
+        </div>
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
@@ -122,37 +159,64 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Payroll Details</h3>
         <p className="text-sm text-muted-foreground">
-          Enter your bank details to receive salary payments.
+          {autoFilledFields.length > 0 
+            ? "Some of your details were pre-filled from your company's ATS."
+            : "Enter your bank details to receive salary payments."
+          }
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="bankName">Bank Name *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="bankName">Bank Name *</Label>
+            {autoFilledFields.includes("bankName") && (
+              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </span>
+            )}
+          </div>
           <Input
             id="bankName"
             value={data.bankName}
-            onChange={(e) => setData({ ...data, bankName: e.target.value })}
+            onChange={(e) => handleInputChange("bankName", e.target.value)}
             placeholder="e.g., BDO, BPI, Wells Fargo"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="accountNumber">Account Number / IBAN *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="accountNumber">Account Number / IBAN *</Label>
+            {autoFilledFields.includes("accountNumber") && (
+              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </span>
+            )}
+          </div>
           <Input
             id="accountNumber"
             value={data.accountNumber}
-            onChange={(e) => setData({ ...data, accountNumber: e.target.value })}
+            onChange={(e) => handleInputChange("accountNumber", e.target.value)}
             placeholder="Enter your account number"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="swiftBic">SWIFT / BIC Code</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="swiftBic">SWIFT / BIC Code</Label>
+            {autoFilledFields.includes("swiftBic") && (
+              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </span>
+            )}
+          </div>
           <Input
             id="swiftBic"
             value={data.swiftBic}
-            onChange={(e) => setData({ ...data, swiftBic: e.target.value })}
+            onChange={(e) => handleInputChange("swiftBic", e.target.value)}
             placeholder="For international payments"
           />
         </div>
