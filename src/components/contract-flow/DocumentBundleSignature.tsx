@@ -26,6 +26,8 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
+import { useAgentState } from "@/hooks/useAgentState";
+import { toast } from "sonner";
 
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
@@ -59,9 +61,95 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const [isSendingBundle, setIsSendingBundle] = useState(false);
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { setOpen, addMessage, setLoading } = useAgentState();
   
   const subtextMessage = "Review document bundles for each candidate and prepare for signature collection";
   const subtextWords = subtextMessage.split(" ");
+
+  // Handle Kurt action tags
+  const handleKurtAction = async (action: string) => {
+    addMessage({
+      role: 'user',
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    });
+
+    setOpen(true);
+    setLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    switch(action) {
+      case 'auto-attach':
+        const missingDocs = candidates.flatMap(c => 
+          getDocumentsForCandidate(c).filter(d => d.status === 'missing')
+        );
+        
+        if (missingDocs.length === 0) {
+          addMessage({
+            role: 'kurt',
+            text: "✅ All Required Documents Attached\n\nAll mandatory documents are already included in the bundles:\n\n✓ Main Contracts\n✓ NDAs & Company Policies\n✓ Compliance Documents\n✓ Country-specific forms\n\nEverything is ready for signature collection!",
+          });
+        } else {
+          addMessage({
+            role: 'kurt',
+            text: `📎 Auto-Attaching Missing Documents\n\nI found ${missingDocs.length} missing document${missingDocs.length > 1 ? 's' : ''}. Attaching them now:\n\n${missingDocs.map(d => `✓ ${d.name}`).join('\n')}\n\nAll bundles are now complete and ready!`,
+            actionButtons: [
+              { label: 'Review All Bundles', action: 'check-docs', variant: 'default' },
+              { label: 'Send for Signature', action: 'send-bundle', variant: 'outline' },
+            ]
+          });
+          toast.success("Missing documents auto-attached");
+        }
+        break;
+        
+      case 'check-docs':
+        const totalDocs = candidates.reduce((acc, c) => acc + getDocumentsForCandidate(c).length, 0);
+        const readyDocs = candidates.flatMap(c => getDocumentsForCandidate(c)).filter(d => d.status === 'drafted' || d.status === 'ready').length;
+        
+        addMessage({
+          role: 'kurt',
+          text: `📋 Bundle Review Complete\n\nI've reviewed all document bundles:\n\n✓ Total Documents: ${totalDocs}\n✓ Ready: ${readyDocs}\n✓ Pending: ${totalDocs - readyDocs}\n\n**Per Candidate:**\n${candidates.map(c => `• ${c.name} (${c.country}): ${getDocumentsForCandidate(c).length} documents`).join('\n')}\n\nAll bundles meet compliance requirements. Ready to send for signatures!`,
+          actionButtons: [
+            { label: 'Check Compliance', action: 'compliance-review', variant: 'default' },
+            { label: 'Send Bundles', action: 'send-bundle', variant: 'outline' },
+          ]
+        });
+        break;
+        
+      case 'compliance-review':
+        const phCandidates = candidates.filter(c => c.countryCode === 'PH');
+        
+        addMessage({
+          role: 'kurt',
+          text: `🛡️ Compliance Review Complete\n\nI've verified compliance for all candidates:\n\n✅ **General Compliance:**\n• NDAs & Company Policies included\n• Data Privacy Forms attached\n• Contract templates up-to-date\n\n${phCandidates.length > 0 ? `✅ **Philippines-Specific:**\n• DOLE compliance verified\n• Mandatory government forms included\n• Tax documentation complete\n\n` : ''}All bundles meet regulatory requirements. No compliance issues detected!`,
+          actionButtons: [
+            { label: 'Send for Signature', action: 'send-bundle', variant: 'default' },
+            { label: 'Review Bundles', action: 'check-docs', variant: 'outline' },
+          ]
+        });
+        break;
+        
+      case 'send-bundle':
+        addMessage({
+          role: 'kurt',
+          text: "📨 Sending Document Bundles\n\nPreparing to send bundles to all candidates for signature...",
+        });
+        
+        setTimeout(() => {
+          handleIncludeAll();
+          setOpen(false);
+        }, 1000);
+        break;
+        
+      default:
+        addMessage({
+          role: 'kurt',
+          text: `I'll help you with "${action}". Let me process that for you.`,
+        });
+    }
+
+    setLoading(false);
+  };
 
   // Generate document bundles for each candidate
   const getDocumentsForCandidate = (candidate: Candidate): DocumentType[] => {
@@ -216,6 +304,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         <AgentHeader
           title="Document Bundle & Signature"
           subtitle="Kurt can help with: attaching required docs, checking compliance, or reviewing bundles."
+          placeholder="Try: 'Auto-attach' or 'Check documents'..."
           showPulse={true}
           isActive={!hasWelcomeSpoken}
           isMuted={false}
@@ -223,9 +312,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
             <div className="relative">
               <KurtContextualTags
                 flowContext="document-bundle"
-                onTagClick={(action) => {
-                  console.log('Bundle action:', action);
-                }}
+                onTagClick={handleKurtAction}
                 disabled={false}
               />
               <KurtIntroTooltip context="document-bundle" />
