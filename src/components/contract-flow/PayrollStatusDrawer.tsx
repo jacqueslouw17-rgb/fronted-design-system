@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, Clock, Circle, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, Circle, AlertCircle, Eye } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -143,6 +143,15 @@ export const PayrollStatusDrawer: React.FC<PayrollStatusDrawerProps> = ({
 
         {/* Footer Actions */}
         <div className="mt-6 pt-6 border-t space-y-3">
+          <Button
+            className="w-full"
+            onClick={() => {
+              window.location.href = '/flows/candidate-payroll-dashboard';
+            }}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Candidate Dashboard
+          </Button>
           <Button
             variant="outline"
             className="w-full"
