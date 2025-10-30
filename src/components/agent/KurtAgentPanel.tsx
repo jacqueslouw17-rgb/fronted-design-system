@@ -39,12 +39,29 @@ export const KurtAgentPanel: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive or loading starts
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [messages, loading]);
+
+  // Also scroll when panel opens
+  useEffect(() => {
+    if (open && scrollRef.current) {
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTo({
+            top: scrollRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [open]);
 
   // Auto-speak the latest Kurt message after loading completes (only first line/heading)
   useEffect(() => {
