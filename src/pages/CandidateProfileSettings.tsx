@@ -34,6 +34,7 @@ const CandidateProfileSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [isKurtMuted, setIsKurtMuted] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Pre-filled form data (from completed onboarding)
@@ -182,8 +183,8 @@ const CandidateProfileSettings = () => {
                   <AgentHeader
                     title="Profile Settings"
                     subtitle="Update your personal information, compliance documents, and payroll details."
-                    showPulse={false}
-                    isActive={false}
+                    showPulse={true}
+                    isActive={isSpeaking}
                     placeholder="Ask Kurt for help..."
                     isMuted={isKurtMuted}
                     onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
