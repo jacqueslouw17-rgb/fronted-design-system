@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
@@ -44,26 +46,31 @@ const statusConfig = {
     label: "Offer Accepted",
     color: "bg-muted/50 border-border",
     badgeColor: "bg-muted text-muted-foreground",
+    tooltip: "Candidate has accepted the offer and is ready for next steps",
   },
   "data-pending": {
-    label: "Data Collection Pending",
+    label: "Collect Info",
     color: "bg-accent-yellow-fill/30 border-accent-yellow-outline/20",
     badgeColor: "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30",
+    tooltip: "Waiting for candidate to complete data collection form",
   },
   "drafting": {
-    label: "Contract Drafting",
+    label: "Draft Contract",
     color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    tooltip: "Contract is being drafted and reviewed before sending",
   },
   "awaiting-signature": {
     label: "Awaiting Signature",
     color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
     badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
+    tooltip: "Contract sent to candidate for signature",
   },
   "trigger-onboarding": {
     label: "Trigger Onboarding",
     color: "bg-primary/10 border-primary/20",
     badgeColor: "bg-primary/20 text-primary border-primary/30",
+    tooltip: "Ready to start onboarding checklist",
   },
   "onboarding-pending": {
     label: "In Onboarding",
@@ -75,6 +82,7 @@ const statusConfig = {
     label: "Certified ✅",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+    tooltip: "Candidate is fully certified and payroll-ready",
   },
 };
 
@@ -625,9 +633,25 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         className="h-4 w-4"
                       />
                     )}
-                    <h3 className="font-medium text-sm text-foreground">
-                      {config.label}
-                    </h3>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="font-medium text-sm text-foreground">
+                              {config.label}
+                            </h3>
+                            {config.tooltip && (
+                              <Info className="h-3 w-3 text-muted-foreground" />
+                            )}
+                          </div>
+                        </TooltipTrigger>
+                        {config.tooltip && (
+                          <TooltipContent>
+                            <p className="text-xs">{config.tooltip}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex items-center gap-2">
                     {getSelectedCount(status) > 0 && (
@@ -656,7 +680,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 )}
                 
                 {status === "drafting" && getSelectedCount(status) > 0 && (
-                  <div className="mt-2">
+                  <div className="mt-2 space-y-2">
                     <Button 
                       size="sm" 
                       className="w-full text-xs h-7"
@@ -665,6 +689,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <FileEdit className="h-3 w-3 mr-1" />
                       Draft Contracts ({getSelectedCount(status)})
                     </Button>
+                    
+                    {/* Manual Review Toggle */}
+                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border border-border/50">
+                      <Label htmlFor="require-review" className="text-[10px] leading-tight cursor-pointer">
+                        Require manual approval
+                      </Label>
+                      <Checkbox id="require-review" className="h-3 w-3" />
+                    </div>
                   </div>
                 )}
                 
@@ -827,7 +859,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           )}
 
                           {status === "drafting" && (
-                            <div className="pt-2">
+                            <div className="pt-2 space-y-2">
                               <Button 
                                 size="sm" 
                                 className="w-full text-xs h-8"
@@ -850,6 +882,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   </>
                                 )}
                               </Button>
+                              <p className="text-[10px] text-muted-foreground text-center leading-tight">
+                                You'll be able to review and edit contracts in the next step before sending.
+                              </p>
                             </div>
                           )}
 

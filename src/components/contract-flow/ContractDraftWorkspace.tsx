@@ -251,6 +251,20 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
       />
       
+      {/* Kurt Hint Message */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
+      >
+        <div className="flex items-start gap-3">
+          <Bot className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-foreground">
+            You can edit, comment, and finalize here. Select any text to make inline changes or ask me to help improve specific sections.
+          </p>
+        </div>
+      </motion.div>
+      
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
