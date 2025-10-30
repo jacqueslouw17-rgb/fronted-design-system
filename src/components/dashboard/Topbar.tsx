@@ -61,7 +61,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/?tab=flows")}
+          onClick={() => navigate(version ? "/?tab=flows" : (profileSettingsUrl ? profileSettingsUrl.replace('/profile-settings', '-dashboard') : '/flows/candidate-dashboard'))}
+          className="hover:bg-transparent"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -85,7 +86,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <img 
           src={frontedLogo}
           alt="Fronted"
-          className="h-6 w-auto"
+          className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate(profileSettingsUrl ? profileSettingsUrl.replace('/profile-settings', '-dashboard') : '/dashboard')}
         />
       </div>
 

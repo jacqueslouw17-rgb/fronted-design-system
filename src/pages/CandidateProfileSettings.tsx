@@ -158,16 +158,6 @@ const CandidateProfileSettings = () => {
           <div className="flex-1">
             <AgentLayout context="Profile Settings">
               <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-                {/* Back Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-                  onClick={() => navigate('/flows/candidate-dashboard')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
