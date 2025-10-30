@@ -20,14 +20,14 @@ interface AgentSuggestionChipsProps {
 }
 
 const getChipStyles = (variant: ChipVariant = "default") => {
-  const baseStyles = "h-9 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95";
+  const baseStyles = "h-9 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 border border-border/30 backdrop-blur-sm";
   
   const variantStyles = {
-    default: "border border-border bg-background hover:bg-primary/5 hover:border-primary/40",
-    primary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    info: "border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10",
-    critical: "border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15",
-    disabled: "border border-muted bg-muted/50 text-muted-foreground cursor-not-allowed opacity-60 hover:scale-100",
+    default: "bg-background/60 hover:bg-primary/[0.03] hover:border-primary/30",
+    primary: "bg-secondary/10 text-secondary-foreground hover:bg-secondary/20 border-secondary/20",
+    info: "bg-primary/[0.03] text-primary hover:bg-primary/[0.06] border-primary/20",
+    critical: "bg-destructive/[0.06] text-destructive hover:bg-destructive/10 border-destructive/20",
+    disabled: "bg-muted/30 text-muted-foreground cursor-not-allowed opacity-50 hover:scale-100 border-muted/30",
   };
 
   return cn(baseStyles, variantStyles[variant]);

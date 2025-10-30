@@ -188,9 +188,9 @@ const CandidateDashboard = () => {
                   <div className="grid gap-6">
                     {/* Onboarding & Compliance Card */}
                     <Collapsible open={onboardingOpen} onOpenChange={setOnboardingOpen}>
-                      <Card className="overflow-hidden border-2">
+                      <Card className="overflow-hidden border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                         <CollapsibleTrigger asChild>
-                          <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b cursor-pointer hover:bg-primary/10 transition-colors">
+                          <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 cursor-pointer hover:from-primary/[0.04] hover:to-secondary/[0.04] transition-all duration-200">
                             <div className="flex items-start justify-between">
                               <div className="space-y-1 flex-1">
                                 <CardTitle className="text-xl flex items-center gap-2">
@@ -205,7 +205,7 @@ const CandidateDashboard = () => {
                                   Complete these requirements to proceed to payroll certification
                                 </CardDescription>
                               </div>
-                              <Badge variant="outline" className="bg-background">
+                              <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-border/40">
                                 {verifiedCount} / {checklistRequirements.length}
                               </Badge>
                             </div>
@@ -245,9 +245,9 @@ const CandidateDashboard = () => {
 
                     {/* Payroll Certification Card */}
                     <Collapsible open={payrollOpen} onOpenChange={setPayrollOpen}>
-                      <Card className="overflow-hidden border-2">
+                      <Card className="overflow-hidden border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                         <CollapsibleTrigger asChild>
-                          <CardHeader className="bg-gradient-to-r from-secondary/5 to-accent/5 border-b cursor-pointer hover:bg-secondary/10 transition-colors">
+                          <CardHeader className="bg-gradient-to-r from-secondary/[0.02] to-accent/[0.02] border-b border-border/40 cursor-pointer hover:from-secondary/[0.04] hover:to-accent/[0.04] transition-all duration-200">
                             <div className="flex items-start justify-between">
                               <div className="space-y-1 flex-1">
                                 <CardTitle className="text-xl flex items-center gap-2">
