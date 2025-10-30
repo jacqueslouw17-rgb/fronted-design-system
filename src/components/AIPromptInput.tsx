@@ -97,14 +97,14 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
                 <Badge
                   key={suggestion}
                   variant="outline"
-                  className="cursor-pointer hover:bg-accent transition-colors"
+                  className="cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
                   onClick={() => {
                     setPrompt(suggestion);
                     onSubmit?.(suggestion);
                     setPrompt("");
                   }}
                 >
-                  <Sparkles className="mr-1.5 h-3 w-3 text-primary" />
+                  <Sparkles className="mr-1.5 h-3 w-3" />
                   {suggestion}
                 </Badge>
               ))}
