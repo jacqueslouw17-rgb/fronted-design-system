@@ -147,8 +147,17 @@ const CandidateDashboard = () => {
 
           <div className="flex-1">
             <AgentLayout context="Candidate Dashboard">
-              <main className="flex-1 bg-gradient-to-br from-primary/[0.02] via-background to-secondary/[0.02]">
-                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8">
+              <main className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+                {/* Static background */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                       style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                       style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+                </div>
+
+                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
                   {/* Agent Header */}
                   <AgentHeader
                     title={`Hi ${candidateProfile.name.split(" ")[0]}, I'm here if you need help! 👋`}
