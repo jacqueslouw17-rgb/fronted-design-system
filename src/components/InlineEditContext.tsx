@@ -17,6 +17,7 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
   className,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
@@ -35,57 +36,45 @@ export const InlineEditContext: React.FC<InlineEditContextProps> = ({
     }
   };
 
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const newContent = e.currentTarget.textContent || "";
+    onContentChange?.(newContent);
+  };
+
   useEffect(() => {
     document.addEventListener("mouseup", handleTextSelection);
-    document.addEventListener("selectionchange", handleTextSelection);
     return () => {
       document.removeEventListener("mouseup", handleTextSelection);
-      document.removeEventListener("selectionchange", handleTextSelection);
     };
   }, []);
 
-  // Format content with enhanced heading hierarchy
-  const formatContent = (text: string) => {
-    const lines = text.split('\n');
-    return lines.map((line, index) => {
-      // Check if line is a numbered heading (e.g., "1. POSITION AND DUTIES")
-      const isHeading = /^\d+\.\s+[A-Z\s]+$/.test(line.trim());
-      // Check if line is the main title
-      const isTitle = line.trim() === 'EMPLOYMENT AGREEMENT';
-      
-      if (isTitle) {
-        return (
-          <div key={index} className="font-semibold mb-4">
-            {line}
-          </div>
-        );
-      } else if (isHeading) {
-        return (
-          <div key={index} className="font-semibold mt-6 mb-1">
-            {line}
-          </div>
-        );
-      } else if (line.trim()) {
-        return <div key={index}>{line}</div>;
-      } else {
-        return <div key={index} className="h-4" />;
-      }
-    });
-  };
+  // Update content when it changes from parent
+  useEffect(() => {
+    if (contentRef.current && contentRef.current.textContent !== content) {
+      contentRef.current.textContent = content;
+    }
+  }, [content]);
 
   return (
     <div
       ref={containerRef}
       className={cn(
         "relative min-h-[200px] rounded-lg border border-border bg-card p-6 transition-all duration-200",
-        "hover:border-muted-foreground/20",
+        "hover:border-primary/20 focus-within:border-primary/40",
         className
       )}
     >
       <div 
-        className="prose prose-sm max-w-none text-foreground transition-all duration-300"
+        ref={contentRef}
+        contentEditable
+        onInput={handleInput}
+        suppressContentEditableWarning
+        className={cn(
+          "prose prose-sm max-w-none text-foreground transition-all duration-300",
+          "focus:outline-none whitespace-pre-wrap"
+        )}
       >
-        {formatContent(content)}
+        {content}
       </div>
       {children}
     </div>

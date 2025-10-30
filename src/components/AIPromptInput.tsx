@@ -66,8 +66,8 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
           : undefined
       }
     >
-      <div className="rounded-lg border border-border bg-popover shadow-xl">
-        <div className="flex items-center gap-2 border-b border-border p-3">
+      <div className="rounded-lg border border-border bg-popover/95 backdrop-blur-sm shadow-xl">
+        <div className="flex items-center gap-2 p-3">
           <input
             ref={inputRef}
             type="text"
@@ -75,13 +75,13 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="flex-1 bg-transparent px-2 py-1 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="flex-1 bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           
           <Button
             variant="default"
             size="sm"
-            className="h-8 rounded-md px-3"
+            className="h-9 rounded-md px-3"
             onClick={handleSubmit}
             disabled={!prompt.trim()}
           >
@@ -90,20 +90,21 @@ export const AIPromptInput: React.FC<AIPromptInputProps> = ({
         </div>
 
         {suggestions.length > 0 && (
-          <div className="p-3">
-            <p className="mb-2 text-xs text-muted-foreground">Suggested</p>
+          <div className="border-t border-border p-3">
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Suggested</p>
             <div className="flex flex-wrap gap-2">
               {suggestions.map((suggestion) => (
                 <Badge
                   key={suggestion}
                   variant="outline"
-                  className="cursor-pointer hover:bg-accent"
+                  className="cursor-pointer hover:bg-accent transition-colors"
                   onClick={() => {
                     setPrompt(suggestion);
                     onSubmit?.(suggestion);
+                    setPrompt("");
                   }}
                 >
-                  <Sparkles className="mr-1 h-3 w-3 text-muted-foreground" />
+                  <Sparkles className="mr-1.5 h-3 w-3 text-primary" />
                   {suggestion}
                 </Badge>
               ))}
