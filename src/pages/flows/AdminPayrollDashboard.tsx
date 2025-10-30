@@ -211,7 +211,7 @@ const AdminPayrollDashboard = () => {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Active Issues</h3>
                       {activeIssues.length === 0 ? (
-                        <Card>
+                        <Card className="border border-border/40 bg-card/50 backdrop-blur-sm">
                           <CardContent className="p-6 text-center">
                             <p className="text-sm text-muted-foreground">No active issues</p>
                           </CardContent>
@@ -233,7 +233,7 @@ const AdminPayrollDashboard = () => {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Contractor Progress</h3>
                       {contractor ? (
-                        <Card>
+                        <Card className="border border-border/40 bg-card/50 backdrop-blur-sm">
                           <CardContent className="p-6 space-y-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -275,7 +275,7 @@ const AdminPayrollDashboard = () => {
                           </CardContent>
                         </Card>
                       ) : (
-                        <Card>
+                        <Card className="border border-border/40 bg-card/50 backdrop-blur-sm">
                           <CardContent className="p-6 text-center">
                             <p className="text-sm text-muted-foreground">No contractors in this stage</p>
                           </CardContent>

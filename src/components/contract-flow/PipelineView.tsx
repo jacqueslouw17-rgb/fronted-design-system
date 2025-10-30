@@ -833,7 +833,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         scale: { duration: 0.2 }
                       }}
                     >
-                    <Card className="hover:shadow-card transition-shadow cursor-pointer">
+                    <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm">
                       <CardContent className="p-3 space-y-2">
                         {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">

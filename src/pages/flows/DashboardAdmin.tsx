@@ -54,7 +54,7 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
       onMouseLeave={() => setShowToolbar(false)}
       className="relative"
     >
-      <Card className="hover:shadow-lg transition-all h-full">
+      <Card className="hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           <div className="p-2 rounded-lg bg-primary/10">
@@ -201,7 +201,7 @@ const DashboardAdmin = () => {
                           whileHover={{ scale: 1.04, y: -2 }}
                           whileTap={{ scale: 0.96 }}
                           onClick={() => handleKurtAction(tag.id)}
-                          className="group relative px-4 py-2 rounded-full text-xs font-medium bg-gradient-to-br from-background/80 via-background to-primary/5 border border-border/40 shadow-sm transition-all duration-300 ease-out flex items-center gap-2 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 backdrop-blur-sm cursor-pointer"
+                          className="group relative px-3 py-1.5 rounded-full text-xs font-normal bg-background/60 hover:bg-primary/[0.03] hover:border-primary/30 border border-border/30 backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
                         >
                           <span className="text-foreground">{tag.label}</span>
                         </motion.button>
@@ -227,7 +227,7 @@ const DashboardAdmin = () => {
                     <TabsContent value="list" className="space-y-6">
                       {/* Empty State for Metrics */}
                       <div className="max-w-5xl mx-auto">
-                        <Card className="border-dashed">
+                        <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
                           <CardContent className="flex flex-col items-center justify-center py-12">
                             <div className="rounded-full bg-muted p-4 mb-4">
                               <TrendingUp className="h-8 w-8 text-muted-foreground" />
@@ -244,7 +244,7 @@ const DashboardAdmin = () => {
                     <TabsContent value="pipeline">
                       {mockContractors.length === 0 ? (
                         <div className="max-w-5xl mx-auto">
-                          <Card className="border-dashed">
+                          <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
                             <CardContent className="flex flex-col items-center justify-center py-12">
                               <div className="rounded-full bg-muted p-4 mb-4">
                                 <Users className="h-8 w-8 text-muted-foreground" />
