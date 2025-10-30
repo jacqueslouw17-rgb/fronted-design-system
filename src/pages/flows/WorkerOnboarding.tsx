@@ -20,7 +20,6 @@ import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep
 import WorkerStep3Compliance from "@/components/flows/worker-onboarding/WorkerStep3Compliance";
 import WorkerStep4Payroll from "@/components/flows/worker-onboarding/WorkerStep4Payroll";
 import WorkerStep5WorkSetup from "@/components/flows/worker-onboarding/WorkerStep5WorkSetup";
-import WorkerStep6Checklist from "@/components/flows/worker-onboarding/WorkerStep6Checklist";
 import WorkerStep7Finish from "@/components/flows/worker-onboarding/WorkerStep7Finish";
 import WorkerCompletionScreen from "@/components/flows/worker-onboarding/WorkerCompletionScreen";
 
@@ -30,7 +29,6 @@ const FLOW_STEPS = [
   { id: "compliance", title: "Compliance Requirements", icon: "📋" },
   { id: "payroll", title: "Payroll Details", icon: "💰" },
   { id: "work_setup", title: "Work Setup & Agreements", icon: "💼" },
-  { id: "checklist", title: "Onboarding Checklist", icon: "✅" },
   { id: "finish", title: "All Set!", icon: "🎉" }
 ];
 
@@ -319,14 +317,6 @@ const WorkerOnboarding = () => {
                         )}
                         {step.id === "work_setup" && (
                           <WorkerStep5WorkSetup
-                            formData={state.formData}
-                            onComplete={handleStepComplete}
-                            isProcessing={isProcessing}
-                            isLoadingFields={isLoadingFields}
-                          />
-                        )}
-                        {step.id === "checklist" && (
-                          <WorkerStep6Checklist
                             formData={state.formData}
                             onComplete={handleStepComplete}
                             isProcessing={isProcessing}
