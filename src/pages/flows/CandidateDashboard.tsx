@@ -39,7 +39,7 @@ const CandidateDashboard = () => {
   const contractorId = "maria_santos_ph";
   const contractor = getContractorStatus(contractorId);
 
-  // Initialize demo contractor if not exists
+  // Initialize demo contractor if not exists and sync with onboarding
   useEffect(() => {
     if (!contractor) {
       const { addContractor } = usePayrollSync.getState();
@@ -49,11 +49,11 @@ const CandidateDashboard = () => {
         country: "Philippines",
         flag: "🇵🇭",
         checklist: [
-          { id: "contract_signed", label: "Signed Contract", status: "complete", kurtMessage: "Contract verified by Fronted." },
-          { id: "compliance_docs", label: "Compliance Documents", status: "waiting", kurtMessage: "Please upload your tax form here." },
-          { id: "payroll_setup", label: "Payroll Setup", status: "pending" },
-          { id: "first_payment", label: "First Payment", status: "pending" },
-          { id: "certification", label: "Certification Complete", status: "pending" },
+          { id: "contract_signed", label: "Contract Signed", status: "complete", kurtMessage: "✓ Contract verified by Fronted." },
+          { id: "onboarding_docs", label: "Onboarding Documents", status: "waiting", kurtMessage: "Complete your onboarding checklist below" },
+          { id: "compliance_review", label: "Compliance Review", status: "pending", kurtMessage: "Pending onboarding completion" },
+          { id: "payroll_setup", label: "Payroll System Setup", status: "pending", kurtMessage: "Pending compliance review" },
+          { id: "first_payment", label: "First Payment Ready", status: "pending" },
         ],
         progress: 20,
         issues: [],
@@ -73,12 +73,41 @@ const CandidateDashboard = () => {
     ? Math.round((verifiedCount / checklistRequirements.length) * 100)
     : 0;
 
-  const payrollProgress = contractor?.progress || 0;
+  // Calculate unified progress (onboarding feeds into payroll)
+  const payrollCompleted = contractor?.checklist.filter(i => i.status === 'complete').length || 0;
+  const payrollTotal = contractor?.checklist.length || 0;
+  
+  // Overall progress combines both sections as one flow
+  const totalSteps = checklistRequirements.length + payrollTotal;
+  const completedSteps = verifiedCount + payrollCompleted;
+  const overallProgress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
-  // Overall progress (average of onboarding and payroll)
-  const overallProgress = Math.round(
-    (progressPercentage + payrollProgress) / 2
-  );
+  // Sync payroll certification with onboarding progress
+  useEffect(() => {
+    if (contractor && checklistRequirements.length > 0) {
+      const { updateChecklistItem } = usePayrollSync.getState();
+      
+      // Calculate onboarding completion
+      const onboardingComplete = verifiedCount === checklistRequirements.length;
+      const onboardingProgress = checklistRequirements.length > 0 
+        ? Math.round((verifiedCount / checklistRequirements.length) * 100)
+        : 0;
+
+      // Update onboarding_docs status based on checklist completion
+      if (onboardingProgress === 100 && contractor.checklist.find(item => item.id === 'onboarding_docs')?.status !== 'complete') {
+        updateChecklistItem(contractorId, 'onboarding_docs', 'complete', '✓ All onboarding documents verified!');
+        updateChecklistItem(contractorId, 'compliance_review', 'waiting', 'Kurt is reviewing your compliance data...');
+        
+        // Simulate compliance review completion after a delay
+        setTimeout(() => {
+          updateChecklistItem(contractorId, 'compliance_review', 'complete', '✓ Compliance review passed!');
+          updateChecklistItem(contractorId, 'payroll_setup', 'waiting', 'Setting up your payroll account...');
+        }, 2000);
+      } else if (onboardingProgress >= 25 && onboardingProgress < 100) {
+        updateChecklistItem(contractorId, 'onboarding_docs', 'waiting', `${onboardingProgress}% complete - keep going!`);
+      }
+    }
+  }, [contractor, checklistRequirements, verifiedCount, contractorId]);
 
   useEffect(() => {
     if (progressPercentage === 100 && !showCompletion) {
@@ -165,9 +194,12 @@ const CandidateDashboard = () => {
                       <span className="text-sm font-medium">{overallProgress}% Complete</span>
                     </div>
                     <ProgressBar 
-                      currentStep={verifiedCount + (contractor?.checklist.filter(i => i.status === 'complete').length || 0)} 
-                      totalSteps={checklistRequirements.length + (contractor?.checklist.length || 0)} 
+                      currentStep={completedSteps} 
+                      totalSteps={totalSteps} 
                     />
+                    <p className="text-sm text-muted-foreground">
+                      Complete your onboarding to unlock payroll certification
+                    </p>
                   </div>
 
                   {/* Main Content Cards */}
@@ -181,14 +213,14 @@ const CandidateDashboard = () => {
                               <div className="space-y-1 flex-1">
                                 <CardTitle className="text-xl flex items-center gap-2">
                                   <FileCheck className="h-5 w-5 text-primary" />
-                                  Onboarding & Compliance
+                                  Step 1: Onboarding & Compliance
                                   <ChevronDown className={cn(
                                     "h-5 w-5 text-muted-foreground transition-transform ml-2",
                                     onboardingOpen && "rotate-180"
                                   )} />
                                 </CardTitle>
                                 <CardDescription>
-                                  Required documents and verification from your onboarding
+                                  Complete these requirements to proceed to payroll certification
                                 </CardDescription>
                               </div>
                               <Badge variant="outline" className="bg-background">
@@ -238,18 +270,18 @@ const CandidateDashboard = () => {
                               <div className="space-y-1 flex-1">
                                 <CardTitle className="text-xl flex items-center gap-2">
                                   <Loader2 className="h-5 w-5 text-secondary" />
-                                  Payroll Certification
+                                  Step 2: Payroll Certification
                                   <ChevronDown className={cn(
                                     "h-5 w-5 text-muted-foreground transition-transform ml-2",
                                     payrollOpen && "rotate-180"
                                   )} />
                                 </CardTitle>
                                 <CardDescription>
-                                  Complete these steps to get payroll ready
+                                  System verification and payroll setup (auto-updates as you progress)
                                 </CardDescription>
                               </div>
                               <Badge variant="outline" className="bg-background">
-                                {contractor?.checklist.filter(i => i.status === 'complete').length || 0} / {contractor?.checklist.length || 0}
+                                {payrollCompleted} / {payrollTotal}
                               </Badge>
                             </div>
                           </CardHeader>
