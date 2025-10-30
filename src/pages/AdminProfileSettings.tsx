@@ -74,12 +74,51 @@ const AdminProfileSettings = () => {
         supabase.from("user_integrations").select("*").eq("user_id", uid).maybeSingle()
       ]);
 
+      // Map database columns to component expected format
+      const mappedOrgProfile = orgProfile.data ? {
+        companyName: orgProfile.data.company_name || "",
+        legalEntityName: "",
+        primaryContactName: orgProfile.data.contact_name || "Joe User",
+        primaryContactEmail: orgProfile.data.contact_email || "",
+        hqCountry: orgProfile.data.hq_country || "",
+        payrollFrequency: orgProfile.data.payroll_frequency || "monthly",
+        payoutDay: "25",
+        dualApproval: true
+      } : {};
+
+      const mappedLocalization = localization.data ? {
+        selectedCountries: localization.data.operating_countries || [],
+        countries: localization.data.operating_countries || []
+      } : {};
+
+      const mappedIntegrations = integrations.data ? {
+        slackConnected: !!integrations.data.hr_system,
+        fxConnected: !!integrations.data.banking_partner,
+        googleSignConnected: false
+      } : {};
+
       setFormData({
-        companyDetails: orgProfile.data || {},
-        compliance: {},
-        localization: localization.data || {},
-        integrations: integrations.data || {},
-        userManagement: {}
+        companyDetails: mappedOrgProfile,
+        compliance: {
+          dataRetentionPolicy: "7-years",
+          autoComplianceCheck: true,
+          documentExpiryReminder: "30-days",
+          laborLawUpdates: true,
+          complianceReportFrequency: "monthly"
+        },
+        localization: mappedLocalization,
+        integrations: mappedIntegrations,
+        userManagement: {
+          users: [
+            {
+              id: "1",
+              name: "Joe User",
+              email: orgProfile.data?.contact_email || "joe@fronted.com",
+              role: "admin",
+              status: "active"
+            }
+          ]
+        }
       });
     } catch (error) {
       toast.error("Failed to load profile data");
@@ -119,13 +158,23 @@ const AdminProfileSettings = () => {
 
     setIsSaving(true);
     try {
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUserId = session?.user?.id || userId;
+
+      if (!currentUserId) {
+        toast.error("Please log in to save settings");
+        setIsSaving(false);
+        return;
+      }
+
       // Handle different section saves
       switch (stepId) {
         case "company-details":
           await supabase
             .from("organization_profiles")
             .upsert({
-              user_id: userId,
+              user_id: currentUserId,
               company_name: data.companyName,
               contact_email: data.primaryContactEmail,
               contact_phone: data.contact_phone || null,
@@ -143,7 +192,7 @@ const AdminProfileSettings = () => {
             .from("localization_settings")
             .upsert({
               operating_countries: data.selectedCountries,
-              user_id: userId
+              user_id: currentUserId
             }, { onConflict: "user_id" });
           break;
 
@@ -152,7 +201,7 @@ const AdminProfileSettings = () => {
             .from("user_integrations")
             .upsert({
               ...data,
-              user_id: userId
+              user_id: currentUserId
             }, { onConflict: "user_id" });
           break;
       }
