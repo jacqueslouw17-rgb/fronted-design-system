@@ -19,7 +19,7 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
   ];
 
   return (
-    <div className="relative w-64 h-32 flex items-center justify-center gap-2">
+    <div className="relative w-64 h-32 flex items-center justify-center gap-2" style={{ contain: 'layout' }}>
       {/* Glow effect behind waves */}
       {isFullyActive && (
         <motion.div
@@ -45,21 +45,19 @@ const AudioWaveVisualizer = ({ isActive = false, isListening = false, isDetectin
           style={{
             background: wave.color,
             boxShadow: isFullyActive ? `0 0 20px ${wave.color}` : 'none',
+            willChange: 'height',
           }}
           animate={
             isFullyActive
               ? {
                   height: [wave.activeHeight * 0.3, wave.activeHeight, wave.activeHeight * 0.4, wave.activeHeight, wave.activeHeight * 0.3],
-                  scaleY: [1, 1.2, 0.8, 1.2, 1],
                 }
               : isListening
               ? {
                   height: [8, 10, 8],
-                  scaleY: [1, 1, 1],
                 }
               : {
                   height: [wave.restingHeight * 0.8, wave.restingHeight, wave.restingHeight * 0.8],
-                  scaleY: [1, 1.1, 1],
                 }
           }
           transition={{
