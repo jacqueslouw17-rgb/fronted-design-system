@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
+import { StartOnboardingConfirmation } from "./StartOnboardingConfirmation";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
 
@@ -115,6 +116,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   const [signingTransitionIds, setSigningTransitionIds] = useState<Set<string>>(new Set());
   const [resentFormIds, setResentFormIds] = useState<Set<string>>(new Set());
+  const [startOnboardingConfirmOpen, setStartOnboardingConfirmOpen] = useState(false);
+  const [selectedForOnboarding, setSelectedForOnboarding] = useState<Contractor | null>(null);
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -369,7 +372,18 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     setSignatureDrawerOpen(false);
   };
 
-  const handleStartOnboarding = (contractor: Contractor) => {
+  const handleStartOnboardingClick = (contractor: Contractor) => {
+    setSelectedForOnboarding(contractor);
+    setStartOnboardingConfirmOpen(true);
+  };
+
+  const handleConfirmStartOnboarding = () => {
+    if (!selectedForOnboarding) return;
+    
+    setStartOnboardingConfirmOpen(false);
+    
+    const contractor = selectedForOnboarding;
+    
     // Get country code for checklist
     const countryCode = contractor.country === "Philippines" ? "PH" : 
                        contractor.country === "Norway" ? "NO" : "XK";
@@ -916,7 +930,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 className="w-full text-xs h-8 bg-gradient-primary"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleStartOnboarding(contractor);
+                                  handleStartOnboardingClick(contractor);
                                 }}
                               >
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -1047,6 +1061,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         candidate={selectedForSignature}
         onComplete={handleSignatureComplete}
         onSendForSignatures={handleSendForSignatures}
+      />
+
+      {/* Start Onboarding Confirmation */}
+      <StartOnboardingConfirmation
+        open={startOnboardingConfirmOpen}
+        onOpenChange={setStartOnboardingConfirmOpen}
+        contractor={selectedForOnboarding}
+        onConfirm={handleConfirmStartOnboarding}
       />
     </div>
   );
