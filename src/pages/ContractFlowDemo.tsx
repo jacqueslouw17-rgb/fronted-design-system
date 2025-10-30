@@ -580,7 +580,7 @@ const ContractFlowDemo = () => {
                                 dataReceived: true,
                                 employmentType: candidate.employmentType || "contractor",
                               })),
-                              // Certified candidates
+                              // Payroll Ready candidates
                               {
                                 id: "cert-1",
                                 name: "Emma Wilson",
@@ -588,7 +588,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇬🇧",
                                 role: "Senior Backend Developer",
                                 salary: "£6,500/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                               },
                               {
@@ -598,7 +598,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇪🇸",
                                 role: "Product Manager",
                                 salary: "€5,200/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -608,7 +608,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇯🇵",
                                 role: "UI/UX Designer",
                                 salary: "¥650,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -618,7 +618,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇫🇷",
                                 role: "Data Scientist",
                                 salary: "€5,800/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                               },
                               {
@@ -628,7 +628,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇪🇬",
                                 role: "Mobile Developer",
                                 salary: "EGP 45,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -638,7 +638,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇵🇱",
                                 role: "QA Engineer",
                                 salary: "PLN 15,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                               },
                               {
@@ -648,7 +648,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇧🇷",
                                 role: "Full Stack Developer",
                                 salary: "R$ 18,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -658,7 +658,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇮🇳",
                                 role: "DevOps Engineer",
                                 salary: "₹2,50,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                               },
                               {
@@ -668,7 +668,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇸🇪",
                                 role: "Security Engineer",
                                 salary: "SEK 58,000/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -678,7 +678,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇵🇹",
                                 role: "Content Strategist",
                                 salary: "€3,200/mo",
-                                status: "certified" as const,
+                                status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                               },
                             ]}

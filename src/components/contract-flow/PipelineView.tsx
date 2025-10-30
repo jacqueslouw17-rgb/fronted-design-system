@@ -25,7 +25,7 @@ interface Contractor {
   countryFlag: string;
   role: string;
   salary: string;
-  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified" | "payroll-ready";
+  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "payroll-ready";
   formSent?: boolean;
   dataReceived?: boolean;
   employmentType?: "contractor" | "employee";
@@ -79,17 +79,11 @@ const statusConfig = {
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
     tooltip: "Monitor completion status and send reminders",
   },
-  "certified": {
-    label: "All Done ✅",
-    color: "bg-accent-green-fill/30 border-accent-green-outline/20",
-    badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-    tooltip: "Everything's good to go — candidate is payroll-ready",
-  },
   "payroll-ready": {
     label: "Certified & Payroll Ready",
-    color: "bg-primary/10 border-primary/20",
-    badgeColor: "bg-primary/20 text-primary border-primary/30",
-    tooltip: "Payroll certification and compliance monitoring",
+    color: "bg-accent-green-fill/30 border-accent-green-outline/20",
+    badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+    tooltip: "All done ✅ — payroll certified and ready",
   },
 };
 
@@ -100,7 +94,6 @@ const columns = [
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
-  "certified",
   "payroll-ready",
 ] as const;
 
@@ -252,56 +245,35 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   // Monitor onboarding progress and auto-complete when 100%
   React.useEffect(() => {
     const completedContractors = contractors.filter(
-      c => c.status === "onboarding-pending" && c.checklistProgress === 100
+      c => c.status === "onboarding-pending" && 
+           c.checklistProgress === 100 &&
+           !notifiedPayrollReadyIds.current.has(c.id)
     );
 
     if (completedContractors.length > 0) {
-      // Then move to certified after brief delay
-      setTimeout(() => {
-        const updated = contractors.map(c => 
-          completedContractors.some(cc => cc.id === c.id)
-            ? { ...c, status: "certified" as const }
-            : c
-        );
-        
-        setContractors(updated);
-        onContractorUpdate?.(updated);
-
-        // Show Genie celebration message after moving to certified
-        setTimeout(() => {
-          completedContractors.forEach((contractor) => {
-            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
-              duration: 5000,
-            });
-          });
-        }, 500);
-      }, 1500);
-    }
-
-    // Auto-move certified contractors to payroll-ready after 3 seconds
-    const certifiedContractors = contractors.filter(
-      c => c.status === "certified" && !notifiedPayrollReadyIds.current.has(c.id)
-    );
-
-    if (certifiedContractors.length > 0) {
+      // Move directly to payroll-ready after brief delay
       const timer = setTimeout(() => {
         const updated = contractors.map(c => 
-          certifiedContractors.some(cc => cc.id === c.id)
+          completedContractors.some(cc => cc.id === c.id)
             ? { ...c, status: "payroll-ready" as const }
             : c
         );
         
         // Mark these contractors as notified
-        certifiedContractors.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
+        completedContractors.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
         
         setContractors(updated);
         onContractorUpdate?.(updated);
 
-        // Only show toast once for the batch
-        toast.info("Contractor moved to Payroll Ready column", {
-          description: "Ready for final payroll certification",
-        });
-      }, 3000);
+        // Show celebration message after moving to payroll-ready
+        setTimeout(() => {
+          completedContractors.forEach((contractor) => {
+            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is certified and payroll-ready!`, {
+              duration: 5000,
+            });
+          });
+        }, 500);
+      }, 1500);
       
       return () => clearTimeout(timer);
     }
@@ -1031,17 +1003,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 📋 Checklist in Progress
                               </Badge>
                             </div>
-                          )}
-
-                          {/* Status Badge for certified */}
-                          {status === "certified" && (
-                            <Badge 
-                              variant="outline" 
-                              className={cn("w-full justify-center text-xs", config.badgeColor)}
-                            >
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              {config.label}
-                            </Badge>
                           )}
 
                           {/* Payroll Ready Status with Action */}
