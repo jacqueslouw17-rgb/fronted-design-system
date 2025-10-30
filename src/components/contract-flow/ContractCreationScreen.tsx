@@ -359,15 +359,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
           <div className="relative">
-            <div className="text-xs text-muted-foreground mb-2 text-center">
-              <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                </span>
-                Kurt is assisting you in Agent Mode
-              </span>
-            </div>
             <KurtContextualTags
               flowContext="contract-creation"
               onTagClick={handleKurtAction}
