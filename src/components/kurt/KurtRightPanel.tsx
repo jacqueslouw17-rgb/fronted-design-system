@@ -85,6 +85,11 @@ export const KurtRightPanel: React.FC<KurtRightPanelProps> = ({
 function getContextLabel(context: FlowContext): string {
   const labels: Record<FlowContext, string> = {
     "contract-creation": "Contract Creation",
+    "contract-workspace": "Contract Workspace",
+    "contract-bundle": "Contract Bundle",
+    "contract-review": "Contract Review",
+    "document-bundle": "Document Bundle",
+    "signature-phase": "Signature Phase",
     "admin-onboarding": "Admin Onboarding",
     "candidate-onboarding": "Candidate Onboarding",
     "checklist": "Checklist Progress",

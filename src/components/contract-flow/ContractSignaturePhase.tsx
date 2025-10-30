@@ -9,6 +9,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
+import { KurtContextualTags } from "@/components/kurt";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -125,6 +126,15 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        tags={
+          <KurtContextualTags
+            flowContext="signature-phase"
+            onTagClick={(action) => {
+              console.log('Signature action:', action);
+            }}
+            disabled={false}
+          />
+        }
       />
 
       {/* Genie message */}

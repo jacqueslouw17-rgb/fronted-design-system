@@ -23,6 +23,8 @@ import { Bot, FileText, Shield, Clock, CheckCircle2, Mail, AlertCircle, X } from
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { KurtContextualTags } from "@/components/kurt";
 
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
@@ -204,33 +206,28 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-8">
-      {/* Header Section */}
+      {/* Agent Header with Tags */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="text-center space-y-2"
       >
-        <div className="flex justify-center">
-          <AudioWaveVisualizer 
-            isActive={!hasWelcomeSpoken} 
-            isListening={true}
-            isDetectingVoice={isSpeaking}
-          />
-        </div>
-        <h1 className="text-3xl font-bold">Document Bundle & Signature</h1>
-        <p className="text-foreground/60 relative max-w-2xl mx-auto">
-          {subtextWords.map((word, index) => (
-            <span
-              key={index}
-              className={`transition-colors duration-200 ${
-                isSpeaking && currentWordIndex === index ? 'text-foreground/90 font-medium' : ''
-              }`}
-            >
-              {word}{" "}
-            </span>
-          ))}
-        </p>
+        <AgentHeader
+          title="Document Bundle & Signature"
+          subtitle="Review document bundles for each candidate and prepare for signature collection"
+          showPulse={true}
+          isActive={!hasWelcomeSpoken}
+          isMuted={false}
+          tags={
+            <KurtContextualTags
+              flowContext="document-bundle"
+              onTagClick={(action) => {
+                console.log('Bundle action:', action);
+              }}
+              disabled={false}
+            />
+          }
+        />
       </motion.div>
 
       {/* Kurt's Initial Message */}

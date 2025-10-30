@@ -705,59 +705,23 @@ const ContractFlowDemo = () => {
                   {/* Main Content */}
                   <div className="flex-1 flex flex-col items-center justify-center p-8">
                     <div className="w-full max-w-4xl space-y-8">
-                      {/* Audio Wave Visualizer - Centered */}
-                      <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex justify-center"
-                      >
-                        <AudioWaveVisualizer 
-                          isActive={!hasSpokenPhase["bundle-creation"]} 
-                          isListening={true}
-                          isDetectingVoice={isSpeaking}
-                        />
-                      </motion.div>
-
-                      {/* Header - Centered */}
-                      <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold text-foreground">Contract Bundle</h1>
-                        <p className="text-base text-muted-foreground">
-                          {"Select documents to include in the signing package".split(' ').map((word, index) => (
-                            <span
-                              key={index}
-                              className={`transition-colors duration-200 ${
-                                isSpeaking && ttsWordIndex === index ? 'text-foreground/90 font-medium' : ''
-                              }`}
-                            >
-                              {word}{" "}
-                            </span>
-                          ))}
-                        </p>
-                      </div>
                       
-                      {/* Agent Chat Box */}
+                      {/* Agent Header with Tags */}
                       <div className="mb-8">
-                        <AgentChatBox
-                          onSendMessage={async (message) => {
-                            // Add user message
-                            addMessage({
-                              role: 'user',
-                              text: message,
-                            });
-                            
-                            // Open the agent panel
-                            setOpen(true);
-                            
-                            // Respond with a generic message
-                            setLoading(true);
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                            addMessage({
-                              role: 'kurt',
-                              text: `I understand you're asking about "${message}". Let me help you with that.`,
-                            });
-                            setLoading(false);
-                          }}
-                          placeholder="Ask Kurt anything..."
+                        <AgentHeader
+                          title="Contract Bundle"
+                          subtitle="Select documents to include in the signing package"
+                          showPulse={true}
+                          isActive={!hasSpokenPhase["bundle-creation"]}
+                          isMuted={isKurtMuted}
+                          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                          tags={
+                            <KurtContextualTags
+                              flowContext="contract-bundle"
+                              onTagClick={handleKurtAction}
+                              disabled={false}
+                            />
+                          }
                         />
                       </div>
 

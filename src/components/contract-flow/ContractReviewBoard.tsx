@@ -8,6 +8,7 @@ import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
+import { KurtContextualTags } from "@/components/kurt";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -41,6 +42,16 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        tags={
+          <KurtContextualTags
+            flowContext="contract-review"
+            onTagClick={(action) => {
+              // Handle tag actions here
+              console.log('Review action:', action);
+            }}
+            disabled={false}
+          />
+        }
       />
 
       {/* Review cards */}

@@ -92,6 +92,26 @@ function getTagsForContext(context: FlowContext): Tag[] {
   const tagMap: Record<FlowContext, Tag[]> = {
     "contract-creation": [
       {
+        id: "track-progress",
+        label: "Track Progress",
+        description: "View onboarding progress for all candidates",
+        icon: <Clock className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "resend-link",
+        label: "Resend Link",
+        description: "Resend onboarding link to candidates",
+        icon: <Send className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "mark-complete",
+        label: "Mark Complete",
+        description: "Mark onboarding as complete",
+        icon: <CheckCircle className="h-3.5 w-3.5" />,
+      },
+    ],
+    "contract-workspace": [
+      {
         id: "quick-summary",
         label: "Quick Summary",
         description: "Generate a concise contract summary",
@@ -126,6 +146,86 @@ function getTagsForContext(context: FlowContext): Tag[] {
         label: "Compare Drafts",
         description: "Compare different versions of the contract",
         icon: <Copy className="h-3.5 w-3.5" />,
+      },
+    ],
+    "contract-bundle": [
+      {
+        id: "add-documents",
+        label: "Add Documents",
+        description: "Add additional documents to bundle",
+        icon: <FileText className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "review-bundle",
+        label: "Review Bundle",
+        description: "Review all documents in bundle",
+        icon: <CheckSquare className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "check-compliance",
+        label: "Check Compliance",
+        description: "Verify compliance requirements",
+        icon: <Wrench className="h-3.5 w-3.5" />,
+      },
+    ],
+    "contract-review": [
+      {
+        id: "highlight-changes",
+        label: "Highlight Changes",
+        description: "Show recent modifications",
+        icon: <Copy className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "check-compliance",
+        label: "Check Compliance",
+        description: "Verify compliance with regulations",
+        icon: <CheckSquare className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "preview-contract",
+        label: "Preview Contract",
+        description: "View final contract preview",
+        icon: <FileText className="h-3.5 w-3.5" />,
+      },
+    ],
+    "document-bundle": [
+      {
+        id: "auto-attach",
+        label: "Auto-Attach Required",
+        description: "Automatically attach required documents",
+        icon: <FileText className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "check-docs",
+        label: "Check Documents",
+        description: "Review all documents in bundle",
+        icon: <CheckSquare className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "compliance-review",
+        label: "Compliance Review",
+        description: "Verify compliance requirements",
+        icon: <Wrench className="h-3.5 w-3.5" />,
+      },
+    ],
+    "signature-phase": [
+      {
+        id: "check-status",
+        label: "Check Status",
+        description: "View signature status for all candidates",
+        icon: <Clock className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "resend-link",
+        label: "Resend Link",
+        description: "Resend signing link to candidates",
+        icon: <Send className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "download-signed",
+        label: "Download Signed",
+        description: "Download signed contracts",
+        icon: <Database className="h-3.5 w-3.5" />,
       },
     ],
     "admin-onboarding": [

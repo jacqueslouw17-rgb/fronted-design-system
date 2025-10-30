@@ -268,7 +268,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
           <KurtContextualTags
-            flowContext="contract-creation"
+            flowContext="contract-workspace"
             onTagClick={handleKurtAction}
             disabled={false}
           />

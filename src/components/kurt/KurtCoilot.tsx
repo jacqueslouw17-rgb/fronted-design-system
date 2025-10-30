@@ -9,7 +9,17 @@ import { KurtRightPanel } from "./KurtRightPanel";
 import { KurtBubble } from "./KurtBubble";
 
 export type KurtState = "inactive" | "thinking" | "working" | "responding" | "idle";
-export type FlowContext = "contract-creation" | "admin-onboarding" | "candidate-onboarding" | "checklist" | "payroll";
+export type FlowContext = 
+  | "contract-creation" 
+  | "contract-workspace"
+  | "contract-bundle"
+  | "contract-review"
+  | "document-bundle"
+  | "signature-phase"
+  | "admin-onboarding" 
+  | "candidate-onboarding" 
+  | "checklist" 
+  | "payroll";
 
 interface KurtCoilotProps {
   flowContext: FlowContext;
