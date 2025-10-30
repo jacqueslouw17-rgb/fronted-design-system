@@ -105,7 +105,7 @@ export const ContractCarousel: React.FC<ContractCarouselProps> = ({
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
-          <Card>
+          <Card className="border border-border/40 bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

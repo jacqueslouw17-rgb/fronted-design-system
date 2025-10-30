@@ -425,7 +425,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       </motion.div>
 
       {/* Employment Type Toggle */}
-      <Card className="p-6 space-y-6">
+      <Card className="p-6 space-y-6 border border-border/40 bg-card/50 backdrop-blur-sm">
         {/* Auto-populated fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

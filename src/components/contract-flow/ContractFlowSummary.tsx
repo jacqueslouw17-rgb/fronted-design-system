@@ -79,7 +79,7 @@ export const ContractFlowSummary: React.FC<ContractFlowSummaryProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <Card className="border-primary/20 bg-primary/5">
+        <Card className="border-primary/20 bg-primary/5 backdrop-blur-sm">
           <CardContent className="p-4 flex items-start gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Bot className="h-5 w-5 text-primary" />

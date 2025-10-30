@@ -160,7 +160,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
       </motion.div>
 
       {/* Progress bar */}
-      <Card className="p-6">
+      <Card className="p-6 border border-border/40 bg-card/50 backdrop-blur-sm">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-foreground">Signing Progress</span>

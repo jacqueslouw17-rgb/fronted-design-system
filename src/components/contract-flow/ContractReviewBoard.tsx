@@ -72,7 +72,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1, duration: 0.3 }}
             >
-              <Card className="p-5 hover:shadow-elevated transition-shadow relative overflow-hidden">
+              <Card className="p-5 hover:shadow-elevated transition-shadow relative overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
                 {/* Loading color animation overlay */}
                 {isLoading && (
                   <motion.div
@@ -148,7 +148,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.3 }}
       >
-        <Card className="p-4">
+        <Card className="p-4 border border-border/40 bg-card/50 backdrop-blur-sm">
           <label className="text-sm font-medium text-foreground mb-2 block">
             Review Comment (Optional)
           </label>

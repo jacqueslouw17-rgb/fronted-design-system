@@ -357,7 +357,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: candidateIndex * 0.2, duration: 0.4 }}
               >
-                <Card className="overflow-hidden">
+                <Card className="overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
                   <div className="p-6 border-b bg-muted/30">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">

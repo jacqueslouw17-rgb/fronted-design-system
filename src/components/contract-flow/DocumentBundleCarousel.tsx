@@ -175,7 +175,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
             transition={{ duration: 0.3 }}
             className="absolute inset-0"
           >
-            <Card className="h-full p-6">
+            <Card className="h-full p-6 border border-border/40 bg-card/50 backdrop-blur-sm">
               <div className="flex flex-col h-full">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="p-3 rounded-lg bg-primary/10">

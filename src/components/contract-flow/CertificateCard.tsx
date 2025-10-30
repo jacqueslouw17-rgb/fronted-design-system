@@ -32,7 +32,7 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
         bounce: 0.4,
       }}
     >
-      <Card className="p-5 hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+      <Card className="p-5 hover:shadow-lg transition-all duration-300 group relative overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         

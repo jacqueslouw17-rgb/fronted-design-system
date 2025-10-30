@@ -16,7 +16,7 @@ import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
-import { KurtContextualTags } from "@/components/kurt";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractDraftWorkspaceProps {
@@ -365,10 +365,24 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         placeholder="Try: 'Check overtime clause' or 'Summarize benefits'..."
         tags={
-          <KurtContextualTags
-            flowContext="contract-workspace"
-            onTagClick={handleKurtAction}
-            disabled={false}
+          <AgentSuggestionChips
+            chips={[
+              {
+                label: "Quick Summary",
+                variant: "primary",
+                onAction: () => handleKurtAction("quick-summary"),
+              },
+              {
+                label: "Check Fields",
+                variant: "default",
+                onAction: () => handleKurtAction("check-fields"),
+              },
+              {
+                label: "Fix Clauses",
+                variant: "default",
+                onAction: () => handleKurtAction("fix-clauses"),
+              },
+            ]}
           />
         }
       />
@@ -385,7 +399,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         transition={{ delay: 0.1, duration: 0.3 }}
         className="w-80 flex-shrink-0"
       >
-        <Card className="p-6 overflow-auto" style={{ maxHeight: '600px' }}>
+        <Card className="p-6 overflow-auto border border-border/40 bg-card/50 backdrop-blur-sm" style={{ maxHeight: '600px' }}>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-4xl">{candidate.flag}</span>
             <div className="flex-1">

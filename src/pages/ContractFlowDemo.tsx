@@ -32,6 +32,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -487,14 +488,25 @@ const ContractFlowDemo = () => {
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
-                            <div className="relative">
-                              <KurtContextualTags
-                                flowContext="checklist"
-                                onTagClick={handleKurtAction}
-                                disabled={false}
-                              />
-                              <KurtIntroTooltip context="admin-dashboard" />
-                            </div>
+                            <AgentSuggestionChips
+                              chips={[
+                                {
+                                  label: "Track Progress",
+                                  variant: "primary",
+                                  onAction: () => handleKurtAction("track-progress"),
+                                },
+                                {
+                                  label: "Resend Link",
+                                  variant: "default",
+                                  onAction: () => handleKurtAction("resend-link"),
+                                },
+                                {
+                                  label: "Mark Complete",
+                                  variant: "default",
+                                  onAction: () => handleKurtAction("mark-complete"),
+                                },
+                              ]}
+                            />
                           }
                         />
                       )}

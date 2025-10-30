@@ -53,7 +53,7 @@ export const CompliancePreviewCard: React.FC<CompliancePreviewCardProps> = ({
   const rules = complianceRules[countryCode]?.[employmentType] || [];
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card className="border-primary/20 bg-primary/5 backdrop-blur-sm">
       <div className="p-4">
         <button
           onClick={() => setExpanded(!expanded)}

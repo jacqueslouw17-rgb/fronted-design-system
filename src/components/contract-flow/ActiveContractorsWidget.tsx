@@ -18,7 +18,7 @@ export const ActiveContractorsWidget: React.FC<ActiveContractorsWidgetProps> = (
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card className="p-6 hover:shadow-elevated transition-shadow">
+      <Card className="p-6 hover:shadow-elevated transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
