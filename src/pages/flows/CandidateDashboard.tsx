@@ -82,33 +82,6 @@ const CandidateDashboard = () => {
   const completedSteps = verifiedCount + payrollCompleted;
   const overallProgress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
 
-  // Sync payroll certification with onboarding progress
-  useEffect(() => {
-    if (contractor && checklistRequirements.length > 0) {
-      const { updateChecklistItem } = usePayrollSync.getState();
-      
-      // Calculate onboarding completion
-      const onboardingComplete = verifiedCount === checklistRequirements.length;
-      const onboardingProgress = checklistRequirements.length > 0 
-        ? Math.round((verifiedCount / checklistRequirements.length) * 100)
-        : 0;
-
-      // Update onboarding_docs status based on checklist completion
-      if (onboardingProgress === 100 && contractor.checklist.find(item => item.id === 'onboarding_docs')?.status !== 'complete') {
-        updateChecklistItem(contractorId, 'onboarding_docs', 'complete', '✓ All onboarding documents verified!');
-        updateChecklistItem(contractorId, 'compliance_review', 'waiting', 'Kurt is reviewing your compliance data...');
-        
-        // Simulate compliance review completion after a delay
-        setTimeout(() => {
-          updateChecklistItem(contractorId, 'compliance_review', 'complete', '✓ Compliance review passed!');
-          updateChecklistItem(contractorId, 'payroll_setup', 'waiting', 'Setting up your payroll account...');
-        }, 2000);
-      } else if (onboardingProgress >= 25 && onboardingProgress < 100) {
-        updateChecklistItem(contractorId, 'onboarding_docs', 'waiting', `${onboardingProgress}% complete - keep going!`);
-      }
-    }
-  }, [contractor, checklistRequirements, verifiedCount, contractorId]);
-
   useEffect(() => {
     if (progressPercentage === 100 && !showCompletion) {
       setShowCompletion(true);
