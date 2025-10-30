@@ -137,18 +137,6 @@ function getTagsForContext(context: FlowContext): Tag[] {
         description: "Get clarification on legal terminology",
         icon: <HelpCircle className="h-3.5 w-3.5" />,
       },
-      {
-        id: "pull-data",
-        label: "Pull Data",
-        description: "Retrieve candidate data from ATS",
-        icon: <Database className="h-3.5 w-3.5" />,
-      },
-      {
-        id: "compare-drafts",
-        label: "Compare Drafts",
-        description: "Compare different versions of the contract",
-        icon: <Copy className="h-3.5 w-3.5" />,
-      },
     ],
     "contract-bundle": [
       {

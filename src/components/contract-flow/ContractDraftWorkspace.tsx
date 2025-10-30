@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -65,6 +66,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isKurtMuted, setIsKurtMuted] = useState(true);
   const fullContent = getContractContent(candidate);
+  const { setOpen, addMessage } = useAgentState();
 
   useEffect(() => {
     setIsTyping(true);
@@ -136,18 +138,38 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   };
 
   const handleKurtAction = async (action: string) => {
+    setOpen(true);
+    
     switch (action) {
       case "quick-summary":
-        toast.success("Contract summary generated");
+        addMessage({
+          role: "kurt",
+          text: `📋 **Contract Summary for ${candidate.name}**\n\n**Position:** ${candidate.role}\n**Salary:** ${candidate.salary}\n**Start Date:** ${candidate.startDate}\n**Notice Period:** ${candidate.noticePeriod}\n**PTO:** ${candidate.pto}\n\n**Key Points:**\n• Contract localized for ${candidate.country}\n• All required fields completed\n• Compliance clauses included\n• Ready for review and signature`,
+        });
+        break;
+      case "check-fields":
+        addMessage({
+          role: "kurt",
+          text: `✅ **Field Verification Complete**\n\nAll required fields have been verified:\n• Personal Information ✓\n• Compensation Details ✓\n• Employment Terms ✓\n• Legal Clauses ✓\n\nNo missing or invalid data found. Contract is ready to proceed.`,
+        });
         break;
       case "fix-clauses":
-        toast.success("Clauses analyzed and improved");
+        addMessage({
+          role: "kurt",
+          text: `🔧 **Clause Analysis**\n\nI've reviewed the contract clauses for ${candidate.country}:\n\n**Overtime Pay (Clause 6):** Adjusted for local labor laws\n**IP Assignment:** Standard company policy applied\n**Notice Period:** Compliant with ${candidate.country} regulations\n\nAll clauses are optimized and compliant. Would you like me to make any specific adjustments?`,
+        });
         break;
-      case "compare-drafts":
-        toast.success("Drafts compared successfully");
+      case "explain-term":
+        addMessage({
+          role: "kurt",
+          text: `❓ **Legal Term Explanations**\n\nWhich term would you like me to explain? I can help clarify:\n• IP Assignment clauses\n• Notice period requirements\n• Compensation structures\n• PTO policies\n• Termination conditions\n\nJust ask about any specific term in the contract.`,
+        });
         break;
       default:
-        toast.info(`Action: ${action}`);
+        addMessage({
+          role: "kurt",
+          text: `Processing: ${action}`,
+        });
     }
   };
 
@@ -266,6 +288,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        placeholder="Try: 'Check overtime clause' or 'Summarize benefits'..."
         tags={
           <KurtContextualTags
             flowContext="contract-workspace"
