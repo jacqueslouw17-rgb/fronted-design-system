@@ -117,7 +117,45 @@ const DashboardAdmin = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const isFirstTime = searchParams.get('onboarding') === 'complete';
   
-  const welcomeTitle = isFirstTime ? "Welcome onboard, Joe! 🎉" : "Welcome back, Joe! 👋";
+  const welcomeTitle = isFirstTime ? "Welcome onboard, Joe! 🎉" : "Welcome Joe, get to work!";
+
+  const handleKurtAction = async (action: string) => {
+    const { useAgentState } = await import('@/hooks/useAgentState');
+    const { addMessage, setLoading, setOpen } = useAgentState.getState();
+    
+    addMessage({
+      role: 'user',
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    });
+
+    setOpen(true);
+    setLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    let response = '';
+    
+    switch(action) {
+      case 'track-progress':
+        response = "📊 Latest Onboarding Stats\n\nHere's the latest onboarding completion stats for your team:\n\n✅ 3 contractors fully certified\n🔄 2 contractors in onboarding (avg. 67% complete)\n⏳ 1 contractor awaiting signature\n📝 2 contractors drafting contracts\n\nMaria Santos is at 80% completion. Want me to send her a reminder?";
+        break;
+      case 'resend-link':
+        response = "✅ Link Re-sent\n\nDone! I've re-sent Maria's onboarding link and notified her via email.\n\nShe was last active 3 hours ago and completed 4 out of 6 items. I'll remind her again in 24 hours if she doesn't complete it.";
+        break;
+      case 'mark-complete':
+        response = "✅ Marking as Complete\n\nMarking Maria's record as completed. Do you want to archive her onboarding card as well?\n\nThis will:\n• Move her to 'Certified' status\n• Trigger payroll setup\n• Archive the onboarding card";
+        break;
+      default:
+        response = `I'll help you with "${action}". Let me process that for you.`;
+    }
+
+    addMessage({
+      role: 'kurt',
+      text: response,
+    });
+
+    setLoading(false);
+  };
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -135,11 +173,32 @@ const DashboardAdmin = () => {
                 {/* Agent Header */}
                 <AgentHeader
                   title={welcomeTitle}
-                  subtitle="You're all set. Start by sending an offer to your first contractor."
+                  subtitle="Let's finalize contracts and complete onboarding."
                   showPulse={true}
                   isActive={false}
                   isMuted={isKurtMuted}
                   onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                  tags={
+                    <div className="flex flex-wrap justify-center gap-2 px-4 mt-2">
+                      {[
+                        { id: 'track-progress', label: 'Track Progress' },
+                        { id: 'resend-link', label: 'Resend Link' },
+                        { id: 'mark-complete', label: 'Mark Complete' }
+                      ].map((tag) => (
+                        <motion.button
+                          key={tag.id}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          whileHover={{ scale: 1.04, y: -2 }}
+                          whileTap={{ scale: 0.96 }}
+                          onClick={() => handleKurtAction(tag.id)}
+                          className="group relative px-4 py-2 rounded-full text-xs font-medium bg-gradient-to-br from-background/80 via-background to-primary/5 border border-border/40 shadow-sm transition-all duration-300 ease-out flex items-center gap-2 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 backdrop-blur-sm cursor-pointer"
+                        >
+                          <span className="text-foreground">{tag.label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  }
                 />
 
                 {/* People Pipeline Tracking - Full Width */}

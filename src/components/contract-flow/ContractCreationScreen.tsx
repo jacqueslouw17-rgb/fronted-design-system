@@ -280,20 +280,20 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     const newErrors: Record<string, string> = {};
     
     if (!contractData.salary) {
-      newErrors.salary = "Salary is required";
+      newErrors.salary = "Looks like this one's still empty";
     }
     
     if (!contractData.startDate) {
-      newErrors.startDate = "Start date is required";
+      newErrors.startDate = "We'll need this one filled in";
     } else {
       const startDate = new Date(contractData.startDate);
       const today = new Date();
       if (startDate < today) {
         // Genie confirmation for past dates
-        toast.warning("This start date looks in the past. Did you mean a future date?", {
+        toast.warning("Hmm, that doesn't look right — this date seems to be in the past. Did you mean a future date?", {
           duration: 5000,
           action: {
-            label: "Correct it",
+            label: "Fix it",
             onClick: () => {},
           },
         });
@@ -307,7 +307,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   const handleNext = () => {
     if (handleValidate()) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      toast.success("Contract details validated successfully");
+      toast.success("All done ✅ Everything's good to go");
       onNext();
     }
   };
@@ -350,15 +350,24 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
       <AgentHeader
-        title="Contract Drafting in Progress"
-        subtitle="Kurt can help with: showing what's missing, reviewing fields, or auto-filling data."
-        placeholder="Try: 'What's missing?' or 'Review for me'..."
+        title={`Preparing ${candidate.name.split(' ')[0]}'s Contract`}
+        subtitle="Review pre-filled details and make edits before generating the bundle."
+        placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
-        isActive={false}
+        isActive={true}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
           <div className="relative">
+            <div className="text-xs text-muted-foreground mb-2 text-center">
+              <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                Kurt is assisting you in Agent Mode
+              </span>
+            </div>
             <KurtContextualTags
               flowContext="contract-creation"
               onTagClick={handleKurtAction}
@@ -410,16 +419,16 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       {/* Contract Form View */}
       <div className="space-y-6">{/* ... keep existing code */}
 
-      {/* Genie Message */}
+      {/* Kurt First-Use Welcome Bubble */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
       >
         <div className="flex items-start gap-3">
           <Bot className="h-5 w-5 text-primary mt-0.5" />
           <p className="text-sm text-foreground">
-            I've pre-filled the contract details from the data collection form. <strong>Review and adjust as needed</strong>, then I'll generate the contract bundle.
+            💬 Hi there! I can help review fields, generate bundles, or explain clauses — just click the tags above.
           </p>
         </div>
       </motion.div>
@@ -459,7 +468,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
             <Label>
               Start Date
               {errors.startDate && (
-                <span className="text-destructive text-xs ml-2">Required</span>
+                <span className="text-destructive text-xs ml-2">Needs your attention</span>
               )}
             </Label>
             <Input
@@ -475,7 +484,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
             <Label>
               Monthly Salary / Compensation
               {errors.salary && (
-                <span className="text-destructive text-xs ml-2">Required</span>
+                <span className="text-destructive text-xs ml-2">Needs your attention</span>
               )}
             </Label>
             <Input

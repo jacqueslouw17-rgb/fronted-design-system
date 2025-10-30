@@ -147,8 +147,21 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           ]
         });
         break;
+      case "compare-drafts":
+        addMessage({
+          role: "kurt",
+          text: `📝 **Draft Comparison**\n\nComparing V2 and V3 of ${candidate.name.split(' ')[0]}'s contract:\n\n**Changes Found:**\n• Clause 8 (Overtime): Updated rate from 1.25x to 1.5x\n• Clause 12 (Benefits): Added health insurance coverage\n• Section 4 (Notice Period): Changed from 2 weeks to 30 days\n\nAll other clauses remain unchanged.`,
+          actionButtons: [
+            { label: "View Full Diff", action: "show-diff", variant: "outline" }
+          ]
+        });
+        break;
       case "show-diff":
-        toast.info("Showing contract changes...");
+        toast.info("Showing full diff view...");
+        addMessage({
+          role: "kurt",
+          text: "Opening detailed diff viewer with side-by-side comparison...",
+        });
         break;
       default:
         addMessage({
@@ -344,8 +357,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   return (
     <div className="space-y-6">
       <AgentHeader
-        title="Contract Workspace"
-        subtitle={`Reviewing ${candidate.name}'s ${candidate.role} contract for ${candidate.country}`}
+        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`}
+        subtitle="Kurt can help with quick summaries, field checks, or clause explanations."
         showPulse={true}
         isActive={false}
         isMuted={isKurtMuted}

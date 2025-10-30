@@ -111,6 +111,12 @@ function getTagsForContext(context: FlowContext): Tag[] {
         description: "Fill missing data from candidate record",
         icon: <Sparkles className="h-3.5 w-3.5" />,
       },
+      {
+        id: "generate-bundle",
+        label: "Generate Bundle",
+        description: "Create contract bundle for signing",
+        icon: <FileText className="h-3.5 w-3.5" />,
+      },
     ],
     "contract-workspace": [
       {
@@ -136,6 +142,12 @@ function getTagsForContext(context: FlowContext): Tag[] {
         label: "Explain Term",
         description: "Get clarification on legal terminology",
         icon: <HelpCircle className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "compare-drafts",
+        label: "Compare Drafts",
+        description: "Compare different contract versions",
+        icon: <Copy className="h-3.5 w-3.5" />,
       },
     ],
     "contract-bundle": [

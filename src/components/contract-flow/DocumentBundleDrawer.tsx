@@ -151,12 +151,13 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Document Bundle</SheetTitle>
+          <SheetTitle>Package for Signing</SheetTitle>
+          <p className="text-sm text-muted-foreground mt-1">Choose the files you want to include in the signing bundle.</p>
         </SheetHeader>
 
         {candidate && (
           <div className="space-y-6 mt-6">
-            {/* Genie Message */}
+            {/* Kurt Info Banner */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -167,8 +168,7 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm text-foreground flex-1">
-                  Based on your company policies and compliance requirements, I've prepared document bundles for each candidate.
-                  {candidate.countryCode === "PH" && " Philippines workers require additional compliance documentation."}
+                  I've included the standard {candidate.countryCode} Contractor Agreement and NDA — you can remove or add files before sending.
                 </p>
               </div>
             </motion.div>
@@ -193,7 +193,7 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
             <div className="border rounded-lg overflow-hidden">
               {/* Table Header */}
               <div className="grid grid-cols-12 gap-4 p-3 bg-muted/50 border-b text-xs font-medium text-muted-foreground">
-                <div className="col-span-4">Document</div>
+                <div className="col-span-4">File</div>
                 <div className="col-span-3">Type</div>
                 <div className="col-span-3">Status</div>
                 <div className="col-span-2 text-right">Action</div>
@@ -246,7 +246,7 @@ export const DocumentBundleDrawer: React.FC<DocumentBundleDrawerProps> = ({
               <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
                 <p className="text-sm text-foreground flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
-                  Some documents are missing or incomplete. Please resolve before sending.
+                  Hmm, that doesn't look right — some files are still missing. Please add them before sending.
                 </p>
               </div>
             )}

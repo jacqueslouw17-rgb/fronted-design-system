@@ -49,40 +49,40 @@ const statusConfig = {
     tooltip: "Candidate has accepted the offer and is ready for next steps",
   },
   "data-pending": {
-    label: "Collect Info",
+    label: "Collect Candidate Details",
     color: "bg-accent-yellow-fill/30 border-accent-yellow-outline/20",
     badgeColor: "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30",
-    tooltip: "Waiting for candidate to complete data collection form",
+    tooltip: "Send form to collect tax, payment, and compliance info",
   },
   "drafting": {
-    label: "Draft Contract",
+    label: "Prepare Contract",
     color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
-    tooltip: "Contract is being drafted and reviewed before sending",
+    tooltip: "Review candidate details and confirm terms before generating",
   },
   "awaiting-signature": {
-    label: "Awaiting Signature",
+    label: "Waiting for Signature",
     color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
     badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
-    tooltip: "Contract sent to candidate for signature",
+    tooltip: "Contract sent — awaiting candidate review",
   },
   "trigger-onboarding": {
-    label: "Trigger Onboarding",
+    label: "Send for Signing",
     color: "bg-primary/10 border-primary/20",
     badgeColor: "bg-primary/20 text-primary border-primary/30",
-    tooltip: "Ready to start onboarding checklist",
+    tooltip: "Choose the files you want to send for signature",
   },
   "onboarding-pending": {
-    label: "In Onboarding",
+    label: "Track Candidate Progress",
     color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
-    tooltip: "Candidate is completing onboarding requirements",
+    tooltip: "Monitor completion status and send reminders",
   },
   "certified": {
-    label: "Certified ✅",
+    label: "All Done ✅",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-    tooltip: "Candidate is fully certified and payroll-ready",
+    tooltip: "Everything's good to go — candidate is payroll-ready",
   },
 };
 
@@ -257,7 +257,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         // Show Genie celebration message after moving to certified
         setTimeout(() => {
           completedContractors.forEach((contractor) => {
-            toast.success(`🎉 ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
+            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is fully certified and payroll-ready!`, {
               duration: 5000,
             });
           });
@@ -406,13 +406,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     onContractorUpdate?.(updated);
 
     // Show success toast
-    toast.success("✅ Onboarding checklist started", {
+    toast.success("All done ✅ Onboarding started", {
       description: `Magic-link email sent to ${contractor.name.split(' ')[0]}`
     });
 
     // Simulate Genie message (this would integrate with your Genie system)
     setTimeout(() => {
-      toast.info(`Great! I'm preparing ${contractor.name.split(' ')[0]}'s onboarding checklist. I'll notify you when it's completed.`, {
+      toast.info(`Hang on — I'm pulling ${contractor.name.split(' ')[0]}'s onboarding checklist. Please wait a moment.`, {
         duration: 5000,
       });
     }, 1000);
