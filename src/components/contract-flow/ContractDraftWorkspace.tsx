@@ -16,6 +16,7 @@ import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
+import { KurtCoilot } from "@/components/kurt";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -132,6 +133,22 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     setIsProcessing(false);
 
     toast.success("Text updated successfully");
+  };
+
+  const handleKurtAction = async (action: string) => {
+    switch (action) {
+      case "quick-summary":
+        toast.success("Contract summary generated");
+        break;
+      case "fix-clauses":
+        toast.success("Clauses analyzed and improved");
+        break;
+      case "compare-drafts":
+        toast.success("Drafts compared successfully");
+        break;
+      default:
+        toast.info(`Action: ${action}`);
+    }
   };
 
   // Carousel pages
@@ -404,6 +421,12 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </ScrollArea>
       </motion.div>
     </motion.div>
+
+      {/* Kurt Co-pilot */}
+      <KurtCoilot
+        flowContext="contract-creation"
+        onTagAction={handleKurtAction}
+      />
     </div>
   );
 };
