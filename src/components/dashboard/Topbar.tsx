@@ -54,7 +54,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
   };
 
   return (
-    <header className="h-16 border-b bg-card flex items-center justify-between px-6">
+    <header className="sticky top-0 z-50 h-16 border-b bg-card flex items-center justify-between px-6">
       {/* Brand */}
       <div className="flex items-center gap-4 flex-1">
         <Button
