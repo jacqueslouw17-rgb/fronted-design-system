@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { CheckCircle2, FileCheck, Loader2, Clock, AlertCircle, Circle, Users } from "lucide-react";
+import { CheckCircle2, FileCheck, Loader2, Clock, AlertCircle, Circle, Users, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ChecklistItemCard from "@/components/candidate/ChecklistItemCard";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getChecklistForProfile, ChecklistRequirement } from "@/data/candidateChecklistData";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -13,7 +14,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { Progress } from "@/components/ui/progress";
+import ProgressBar from "@/components/ProgressBar";
 import { usePayrollSync } from "@/hooks/usePayrollSync";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,11 @@ const CandidateDashboard = () => {
     { id: "work_preferences", label: "Set work preferences", completed: true },
     { id: "notification_settings", label: "Configure notifications", completed: false },
   ]);
+
+  // Collapsible states
+  const [onboardingOpen, setOnboardingOpen] = useState(true);
+  const [payrollOpen, setPayrollOpen] = useState(true);
+  const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
 
   // Payroll sync state
   const { contractors, getContractorStatus } = usePayrollSync();
@@ -181,41 +187,44 @@ const CandidateDashboard = () => {
                   {/* Overall Progress Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold">Your Setup Progress</h2>
-                      <Badge className="bg-primary/10 text-primary border-primary/30 text-base px-3 py-1">
-                        {overallProgress}% Complete
-                      </Badge>
+                      <h2 className="text-lg font-semibold">Your Setup Progress</h2>
+                      <span className="text-sm font-medium">{overallProgress}% Complete</span>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>Progress</span>
-                        <span>{verifiedCount + ownChecklistCompleted + (contractor?.checklist.filter(i => i.status === 'complete').length || 0)} / {checklistRequirements.length + ownChecklist.length + (contractor?.checklist.length || 0)}</span>
-                      </div>
-                      <Progress value={overallProgress} className="h-3" />
-                    </div>
+                    <ProgressBar 
+                      currentStep={verifiedCount + ownChecklistCompleted + (contractor?.checklist.filter(i => i.status === 'complete').length || 0)} 
+                      totalSteps={checklistRequirements.length + ownChecklist.length + (contractor?.checklist.length || 0)} 
+                    />
                   </div>
 
                   {/* Main Content Cards */}
                   <div className="grid gap-6">
                     {/* Onboarding & Compliance Card */}
-                    <Card className="overflow-hidden border-2">
-                      <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <CardTitle className="text-xl flex items-center gap-2">
-                              <FileCheck className="h-5 w-5 text-primary" />
-                              Onboarding & Compliance
-                            </CardTitle>
-                            <CardDescription>
-                              Required documents and verification from your onboarding
-                            </CardDescription>
-                          </div>
-                          <Badge variant="outline" className="bg-background">
-                            {verifiedCount} / {checklistRequirements.length}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6">
+                    <Collapsible open={onboardingOpen} onOpenChange={setOnboardingOpen}>
+                      <Card className="overflow-hidden border-2">
+                        <CollapsibleTrigger asChild>
+                          <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b cursor-pointer hover:bg-primary/10 transition-colors">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1 flex-1">
+                                <CardTitle className="text-xl flex items-center gap-2">
+                                  <FileCheck className="h-5 w-5 text-primary" />
+                                  Onboarding & Compliance
+                                  <ChevronDown className={cn(
+                                    "h-5 w-5 text-muted-foreground transition-transform ml-2",
+                                    onboardingOpen && "rotate-180"
+                                  )} />
+                                </CardTitle>
+                                <CardDescription>
+                                  Required documents and verification from your onboarding
+                                </CardDescription>
+                              </div>
+                              <Badge variant="outline" className="bg-background">
+                                {verifiedCount} / {checklistRequirements.length}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <CardContent className="p-6">
                         <AnimatePresence mode="wait">
                           {showCompletion ? (
                             <motion.div
@@ -241,28 +250,38 @@ const CandidateDashboard = () => {
                             </div>
                           )}
                         </AnimatePresence>
-                      </CardContent>
-                    </Card>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Card>
+                    </Collapsible>
 
                     {/* Payroll Certification Card */}
-                    <Card className="overflow-hidden border-2">
-                      <CardHeader className="bg-gradient-to-r from-secondary/5 to-accent/5 border-b">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <CardTitle className="text-xl flex items-center gap-2">
-                              <Loader2 className="h-5 w-5 text-secondary" />
-                              Payroll Certification
-                            </CardTitle>
-                            <CardDescription>
-                              Complete these steps to get payroll ready
-                            </CardDescription>
-                          </div>
-                          <Badge variant="outline" className="bg-background">
-                            {contractor?.checklist.filter(i => i.status === 'complete').length || 0} / {contractor?.checklist.length || 0}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6">
+                    <Collapsible open={payrollOpen} onOpenChange={setPayrollOpen}>
+                      <Card className="overflow-hidden border-2">
+                        <CollapsibleTrigger asChild>
+                          <CardHeader className="bg-gradient-to-r from-secondary/5 to-accent/5 border-b cursor-pointer hover:bg-secondary/10 transition-colors">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1 flex-1">
+                                <CardTitle className="text-xl flex items-center gap-2">
+                                  <Loader2 className="h-5 w-5 text-secondary" />
+                                  Payroll Certification
+                                  <ChevronDown className={cn(
+                                    "h-5 w-5 text-muted-foreground transition-transform ml-2",
+                                    payrollOpen && "rotate-180"
+                                  )} />
+                                </CardTitle>
+                                <CardDescription>
+                                  Complete these steps to get payroll ready
+                                </CardDescription>
+                              </div>
+                              <Badge variant="outline" className="bg-background">
+                                {contractor?.checklist.filter(i => i.status === 'complete').length || 0} / {contractor?.checklist.length || 0}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <CardContent className="p-6">
                         <div className="space-y-3">
                           {contractor?.checklist.map((item, index) => (
                             <motion.div
@@ -297,28 +316,38 @@ const CandidateDashboard = () => {
                             </motion.div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Card>
+                    </Collapsible>
 
                     {/* Own Checklist Card */}
-                    <Card className="overflow-hidden border-2">
-                      <CardHeader className="bg-gradient-to-r from-accent/5 to-primary/5 border-b">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <CardTitle className="text-xl flex items-center gap-2">
-                              <Users className="h-5 w-5 text-accent" />
-                              Own Checklist
-                            </CardTitle>
-                            <CardDescription>
-                              Personal tasks to complete your profile setup
-                            </CardDescription>
-                          </div>
-                          <Badge variant="outline" className="bg-background">
-                            {ownChecklistCompleted} / {ownChecklist.length}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6">
+                    <Collapsible open={ownChecklistOpen} onOpenChange={setOwnChecklistOpen}>
+                      <Card className="overflow-hidden border-2">
+                        <CollapsibleTrigger asChild>
+                          <CardHeader className="bg-gradient-to-r from-accent/5 to-primary/5 border-b cursor-pointer hover:bg-accent/10 transition-colors">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1 flex-1">
+                                <CardTitle className="text-xl flex items-center gap-2">
+                                  <Users className="h-5 w-5 text-accent" />
+                                  Own Checklist
+                                  <ChevronDown className={cn(
+                                    "h-5 w-5 text-muted-foreground transition-transform ml-2",
+                                    ownChecklistOpen && "rotate-180"
+                                  )} />
+                                </CardTitle>
+                                <CardDescription>
+                                  Personal tasks to complete your profile setup
+                                </CardDescription>
+                              </div>
+                              <Badge variant="outline" className="bg-background">
+                                {ownChecklistCompleted} / {ownChecklist.length}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <CardContent className="p-6">
                         <div className="space-y-3">
                           {ownChecklist.map((item) => (
                             <motion.div
@@ -353,8 +382,10 @@ const CandidateDashboard = () => {
                             </motion.div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Card>
+                    </Collapsible>
                   </div>
                 </div>
               </main>
