@@ -25,7 +25,7 @@ interface Contractor {
   countryFlag: string;
   role: string;
   salary: string;
-  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified";
+  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified" | "payroll-ready";
   formSent?: boolean;
   dataReceived?: boolean;
   employmentType?: "contractor" | "employee";
@@ -85,6 +85,12 @@ const statusConfig = {
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
     tooltip: "Everything's good to go — candidate is payroll-ready",
   },
+  "payroll-ready": {
+    label: "Certified & Payroll Ready",
+    color: "bg-primary/10 border-primary/20",
+    badgeColor: "bg-primary/20 text-primary border-primary/30",
+    tooltip: "Payroll certification and compliance monitoring",
+  },
 };
 
 const columns = [
@@ -95,6 +101,7 @@ const columns = [
   "trigger-onboarding",
   "onboarding-pending",
   "certified",
+  "payroll-ready",
 ] as const;
 
 export const PipelineView: React.FC<PipelineViewProps> = ({ 
@@ -266,6 +273,28 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
           });
         }, 500);
       }, 1500);
+    }
+
+    // Auto-move certified contractors to payroll-ready after 3 seconds
+    const certifiedContractors = contractors.filter(
+      c => c.status === "certified"
+    );
+
+    if (certifiedContractors.length > 0) {
+      setTimeout(() => {
+        const updated = contractors.map(c => 
+          certifiedContractors.some(cc => cc.id === c.id)
+            ? { ...c, status: "payroll-ready" as const }
+            : c
+        );
+        
+        setContractors(updated);
+        onContractorUpdate?.(updated);
+
+        toast.info("Contractor moved to Payroll Ready column", {
+          description: "Ready for final payroll certification",
+        });
+      }, 3000);
     }
   }, [contractors, onContractorUpdate]);
   
@@ -1004,6 +1033,31 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               <CheckCircle2 className="h-3 w-3 mr-1" />
                               {config.label}
                             </Badge>
+                          )}
+
+                          {/* Payroll Ready Status with Action */}
+                          {status === "payroll-ready" && (
+                            <div className="pt-2 space-y-2">
+                              <Badge 
+                                variant="outline" 
+                                className={cn("w-full justify-center text-xs", config.badgeColor)}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                {config.label}
+                              </Badge>
+                              <Button 
+                                variant="outline"
+                                size="sm" 
+                                className="w-full text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.location.href = '/flows/admin-payroll-dashboard';
+                                }}
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                View Payroll Details
+                              </Button>
+                            </div>
                           )}
                         </CardContent>
                       </Card>
