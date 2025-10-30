@@ -62,29 +62,43 @@ const ContractCreation: React.FC = () => {
 
           {/* Contract Creation Area */}
           <AgentLayout context="Contract Drafting">
-            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
-              <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-                <Link to="/flows/contract-flow" aria-label="Back to pipeline">
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </Button>
-                </Link>
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
+              {/* Static background */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                <div
+                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
+                />
+                <div
+                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                  style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
+                />
               </div>
+              <div className="relative z-10">
+                <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
+                  <Link to="/flows/contract-flow" aria-label="Back to pipeline">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                  </Link>
+                </div>
 
-              <ContractCreationScreen
-                candidate={current}
-                currentIndex={index}
-                totalCandidates={selected.length}
-                onNext={() => {
-                  if (index < selected.length - 1) {
-                    setIndex((i) => i + 1);
-                  } else {
-                    // Navigate to bundle creation phase
-                    navigate("/flows/contract-flow?phase=bundle-creation");
-                  }
-                }}
-              />
+                <ContractCreationScreen
+                  candidate={current}
+                  currentIndex={index}
+                  totalCandidates={selected.length}
+                  onNext={() => {
+                    if (index < selected.length - 1) {
+                      setIndex((i) => i + 1);
+                    } else {
+                      // Navigate to bundle creation phase
+                      navigate("/flows/contract-flow?phase=bundle-creation");
+                    }
+                  }}
+                />
+              </div>
             </div>
           </AgentLayout>
         </main>
