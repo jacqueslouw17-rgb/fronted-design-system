@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -15,6 +15,7 @@ import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
 import { StartOnboardingConfirmation } from "./StartOnboardingConfirmation";
+import { PayrollStatusDrawer } from "./PayrollStatusDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
 
@@ -32,6 +33,17 @@ interface Contractor {
   checklist?: ChecklistRequirement[];
   checklistProgress?: number;
   isTransitioning?: boolean;
+  payrollChecklist?: PayrollChecklistItem[];
+  payrollProgress?: number;
+}
+
+interface PayrollChecklistItem {
+  id: string;
+  label: string;
+  status: "verified" | "pending" | "todo" | "issue";
+  verifiedBy?: string;
+  verifiedAt?: string;
+  details?: string;
 }
 
 interface PipelineViewProps {
@@ -118,9 +130,58 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [resentFormIds, setResentFormIds] = useState<Set<string>>(new Set());
   const [startOnboardingConfirmOpen, setStartOnboardingConfirmOpen] = useState(false);
   const [selectedForOnboarding, setSelectedForOnboarding] = useState<Contractor | null>(null);
+  const [payrollDrawerOpen, setPayrollDrawerOpen] = useState(false);
+  const [selectedForPayroll, setSelectedForPayroll] = useState<Contractor | null>(null);
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
+  
+  // Initialize payroll checklist for payroll-ready contractors
+  React.useEffect(() => {
+    setContractors(current => 
+      current.map(c => {
+        if (c.status === "payroll-ready" && !c.payrollChecklist) {
+          return {
+            ...c,
+            payrollProgress: 40,
+            payrollChecklist: [
+              {
+                id: "signed-contract",
+                label: "Signed Contract",
+                status: "verified" as const,
+                verifiedBy: "Fronted",
+                verifiedAt: "30/10/2025, 17:34:05",
+              },
+              {
+                id: "compliance-docs",
+                label: "Compliance Documents",
+                status: "pending" as const,
+                details: "Tax forms and work permits pending review",
+              },
+              {
+                id: "payroll-setup",
+                label: "Payroll Setup",
+                status: "verified" as const,
+                verifiedBy: "Fronted",
+                verifiedAt: "30/10/2025, 17:34:05",
+              },
+              {
+                id: "first-payment",
+                label: "First Payment",
+                status: "todo" as const,
+              },
+              {
+                id: "certification",
+                label: "Certification Complete",
+                status: "todo" as const,
+              },
+            ],
+          };
+        }
+        return c;
+      })
+    );
+  }, [contractors.filter(c => c.status === "payroll-ready").length]);
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -1005,9 +1066,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Payroll Ready Status with Action */}
+                          {/* Payroll Ready Status with Progress */}
                           {status === "payroll-ready" && (
-                            <div className="pt-2 space-y-2">
+                            <div 
+                              className="pt-2 space-y-2 cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedForPayroll(contractor);
+                                setPayrollDrawerOpen(true);
+                              }}
+                            >
                               <Badge 
                                 variant="outline" 
                                 className={cn("w-full justify-center text-xs", config.badgeColor)}
@@ -1015,18 +1083,34 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
                                 {config.label}
                               </Badge>
-                              <Button 
-                                variant="outline"
-                                size="sm" 
-                                className="w-full text-xs h-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.location.href = '/flows/admin-payroll-dashboard';
-                                }}
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Payroll Details
-                              </Button>
+                              
+                              {/* Inline Progress */}
+                              {contractor.payrollProgress !== undefined && (
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-muted-foreground">Progress</span>
+                                    <span className="font-medium">{contractor.payrollProgress}%</span>
+                                  </div>
+                                  <Progress value={contractor.payrollProgress} className="h-1.5" />
+                                  <div className="text-[10px] text-muted-foreground">
+                                    {contractor.payrollChecklist?.filter(i => i.status === "verified").length || 0} / {contractor.payrollChecklist?.length || 0} items completed
+                                  </div>
+                                  
+                                  {/* Show status indicators */}
+                                  {contractor.payrollChecklist && contractor.payrollChecklist.some(i => i.status === "pending") && (
+                                    <div className="flex items-center gap-1 text-[10px] text-accent-yellow-text">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Items pending review</span>
+                                    </div>
+                                  )}
+                                  {contractor.payrollChecklist && contractor.payrollChecklist.some(i => i.status === "issue") && (
+                                    <div className="flex items-center gap-1 text-[10px] text-destructive">
+                                      <AlertCircle className="h-3 w-3" />
+                                      <span>Action required</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           )}
                         </CardContent>
@@ -1093,6 +1177,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         onOpenChange={setStartOnboardingConfirmOpen}
         contractor={selectedForOnboarding}
         onConfirm={handleConfirmStartOnboarding}
+      />
+
+      {/* Payroll Status Drawer */}
+      <PayrollStatusDrawer
+        open={payrollDrawerOpen}
+        onOpenChange={setPayrollDrawerOpen}
+        contractor={selectedForPayroll}
       />
     </div>
   );
