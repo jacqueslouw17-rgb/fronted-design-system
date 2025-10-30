@@ -16,13 +16,17 @@ import { useAgentState } from "@/hooks/useAgentState";
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
 import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
+import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
+import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
 import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
 import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 
 const FLOW_STEPS = [
   { id: "personal_details", title: "Personal Details", stepNumber: 1 },
   { id: "compliance_docs", title: "Compliance", stepNumber: 2 },
-  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 3 }
+  { id: "bank_details", title: "Payroll Details", stepNumber: 3 },
+  { id: "work_setup", title: "Work Setup & Agreements", stepNumber: 4 },
+  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 5 }
 ];
 
 const CandidateOnboarding = () => {
@@ -232,6 +236,22 @@ const CandidateOnboarding = () => {
                     )}
                     {step.id === "compliance_docs" && (
                       <CandidateStep3Compliance
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "bank_details" && (
+                      <CandidateStep4Bank
+                        formData={state.formData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                        isLoadingFields={isLoadingFields}
+                      />
+                    )}
+                    {step.id === "work_setup" && (
+                      <CandidateStep5WorkSetup
                         formData={state.formData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
