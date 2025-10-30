@@ -43,7 +43,6 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
     { label: "Compliance documents", icon: CheckCircle2, done: !!formData.taxNumber },
     { label: "Payroll details", icon: CheckCircle2, done: !!formData.bankAccount },
     { label: "Work setup", icon: CheckCircle2, done: !!formData.startDate },
-    { label: "Onboarding checklist", icon: CheckCircle2, done: true },
     { label: "Profile ready", icon: CheckCircle2, done: true }
   ];
 
