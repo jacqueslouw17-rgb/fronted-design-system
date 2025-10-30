@@ -86,7 +86,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       {/* Agent Pulse */}
       {showPulse && (
         <div className="flex justify-center scale-75">
-          <AudioWaveVisualizer isActive={isActive} isListening={true} />
+          <AudioWaveVisualizer isActive={isActive} isListening={false} />
         </div>
       )}
 
