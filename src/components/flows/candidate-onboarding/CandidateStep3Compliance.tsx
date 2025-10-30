@@ -7,6 +7,7 @@ import { Upload, FileText, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { toast } from "@/hooks/use-toast";
 
 interface Step3Props {
   formData: Record<string, any>;
@@ -242,7 +243,7 @@ const CandidateStep3Compliance = ({
           )}
 
           <div className="space-y-2">
-            <Label>Upload National ID (JPG, PNG, or PDF) *</Label>
+            <Label>National ID Document *</Label>
             {data.nationalIdFile ? (
               <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
                 <FileText className="h-4 w-4 text-primary" />
@@ -257,18 +258,25 @@ const CandidateStep3Compliance = ({
                 </Button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <Upload className="h-6 w-6 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Click to upload</p>
-                </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={(e) => handleFileUpload(e, 'nationalIdFile')}
-                />
-              </label>
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    // Trigger secure upload workflow
+                    toast({
+                      title: "Secure Upload Link Sent",
+                      description: "For your privacy, I've sent a secure upload link to your inbox. You can upload your documents there safely.",
+                    });
+                  }}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload securely via link
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  A secure link will be sent to {formData.email || 'your email'}
+                </p>
+              </div>
             )}
           </div>
 

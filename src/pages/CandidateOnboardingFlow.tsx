@@ -161,7 +161,7 @@ export default function CandidateOnboardingFlow() {
               </p>
             </div>
 
-            {renderGenieTip("Takes about 3–5 minutes to complete. Your info stays secure and encrypted.")}
+            {renderGenieTip("Your info stays secure and encrypted.")}
 
             <Button 
               size="lg" 
