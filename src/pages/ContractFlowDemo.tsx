@@ -473,7 +473,6 @@ const ContractFlowDemo = () => {
                           }
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-                          tagsLabel="Quick Actions for tracking"
                           tags={
                             <KurtContextualTags
                               flowContext="checklist"
