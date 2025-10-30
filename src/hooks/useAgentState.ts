@@ -15,6 +15,7 @@ export type AgentState = {
   messages: AgentMessage[];
   loading: boolean;
   isSpeaking: boolean;
+  currentWordIndex: number;
   lastAction?: { type: string; payload: any };
   context?: string; // Current flow/page context
 };
@@ -24,6 +25,7 @@ interface AgentStore extends AgentState {
   addMessage: (message: Omit<AgentMessage, 'id' | 'ts'>) => void;
   setLoading: (loading: boolean) => void;
   setIsSpeaking: (isSpeaking: boolean) => void;
+  setCurrentWordIndex: (index: number) => void;
   setLastAction: (action: { type: string; payload: any }) => void;
   setContext: (context: string) => void;
   clearMessages: () => void;
@@ -37,6 +39,7 @@ export const useAgentState = create<AgentStore>()(
       messages: [],
       loading: false,
       isSpeaking: false,
+      currentWordIndex: 0,
       lastAction: undefined,
       context: undefined,
 
@@ -54,6 +57,8 @@ export const useAgentState = create<AgentStore>()(
       setLoading: (loading) => set({ loading }),
 
       setIsSpeaking: (isSpeaking) => set({ isSpeaking }),
+
+      setCurrentWordIndex: (index) => set({ currentWordIndex: index }),
 
       setLastAction: (action) => set({ lastAction: action }),
 

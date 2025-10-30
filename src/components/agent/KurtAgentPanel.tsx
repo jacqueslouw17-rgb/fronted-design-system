@@ -18,13 +18,13 @@ const loadingPhrases = [
 ];
 
 export const KurtAgentPanel: React.FC = () => {
-  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking } = useAgentState();
+  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking, setCurrentWordIndex } = useAgentState();
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [readingMessageId, setReadingMessageId] = useState<string | null>(null);
   const [kurtState, setKurtState] = useState<'idle' | 'listening' | 'thinking' | 'responding' | 'working' | 'complete'>('idle');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { speak, stop, currentWordIndex: localWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
   // Preserve conversation when panel opens; do not clear on mount
   // If needed, we can clear explicitly via a control elsewhere.
@@ -74,6 +74,11 @@ export const KurtAgentPanel: React.FC = () => {
     }
   }, [open]);
 
+  // Sync local word index to global state
+  useEffect(() => {
+    setCurrentWordIndex(localWordIndex);
+  }, [localWordIndex, setCurrentWordIndex]);
+
   // Auto-speak the latest Kurt message after loading completes (only first line/heading)
   useEffect(() => {
     if (!loading && messages.length > 0) {
@@ -85,6 +90,7 @@ export const KurtAgentPanel: React.FC = () => {
         const firstLine = lastMessage.text.split('\n')[0];
         speak(firstLine, () => {
           setIsSpeaking(false);
+          setCurrentWordIndex(0);
           setReadingMessageId(null);
         });
       }
@@ -219,7 +225,7 @@ export const KurtAgentPanel: React.FC = () => {
                                     <span
                                       key={idx}
                                       className={
-                                        idx < currentWordIndex
+                                        idx < localWordIndex
                                           ? 'text-foreground/90'
                                           : 'text-muted-foreground/40'
                                       }
@@ -241,7 +247,7 @@ export const KurtAgentPanel: React.FC = () => {
                                   <span
                                     key={idx}
                                     className={
-                                      idx < currentWordIndex
+                                      idx < localWordIndex
                                         ? 'text-foreground/90'
                                         : 'text-muted-foreground/40'
                                     }

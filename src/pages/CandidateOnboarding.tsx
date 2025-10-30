@@ -44,7 +44,7 @@ const CandidateOnboarding = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Text-to-Speech (Kurt voice over)

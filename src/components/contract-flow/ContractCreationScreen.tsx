@@ -57,7 +57,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isKurtMuted, setIsKurtMuted] = useState(false);
-  const { setOpen, addMessage, setLoading } = useAgentState();
+  const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
 
   // Function to detect missing required fields
   const getMissingFields = (): MissingField[] => {
@@ -354,7 +354,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         subtitle="Review pre-filled details and make edits before generating the bundle."
         placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
-        isActive={true}
+        isActive={isAgentSpeaking}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={

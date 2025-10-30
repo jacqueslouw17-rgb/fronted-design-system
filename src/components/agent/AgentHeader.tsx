@@ -41,9 +41,12 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   tagsLabel,
 }) => {
   const [inputValue, setInputValue] = useState('');
-  const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
+  const { setOpen, addMessage, simulateResponse, isSpeaking, currentWordIndex: globalWordIndex } = useAgentState();
   const isActive = isActiveProp !== undefined ? isActiveProp : isSpeaking;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Use global word index when available, otherwise use prop
+  const displayWordIndex = isSpeaking ? globalWordIndex : currentWordIndex;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,13 +95,13 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         <h1 className="text-3xl font-bold text-foreground">{title}</h1>
         <div className="flex items-center justify-center gap-3">
           <p className="text-base">
-            {enableWordHighlight ? (
-              // Word-by-word highlighting when speaking
+            {enableWordHighlight || isSpeaking ? (
+              // Word-by-word highlighting when speaking (grey reading effect)
               subtitle.split(' ').map((word, idx) => (
                 <span
                   key={idx}
                   className={
-                    idx < currentWordIndex
+                    idx < displayWordIndex
                       ? 'text-foreground/90'
                       : 'text-muted-foreground/40'
                   }

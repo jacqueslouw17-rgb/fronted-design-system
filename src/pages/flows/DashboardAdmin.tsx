@@ -111,7 +111,7 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);

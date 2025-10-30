@@ -30,7 +30,7 @@ const CandidateDashboard = () => {
   const [checklistData, setChecklistData] = useState<ChecklistRequirement[]>([]);
   const [showCompletionMessage, setShowCompletionMessage] = useState(false);
   const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   
   // Own checklist items
   const [ownChecklistItems, setOwnChecklistItems] = useState([
