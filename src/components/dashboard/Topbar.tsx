@@ -31,9 +31,10 @@ interface TopbarProps {
   onAgentToggle?: () => void;
   isDrawerOpen?: boolean;
   onDrawerToggle?: () => void;
+  profileSettingsUrl?: string; // Custom profile settings URL
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/profile-settings" }: TopbarProps) => {
   const navigate = useNavigate();
   const initials = userName
     .split(" ")
@@ -122,7 +123,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{userName}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/profile-settings")}>
+            <DropdownMenuItem onClick={() => navigate(profileSettingsUrl)}>
               Profile Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />

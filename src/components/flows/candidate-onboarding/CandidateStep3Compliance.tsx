@@ -14,13 +14,15 @@ interface Step3Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
 const CandidateStep3Compliance = ({ 
   formData, 
   onComplete, 
   isProcessing = false, 
-  isLoadingFields = false 
+  isLoadingFields = false,
+  buttonText = "Continue"
 }: Step3Props) => {
   const isContractor = formData.employmentType === "contractor";
   const country = formData.country || "PH"; // PH, NO, XK
@@ -577,7 +579,7 @@ const CandidateStep3Compliance = ({
                 disabled={!isValid()}
                 size="lg"
               >
-                Continue
+                {buttonText}
               </Button>
             )}
           </div>

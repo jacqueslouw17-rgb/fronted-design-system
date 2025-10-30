@@ -14,13 +14,15 @@ interface Step4Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
 const CandidateStep4Bank = ({ 
   formData, 
   onComplete, 
   isProcessing = false, 
-  isLoadingFields = false 
+  isLoadingFields = false,
+  buttonText = "Continue"
 }: Step4Props) => {
   const { speak } = useTextToSpeech();
   const [isAutoFilling, setIsAutoFilling] = useState(true);
@@ -262,7 +264,7 @@ const CandidateStep4Bank = ({
             disabled={!isValid}
             size="lg"
           >
-            Continue
+            {buttonText}
           </Button>
         )}
       </div>

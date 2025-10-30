@@ -9,13 +9,15 @@ interface Step2Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
 const CandidateStep2PersonalDetails = ({ 
   formData, 
   onComplete, 
   isProcessing = false, 
-  isLoadingFields = false 
+  isLoadingFields = false,
+  buttonText = "Continue"
 }: Step2Props) => {
   const [data, setData] = useState({
     fullName: formData.fullName || "",
@@ -119,7 +121,7 @@ const CandidateStep2PersonalDetails = ({
             disabled={!isValid}
             size="lg"
           >
-            Continue
+            {buttonText}
           </Button>
         )}
       </div>

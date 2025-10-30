@@ -13,13 +13,15 @@ interface Step5Props {
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  buttonText?: string;
 }
 
 const CandidateStep5WorkSetup = ({ 
   formData, 
   onComplete, 
   isProcessing = false, 
-  isLoadingFields = false 
+  isLoadingFields = false,
+  buttonText = "Continue"
 }: Step5Props) => {
   const [deviceProvided, setDeviceProvided] = useState<string>("");
   const [reimbursementAmount, setReimbursementAmount] = useState("");
@@ -227,7 +229,7 @@ const CandidateStep5WorkSetup = ({
             disabled={!isValid}
             size="lg"
           >
-            Continue
+            {buttonText}
           </Button>
         )}
       </div>
