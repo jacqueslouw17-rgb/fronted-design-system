@@ -26,10 +26,8 @@ export const KurtAgentPanel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
-  // Clear messages on mount
-  useEffect(() => {
-    clearMessages();
-  }, [clearMessages]);
+  // Preserve conversation when panel opens; do not clear on mount
+  // If needed, we can clear explicitly via a control elsewhere.
 
   // Update Kurt state based on loading and messages
   useEffect(() => {
