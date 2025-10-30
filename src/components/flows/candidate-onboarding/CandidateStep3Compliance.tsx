@@ -33,6 +33,7 @@ const CandidateStep3Compliance = ({
     email: "",
     address: "",
     nationalIdFile: null,
+    nationalIdViaLink: false,
     tinNumber: "",
     sssNumber: "",
     philHealthNumber: "",
@@ -40,6 +41,7 @@ const CandidateStep3Compliance = ({
     personnummer: "",
     bankIBAN: "",
     idCardFile: null,
+    idCardViaLink: false,
   });
 
   const [fileName, setFileName] = useState<string>("");
@@ -155,13 +157,13 @@ const CandidateStep3Compliance = ({
   // Validate based on employment type and country
   const isValid = () => {
     if (isContractor && country === "PH") {
-      return data.nationalIdFile && data.tinNumber;
+      return (Boolean(data.nationalIdFile) || data.nationalIdViaLink) && Boolean(data.tinNumber);
     } else if (!isContractor && country === "PH") {
-      return data.sssNumber && data.philHealthNumber && data.pagIbigNumber;
+      return Boolean(data.sssNumber) && Boolean(data.philHealthNumber) && Boolean(data.pagIbigNumber);
     } else if (country === "NO") {
-      return data.personnummer && data.bankIBAN;
+      return Boolean(data.personnummer) && Boolean(data.bankIBAN);
     } else if (country === "XK") {
-      return data.idCardFile && data.bankIBAN;
+      return (Boolean(data.idCardFile) || data.idCardViaLink) && Boolean(data.bankIBAN);
     }
     return false;
   };
@@ -268,6 +270,7 @@ const CandidateStep3Compliance = ({
                       title: "Secure Upload Link Sent",
                       description: "For your privacy, I've sent a secure upload link to your inbox. You can upload your documents there safely.",
                     });
+                    setData(prev => ({ ...prev, nationalIdViaLink: true }));
                   }}
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -276,6 +279,9 @@ const CandidateStep3Compliance = ({
                 <p className="text-xs text-muted-foreground text-center">
                   A secure link will be sent to {formData.email || 'your email'}
                 </p>
+                {data.nationalIdViaLink && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 text-center">Marked to upload later via secure link</p>
+                )}
               </div>
             )}
           </div>
@@ -469,6 +475,7 @@ const CandidateStep3Compliance = ({
                       title: "Secure Upload Link Sent",
                       description: "For your privacy, I've sent a secure upload link to your inbox. You can upload your documents there safely.",
                     });
+                    setData(prev => ({ ...prev, idCardViaLink: true }));
                   }}
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -477,6 +484,9 @@ const CandidateStep3Compliance = ({
                 <p className="text-xs text-muted-foreground text-center">
                   A secure link will be sent to {formData.email || 'your email'}
                 </p>
+                {data.idCardViaLink && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 text-center">Marked to upload later via secure link</p>
+                )}
               </div>
             )}
           </div>
