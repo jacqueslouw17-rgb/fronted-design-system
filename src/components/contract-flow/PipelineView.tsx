@@ -126,6 +126,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [startOnboardingConfirmOpen, setStartOnboardingConfirmOpen] = useState(false);
   const [selectedForOnboarding, setSelectedForOnboarding] = useState<Contractor | null>(null);
   
+  // Track which contractors have been notified to prevent duplicate toasts
+  const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
+  
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
     const newContractors = initialContractors.filter(c => !contractors.find(existing => existing.id === c.id));
@@ -277,24 +280,30 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 
     // Auto-move certified contractors to payroll-ready after 3 seconds
     const certifiedContractors = contractors.filter(
-      c => c.status === "certified"
+      c => c.status === "certified" && !notifiedPayrollReadyIds.current.has(c.id)
     );
 
     if (certifiedContractors.length > 0) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const updated = contractors.map(c => 
           certifiedContractors.some(cc => cc.id === c.id)
             ? { ...c, status: "payroll-ready" as const }
             : c
         );
         
+        // Mark these contractors as notified
+        certifiedContractors.forEach(c => notifiedPayrollReadyIds.current.add(c.id));
+        
         setContractors(updated);
         onContractorUpdate?.(updated);
 
+        // Only show toast once for the batch
         toast.info("Contractor moved to Payroll Ready column", {
           description: "Ready for final payroll certification",
         });
       }, 3000);
+      
+      return () => clearTimeout(timer);
     }
   }, [contractors, onContractorUpdate]);
   
