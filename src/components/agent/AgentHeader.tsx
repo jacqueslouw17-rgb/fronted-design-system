@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import AudioWaveVisualizer from '@/components/AudioWaveVisualizer';
 import KurtMuteToggle from '@/components/shared/KurtMuteToggle';
 import { useAgentState } from '@/hooks/useAgentState';
-
 interface AgentHeaderProps {
   title?: string;
   subtitle?: string;
@@ -23,7 +22,6 @@ interface AgentHeaderProps {
   tags?: React.ReactNode;
   tagsLabel?: string;
 }
-
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
   title = "Welcome back",
   subtitle = "How can I help you today?",
@@ -38,26 +36,30 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   isMuted = false,
   onMuteToggle,
   tags,
-  tagsLabel,
+  tagsLabel
 }) => {
   const [inputValue, setInputValue] = useState('');
-  const { setOpen, addMessage, simulateResponse, isSpeaking, currentWordIndex: globalWordIndex } = useAgentState();
+  const {
+    setOpen,
+    addMessage,
+    simulateResponse,
+    isSpeaking,
+    currentWordIndex: globalWordIndex
+  } = useAgentState();
   const isActive = isActiveProp !== undefined ? isActiveProp : isSpeaking;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Use global word index when available, otherwise use prop
   const displayWordIndex = isSpeaking ? globalWordIndex : currentWordIndex;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isSubmitting) return;
-
     setIsSubmitting(true);
-    
+
     // Add user message
     addMessage({
       role: 'user',
-      text: inputValue.trim(),
+      text: inputValue.trim()
     });
 
     // Open the agent panel
@@ -65,114 +67,75 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
 
     // Simulate agent response
     await simulateResponse(inputValue.trim());
-
     setInputValue('');
     setIsSubmitting(false);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
   };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex flex-col items-center space-y-6 ${className}`}
-    >
+  return <motion.div initial={{
+    opacity: 0,
+    y: -20
+  }} animate={{
+    opacity: 1,
+    y: 0
+  }} className={`flex flex-col items-center space-y-6 ${className}`}>
       {/* Agent Pulse */}
-      {showPulse && (
-        <div className="flex justify-center scale-75">
+      {showPulse && <div className="flex justify-center scale-75">
           <AudioWaveVisualizer isActive={isActive} isListening={false} />
-        </div>
-      )}
+        </div>}
 
       {/* Title & Subtitle */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-foreground">{title}</h1>
         <div className="flex items-center justify-center gap-3">
           <p className="text-base">
-            {enableWordHighlight || isSpeaking ? (
-              // Word-by-word highlighting when speaking (grey reading effect)
-              subtitle.split(' ').map((word, idx) => (
-                <span
-                  key={idx}
-                  className={
-                    idx < displayWordIndex
-                      ? 'text-foreground/90'
-                      : 'text-muted-foreground/40'
-                  }
-                >
+            {enableWordHighlight || isSpeaking ?
+          // Word-by-word highlighting when speaking (grey reading effect)
+          subtitle.split(' ').map((word, idx) => <span key={idx} className={idx < displayWordIndex ? 'text-foreground/90' : 'text-muted-foreground/40'}>
                   {word}{' '}
-                </span>
-              ))
-            ) : (
-              // Default static subtitle with darker color if there are changes
-              <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
+                </span>) :
+          // Default static subtitle with darker color if there are changes
+          <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
                 {subtitle}
-              </span>
-            )}
+              </span>}
           </p>
-          {onMuteToggle && (
-            <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />
-          )}
+          {onMuteToggle && <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />}
         </div>
       </div>
 
       {/* Progress Indicator */}
-      {progressIndicator && (
-        <div className="w-full max-w-xl">
+      {progressIndicator && <div className="w-full max-w-xl">
           {progressIndicator}
-        </div>
-      )}
+        </div>}
 
       {/* Chat Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="w-full max-w-xl space-y-3"
-      >
+      <motion.div initial={{
+      opacity: 0,
+      y: 10
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      delay: 0.2
+    }} className="w-full max-w-xl space-y-3">
         <form onSubmit={handleSubmit} className="relative">
           <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={placeholder}
-              disabled={isSubmitting}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!inputValue.trim() || isSubmitting}
-              className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            >
-              {isSubmitting ? (
-                <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <ArrowRight className="h-3.5 w-3.5" />
-              )}
+            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isSubmitting} className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8" />
+            <Button type="submit" size="icon" disabled={!inputValue.trim() || isSubmitting} className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
+              {isSubmitting ? <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
             </Button>
           </div>
         </form>
         
         {/* Contextual Tags */}
-        {tags && (
-          <div className="flex flex-col items-center justify-center gap-2">
-            {tagsLabel && (
-              <p className="text-xs text-muted-foreground">
-                {tagsLabel}
-              </p>
-            )}
+        {tags && <div className="flex flex-col items-center justify-center gap-2">
+            {tagsLabel}
             {tags}
-          </div>
-        )}
+          </div>}
       </motion.div>
-    </motion.div>
-  );
+    </motion.div>;
 };
