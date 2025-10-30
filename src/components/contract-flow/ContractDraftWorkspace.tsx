@@ -68,6 +68,104 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const fullContent = getContractContent(candidate);
   const { setOpen, addMessage } = useAgentState();
 
+  const handleKurtAction = async (action: string) => {
+    setOpen(true);
+    
+    switch (action) {
+      case "quick-summary":
+        addMessage({
+          role: "kurt",
+          text: `📋 **Contract Summary for ${candidate.name}**\n\n**Position:** ${candidate.role}\n**Salary:** ${candidate.salary}\n**Start Date:** ${candidate.startDate}\n**Notice Period:** ${candidate.noticePeriod}\n**PTO:** ${candidate.pto}\n\n**Key Points:**\n• Contract localized for ${candidate.country}\n• All required fields completed\n• Compliance clauses included\n• Ready for review and signature`,
+          actionButtons: [
+            { label: "Check Fields", action: "check-fields", variant: "outline" },
+            { label: "Export PDF", action: "export-pdf", variant: "secondary" }
+          ]
+        });
+        break;
+      case "check-fields":
+        addMessage({
+          role: "kurt",
+          text: `✅ **Field Verification Complete**\n\nAll required fields have been verified:\n• Personal Information ✓\n• Compensation Details ✓\n• Employment Terms ✓\n• Legal Clauses ✓\n\nNo missing or invalid data found. Contract is ready to proceed.`,
+          actionButtons: [
+            { label: "Fix Clauses", action: "fix-clauses", variant: "outline" },
+            { label: "Generate Summary", action: "quick-summary", variant: "secondary" }
+          ]
+        });
+        break;
+      case "fix-clauses":
+        addMessage({
+          role: "kurt",
+          text: `🔧 **Clause Analysis**\n\nI've reviewed the contract clauses for ${candidate.country}:\n\n**Overtime Pay (Clause 6):** Adjusted for local labor laws\n**IP Assignment:** Standard company policy applied\n**Notice Period:** Compliant with ${candidate.country} regulations\n\nAll clauses are optimized and compliant. Would you like me to make any specific adjustments?`,
+          actionButtons: [
+            { label: "Apply Changes", action: "apply-clause-changes", variant: "default" },
+            { label: "Review Terms", action: "explain-term", variant: "outline" }
+          ]
+        });
+        break;
+      case "explain-term":
+        addMessage({
+          role: "kurt",
+          text: `❓ **Legal Term Explanations**\n\nWhich term would you like me to explain? I can help clarify:\n• IP Assignment clauses\n• Notice period requirements\n• Compensation structures\n• PTO policies\n• Termination conditions\n\nJust ask about any specific term in the contract.`,
+          actionButtons: [
+            { label: "Explain IP Rights", action: "explain-ip", variant: "outline" },
+            { label: "Explain Notice Period", action: "explain-notice", variant: "outline" }
+          ]
+        });
+        break;
+      case "apply-clause-changes":
+        toast.success("Clause improvements applied to contract");
+        addMessage({
+          role: "kurt",
+          text: `✅ **Changes Applied**\n\nI've updated the contract clauses. All improvements have been saved.`,
+          actionButtons: [
+            { label: "View Changes", action: "show-diff", variant: "default" }
+          ]
+        });
+        break;
+      case "export-pdf":
+        toast.success("Exporting contract as PDF...");
+        addMessage({
+          role: "kurt",
+          text: `📄 **PDF Export**\n\nGenerating PDF for ${candidate.name}'s contract...`,
+        });
+        break;
+      case "explain-ip":
+        addMessage({
+          role: "kurt",
+          text: `📚 **IP Assignment Clause**\n\nIntellectual Property (IP) assignment means that any work, inventions, or creative output produced during employment automatically belongs to the company.\n\n**Key Points:**\n• Work-related creations are company property\n• Includes code, designs, documentation, and inventions\n• Standard practice in employment contracts\n• Protects company's business interests`,
+          actionButtons: [
+            { label: "Explain Another Term", action: "explain-term", variant: "outline" }
+          ]
+        });
+        break;
+      case "explain-notice":
+        addMessage({
+          role: "kurt",
+          text: `📚 **Notice Period**\n\nThe notice period (${candidate.noticePeriod}) is the advance warning required before employment ends.\n\n**Key Points:**\n• Must be given by either party\n• Allows for transition and handover\n• Compliant with ${candidate.country} labor laws\n• Standard for ${candidate.role} positions`,
+          actionButtons: [
+            { label: "Explain Another Term", action: "explain-term", variant: "outline" }
+          ]
+        });
+        break;
+      case "show-diff":
+        toast.info("Showing contract changes...");
+        break;
+      default:
+        addMessage({
+          role: "kurt",
+          text: `Processing: ${action}`,
+        });
+    }
+  };
+
+  // Expose handleKurtAction globally so action buttons can call it
+  useEffect(() => {
+    (window as any).handleKurtAction = handleKurtAction;
+    return () => {
+      delete (window as any).handleKurtAction;
+    };
+  }, [candidate, handleKurtAction]);
+
   useEffect(() => {
     setIsTyping(true);
     setContent("");
@@ -135,42 +233,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     setIsProcessing(false);
 
     toast.success("Text updated successfully");
-  };
-
-  const handleKurtAction = async (action: string) => {
-    setOpen(true);
-    
-    switch (action) {
-      case "quick-summary":
-        addMessage({
-          role: "kurt",
-          text: `📋 **Contract Summary for ${candidate.name}**\n\n**Position:** ${candidate.role}\n**Salary:** ${candidate.salary}\n**Start Date:** ${candidate.startDate}\n**Notice Period:** ${candidate.noticePeriod}\n**PTO:** ${candidate.pto}\n\n**Key Points:**\n• Contract localized for ${candidate.country}\n• All required fields completed\n• Compliance clauses included\n• Ready for review and signature`,
-        });
-        break;
-      case "check-fields":
-        addMessage({
-          role: "kurt",
-          text: `✅ **Field Verification Complete**\n\nAll required fields have been verified:\n• Personal Information ✓\n• Compensation Details ✓\n• Employment Terms ✓\n• Legal Clauses ✓\n\nNo missing or invalid data found. Contract is ready to proceed.`,
-        });
-        break;
-      case "fix-clauses":
-        addMessage({
-          role: "kurt",
-          text: `🔧 **Clause Analysis**\n\nI've reviewed the contract clauses for ${candidate.country}:\n\n**Overtime Pay (Clause 6):** Adjusted for local labor laws\n**IP Assignment:** Standard company policy applied\n**Notice Period:** Compliant with ${candidate.country} regulations\n\nAll clauses are optimized and compliant. Would you like me to make any specific adjustments?`,
-        });
-        break;
-      case "explain-term":
-        addMessage({
-          role: "kurt",
-          text: `❓ **Legal Term Explanations**\n\nWhich term would you like me to explain? I can help clarify:\n• IP Assignment clauses\n• Notice period requirements\n• Compensation structures\n• PTO policies\n• Termination conditions\n\nJust ask about any specific term in the contract.`,
-        });
-        break;
-      default:
-        addMessage({
-          role: "kurt",
-          text: `Processing: ${action}`,
-        });
-    }
   };
 
   // Carousel pages
