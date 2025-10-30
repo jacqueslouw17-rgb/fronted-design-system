@@ -115,11 +115,85 @@ const ContractFlowDemo = () => {
         setLoading(false);
         return;
       case 'resend-link':
-        response = `📧 Link Resent\n\nOnboarding link has been resent to:\nmaria.santos@email.com\n\nThe link will expire in 48 hours.\n\nLast opened: 2 hours ago\nCompletion status: 75%`;
-        break;
+        setLoading(true);
+        setOpen(true);
+        
+        setTimeout(() => {
+          setLoading(false);
+          addMessage({
+            role: 'kurt',
+            text: "Got it — who should I resend this to?\n\n📧 Pre-filled candidates ready for resend:\n• Maria Santos\n• John Smith\n• Sarah Chen\n• Ahmed Hassan",
+            actionButtons: [
+              { label: 'Resend to All', action: 'resend-all', variant: 'default' },
+              { label: 'Select Individual', action: 'resend-individual', variant: 'outline' },
+            ]
+          });
+        }, 1500);
+        return;
+        
+      case 'resend-all':
+        addMessage({
+          role: 'user',
+          text: 'Resend to all candidates'
+        });
+        setLoading(true);
+        
+        setTimeout(() => {
+          setLoading(false);
+          addMessage({
+            role: 'kurt',
+            text: "All set! ✅\n\nOnboarding links resent to all 4 candidates. They'll receive the email shortly.",
+          });
+          
+          toast({
+            title: "Links Sent",
+            description: "4 onboarding links have been resent successfully.",
+          });
+        }, 1200);
+        return;
       case 'mark-complete':
-        response = `✅ Marked as Complete\n\nThe checklist item has been marked as complete.\n\nNext action required:\nSend welcome email and schedule first day orientation.\n\nWould you like me to draft the welcome email?`;
-        break;
+        setLoading(true);
+        setOpen(true);
+        
+        setTimeout(() => {
+          setLoading(false);
+          
+          // Trigger confetti
+          const duration = 2 * 1000;
+          const animationEnd = Date.now() + duration;
+          const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+          function randomInRange(min: number, max: number) {
+            return Math.random() * (max - min) + min;
+          }
+
+          const interval: any = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+              return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            });
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            });
+          }, 250);
+          
+          addMessage({
+            role: 'kurt',
+            text: "Done ✅ Everything's up to date.\n\nMaria's onboarding is now marked as complete. All systems synced successfully!",
+          });
+        }, 1800);
+        return;
       default:
         response = `I'll help you with "${action}". Let me process that for you.`;
     }
@@ -399,6 +473,7 @@ const ContractFlowDemo = () => {
                           }
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                          tagsLabel="Quick Actions for tracking"
                           tags={
                             <KurtContextualTags
                               flowContext="checklist"

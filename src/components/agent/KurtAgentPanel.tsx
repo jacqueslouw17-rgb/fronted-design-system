@@ -22,6 +22,7 @@ export const KurtAgentPanel: React.FC = () => {
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [readingMessageId, setReadingMessageId] = useState<string | null>(null);
+  const [kurtState, setKurtState] = useState<'idle' | 'listening' | 'thinking' | 'responding' | 'working' | 'complete'>('idle');
   const scrollRef = useRef<HTMLDivElement>(null);
   const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
 
@@ -29,6 +30,18 @@ export const KurtAgentPanel: React.FC = () => {
   useEffect(() => {
     clearMessages();
   }, [clearMessages]);
+
+  // Update Kurt state based on loading and messages
+  useEffect(() => {
+    if (loading) {
+      setKurtState('thinking');
+    } else if (messages.length > 0 && messages[messages.length - 1].role === 'kurt') {
+      setKurtState('complete');
+      setTimeout(() => setKurtState('idle'), 2000);
+    } else {
+      setKurtState('idle');
+    }
+  }, [loading, messages]);
 
   // Cycle through loading phrases
   useEffect(() => {
@@ -100,7 +113,40 @@ export const KurtAgentPanel: React.FC = () => {
     >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background">
-          <span className="font-semibold text-foreground text-sm">Kurt</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground text-sm">Kurt</span>
+            {kurtState === 'thinking' && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex gap-1"
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full bg-primary"
+                    animate={{
+                      y: [0, -4, 0],
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            )}
+            {kurtState === 'complete' && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+              >
+                <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+              </motion.div>
+            )}
+          </div>
           <div className="flex items-center gap-0.5">
             <Button 
               variant="ghost" 
@@ -281,8 +327,20 @@ export const KurtAgentPanel: React.FC = () => {
 
         {/* Footer */}
         <div className="px-3 py-1.5 border-t border-border bg-muted/20">
+          {kurtState === 'thinking' && (
+            <motion.div
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 2 }}
+              className="h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20 rounded-full mb-1.5"
+            />
+          )}
           <p className="text-[10px] text-muted-foreground text-center">
-            Agentic mode • Type to refine
+            {kurtState === 'idle' && "Ready when you are"}
+            {kurtState === 'listening' && "Got it — what should I check?"}
+            {kurtState === 'thinking' && "Thinking..."}
+            {kurtState === 'working' && "Processing your request..."}
+            {kurtState === 'complete' && "Done! You're all set ✅"}
           </p>
         </div>
       {/* History Overlay - Opens within agent panel */}

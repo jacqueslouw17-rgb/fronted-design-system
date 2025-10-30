@@ -266,6 +266,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        tagsLabel="Document Intelligence Actions"
         tags={
           <KurtContextualTags
             flowContext="contract-creation"

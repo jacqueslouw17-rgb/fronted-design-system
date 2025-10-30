@@ -21,6 +21,7 @@ interface AgentHeaderProps {
   isMuted?: boolean;
   onMuteToggle?: () => void;
   tags?: React.ReactNode;
+  tagsLabel?: string;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -37,6 +38,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   isMuted = false,
   onMuteToggle,
   tags,
+  tagsLabel,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -158,7 +160,12 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         
         {/* Contextual Tags */}
         {tags && (
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center justify-center gap-2">
+            {tagsLabel && (
+              <p className="text-xs text-muted-foreground">
+                {tagsLabel}
+              </p>
+            )}
             {tags}
           </div>
         )}
