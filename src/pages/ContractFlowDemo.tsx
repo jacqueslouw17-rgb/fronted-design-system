@@ -97,7 +97,7 @@ const ContractFlowDemo = () => {
         response = `🔄 Draft Comparison\n\nComparing current draft with template:\n\nChanges made:\n• Salary increased from $4,000 to $4,500\n• PTO increased from 10 to 15 days\n• Added remote work clause\n• Modified notice period from 15 to 30 days\n\nAll changes are within approved parameters.`;
         break;
       case 'track-progress':
-        response = `📈 Onboarding Progress\n\nMaria Santos - 75% Complete\n✅ Personal details • ✅ Tax forms • ✅ Bank info\n⏳ Compliance docs • ⏳ Emergency contact\n\nOskar Nilsen - 60% Complete\n✅ Personal details • ✅ Tax forms\n⏳ Bank info • ⏳ Compliance docs • ⏳ Emergency contact\n\nArta Krasniqi - 90% Complete\n✅ Personal details • ✅ Tax forms • ✅ Bank info • ✅ Compliance docs\n⏳ Emergency contact only`;
+        response = `📈 Onboarding Progress\n\nMaria Santos - 75% Complete\n\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\n\nEstimated completion: 2 days`;
         break;
       case 'resend-link':
         response = `📧 Link Resent\n\nOnboarding link has been resent to:\nmaria.santos@email.com\n\nThe link will expire in 48 hours.\n\nLast opened: 2 hours ago\nCompletion status: 75%`;
@@ -112,18 +112,6 @@ const ContractFlowDemo = () => {
     addMessage({
       role: 'kurt',
       text: response,
-      actions: action === 'track-progress' ? [
-        { label: 'Send Reminder Emails', action: 'send-reminders', variant: 'default' },
-        { label: 'View Details', action: 'view-details', variant: 'outline' },
-      ] : action === 'fix-clauses' ? [
-        { label: 'Apply Suggestion', action: 'apply-fix', variant: 'default' },
-        { label: 'Review Clause', action: 'review-clause', variant: 'outline' },
-      ] : action === 'mark-complete' ? [
-        { label: 'Draft Welcome Email', action: 'draft-email', variant: 'default' },
-        { label: 'Schedule Orientation', action: 'schedule-orientation', variant: 'outline' },
-      ] : action === 'pull-data' ? [
-        { label: 'Review Data', action: 'review-data', variant: 'outline' },
-      ] : undefined,
     });
 
     setLoading(false);

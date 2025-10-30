@@ -6,11 +6,7 @@ export type AgentMessage = {
   role: 'user' | 'kurt';
   text: string;
   ts: string;
-  actions?: Array<{ 
-    label: string; 
-    action: string;
-    variant?: 'default' | 'outline' | 'secondary';
-  }>;
+  actions?: Array<{ type: string; payload: any }>;
 };
 
 export type AgentState = {
@@ -110,9 +106,8 @@ export const useAgentState = create<AgentStore>()(
         role: 'kurt',
         text: response,
         actions: result.success ? [{ 
-          label: result.action || 'Continue',
-          action: result.action || 'info',
-          variant: 'outline'
+          type: result.action || 'info', 
+          payload: { ...match.entities, description } 
         }] : undefined
       });
     } catch (error) {

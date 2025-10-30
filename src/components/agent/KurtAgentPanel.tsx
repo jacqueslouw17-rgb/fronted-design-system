@@ -7,7 +7,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
-import { toast } from 'sonner';
 
 const loadingPhrases = [
   "Reading contract clauses...",
@@ -47,16 +46,14 @@ export const KurtAgentPanel: React.FC = () => {
     }
   }, [messages, loading]);
 
-  // Auto-speak the latest Kurt message after loading completes - only read first line
+  // Auto-speak the latest Kurt message after loading completes
   useEffect(() => {
     if (!loading && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'kurt' && readingMessageId !== lastMessage.id) {
         setReadingMessageId(lastMessage.id);
         setIsSpeaking(true);
-        // Only speak the first line (heading)
-        const firstLine = lastMessage.text.split('\n')[0];
-        speak(firstLine, () => {
+        speak(lastMessage.text, () => {
           setIsSpeaking(false);
           setReadingMessageId(null);
         });
@@ -151,7 +148,7 @@ export const KurtAgentPanel: React.FC = () => {
                         {/* Check if message has structured content (emojis indicate cards) */}
                         {msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
                           <Card className="p-4 bg-card border-border/50 shadow-sm">
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                               <p className="text-sm leading-relaxed whitespace-pre-wrap">
                                 {readingMessageId === msg.id ? (
                                   // Currently being read - apply word-by-word highlighting
@@ -171,27 +168,6 @@ export const KurtAgentPanel: React.FC = () => {
                                   <span className="text-foreground">{msg.text}</span>
                                 )}
                               </p>
-                              
-                              {/* Action Buttons */}
-                              {msg.actions && msg.actions.length > 0 && (
-                                <div className="flex flex-wrap gap-2 pt-2 border-t border-border/30">
-                                  {msg.actions.map((action, idx) => (
-                                    <Button
-                                      key={idx}
-                                      size="sm"
-                                      variant={action.variant || 'default'}
-                                      onClick={() => {
-                                        toast.success(`Action: ${action.label}`, {
-                                          description: 'This would trigger the action in the app',
-                                        });
-                                      }}
-                                      className="text-xs h-7"
-                                    >
-                                      {action.label}
-                                    </Button>
-                                  ))}
-                                </div>
-                              )}
                             </div>
                           </Card>
                         ) : (
