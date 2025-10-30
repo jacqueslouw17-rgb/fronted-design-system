@@ -11,6 +11,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
+import { useAgentState } from "@/hooks/useAgentState";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -32,7 +33,8 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
     candidates.reduce((acc, c) => ({ ...acc, [c.id]: "sent" as SignatureStatus }), {})
   );
   const [genieMessage, setGenieMessage] = useState("Preparing for e-signature via localized legal channels…");
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
+  const { isSpeaking: isAgentSpeaking } = useAgentState();
 
   useEffect(() => {
     // Trigger confetti
@@ -124,7 +126,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         title="Signature Phase"
         subtitle="Kurt can help with: checking status, resending links, or downloading signed contracts."
         showPulse={true}
-        isActive={false}
+        isActive={isAgentSpeaking}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={

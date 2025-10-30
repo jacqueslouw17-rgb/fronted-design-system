@@ -56,7 +56,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { setOpen, addMessage, setLoading } = useAgentState();
 
   // Function to detect missing required fields

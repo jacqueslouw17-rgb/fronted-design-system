@@ -10,6 +10,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
+import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -27,7 +28,8 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   const [globalComment, setGlobalComment] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
+  const { isSpeaking: isAgentSpeaking } = useAgentState();
 
   return (
     <motion.div
@@ -40,7 +42,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         title="Review Contracts"
         subtitle="Kurt can help with: highlighting changes, checking compliance, or previewing contracts."
         showPulse={true}
-        isActive={false}
+        isActive={isAgentSpeaking}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={

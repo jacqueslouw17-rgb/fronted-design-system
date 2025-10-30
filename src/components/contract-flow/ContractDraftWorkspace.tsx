@@ -64,9 +64,9 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [promptVisible, setPromptVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(true);
+  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const fullContent = getContractContent(candidate);
-  const { setOpen, addMessage } = useAgentState();
+  const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();
 
   const handleKurtAction = async (action: string) => {
     setOpen(true);
@@ -360,7 +360,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`}
         subtitle="Kurt can help with quick summaries, field checks, or clause explanations."
         showPulse={true}
-        isActive={false}
+        isActive={isAgentSpeaking}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         placeholder="Try: 'Check overtime clause' or 'Summarize benefits'..."
