@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, History, Lightbulb } from 'lucide-react';
+import { X, Copy, History, Lightbulb, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
@@ -138,39 +139,66 @@ export const KurtAgentPanel: React.FC = () => {
                       </div>
                     ) : (
                       // Agent response - thinking indicator + word-by-word reading
-                      <div className="space-y-2 mb-6">
+                      <div className="space-y-3 mb-6">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Lightbulb className="h-3.5 w-3.5" />
                           <span className="text-xs">Thought for 2s</span>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {readingMessageId === msg.id ? (
-                              // Currently being read - apply word-by-word highlighting
-                              msg.text.split(' ').map((word, idx) => (
-                                <span
-                                  key={idx}
-                                  className={
-                                    idx < currentWordIndex
-                                      ? 'text-foreground/90'
-                                      : 'text-muted-foreground/40'
-                                  }
-                                >
-                                  {word}{' '}
-                                </span>
-                              ))
-                            ) : (
-                              // Already read or not yet read
-                              <span className="text-foreground">{msg.text}</span>
-                            )}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {new Date(msg.ts).toLocaleTimeString([], { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </p>
-                        </div>
+                        
+                        {/* Check if message has structured content (emojis indicate cards) */}
+                        {msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
+                          <Card className="p-4 bg-card border-border/50 shadow-sm">
+                            <div className="space-y-2">
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                {readingMessageId === msg.id ? (
+                                  // Currently being read - apply word-by-word highlighting
+                                  msg.text.split(' ').map((word, idx) => (
+                                    <span
+                                      key={idx}
+                                      className={
+                                        idx < currentWordIndex
+                                          ? 'text-foreground/90'
+                                          : 'text-muted-foreground/40'
+                                      }
+                                    >
+                                      {word}{' '}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-foreground">{msg.text}</span>
+                                )}
+                              </p>
+                            </div>
+                          </Card>
+                        ) : (
+                          <div className="space-y-1">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              {readingMessageId === msg.id ? (
+                                msg.text.split(' ').map((word, idx) => (
+                                  <span
+                                    key={idx}
+                                    className={
+                                      idx < currentWordIndex
+                                        ? 'text-foreground/90'
+                                        : 'text-muted-foreground/40'
+                                    }
+                                  >
+                                    {word}{' '}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-foreground">{msg.text}</span>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Date(msg.ts).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
                       </div>
                     )}
                   </motion.div>

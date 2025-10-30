@@ -38,7 +38,7 @@ const ContractFlowDemo = () => {
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const { setOpen, addMessage, simulateResponse } = useAgentState();
+  const { setOpen, addMessage, setLoading } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
   const [promptText, setPromptText] = React.useState("");
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
@@ -58,18 +58,63 @@ const ContractFlowDemo = () => {
     role: "admin"
   };
 
-  const handleKurtAction = (action: string) => {
+  const handleKurtAction = async (action: string) => {
     // Add user message
     addMessage({
       role: 'user',
-      text: `Execute: ${action}`,
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     });
 
     // Open the agent panel
     setOpen(true);
+    
+    // Set loading state
+    setLoading(true);
 
-    // Simulate response
-    simulateResponse(action);
+    // Simulate processing with delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Generate contextual response based on action
+    let response = '';
+    
+    switch(action) {
+      case 'quick-summary':
+        response = `📄 Contract Summary\n\nCandidate: Maria Santos\nRole: UX Designer\nLocation: Philippines 🇵🇭\n\nKey Terms:\n• Salary: $4,500/month\n• Start Date: March 1, 2024\n• Notice Period: 30 days\n• PTO: 15 days/year\n\n✅ All clauses comply with local labor law`;
+        break;
+      case 'check-fields':
+        response = `✅ Field Validation Complete\n\nAll required fields are properly filled:\n• Personal Information ✓\n• Employment Terms ✓\n• Compensation Details ✓\n• Legal Clauses ✓\n\nNo issues detected. Contract is ready for review.`;
+        break;
+      case 'fix-clauses':
+        response = `🔧 Clause Analysis\n\nI've reviewed the contract clauses and found:\n\n✓ Termination clause - compliant\n✓ IP rights clause - standard\n⚠️ Non-compete clause - May need adjustment for Philippines law\n\nRecommendation: Consider softening non-compete radius to align with local regulations.`;
+        break;
+      case 'explain-term':
+        response = `📚 Legal Term Explained\n\n"Probation Period"\n\nThis refers to the initial employment period (typically 3-6 months) where:\n• Performance is closely evaluated\n• Either party can terminate with shorter notice\n• Full benefits may be prorated\n\nIn Philippines, max probation is 6 months under Labor Code.`;
+        break;
+      case 'pull-data':
+        response = `📊 Data Retrieved from ATS\n\nSuccessfully pulled candidate information:\n\n👤 Maria Santos\n📧 maria.santos@email.com\n📱 +63 912 345 6789\n🎓 Bachelor in Design, UP Diliman\n💼 5 years experience in UX/UI\n\nAll data has been pre-filled into the contract template.`;
+        break;
+      case 'compare-drafts':
+        response = `🔄 Draft Comparison\n\nComparing current draft with template:\n\nChanges made:\n• Salary increased from $4,000 to $4,500\n• PTO increased from 10 to 15 days\n• Added remote work clause\n• Modified notice period from 15 to 30 days\n\nAll changes are within approved parameters.`;
+        break;
+      case 'track-progress':
+        response = `📈 Onboarding Progress\n\nMaria Santos - 75% Complete\n\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\n\nEstimated completion: 2 days`;
+        break;
+      case 'resend-link':
+        response = `📧 Link Resent\n\nOnboarding link has been resent to:\nmaria.santos@email.com\n\nThe link will expire in 48 hours.\n\nLast opened: 2 hours ago\nCompletion status: 75%`;
+        break;
+      case 'mark-complete':
+        response = `✅ Marked as Complete\n\nThe checklist item has been marked as complete.\n\nNext action required:\nSend welcome email and schedule first day orientation.\n\nWould you like me to draft the welcome email?`;
+        break;
+      default:
+        response = `I'll help you with "${action}". Let me process that for you.`;
+    }
+
+    addMessage({
+      role: 'kurt',
+      text: response,
+    });
+
+    setLoading(false);
   };
 
   const idleMessage = version === "v5" 
@@ -594,8 +639,14 @@ const ContractFlowDemo = () => {
                             // Open the agent panel
                             setOpen(true);
                             
-                            // Simulate agent response
-                            await simulateResponse(message);
+                            // Respond with a generic message
+                            setLoading(true);
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            addMessage({
+                              role: 'kurt',
+                              text: `I understand you're asking about "${message}". Let me help you with that.`,
+                            });
+                            setLoading(false);
                           }}
                           placeholder="Ask Kurt anything..."
                         />

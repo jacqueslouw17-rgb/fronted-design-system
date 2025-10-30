@@ -42,9 +42,9 @@ export const KurtContextualTags: React.FC<KurtContextualTagsProps> = ({
           disabled={disabled}
           className={cn(
             "px-4 py-1.5 rounded-full text-xs font-medium",
-            "bg-primary/5 border border-primary/20",
+            "bg-white dark:bg-white/90 text-foreground border border-border/40 shadow-sm",
             "transition-all duration-200",
-            !disabled && "hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm cursor-pointer",
+            !disabled && "hover:bg-primary/10 hover:border-primary/50 hover:shadow-md cursor-pointer",
             disabled && "opacity-50 cursor-not-allowed"
           )}
           title={tag.description}
