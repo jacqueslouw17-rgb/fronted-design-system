@@ -8,7 +8,7 @@ import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
-import { KurtContextualTags } from "@/components/kurt";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -46,17 +46,25 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
-          <div className="relative">
-            <KurtContextualTags
-              flowContext="contract-review"
-              onTagClick={(action) => {
-                // Handle tag actions here
-                console.log('Review action:', action);
-              }}
-              disabled={false}
-            />
-            <KurtIntroTooltip context="contract-review" />
-          </div>
+          <AgentSuggestionChips
+            chips={[
+              {
+                label: "Highlight Changes",
+                variant: "primary",
+                onAction: () => console.log('Review action: highlight-changes'),
+              },
+              {
+                label: "Check Compliance",
+                variant: "default",
+                onAction: () => console.log('Review action: check-compliance'),
+              },
+              {
+                label: "Preview Contracts",
+                variant: "default",
+                onAction: () => console.log('Review action: preview-contracts'),
+              },
+            ]}
+          />
         }
       />
 

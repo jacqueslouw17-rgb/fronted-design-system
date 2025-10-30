@@ -12,7 +12,7 @@ import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
-import { KurtContextualTags } from "@/components/kurt";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -358,14 +358,25 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
-          <div className="relative">
-            <KurtContextualTags
-              flowContext="contract-creation"
-              onTagClick={handleKurtAction}
-              disabled={false}
-            />
-            <KurtIntroTooltip context="contract-creation" />
-          </div>
+          <AgentSuggestionChips
+            chips={[
+              {
+                label: "Review Fields",
+                variant: "primary",
+                onAction: () => handleKurtAction("review-fields"),
+              },
+              {
+                label: "Explain Terms",
+                variant: "default",
+                onAction: () => handleKurtAction("explain-terms"),
+              },
+              {
+                label: "Generate Bundle",
+                variant: "default",
+                onAction: () => handleKurtAction("generate-bundle"),
+              },
+            ]}
+          />
         }
         progressIndicator={
           totalCandidates > 1 ? (

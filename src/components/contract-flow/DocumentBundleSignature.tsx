@@ -24,7 +24,7 @@ import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import { KurtContextualTags } from "@/components/kurt";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 import { toast } from "sonner";
@@ -309,14 +309,25 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
           isActive={!hasWelcomeSpoken}
           isMuted={false}
           tags={
-            <div className="relative">
-              <KurtContextualTags
-                flowContext="document-bundle"
-                onTagClick={handleKurtAction}
-                disabled={false}
-              />
-              <KurtIntroTooltip context="document-bundle" />
-            </div>
+            <AgentSuggestionChips
+              chips={[
+                {
+                  label: "Attach Docs",
+                  variant: "primary",
+                  onAction: () => handleKurtAction("auto-attach"),
+                },
+                {
+                  label: "Check Compliance",
+                  variant: "default",
+                  onAction: () => handleKurtAction("check-compliance"),
+                },
+                {
+                  label: "Review Bundle",
+                  variant: "default",
+                  onAction: () => handleKurtAction("review-bundle"),
+                },
+              ]}
+            />
           }
         />
       </motion.div>

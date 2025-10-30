@@ -30,7 +30,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import { KurtContextualTags } from "@/components/kurt";
 import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 
@@ -768,14 +767,25 @@ const ContractFlowDemo = () => {
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
-                            <div className="relative">
-                              <KurtContextualTags
-                                flowContext="contract-bundle"
-                                onTagClick={handleKurtAction}
-                                disabled={false}
-                              />
-                              <KurtIntroTooltip context="contract-bundle" />
-                            </div>
+                            <AgentSuggestionChips
+                              chips={[
+                                {
+                                  label: "Add Documents",
+                                  variant: "primary",
+                                  onAction: () => handleKurtAction("add-documents"),
+                                },
+                                {
+                                  label: "Review Bundle",
+                                  variant: "default",
+                                  onAction: () => handleKurtAction("review-bundle"),
+                                },
+                                {
+                                  label: "Check Compliance",
+                                  variant: "default",
+                                  onAction: () => handleKurtAction("check-compliance"),
+                                },
+                              ]}
+                            />
                           }
                         />
                       </div>

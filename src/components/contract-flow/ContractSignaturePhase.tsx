@@ -9,7 +9,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
-import { KurtContextualTags } from "@/components/kurt";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -130,16 +130,25 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
-          <div className="relative">
-            <KurtContextualTags
-              flowContext="signature-phase"
-              onTagClick={(action) => {
-                console.log('Signature action:', action);
-              }}
-              disabled={false}
-            />
-            <KurtIntroTooltip context="signature-phase" />
-          </div>
+          <AgentSuggestionChips
+            chips={[
+              {
+                label: "Check Status",
+                variant: "primary",
+                onAction: () => console.log('Signature action: check-status'),
+              },
+              {
+                label: "Resend Links",
+                variant: "default",
+                onAction: () => console.log('Signature action: resend-links'),
+              },
+              {
+                label: "Download Signed",
+                variant: "default",
+                onAction: () => console.log('Signature action: download-signed'),
+              },
+            ]}
+          />
         }
       />
 
