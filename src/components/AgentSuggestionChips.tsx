@@ -20,7 +20,7 @@ interface AgentSuggestionChipsProps {
 }
 
 const getChipStyles = (variant: ChipVariant = "default") => {
-  const baseStyles = "h-9 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 border border-border/30 backdrop-blur-sm";
+  const baseStyles = "h-7 px-3 rounded-full text-xs font-normal transition-all duration-200 hover:scale-105 active:scale-95 border border-border/30 backdrop-blur-sm";
   
   const variantStyles = {
     default: "bg-background/60 hover:bg-primary/[0.03] hover:border-primary/30",
