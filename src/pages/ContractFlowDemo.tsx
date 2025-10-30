@@ -39,7 +39,7 @@ const ContractFlowDemo = () => {
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const { setOpen, addMessage, setLoading } = useAgentState();
+  const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
   const [promptText, setPromptText] = React.useState("");
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
@@ -47,7 +47,7 @@ const ContractFlowDemo = () => {
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
   const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
-  const [isKurtMuted, setIsKurtMuted] = React.useState(true);
+  const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -332,7 +332,7 @@ const ContractFlowDemo = () => {
         message = `${candidate.name} ${candidate.role} ${candidate.country}`;
       }
       
-      if (message) {
+      if (message && !isKurtMuted) {
         const timer = setTimeout(() => {
           setIsSpeaking(true);
           speak(message, () => {
@@ -342,6 +342,9 @@ const ContractFlowDemo = () => {
         }, 1000);
         
         return () => clearTimeout(timer);
+      } else if (message && isKurtMuted) {
+        // Mark as spoken even if muted so it doesn't replay
+        setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
       }
     }
   }, [contractFlow.phase, hasSpokenPhase, speak, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
@@ -465,13 +468,13 @@ const ContractFlowDemo = () => {
                           }
                           showPulse={true}
                           hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
-                          isActive={
+                          isActive={(isSpeaking || isAgentSpeaking) || (
                             searchParams.get("allSigned") === "true"
                               ? !hasSpokenPhase["data-collection-all-signed"]
                               : searchParams.get("moved") === "true" 
                                 ? !hasSpokenPhase["data-collection-moved"]
                                 : !hasSpokenPhase["offer-accepted"]
-                          }
+                          )}
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
@@ -740,7 +743,7 @@ const ContractFlowDemo = () => {
                           title="Contract Bundle"
                           subtitle="Kurt can help with: adding documents, reviewing bundles, or checking compliance."
                           showPulse={true}
-                          isActive={!hasSpokenPhase["bundle-creation"]}
+                          isActive={(isSpeaking || isAgentSpeaking) || !hasSpokenPhase["bundle-creation"]}
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
