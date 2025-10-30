@@ -16,7 +16,7 @@ import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
-import { KurtCoilot } from "@/components/kurt";
+import { KurtContextualTags } from "@/components/kurt";
 
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -266,6 +266,13 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        tags={
+          <KurtContextualTags
+            flowContext="contract-creation"
+            onTagClick={handleKurtAction}
+            disabled={false}
+          />
+        }
       />
       <motion.div
         initial={{ opacity: 0 }}
@@ -421,12 +428,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </ScrollArea>
       </motion.div>
     </motion.div>
-
-      {/* Kurt Co-pilot */}
-      <KurtCoilot
-        flowContext="contract-creation"
-        onTagAction={handleKurtAction}
-      />
     </div>
   );
 };

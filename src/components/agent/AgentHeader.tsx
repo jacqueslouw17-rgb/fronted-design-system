@@ -20,6 +20,7 @@ interface AgentHeaderProps {
   progressIndicator?: React.ReactNode;
   isMuted?: boolean;
   onMuteToggle?: () => void;
+  tags?: React.ReactNode;
 }
 
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
@@ -35,6 +36,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   progressIndicator,
   isMuted = false,
   onMuteToggle,
+  tags,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const { setOpen, addMessage, simulateResponse, isSpeaking } = useAgentState();
@@ -127,7 +129,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="w-full max-w-xl"
+        className="w-full max-w-xl space-y-3"
       >
         <form onSubmit={handleSubmit} className="relative">
           <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
@@ -153,6 +155,13 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
             </Button>
           </div>
         </form>
+        
+        {/* Contextual Tags */}
+        {tags && (
+          <div className="flex justify-center">
+            {tags}
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
