@@ -164,6 +164,8 @@ const DashboardAdmin = () => {
           {/* Top Header */}
           <Topbar 
             userName="Joe User"
+            profileSettingsUrl="/admin/profile-settings"
+            dashboardUrl="/flows/admin-dashboard"
           />
 
           {/* Main Content Area with Agent Layout */}
