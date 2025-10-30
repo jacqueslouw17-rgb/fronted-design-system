@@ -513,12 +513,12 @@ const ContractFlowDemo = () => {
                     {/* Pipeline Tracking - Full Width */}
                     <div className="space-y-4">
                   <Tabs defaultValue="pipeline" className="w-full">
-                    <TabsList className="grid w-64 mx-auto grid-cols-2 mb-6">
-                      <TabsTrigger value="list" className="flex items-center gap-2" data-testid="tab-metrics">
+                    <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm p-1">
+                      <TabsTrigger value="list" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background/80 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border/40" data-testid="tab-metrics">
                         <BarChart3 className="h-4 w-4" />
                         Metrics
                       </TabsTrigger>
-                      <TabsTrigger value="pipeline" className="flex items-center gap-2" data-testid="tab-pipeline">
+                      <TabsTrigger value="pipeline" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background/80 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border/40" data-testid="tab-pipeline">
                         <GitBranch className="h-4 w-4" />
                         Pipeline View
                       </TabsTrigger>

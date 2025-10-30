@@ -24,7 +24,7 @@ const getChipStyles = (variant: ChipVariant = "default") => {
   
   const variantStyles = {
     default: "bg-background/60 hover:bg-primary/[0.03] hover:border-primary/30",
-    primary: "bg-secondary/10 text-secondary-foreground hover:bg-secondary/20 border-secondary/20",
+    primary: "bg-primary/[0.06] text-foreground hover:bg-primary/[0.1] border-primary/20",
     info: "bg-primary/[0.03] text-primary hover:bg-primary/[0.06] border-primary/20",
     critical: "bg-destructive/[0.06] text-destructive hover:bg-destructive/10 border-destructive/20",
     disabled: "bg-muted/30 text-muted-foreground cursor-not-allowed opacity-50 hover:scale-100 border-muted/30",
