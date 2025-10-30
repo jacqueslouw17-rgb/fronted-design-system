@@ -19,12 +19,6 @@ import { usePayrollSync } from "@/hooks/usePayrollSync";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { cn } from "@/lib/utils";
 
-interface OwnChecklistItem {
-  id: string;
-  label: string;
-  completed: boolean;
-}
-
 const CandidateDashboard = () => {
   const candidateProfile = {
     name: "Maria Santos",
@@ -35,17 +29,10 @@ const CandidateDashboard = () => {
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const [checklistRequirements, setChecklistRequirements] = useState<any[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [ownChecklist, setOwnChecklist] = useState<OwnChecklistItem[]>([
-    { id: "profile_photo", label: "Upload profile photo", completed: false },
-    { id: "emergency_contact", label: "Add emergency contact", completed: true },
-    { id: "work_preferences", label: "Set work preferences", completed: true },
-    { id: "notification_settings", label: "Configure notifications", completed: false },
-  ]);
 
   // Collapsible states
   const [onboardingOpen, setOnboardingOpen] = useState(true);
   const [payrollOpen, setPayrollOpen] = useState(true);
-  const [ownChecklistOpen, setOwnChecklistOpen] = useState(false);
 
   // Payroll sync state
   const { contractors, getContractorStatus } = usePayrollSync();
@@ -86,16 +73,11 @@ const CandidateDashboard = () => {
     ? Math.round((verifiedCount / checklistRequirements.length) * 100)
     : 0;
 
-  const ownChecklistCompleted = ownChecklist.filter((item) => item.completed).length;
-  const ownChecklistProgress = ownChecklist.length > 0
-    ? Math.round((ownChecklistCompleted / ownChecklist.length) * 100)
-    : 0;
-
   const payrollProgress = contractor?.progress || 0;
 
-  // Overall progress (average of all three sections)
+  // Overall progress (average of onboarding and payroll)
   const overallProgress = Math.round(
-    (progressPercentage + ownChecklistProgress + payrollProgress) / 3
+    (progressPercentage + payrollProgress) / 2
   );
 
   useEffect(() => {
@@ -109,14 +91,6 @@ const CandidateDashboard = () => {
       toast.success("🎉 All onboarding requirements verified!");
     }
   }, [progressPercentage, showCompletion]);
-
-  const toggleOwnChecklistItem = (id: string) => {
-    setOwnChecklist((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -191,8 +165,8 @@ const CandidateDashboard = () => {
                       <span className="text-sm font-medium">{overallProgress}% Complete</span>
                     </div>
                     <ProgressBar 
-                      currentStep={verifiedCount + ownChecklistCompleted + (contractor?.checklist.filter(i => i.status === 'complete').length || 0)} 
-                      totalSteps={checklistRequirements.length + ownChecklist.length + (contractor?.checklist.length || 0)} 
+                      currentStep={verifiedCount + (contractor?.checklist.filter(i => i.status === 'complete').length || 0)} 
+                      totalSteps={checklistRequirements.length + (contractor?.checklist.length || 0)} 
                     />
                   </div>
 
@@ -313,72 +287,6 @@ const CandidateDashboard = () => {
                                   )}
                                 </div>
                               </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Card>
-                    </Collapsible>
-
-                    {/* Own Checklist Card */}
-                    <Collapsible open={ownChecklistOpen} onOpenChange={setOwnChecklistOpen}>
-                      <Card className="overflow-hidden border-2">
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="bg-gradient-to-r from-accent/5 to-primary/5 border-b cursor-pointer hover:bg-accent/10 transition-colors">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1 flex-1">
-                                <CardTitle className="text-xl flex items-center gap-2">
-                                  <Users className="h-5 w-5 text-accent" />
-                                  Own Checklist
-                                  <ChevronDown className={cn(
-                                    "h-5 w-5 text-muted-foreground transition-transform ml-2",
-                                    ownChecklistOpen && "rotate-180"
-                                  )} />
-                                </CardTitle>
-                                <CardDescription>
-                                  Personal tasks to complete your profile setup
-                                </CardDescription>
-                              </div>
-                              <Badge variant="outline" className="bg-background">
-                                {ownChecklistCompleted} / {ownChecklist.length}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent className="p-6">
-                        <div className="space-y-3">
-                          {ownChecklist.map((item) => (
-                            <motion.div
-                              key={item.id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              className={cn(
-                                "flex items-center gap-3 p-4 rounded-lg border transition-all",
-                                item.completed 
-                                  ? "bg-accent-green-fill/10 border-accent-green-outline/30" 
-                                  : "bg-muted/30 border-border hover:bg-muted/50"
-                              )}
-                            >
-                              <Checkbox
-                                id={item.id}
-                                checked={item.completed}
-                                onCheckedChange={() => toggleOwnChecklistItem(item.id)}
-                                className="h-5 w-5"
-                              />
-                              <label
-                                htmlFor={item.id}
-                                className={cn(
-                                  "flex-1 text-sm font-medium cursor-pointer",
-                                  item.completed && "line-through text-muted-foreground"
-                                )}
-                              >
-                                {item.label}
-                              </label>
-                              {item.completed && (
-                                <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                              )}
                             </motion.div>
                           ))}
                         </div>
