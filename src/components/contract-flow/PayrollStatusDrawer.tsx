@@ -146,7 +146,7 @@ export const PayrollStatusDrawer: React.FC<PayrollStatusDrawerProps> = ({
           <Button
             className="w-full"
             onClick={() => {
-              window.location.href = '/flows/candidate-payroll-dashboard';
+              window.location.href = '/flows/candidate-dashboard';
             }}
           >
             <Eye className="h-4 w-4 mr-2" />
