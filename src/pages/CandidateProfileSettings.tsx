@@ -9,6 +9,9 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { motion, AnimatePresence } from "framer-motion";
+import Topbar from "@/components/dashboard/Topbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 // Import step components from candidate onboarding
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -34,7 +37,7 @@ const CandidateProfileSettings = () => {
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Pre-filled form data (from completed onboarding)
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     fullName: "Maria Santos",
     email: "maria.santos@example.com",
     phone: "+63 917 123 4567",
@@ -56,6 +59,14 @@ const CandidateProfileSettings = () => {
     currency: "PHP",
     equipment: ["laptop", "monitor"],
     acknowledgedAgreements: true
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [hasChanges, setHasChanges] = useState<Record<string, boolean>>({
+    personal_details: false,
+    compliance_docs: false,
+    bank_details: false,
+    work_setup: false
   });
 
   // Scroll to section helper
@@ -80,6 +91,14 @@ const CandidateProfileSettings = () => {
     }
   };
 
+  // Track changes to enable save button
+  const handleFormDataChange = (sectionId: string, data?: Record<string, any>) => {
+    if (data) {
+      setFormData(prev => ({ ...prev, ...data }));
+      setHasChanges(prev => ({ ...prev, [sectionId]: true }));
+    }
+  };
+
   // Handle save changes (instead of onComplete)
   const handleSaveChanges = async (sectionId: string, data?: Record<string, any>) => {
     if (data) {
@@ -93,6 +112,7 @@ const CandidateProfileSettings = () => {
     
     setIsSaving(false);
     setExpandedSection(null);
+    setHasChanges(prev => ({ ...prev, [sectionId]: false }));
     
     toast.success("✅ Changes saved successfully", {
       position: "bottom-right",
@@ -129,125 +149,135 @@ const CandidateProfileSettings = () => {
   };
 
   return (
-    <AgentLayout context="Profile Settings">
-      <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-          onClick={() => navigate('/flows/candidate-dashboard')}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+    <RoleLensProvider initialRole="contractor">
+      <TooltipProvider>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Topbar userName={formData.fullName} profileSettingsUrl="/candidate/profile-settings" />
 
-        {/* Static background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-          <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-               style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-          <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-               style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-        </div>
-
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
-          {/* Header with Kurt */}
-          <AgentHeader
-            title={`Hi ${formData.fullName.split(' ')[0]} 👋 Welcome back to Fronted.`}
-            subtitle="Update your profile information anytime. All changes are synced automatically."
-            showPulse={false}
-            isActive={false}
-            placeholder="Ask Kurt for help..."
-            isMuted={isKurtMuted}
-            onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-            className="mb-8"
-          />
-
-          {/* Progress Bar - Always 100% */}
-          <div className="mb-8">
-            <ProgressBar 
-              currentStep={4} 
-              totalSteps={4}
-            />
-            <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
-              <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-              Profile complete and verified
-            </p>
-          </div>
-
-          {/* Profile Sections */}
-          <div className="space-y-4 mb-12">
-            {PROFILE_SECTIONS.map((section) => (
-              <div 
-                key={section.id} 
-                ref={el => stepRefs.current[section.id] = el}
-              >
-                <StepCard
-                  stepNumber={section.stepNumber}
-                  title={section.title}
-                  status="completed" // All sections marked as completed
-                  isExpanded={expandedSection === section.id}
-                  onClick={() => handleSectionClick(section.id)}
+          <div className="flex-1">
+            <AgentLayout context="Profile Settings">
+              <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+                {/* Back Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+                  onClick={() => navigate('/flows/candidate-dashboard')}
                 >
-                  <AnimatePresence mode="wait">
-                    {expandedSection === section.id && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-6"
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+
+                {/* Static background */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                       style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                       style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+                </div>
+
+                {/* Main Content */}
+                <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
+                  {/* Header with Kurt */}
+                  <AgentHeader
+                    title="Profile Settings"
+                    subtitle="Update your personal information, compliance documents, and payroll details."
+                    showPulse={false}
+                    isActive={false}
+                    placeholder="Ask Kurt for help..."
+                    isMuted={isKurtMuted}
+                    onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                    className="mb-8"
+                  />
+
+                  {/* Progress Bar - Always 100% */}
+                  <div className="mb-8">
+                    <ProgressBar 
+                      currentStep={4} 
+                      totalSteps={4}
+                    />
+                    <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
+                      <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                      Profile complete and verified
+                    </p>
+                  </div>
+
+                  {/* Profile Sections */}
+                  <div className="space-y-4 mb-12">
+                    {PROFILE_SECTIONS.map((section) => (
+                      <div 
+                        key={section.id} 
+                        ref={el => stepRefs.current[section.id] = el}
                       >
-                        {section.id === "personal_details" && (
-                          <CandidateStep2PersonalDetails
-                            formData={formData}
-                            onComplete={handleSaveChanges}
-                            isProcessing={isSaving}
-                            isLoadingFields={isLoadingFields}
-                            buttonText="Save Changes"
-                          />
-                        )}
-                        
-                        {section.id === "compliance_docs" && (
-                          <CandidateStep3Compliance
-                            formData={formData}
-                            onComplete={handleSaveChanges}
-                            isProcessing={isSaving}
-                            isLoadingFields={isLoadingFields}
-                            buttonText="Save Changes"
-                          />
-                        )}
-                        
-                        {section.id === "bank_details" && (
-                          <CandidateStep4Bank
-                            formData={formData}
-                            onComplete={handleSaveChanges}
-                            isProcessing={isSaving}
-                            isLoadingFields={isLoadingFields}
-                            buttonText="Save Changes"
-                          />
-                        )}
-                        
-                        {section.id === "work_setup" && (
-                          <CandidateStep5WorkSetup
-                            formData={formData}
-                            onComplete={handleSaveChanges}
-                            isProcessing={isSaving}
-                            isLoadingFields={isLoadingFields}
-                            buttonText="Save Changes"
-                          />
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </StepCard>
+                        <StepCard
+                          stepNumber={section.stepNumber}
+                          title={section.title}
+                          status="completed" // All sections marked as completed
+                          isExpanded={expandedSection === section.id}
+                          onClick={() => handleSectionClick(section.id)}
+                        >
+                          <AnimatePresence mode="wait">
+                            {expandedSection === section.id && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-6"
+                              >
+                                {section.id === "personal_details" && (
+                                  <CandidateStep2PersonalDetails
+                                    formData={formData}
+                                    onComplete={handleSaveChanges}
+                                    isProcessing={isSaving}
+                                    isLoadingFields={isLoadingFields}
+                                    buttonText="Save Changes"
+                                  />
+                                )}
+                                
+                                {section.id === "compliance_docs" && (
+                                  <CandidateStep3Compliance
+                                    formData={formData}
+                                    onComplete={handleSaveChanges}
+                                    isProcessing={isSaving}
+                                    isLoadingFields={isLoadingFields}
+                                    buttonText="Save Changes"
+                                  />
+                                )}
+                                
+                                {section.id === "bank_details" && (
+                                  <CandidateStep4Bank
+                                    formData={formData}
+                                    onComplete={handleSaveChanges}
+                                    isProcessing={isSaving}
+                                    isLoadingFields={isLoadingFields}
+                                    buttonText="Save Changes"
+                                  />
+                                )}
+                                
+                                {section.id === "work_setup" && (
+                                  <CandidateStep5WorkSetup
+                                    formData={formData}
+                                    onComplete={handleSaveChanges}
+                                    isProcessing={isSaving}
+                                    isLoadingFields={isLoadingFields}
+                                    buttonText="Save Changes"
+                                  />
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </StepCard>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            ))}
+            </AgentLayout>
           </div>
         </div>
-      </div>
-    </AgentLayout>
+      </TooltipProvider>
+    </RoleLensProvider>
   );
 };
 
