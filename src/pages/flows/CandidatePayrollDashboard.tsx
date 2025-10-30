@@ -139,7 +139,6 @@ const CandidatePayrollDashboard = () => {
                     isMuted={isKurtMuted}
                     onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                     tags={<AgentSuggestionChips chips={suggestionChips} />}
-                    tagsLabel="Quick actions:"
                   />
 
                   {/* Progress Section */}

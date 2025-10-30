@@ -20,7 +20,6 @@ interface AgentHeaderProps {
   isMuted?: boolean;
   onMuteToggle?: () => void;
   tags?: React.ReactNode;
-  tagsLabel?: string;
 }
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
   title = "Welcome back",
@@ -35,8 +34,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   progressIndicator,
   isMuted = false,
   onMuteToggle,
-  tags,
-  tagsLabel
+  tags
 }) => {
   const [inputValue, setInputValue] = useState('');
   const {
@@ -132,8 +130,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         </form>
         
         {/* Contextual Tags */}
-        {tags && <div className="flex flex-col items-center justify-center gap-2">
-            {tagsLabel}
+        {tags && <div className="flex items-center justify-center">
             {tags}
           </div>}
       </motion.div>

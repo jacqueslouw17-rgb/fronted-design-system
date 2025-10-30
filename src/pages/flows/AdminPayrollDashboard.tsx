@@ -188,7 +188,6 @@ const AdminPayrollDashboard = () => {
                     isMuted={isKurtMuted}
                     onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                     tags={<AgentSuggestionChips chips={suggestionChips} />}
-                    tagsLabel="Quick actions:"
                   />
 
                   {/* Metrics Panel */}
