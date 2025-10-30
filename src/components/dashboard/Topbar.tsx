@@ -32,9 +32,10 @@ interface TopbarProps {
   isDrawerOpen?: boolean;
   onDrawerToggle?: () => void;
   profileSettingsUrl?: string; // Custom profile settings URL
+  dashboardUrl?: string; // Custom dashboard URL for logo click
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/profile-settings" }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/profile-settings", dashboardUrl }: TopbarProps) => {
   const navigate = useNavigate();
   const initials = userName
     .split(" ")
@@ -61,7 +62,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(version ? "/?tab=flows" : (profileSettingsUrl ? profileSettingsUrl.replace('/profile-settings', '-dashboard') : '/flows/candidate-dashboard'))}
+          onClick={() => navigate("/?tab=flows")}
           className="hover:bg-transparent"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -87,7 +88,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           src={frontedLogo}
           alt="Fronted"
           className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate(profileSettingsUrl ? profileSettingsUrl.replace('/profile-settings', '-dashboard') : '/dashboard')}
+          onClick={() => navigate(dashboardUrl || '/candidate-dashboard')}
         />
       </div>
 

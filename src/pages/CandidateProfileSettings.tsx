@@ -153,7 +153,7 @@ const CandidateProfileSettings = () => {
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
         <div className="flex flex-col min-h-screen bg-background">
-          <Topbar userName={formData.fullName} profileSettingsUrl="/candidate/profile-settings" />
+          <Topbar userName={formData.fullName} profileSettingsUrl="/candidate/profile-settings" dashboardUrl="/candidate-dashboard" />
 
           <div className="flex-1">
             <AgentLayout context="Profile Settings">
