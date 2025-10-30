@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Clock, FileSignature, User, FileText, AlertTriangle, File, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { SendForSigningConfirmation } from "./SendForSigningConfirmation";
 
 interface SignatureWorkflowDrawerProps {
   open: boolean;
@@ -152,6 +153,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   const [addDocDialogOpen, setAddDocDialogOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   // Update steps and documents when candidate changes
   useEffect(() => {
@@ -182,7 +184,13 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
     setAddDocDialogOpen(true);
   };
 
-  const handleSendForSignatures = () => {
+  const handleSendForSignaturesClick = () => {
+    // Open confirmation modal instead of sending immediately
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirmSend = () => {
+    setConfirmationOpen(false);
     setIsSending(true);
     
     setTimeout(() => {
@@ -350,7 +358,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
               <Button
                 className="w-full"
                 disabled={!canSend}
-                onClick={handleSendForSignatures}
+                onClick={handleSendForSignaturesClick}
               >
                 <FileSignature className="h-4 w-4 mr-2" />
                 {isSending ? "Sending..." : "Send for Signatures"}
@@ -470,6 +478,18 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Send for Signing Confirmation */}
+      <SendForSigningConfirmation
+        open={confirmationOpen}
+        onOpenChange={setConfirmationOpen}
+        candidate={candidate}
+        onConfirm={handleConfirmSend}
+        onReview={() => {
+          setConfirmationOpen(false);
+          // Keep drawer open for review
+        }}
+      />
     </Sheet>
   );
 };
