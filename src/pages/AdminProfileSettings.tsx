@@ -43,23 +43,27 @@ const AdminProfileSettings = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
+    // Allow viewing without auth; load data only when session exists
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
         setUserId(session.user.id);
-        loadUserData(session.user.id);
+        setTimeout(() => loadUserData(session.user!.id), 0);
+      } else {
+        setUserId(null);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate("/auth");
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        loadUserData(session.user.id);
+      } else {
+        setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const loadUserData = async (uid: string) => {
     setLoading(true);
@@ -111,7 +115,7 @@ const AdminProfileSettings = () => {
   };
 
   const handleSaveChanges = async (stepId: string, data?: Record<string, any>) => {
-    if (!userId || !data) return;
+    if (!data) return;
 
     setIsSaving(true);
     try {
