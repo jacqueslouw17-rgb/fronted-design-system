@@ -535,6 +535,32 @@ const ContractFlowDemo = () => {
                         <TabsContent value="pipeline">
                           <PipelineView 
                             contractors={[
+                              // Display-only candidates (not in contract flow)
+                              {
+                                id: "display-1",
+                                name: "Liam Chen",
+                                country: "Singapore",
+                                countryFlag: "🇸🇬",
+                                role: "Frontend Developer",
+                                salary: "SGD 7,500/mo",
+                                status: "offer-accepted" as const,
+                                formSent: false,
+                                dataReceived: false,
+                                employmentType: "contractor" as const,
+                              },
+                              {
+                                id: "display-2",
+                                name: "Sofia Rodriguez",
+                                country: "Mexico",
+                                countryFlag: "🇲🇽",
+                                role: "Marketing Manager",
+                                salary: "MXN 45,000/mo",
+                                status: "data-pending" as const,
+                                formSent: true,
+                                dataReceived: false,
+                                employmentType: "employee" as const,
+                              },
+                              // Actual candidates in the contract flow
                               ...contractFlow.selectedCandidates.map((candidate, index) => ({
                                 id: candidate.id,
                                 name: candidate.name,
