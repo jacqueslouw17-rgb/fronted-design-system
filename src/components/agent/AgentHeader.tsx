@@ -80,17 +80,17 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   }} animate={{
     opacity: 1,
     y: 0
-  }} className={`flex flex-col items-center space-y-6 ${className}`}>
+  }} className={`flex flex-col items-center space-y-4 sm:space-y-6 px-4 ${className}`}>
       {/* Agent Pulse */}
-      {showPulse && <div className="flex justify-center scale-75">
+      {showPulse && <div className="flex justify-center scale-75 sm:scale-100">
           <AudioWaveVisualizer isActive={isActive} isListening={false} />
         </div>}
 
       {/* Title & Subtitle */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">{title}</h1>
-        <div className="flex items-center justify-center gap-3">
-          <p className="text-base">
+      <div className="text-center space-y-1 sm:space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{title}</h1>
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <p className="text-sm sm:text-base">
             {enableWordHighlight || isSpeaking ?
           // Word-by-word highlighting when speaking (grey reading effect)
           subtitle.split(' ').map((word, idx) => <span key={idx} className={idx < displayWordIndex ? 'text-foreground/90' : 'text-muted-foreground/40'}>
@@ -106,7 +106,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       </div>
 
       {/* Progress Indicator */}
-      {progressIndicator && <div className="w-full max-w-xl">
+      {progressIndicator && <div className="w-full max-w-xl px-4">
           {progressIndicator}
         </div>}
 
@@ -119,18 +119,18 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       y: 0
     }} transition={{
       delay: 0.2
-    }} className="w-full max-w-xl space-y-3">
+    }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
         <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
-            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isSubmitting} className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8" />
-            <Button type="submit" size="icon" disabled={!inputValue.trim() || isSubmitting} className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
-              {isSubmitting ? <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
+          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5 sm:py-2">
+            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isSubmitting} className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8 sm:h-9" />
+            <Button type="submit" size="icon" disabled={!inputValue.trim() || isSubmitting} className="h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0 touch-manipulation min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0">
+              {isSubmitting ? <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
             </Button>
           </div>
         </form>
         
         {/* Contextual Tags */}
-        {tags && <div className="flex items-center justify-center">
+        {tags && <div className="flex items-center justify-center overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
             {tags}
           </div>}
       </motion.div>

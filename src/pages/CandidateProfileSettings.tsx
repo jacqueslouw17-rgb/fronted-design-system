@@ -10,6 +10,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { motion, AnimatePresence } from "framer-motion";
 import Topbar from "@/components/dashboard/Topbar";
+import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
@@ -168,7 +169,7 @@ const CandidateProfileSettings = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
+                <div className="container mx-auto px-4 py-4 sm:py-8 max-w-3xl relative z-10 pb-20 sm:pb-8">
                   {/* Header with Kurt */}
                   <AgentHeader
                     title="Profile Settings"
@@ -264,6 +265,7 @@ const CandidateProfileSettings = () => {
                   </div>
                 </div>
               </div>
+              <FloatingKurtButton />
             </AgentLayout>
           </div>
         </div>

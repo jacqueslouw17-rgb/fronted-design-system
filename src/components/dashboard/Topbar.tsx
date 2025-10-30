@@ -56,22 +56,22 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
   };
 
   return (
-    <header className="sticky top-0 z-50 h-16 border-b bg-card flex items-center justify-between px-6">
+    <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6">
       {/* Brand */}
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate("/?tab=flows")}
-          className="hover:bg-transparent"
+          className="hover:bg-transparent flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         
-        {/* Version Selector (only on Dashboard pattern) */}
+        {/* Version Selector (only on Dashboard pattern) - hidden on mobile */}
         {showVersionSelector && (
           <Select value={version} onValueChange={onVersionChange}>
-            <SelectTrigger className="w-20 h-9">
+            <SelectTrigger className="w-16 sm:w-20 h-8 sm:h-9 text-xs sm:text-sm hidden sm:flex">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -87,22 +87,22 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <img 
           src={frontedLogo}
           alt="Fronted"
-          className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
           onClick={() => navigate(dashboardUrl || '/candidate-dashboard')}
         />
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
         {/* Agent Toggle - only shown in v2, left of notifications */}
         {version === "v2" && onAgentToggle && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onAgentToggle}
-            className="relative"
+            className="relative h-8 w-8 sm:h-10 sm:w-10"
           >
-            <PanelLeftOpen className="h-5 w-5" />
+            <PanelLeftOpen className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         )}
         
@@ -117,14 +117,18 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar>
-                <AvatarFallback>{initials}</AvatarFallback>
+            <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full">
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                <AvatarFallback className="text-xs sm:text-sm">{initials}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{userName}</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{userName}</p>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate(profileSettingsUrl)}>
               Profile Settings

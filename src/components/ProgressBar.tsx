@@ -8,9 +8,9 @@ const ProgressBar = ({ currentStep, totalSteps }: ProgressBarProps) => {
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="text-sm font-medium text-foreground/80">Progress</span>
-        <span className="text-sm font-semibold text-foreground">
+      <div className="flex justify-between items-center px-1">
+        <span className="text-xs sm:text-sm font-medium text-foreground/80">Progress</span>
+        <span className="text-xs sm:text-sm font-semibold text-foreground">
           {currentStep} / {totalSteps}
         </span>
       </div>

@@ -45,15 +45,17 @@ const StepCard = ({
   if (isExpanded) {
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden relative z-10">
-        <Card className="p-5 border-white/40 bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate">
-          <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={onClick}>
-            <div className="flex items-center space-x-3">
-              <div className="h-6 w-6 rounded-full bg-white/25 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
+        <Card className="p-4 sm:p-5 border-white/40 bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate">
+          <div className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" onClick={onClick}>
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-white/25 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {stepNumber}
               </div>
-              <h3 className={`font-semibold text-base ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
+              <h3 className={`font-semibold text-sm sm:text-base truncate ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
             </div>
-            {getStatusBadge()}
+            <div className="flex-shrink-0 ml-2">
+              {getStatusBadge()}
+            </div>
           </div>
 
           <div className="space-y-4 animate-fade-in">
@@ -67,14 +69,14 @@ const StepCard = ({
   return (
     <div className="transition-all duration-500 ease-in-out relative z-10">
       <Card
-        className={`p-4 transition-all duration-500 ease-in-out cursor-pointer group border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 relative isolate ${
+        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out cursor-pointer group border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 relative isolate touch-manipulation ${
           status === "pending" ? "opacity-40 cursor-default" : ""}`}
         onClick={status !== "pending" ? onClick : undefined}
       >
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-3">
+      <div className="flex justify-between items-center gap-2">
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           <div
-            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 flex-shrink-0 ${
+            className={`h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-200 flex-shrink-0 ${
               status === "completed"
                 ? "bg-primary/20 text-primary"
                 : status === "active"
@@ -83,12 +85,12 @@ const StepCard = ({
             }`}
           >
             {status === "completed" ? (
-              <CheckCircle2 className="h-3.5 w-3.5" />
+              <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             ) : (
               stepNumber
             )}
           </div>
-          <p className={`font-medium text-sm ${
+          <p className={`font-medium text-xs sm:text-sm truncate ${
             status === "completed" 
               ? "text-foreground/70" 
               : status === "active"
@@ -96,7 +98,9 @@ const StepCard = ({
               : "text-foreground"
           }`}>{title}</p>
         </div>
-        {getStatusBadge()}
+        <div className="flex-shrink-0">
+          {getStatusBadge()}
+        </div>
       </div>
     </Card>
     </div>

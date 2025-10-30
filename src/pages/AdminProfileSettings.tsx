@@ -16,6 +16,7 @@ import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import AdminComplianceSettings from "@/components/flows/admin-profile/AdminComplianceSettings";
 import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
+import FloatingKurtButton from "@/components/FloatingKurtButton";
 
 const PROFILE_SECTIONS = [
   { id: "company-details", title: "Company Details", step: 1 },
@@ -307,9 +308,9 @@ const AdminProfileSettings = () => {
                  style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
           </div>
 
-          <div className="container max-w-4xl mx-auto py-8 px-4 relative z-10">
+          <div className="container max-w-4xl mx-auto py-4 sm:py-8 px-4 relative z-10">
             {/* Header */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <AgentHeader 
                 title="Profile Settings"
                 subtitle="Update your organization profile and preferences"
@@ -317,7 +318,7 @@ const AdminProfileSettings = () => {
             </div>
 
             {/* Progress Bar - Always 100% */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <ProgressBar
                 currentStep={PROFILE_SECTIONS.length}
                 totalSteps={PROFILE_SECTIONS.length}
@@ -325,7 +326,7 @@ const AdminProfileSettings = () => {
             </div>
 
             {/* Sections */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 pb-20 sm:pb-8">
               {PROFILE_SECTIONS.map((section) => (
                 <div
                   key={section.id}
@@ -356,6 +357,7 @@ const AdminProfileSettings = () => {
             </div>
           </div>
         </div>
+        <FloatingKurtButton />
       </AgentLayout>
     </div>
   );
