@@ -136,52 +136,54 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
   
+  // Helper to ensure a contractor has payroll details
+  const ensurePayrollDetails = React.useCallback((c: Contractor): Contractor => {
+    if (c.status !== "payroll-ready") return c;
+    if (c.payrollChecklist && typeof c.payrollProgress === "number") return c;
+    return {
+      ...c,
+      payrollProgress: c.payrollProgress ?? 40,
+      payrollChecklist: c.payrollChecklist ?? [
+        {
+          id: "signed-contract",
+          label: "Signed Contract",
+          status: "verified" as const,
+          verifiedBy: "Fronted",
+          verifiedAt: "30/10/2025, 17:34:05",
+        },
+        {
+          id: "compliance-docs",
+          label: "Compliance Documents",
+          status: "pending" as const,
+          details: "Tax forms and work permits pending review",
+        },
+        {
+          id: "payroll-setup",
+          label: "Payroll Setup",
+          status: "verified" as const,
+          verifiedBy: "Fronted",
+          verifiedAt: "30/10/2025, 17:34:05",
+        },
+        {
+          id: "first-payment",
+          label: "First Payment",
+          status: "todo" as const,
+        },
+        {
+          id: "certification",
+          label: "Certification Complete",
+          status: "todo" as const,
+        },
+      ],
+    };
+  }, []);
+  
   // Initialize payroll checklist for payroll-ready contractors
   React.useEffect(() => {
     setContractors(current => 
-      current.map(c => {
-        if (c.status === "payroll-ready" && !c.payrollChecklist) {
-          return {
-            ...c,
-            payrollProgress: 40,
-            payrollChecklist: [
-              {
-                id: "signed-contract",
-                label: "Signed Contract",
-                status: "verified" as const,
-                verifiedBy: "Fronted",
-                verifiedAt: "30/10/2025, 17:34:05",
-              },
-              {
-                id: "compliance-docs",
-                label: "Compliance Documents",
-                status: "pending" as const,
-                details: "Tax forms and work permits pending review",
-              },
-              {
-                id: "payroll-setup",
-                label: "Payroll Setup",
-                status: "verified" as const,
-                verifiedBy: "Fronted",
-                verifiedAt: "30/10/2025, 17:34:05",
-              },
-              {
-                id: "first-payment",
-                label: "First Payment",
-                status: "todo" as const,
-              },
-              {
-                id: "certification",
-                label: "Certification Complete",
-                status: "todo" as const,
-              },
-            ],
-          };
-        }
-        return c;
-      })
+      current.map(c => (c.status === "payroll-ready" ? ensurePayrollDetails(c) : c))
     );
-  }, [contractors.filter(c => c.status === "payroll-ready").length]);
+  }, [ensurePayrollDetails, contractors.filter(c => c.status === "payroll-ready").length]);
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -1069,12 +1071,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           {/* Payroll Ready Status with Progress */}
                           {status === "payroll-ready" && (
                             <div 
-                              className="pt-2 space-y-2 cursor-pointer hover:opacity-80 transition-opacity"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedForPayroll(contractor);
-                                setPayrollDrawerOpen(true);
-                              }}
+                              className="pt-2 space-y-2"
                             >
                               <Badge 
                                 variant="outline" 
@@ -1111,6 +1108,22 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   )}
                                 </div>
                               )}
+
+                              {/* CTA: View Payroll Details */}
+                              <Button 
+                                variant="outline"
+                                size="sm" 
+                                className="w-full text-xs h-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const withDetails = ensurePayrollDetails(contractor);
+                                  setSelectedForPayroll(withDetails);
+                                  setPayrollDrawerOpen(true);
+                                }}
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                View Payroll Details
+                              </Button>
                             </div>
                           )}
                         </CardContent>
