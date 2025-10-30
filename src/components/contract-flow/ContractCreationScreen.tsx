@@ -115,7 +115,16 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       case 'whats-missing':
         const missingFields = getMissingFields();
         if (missingFields.length === 0) {
-          response = `✅ All Required Fields Complete!\n\nGreat news! All required fields are filled in:\n✓ Full Name\n✓ Email\n✓ Role\n✓ Start Date\n✓ Salary\n✓ Country\n\nYou're all set to proceed. Want me to review the contract for you?`;
+          addMessage({
+            role: 'kurt',
+            text: "✅ All Required Fields Complete!\n\nGreat news! All required fields are filled in:\n✓ Full Name\n✓ Email\n✓ Role\n✓ Start Date\n✓ Salary\n✓ Country\n\nYou're all set to proceed. Want me to review the contract for you?",
+            actionButtons: [
+              { label: 'Yes, Review It', action: 'review-for-me', variant: 'default' },
+              { label: 'Skip Review', action: 'skip-review', variant: 'outline' },
+            ]
+          });
+          setLoading(false);
+          return;
         } else {
           response = `⚠️ Missing Required Fields\n\nI found ${missingFields.length} required field${missingFields.length > 1 ? 's' : ''} that need${missingFields.length > 1 ? '' : 's'} your attention:\n\n`;
           
@@ -136,9 +145,27 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       case 'review-for-me':
         const missing = getMissingFields();
         if (missing.length > 0) {
-          response = `🔍 Contract Review - Issues Found\n\nI reviewed the contract and found ${missing.length} issue${missing.length > 1 ? 's' : ''}:\n\n❌ Missing Required Fields:\n${missing.map(f => `• ${f.label}`).join('\n')}\n\nPlease complete these fields before I can proceed with the full review. Want me to show you where they are?`;
+          addMessage({
+            role: 'kurt',
+            text: `🔍 Contract Review - Issues Found\n\nI reviewed the contract and found ${missing.length} issue${missing.length > 1 ? 's' : ''}:\n\n❌ Missing Required Fields:\n${missing.map(f => `• ${f.label}`).join('\n')}\n\nPlease complete these fields before I can proceed with the full review. Want me to show you where they are?`,
+            actionButtons: [
+              { label: "Show Me What's Missing", action: 'whats-missing', variant: 'default' },
+              { label: 'Auto-Fill Data', action: 'auto-fill', variant: 'outline' },
+            ]
+          });
+          setLoading(false);
+          return;
         } else {
-          response = `✅ Contract Review Complete\n\nI've reviewed the entire contract:\n\n✓ All required fields completed\n✓ Email format validated\n✓ Start date is future-dated\n✓ Salary format correct\n✓ Compliance requirements met for ${candidate.country}\n✓ Employment type: ${employmentType}\n\nEverything looks perfect! The contract is ready to proceed to bundle generation. Should I move forward?`;
+          addMessage({
+            role: 'kurt',
+            text: `✅ Contract Review Complete\n\nI've reviewed the entire contract:\n\n✓ All required fields completed\n✓ Email format validated\n✓ Start date is future-dated\n✓ Salary format correct\n✓ Compliance requirements met for ${candidate.country}\n✓ Employment type: ${employmentType}\n\nEverything looks perfect! The contract is ready to proceed to bundle generation. Should I move forward?`,
+            actionButtons: [
+              { label: 'Generate Bundle', action: 'generate-bundle', variant: 'default' },
+              { label: 'Make Changes', action: 'make-changes', variant: 'outline' },
+            ]
+          });
+          setLoading(false);
+          return;
         }
         break;
         
@@ -159,15 +186,59 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         }
         
         if (updates.length === 0) {
-          response = `✅ Nothing to Auto-Fill\n\nAll available fields are already filled! The candidate record doesn't have any additional data I can use.\n\nWant me to review the contract instead?`;
+          addMessage({
+            role: 'kurt',
+            text: "✅ Nothing to Auto-Fill\n\nAll available fields are already filled! The candidate record doesn't have any additional data I can use.\n\nWant me to review the contract instead?",
+            actionButtons: [
+              { label: 'Review Contract', action: 'review-for-me', variant: 'default' },
+            ]
+          });
         } else {
-          response += updates.join('\n') + '\n\nAll set! I pulled the latest data from your ATS and filled in the gaps. Want me to review the contract now?';
+          response += updates.join('\n') + "\n\nAll set! I pulled the latest data from your ATS and filled in the gaps. Want me to review the contract now?";
+          addMessage({
+            role: 'kurt',
+            text: response,
+            actionButtons: [
+              { label: 'Review Now', action: 'review-for-me', variant: 'default' },
+              { label: 'Make More Changes', action: 'make-changes', variant: 'outline' },
+            ]
+          });
         }
         
         setTimeout(() => {
           toast.success("Fields auto-filled from candidate record");
         }, 100);
-        break;
+        setLoading(false);
+        return;
+        
+      case 'generate-bundle':
+        addMessage({
+          role: 'kurt',
+          text: "🎯 Generating Contract Bundle\n\nI'm preparing the contract bundle with all required documents:\n\n✓ Main Employment Contract\n✓ NDA & Company Policies\n✓ Compliance Documents\n✓ Country-specific forms\n\nThis will take just a moment...",
+        });
+        setLoading(false);
+        
+        setTimeout(() => {
+          toast.success("Contract bundle ready!");
+          // Here you would typically trigger the actual bundle generation
+        }, 2000);
+        return;
+        
+      case 'skip-review':
+        addMessage({
+          role: 'kurt',
+          text: "✅ Skipping Review\n\nNo problem! You can proceed directly to the next step. Just let me know when you're ready to generate the contract bundle.",
+        });
+        setLoading(false);
+        return;
+        
+      case 'make-changes':
+        addMessage({
+          role: 'kurt',
+          text: "📝 Ready for Changes\n\nGo ahead and make any adjustments you need. I'll be here when you're ready to review again or generate the bundle.",
+        });
+        setLoading(false);
+        return;
         
       default:
         response = `I'll help you with "${action}". Let me process that for you.`;
