@@ -100,7 +100,7 @@ export const AgentSuggestionChips = ({ chips, className }: AgentSuggestionChipsP
 
   return (
     <div className={cn("w-full animate-fade-in", className)}>
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex items-center justify-center gap-2 flex-wrap">
         {visibleChips.map((chip, index) => (
           <SuggestionChipButton 
             key={`${chip.label}-${index}`} 
