@@ -59,11 +59,13 @@ const ContractFlowDemo = () => {
   };
 
   const handleKurtAction = async (action: string) => {
-    // Add user message
-    addMessage({
-      role: 'user',
-      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-    });
+    // Don't add user message for send-reminder actions (they're triggered from buttons)
+    if (!action.startsWith('send-reminder-')) {
+      addMessage({
+        role: 'user',
+        text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+      });
+    }
 
     // Open the agent panel
     setOpen(true);
@@ -97,8 +99,21 @@ const ContractFlowDemo = () => {
         response = `🔄 Draft Comparison\n\nComparing current draft with template:\n\nChanges made:\n• Salary increased from $4,000 to $4,500\n• PTO increased from 10 to 15 days\n• Added remote work clause\n• Modified notice period from 15 to 30 days\n\nAll changes are within approved parameters.`;
         break;
       case 'track-progress':
-        response = `📈 Onboarding Progress\n\nMaria Santos - 75% Complete\n\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\n\nEstimated completion: 2 days`;
-        break;
+        response = `📈 Onboarding Progress\n\n👤 Maria Santos - 75% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 2 days\n\n👤 John Smith - 40% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 5 days\n\n👤 Sarah Chen - 90% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n✅ Compliance documents approved\n⏳ Emergency contact needed\nEstimated completion: 1 day\n\n👤 Ahmed Hassan - 25% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 7 days`;
+        
+        addMessage({
+          role: 'kurt',
+          text: response,
+          actionButtons: [
+            { label: 'Send Reminder to Maria', action: 'send-reminder-maria', variant: 'default' },
+            { label: 'Send Reminder to John', action: 'send-reminder-john', variant: 'outline' },
+            { label: 'Send Reminder to Sarah', action: 'send-reminder-sarah', variant: 'outline' },
+            { label: 'Send Reminder to Ahmed', action: 'send-reminder-ahmed', variant: 'outline' },
+          ]
+        });
+        
+        setLoading(false);
+        return;
       case 'resend-link':
         response = `📧 Link Resent\n\nOnboarding link has been resent to:\nmaria.santos@email.com\n\nThe link will expire in 48 hours.\n\nLast opened: 2 hours ago\nCompletion status: 75%`;
         break;
@@ -107,6 +122,18 @@ const ContractFlowDemo = () => {
         break;
       default:
         response = `I'll help you with "${action}". Let me process that for you.`;
+    }
+
+    // Handle other actions
+    if (action.startsWith('send-reminder-')) {
+      const name = action.replace('send-reminder-', '').replace('-', ' ');
+      const capitalizedName = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      addMessage({
+        role: 'kurt',
+        text: `📧 Reminder Sent\n\nOnboarding reminder has been emailed to ${capitalizedName}.\n\n✓ Link to continue onboarding included\n✓ List of pending items attached\n✓ Support contact information provided\n\nThey should receive it within a few minutes.`,
+      });
+      setLoading(false);
+      return;
     }
 
     addMessage({
@@ -164,6 +191,14 @@ const ContractFlowDemo = () => {
     },
   ];
   
+  // Expose handleKurtAction globally for action buttons
+  useEffect(() => {
+    (window as any).handleKurtAction = handleKurtAction;
+    return () => {
+      delete (window as any).handleKurtAction;
+    };
+  }, []);
+
   useEffect(() => {
     if (contractFlow.phase === "prompt") {
       setIsTypingPrompt(false);

@@ -7,6 +7,7 @@ export type AgentMessage = {
   text: string;
   ts: string;
   actions?: Array<{ type: string; payload: any }>;
+  actionButtons?: Array<{ label: string; action: string; variant?: 'default' | 'outline' | 'secondary' }>;
 };
 
 export type AgentState = {

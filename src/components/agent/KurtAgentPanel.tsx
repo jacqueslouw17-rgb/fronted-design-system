@@ -46,14 +46,16 @@ export const KurtAgentPanel: React.FC = () => {
     }
   }, [messages, loading]);
 
-  // Auto-speak the latest Kurt message after loading completes
+  // Auto-speak the latest Kurt message after loading completes (only first line/heading)
   useEffect(() => {
     if (!loading && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'kurt' && readingMessageId !== lastMessage.id) {
         setReadingMessageId(lastMessage.id);
         setIsSpeaking(true);
-        speak(lastMessage.text, () => {
+        // Only speak the first line (heading)
+        const firstLine = lastMessage.text.split('\n')[0];
+        speak(firstLine, () => {
           setIsSpeaking(false);
           setReadingMessageId(null);
         });
@@ -190,6 +192,29 @@ export const KurtAgentPanel: React.FC = () => {
                                 <span className="text-foreground">{msg.text}</span>
                               )}
                             </p>
+                          </div>
+                        )}
+                        
+                        {/* Action Buttons */}
+                        {msg.actionButtons && msg.actionButtons.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {msg.actionButtons.map((btn, idx) => (
+                              <Button
+                                key={idx}
+                                variant={btn.variant || 'default'}
+                                size="sm"
+                                className="text-xs"
+                                onClick={() => {
+                                  // Trigger the action through the same handler
+                                  const handleKurtAction = (window as any).handleKurtAction;
+                                  if (handleKurtAction) {
+                                    handleKurtAction(btn.action);
+                                  }
+                                }}
+                              >
+                                {btn.label}
+                              </Button>
+                            ))}
                           </div>
                         )}
                         
