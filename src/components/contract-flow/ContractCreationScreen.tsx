@@ -212,16 +212,32 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         return;
         
       case 'generate-bundle':
+        setLoading(true);
         addMessage({
           role: 'kurt',
           text: "🎯 Generating Contract Bundle\n\nI'm preparing the contract bundle with all required documents:\n\n✓ Main Employment Contract\n✓ NDA & Company Policies\n✓ Compliance Documents\n✓ Country-specific forms\n\nThis will take just a moment...",
         });
-        setLoading(false);
         
         setTimeout(() => {
-          toast.success("Contract bundle ready!");
-          // Here you would typically trigger the actual bundle generation
-        }, 2000);
+          addMessage({
+            role: 'kurt',
+            text: "📦 Compiling documents and validating compliance...",
+          });
+          
+          setTimeout(() => {
+            setLoading(false);
+            addMessage({
+              role: 'kurt',
+              text: "✨ **Bundle ready!** Transitioning to bundle screen...",
+            });
+            toast.success("Contract bundle ready!");
+            
+            setTimeout(() => {
+              setOpen(false);
+              onNext();
+            }, 800);
+          }, 1500);
+        }, 1000);
         return;
         
       case 'skip-review':
