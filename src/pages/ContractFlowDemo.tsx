@@ -391,7 +391,16 @@ const ContractFlowDemo = () => {
 
           {/* Contract Flow Main Area with Agent Layout */}
           <AgentLayout context="Contract Flow">
-            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.03] via-background to-secondary/[0.02]">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
+              {/* Static background */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                     style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+                <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                     style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+              </div>
+              <div className="relative z-10">
               <AnimatePresence mode="wait">
                 {contractFlow.phase === "prompt" ? (
                   <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
@@ -514,9 +523,9 @@ const ContractFlowDemo = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                <Card className={`hover:shadow-lg transition-all h-full border-border/40 ${
-                                  idx === 0 ? 'bg-primary/[0.03]' : 'bg-card'
-                                }`}>
+                                 <Card className={`hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm ${
+                                   idx === 0 ? 'bg-gradient-to-br from-primary/[0.02] to-primary/[0.01]' : ''
+                                 }`}>
                                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
                                     <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
@@ -913,6 +922,7 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : null}
             </AnimatePresence>
+            </div>
           </div>
         </AgentLayout>
       </main>
