@@ -248,61 +248,63 @@ const AdminProfileSettings = () => {
       />
       
       <AgentLayout context="admin-profile-settings">
-        <div className="container max-w-4xl mx-auto py-8 px-4">
-          {/* Header */}
-          <div className="mb-8">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/flows/admin-dashboard")} 
-              className="mb-4"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-            
-            <AgentHeader 
-              title="Hi Joe 👋 Manage your Fronted account below"
-              subtitle="Update your organization profile and preferences"
-            />
+        <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
+          {/* Static background */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+            <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                 style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+            <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                 style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
           </div>
 
-          {/* Progress Bar - Always 100% */}
-          <div className="mb-6">
-            <ProgressBar
-              currentStep={PROFILE_SECTIONS.length}
-              totalSteps={PROFILE_SECTIONS.length}
-            />
-          </div>
+          <div className="container max-w-4xl mx-auto py-8 px-4 relative z-10">
+            {/* Header */}
+            <div className="mb-8">
+              <AgentHeader 
+                title="Profile Settings"
+                subtitle="Update your organization profile and preferences"
+              />
+            </div>
 
-          {/* Sections */}
-          <div className="space-y-4">
-            {PROFILE_SECTIONS.map((section) => (
-              <div
-                key={section.id}
-                ref={(el) => (sectionRefs.current[section.id] = el)}
-              >
-                <StepCard
-                  stepNumber={section.step}
-                  title={section.title}
-                  status={getSectionStatus(section.id)}
-                  isExpanded={expandedSection === section.id}
-                  onClick={() => handleSectionClick(section.id)}
+            {/* Progress Bar - Always 100% */}
+            <div className="mb-6">
+              <ProgressBar
+                currentStep={PROFILE_SECTIONS.length}
+                totalSteps={PROFILE_SECTIONS.length}
+              />
+            </div>
+
+            {/* Sections */}
+            <div className="space-y-4">
+              {PROFILE_SECTIONS.map((section) => (
+                <div
+                  key={section.id}
+                  ref={(el) => (sectionRefs.current[section.id] = el)}
                 >
-                  <AnimatePresence mode="wait">
-                    {expandedSection === section.id && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {renderSectionContent(section.id)}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </StepCard>
-              </div>
-            ))}
+                  <StepCard
+                    stepNumber={section.step}
+                    title={section.title}
+                    status={getSectionStatus(section.id)}
+                    isExpanded={expandedSection === section.id}
+                    onClick={() => handleSectionClick(section.id)}
+                  >
+                    <AnimatePresence mode="wait">
+                      {expandedSection === section.id && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {renderSectionContent(section.id)}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </StepCard>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </AgentLayout>
