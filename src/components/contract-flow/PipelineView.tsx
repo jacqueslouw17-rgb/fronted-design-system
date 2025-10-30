@@ -649,8 +649,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for all columns except data-pending */}
-                    {items.length > 0 && status !== "data-pending" && (
+                    {/* Select All for all columns except data-pending and payroll-ready */}
+                    {items.length > 0 && status !== "data-pending" && status !== "payroll-ready" && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -774,7 +774,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                         {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {status !== "data-pending" && (
+                          {status !== "data-pending" && status !== "payroll-ready" && (
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
                               onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
