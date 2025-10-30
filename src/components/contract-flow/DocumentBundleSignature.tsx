@@ -25,6 +25,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt";
+import { KurtIntroTooltip } from "./KurtIntroTooltip";
 
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
@@ -214,18 +215,21 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
       >
         <AgentHeader
           title="Document Bundle & Signature"
-          subtitle="Review document bundles for each candidate and prepare for signature collection"
+          subtitle="Kurt can help with: attaching required docs, checking compliance, or reviewing bundles."
           showPulse={true}
           isActive={!hasWelcomeSpoken}
           isMuted={false}
           tags={
-            <KurtContextualTags
-              flowContext="document-bundle"
-              onTagClick={(action) => {
-                console.log('Bundle action:', action);
-              }}
-              disabled={false}
-            />
+            <div className="relative">
+              <KurtContextualTags
+                flowContext="document-bundle"
+                onTagClick={(action) => {
+                  console.log('Bundle action:', action);
+                }}
+                disabled={false}
+              />
+              <KurtIntroTooltip context="document-bundle" />
+            </div>
           }
         />
       </motion.div>
@@ -243,7 +247,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
               <Bot className="h-5 w-5 text-primary" />
             </div>
             <p className="text-sm text-foreground/80">
-              Based on your company policies and compliance requirements, I've prepared document bundles for each candidate. 
+              Based on your company policies and compliance requirements, <strong>I've prepared document bundles</strong> for each candidate. 
               {candidates.some(c => c.countryCode === "PH") && " Philippines workers require additional compliance documentation."}
             </p>
           </div>
@@ -356,10 +360,10 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                   <div className="flex-1 space-y-3">
                     <p className="text-sm text-foreground/90">
                       Great work! Based on your company policies and{" "}
-                      {candidates.map(c => c.country).join(", ")} compliance, there are mandatory documents to include with each contract.
+                      {candidates.map(c => c.country).join(", ")} compliance, <strong>there are mandatory documents to include</strong> with each contract.
                     </p>
                     <p className="text-sm text-foreground/90 font-medium">
-                      Would you like me to attach them all now?
+                      <strong>Would you like me to attach them all now?</strong>
                     </p>
                     <div className="flex gap-2 pt-2">
                       <Button

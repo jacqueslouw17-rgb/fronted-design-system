@@ -31,6 +31,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { KurtContextualTags } from "@/components/kurt";
+import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -81,22 +82,22 @@ const ContractFlowDemo = () => {
     
     switch(action) {
       case 'quick-summary':
-        response = `📄 Contract Summary\n\nCandidate: Maria Santos\nRole: UX Designer\nLocation: Philippines 🇵🇭\n\nKey Terms:\n• Salary: $4,500/month\n• Start Date: March 1, 2024\n• Notice Period: 30 days\n• PTO: 15 days/year\n\n✅ All clauses comply with local labor law`;
+        response = `✅ Contract Summary Complete\n\nI checked all required fields — looks good!\n\nKey Terms:\n• Salary: [to be filled]\n• Start Date: [to be filled]\n• Notice Period: [to be filled]\n• PTO: [to be filled]\n\nWant me to auto-fill missing data from the candidate record?`;
         break;
       case 'check-fields':
-        response = `✅ Field Validation Complete\n\nAll required fields are properly filled:\n• Personal Information ✓\n• Employment Terms ✓\n• Compensation Details ✓\n• Legal Clauses ✓\n\nNo issues detected. Contract is ready for review.`;
+        response = `✅ Field Review Complete\n\nI checked all mandatory contract fields. Everything's complete except:\n• Start Date (required)\n• Salary Currency (required)\n\nWant me to set Salary Currency automatically based on the candidate's country?`;
         break;
       case 'fix-clauses':
-        response = `🔧 Clause Analysis\n\nI've reviewed the contract clauses and found:\n\n✓ Termination clause - compliant\n✓ IP rights clause - standard\n⚠️ Non-compete clause - May need adjustment for Philippines law\n\nRecommendation: Consider softening non-compete radius to align with local regulations.`;
+        response = `🔧 Clause Analysis Complete\n\nI reviewed all contract clauses:\n\n✓ Termination clause - compliant with local labor law\n✓ IP rights clause - standard language looks good\n✓ Non-compete clause - aligned with local regulations\n\nAll clauses are watertight. Ready to generate the bundle?`;
         break;
       case 'explain-term':
-        response = `📚 Legal Term Explained\n\n"Probation Period"\n\nThis refers to the initial employment period (typically 3-6 months) where:\n• Performance is closely evaluated\n• Either party can terminate with shorter notice\n• Full benefits may be prorated\n\nIn Philippines, max probation is 6 months under Labor Code.`;
+        response = `📚 Term Explanation\n\n"Probation Period"\n\nThis is the initial employment period (typically 3-6 months) where:\n• Performance is closely evaluated\n• Either party can terminate with shorter notice\n• Full benefits may be prorated\n\nThe standard probation period is aligned with local labor regulations. Want me to adjust it?`;
         break;
       case 'pull-data':
-        response = `📊 Data Retrieved from ATS\n\nSuccessfully pulled candidate information:\n\n👤 Maria Santos\n📧 maria.santos@email.com\n📱 +63 912 345 6789\n🎓 Bachelor in Design, UP Diliman\n💼 5 years experience in UX/UI\n\nAll data has been pre-filled into the contract template.`;
+        response = `📊 Candidate Data Retrieved\n\nI pulled the latest info from your ATS:\n\n✓ Contact information verified\n✓ Role and experience confirmed\n✓ Qualifications validated\n\nAll data is pre-filled into the contract template. Should I generate the bundle now?`;
         break;
       case 'compare-drafts':
-        response = `🔄 Draft Comparison\n\nComparing current draft with template:\n\nChanges made:\n• Salary increased from $4,000 to $4,500\n• PTO increased from 10 to 15 days\n• Added remote work clause\n• Modified notice period from 15 to 30 days\n\nAll changes are within approved parameters.`;
+        response = `🔄 Draft Comparison Complete\n\nComparing current draft with standard template:\n\nChanges detected:\n• Salary structure customized for local market\n• PTO adjusted to local standards\n• Added remote work provisions\n• Modified notice period per regional requirements\n\nAll changes are within approved parameters. Ready to proceed?`;
         break;
       case 'track-progress':
         response = `📈 Onboarding Progress\n\n👤 Maria Santos - 75% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 2 days\n\n👤 John Smith - 40% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 5 days\n\n👤 Sarah Chen - 90% Complete\n✅ Personal details submitted\n✅ Tax forms completed\n✅ Bank information verified\n✅ Compliance documents approved\n⏳ Emergency contact needed\nEstimated completion: 1 day\n\n👤 Ahmed Hassan - 25% Complete\n✅ Personal details submitted\n⏳ Tax forms pending\n⏳ Bank information needed\n⏳ Compliance documents pending\n⏳ Emergency contact needed\nEstimated completion: 7 days`;
@@ -460,7 +461,7 @@ const ContractFlowDemo = () => {
                               ? "Both candidates have signed! Let's trigger their onboarding checklists."
                               : searchParams.get("moved") === "true" 
                                 ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Let's finalize contracts and complete onboarding."
+                                : "Kurt can help with: tracking progress, resending links, or marking tasks complete."
                           }
                           showPulse={true}
                           hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
@@ -474,11 +475,14 @@ const ContractFlowDemo = () => {
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
-                            <KurtContextualTags
-                              flowContext="checklist"
-                              onTagClick={handleKurtAction}
-                              disabled={false}
-                            />
+                            <div className="relative">
+                              <KurtContextualTags
+                                flowContext="checklist"
+                                onTagClick={handleKurtAction}
+                                disabled={false}
+                              />
+                              <KurtIntroTooltip context="admin-dashboard" />
+                            </div>
                           }
                         />
                       )}
@@ -710,17 +714,20 @@ const ContractFlowDemo = () => {
                       <div className="mb-8">
                         <AgentHeader
                           title="Contract Bundle"
-                          subtitle="Select documents to include in the signing package"
+                          subtitle="Kurt can help with: adding documents, reviewing bundles, or checking compliance."
                           showPulse={true}
                           isActive={!hasSpokenPhase["bundle-creation"]}
                           isMuted={isKurtMuted}
                           onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
                           tags={
-                            <KurtContextualTags
-                              flowContext="contract-bundle"
-                              onTagClick={handleKurtAction}
-                              disabled={false}
-                            />
+                            <div className="relative">
+                              <KurtContextualTags
+                                flowContext="contract-bundle"
+                                onTagClick={handleKurtAction}
+                                disabled={false}
+                              />
+                              <KurtIntroTooltip context="contract-bundle" />
+                            </div>
                           }
                         />
                       </div>

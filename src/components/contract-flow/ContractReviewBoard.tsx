@@ -9,6 +9,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
+import { KurtIntroTooltip } from "./KurtIntroTooltip";
 
 interface ContractReviewBoardProps {
   candidates: Candidate[];
@@ -37,20 +38,23 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
     >
       <AgentHeader
         title="Review Contracts"
-        subtitle="All contracts ready. Review and send to candidates for signature."
+        subtitle="Kurt can help with: highlighting changes, checking compliance, or previewing contracts."
         showPulse={true}
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
-          <KurtContextualTags
-            flowContext="contract-review"
-            onTagClick={(action) => {
-              // Handle tag actions here
-              console.log('Review action:', action);
-            }}
-            disabled={false}
-          />
+          <div className="relative">
+            <KurtContextualTags
+              flowContext="contract-review"
+              onTagClick={(action) => {
+                // Handle tag actions here
+                console.log('Review action:', action);
+              }}
+              disabled={false}
+            />
+            <KurtIntroTooltip context="contract-review" />
+          </div>
         }
       />
 

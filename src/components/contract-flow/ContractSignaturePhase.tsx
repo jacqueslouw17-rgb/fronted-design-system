@@ -10,6 +10,7 @@ import { SignatureTracker, SignatureStatus } from "./SignatureTracker";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { KurtContextualTags } from "@/components/kurt";
+import { KurtIntroTooltip } from "./KurtIntroTooltip";
 
 type SigningStep = "drafting" | "sent" | "signing" | "certified";
 
@@ -73,7 +74,7 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
     let stepIndex = 0;
 
     // Update Genie message
-    setGenieMessage(`Sending contract bundle to ${currentCandidate.name} via ${currentCandidate.signingPortal}...`);
+    setGenieMessage(`📧 Sending contract bundle to ${currentCandidate.name} via ${currentCandidate.signingPortal}. I'll track progress in real-time.`);
 
     const stepInterval = setInterval(() => {
       if (stepIndex < steps.length) {
@@ -92,11 +93,11 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         
         // Update Genie message based on step
         if (steps[stepIndex] === "sent") {
-          setGenieMessage(`📧 Contract sent to ${currentCandidate.name}. Awaiting their signature...`);
+          setGenieMessage(`✅ Contract sent to ${currentCandidate.name}. I'm monitoring their activity — I'll let you know when they sign.`);
         } else if (steps[stepIndex] === "signing") {
-          setGenieMessage(`🖊️ ${currentCandidate.name} is reviewing and signing the contract...`);
+          setGenieMessage(`🖊️ ${currentCandidate.name} is reviewing the contract now. Almost there...`);
         } else if (steps[stepIndex] === "certified") {
-          setGenieMessage(`✅ ${currentCandidate.name}'s contract is signed and certified!`);
+          setGenieMessage(`🎉 ${currentCandidate.name}'s contract is signed and certified! Moving to the next candidate.`);
         }
         
         stepIndex++;
@@ -121,19 +122,22 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
     >
       <AgentHeader
         title="Signature Phase"
-        subtitle="Contracts sent. Track signing progress in real-time."
+        subtitle="Kurt can help with: checking status, resending links, or downloading signed contracts."
         showPulse={true}
         isActive={false}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
         tags={
-          <KurtContextualTags
-            flowContext="signature-phase"
-            onTagClick={(action) => {
-              console.log('Signature action:', action);
-            }}
-            disabled={false}
-          />
+          <div className="relative">
+            <KurtContextualTags
+              flowContext="signature-phase"
+              onTagClick={(action) => {
+                console.log('Signature action:', action);
+              }}
+              disabled={false}
+            />
+            <KurtIntroTooltip context="signature-phase" />
+          </div>
         }
       />
 
