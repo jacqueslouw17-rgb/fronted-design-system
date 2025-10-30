@@ -240,7 +240,7 @@ const AdminProfileSettings = () => {
       <Topbar 
         userName="Joe User" 
         profileSettingsUrl="/admin/profile-settings"
-        dashboardUrl="/flows/admin-dashboard"
+        dashboardUrl="/dashboard-admin"
       />
       
       <AgentLayout context="admin-profile-settings">

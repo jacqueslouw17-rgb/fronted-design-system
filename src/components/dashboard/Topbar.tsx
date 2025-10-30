@@ -35,7 +35,7 @@ interface TopbarProps {
   dashboardUrl?: string; // Custom dashboard URL for logo click
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/profile-settings", dashboardUrl }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", dashboardUrl }: TopbarProps) => {
   const navigate = useNavigate();
   const initials = userName
     .split(" ")
