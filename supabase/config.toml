@@ -1,7 +1,0 @@
-project_id = "dqlthucoxkixodoicksq"
-
-[functions.slack-interactivity]
-verify_jwt = false
-
-[functions.send-feedback-to-slack]
-verify_jwt = false
