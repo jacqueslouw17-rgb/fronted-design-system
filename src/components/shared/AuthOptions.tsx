@@ -1,0 +1,183 @@
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Mail, Chrome, Globe } from "lucide-react";
+import { useState } from "react";
+import StandardInput from "./StandardInput";
+import { motion, AnimatePresence } from "framer-motion";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface AuthOptionsProps {
+  onComplete: (method: string, data?: Record<string, any>) => void;
+  isProcessing?: boolean;
+}
+
+const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => {
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleMethodSelect = (method: string) => {
+    if (method === "email") {
+      setSelectedMethod("email");
+      // Immediately register email as the selected method
+      onComplete(method, {});
+    } else {
+      // For OAuth methods, complete immediately (placeholder)
+      onComplete(method);
+    }
+  };
+
+  const handleEmailSubmit = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+    
+    if (!password || password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    // Update the parent with the full email data
+    onComplete("email", { email, password, preferredLanguage });
+  };
+
+  return (
+    <div className="space-y-4 max-w-md mx-auto">
+      <div className="text-center space-y-2 mb-6">
+        <h3 className="text-lg font-semibold text-foreground">Choose how you'd like to sign up</h3>
+      </div>
+
+      {selectedMethod === null && (
+        <div className="space-y-3">
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-primary/10 hover:text-foreground"
+            onClick={() => handleMethodSelect("google")}
+            disabled={isProcessing}
+          >
+            <Chrome className="h-5 w-5 text-[#4285F4]" />
+            <span className="flex-1 text-left">Continue with Google</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-primary/10 hover:text-foreground"
+            onClick={() => handleMethodSelect("microsoft")}
+            disabled={isProcessing}
+          >
+            <svg className="h-5 w-5" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="11" height="11" fill="#F25022" />
+              <rect x="12" width="11" height="11" fill="#7FBA00" />
+              <rect y="12" width="11" height="11" fill="#00A4EF" />
+              <rect x="12" y="12" width="11" height="11" fill="#FFB900" />
+            </svg>
+            <span className="flex-1 text-left">Continue with Microsoft</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full justify-start gap-3 h-12 text-sm hover:bg-primary/10 hover:text-foreground"
+            onClick={() => handleMethodSelect("email")}
+            disabled={isProcessing}
+          >
+            <Mail className="h-5 w-5 text-muted-foreground" />
+            <span className="flex-1 text-left">Continue with Email + Password</span>
+          </Button>
+
+          <p className="text-xs text-center text-muted-foreground pt-2">
+            🔒 Secure sign-in. Your credentials are never shared.
+          </p>
+        </div>
+      )}
+
+      <AnimatePresence mode="wait">
+        {selectedMethod === "email" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-4"
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedMethod(null);
+                setEmail("");
+                setPassword("");
+                setErrors({});
+              }}
+              className="text-xs"
+            >
+              ← Back to options
+            </Button>
+
+            <StandardInput
+              id="email"
+              label="Email"
+              value={email}
+              onChange={setEmail}
+              type="email"
+              required
+              error={errors.email}
+              placeholder="you@company.com"
+            />
+
+            <div className="space-y-1">
+              <StandardInput
+                id="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                type="password"
+                required
+                error={errors.password}
+                helpText="Minimum 8 characters"
+                placeholder="••••••••"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const suggestedPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                    .map(b => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'[b % 72])
+                    .join('');
+                  setPassword(suggestedPassword);
+                  setErrors(prev => ({ ...prev, password: '' }));
+                }}
+                className="text-xs text-primary hover:text-primary/80 h-auto p-0"
+              >
+                ✨ Let Kurt suggest a password
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default AuthOptions;
