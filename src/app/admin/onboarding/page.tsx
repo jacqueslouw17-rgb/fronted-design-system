@@ -1,26 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic, PanelLeft } from 'lucide-react';
+'use client';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useFlowState } from '@/hooks/useFlowState';
 import { toast } from '@/hooks/use-toast';
 import StepCard from '@/components/StepCard';
 import ProgressBar from '@/components/ProgressBar';
 import AudioWaveVisualizer from '@/components/AudioWaveVisualizer';
-import LoadingDots from '@/components/LoadingDots';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-// import { supabase } from "@/integrations/supabase/client";
-import { AgentHeader } from '@/components/agent/AgentHeader';
+import { supabase } from '@/integrations/supabase/client';
 import { AgentLayout } from '@/components/agent/AgentLayout';
 import { useAgentState } from '@/hooks/useAgentState';
 import KurtMuteToggle from '@/components/shared/KurtMuteToggle';
@@ -51,10 +42,12 @@ const FLOW_STEPS = [
 ];
 
 const AdminOnboarding = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
-  const { state, logEvent, updateFormData, completeStep, goToStep } =
-    useFlowState('flows.admin.f1.onboarding', 'intro_trust_model');
+  const { state, updateFormData, completeStep, goToStep } = useFlowState(
+    'flows.admin.f1.onboarding',
+    'intro_trust_model'
+  );
   const { speak, stop, currentWordIndex } = useTextToSpeech({
     lang: 'en-GB',
     voiceName: 'british',
@@ -68,7 +61,6 @@ const AdminOnboarding = () => {
     resetTranscript,
     error: sttError,
     isSupported,
-    isDetectingVoice,
   } = useSpeechToText();
 
   const [expandedStep, setExpandedStep] = useState<string | null>(
@@ -83,9 +75,11 @@ const AdminOnboarding = () => {
   const [kurtMessage, setKurtMessage] = useState(
     'Let me guide you through setting up your global payroll system.'
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [messageStyle, setMessageStyle] = useState('text-muted-foreground');
   const [hasFinishedReading, setHasFinishedReading] = useState(false);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
@@ -97,6 +91,25 @@ const AdminOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
+  // Helper function to handle speaking with mute awareness
+  const handleSpeak = useCallback((message: string, onEnd?: () => void) => {
+    setIsSpeaking(true);
+    setKurtMessage(message);
+
+    // Always call speak for word-by-word progression, but stop immediately if muted
+    speak(message, () => {
+      setIsSpeaking(false);
+      onEnd?.();
+    });
+
+    // If muted, stop the audio immediately but keep visual indicators
+    if (isKurtMuted) {
+      setTimeout(() => {
+        stop();
+      }, 50);
+    }
+  }, []);
+
   // Auto-speak welcome message on page load only if not muted
   useEffect(() => {
     if (!hasWelcomeSpoken && !isKurtMuted) {
@@ -107,7 +120,7 @@ const AdminOnboarding = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [hasWelcomeSpoken, welcomeMessage, isKurtMuted]);
+  }, [hasWelcomeSpoken, welcomeMessage, isKurtMuted, handleSpeak]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -127,55 +140,36 @@ const AdminOnboarding = () => {
     }
   };
 
-  // Helper function to handle speaking with mute awareness
-  const handleSpeak = (message: string, onEnd?: () => void) => {
-    setIsSpeaking(true);
-    setKurtMessage(message);
-
-    // Always call speak for word-by-word progression, but stop immediately if muted
-    speak(message, () => {
-      setIsSpeaking(false);
-      onEnd?.();
-    });
-
-    // If muted, stop the audio immediately but keep visual indicators
-    if (isKurtMuted) {
-      setTimeout(() => {
-        stop();
-      }, 50);
-    }
-  };
-
   // Handle speak button click
-  const handleSpeakClick = () => {
-    if (hasActivatedSpeech) return;
+  //   const handleSpeakClick = () => {
+  //     if (hasActivatedSpeech) return;
 
-    setHasActivatedSpeech(true);
-    const initialMessage =
-      "Hi Joe, I'm Kurt. I'll help you set up today, can I accept the privacy policy on your behalf?";
-    setKurtMessage(initialMessage);
-    setMessageStyle('text-foreground/80');
-    setIsSpeaking(true);
+  //     setHasActivatedSpeech(true);
+  //     const initialMessage =
+  //       "Hi Joe, I'm Kurt. I'll help you set up today, can I accept the privacy policy on your behalf?";
+  //     setKurtMessage(initialMessage);
+  //     setMessageStyle('text-foreground/80');
+  //     setIsSpeaking(true);
 
-    // Expand step 1 during the greeting for smooth transition
-    setTimeout(() => {
-      setExpandedStep('intro_trust_model');
-      scrollToStep('intro_trust_model');
-    }, 2000);
+  //     // Expand step 1 during the greeting for smooth transition
+  //     setTimeout(() => {
+  //       setExpandedStep('intro_trust_model');
+  //       scrollToStep('intro_trust_model');
+  //     }, 2000);
 
-    stop();
-    if (!isKurtMuted) {
-      speak(initialMessage, () => {
-        setIsSpeaking(false);
-        setHasFinishedReading(true);
-        setHasAutoStarted(false);
-      });
-    } else {
-      setIsSpeaking(false);
-      setHasFinishedReading(true);
-      setHasAutoStarted(false);
-    }
-  };
+  //     stop();
+  //     if (!isKurtMuted) {
+  //       speak(initialMessage, () => {
+  //         setIsSpeaking(false);
+  //         setHasFinishedReading(true);
+  //         setHasAutoStarted(false);
+  //       });
+  //     } else {
+  //       setIsSpeaking(false);
+  //       setHasFinishedReading(true);
+  //       setHasAutoStarted(false);
+  //     }
+  //   };
 
   // Auto-start listening after AI finishes speaking (only once per message)
   useEffect(() => {
@@ -246,7 +240,7 @@ const AdminOnboarding = () => {
       stopListening();
       setIsProcessing(true);
       resetTranscript();
-      //   handleUserConfirmation();
+      handleUserConfirmation();
     }
     // Save/continue commands
     else if (
@@ -262,307 +256,334 @@ const AdminOnboarding = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcript, isProcessing, isSpeaking, isListening]);
 
-  //   const handleUserConfirmation = async () => {
-  //     // STEP 1 → STEP 2
-  //     if (state.currentStep === "intro_trust_model") {
-  //       // Auto-accept privacy checkbox first
-  //       updateFormData({ privacyAccepted: true, defaultInputMode: "chat" });
+  const handleUserConfirmation = async () => {
+    // STEP 1 → STEP 2
+    if (state.currentStep === 'intro_trust_model') {
+      // Auto-accept privacy checkbox first
+      updateFormData({ privacyAccepted: true, defaultInputMode: 'chat' });
 
-  //       // Show loading on button
-  //       setIsProcessing(true);
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+      // Show loading on button
+      setIsProcessing(true);
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       // Complete step 1 and close it
-  //       completeStep("intro_trust_model");
-  //       setExpandedStep(null);
-  //       setIsProcessing(false);
+      // Complete step 1 and close it
+      completeStep('intro_trust_model');
+      setExpandedStep(null);
+      setIsProcessing(false);
 
-  //       // Wait before speaking about org details
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait before speaking about org details
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       // NOW speak about fetching org details
-  //       const loadingMessage = "Perfect! Let me fetch your organization details...";
-  //       setKurtMessage(loadingMessage);
-  //       setMessageStyle("text-foreground/80");
-  //       setHasFinishedReading(false);
-  //       setHasAutoStarted(false);
-  //       setIsSpeaking(true);
+      // NOW speak about fetching org details
+      const loadingMessage =
+        'Perfect! Let me fetch your organization details...';
+      setKurtMessage(loadingMessage);
+      setMessageStyle('text-foreground/80');
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
 
-  //       // Auto-save policy acceptance to database
-  //       try {
-  //         const { data: { session } } = await supabase.auth.getSession();
-  //         if (session?.user) {
-  //           await supabase.from("profiles").upsert({
-  //             user_id: session.user.id,
-  //             display_name: "Joe Smith"
-  //           }, { onConflict: "user_id" });
-  //         }
-  //       } catch (error) {
-  //         console.error("Error saving policy acceptance:", error);
-  //       }
+      // Auto-save policy acceptance to database
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.from('profiles').upsert(
+            {
+              user_id: session.user.id,
+              display_name: 'Joe Smith',
+            },
+            { onConflict: 'user_id' }
+          );
+        }
+      } catch (error) {
+        console.error('Error saving policy acceptance:', error);
+      }
 
-  //       // Expand Step 2 mid-way through voiceover (after 0.8s)
-  //       setTimeout(() => {
-  //         setIsLoadingFields(true);
-  //         goToStep("org_profile");
-  //         setExpandedStep("org_profile");
-  //         scrollToStep("org_profile");
-  //       }, 800);
+      // Expand Step 2 mid-way through voiceover (after 0.8s)
+      setTimeout(() => {
+        setIsLoadingFields(true);
+        goToStep('org_profile');
+        setExpandedStep('org_profile');
+        scrollToStep('org_profile');
+      }, 800);
 
-  //       stop();
-  //       speak(loadingMessage, async () => {
-  //         setIsSpeaking(false);
+      stop();
+      speak(loadingMessage, async () => {
+        setIsSpeaking(false);
 
-  //         // Keep skeleton loading visible
-  //         await new Promise(resolve => setTimeout(resolve, 700));
+        // Keep skeleton loading visible
+        await new Promise((resolve) => setTimeout(resolve, 700));
 
-  //         // Populate the data
-  //         const orgData = {
-  //           companyName: "Fronted Inc",
-  //           primaryContactName: "Joe Smith",
-  //           primaryContactEmail: "joe@fronted.com",
-  //           hqCountry: "NO",
-  //           payrollCurrency: "NOK",
-  //           payrollFrequency: "monthly",
-  //           payoutDay: "25",
-  //           dualApproval: true
-  //         };
-  //         updateFormData(orgData);
-  //         setIsLoadingFields(false);
+        // Populate the data
+        const orgData = {
+          companyName: 'Fronted Inc',
+          primaryContactName: 'Joe Smith',
+          primaryContactEmail: 'joe@fronted.com',
+          hqCountry: 'NO',
+          payrollCurrency: 'NOK',
+          payrollFrequency: 'monthly',
+          payoutDay: '25',
+          dualApproval: true,
+        };
+        updateFormData(orgData);
+        setIsLoadingFields(false);
 
-  //         // Confirm org details are ready and ask for user approval
-  //         const confirmMessage = "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
-  //         setKurtMessage(confirmMessage);
-  //         setMessageStyle("text-foreground/80");
-  //         setHasFinishedReading(false);
-  //         setHasAutoStarted(false);
-  //         setIsSpeaking(true);
+        // Confirm org details are ready and ask for user approval
+        const confirmMessage =
+          "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
+        setKurtMessage(confirmMessage);
+        setMessageStyle('text-foreground/80');
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
 
-  //         stop();
-  //         speak(confirmMessage, () => {
-  //           setIsSpeaking(false);
-  //           setHasFinishedReading(true);
-  //           setHasAutoStarted(false);
-  //         });
-  //       });
+        stop();
+        speak(confirmMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+          setHasAutoStarted(false);
+        });
+      });
 
-  //       resetTranscript();
-  //     }
+      resetTranscript();
+    }
 
-  //     // STEP 2 → STEP 3
-  //     else if (state.currentStep === "org_profile") {
-  //       setIsProcessing(true);
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+    // STEP 2 → STEP 3
+    else if (state.currentStep === 'org_profile') {
+      setIsProcessing(true);
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       // Complete step 2
-  //       completeStep("org_profile");
-  //       setExpandedStep(null);
-  //       setIsProcessing(false);
+      // Complete step 2
+      completeStep('org_profile');
+      setExpandedStep(null);
+      setIsProcessing(false);
 
-  //       // Wait before moving to step 3
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait before moving to step 3
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       // Pre-populate step 3 data
-  //       const countries = ["NO", "PH"];
-  //       updateFormData({ selectedCountries: countries });
+      // Pre-populate step 3 data
+      const countries = ['NO', 'PH'];
+      updateFormData({ selectedCountries: countries });
 
-  //       const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'yes' when ready.";
-  //       setKurtMessage(confirmMessage);
-  //       setMessageStyle("text-foreground/80");
-  //       setHasFinishedReading(false);
-  //       setHasAutoStarted(false);
-  //       setIsSpeaking(true);
+      const confirmMessage =
+        "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'yes' when ready.";
+      setKurtMessage(confirmMessage);
+      setMessageStyle('text-foreground/80');
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
 
-  //       // Set loading state FIRST, before expanding step 3
-  //       setIsLoadingFields(true);
-  //       goToStep("localization_country_blocks");
-  //       setExpandedStep("localization_country_blocks");
-  //       scrollToStep("localization_country_blocks");
+      // Set loading state FIRST, before expanding step 3
+      setIsLoadingFields(true);
+      goToStep('localization_country_blocks');
+      setExpandedStep('localization_country_blocks');
+      scrollToStep('localization_country_blocks');
 
-  //       stop();
-  //       speak(confirmMessage, async () => {
-  //         setIsSpeaking(false);
+      stop();
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
 
-  //         // Keep skeleton visible briefly
-  //         await new Promise(resolve => setTimeout(resolve, 400));
-  //         setIsLoadingFields(false);
-  //         setHasFinishedReading(true);
-  //         setHasAutoStarted(false);
-  //       });
+        // Keep skeleton visible briefly
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        setIsLoadingFields(false);
+        setHasFinishedReading(true);
+        setHasAutoStarted(false);
+      });
 
-  //       resetTranscript();
-  //     }
+      resetTranscript();
+    }
 
-  //     // STEP 3 → STEP 4 (when user confirms pre-selected countries with "yes")
-  //     else if (state.currentStep === "localization_country_blocks") {
-  //       const selectedCountries = state.formData.selectedCountries || [];
+    // STEP 3 → STEP 4 (when user confirms pre-selected countries with "yes")
+    else if (state.currentStep === 'localization_country_blocks') {
+      const selectedCountries = state.formData.selectedCountries || [];
 
-  //       if (selectedCountries.length === 0) {
-  //         const errorMessage = "I don't see any countries selected. Could you pick at least one?";
-  //         setKurtMessage(errorMessage);
-  //         setMessageStyle("text-foreground/80");
-  //         setHasFinishedReading(false);
-  //         setHasAutoStarted(false);
-  //         setIsSpeaking(true);
+      if (selectedCountries.length === 0) {
+        const errorMessage =
+          "I don't see any countries selected. Could you pick at least one?";
+        setKurtMessage(errorMessage);
+        setMessageStyle('text-foreground/80');
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
 
-  //         stop();
-  //         speak(errorMessage, () => {
-  //           setIsSpeaking(false);
-  //           setHasFinishedReading(true);
-  //           setHasAutoStarted(false);
-  //         });
+        stop();
+        speak(errorMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+          setHasAutoStarted(false);
+        });
 
-  //         resetTranscript();
-  //         return;
-  //       }
+        resetTranscript();
+        return;
+      }
 
-  //       setIsProcessing(true);
-  //       await new Promise(resolve => setTimeout(resolve, 600));
+      setIsProcessing(true);
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-  //       completeStep("localization_country_blocks");
-  //       setExpandedStep(null);
-  //       setIsProcessing(false);
+      completeStep('localization_country_blocks');
+      setExpandedStep(null);
+      setIsProcessing(false);
 
-  //       // Wait before moving to step 4
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait before moving to step 4
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       const countryNames = selectedCountries.map((code: string) => {
-  //         const country = [
-  //           { code: "NO", name: "Norway" },
-  //           { code: "PH", name: "Philippines" },
-  //           { code: "IN", name: "India" },
-  //           { code: "XK", name: "Kosovo" }
-  //         ].find(c => c.code === code);
-  //         return country?.name;
-  //       }).filter(Boolean).join(", ");
+      const countryNames = selectedCountries
+        .map((code: string) => {
+          const country = [
+            { code: 'NO', name: 'Norway' },
+            { code: 'PH', name: 'Philippines' },
+            { code: 'IN', name: 'India' },
+            { code: 'XK', name: 'Kosovo' },
+          ].find((c) => c.code === code);
+          return country?.name;
+        })
+        .filter(Boolean)
+        .join(', ');
 
-  //       const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
-  //       setKurtMessage(confirmMessage);
-  //       setMessageStyle("text-foreground/80");
-  //       setHasFinishedReading(false);
-  //       setHasAutoStarted(false);
-  //       setIsSpeaking(true);
+      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
+      setKurtMessage(confirmMessage);
+      setMessageStyle('text-foreground/80');
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
 
-  //       // Set loading state FIRST, before expanding step 4
-  //       setIsLoadingFields(true);
-  //       goToStep("integrations_connect");
-  //       setExpandedStep("integrations_connect");
-  //       scrollToStep("integrations_connect");
+      // Set loading state FIRST, before expanding step 4
+      setIsLoadingFields(true);
+      goToStep('integrations_connect');
+      setExpandedStep('integrations_connect');
+      scrollToStep('integrations_connect');
 
-  //       stop();
-  //       speak(confirmMessage, async () => {
-  //         setIsSpeaking(false);
+      stop();
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
 
-  //         // Keep skeleton visible briefly while connecting
-  //         await new Promise(resolve => setTimeout(resolve, 500));
+        // Keep skeleton visible briefly while connecting
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-  //         // Auto-connect integrations
-  //         updateFormData({
-  //           slackConnected: true,
-  //           fxConnected: true,
-  //           googleSignConnected: false
-  //         });
+        // Auto-connect integrations
+        updateFormData({
+          slackConnected: true,
+          fxConnected: true,
+          googleSignConnected: false,
+        });
 
-  //         setIsLoadingFields(false);
+        setIsLoadingFields(false);
 
-  //         const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
-  //         setKurtMessage(nextMessage);
-  //         setHasFinishedReading(false);
-  //         setHasAutoStarted(false);
-  //         setIsSpeaking(true);
+        const nextMessage =
+          'All set! Slack and FX are connected. Ready to configure your mini-rules?';
+        setKurtMessage(nextMessage);
+        setHasFinishedReading(false);
+        setHasAutoStarted(false);
+        setIsSpeaking(true);
 
-  //         stop();
-  //         speak(nextMessage, () => {
-  //           setIsSpeaking(false);
-  //           setHasFinishedReading(true);
-  //           setHasAutoStarted(false);
-  //         });
-  //       });
+        stop();
+        speak(nextMessage, () => {
+          setIsSpeaking(false);
+          setHasFinishedReading(true);
+          setHasAutoStarted(false);
+        });
+      });
 
-  //       resetTranscript();
-  //     }
+      resetTranscript();
+    }
 
-  //     // STEP 4 → STEP 5
-  //     else if (state.currentStep === "integrations_connect") {
-  //       setIsProcessing(true);
-  //       await new Promise(resolve => setTimeout(resolve, 600));
+    // STEP 4 → STEP 5
+    else if (state.currentStep === 'integrations_connect') {
+      setIsProcessing(true);
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-  //       completeStep("integrations_connect");
-  //       setExpandedStep(null);
-  //       setIsProcessing(false);
+      completeStep('integrations_connect');
+      setExpandedStep(null);
+      setIsProcessing(false);
 
-  //       // Wait before moving to step 5
-  //       await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait before moving to step 5
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-  //       // Pre-populate mini rules
-  //       const rules = [
-  //         { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
-  //         { id: "r2", type: "compliance", description: "Remind contractor 7 days before doc expiry" },
-  //         { id: "r3", type: "policy", description: "Default paid leave: 5d (PH), 0d (NO)" }
-  //       ];
-  //       updateFormData({ miniRules: rules });
+      // Pre-populate mini rules
+      const rules = [
+        {
+          id: 'r1',
+          type: 'approval',
+          description: 'Tag Finance when payroll batch > 100k',
+        },
+        {
+          id: 'r2',
+          type: 'compliance',
+          description: 'Remind contractor 7 days before doc expiry',
+        },
+        {
+          id: 'r3',
+          type: 'policy',
+          description: 'Default paid leave: 5d (PH), 0d (NO)',
+        },
+      ];
+      updateFormData({ miniRules: rules });
 
-  //       const confirmMessage = "I've set up three starter mini-rules for you. These look good?";
-  //       setKurtMessage(confirmMessage);
-  //       setMessageStyle("text-foreground/80");
-  //       setHasFinishedReading(false);
-  //       setHasAutoStarted(false);
-  //       setIsSpeaking(true);
+      const confirmMessage =
+        "I've set up three starter mini-rules for you. These look good?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle('text-foreground/80');
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
 
-  //       // Set loading state FIRST, before expanding step 5
-  //       setIsLoadingFields(true);
-  //       goToStep("mini_rules_setup");
-  //       setExpandedStep("mini_rules_setup");
-  //       scrollToStep("mini_rules_setup");
+      // Set loading state FIRST, before expanding step 5
+      setIsLoadingFields(true);
+      goToStep('mini_rules_setup');
+      setExpandedStep('mini_rules_setup');
+      scrollToStep('mini_rules_setup');
 
-  //       stop();
-  //       speak(confirmMessage, async () => {
-  //         setIsSpeaking(false);
+      stop();
+      speak(confirmMessage, async () => {
+        setIsSpeaking(false);
 
-  //         // Keep skeleton visible briefly
-  //         await new Promise(resolve => setTimeout(resolve, 400));
-  //         setIsLoadingFields(false);
-  //         setHasFinishedReading(true);
-  //         setHasAutoStarted(false);
-  //       });
+        // Keep skeleton visible briefly
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        setIsLoadingFields(false);
+        setHasFinishedReading(true);
+        setHasAutoStarted(false);
+      });
 
-  //       resetTranscript();
-  //     }
+      resetTranscript();
+    }
 
-  //     // STEP 5 → STEP 6 (Finish)
-  //     else if (state.currentStep === "mini_rules_setup") {
-  //       setIsProcessing(true);
-  //       await new Promise(resolve => setTimeout(resolve, 1200));
+    // STEP 5 → STEP 6 (Finish)
+    else if (state.currentStep === 'mini_rules_setup') {
+      setIsProcessing(true);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-  //       completeStep("mini_rules_setup");
-  //       setExpandedStep(null);
-  //       setIsProcessing(false);
+      completeStep('mini_rules_setup');
+      setExpandedStep(null);
+      setIsProcessing(false);
 
-  //       // Wait before moving to finish step
-  //       await new Promise(resolve => setTimeout(resolve, 600));
+      // Wait before moving to finish step
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-  //       const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or would you prefer to explore the dashboard?";
-  //       setKurtMessage(confirmMessage);
-  //       setMessageStyle("text-foreground/80");
-  //       setHasFinishedReading(false);
-  //       setHasAutoStarted(false);
-  //       setIsSpeaking(true);
+      const confirmMessage =
+        "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or would you prefer to explore the dashboard?";
+      setKurtMessage(confirmMessage);
+      setMessageStyle('text-foreground/80');
+      setHasFinishedReading(false);
+      setHasAutoStarted(false);
+      setIsSpeaking(true);
 
-  //       stop();
-  //       speak(confirmMessage, () => {
-  //         setIsSpeaking(false);
-  //         setHasFinishedReading(true);
-  //       });
+      stop();
+      speak(confirmMessage, () => {
+        setIsSpeaking(false);
+        setHasFinishedReading(true);
+      });
 
-  //       goToStep("finish_dashboard_transition");
-  //       setTimeout(() => {
-  //         setExpandedStep("finish_dashboard_transition");
-  //         scrollToStep("finish_dashboard_transition");
-  //       }, 400);
+      goToStep('finish_dashboard_transition');
+      setTimeout(() => {
+        setExpandedStep('finish_dashboard_transition');
+        scrollToStep('finish_dashboard_transition');
+      }, 400);
 
-  //       resetTranscript();
-  //     }
-  //   };
+      resetTranscript();
+    }
+  };
 
   const handleDashboardNavigation = async () => {
     setIsProcessing(true);
@@ -671,7 +692,7 @@ const AdminOnboarding = () => {
       await new Promise((resolve) => setTimeout(resolve, 600));
 
       // Navigate to dashboard with first-time flag
-      navigate('/dashboard?onboarding=complete');
+      router.push('/dashboard?onboarding=complete');
     });
 
     resetTranscript();
@@ -863,7 +884,7 @@ const AdminOnboarding = () => {
           variant='ghost'
           size='icon'
           className='absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors'
-          onClick={() => navigate('/')}
+          onClick={() => router.push('/')}
         >
           <ArrowLeft className='h-5 w-5' />
         </Button>
@@ -931,10 +952,10 @@ const AdminOnboarding = () => {
                     ))
                   : kurtMessage}
               </p>
-              <KurtMuteToggle
+              {/* <KurtMuteToggle
                 isMuted={isKurtMuted}
                 onToggle={handleMuteToggle}
-              />
+              /> */}
             </div>
 
             {/* Chat Input */}
