@@ -470,13 +470,52 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       countryCode: contractor.country === "Philippines" ? "PH" : "NO",
       currency: currency,
       gross: salaryAmount,
-      employerCosts: salaryAmount * 0.15, // Mock employer costs
+      employerCosts: salaryAmount * 0.15,
       adjustments: [],
       status: (contractor.payrollStatus as any) || "NotReady",
     };
     
     setSelectedPayrollPayee(payee);
     setPayrollPreviewDrawerOpen(true);
+  };
+
+  const handleAddToBatch = () => {
+    if (!selectedPayrollPayee) return;
+    
+    const period = new Date().toISOString().slice(0, 7);
+    let batchId: string;
+    
+    if (batches.length > 0 && batches[batches.length - 1].status === "Draft") {
+      batchId = batches[batches.length - 1].id;
+    } else {
+      batchId = createBatch(period, [selectedPayrollPayee], "admin-001");
+    }
+    
+    toast.success(`${selectedPayrollPayee.name} added to payroll batch`);
+    setPayrollPreviewDrawerOpen(false);
+    
+    setTimeout(() => {
+      navigate(`/payroll/batch?id=${batchId}`);
+    }, 500);
+  };
+
+  const handleSimulateFX = () => {
+    toast.success("FX rates simulated - navigate to batch view to lock rates");
+    setPayrollPreviewDrawerOpen(false);
+  };
+
+  const handleSendToCFO = () => {
+    toast.success("Batch sent to CFO for approval");
+    setPayrollPreviewDrawerOpen(false);
+  };
+
+  const handleViewBatch = () => {
+    const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
+    if (latestBatch) {
+      navigate(`/payroll/batch?id=${latestBatch.id}`);
+    } else {
+      toast("No active batch found");
+    }
   };
 
   const handleConfirmStartOnboarding = () => {
@@ -1246,6 +1285,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         open={payrollDrawerOpen}
         onOpenChange={setPayrollDrawerOpen}
         contractor={selectedForPayroll}
+      />
+      
+      {/* Payroll Preview Drawer */}
+      <PayrollPreviewDrawer
+        open={payrollPreviewDrawerOpen}
+        onOpenChange={setPayrollPreviewDrawerOpen}
+        payee={selectedPayrollPayee}
+        onIncludeInBatch={handleAddToBatch}
+        onSimulateFX={handleSimulateFX}
+        onSendToCFO={handleSendToCFO}
+        onViewBatch={handleViewBatch}
       />
     </div>
   );

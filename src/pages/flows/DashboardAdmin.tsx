@@ -129,9 +129,11 @@ const DashboardAdmin = () => {
     total: latestBatch.totals.gross
   } : { count: 0, total: 0 };
   
-  const fxVariance = latestBatch?.totals.fxFees 
-    ? ((latestBatch.totals.fxFees / latestBatch.totals.gross) * 100).toFixed(2)
+  const fxVariance = latestBatch?.fxSnapshot?.varianceBps
+    ? (latestBatch.fxSnapshot.varianceBps / 100).toFixed(2)
     : "0.00";
+
+  const pendingApprovals = batches.filter(b => b.status === "AwaitingApproval").length;
 
   const handleKurtAction = async (action: string) => {
     const { useAgentState } = await import('@/hooks/useAgentState');
@@ -268,12 +270,34 @@ const DashboardAdmin = () => {
                           {/* Last Batch Status */}
                           <MetricWidget
                             title="Last Batch Status"
-                            value={latestBatch?.status.toUpperCase() || "No Batch"}
+                            value={latestBatch?.status || "No Batch"}
                             trend={latestBatch ? `Created ${new Date(latestBatch.createdAt).toLocaleDateString()}` : "Create first batch"}
                             icon={FileCheck}
                             onAskGenie={() => console.log('Ask Genie')}
                             onExport={() => console.log('Export')}
-                            onDetails={() => navigate('/payroll/batch?id=latest')}
+                            onDetails={() => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`)}
+                          />
+
+                          {/* Pending Actions - Include Payroll */}
+                          <MetricWidget
+                            title="Pending Actions"
+                            value={pendingApprovals.toString()}
+                            trend={pendingApprovals > 0 ? `${pendingApprovals} batch${pendingApprovals > 1 ? 'es' : ''} awaiting CFO approval` : "All clear"}
+                            icon={AlertCircle}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => console.log('Details')}
+                          />
+
+                          {/* Compliance Score - Include Payroll */}
+                          <MetricWidget
+                            title="Compliance Score"
+                            value={batches.filter(b => b.status === "Completed").length === batches.length && batches.length > 0 ? "100%" : "In Progress"}
+                            trend={batches.filter(b => b.status === "Completed").length > 0 ? "All payrolls reconciled" : "Payroll certification pending"}
+                            icon={CheckCircle2}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => console.log('Details')}
                           />
                         </div>
                       </div>

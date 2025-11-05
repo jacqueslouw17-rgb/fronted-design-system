@@ -161,7 +161,6 @@ const ContractFlowDemo = () => {
         setTimeout(() => {
           setLoading(false);
           
-          // Trigger confetti
           const duration = 2 * 1000;
           const animationEnd = Date.now() + duration;
           const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -197,6 +196,46 @@ const ContractFlowDemo = () => {
           });
         }, 1800);
         return;
+        
+      case 'create-payroll-batch': {
+        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
+        const response = executePayrollGenieAction('create_payroll_batch', navigate);
+        addMessage({ role: 'kurt', text: response });
+        setLoading(false);
+        return;
+      }
+      
+      case 'simulate-fx': {
+        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
+        const response = executePayrollGenieAction('simulate_fx', navigate);
+        addMessage({ role: 'kurt', text: response });
+        setLoading(false);
+        return;
+      }
+      
+      case 'send-approval': {
+        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
+        const response = executePayrollGenieAction('send_for_approval', navigate);
+        addMessage({ role: 'kurt', text: response });
+        setLoading(false);
+        return;
+      }
+      
+      case 'execute-payroll': {
+        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
+        const response = executePayrollGenieAction('execute_batch', navigate);
+        addMessage({ role: 'kurt', text: response });
+        setLoading(false);
+        return;
+      }
+      
+      case 'reconcile': {
+        const { executePayrollGenieAction } = await import('@/lib/payroll-genie-actions');
+        const response = executePayrollGenieAction('reconcile', navigate);
+        addMessage({ role: 'kurt', text: response });
+        setLoading(false);
+        return;
+      }
       default:
         response = `I'll help you with "${action}". Let me process that for you.`;
     }

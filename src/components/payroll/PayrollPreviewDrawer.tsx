@@ -12,6 +12,9 @@ interface PayrollPreviewDrawerProps {
   payee: PayrollPayee | null;
   onEdit?: () => void;
   onIncludeInBatch?: () => void;
+  onSimulateFX?: () => void;
+  onSendToCFO?: () => void;
+  onViewBatch?: () => void;
 }
 
 export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
@@ -20,6 +23,9 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
   payee,
   onEdit,
   onIncludeInBatch,
+  onSimulateFX,
+  onSendToCFO,
+  onViewBatch,
 }) => {
   if (!payee) return null;
 
@@ -148,17 +154,32 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
             </div>
           </div>
 
-          <div className="flex gap-3">
-            {onEdit && (
-              <Button onClick={onEdit} variant="outline" className="flex-1">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit One-Offs
-              </Button>
-            )}
-            {onIncludeInBatch && (
-              <Button onClick={onIncludeInBatch} className="flex-1">
-                <Plus className="h-4 w-4 mr-2" />
-                Include in Batch
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              {onIncludeInBatch && (
+                <Button onClick={onIncludeInBatch} className="flex-1">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add to Payroll Batch
+                </Button>
+              )}
+            </div>
+            
+            <div className="flex gap-3">
+              {onSimulateFX && (
+                <Button onClick={onSimulateFX} variant="outline" className="flex-1">
+                  Simulate FX
+                </Button>
+              )}
+              {onSendToCFO && (
+                <Button onClick={onSendToCFO} variant="outline" className="flex-1">
+                  Send to CFO for Approval
+                </Button>
+              )}
+            </div>
+            
+            {onViewBatch && (
+              <Button onClick={onViewBatch} variant="outline" className="w-full">
+                View Batch Progress
               </Button>
             )}
           </div>
