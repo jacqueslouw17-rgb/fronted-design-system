@@ -26,6 +26,7 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 
 interface Worker {
   id: string;
@@ -113,12 +114,24 @@ const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, o
 const DashboardAdmin = () => {
   const navigate = useNavigate();
   const [isKurtMuted, setIsKurtMuted] = useState(false);
+  const { batches, currentBatchId } = usePayrollBatch();
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);
   const isFirstTime = searchParams.get('onboarding') === 'complete';
   
   const welcomeTitle = isFirstTime ? "Welcome onboard, Joe! 🎉" : "Welcome Joe, get to work!";
+
+  // Get latest batch data
+  const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
+  const thisMonthPayroll = latestBatch ? {
+    count: latestBatch.payees.length,
+    total: latestBatch.totals.gross
+  } : { count: 0, total: 0 };
+  
+  const fxVariance = latestBatch?.totals.fxFees 
+    ? ((latestBatch.totals.fxFees / latestBatch.totals.gross) * 100).toFixed(2)
+    : "0.00";
 
   const handleKurtAction = async (action: string) => {
     const { useAgentState } = await import('@/hooks/useAgentState');
@@ -228,19 +241,41 @@ const DashboardAdmin = () => {
                     </TabsList>
 
                     <TabsContent value="list" className="space-y-6">
-                      {/* Empty State for Metrics */}
                       <div className="max-w-5xl mx-auto">
-                        <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
-                          <CardContent className="flex flex-col items-center justify-center py-12">
-                            <div className="rounded-full bg-muted p-4 mb-4">
-                              <TrendingUp className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                            <h3 className="text-lg font-semibold mb-2">No metrics yet</h3>
-                            <p className="text-sm text-muted-foreground text-center max-w-md">
-                              Your metrics will appear here once you start sending offers and onboarding contractors.
-                            </p>
-                          </CardContent>
-                        </Card>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {/* This Month's Payroll */}
+                          <MetricWidget
+                            title="This Month's Payroll"
+                            value={`$${thisMonthPayroll.total.toLocaleString()}`}
+                            trend={`${thisMonthPayroll.count} payees`}
+                            icon={DollarSign}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`)}
+                          />
+                          
+                          {/* FX Variance */}
+                          <MetricWidget
+                            title="FX Variance"
+                            value={`${parseFloat(fxVariance) >= 0 ? '+' : ''}${fxVariance}%`}
+                            trend="vs base currency"
+                            icon={TrendingUp}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => console.log('Details')}
+                          />
+                          
+                          {/* Last Batch Status */}
+                          <MetricWidget
+                            title="Last Batch Status"
+                            value={latestBatch?.status.toUpperCase() || "No Batch"}
+                            trend={latestBatch ? `Created ${new Date(latestBatch.createdAt).toLocaleDateString()}` : "Create first batch"}
+                            icon={FileCheck}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => navigate('/payroll/batch?id=latest')}
+                          />
+                        </div>
                       </div>
                     </TabsContent>
 
