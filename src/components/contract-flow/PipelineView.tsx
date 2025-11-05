@@ -23,6 +23,7 @@ import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
 import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
+import { usePayrollState } from "@/hooks/usePayrollState";
 
 interface Contractor {
   id: string;
@@ -132,6 +133,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 }) => {
   const navigate = useNavigate();
   const { createBatch, batches } = usePayrollBatch();
+  const { updateMetrics } = usePayrollState();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
@@ -154,6 +156,31 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
+  
+  // Sync payroll metrics with global state whenever contractors change
+  React.useEffect(() => {
+    const payrollContractors = contractors.filter(c => 
+      (c.status === "certified" || c.status === "payroll-ready") && 
+      (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
+    );
+    
+    const totalGross = payrollContractors.reduce((sum, c) => {
+      const salaryStr = c.salary.replace(/[^0-9.,]/g, '').replace(',', '');
+      return sum + (parseFloat(salaryStr) || 0);
+    }, 0);
+    
+    const readyCount = payrollContractors.filter(c => c.payrollStatus === "Ready").length;
+    const executingCount = payrollContractors.filter(c => c.payrollStatus === "Executing").length;
+    const paidCount = payrollContractors.filter(c => c.payrollStatus === "Paid").length;
+    
+    updateMetrics({
+      batchCount: batches.length,
+      totalGross,
+      readyCount,
+      executingCount,
+      paidCount,
+    });
+  }, [contractors, selectedPayrollCycle, batches.length, updateMetrics]);
   
   // Helper to ensure a contractor has payroll details
   const ensurePayrollDetails = React.useCallback((c: Contractor): Contractor => {

@@ -27,6 +27,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
+import { usePayrollState } from "@/hooks/usePayrollState";
 
 interface Worker {
   id: string;
@@ -115,6 +116,7 @@ const DashboardAdmin = () => {
   const navigate = useNavigate();
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { batches, currentBatchId } = usePayrollBatch();
+  const { metrics } = usePayrollState();
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);
@@ -124,14 +126,14 @@ const DashboardAdmin = () => {
 
   // Get latest batch data
   const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
-  const thisMonthPayroll = latestBatch ? {
-    count: latestBatch.payees.length,
-    total: latestBatch.totals.gross
-  } : { count: 0, total: 0 };
   
-  const fxVariance = latestBatch?.fxSnapshot?.varianceBps
-    ? (latestBatch.fxSnapshot.varianceBps / 100).toFixed(2)
-    : "0.00";
+  // Use reactive payroll metrics from state
+  const thisMonthPayroll = {
+    count: metrics.readyCount + metrics.executingCount + metrics.paidCount,
+    total: metrics.totalGross
+  };
+  
+  const fxVariance = metrics.fxVariance.toFixed(2);
 
   const pendingApprovals = batches.filter(b => b.status === "AwaitingApproval").length;
 
@@ -249,7 +251,7 @@ const DashboardAdmin = () => {
                           <MetricWidget
                             title="This Month's Payroll"
                             value={`$${thisMonthPayroll.total.toLocaleString()}`}
-                            trend={`${thisMonthPayroll.count} payees`}
+                            trend={`${thisMonthPayroll.count} payees • ${metrics.executingCount} executing • ${metrics.paidCount} paid`}
                             icon={DollarSign}
                             onAskGenie={() => console.log('Ask Genie')}
                             onExport={() => console.log('Export')}
