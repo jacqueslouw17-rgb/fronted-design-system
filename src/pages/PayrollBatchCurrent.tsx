@@ -5,7 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
@@ -23,12 +25,45 @@ const steps = [
   { id: "track", label: "Track & Reconcile", icon: TrendingUp },
 ] as const;
 
+interface ContractorPayment {
+  id: string;
+  name: string;
+  country: string;
+  countryCode: string;
+  netPay: number;
+  currency: string;
+  estFees: number;
+  fxRate: number;
+  recvLocal: number;
+  eta: string;
+}
+
+const contractorsByCurrency: Record<string, ContractorPayment[]> = {
+  EUR: [
+    { id: "1", name: "David Martinez", country: "Portugal", countryCode: "PT", netPay: 4200, currency: "EUR", estFees: 25, fxRate: 0.92, recvLocal: 4200, eta: "Oct 30" },
+    { id: "2", name: "Sophie Laurent", country: "France", countryCode: "FR", netPay: 5800, currency: "EUR", estFees: 35, fxRate: 0.92, recvLocal: 5800, eta: "Oct 30" },
+    { id: "3", name: "Marco Rossi", country: "Italy", countryCode: "IT", netPay: 4500, currency: "EUR", estFees: 28, fxRate: 0.92, recvLocal: 4500, eta: "Oct 30" },
+  ],
+  NOK: [
+    { id: "4", name: "Alex Hansen", country: "Norway", countryCode: "NO", netPay: 65000, currency: "NOK", estFees: 250, fxRate: 10.45, recvLocal: 65000, eta: "Oct 31" },
+    { id: "5", name: "Emma Wilson", country: "Norway", countryCode: "NO", netPay: 72000, currency: "NOK", estFees: 280, fxRate: 10.45, recvLocal: 72000, eta: "Oct 31" },
+  ],
+  PHP: [
+    { id: "6", name: "Maria Santos", country: "Philippines", countryCode: "PH", netPay: 280000, currency: "PHP", estFees: 850, fxRate: 56.2, recvLocal: 280000, eta: "Oct 30" },
+    { id: "7", name: "Jose Reyes", country: "Philippines", countryCode: "PH", netPay: 245000, currency: "PHP", estFees: 750, fxRate: 56.2, recvLocal: 245000, eta: "Oct 30" },
+    { id: "8", name: "Luis Hernandez", country: "Philippines", countryCode: "PH", netPay: 260000, currency: "PHP", estFees: 800, fxRate: 56.2, recvLocal: 260000, eta: "Oct 30" },
+  ],
+};
+
 export default function PayrollBatchCurrent() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [frequency, setFrequency] = useState("monthly");
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();
+  const [fxRatesLocked, setFxRatesLocked] = useState(false);
+  const [lockedAt, setLockedAt] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleKurtAction = (action: string) => {
     setOpen(true);
@@ -67,6 +102,24 @@ export default function PayrollBatchCurrent() {
     }
   };
 
+  const handleLockRates = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    setFxRatesLocked(true);
+    setLockedAt(timeString);
+    toast.success("FX rates locked for 15 minutes");
+  };
+
+  const handleRefreshQuote = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setFxRatesLocked(false);
+      setLockedAt(null);
+      toast.success("FX quotes refreshed");
+    }, 1000);
+  };
+
   const getCurrentStepIndex = () => {
     return steps.findIndex(s => s.id === currentStep);
   };
@@ -75,65 +128,259 @@ export default function PayrollBatchCurrent() {
     switch (currentStep) {
       case "review-fx":
         return (
-          <div className="space-y-4">
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">FX Rates Overview</h3>
-                  <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                    +2.3% Favorable
+          <div className="space-y-6">
+            {/* Status Bar */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-foreground">FX Review</h3>
+                {fxRatesLocked && lockedAt && (
+                  <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 gap-1.5">
+                    <Lock className="h-3 w-3" />
+                    Locked at {lockedAt}
                   </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  {[
-                    { from: "USD", to: "EUR", rate: "0.92", change: "+0.3%", contractors: 3 },
-                    { from: "USD", to: "NOK", rate: "10.45", change: "-0.8%", contractors: 2 },
-                    { from: "USD", to: "PHP", rate: "56.2", change: "+1.2%", contractors: 3 },
-                  ].map((fx) => (
-                    <div key={`${fx.from}-${fx.to}`} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-medium text-foreground">
-                          {fx.from} → {fx.to}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {fx.contractors} contractors
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-medium text-foreground">{fx.rate}</div>
-                        <Badge variant="outline" className={cn(
-                          "text-xs",
-                          fx.change.startsWith("+") ? "text-accent-green-text" : "text-muted-foreground"
-                        )}>
-                          {fx.change}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefreshQuote}
+                  disabled={isRefreshing || fxRatesLocked}
+                  className="gap-2"
+                >
+                  <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
+                  Refresh Quote
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleLockRates}
+                  disabled={fxRatesLocked}
+                  className="gap-2"
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                  Lock Rate (15 min)
+                </Button>
+              </div>
+            </div>
 
-                <div className="pt-4 border-t border-border">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Total Estimated Savings</span>
-                    <span className="font-semibold text-accent-green-text">$15,240</span>
+            {/* EUR Table */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-foreground">EUR Payments</span>
+                    <Badge variant="outline" className="text-xs">3 contractors</Badge>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
+                          <Info className="h-3.5 w-3.5" />
+                          Why this rate?
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-xs">Mid-Market Rate</p>
+                          <p className="text-xs text-muted-foreground">
+                            Rate: 0.92 USD → EUR
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Source: Wise mid-market rate
+                          </p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
+                            <Clock className="h-3 w-3" />
+                            <span>Updated 2 minutes ago</span>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Country</TableHead>
+                      <TableHead className="text-xs text-right">Net Pay (EUR)</TableHead>
+                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
+                      <TableHead className="text-xs text-right">FX Rate</TableHead>
+                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
+                      <TableHead className="text-xs">ETA</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contractorsByCurrency.EUR.map((contractor) => (
+                      <TableRow key={contractor.id}>
+                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell className="text-sm">{contractor.country}</TableCell>
+                        <TableCell className="text-right text-sm">€{contractor.netPay.toLocaleString()}</TableCell>
+                        <TableCell className="text-right text-sm text-muted-foreground">€{contractor.estFees}</TableCell>
+                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">€{contractor.recvLocal.toLocaleString()}</TableCell>
+                        <TableCell className="text-sm">{contractor.eta}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* NOK Table */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-foreground">NOK Payments</span>
+                    <Badge variant="outline" className="text-xs">2 contractors</Badge>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
+                          <Info className="h-3.5 w-3.5" />
+                          Why this rate?
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-xs">Mid-Market Rate</p>
+                          <p className="text-xs text-muted-foreground">
+                            Rate: 10.45 USD → NOK
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Source: Wise mid-market rate
+                          </p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
+                            <Clock className="h-3 w-3" />
+                            <span>Updated 2 minutes ago</span>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Country</TableHead>
+                      <TableHead className="text-xs text-right">Net Pay (NOK)</TableHead>
+                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
+                      <TableHead className="text-xs text-right">FX Rate</TableHead>
+                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
+                      <TableHead className="text-xs">ETA</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contractorsByCurrency.NOK.map((contractor) => (
+                      <TableRow key={contractor.id}>
+                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell className="text-sm">{contractor.country}</TableCell>
+                        <TableCell className="text-right text-sm">kr{contractor.netPay.toLocaleString()}</TableCell>
+                        <TableCell className="text-right text-sm text-muted-foreground">kr{contractor.estFees}</TableCell>
+                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">kr{contractor.recvLocal.toLocaleString()}</TableCell>
+                        <TableCell className="text-sm">{contractor.eta}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* PHP Table */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-foreground">PHP Payments</span>
+                    <Badge variant="outline" className="text-xs">3 contractors</Badge>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
+                          <Info className="h-3.5 w-3.5" />
+                          Why this rate?
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-xs">Mid-Market Rate</p>
+                          <p className="text-xs text-muted-foreground">
+                            Rate: 56.2 USD → PHP
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Source: Wise mid-market rate
+                          </p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
+                            <Clock className="h-3 w-3" />
+                            <span>Updated 2 minutes ago</span>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Country</TableHead>
+                      <TableHead className="text-xs text-right">Net Pay (PHP)</TableHead>
+                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
+                      <TableHead className="text-xs text-right">FX Rate</TableHead>
+                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
+                      <TableHead className="text-xs">ETA</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contractorsByCurrency.PHP.map((contractor) => (
+                      <TableRow key={contractor.id}>
+                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell className="text-sm">{contractor.country}</TableCell>
+                        <TableCell className="text-right text-sm">₱{contractor.netPay.toLocaleString()}</TableCell>
+                        <TableCell className="text-right text-sm text-muted-foreground">₱{contractor.estFees}</TableCell>
+                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">₱{contractor.recvLocal.toLocaleString()}</TableCell>
+                        <TableCell className="text-sm">{contractor.eta}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* Summary Card */}
+            <Card className="border-border/40 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Total Contractors</p>
+                    <p className="text-2xl font-bold text-foreground">8</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Total Net Pay</p>
+                    <p className="text-2xl font-bold text-foreground">$747K</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Est. Savings</p>
+                    <p className="text-2xl font-bold text-accent-green-text">+$15.2K</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Rate Lock Options</h3>
-                <p className="text-xs text-muted-foreground">
-                  Lock in current rates for 24 hours to secure favorable variance before batch execution.
-                </p>
-                <Button className="w-full" onClick={() => toast.success("FX rates locked for 24 hours")}>
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Lock Rates Now
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Footer CTA */}
+            <div className="pt-4 border-t border-border">
+              <Button 
+                className="w-full h-11 text-sm font-medium"
+                onClick={() => setCurrentStep("exceptions")}
+              >
+                Continue to Exceptions
+              </Button>
+            </div>
           </div>
         );
 
