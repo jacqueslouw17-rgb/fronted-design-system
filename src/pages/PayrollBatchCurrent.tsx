@@ -133,6 +133,15 @@ export default function PayrollBatchCurrent() {
   ]);
   const [isRequestingApproval, setIsRequestingApproval] = useState(false);
   const [userRole] = useState<"admin" | "user">("admin"); // In real app, get from auth/Supabase
+  const [autoRetryEnabled, setAutoRetryEnabled] = useState(true);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete">>({});
+
+  const allContractors = [
+    ...contractorsByCurrency.EUR,
+    ...contractorsByCurrency.NOK,
+    ...contractorsByCurrency.PHP,
+  ];
 
   const handleKurtAction = (action: string) => {
     setOpen(true);
@@ -252,6 +261,38 @@ export default function PayrollBatchCurrent() {
     // Auto-advance to Execute step after approval
     setTimeout(() => {
       setCurrentStep("execute");
+    }, 1500);
+  };
+
+  const handleExecutePayroll = async () => {
+    setIsExecuting(true);
+    
+    // Initialize all as pending
+    const initialProgress: Record<string, "pending" | "processing" | "complete"> = {};
+    allContractors.forEach(c => {
+      initialProgress[c.id] = "pending";
+    });
+    setExecutionProgress(initialProgress);
+
+    // Process each contractor sequentially with animation
+    for (const contractor of allContractors) {
+      // Mark as processing
+      setExecutionProgress(prev => ({ ...prev, [contractor.id]: "processing" }));
+      
+      // Simulate processing time (800ms - 1.5s per contractor)
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+      
+      // Mark as complete
+      setExecutionProgress(prev => ({ ...prev, [contractor.id]: "complete" }));
+    }
+
+    // All done
+    setIsExecuting(false);
+    toast.success("Payroll batch executed successfully!");
+    
+    // Auto-advance to Track & Reconcile step
+    setTimeout(() => {
+      setCurrentStep("track");
     }, 1500);
   };
 
@@ -890,48 +931,213 @@ export default function PayrollBatchCurrent() {
 
       case "execute":
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
+
+            {/* Execution Summary Panel */}
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">Batch Execution Summary</h3>
-                  <Badge className="bg-primary/20 text-primary">Ready to Execute</Badge>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground mb-1">Total Contractors</p>
-                    <p className="text-2xl font-bold text-foreground">8</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground mb-1">Total Amount</p>
-                    <p className="text-2xl font-bold text-foreground">$747K</p>
+              <CardContent className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-4">Batch Summary</h3>
+                  
+                  <div className="space-y-3">
+                    {/* Summary by Provider/Rail */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Payment Rails</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">SEPA (EUR)</span>
+                            <span className="text-xs font-medium">3 payees</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">Local (NOK)</span>
+                            <span className="text-xs font-medium">2 payees</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">SWIFT (PHP)</span>
+                            <span className="text-xs font-medium">3 payees</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
+                        <p className="text-2xl font-bold text-foreground">$747K</p>
+                        <p className="text-xs text-muted-foreground mt-1">across 8 contractors</p>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Processing Time</p>
+                        <p className="text-2xl font-bold text-foreground">~2 min</p>
+                        <p className="text-xs text-muted-foreground mt-1">estimated duration</p>
+                      </div>
+                    </div>
+
+                    {/* Auto-retry Toggle */}
+                    <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/20">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5">
+                          <input
+                            type="checkbox"
+                            id="auto-retry"
+                            checked={autoRetryEnabled}
+                            onChange={(e) => setAutoRetryEnabled(e.target.checked)}
+                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="auto-retry" className="text-sm font-medium text-foreground cursor-pointer">
+                            Auto-retry on soft failure
+                          </label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Automatically retry payments that fail due to temporary issues (network, rate limits)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-border space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                    <span className="text-muted-foreground">FX rates locked</span>
+                {/* Pre-execution Checklist */}
+                {!isExecuting && Object.keys(executionProgress).length === 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">FX rates locked</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">All exceptions resolved</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">CFO approval received</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                    <span className="text-muted-foreground">All exceptions resolved</span>
+                )}
+
+                {/* Live Progress List */}
+                {(isExecuting || Object.keys(executionProgress).length > 0) && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">Processing Payments</h4>
+                      <Badge variant="outline" className="text-xs">
+                        {Object.values(executionProgress).filter(s => s === "complete").length} / {allContractors.length}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {allContractors.map((contractor) => {
+                        const status = executionProgress[contractor.id] || "pending";
+                        
+                        return (
+                          <motion.div
+                            key={contractor.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+                              status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                              status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
+                              status === "pending" && "bg-muted/20 border-border"
+                            )}
+                          >
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
+                              {status === "complete" && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 200 }}
+                                >
+                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                </motion.div>
+                              )}
+                              {status === "processing" && (
+                                <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+                              )}
+                              {status === "pending" && (
+                                <Circle className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {contractor.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {contractor.currency === "EUR" && `€${contractor.netPay.toLocaleString()}`}
+                                {contractor.currency === "NOK" && `kr${contractor.netPay.toLocaleString()}`}
+                                {contractor.currency === "PHP" && `₱${contractor.netPay.toLocaleString()}`}
+                                {" • " + contractor.country}
+                              </p>
+                            </div>
+
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px]",
+                                status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                                status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                status === "pending" && "bg-muted text-muted-foreground"
+                              )}
+                            >
+                              {status === "complete" && "Sent"}
+                              {status === "processing" && "Processing"}
+                              {status === "pending" && "Queued"}
+                            </Badge>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                    <span className="text-muted-foreground">Approvals complete</span>
+                )}
+
+                {/* Execute CTA */}
+                {!isExecuting && Object.keys(executionProgress).length === 0 && (
+                  <Button 
+                    className="w-full h-11 text-sm font-medium bg-primary hover:bg-primary/90"
+                    onClick={handleExecutePayroll}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Execute Payroll Now
+                  </Button>
+                )}
+
+                {/* Execution Complete */}
+                {!isExecuting && Object.keys(executionProgress).length > 0 && 
+                 Object.values(executionProgress).every(s => s === "complete") && (
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                    >
+                      <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">Batch Executed Successfully</p>
+                      <p className="text-xs text-muted-foreground">
+                        All {allContractors.length} payments processed • Advancing to tracking...
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Info Note */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-foreground">Execution Process</p>
+                    <p className="text-xs text-muted-foreground">
+                      Payments will be initiated immediately and processed according to each payment rail's standard timing (SEPA: 1-2 days, Local: same day, SWIFT: 2-5 days).
+                    </p>
                   </div>
                 </div>
-
-                <Button className="w-full h-10 bg-primary hover:bg-primary/90 font-semibold">
-                  <Play className="h-4 w-4 mr-2" />
-                  Execute Payroll Batch
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  Funds will be transferred within 2-3 business days
-                </p>
               </CardContent>
             </Card>
           </div>
