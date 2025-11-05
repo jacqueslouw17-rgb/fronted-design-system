@@ -46,10 +46,10 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
   const [genieMessage, setGenieMessage] = useState<string>("");
   const [showGenieSuccess, setShowGenieSuccess] = useState(false);
   
-  if (!payee) return null;
-  
   // Simulate progress when status is Executing
   useEffect(() => {
+    if (!payee) return;
+    
     if (payee.status === "Executing") {
       setCurrentStatus("Executing");
       setProgress(0);
@@ -84,7 +84,9 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
       setProgress(0);
       setShowGenieSuccess(false);
     }
-  }, [payee.status]);
+  }, [payee?.status]);
+  
+  if (!payee) return null;
 
   const adjustmentsTotal = payee.adjustments.reduce((sum, adj) => sum + adj.amount, 0);
   const totalGross = payee.gross + adjustmentsTotal;
