@@ -648,6 +648,16 @@ const ContractFlowDemo = () => {
                               })),
                               // Payroll Ready candidates
                               {
+                                id: "cert-0",
+                                name: "David Martinez",
+                                country: "Portugal",
+                                countryFlag: "🇵🇹",
+                                role: "Technical Writer",
+                                salary: "€4,200/mo",
+                                status: "certified" as const,
+                                employmentType: "contractor" as const,
+                              },
+                              {
                                 id: "cert-1",
                                 name: "Emma Wilson",
                                 country: "United Kingdom",

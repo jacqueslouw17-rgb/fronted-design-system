@@ -30,7 +30,7 @@ interface Contractor {
   countryFlag: string;
   role: string;
   salary: string;
-  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "payroll-ready";
+  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified" | "payroll-ready";
   formSent?: boolean;
   dataReceived?: boolean;
   employmentType?: "contractor" | "employee";
@@ -96,11 +96,17 @@ const statusConfig = {
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
     tooltip: "Monitor completion status and send reminders",
   },
-  "payroll-ready": {
-    label: "Certified & Payroll Ready",
+  "certified": {
+    label: "Certified",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-    tooltip: "All done ✅ — payroll certified and ready",
+    tooltip: "Contracts & compliance completed ✅",
+  },
+  "payroll-ready": {
+    label: "Payroll Ready",
+    color: "bg-emerald-100/50 dark:bg-emerald-950/50 border-emerald-500/20",
+    badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-500/30",
+    tooltip: "Ready for payroll processing 💰",
   },
 };
 
@@ -111,6 +117,7 @@ const columns = [
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
+  "certified",
   "payroll-ready",
 ] as const;
 
@@ -147,7 +154,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   
   // Helper to ensure a contractor has payroll details
   const ensurePayrollDetails = React.useCallback((c: Contractor): Contractor => {
-    if (c.status !== "payroll-ready") return c;
+    if (c.status !== "certified" && c.status !== "payroll-ready") return c;
     if (c.payrollChecklist && typeof c.payrollProgress === "number") return c;
     return {
       ...c,
@@ -187,12 +194,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     };
   }, []);
   
-  // Initialize payroll checklist for payroll-ready contractors
+  // Initialize payroll checklist for payroll-ready and certified contractors
   React.useEffect(() => {
     setContractors(current => 
-      current.map(c => (c.status === "payroll-ready" ? ensurePayrollDetails(c) : c))
+      current.map(c => (c.status === "certified" || c.status === "payroll-ready" ? ensurePayrollDetails(c) : c))
     );
-  }, [ensurePayrollDetails, contractors.filter(c => c.status === "payroll-ready").length]);
+  }, [ensurePayrollDetails, contractors.filter(c => c.status === "certified" || c.status === "payroll-ready").length]);
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -323,11 +330,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     );
 
     if (completedContractors.length > 0) {
-      // Move directly to payroll-ready after brief delay
+      // Move to certified after brief delay
       const timer = setTimeout(() => {
         const updated = contractors.map(c => 
           completedContractors.some(cc => cc.id === c.id)
-            ? { ...c, status: "payroll-ready" as const }
+            ? { ...c, status: "certified" as const }
             : c
         );
         
@@ -337,10 +344,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         setContractors(updated);
         onContractorUpdate?.(updated);
 
-        // Show celebration message after moving to payroll-ready
+        // Show celebration message after moving to certified
         setTimeout(() => {
           completedContractors.forEach((contractor) => {
-            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is certified and payroll-ready!`, {
+            toast.success(`All done ✅ ${contractor.name.split(' ')[0]} is certified!`, {
               duration: 5000,
             });
           });
