@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
@@ -34,13 +34,13 @@ export function CertifiedActionDrawer({ open, onOpenChange, contractor, onConfir
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-w-md mx-auto">
-        <DrawerHeader>
-          <DrawerTitle className="text-lg font-semibold">Prepare for Payroll</DrawerTitle>
-        </DrawerHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-lg font-semibold">Prepare for Payroll</SheetTitle>
+        </SheetHeader>
 
-        <div className="px-4 pb-4 space-y-6">
+        <div className="mt-6 space-y-6">
           {/* Summary Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-muted-foreground">Summary</h3>
@@ -112,17 +112,17 @@ export function CertifiedActionDrawer({ open, onOpenChange, contractor, onConfir
           </div>
         </div>
 
-        <DrawerFooter className="flex-row gap-2">
-          <DrawerClose asChild>
+        <SheetFooter className="mt-6 flex-row gap-2">
+          <SheetClose asChild>
             <Button variant="outline" className="flex-1">
               Cancel
             </Button>
-          </DrawerClose>
+          </SheetClose>
           <Button onClick={handleConfirm} className="flex-1">
             Mark as Payroll Ready
           </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
