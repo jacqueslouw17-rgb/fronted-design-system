@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,10 @@ import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format, addDays } from "date-fns";
 
 type PayrollStep = "review-fx" | "exceptions" | "approvals" | "execute" | "track";
 
@@ -150,9 +154,12 @@ export default function PayrollBatchCurrent() {
   // Track & Reconcile step state
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
-
-  // Mock payment receipts
-  const paymentReceipts = [
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [selectedPayeeForReschedule, setSelectedPayeeForReschedule] = useState<any>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(addDays(new Date(), 1));
+  const [rescheduleReason, setRescheduleReason] = useState<string>("bank-delay");
+  const [notifyContractor, setNotifyContractor] = useState(true);
+  const [paymentReceipts, setPaymentReceipts] = useState([
     {
       payeeId: "1",
       payeeName: "David Martinez",
@@ -211,11 +218,43 @@ export default function PayrollBatchCurrent() {
       processingFee: 850.0,
       eta: "3-5 business days"
     },
-  ];
+  ]);
 
   const handleViewReceipt = (receipt: any) => {
     setSelectedReceipt(receipt);
     setReceiptModalOpen(true);
+  };
+
+  const handleOpenReschedule = (receipt: any) => {
+    setSelectedPayeeForReschedule(receipt);
+    setRescheduleDate(addDays(new Date(), 1)); // Default to next business day
+    setRescheduleReason("bank-delay");
+    setNotifyContractor(true);
+    setRescheduleModalOpen(true);
+  };
+
+  const handleConfirmReschedule = () => {
+    if (!rescheduleDate || !selectedPayeeForReschedule) return;
+
+    // Update the ETA for the selected payee
+    setPaymentReceipts(prev => 
+      prev.map(receipt => 
+        receipt.payeeId === selectedPayeeForReschedule.payeeId
+          ? { ...receipt, eta: format(rescheduleDate, "MMM dd, yyyy") }
+          : receipt
+      )
+    );
+
+    // Close modal
+    setRescheduleModalOpen(false);
+
+    // Show notification
+    const reasonText = rescheduleReason === "holiday" ? "holiday" : "bank delay";
+    const notifyText = notifyContractor 
+      ? ` ${selectedPayeeForReschedule.payeeName} has been notified.`
+      : "";
+    
+    toast.success(`Payout rescheduled to ${format(rescheduleDate, "MMM dd, yyyy")} due to ${reasonText}.${notifyText}`);
   };
 
   const handleExportCSV = () => {
@@ -1302,15 +1341,24 @@ export default function PayrollBatchCurrent() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">Ref: {receipt.providerRef}</p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewReceipt(receipt)}
-                        className="ml-4"
-                      >
-                        <Receipt className="h-4 w-4 mr-2" />
-                        View Receipt
-                      </Button>
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenReschedule(receipt)}
+                        >
+                          <Clock className="h-4 w-4 mr-2" />
+                          Reschedule
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewReceipt(receipt)}
+                        >
+                          <Receipt className="h-4 w-4 mr-2" />
+                          View Receipt
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1829,6 +1877,103 @@ export default function PayrollBatchCurrent() {
               <Button onClick={() => toast.info("Download receipt functionality would be implemented here")}>
                 <Download className="h-4 w-4 mr-2" />
                 Download Receipt
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Reschedule Payout Modal */}
+        <Dialog open={rescheduleModalOpen} onOpenChange={setRescheduleModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                Reschedule Payout
+              </DialogTitle>
+            </DialogHeader>
+            {selectedPayeeForReschedule && (
+              <div className="space-y-6">
+                {/* Payee Info */}
+                <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
+                  <p className="font-semibold text-foreground">{selectedPayeeForReschedule.payeeName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPayeeForReschedule.amount.toLocaleString()} {selectedPayeeForReschedule.ccy} • {selectedPayeeForReschedule.rail}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Current ETA: {selectedPayeeForReschedule.eta}
+                  </p>
+                </div>
+
+                {/* New Date Picker */}
+                <div className="space-y-2">
+                  <Label htmlFor="reschedule-date" className="text-sm font-medium">
+                    New Payout Date
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="reschedule-date"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !rescheduleDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {rescheduleDate ? format(rescheduleDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={rescheduleDate}
+                        onSelect={setRescheduleDate}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Reason Select */}
+                <div className="space-y-2">
+                  <Label htmlFor="reschedule-reason" className="text-sm font-medium">
+                    Reason
+                  </Label>
+                  <Select value={rescheduleReason} onValueChange={setRescheduleReason}>
+                    <SelectTrigger id="reschedule-reason">
+                      <SelectValue placeholder="Select reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="holiday">Holiday</SelectItem>
+                      <SelectItem value="bank-delay">Bank Delay</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Notify Contractor Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="notify-contractor"
+                    checked={notifyContractor}
+                    onCheckedChange={(checked) => setNotifyContractor(checked === true)}
+                  />
+                  <label
+                    htmlFor="notify-contractor"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Notify contractor of schedule change
+                  </label>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRescheduleModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmReschedule} disabled={!rescheduleDate}>
+                Confirm Reschedule
               </Button>
             </DialogFooter>
           </DialogContent>
