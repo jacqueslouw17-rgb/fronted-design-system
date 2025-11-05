@@ -21,6 +21,7 @@ interface ContractorStore {
   getContractorsByStatus: (status: Contractor['status']) => Contractor[];
   getCertifiedCount: () => number;
   getInBatchCount: () => number;
+  getPayrollCount: () => number;
 }
 
 export const useContractorStore = create<ContractorStore>()(
@@ -44,9 +45,15 @@ export const useContractorStore = create<ContractorStore>()(
         return get().contractors.filter((c) => c.status === "CERTIFIED").length;
       },
       
-      getInBatchCount: () => {
-        return get().contractors.filter((c) => c.status === "IN_BATCH").length;
-      },
+  getInBatchCount: () => {
+    return get().contractors.filter((c) => c.status === "IN_BATCH").length;
+  },
+  
+  getPayrollCount: () => {
+    return get().contractors.filter((c) => 
+      c.status === "IN_BATCH" || c.status === "EXECUTING" || c.status === "PAID"
+    ).length;
+  },
     }),
     {
       name: 'contractor-storage',

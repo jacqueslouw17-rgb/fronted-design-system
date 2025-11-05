@@ -118,7 +118,7 @@ const DashboardAdmin = () => {
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { batches, currentBatchId } = usePayrollBatch();
   const { metrics } = usePayrollState();
-  const { contractors, getInBatchCount, getCertifiedCount } = useContractorStore();
+  const { contractors, getInBatchCount, getCertifiedCount, getPayrollCount } = useContractorStore();
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);
@@ -129,7 +129,8 @@ const DashboardAdmin = () => {
   // Get latest batch data
   const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
   
-  // Reactive metrics
+  // Reactive metrics - all update automatically when contractor status changes
+  const payrollCount = getPayrollCount(); // IN_BATCH + EXECUTING + PAID
   const inBatchCount = getInBatchCount();
   const certifiedCount = getCertifiedCount();
   const totalContractors = contractors.length;
@@ -137,8 +138,8 @@ const DashboardAdmin = () => {
     ? Math.round((certifiedCount / totalContractors) * 100) 
     : 0;
   
-  // Count unresolved exceptions from the current batch (mock for now - would come from batch state)
-  const [unresolvedExceptions] = useState(4); // TODO: Get from actual exceptions state
+  // Unresolved exceptions from live payroll state
+  const unresolvedExceptions = metrics.unresolvedExceptions;
   
   const fxVariance = metrics.fxVariance.toFixed(2);
 
@@ -254,11 +255,11 @@ const DashboardAdmin = () => {
                     <TabsContent value="list" className="space-y-6">
                       <div className="max-w-5xl mx-auto">
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {/* This Month's Payroll - Count of IN_BATCH */}
+                          {/* This Month's Payroll - Count of IN_BATCH + EXECUTING + PAID */}
                           <MetricWidget
                             title="This Month Payroll"
-                            value={inBatchCount.toString()}
-                            trend={inBatchCount > 0 ? `${inBatchCount} contractor${inBatchCount !== 1 ? 's' : ''} in current batch` : "No contractors in batch"}
+                            value={payrollCount.toString()}
+                            trend={payrollCount > 0 ? `${payrollCount} contractor${payrollCount !== 1 ? 's' : ''} in payroll cycle` : "No contractors in payroll"}
                             icon={DollarSign}
                             onAskGenie={() => console.log('Ask Genie')}
                             onExport={() => console.log('Export')}

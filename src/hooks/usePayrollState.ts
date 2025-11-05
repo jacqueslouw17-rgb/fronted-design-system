@@ -7,6 +7,7 @@ interface PayrollMetrics {
   executingCount: number;
   paidCount: number;
   readyCount: number;
+  unresolvedExceptions: number;
   lastUpdated: Date;
 }
 
@@ -26,6 +27,7 @@ const defaultMetrics: PayrollMetrics = {
   executingCount: 0,
   paidCount: 0,
   readyCount: 0,
+  unresolvedExceptions: 0,
   lastUpdated: new Date(),
 };
 
