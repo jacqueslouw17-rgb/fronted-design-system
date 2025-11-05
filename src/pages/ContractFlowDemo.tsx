@@ -667,6 +667,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                                 payrollStatus: "Ready" as const,
+                                payrollMonth: "current" as const,
                               },
                               {
                                 id: "cert-2",
@@ -678,6 +679,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                                 payrollStatus: "Paid" as const,
+                                payrollMonth: "last" as const,
                               },
                               {
                                 id: "cert-3",
@@ -689,6 +691,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                                 payrollStatus: "Ready" as const,
+                                payrollMonth: "current" as const,
                               },
                               {
                                 id: "cert-4",
@@ -700,6 +703,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                                 payrollStatus: "Executing" as const,
+                                payrollMonth: "next" as const,
                               },
                               {
                                 id: "cert-5",
@@ -711,6 +715,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                                 payrollStatus: "Ready" as const,
+                                payrollMonth: "current" as const,
                               },
                               {
                                 id: "cert-6",
@@ -722,6 +727,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                                 payrollStatus: "Paid" as const,
+                                payrollMonth: "last" as const,
                               },
                               {
                                 id: "cert-7",
@@ -733,6 +739,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                                 payrollStatus: "Ready" as const,
+                                payrollMonth: "current" as const,
                               },
                               {
                                 id: "cert-8",
@@ -744,6 +751,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
                                 payrollStatus: "Ready" as const,
+                                payrollMonth: "next" as const,
                               },
                               {
                                 id: "cert-9",
@@ -755,6 +763,7 @@ const ContractFlowDemo = () => {
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
                                 payrollStatus: "Paid" as const,
+                                payrollMonth: "last" as const,
                               },
                               {
                                 id: "cert-10",
@@ -765,6 +774,7 @@ const ContractFlowDemo = () => {
                                 salary: "€3,200/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
+                                payrollMonth: "current" as const,
                               },
                             ]}
                             onDraftContract={(ids) => {

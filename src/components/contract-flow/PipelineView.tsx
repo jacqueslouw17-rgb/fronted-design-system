@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OnboardingFormDrawer } from "./OnboardingFormDrawer";
 import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
@@ -40,6 +41,7 @@ interface Contractor {
   payrollChecklist?: PayrollChecklistItem[];
   payrollProgress?: number;
   payrollStatus?: "NotReady" | "Ready" | "Executing" | "Paid";
+  payrollMonth?: "last" | "current" | "next";
 }
 
 interface PayrollChecklistItem {
@@ -148,6 +150,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForPayroll, setSelectedForPayroll] = useState<Contractor | null>(null);
   const [payrollPreviewDrawerOpen, setPayrollPreviewDrawerOpen] = useState(false);
   const [selectedPayrollPayee, setSelectedPayrollPayee] = useState<PayrollPayee | null>(null);
+  const [selectedPayrollCycle, setSelectedPayrollCycle] = useState<"last" | "current" | "next">("current");
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -373,6 +376,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     // Exclude signing-transitioning contractors from trigger-onboarding until transition completes
     if (status === "trigger-onboarding") {
       return contractors.filter((c) => c.status === status && !signingTransitionIds.has(c.id));
+    }
+    // Filter payroll-ready by selected cycle
+    if (status === "payroll-ready") {
+      return contractors.filter((c) => 
+        c.status === status && 
+        (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
+      );
     }
     return contractors.filter((c) => c.status === status);
   };
@@ -787,8 +797,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for all columns except data-pending and payroll-ready */}
-                    {items.length > 0 && status !== "data-pending" && status !== "payroll-ready" && (
+                    {/* Select All for all columns except data-pending, certified, and payroll-ready */}
+                    {items.length > 0 && status !== "data-pending" && status !== "payroll-ready" && status !== "certified" && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -826,6 +836,25 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </Badge>
                   </div>
                 </div>
+                
+                {/* Payroll Cycle Selector - Only for Payroll Ready column */}
+                {status === "payroll-ready" && (
+                  <div className="mt-2 px-1">
+                    <Select
+                      value={selectedPayrollCycle}
+                      onValueChange={(value: "last" | "current" | "next") => setSelectedPayrollCycle(value)}
+                    >
+                      <SelectTrigger className="h-7 text-xs bg-background/80 border-border/50">
+                        <SelectValue placeholder="Select cycle" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-border z-50">
+                        <SelectItem value="last" className="text-xs">Last Month</SelectItem>
+                        <SelectItem value="current" className="text-xs">Current Month</SelectItem>
+                        <SelectItem value="next" className="text-xs">Next Month</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 
                 {/* Bulk Actions */}
                 {status === "offer-accepted" && getSelectedCount(status) > 0 && (
