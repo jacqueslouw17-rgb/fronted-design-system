@@ -20,8 +20,6 @@ import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
 import WorkerOnboarding from "./pages/flows/WorkerOnboarding";
 import CandidateDashboard from "./pages/flows/CandidateDashboard";
-import AdminPayrollDashboard from "./pages/flows/AdminPayrollDashboard";
-import CandidatePayrollDashboard from "./pages/flows/CandidatePayrollDashboard";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -103,8 +101,6 @@ const App = () => (
         <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
-        <Route path="/flows/admin-payroll-dashboard" element={<AdminPayrollDashboard />} />
-        <Route path="/flows/candidate-payroll-dashboard" element={<CandidatePayrollDashboard />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />
