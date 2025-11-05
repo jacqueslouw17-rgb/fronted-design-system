@@ -1,0 +1,43 @@
+import type { PayrollPayee } from "@/types/payroll";
+
+export const mockPayrollPayees: PayrollPayee[] = [
+  {
+    workerId: "maria",
+    name: "Maria Santos",
+    countryCode: "PH",
+    currency: "PHP",
+    gross: 45000,
+    employerCosts: 5400,
+    adjustments: [],
+    proposedFxRate: 56.5,
+    fxFee: 45,
+    eta: "2025-11-15",
+    status: "Ready",
+  },
+  {
+    workerId: "ahmed",
+    name: "Ahmed Hassan",
+    countryCode: "EG",
+    currency: "EGP",
+    gross: 35000,
+    employerCosts: 4200,
+    adjustments: [],
+    proposedFxRate: 30.85,
+    fxFee: 35,
+    eta: "2025-11-15",
+    status: "Ready",
+  },
+  {
+    workerId: "ana",
+    name: "Ana Rodriguez",
+    countryCode: "MX",
+    currency: "MXN",
+    gross: 28000,
+    employerCosts: 3360,
+    adjustments: [],
+    proposedFxRate: 17.2,
+    fxFee: 28,
+    eta: "2025-11-15",
+    status: "Ready",
+  },
+];

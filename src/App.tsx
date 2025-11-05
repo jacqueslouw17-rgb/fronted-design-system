@@ -67,6 +67,7 @@ import CostTaxVisualizerPattern from "./pages/CostTaxVisualizerPattern";
 import ContextualInlineActionsPattern from "./pages/ContextualInlineActionsPattern";
 import OnboardingFlowPattern from "./pages/OnboardingFlowPattern";
 import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
+import PayrollBatch from "./pages/PayrollBatch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -146,6 +147,7 @@ const App = () => (
         <Route path="/patterns/contextual-inline-actions" element={<ContextualInlineActionsPattern />} />
         <Route path="/patterns/onboarding-flow" element={<OnboardingFlowPattern />} />
         <Route path="/payroll-demo" element={<PayrollUseCaseDemo />} />
+        <Route path="/payroll/batch" element={<PayrollBatch />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
