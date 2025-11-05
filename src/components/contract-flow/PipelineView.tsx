@@ -1404,10 +1404,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         open={payrollPreviewDrawerOpen}
         onOpenChange={setPayrollPreviewDrawerOpen}
         payee={selectedPayrollPayee}
-        onIncludeInBatch={handleAddToBatch}
-        onSimulateFX={handleSimulateFX}
-        onSendToCFO={handleSendToCFO}
-        onViewBatch={handleViewBatch}
+        role={selectedForPayroll?.role}
+        onApproveExecute={handleAddToBatch}
+        onReschedule={handleSimulateFX}
+        onNotifyContractor={handleSendToCFO}
       />
     </div>
   );
