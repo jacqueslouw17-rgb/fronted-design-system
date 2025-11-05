@@ -617,6 +617,7 @@ const ContractFlowDemo = () => {
                                 salary: "£6,500/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
+                                payrollStatus: "Ready" as const,
                               },
                               {
                                 id: "cert-2",
@@ -627,6 +628,7 @@ const ContractFlowDemo = () => {
                                 salary: "€5,200/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
+                                payrollStatus: "Paid" as const,
                               },
                               {
                                 id: "cert-3",
@@ -637,6 +639,7 @@ const ContractFlowDemo = () => {
                                 salary: "¥650,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
+                                payrollStatus: "Ready" as const,
                               },
                               {
                                 id: "cert-4",
@@ -647,6 +650,7 @@ const ContractFlowDemo = () => {
                                 salary: "€5,800/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
+                                payrollStatus: "Executing" as const,
                               },
                               {
                                 id: "cert-5",
@@ -657,6 +661,7 @@ const ContractFlowDemo = () => {
                                 salary: "EGP 45,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
+                                payrollStatus: "Ready" as const,
                               },
                               {
                                 id: "cert-6",
@@ -667,6 +672,7 @@ const ContractFlowDemo = () => {
                                 salary: "PLN 15,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
+                                payrollStatus: "Paid" as const,
                               },
                               {
                                 id: "cert-7",
@@ -677,6 +683,7 @@ const ContractFlowDemo = () => {
                                 salary: "R$ 18,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
+                                payrollStatus: "Ready" as const,
                               },
                               {
                                 id: "cert-8",
@@ -687,6 +694,7 @@ const ContractFlowDemo = () => {
                                 salary: "₹2,50,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "employee" as const,
+                                payrollStatus: "Ready" as const,
                               },
                               {
                                 id: "cert-9",
@@ -697,6 +705,7 @@ const ContractFlowDemo = () => {
                                 salary: "SEK 58,000/mo",
                                 status: "payroll-ready" as const,
                                 employmentType: "contractor" as const,
+                                payrollStatus: "Paid" as const,
                               },
                               {
                                 id: "cert-10",

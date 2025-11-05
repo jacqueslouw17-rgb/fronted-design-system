@@ -39,6 +39,7 @@ interface Contractor {
   isTransitioning?: boolean;
   payrollChecklist?: PayrollChecklistItem[];
   payrollProgress?: number;
+  payrollStatus?: "NotReady" | "Ready" | "Executing" | "Paid";
 }
 
 interface PayrollChecklistItem {
@@ -458,6 +459,26 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     setStartOnboardingConfirmOpen(true);
   };
 
+  const handlePreviewPayroll = (contractor: Contractor) => {
+    // Convert contractor to payroll payee format
+    const salaryAmount = parseFloat(contractor.salary.replace(/[^0-9.]/g, ''));
+    const currency = contractor.salary.includes('PHP') ? 'PHP' : contractor.salary.includes('NOK') ? 'NOK' : 'USD';
+    
+    const payee: PayrollPayee = {
+      workerId: contractor.id,
+      name: contractor.name,
+      countryCode: contractor.country === "Philippines" ? "PH" : "NO",
+      currency: currency,
+      gross: salaryAmount,
+      employerCosts: salaryAmount * 0.15, // Mock employer costs
+      adjustments: [],
+      status: (contractor.payrollStatus as any) || "NotReady",
+    };
+    
+    setSelectedPayrollPayee(payee);
+    setPayrollPreviewDrawerOpen(true);
+  };
+
   const handleConfirmStartOnboarding = () => {
     if (!selectedForOnboarding) return;
     
@@ -868,6 +889,26 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <p className="text-xs text-muted-foreground truncate">
                               {contractor.role}
                             </p>
+                            {/* Payroll Status Chip */}
+                            <div className="mt-1.5">
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "text-[10px] px-2 py-0.5 cursor-pointer hover:scale-105 transition-transform",
+                                  !contractor.payrollStatus || contractor.payrollStatus === "NotReady" 
+                                    ? "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30"
+                                    : contractor.payrollStatus === "Ready" 
+                                    ? "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
+                                    : "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePreviewPayroll(contractor);
+                                }}
+                              >
+                                💰 Payroll: {contractor.payrollStatus || "Not Ready"}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
 
