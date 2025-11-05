@@ -910,9 +910,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     >
                     <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm">
                       <CardContent className="p-3 space-y-2">
-                        {/* Contractor Header with Checkbox */}
+                         {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {status !== "data-pending" && status !== "payroll-ready" && (
+                          {status !== "data-pending" && status !== "payroll-ready" && status !== "certified" && (
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
                               onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
@@ -935,26 +935,30 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <p className="text-xs text-muted-foreground truncate">
                               {contractor.role}
                             </p>
-                            {/* Payroll Status Chip */}
-                            <div className="mt-1.5">
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  "text-[10px] px-2 py-0.5 cursor-pointer hover:scale-105 transition-transform",
-                                  !contractor.payrollStatus || contractor.payrollStatus === "NotReady" 
-                                    ? "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30"
-                                    : contractor.payrollStatus === "Ready" 
-                                    ? "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
-                                    : "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePreviewPayroll(contractor);
-                                }}
-                              >
-                                💰 Payroll: {contractor.payrollStatus || "Not Ready"}
-                              </Badge>
-                            </div>
+                            {/* Payroll Status Chip - Only show in certified and payroll-ready columns */}
+                            {(status === "certified" || status === "payroll-ready") && (
+                              <div className="mt-1.5">
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[10px] px-2 py-0.5 cursor-pointer hover:scale-105 transition-transform",
+                                    !contractor.payrollStatus || contractor.payrollStatus === "NotReady" 
+                                      ? "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30"
+                                      : contractor.payrollStatus === "Ready" 
+                                      ? "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
+                                      : contractor.payrollStatus === "Executing"
+                                      ? "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30"
+                                      : "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
+                                  )}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePreviewPayroll(contractor);
+                                  }}
+                                >
+                                  💰 Payroll: {contractor.payrollStatus || "Not Ready"}
+                                </Badge>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1163,11 +1167,22 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
+                          {/* Certified Status */}
+                          {status === "certified" && (
+                            <div className="pt-2">
+                              <Badge 
+                                variant="outline" 
+                                className={cn("w-full justify-center text-xs", config.badgeColor)}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                {config.label}
+                              </Badge>
+                            </div>
+                          )}
+
                           {/* Payroll Ready Status with Progress */}
                           {status === "payroll-ready" && (
-                            <div 
-                              className="pt-2 space-y-2"
-                            >
+                            <div className="pt-2 space-y-2">
                               <Badge 
                                 variant="outline" 
                                 className={cn("w-full justify-center text-xs", config.badgeColor)}
@@ -1203,22 +1218,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   )}
                                 </div>
                               )}
-
-                              {/* CTA: View Payroll Details */}
-                              <Button 
-                                variant="outline"
-                                size="sm" 
-                                className="w-full text-xs h-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const withDetails = ensurePayrollDetails(contractor);
-                                  setSelectedForPayroll(withDetails);
-                                  setPayrollDrawerOpen(true);
-                                }}
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Payroll Details
-                              </Button>
                             </div>
                           )}
                         </CardContent>
