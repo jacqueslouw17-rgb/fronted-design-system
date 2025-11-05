@@ -157,7 +157,7 @@ const PayrollBatch: React.FC = () => {
           ccy: payee.currency,
           status: "Initiated",
         });
-        updatePayeeStatus(batch.id, payee.workerId, "Executing");
+        updatePayeeStatus(batch.id, payee.workerId, "EXECUTING");
 
         setTimeout(() => {
           updateReceipt(batch.id, payee.workerId, { status: "InTransit" });
@@ -170,7 +170,7 @@ const PayrollBatch: React.FC = () => {
             paidAt: success ? new Date().toISOString() : undefined,
             failureReason: success ? undefined : "Insufficient funds or bank error",
           });
-          updatePayeeStatus(batch.id, payee.workerId, success ? "Paid" : "Failed");
+          updatePayeeStatus(batch.id, payee.workerId, success ? "PAID" : "ON_HOLD");
         }, 4000);
       }, index * 500);
     });
@@ -197,7 +197,7 @@ const PayrollBatch: React.FC = () => {
 
   const handleRetry = (payeeId: string) => {
     updateReceipt(batch.id, payeeId, { status: "Initiated" });
-    updatePayeeStatus(batch.id, payeeId, "Executing");
+    updatePayeeStatus(batch.id, payeeId, "EXECUTING");
     
     setTimeout(() => {
       updateReceipt(batch.id, payeeId, { status: "InTransit" });
@@ -209,7 +209,7 @@ const PayrollBatch: React.FC = () => {
         paidAt: new Date().toISOString(),
         failureReason: undefined,
       });
-      updatePayeeStatus(batch.id, payeeId, "Paid");
+      updatePayeeStatus(batch.id, payeeId, "PAID");
     }, 3000);
 
     toast({ title: "Retrying payment" });

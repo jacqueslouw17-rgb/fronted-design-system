@@ -1,5 +1,5 @@
 export type PayrollBatchStatus = "Draft" | "AwaitingApproval" | "Approved" | "Executing" | "Completed" | "Failed";
-export type PayeeStatus = "NotReady" | "Ready" | "AwaitingApproval" | "Executing" | "Paid" | "Failed";
+export type PayeeStatus = "CERTIFIED" | "PAYROLL_PENDING" | "IN_BATCH" | "EXECUTING" | "PAID" | "ON_HOLD";
 export type AdjustmentType = "Overtime" | "Bonus" | "Expense";
 export type ApprovalAction = "Requested" | "Approved" | "Declined";
 export type ActorRole = "Admin" | "CFO";

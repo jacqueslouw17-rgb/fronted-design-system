@@ -654,7 +654,7 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇵🇹",
                                 role: "Technical Writer",
                                 salary: "€4,200/mo",
-                                status: "certified" as const,
+                                status: "CERTIFIED" as const,
                                 employmentType: "contractor" as const,
                               },
                               {
@@ -664,9 +664,8 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇬🇧",
                                 role: "Senior Backend Developer",
                                 salary: "£6,500/mo",
-                                status: "payroll-ready" as const,
+                                status: "PAYROLL_PENDING" as const,
                                 employmentType: "employee" as const,
-                                payrollStatus: "Ready" as const,
                                 payrollMonth: "current" as const,
                               },
                               {
@@ -676,9 +675,8 @@ const ContractFlowDemo = () => {
                                 countryFlag: "🇪🇸",
                                 role: "Product Manager",
                                 salary: "€5,200/mo",
-                                status: "payroll-ready" as const,
+                                status: "PAID" as const,
                                 employmentType: "contractor" as const,
-                                payrollStatus: "Paid" as const,
                                 payrollMonth: "last" as const,
                               },
                               {

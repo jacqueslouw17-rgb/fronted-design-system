@@ -187,7 +187,7 @@ export const usePayrollBatch = create<PayrollBatchState>()(
                   ...b,
                   payees: b.payees.map((p) =>
                     p.workerId === payeeId
-                      ? { ...p, status: p.status === "NotReady" ? "Ready" : "NotReady" }
+                      ? { ...p, status: p.status === "PAYROLL_PENDING" ? "IN_BATCH" : "PAYROLL_PENDING" }
                       : p
                   ),
                 }

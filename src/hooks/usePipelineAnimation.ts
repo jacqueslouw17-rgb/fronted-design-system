@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-type ContractorStatus = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified" | "payroll-ready";
+type ContractorStatus = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "CERTIFIED" | "PAYROLL_PENDING" | "IN_BATCH" | "EXECUTING" | "PAID" | "ON_HOLD";
 
 interface Contractor {
   id: string;
@@ -22,8 +22,11 @@ const statusProgression: ContractorStatus[] = [
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
-  "certified",
-  "payroll-ready",
+  "CERTIFIED",
+  "PAYROLL_PENDING",
+  "IN_BATCH",
+  "EXECUTING",
+  "PAID",
 ];
 
 export const usePipelineAnimation = (
@@ -38,20 +41,20 @@ export const usePipelineAnimation = (
 
     const timer = setInterval(() => {
       setContractors((current) => {
-        // Find the first contractor that hasn't reached "certified" status
-        const contractorToProgress = current.find((c) => c.status !== "certified");
+        // Find the first contractor that hasn't reached "PAID" status
+        const contractorToProgress = current.find((c) => c.status !== "PAID");
         
         if (!contractorToProgress) {
-          // All certified, stop animation
+          // All paid, stop animation
           return current;
         }
 
         // Progress this contractor to next stage
         const currentIndex = statusProgression.indexOf(contractorToProgress.status);
-        const nextStatus = statusProgression[currentIndex + 1] || "certified";
+        const nextStatus = statusProgression[currentIndex + 1] || "PAID";
 
-        // Skip onboarding-pending in auto-animation, go straight from trigger to certified
-        const finalStatus = nextStatus === "onboarding-pending" ? "certified" : nextStatus === "certified" ? "payroll-ready" : nextStatus;
+        // Skip onboarding-pending in auto-animation, go straight from trigger to CERTIFIED
+        const finalStatus = nextStatus === "onboarding-pending" ? "CERTIFIED" : nextStatus;
 
         return current.map((c) =>
           c.id === contractorToProgress.id

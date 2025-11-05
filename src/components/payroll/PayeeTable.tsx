@@ -14,12 +14,12 @@ interface PayeeTableProps {
 
 const getStatusBadge = (status: PayrollPayee["status"]) => {
   const variants: Record<PayrollPayee["status"], { variant: any; label: string }> = {
-    NotReady: { variant: "secondary", label: "Not Ready" },
-    Ready: { variant: "default", label: "Ready" },
-    AwaitingApproval: { variant: "outline", label: "Awaiting Approval" },
-    Executing: { variant: "default", label: "Executing" },
-    Paid: { variant: "default", label: "Paid" },
-    Failed: { variant: "destructive", label: "Failed" },
+    CERTIFIED: { variant: "default", label: "Certified" },
+    PAYROLL_PENDING: { variant: "secondary", label: "Pending" },
+    IN_BATCH: { variant: "outline", label: "In Batch" },
+    EXECUTING: { variant: "default", label: "Executing" },
+    PAID: { variant: "default", label: "Paid" },
+    ON_HOLD: { variant: "destructive", label: "On Hold" },
   };
   return variants[status];
 };

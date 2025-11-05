@@ -50,8 +50,8 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
   useEffect(() => {
     if (!payee) return;
     
-    if (payee.status === "Executing") {
-      setCurrentStatus("Executing");
+    if (payee.status === "EXECUTING") {
+      setCurrentStatus("EXECUTING");
       setProgress(0);
       
       // Animate progress from 0 to 100%
@@ -67,7 +67,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
       
       // Simulate completion after 2.5 seconds
       setTimeout(() => {
-        setCurrentStatus("Paid");
+        setCurrentStatus("PAID");
         setGenieMessage("✅ Payment completed — delivered on-time.");
         setShowGenieSuccess(true);
         
@@ -76,11 +76,11 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
       }, 2500);
       
       return () => clearInterval(interval);
-    } else if (payee.status === "Paid") {
-      setCurrentStatus("Paid");
+    } else if (payee.status === "PAID") {
+      setCurrentStatus("PAID");
       setProgress(100);
-    } else if (payee.status === "Ready") {
-      setCurrentStatus("Ready");
+    } else if (payee.status === "PAYROLL_PENDING" || payee.status === "IN_BATCH") {
+      setCurrentStatus(payee.status);
       setProgress(0);
       setShowGenieSuccess(false);
     }
@@ -108,20 +108,20 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
   };
   
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
-    if (status === "Paid") return "default";
-    if (status === "Executing") return "secondary";
-    if (status === "Failed") return "destructive";
+    if (status === "PAID") return "default";
+    if (status === "EXECUTING") return "secondary";
+    if (status === "ON_HOLD") return "destructive";
     return "outline";
   };
   
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Executing":
+      case "EXECUTING":
         return "text-blue-600 bg-blue-50 border-blue-200";
-      case "Paid":
+      case "PAID":
         return "text-green-600 bg-green-50 border-green-200";
-      case "Reconciled":
-        return "text-muted-foreground bg-muted border-border";
+      case "ON_HOLD":
+        return "text-red-600 bg-red-50 border-red-200";
       default:
         return "text-foreground bg-muted/30 border-border";
     }
@@ -158,7 +158,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
         </SheetHeader>
         
         {/* Progress Bar - shown during execution */}
-        {(currentStatus === "Executing" || payee.status === "Executing") && (
+        {(currentStatus === "EXECUTING" || payee.status === "EXECUTING") && (
           <div className="px-6 py-3 animate-fade-in">
             <Progress value={progress} className="h-1.5" />
             <p className="text-xs text-muted-foreground mt-2 text-center">

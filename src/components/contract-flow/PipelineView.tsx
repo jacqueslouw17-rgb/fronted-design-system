@@ -32,7 +32,7 @@ interface Contractor {
   countryFlag: string;
   role: string;
   salary: string;
-  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "certified" | "payroll-ready";
+  status: "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "CERTIFIED" | "PAYROLL_PENDING" | "IN_BATCH" | "EXECUTING" | "PAID" | "ON_HOLD";
   formSent?: boolean;
   dataReceived?: boolean;
   employmentType?: "contractor" | "employee";
@@ -41,7 +41,6 @@ interface Contractor {
   isTransitioning?: boolean;
   payrollChecklist?: PayrollChecklistItem[];
   payrollProgress?: number;
-  payrollStatus?: "NotReady" | "Ready" | "Executing" | "Paid";
   payrollMonth?: "last" | "current" | "next";
 }
 
@@ -99,17 +98,41 @@ const statusConfig = {
     badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
     tooltip: "Monitor completion status and send reminders",
   },
-  "certified": {
+  "CERTIFIED": {
     label: "Certified",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
     tooltip: "Contracts & compliance completed ✅",
   },
-  "payroll-ready": {
-    label: "Payroll Ready",
+  "PAYROLL_PENDING": {
+    label: "Payroll Pending",
+    color: "bg-muted/50 border-border",
+    badgeColor: "bg-muted text-muted-foreground",
+    tooltip: "Ready to be added to payroll batch",
+  },
+  "IN_BATCH": {
+    label: "In Batch",
+    color: "bg-accent-blue-fill/30 border-accent-blue-outline/20",
+    badgeColor: "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30",
+    tooltip: "Added to payroll batch for processing",
+  },
+  "EXECUTING": {
+    label: "Executing",
+    color: "bg-accent-purple-fill/30 border-accent-purple-outline/20",
+    badgeColor: "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30",
+    tooltip: "Payment in progress",
+  },
+  "PAID": {
+    label: "Paid",
     color: "bg-emerald-100/50 dark:bg-emerald-950/50 border-emerald-500/20",
     badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-500/30",
-    tooltip: "Ready for payroll processing 💰",
+    tooltip: "Payment completed ✅",
+  },
+  "ON_HOLD": {
+    label: "On Hold",
+    color: "bg-red-100/50 dark:bg-red-950/50 border-red-500/20",
+    badgeColor: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border-red-500/30",
+    tooltip: "Blocked - requires attention",
   },
 };
 
@@ -120,8 +143,12 @@ const columns = [
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
-  "certified",
-  "payroll-ready",
+  "CERTIFIED",
+  "PAYROLL_PENDING",
+  "IN_BATCH",
+  "EXECUTING",
+  "PAID",
+  "ON_HOLD",
 ] as const;
 
 export const PipelineView: React.FC<PipelineViewProps> = ({ 
@@ -160,7 +187,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   // Sync payroll metrics with global state whenever contractors change
   React.useEffect(() => {
     const payrollContractors = contractors.filter(c => 
-      (c.status === "certified" || c.status === "payroll-ready") && 
+      (c.status === "CERTIFIED" || c.status === "PAYROLL_PENDING" || c.status === "IN_BATCH" || c.status === "EXECUTING" || c.status === "PAID") && 
       (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
     );
     
@@ -169,9 +196,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       return sum + (parseFloat(salaryStr) || 0);
     }, 0);
     
-    const readyCount = payrollContractors.filter(c => c.payrollStatus === "Ready").length;
-    const executingCount = payrollContractors.filter(c => c.payrollStatus === "Executing").length;
-    const paidCount = payrollContractors.filter(c => c.payrollStatus === "Paid").length;
+    const readyCount = payrollContractors.filter(c => c.status === "PAYROLL_PENDING").length;
+    const executingCount = payrollContractors.filter(c => c.status === "EXECUTING").length;
+    const paidCount = payrollContractors.filter(c => c.status === "PAID").length;
     
     updateMetrics({
       batchCount: batches.length,
@@ -184,7 +211,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   
   // Helper to ensure a contractor has payroll details
   const ensurePayrollDetails = React.useCallback((c: Contractor): Contractor => {
-    if (c.status !== "certified" && c.status !== "payroll-ready") return c;
+    if (!["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(c.status)) return c;
     if (c.payrollChecklist && typeof c.payrollProgress === "number") return c;
     return {
       ...c,
@@ -224,12 +251,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     };
   }, []);
   
-  // Initialize payroll checklist for payroll-ready and certified contractors
+  // Initialize payroll checklist for payroll contractors
   React.useEffect(() => {
     setContractors(current => 
-      current.map(c => (c.status === "certified" || c.status === "payroll-ready" ? ensurePayrollDetails(c) : c))
+      current.map(c => (["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(c.status) ? ensurePayrollDetails(c) : c))
     );
-  }, [ensurePayrollDetails, contractors.filter(c => c.status === "certified" || c.status === "payroll-ready").length]);
+  }, [ensurePayrollDetails, contractors.filter(c => ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(c.status)).length]);
   
   // Handle smooth transitions between statuses without regressions
   React.useEffect(() => {
@@ -364,7 +391,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       const timer = setTimeout(() => {
         const updated = contractors.map(c => 
           completedContractors.some(cc => cc.id === c.id)
-            ? { ...c, status: "certified" as const }
+            ? { ...c, status: "CERTIFIED" as const }
             : c
         );
         
@@ -404,8 +431,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     if (status === "trigger-onboarding") {
       return contractors.filter((c) => c.status === status && !signingTransitionIds.has(c.id));
     }
-    // Filter payroll-ready by selected cycle
-    if (status === "payroll-ready") {
+    // Filter payroll statuses by selected cycle
+    if (["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status)) {
       return contractors.filter((c) => 
         c.status === status && 
         (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
@@ -516,7 +543,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       gross: salaryAmount,
       employerCosts: salaryAmount * 0.15,
       adjustments: [],
-      status: (contractor.payrollStatus as any) || "NotReady",
+      status: contractor.status as any,
     };
     
     setSelectedPayrollPayee(payee);
@@ -824,8 +851,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for all columns except data-pending, certified, and payroll-ready */}
-                    {items.length > 0 && status !== "data-pending" && status !== "payroll-ready" && status !== "certified" && (
+                    {/* Select All for all columns except data-pending and payroll statuses */}
+                    {items.length > 0 && !["data-pending", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -864,8 +891,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   </div>
                 </div>
                 
-                {/* Payroll Cycle Selector - Only for Payroll Ready column */}
-                {status === "payroll-ready" && (
+                {/* Payroll Cycle Selector - Only for Payroll statuses columns */}
+                {["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(status) && (
                   <div className="mt-2 px-1">
                     <Select
                       value={selectedPayrollCycle}
@@ -950,8 +977,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 "min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg",
                 config.color
               )}>
-                {/* Payroll Summary Card - Only for Payroll Ready column */}
-                {status === "payroll-ready" && items.length > 0 && (() => {
+                {/* Payroll Summary Card - Only for PAYROLL_PENDING column */}
+                {status === "PAYROLL_PENDING" && items.length > 0 && (() => {
                   // Calculate totals for the current cycle
                   const totalContractors = items.length;
                   const totalGross = items.reduce((sum, c) => {
@@ -1018,7 +1045,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {status !== "data-pending" && status !== "payroll-ready" && status !== "certified" && (
+                          {!["data-pending", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
                               onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
@@ -1041,30 +1068,15 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <p className="text-xs text-muted-foreground truncate">
                               {contractor.role}
                             </p>
-                            {/* Payroll Status Chip - Only show in certified and payroll-ready columns */}
-                            {(status === "certified" || status === "payroll-ready") && (
-                              <div className="mt-1.5">
-                                <Badge
-                                  variant="outline"
-                                  className={cn(
-                                    "text-[10px] px-2 py-0.5 cursor-pointer hover:scale-105 transition-transform",
-                                    !contractor.payrollStatus || contractor.payrollStatus === "NotReady" 
-                                      ? "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30"
-                                      : contractor.payrollStatus === "Ready" 
-                                      ? "bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
-                                      : contractor.payrollStatus === "Executing"
-                                      ? "bg-accent-purple-fill text-accent-purple-text border-accent-purple-outline/30"
-                                      : "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
-                                  )}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePreviewPayroll(contractor);
-                                  }}
-                                >
-                                  💰 Payroll: {contractor.payrollStatus || "Not Ready"}
-                                </Badge>
-                              </div>
-                            )}
+                            {/* Status Badge - Read-only */}
+                            <div className="mt-1.5">
+                              <Badge
+                                variant="outline"
+                                className={cn("text-[10px] px-2 py-0.5", config.badgeColor)}
+                              >
+                                {config.label}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
 
@@ -1273,8 +1285,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Certified Status */}
-                          {status === "certified" && (
+                          {/* CERTIFIED Status with Next Step Button */}
+                          {status === "CERTIFIED" && (
                             <div className="pt-2">
                               <Badge 
                                 variant="outline" 
@@ -1286,8 +1298,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Payroll Ready Status with Progress */}
-                          {status === "payroll-ready" && (
+                          {/* Next Step Buttons for Payroll Statuses */}
+                          {["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(status) && (
                             <div className="pt-2 space-y-2">
                               <Badge 
                                 variant="outline" 

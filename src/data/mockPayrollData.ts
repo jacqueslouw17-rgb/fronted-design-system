@@ -12,7 +12,7 @@ export const mockPayrollPayees: PayrollPayee[] = [
     proposedFxRate: 56.5,
     fxFee: 45,
     eta: "2025-11-15",
-    status: "Ready",
+    status: "PAYROLL_PENDING",
   },
   {
     workerId: "ahmed",
@@ -25,7 +25,7 @@ export const mockPayrollPayees: PayrollPayee[] = [
     proposedFxRate: 30.85,
     fxFee: 35,
     eta: "2025-11-15",
-    status: "Ready",
+    status: "PAYROLL_PENDING",
   },
   {
     workerId: "ana",
@@ -38,6 +38,6 @@ export const mockPayrollPayees: PayrollPayee[] = [
     proposedFxRate: 17.2,
     fxFee: 28,
     eta: "2025-11-15",
-    status: "Ready",
+    status: "PAYROLL_PENDING",
   },
 ];
