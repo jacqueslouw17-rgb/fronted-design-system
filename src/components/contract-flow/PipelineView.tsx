@@ -923,6 +923,56 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 "min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg",
                 config.color
               )}>
+                {/* Payroll Summary Card - Only for Payroll Ready column */}
+                {status === "payroll-ready" && items.length > 0 && (() => {
+                  // Calculate totals for the current cycle
+                  const totalContractors = items.length;
+                  const totalGross = items.reduce((sum, c) => {
+                    // Extract numeric value from salary string
+                    const salaryStr = c.salary.replace(/[^0-9.,]/g, '').replace(',', '');
+                    const salary = parseFloat(salaryStr) || 0;
+                    return sum + salary;
+                  }, 0);
+                  const fxVariance = 2.3; // Mock FX variance percentage
+                  
+                  return (
+                    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 mb-3">
+                      <CardContent className="p-3 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-semibold text-foreground">Monthly Payroll Summary</h4>
+                          <Badge variant="outline" className="text-[10px] bg-background/50">
+                            {selectedPayrollCycle === "last" ? "Last Month" : selectedPayrollCycle === "next" ? "Next Month" : "Current Month"}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-muted-foreground">Contractors</p>
+                            <p className="text-lg font-bold text-foreground">{totalContractors}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-muted-foreground">Total Gross</p>
+                            <p className="text-lg font-bold text-foreground">${totalGross.toLocaleString()}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-muted-foreground">FX Variance</p>
+                            <p className="text-lg font-bold text-accent-green-text">+{fxVariance}%</p>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          size="sm"
+                          className="w-full text-xs h-8 bg-primary hover:bg-primary/90"
+                          onClick={() => navigate('/payroll/batch')}
+                        >
+                          <DollarSign className="h-3 w-3 mr-1" />
+                          Run Payroll
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+                
                 <AnimatePresence mode="popLayout">
                   {items.map((contractor, index) => (
                     <motion.div
