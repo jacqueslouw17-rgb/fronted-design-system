@@ -1404,7 +1404,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigate('/payroll/batch');
+                                    navigate('/payroll/batch/current', { state: { selectedPayee: contractor } });
                                   }}
                                 >
                                   Add to batch
@@ -1418,7 +1418,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigate('/payroll/batch');
+                                    navigate('/payroll/batch/current', { state: { selectedPayee: contractor } });
                                   }}
                                 >
                                   Review in batch

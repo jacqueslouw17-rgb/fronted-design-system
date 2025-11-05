@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
@@ -122,8 +122,12 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
 
 export default function PayrollBatchCurrent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
   const initialStep = searchParams.get('step') as PayrollStep | null;
+  
+  // Get selected payee from navigation state
+  const selectedPayeeFromState = location.state?.selectedPayee;
   const [currentStep, setCurrentStep] = useState<PayrollStep>(initialStep || "review-fx");
   const [frequency, setFrequency] = useState("monthly");
   const [isKurtMuted, setIsKurtMuted] = useState(false);
@@ -147,11 +151,27 @@ export default function PayrollBatchCurrent() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete">>({});
 
-  const allContractors = [
-    ...contractorsByCurrency.EUR,
-    ...contractorsByCurrency.NOK,
-    ...contractorsByCurrency.PHP,
-  ];
+  // If a payee was selected from pipeline, use that; otherwise use mock data
+  const allContractors = selectedPayeeFromState 
+    ? [{
+        id: selectedPayeeFromState.id,
+        name: selectedPayeeFromState.name,
+        country: selectedPayeeFromState.country,
+        countryCode: selectedPayeeFromState.country.slice(0, 2).toUpperCase(),
+        netPay: parseFloat(selectedPayeeFromState.salary?.replace(/[^0-9.]/g, '') || '5000'),
+        currency: "USD",
+        estFees: 50,
+        fxRate: 1.0,
+        recvLocal: parseFloat(selectedPayeeFromState.salary?.replace(/[^0-9.]/g, '') || '5000'),
+        eta: "Oct 30",
+        employmentType: selectedPayeeFromState.employmentType || "contractor",
+        employerTaxes: selectedPayeeFromState.employmentType === "employee" ? parseFloat(selectedPayeeFromState.salary?.replace(/[^0-9.]/g, '') || '5000') * 0.15 : undefined,
+      }]
+    : [
+        ...contractorsByCurrency.EUR,
+        ...contractorsByCurrency.NOK,
+        ...contractorsByCurrency.PHP,
+      ];
 
   // Track & Reconcile step state
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
