@@ -18,6 +18,7 @@ import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
 import { StartOnboardingConfirmation } from "./StartOnboardingConfirmation";
 import { PayrollStatusDrawer } from "./PayrollStatusDrawer";
 import { PayrollPreviewDrawer } from "@/components/payroll/PayrollPreviewDrawer";
+import { CertifiedActionDrawer } from "./CertifiedActionDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
@@ -184,6 +185,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [payrollPreviewDrawerOpen, setPayrollPreviewDrawerOpen] = useState(false);
   const [selectedPayrollPayee, setSelectedPayrollPayee] = useState<PayrollPayee | null>(null);
   const [selectedPayrollCycle, setSelectedPayrollCycle] = useState<"last" | "current" | "next">("current");
+  const [certifiedDrawerOpen, setCertifiedDrawerOpen] = useState(false);
+  const [selectedForCertified, setSelectedForCertified] = useState<Contractor | null>(null);
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -1317,7 +1320,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    toast("Preparing for payroll...");
+                                    setSelectedForCertified(contractor);
+                                    setCertifiedDrawerOpen(true);
                                   }}
                                 >
                                   Prepare for payroll
@@ -1505,6 +1509,25 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         onApproveExecute={handleAddToBatch}
         onReschedule={handleSimulateFX}
         onNotifyContractor={handleSendToCFO}
+      />
+
+      {/* Certified Action Drawer */}
+      <CertifiedActionDrawer
+        open={certifiedDrawerOpen}
+        onOpenChange={setCertifiedDrawerOpen}
+        contractor={selectedForCertified}
+        onConfirm={() => {
+          if (selectedForCertified) {
+            const updated = contractors.map(c =>
+              c.id === selectedForCertified.id
+                ? { ...c, status: "PAYROLL_PENDING" as const }
+                : c
+            );
+            setContractors(updated);
+            onContractorUpdate?.(updated);
+            toast.success(`${selectedForCertified.name} is now ready for payroll`);
+          }
+        }}
       />
     </div>
   );
