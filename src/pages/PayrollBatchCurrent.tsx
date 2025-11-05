@@ -150,6 +150,24 @@ export default function PayrollBatchCurrent() {
   const [autoRetryEnabled, setAutoRetryEnabled] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete">>({});
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(
+    selectedPayeeFromState ? selectedPayeeFromState.id : null
+  );
+
+  // Remove the highlight after 3 seconds
+  React.useEffect(() => {
+    if (newlyAddedId) {
+      // Show success toast
+      toast.success("Payee added to batch successfully!", {
+        description: `${selectedPayeeFromState?.name} has been added to the current batch.`,
+      });
+      
+      const timer = setTimeout(() => {
+        setNewlyAddedId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [newlyAddedId, selectedPayeeFromState]);
 
   // If a payee was selected from pipeline, use that; otherwise use mock data
   const allContractors = selectedPayeeFromState 
@@ -172,6 +190,15 @@ export default function PayrollBatchCurrent() {
         ...contractorsByCurrency.NOK,
         ...contractorsByCurrency.PHP,
       ];
+
+  // Group contractors by currency dynamically
+  const groupedByCurrency = allContractors.reduce((acc, contractor) => {
+    if (!acc[contractor.currency]) {
+      acc[contractor.currency] = [];
+    }
+    acc[contractor.currency].push(contractor);
+    return acc;
+  }, {} as Record<string, ContractorPayment[]>);
 
   // Track & Reconcile step state
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
@@ -535,252 +562,134 @@ export default function PayrollBatchCurrent() {
               </div>
             </div>
 
-            {/* EUR Table */}
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
-              <CardContent className="p-0">
-                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-foreground">EUR Payments</span>
-                    <Badge variant="outline" className="text-xs">3 contractors</Badge>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
-                          <Info className="h-3.5 w-3.5" />
-                          Why this rate?
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <div className="space-y-2">
-                          <p className="font-semibold text-xs">Mid-Market Rate</p>
-                          <p className="text-xs text-muted-foreground">
-                            Rate: 0.92 USD → EUR
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Source: Wise mid-market rate
-                          </p>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
-                            <Clock className="h-3 w-3" />
-                            <span>Updated 2 minutes ago</span>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">Name</TableHead>
-                      <TableHead className="text-xs">Role</TableHead>
-                      <TableHead className="text-xs">Country</TableHead>
-                      <TableHead className="text-xs text-right">Net Pay (EUR)</TableHead>
-                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
-                      <TableHead className="text-xs text-right">FX Rate</TableHead>
-                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
-                      <TableHead className="text-xs">ETA</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contractorsByCurrency.EUR.map((contractor) => (
-                      <TableRow key={contractor.id}>
-                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "text-xs",
-                              contractor.employmentType === "employee" 
-                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
-                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
-                            )}
-                          >
-                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">{contractor.country}</TableCell>
-                        <TableCell className="text-right text-sm">€{contractor.netPay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground">€{contractor.estFees}</TableCell>
-                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
-                        <TableCell className="text-right text-sm font-medium">€{contractor.recvLocal.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm">{contractor.eta}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-            {/* NOK Table */}
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
-              <CardContent className="p-0">
-                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-foreground">NOK Payments</span>
-                    <Badge variant="outline" className="text-xs">2 contractors</Badge>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
-                          <Info className="h-3.5 w-3.5" />
-                          Why this rate?
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <div className="space-y-2">
-                          <p className="font-semibold text-xs">Mid-Market Rate</p>
-                          <p className="text-xs text-muted-foreground">
-                            Rate: 10.45 USD → NOK
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Source: Wise mid-market rate
-                          </p>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
-                            <Clock className="h-3 w-3" />
-                            <span>Updated 2 minutes ago</span>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">Name</TableHead>
-                      <TableHead className="text-xs">Role</TableHead>
-                      <TableHead className="text-xs">Country</TableHead>
-                      <TableHead className="text-xs text-right">Net Pay (NOK)</TableHead>
-                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
-                      <TableHead className="text-xs text-right">FX Rate</TableHead>
-                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
-                      <TableHead className="text-xs">ETA</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contractorsByCurrency.NOK.map((contractor) => (
-                      <TableRow key={contractor.id}>
-                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "text-xs",
-                              contractor.employmentType === "employee" 
-                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
-                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
-                            )}
-                          >
-                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">{contractor.country}</TableCell>
-                        <TableCell className="text-right text-sm">kr{contractor.netPay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground">kr{contractor.estFees}</TableCell>
-                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
-                        <TableCell className="text-right text-sm font-medium">kr{contractor.recvLocal.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm">{contractor.eta}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-            {/* PHP Table */}
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
-              <CardContent className="p-0">
-                <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-foreground">PHP Payments</span>
-                    <Badge variant="outline" className="text-xs">3 contractors</Badge>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
-                          <Info className="h-3.5 w-3.5" />
-                          Why this rate?
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <div className="space-y-2">
-                          <p className="font-semibold text-xs">Mid-Market Rate</p>
-                          <p className="text-xs text-muted-foreground">
-                            Rate: 56.2 USD → PHP
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Source: Wise mid-market rate
-                          </p>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
-                            <Clock className="h-3 w-3" />
-                            <span>Updated 2 minutes ago</span>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">Name</TableHead>
-                      <TableHead className="text-xs">Role</TableHead>
-                      <TableHead className="text-xs">Country</TableHead>
-                      <TableHead className="text-xs text-right">Net Pay (PHP)</TableHead>
-                      <TableHead className="text-xs text-right">Est. Fees</TableHead>
-                      <TableHead className="text-xs text-right">FX Rate</TableHead>
-                      <TableHead className="text-xs text-right">Recv (Local)</TableHead>
-                      <TableHead className="text-xs">ETA</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contractorsByCurrency.PHP.map((contractor) => (
-                      <TableRow key={contractor.id}>
-                        <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "text-xs",
-                              contractor.employmentType === "employee" 
-                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
-                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
-                            )}
-                          >
-                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">{contractor.country}</TableCell>
-                        <TableCell className="text-right text-sm">₱{contractor.netPay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground">₱{contractor.estFees}</TableCell>
-                        <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
-                        <TableCell className="text-right text-sm font-medium">₱{contractor.recvLocal.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm">{contractor.eta}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {/* Currency Tables - Render dynamically based on grouped contractors */}
+            {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
+              const currencySymbols: Record<string, string> = {
+                EUR: "€",
+                NOK: "kr",
+                PHP: "₱",
+                USD: "$",
+              };
+              const symbol = currencySymbols[currency] || currency;
+              
+              return (
+                <Card key={currency} className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
+                        <Badge variant="outline" className="text-xs">{contractors.length} {contractors.length === 1 ? 'payee' : 'payees'}</Badge>
+                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
+                              <Info className="h-3.5 w-3.5" />
+                              Why this rate?
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-xs">
+                            <div className="space-y-2">
+                              <p className="font-semibold text-xs">Mid-Market Rate</p>
+                              <p className="text-xs text-muted-foreground">
+                                Rate: {contractors[0].fxRate} USD → {currency}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Source: Wise mid-market rate
+                              </p>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
+                                <Clock className="h-3 w-3" />
+                                <span>Updated 2 minutes ago</span>
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs">Name</TableHead>
+                          <TableHead className="text-xs">Role</TableHead>
+                          <TableHead className="text-xs">Country</TableHead>
+                          <TableHead className="text-xs text-right">Net Pay ({currency})</TableHead>
+                          <TableHead className="text-xs text-right">Est. Fees</TableHead>
+                          <TableHead className="text-xs text-right">FX Rate</TableHead>
+                          <TableHead className="text-xs text-right">Recv (Local)</TableHead>
+                          <TableHead className="text-xs">ETA</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {contractors.map((contractor) => {
+                          const isNewlyAdded = newlyAddedId === contractor.id;
+                          return (
+                            <TableRow 
+                              key={contractor.id}
+                              className={cn(
+                                isNewlyAdded && "animate-fade-in relative"
+                              )}
+                            >
+                              <TableCell className="font-medium text-sm">
+                                <div className="flex items-center gap-2">
+                                  {contractor.name}
+                                  {isNewlyAdded && (
+                                    <Badge className="bg-gradient-primary text-primary-foreground text-xs animate-pulse">
+                                      Just Added
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-xs",
+                                    contractor.employmentType === "employee" 
+                                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                      : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                  )}
+                                >
+                                  {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">{contractor.country}</TableCell>
+                              <TableCell className="text-right text-sm">{symbol}{contractor.netPay.toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
+                              <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                              <TableCell className="text-right text-sm font-medium">{symbol}{contractor.recvLocal.toLocaleString()}</TableCell>
+                              <TableCell className="text-sm">{contractor.eta}</TableCell>
+                              {isNewlyAdded && (
+                                <div className="absolute inset-0 border-2 border-primary/50 rounded-md pointer-events-none animate-pulse" />
+                              )}
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
 
             {/* Summary Card */}
             <Card className="border-border/40 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
               <CardContent className="p-6">
                 <div className="grid grid-cols-3 gap-6">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Contractors</p>
-                    <p className="text-2xl font-bold text-foreground">8</p>
+                    <p className="text-xs text-muted-foreground mb-1">Total Payees</p>
+                    <p className="text-2xl font-bold text-foreground">{allContractors.length}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Total Net Pay</p>
-                    <p className="text-2xl font-bold text-foreground">$747K</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${(allContractors.reduce((sum, c) => sum + c.netPay, 0) / 1000).toFixed(1)}K
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Est. Savings</p>
-                    <p className="text-2xl font-bold text-accent-green-text">+$15.2K</p>
+                    <p className="text-xs text-muted-foreground mb-1">Est. Fees</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${allContractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               </CardContent>
