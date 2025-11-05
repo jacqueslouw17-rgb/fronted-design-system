@@ -186,7 +186,7 @@ const Flows = () => {
     },
     {
       id: "f2-shortlist-to-contract",
-      title: "Flow 2 — Hiring and Contract",
+      title: "Flow 2 — Admin Workflow",
       description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
