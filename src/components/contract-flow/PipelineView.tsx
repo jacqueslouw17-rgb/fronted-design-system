@@ -870,7 +870,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   
   const handleOpenBatchReview = () => {
     if (getBatchSelectedCount() > 0) {
-      navigate('/payroll/batch');
+      navigate('/payroll/batch/current');
     }
   };
 
