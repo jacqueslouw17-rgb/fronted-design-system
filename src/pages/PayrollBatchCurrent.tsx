@@ -7,7 +7,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock, X, AlertCircle } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
@@ -142,6 +144,112 @@ export default function PayrollBatchCurrent() {
     ...contractorsByCurrency.NOK,
     ...contractorsByCurrency.PHP,
   ];
+
+  // Track & Reconcile step state
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
+
+  // Mock payment receipts
+  const paymentReceipts = [
+    {
+      payeeId: "1",
+      payeeName: "David Martinez",
+      amount: 4200,
+      ccy: "EUR",
+      status: "Paid",
+      providerRef: "SEPA-2025-001",
+      paidAt: new Date().toISOString(),
+      rail: "SEPA",
+      fxRate: 0.92,
+      fxSpread: 0.005,
+      fxFee: 21.0,
+      processingFee: 25.0,
+      eta: "1-2 business days"
+    },
+    {
+      payeeId: "2",
+      payeeName: "Sophie Laurent",
+      amount: 5800,
+      ccy: "EUR",
+      status: "Paid",
+      providerRef: "SEPA-2025-002",
+      paidAt: new Date().toISOString(),
+      rail: "SEPA",
+      fxRate: 0.92,
+      fxSpread: 0.005,
+      fxFee: 29.0,
+      processingFee: 35.0,
+      eta: "1-2 business days"
+    },
+    {
+      payeeId: "4",
+      payeeName: "Alex Hansen",
+      amount: 65000,
+      ccy: "NOK",
+      status: "InTransit",
+      providerRef: "LOCAL-2025-001",
+      rail: "Local",
+      fxRate: 10.45,
+      fxSpread: 0.008,
+      fxFee: 520.0,
+      processingFee: 250.0,
+      eta: "Same day"
+    },
+    {
+      payeeId: "6",
+      payeeName: "Maria Santos",
+      amount: 280000,
+      ccy: "PHP",
+      status: "InTransit",
+      providerRef: "SWIFT-2025-001",
+      rail: "SWIFT",
+      fxRate: 56.2,
+      fxSpread: 0.012,
+      fxFee: 3360.0,
+      processingFee: 850.0,
+      eta: "3-5 business days"
+    },
+  ];
+
+  const handleViewReceipt = (receipt: any) => {
+    setSelectedReceipt(receipt);
+    setReceiptModalOpen(true);
+  };
+
+  const handleExportCSV = () => {
+    const csvContent = [
+      ["Payee", "Amount", "Currency", "Status", "Rail", "Reference", "Paid At", "FX Rate", "FX Fee", "Processing Fee"],
+      ...paymentReceipts.map(r => [
+        r.payeeName,
+        r.amount,
+        r.ccy,
+        r.status,
+        r.rail,
+        r.providerRef,
+        r.paidAt || "Pending",
+        r.fxRate,
+        r.fxFee,
+        r.processingFee
+      ])
+    ].map(row => row.join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `payroll-batch-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("CSV exported successfully");
+  };
+
+  const handleDownloadAuditPDF = () => {
+    toast.info("Audit PDF generation would be implemented with a PDF library");
+  };
+
+  const handleSyncToAccounting = (system: string) => {
+    toast.info(`Sync to ${system} would be implemented with accounting integration`);
+  };
 
   const handleKurtAction = (action: string) => {
     setOpen(true);
@@ -1145,50 +1253,178 @@ export default function PayrollBatchCurrent() {
 
       case "track":
         return (
-          <div className="space-y-4">
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Batch Tracking</h3>
-                
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">Track & Reconcile</h2>
+              <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+                <Activity className="h-3 w-3 mr-1" />
+                Live Tracking
+              </Badge>
+            </div>
+
+            {/* Three Widget Layout */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Transaction Monitor */}
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm md:col-span-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">Transaction Monitor</h3>
+                </div>
                 <div className="space-y-3">
-                  <div className="p-3 rounded-lg bg-accent-green-fill/20 border border-accent-green-outline/30">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-foreground">Initiated</span>
-                      <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                  {paymentReceipts.map((receipt) => (
+                    <div
+                      key={receipt.payeeId}
+                      className="flex items-center justify-between p-4 rounded-lg bg-muted/20 border border-border/40"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <p className="font-medium text-foreground">{receipt.payeeName}</p>
+                          <Badge
+                            variant={receipt.status === "Paid" ? "default" : "outline"}
+                            className={
+                              receipt.status === "Paid"
+                                ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                            }
+                          >
+                            {receipt.status === "Paid" ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <RefreshCw className="h-3 w-3 mr-1 animate-spin" />}
+                            {receipt.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{receipt.amount.toLocaleString()} {receipt.ccy}</span>
+                          <span>•</span>
+                          <span>{receipt.rail}</span>
+                          <span>•</span>
+                          <span>ETA: {receipt.eta}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Ref: {receipt.providerRef}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewReceipt(receipt)}
+                        className="ml-4"
+                      >
+                        <Receipt className="h-4 w-4 mr-2" />
+                        View Receipt
+                      </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">Oct 28, 2024 at 2:30 PM</p>
-                  </div>
+                  ))}
+                </div>
+              </Card>
 
-                  <div className="p-3 rounded-lg bg-muted/30 border border-border">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-foreground">Processing</span>
-                      <Circle className="h-4 w-4 text-muted-foreground animate-pulse" />
+              {/* FX Snapshot */}
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">FX Snapshot</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">EUR/USD</span>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                        Locked
+                      </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">Expected completion: Oct 30, 2024</p>
+                    <p className="text-2xl font-bold text-foreground">0.9200</p>
+                    <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Spread:</span>
+                        <span>0.50%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fee:</span>
+                        <span>€25.00</span>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="p-3 rounded-lg bg-muted/10 border border-border/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-muted-foreground">Completed</span>
-                      <Circle className="h-4 w-4 text-muted-foreground" />
+                  <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">NOK/USD</span>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                        Locked
+                      </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">Pending</p>
+                    <p className="text-2xl font-bold text-foreground">10.4500</p>
+                    <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Spread:</span>
+                        <span>0.80%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fee:</span>
+                        <span>kr 520.00</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">PHP/USD</span>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                        Locked
+                      </Badge>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">56.2000</p>
+                    <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Spread:</span>
+                        <span>1.20%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fee:</span>
+                        <span>₱3,360.00</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </Card>
 
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Reconciliation</h3>
-                <p className="text-xs text-muted-foreground">
-                  Once batch completes, reconciliation report will be available for download.
-                </p>
-                <Button variant="outline" className="w-full" disabled>
-                  Download Report
-                </Button>
-              </CardContent>
-            </Card>
+              {/* Reconciliation */}
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">Reconciliation</h3>
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleExportCSV}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <Button
+                    onClick={handleDownloadAuditPDF}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Download Audit PDF
+                  </Button>
+                  <Separator className="my-2" />
+                  <p className="text-xs text-muted-foreground mb-2">Sync to Accounting</p>
+                  <Button
+                    onClick={() => handleSyncToAccounting("Xero")}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Sync to Xero
+                  </Button>
+                  <Button
+                    onClick={() => handleSyncToAccounting("QuickBooks")}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Sync to QuickBooks
+                  </Button>
+                </div>
+              </Card>
+            </div>
           </div>
         );
 
@@ -1483,6 +1719,118 @@ export default function PayrollBatchCurrent() {
             </SheetFooter>
           </SheetContent>
         </Sheet>
+
+        {/* Receipt Modal */}
+        <Dialog open={receiptModalOpen} onOpenChange={setReceiptModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-primary" />
+                Payment Receipt
+              </DialogTitle>
+            </DialogHeader>
+            {selectedReceipt && (
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
+                  <div>
+                    <p className="text-lg font-semibold text-foreground">{selectedReceipt.payeeName}</p>
+                    <p className="text-sm text-muted-foreground">Reference: {selectedReceipt.providerRef}</p>
+                  </div>
+                  <Badge
+                    variant={selectedReceipt.status === "Paid" ? "default" : "outline"}
+                    className={
+                      selectedReceipt.status === "Paid"
+                        ? "bg-green-500/10 text-green-600 border-green-500/20"
+                        : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                    }
+                  >
+                    {selectedReceipt.status}
+                  </Badge>
+                </div>
+
+                {/* Payment Details */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-foreground">Payment Details</h4>
+                  <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/20">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Amount</p>
+                      <p className="font-semibold text-foreground">
+                        {selectedReceipt.amount.toLocaleString()} {selectedReceipt.ccy}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Payment Rail</p>
+                      <p className="font-semibold text-foreground">{selectedReceipt.rail}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Status</p>
+                      <p className="font-semibold text-foreground">{selectedReceipt.status}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">ETA</p>
+                      <p className="font-semibold text-foreground">{selectedReceipt.eta}</p>
+                    </div>
+                    {selectedReceipt.paidAt && (
+                      <div className="col-span-2">
+                        <p className="text-xs text-muted-foreground mb-1">Paid At</p>
+                        <p className="font-semibold text-foreground">
+                          {new Date(selectedReceipt.paidAt).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* FX Details */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-foreground">Foreign Exchange</h4>
+                  <div className="p-4 rounded-lg bg-muted/20 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Exchange Rate</span>
+                      <span className="font-medium text-foreground">{selectedReceipt.fxRate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">FX Spread</span>
+                      <span className="font-medium text-foreground">{(selectedReceipt.fxSpread * 100).toFixed(2)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">FX Fee</span>
+                      <span className="font-medium text-foreground">{selectedReceipt.fxFee.toFixed(2)} {selectedReceipt.ccy}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fees */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-foreground">Processing Fees</h4>
+                  <div className="p-4 rounded-lg bg-muted/20 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Processing Fee</span>
+                      <span className="font-medium text-foreground">{selectedReceipt.processingFee.toFixed(2)} {selectedReceipt.ccy}</span>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="flex justify-between font-semibold">
+                      <span className="text-foreground">Total Fees</span>
+                      <span className="text-foreground">
+                        {(selectedReceipt.fxFee + selectedReceipt.processingFee).toFixed(2)} {selectedReceipt.ccy}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReceiptModalOpen(false)}>
+                Close
+              </Button>
+              <Button onClick={() => toast.info("Download receipt functionality would be implemented here")}>
+                <Download className="h-4 w-4 mr-2" />
+                Download Receipt
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
