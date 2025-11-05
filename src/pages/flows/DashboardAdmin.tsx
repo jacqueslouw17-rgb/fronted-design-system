@@ -16,7 +16,8 @@ import {
   MessageSquare,
   ExternalLink,
   BarChart3,
-  GitBranch
+  GitBranch,
+  Activity
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "@/components/dashboard/Topbar";
@@ -26,6 +27,9 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { PayrollMetricsPanel } from "@/components/payroll/PayrollMetricsPanel";
+import { PayrollFXTable } from "@/components/payroll/PayrollFXTable";
+import { LiveTrackingPanel } from "@/components/payroll/LiveTrackingPanel";
 
 interface Worker {
   id: string;
@@ -42,6 +46,52 @@ const mockWorkers: Worker[] = [];
 
 // Mock contractors for pipeline view - empty state for first time
 const mockContractors: any[] = [];
+
+// Mock payroll data
+const mockPayrollData = [
+  { 
+    id: "1", 
+    contractor: "Anna Larsen", 
+    country: "🇳🇴 NO", 
+    currency: "NOK", 
+    grossPay: 85000, 
+    bonus: 5000, 
+    deductions: 2000, 
+    netPay: 88000,
+    status: "processing" as const,
+    progress: 65
+  },
+  { 
+    id: "2", 
+    contractor: "Maria Santos", 
+    country: "🇵🇭 PH", 
+    currency: "PHP", 
+    grossPay: 150000, 
+    bonus: 5000, 
+    deductions: 2000, 
+    netPay: 153000,
+    status: "complete" as const,
+    progress: 100
+  },
+  { 
+    id: "3", 
+    contractor: "John Smith", 
+    country: "🇬🇧 GB", 
+    currency: "GBP", 
+    grossPay: 5500, 
+    bonus: 0, 
+    deductions: 500, 
+    netPay: 5000,
+    status: "complete" as const,
+    progress: 100
+  },
+];
+
+const mockFxRates = {
+  NOK: 11.45,
+  PHP: 57.10,
+  GBP: 0.79,
+};
 
 // Metric Widget Component with hover toolbar
 const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, onDetails }: any) => {
@@ -217,9 +267,9 @@ const DashboardAdmin = () => {
                 <div className="space-y-4">
                   <Tabs defaultValue="pipeline" className="w-full">
                     <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm">
-                      <TabsTrigger value="list" data-testid="tab-metrics">
+                      <TabsTrigger value="overview" data-testid="tab-overview">
                         <BarChart3 className="h-4 w-4" />
-                        Metrics
+                        Overview
                       </TabsTrigger>
                       <TabsTrigger value="pipeline" data-testid="tab-pipeline">
                         <GitBranch className="h-4 w-4" />
@@ -227,21 +277,75 @@ const DashboardAdmin = () => {
                       </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="list" className="space-y-6">
-                      {/* Empty State for Metrics */}
-                      <div className="max-w-5xl mx-auto">
-                        <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
-                          <CardContent className="flex flex-col items-center justify-center py-12">
-                            <div className="rounded-full bg-muted p-4 mb-4">
-                              <TrendingUp className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                            <h3 className="text-lg font-semibold mb-2">No metrics yet</h3>
-                            <p className="text-sm text-muted-foreground text-center max-w-md">
-                              Your metrics will appear here once you start sending offers and onboarding contractors.
-                            </p>
-                          </CardContent>
-                        </Card>
+                    <TabsContent value="overview" className="space-y-6">
+                      {/* Payroll Metrics Panel */}
+                      <PayrollMetricsPanel 
+                        payrollIssues={0}
+                        complianceGaps={0}
+                        avgResolutionTime="2.3h"
+                      />
+
+                      {/* Key Metrics Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <MetricWidget 
+                          title="Active Contractors"
+                          value="3"
+                          trend="+2 this month"
+                          icon={Users}
+                          onAskGenie={() => {}}
+                          onExport={() => {}}
+                          onDetails={() => {}}
+                        />
+                        <MetricWidget 
+                          title="Monthly Payroll"
+                          value="$12.4K"
+                          trend="+8% from last month"
+                          icon={DollarSign}
+                          onAskGenie={() => {}}
+                          onExport={() => {}}
+                          onDetails={() => {}}
+                        />
+                        <MetricWidget 
+                          title="Avg Processing Time"
+                          value="2.3h"
+                          trend="-15% faster"
+                          icon={Clock}
+                          onAskGenie={() => {}}
+                          onExport={() => {}}
+                          onDetails={() => {}}
+                        />
+                        <MetricWidget 
+                          title="FX Variance"
+                          value="+0.11%"
+                          trend="Within target"
+                          icon={TrendingUp}
+                          onAskGenie={() => {}}
+                          onExport={() => {}}
+                          onDetails={() => {}}
+                        />
                       </div>
+
+                      {/* Payroll Table */}
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold">Current Payroll Cycle</h3>
+                          <Button size="sm" onClick={() => navigate('/flows/payroll-fx-engine')}>
+                            Run Full Payroll
+                          </Button>
+                        </div>
+                        <PayrollFXTable 
+                          data={mockPayrollData}
+                          fxRates={mockFxRates}
+                          phase="execution"
+                        />
+                      </div>
+
+                      {/* Live Tracking */}
+                      <LiveTrackingPanel 
+                        data={mockPayrollData}
+                        fxVariance={0.11}
+                        slaScore={100}
+                      />
                     </TabsContent>
 
                     <TabsContent value="pipeline">
