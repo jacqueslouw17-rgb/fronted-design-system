@@ -7,13 +7,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, ArrowLeft, Lock, RefreshCw, Info, Clock, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 type PayrollStep = "review-fx" | "exceptions" | "approvals" | "execute" | "track";
 
@@ -37,6 +40,60 @@ interface ContractorPayment {
   recvLocal: number;
   eta: string;
 }
+
+interface PayrollException {
+  id: string;
+  contractorId: string;
+  contractorName: string;
+  type: "missing-bank" | "holiday-rails" | "doc-expiry" | "over-threshold";
+  description: string;
+  severity: "high" | "medium" | "low";
+  resolved: boolean;
+  snoozed: boolean;
+}
+
+const initialExceptions: PayrollException[] = [
+  {
+    id: "exc-1",
+    contractorId: "5",
+    contractorName: "Emma Wilson",
+    type: "missing-bank",
+    description: "Bank account type not specified (Checking/Savings required)",
+    severity: "high",
+    resolved: false,
+    snoozed: false,
+  },
+  {
+    id: "exc-2",
+    contractorId: "7",
+    contractorName: "Luis Hernandez",
+    type: "holiday-rails",
+    description: "Holiday payout adjustment of +$850 needs approval",
+    severity: "medium",
+    resolved: false,
+    snoozed: false,
+  },
+  {
+    id: "exc-3",
+    contractorId: "6",
+    contractorName: "Maria Santos",
+    type: "doc-expiry",
+    description: "Work permit expires Nov 15, 2024 (within 30 days)",
+    severity: "medium",
+    resolved: false,
+    snoozed: false,
+  },
+  {
+    id: "exc-4",
+    contractorId: "2",
+    contractorName: "Sophie Laurent",
+    type: "over-threshold",
+    description: "Payment amount €5,800 exceeds auto-approval threshold (€5,000)",
+    severity: "low",
+    resolved: false,
+    snoozed: false,
+  },
+];
 
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
   EUR: [
@@ -64,6 +121,10 @@ export default function PayrollBatchCurrent() {
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [exceptions, setExceptions] = useState<PayrollException[]>(initialExceptions);
+  const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
+  const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
+  const [bankAccountType, setBankAccountType] = useState("");
 
   const handleKurtAction = (action: string) => {
     setOpen(true);
@@ -119,6 +180,36 @@ export default function PayrollBatchCurrent() {
       toast.success("FX quotes refreshed");
     }, 1000);
   };
+
+  const handleOpenFixDrawer = (exception: PayrollException) => {
+    setSelectedException(exception);
+    setFixDrawerOpen(true);
+    setBankAccountType("");
+  };
+
+  const handleResolveException = () => {
+    if (!selectedException) return;
+
+    setExceptions(prev => prev.map(exc =>
+      exc.id === selectedException.id
+        ? { ...exc, resolved: true }
+        : exc
+    ));
+    setFixDrawerOpen(false);
+    toast.success(`Exception resolved for ${selectedException.contractorName}`);
+  };
+
+  const handleSnoozeException = (exceptionId: string) => {
+    setExceptions(prev => prev.map(exc =>
+      exc.id === exceptionId
+        ? { ...exc, snoozed: true }
+        : exc
+    ));
+    toast.info("Exception snoozed to next cycle");
+  };
+
+  const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
+  const allExceptionsResolved = activeExceptions.length === 0;
 
   const getCurrentStepIndex = () => {
     return steps.findIndex(s => s.id === currentStep);
@@ -386,65 +477,154 @@ export default function PayrollBatchCurrent() {
 
       case "exceptions":
         return (
-          <div className="space-y-4">
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">Items Requiring Attention</h3>
-                  <Badge variant="outline" className="text-red-600 border-red-600/30">
-                    2 Exceptions
-                  </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/5">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        <span className="text-sm font-medium text-foreground">Emma Wilson</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">Pending</Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Bank details require verification before payment can be processed.
-                    </p>
-                    <Button size="sm" variant="outline" className="w-full">
-                      Verify Bank Details
-                    </Button>
-                  </div>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
-                  <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/5">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
-                        <span className="text-sm font-medium text-foreground">Luis Hernandez</span>
+            {/* Green banner when all resolved */}
+            {allExceptionsResolved && (
+              <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-green-fill/30">
+                      <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">No blocking exceptions</p>
+                      <p className="text-xs text-muted-foreground">All issues resolved - ready to proceed</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Exception List */}
+            <div className="space-y-3">
+              {activeExceptions.map((exception) => {
+                const severityConfig = {
+                  high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600" },
+                  medium: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600" },
+                  low: { color: "border-blue-500/30 bg-blue-500/5", icon: "text-blue-600" },
+                };
+
+                const config = severityConfig[exception.severity];
+
+                return (
+                  <Card key={exception.id} className={cn("border", config.color)}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/50">
+                          <AlertTriangle className={cn("h-4 w-4", config.icon)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-foreground">
+                              {exception.contractorName}
+                            </span>
+                            <Badge variant="outline" className="text-[10px]">
+                              {exception.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {exception.description}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-7 text-xs"
+                              onClick={() => handleOpenFixDrawer(exception)}
+                            >
+                              Fix
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs"
+                              onClick={() => handleSnoozeException(exception.id)}
+                            >
+                              Snooze to Next Cycle
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <Badge variant="outline" className="text-xs">Action Required</Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Holiday payout adjustment of +$850 needs approval.
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {/* Resolved exceptions */}
+              {exceptions.filter(exc => exc.resolved).length > 0 && (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-3">Resolved</p>
+                  <div className="space-y-2">
+                    {exceptions.filter(exc => exc.resolved).map((exception) => (
+                      <div
+                        key={exception.id}
+                        className="flex items-center gap-2 p-2 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20"
+                      >
+                        <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
+                        <span className="text-xs text-foreground">{exception.contractorName}</span>
+                        <span className="text-xs text-muted-foreground">• {exception.type.split('-').join(' ')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Snoozed exceptions */}
+              {exceptions.filter(exc => exc.snoozed).length > 0 && (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-3">Snoozed to Next Cycle</p>
+                  <div className="space-y-2">
+                    {exceptions.filter(exc => exc.snoozed).map((exception) => (
+                      <div
+                        key={exception.id}
+                        className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 border border-border"
+                      >
+                        <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs text-foreground">{exception.contractorName}</span>
+                        <span className="text-xs text-muted-foreground">• {exception.type.split('-').join(' ')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Summary */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Active</p>
+                    <p className="text-2xl font-bold text-foreground">{activeExceptions.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Resolved</p>
+                    <p className="text-2xl font-bold text-accent-green-text">
+                      {exceptions.filter(exc => exc.resolved).length}
                     </p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1">
-                        Review
-                      </Button>
-                      <Button size="sm" className="flex-1">
-                        Approve Adjustment
-                      </Button>
-                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Snoozed</p>
+                    <p className="text-2xl font-bold text-muted-foreground">
+                      {exceptions.filter(exc => exc.snoozed).length}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                  <span>6 contractors cleared with no exceptions</span>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Footer CTA */}
+            <div className="pt-4 border-t border-border">
+              <Button
+                className="w-full h-11 text-sm font-medium"
+                disabled={!allExceptionsResolved}
+                onClick={() => setCurrentStep("approvals")}
+              >
+                {allExceptionsResolved ? "Send for Approval" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} to Continue`}
+              </Button>
+            </div>
           </div>
         );
 
@@ -760,6 +940,133 @@ export default function PayrollBatchCurrent() {
             </div>
           </motion.div>
         </div>
+
+        {/* Fix Exception Drawer */}
+        <Sheet open={fixDrawerOpen} onOpenChange={setFixDrawerOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="text-lg font-semibold">
+                Fix Exception: {selectedException?.contractorName}
+              </SheetTitle>
+            </SheetHeader>
+
+            {selectedException && (
+              <div className="mt-6 space-y-6">
+                {/* Exception Details */}
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="flex items-start gap-2 mb-2">
+                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground mb-1">
+                        {selectedException.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {selectedException.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fix Form - Dynamic based on exception type */}
+                {selectedException.type === "missing-bank" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="bank-type" className="text-sm font-medium">
+                        Bank Account Type
+                      </Label>
+                      <Select value={bankAccountType} onValueChange={setBankAccountType}>
+                        <SelectTrigger id="bank-type">
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="checking">Checking</SelectItem>
+                          <SelectItem value="savings">Savings</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      This information is required for ACH transfers.
+                    </p>
+                  </div>
+                )}
+
+                {selectedException.type === "holiday-rails" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Holiday Adjustment</Label>
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Base Pay</span>
+                          <span className="text-sm font-medium">$4,650</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Holiday Bonus</span>
+                          <span className="text-sm font-medium text-accent-green-text">+$850</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Approve the holiday adjustment to include in this batch.
+                    </p>
+                  </div>
+                )}
+
+                {selectedException.type === "doc-expiry" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Document Status</Label>
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Work Permit</p>
+                        <p className="text-sm font-medium">Expires: Nov 15, 2024</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Confirm renewal is in progress or snooze until documents are updated.
+                    </p>
+                  </div>
+                )}
+
+                {selectedException.type === "over-threshold" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Approval Required</Label>
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Payment Amount</span>
+                          <span className="text-sm font-medium">€5,800</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Auto-approval Limit</span>
+                          <span className="text-sm font-medium">€5,000</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Manual approval required for amounts exceeding threshold.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <SheetFooter className="mt-6 flex-row gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setFixDrawerOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleResolveException}
+                disabled={selectedException?.type === "missing-bank" && !bankAccountType}
+              >
+                Mark as Resolved
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );
