@@ -45,6 +45,8 @@ interface ContractorPayment {
   fxRate: number;
   recvLocal: number;
   eta: string;
+  employmentType: "employee" | "contractor";
+  employerTaxes?: number; // Only for employees
 }
 
 interface PayrollException {
@@ -103,18 +105,18 @@ const initialExceptions: PayrollException[] = [
 
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
   EUR: [
-    { id: "1", name: "David Martinez", country: "Portugal", countryCode: "PT", netPay: 4200, currency: "EUR", estFees: 25, fxRate: 0.92, recvLocal: 4200, eta: "Oct 30" },
-    { id: "2", name: "Sophie Laurent", country: "France", countryCode: "FR", netPay: 5800, currency: "EUR", estFees: 35, fxRate: 0.92, recvLocal: 5800, eta: "Oct 30" },
-    { id: "3", name: "Marco Rossi", country: "Italy", countryCode: "IT", netPay: 4500, currency: "EUR", estFees: 28, fxRate: 0.92, recvLocal: 4500, eta: "Oct 30" },
+    { id: "1", name: "David Martinez", country: "Portugal", countryCode: "PT", netPay: 4200, currency: "EUR", estFees: 25, fxRate: 0.92, recvLocal: 4200, eta: "Oct 30", employmentType: "contractor" },
+    { id: "2", name: "Sophie Laurent", country: "France", countryCode: "FR", netPay: 5800, currency: "EUR", estFees: 35, fxRate: 0.92, recvLocal: 5800, eta: "Oct 30", employmentType: "employee", employerTaxes: 1740 },
+    { id: "3", name: "Marco Rossi", country: "Italy", countryCode: "IT", netPay: 4500, currency: "EUR", estFees: 28, fxRate: 0.92, recvLocal: 4500, eta: "Oct 30", employmentType: "contractor" },
   ],
   NOK: [
-    { id: "4", name: "Alex Hansen", country: "Norway", countryCode: "NO", netPay: 65000, currency: "NOK", estFees: 250, fxRate: 10.45, recvLocal: 65000, eta: "Oct 31" },
-    { id: "5", name: "Emma Wilson", country: "Norway", countryCode: "NO", netPay: 72000, currency: "NOK", estFees: 280, fxRate: 10.45, recvLocal: 72000, eta: "Oct 31" },
+    { id: "4", name: "Alex Hansen", country: "Norway", countryCode: "NO", netPay: 65000, currency: "NOK", estFees: 250, fxRate: 10.45, recvLocal: 65000, eta: "Oct 31", employmentType: "employee", employerTaxes: 9750 },
+    { id: "5", name: "Emma Wilson", country: "Norway", countryCode: "NO", netPay: 72000, currency: "NOK", estFees: 280, fxRate: 10.45, recvLocal: 72000, eta: "Oct 31", employmentType: "contractor" },
   ],
   PHP: [
-    { id: "6", name: "Maria Santos", country: "Philippines", countryCode: "PH", netPay: 280000, currency: "PHP", estFees: 850, fxRate: 56.2, recvLocal: 280000, eta: "Oct 30" },
-    { id: "7", name: "Jose Reyes", country: "Philippines", countryCode: "PH", netPay: 245000, currency: "PHP", estFees: 750, fxRate: 56.2, recvLocal: 245000, eta: "Oct 30" },
-    { id: "8", name: "Luis Hernandez", country: "Philippines", countryCode: "PH", netPay: 260000, currency: "PHP", estFees: 800, fxRate: 56.2, recvLocal: 260000, eta: "Oct 30" },
+    { id: "6", name: "Maria Santos", country: "Philippines", countryCode: "PH", netPay: 280000, currency: "PHP", estFees: 850, fxRate: 56.2, recvLocal: 280000, eta: "Oct 30", employmentType: "employee", employerTaxes: 42000 },
+    { id: "7", name: "Jose Reyes", country: "Philippines", countryCode: "PH", netPay: 245000, currency: "PHP", estFees: 750, fxRate: 56.2, recvLocal: 245000, eta: "Oct 30", employmentType: "contractor" },
+    { id: "8", name: "Luis Hernandez", country: "Philippines", countryCode: "PH", netPay: 260000, currency: "PHP", estFees: 800, fxRate: 56.2, recvLocal: 260000, eta: "Oct 30", employmentType: "contractor" },
   ],
 };
 
@@ -526,6 +528,7 @@ export default function PayrollBatchCurrent() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Role</TableHead>
                       <TableHead className="text-xs">Country</TableHead>
                       <TableHead className="text-xs text-right">Net Pay (EUR)</TableHead>
                       <TableHead className="text-xs text-right">Est. Fees</TableHead>
@@ -538,6 +541,19 @@ export default function PayrollBatchCurrent() {
                     {contractorsByCurrency.EUR.map((contractor) => (
                       <TableRow key={contractor.id}>
                         <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-xs",
+                              contractor.employmentType === "employee" 
+                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                            )}
+                          >
+                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-sm">{contractor.country}</TableCell>
                         <TableCell className="text-right text-sm">€{contractor.netPay.toLocaleString()}</TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground">€{contractor.estFees}</TableCell>
@@ -589,6 +605,7 @@ export default function PayrollBatchCurrent() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Role</TableHead>
                       <TableHead className="text-xs">Country</TableHead>
                       <TableHead className="text-xs text-right">Net Pay (NOK)</TableHead>
                       <TableHead className="text-xs text-right">Est. Fees</TableHead>
@@ -601,6 +618,19 @@ export default function PayrollBatchCurrent() {
                     {contractorsByCurrency.NOK.map((contractor) => (
                       <TableRow key={contractor.id}>
                         <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-xs",
+                              contractor.employmentType === "employee" 
+                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                            )}
+                          >
+                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-sm">{contractor.country}</TableCell>
                         <TableCell className="text-right text-sm">kr{contractor.netPay.toLocaleString()}</TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground">kr{contractor.estFees}</TableCell>
@@ -652,6 +682,7 @@ export default function PayrollBatchCurrent() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Role</TableHead>
                       <TableHead className="text-xs">Country</TableHead>
                       <TableHead className="text-xs text-right">Net Pay (PHP)</TableHead>
                       <TableHead className="text-xs text-right">Est. Fees</TableHead>
@@ -664,6 +695,19 @@ export default function PayrollBatchCurrent() {
                     {contractorsByCurrency.PHP.map((contractor) => (
                       <TableRow key={contractor.id}>
                         <TableCell className="font-medium text-sm">{contractor.name}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "text-xs",
+                              contractor.employmentType === "employee" 
+                                ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                            )}
+                          >
+                            {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-sm">{contractor.country}</TableCell>
                         <TableCell className="text-right text-sm">₱{contractor.netPay.toLocaleString()}</TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground">₱{contractor.estFees}</TableCell>
@@ -863,6 +907,18 @@ export default function PayrollBatchCurrent() {
         );
 
       case "approvals":
+        // Calculate separate totals for employees vs contractors
+        const employees = allContractors.filter(c => c.employmentType === "employee");
+        const contractors = allContractors.filter(c => c.employmentType === "contractor");
+        
+        const employeesTotalNetPay = employees.reduce((sum, e) => sum + e.netPay, 0);
+        const employeesTotalEmployerTaxes = employees.reduce((sum, e) => sum + (e.employerTaxes || 0), 0);
+        const employeesTotalCost = employeesTotalNetPay + employeesTotalEmployerTaxes;
+        
+        const contractorsTotalNetPay = contractors.reduce((sum, c) => sum + c.netPay, 0);
+        
+        const requiresCFOApproval = employeesTotalCost > 50000; // $50K threshold
+        
         return (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-foreground">Financial Approval</h3>
@@ -894,6 +950,55 @@ export default function PayrollBatchCurrent() {
 
                 {/* Financial Summary */}
                 <div className="space-y-4">
+                  {/* Employee vs Contractor Breakdown */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">
+                          Employees
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">({employees.length})</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Net Pay</span>
+                          <span className="text-sm font-medium">${(employeesTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
+                          <span className="text-sm font-medium text-amber-600">+${(employeesTotalEmployerTaxes / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
+                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
+                          <span className="text-base font-bold text-foreground">${(employeesTotalCost / 1000).toFixed(1)}K</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">
+                          Contractors
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">({contractors.length})</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Net Pay</span>
+                          <span className="text-sm font-medium">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
+                          <span className="text-sm font-medium text-muted-foreground">N/A</span>
+                        </div>
+                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
+                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
+                          <span className="text-base font-bold text-foreground">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-muted/30">
                       <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
@@ -932,7 +1037,7 @@ export default function PayrollBatchCurrent() {
                     <div className="p-4 rounded-lg bg-muted/30">
                       <p className="text-xs text-muted-foreground mb-2">Payees</p>
                       <p className="text-2xl font-bold">8</p>
-                      <p className="text-xs text-muted-foreground mt-1">contractors across 3 currencies</p>
+                      <p className="text-xs text-muted-foreground mt-1">{employees.length} employees, {contractors.length} contractors</p>
                     </div>
 
                     <div className="p-4 rounded-lg bg-muted/30">
@@ -945,6 +1050,21 @@ export default function PayrollBatchCurrent() {
                     </div>
                   </div>
                 </div>
+
+                {/* Employee Tax Approval Note */}
+                {requiresCFOApproval && (
+                  <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-500/5">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-foreground mb-1">Employee Approval Required</p>
+                        <p className="text-xs text-muted-foreground">
+                          Employee payments with employer taxes total ${(employeesTotalCost / 1000).toFixed(1)}K, which exceeds the auto-approval threshold of $50K. CFO approval is required. Contractor payments do not require approval.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Risk Flags */}
                 <div className="p-4 rounded-lg border border-blue-500/20 bg-blue-500/5">
