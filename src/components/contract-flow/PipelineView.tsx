@@ -134,6 +134,12 @@ const statusConfig = {
     badgeColor: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border-red-500/30",
     tooltip: "Blocked - requires attention",
   },
+  "payroll-ready": {
+    label: "Payroll Ready",
+    color: "bg-accent-green-fill/30 border-accent-green-outline/20",
+    badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+    tooltip: "All contractors ready for payroll processing",
+  },
 };
 
 const columns = [
@@ -143,13 +149,11 @@ const columns = [
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
-  "CERTIFIED",
-  "PAYROLL_PENDING",
-  "IN_BATCH",
-  "EXECUTING",
-  "PAID",
-  "ON_HOLD",
+  "payroll-ready", // Single column for all payroll statuses
 ] as const;
+
+// Payroll statuses that show within the payroll-ready column
+const payrollStatuses = ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"] as const;
 
 export const PipelineView: React.FC<PipelineViewProps> = ({ 
   contractors: initialContractors, 
@@ -262,7 +266,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   React.useEffect(() => {
     const newContractors = initialContractors.filter(c => !contractors.find(existing => existing.id === c.id));
 
-    const statusIndex = (s: Contractor['status']) => columns.indexOf(s);
+    const statusIndex = (s: Contractor['status']) => {
+      // Map payroll statuses to payroll-ready column
+      if (payrollStatuses.includes(s as any)) {
+        return columns.indexOf("payroll-ready");
+      }
+      return columns.indexOf(s as any);
+    };
 
     const mergeWithoutRegression = () => {
       const merged = contractors.map(local => {
@@ -416,6 +426,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   }, [contractors, onContractorUpdate]);
   
   const getContractorsByStatus = (status: typeof columns[number]) => {
+    // Handle payroll-ready column - include all payroll statuses
+    if (status === "payroll-ready") {
+      return contractors.filter((c) => 
+        payrollStatuses.includes(c.status as any) &&
+        (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
+      );
+    }
     // Include transitioning contractors in drafting column
     if (status === "drafting") {
       return contractors.filter((c) => c.status === status || transitioningIds.has(c.id));
@@ -891,8 +908,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   </div>
                 </div>
                 
-                {/* Payroll Cycle Selector - Only for Payroll statuses columns */}
-                {["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(status) && (
+                {/* Payroll Cycle Selector - Only for payroll-ready column */}
+                {status === "payroll-ready" && (
                   <div className="mt-2 px-1">
                     <Select
                       value={selectedPayrollCycle}
@@ -977,8 +994,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 "min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg",
                 config.color
               )}>
-                {/* Payroll Summary Card - Only for PAYROLL_PENDING column */}
-                {status === "PAYROLL_PENDING" && items.length > 0 && (() => {
+                {/* Payroll Summary Card - Only for payroll-ready column */}
+                {status === "payroll-ready" && items.length > 0 && (() => {
                   // Calculate totals for the current cycle
                   const totalContractors = items.length;
                   const totalGross = items.reduce((sum, c) => {
@@ -1045,7 +1062,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {!["data-pending", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
+                          {!["data-pending", "payroll-ready"].includes(status) && (
                             <Checkbox
                               checked={selectedIds.has(contractor.id)}
                               onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
@@ -1276,29 +1293,105 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* CERTIFIED Status with Next Step Button */}
-                          {status === "CERTIFIED" && (
-                            <div className="pt-2">
-                              <Badge 
-                                variant="outline" 
-                                className={cn("w-full justify-center text-xs", config.badgeColor)}
-                              >
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                {config.label}
-                              </Badge>
-                            </div>
-                          )}
-
-                          {/* Next Step Buttons for Payroll Statuses */}
-                          {["PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID"].includes(status) && (
+                          {/* Payroll Status Badge & Actions - Only in payroll-ready column */}
+                          {status === "payroll-ready" && (
                             <div className="pt-2 space-y-2">
+                              {/* Show contractor's individual payroll status */}
                               <Badge 
                                 variant="outline" 
-                                className={cn("w-full justify-center text-xs", config.badgeColor)}
+                                className={cn(
+                                  "w-full justify-center text-xs",
+                                  statusConfig[contractor.status as keyof typeof statusConfig]?.badgeColor || config.badgeColor
+                                )}
                               >
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                                {config.label}
+                                {statusConfig[contractor.status as keyof typeof statusConfig]?.label || config.label}
                               </Badge>
+                              
+                              {/* Next Step Button based on contractor's payroll status */}
+                              {contractor.status === "CERTIFIED" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast("Preparing for payroll...");
+                                  }}
+                                >
+                                  Prepare for payroll
+                                </Button>
+                              )}
+                              
+                              {contractor.status === "PAYROLL_PENDING" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate('/payroll/batch');
+                                  }}
+                                >
+                                  Add to batch
+                                </Button>
+                              )}
+                              
+                              {contractor.status === "IN_BATCH" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate('/payroll/batch');
+                                  }}
+                                >
+                                  Review in batch
+                                </Button>
+                              )}
+                              
+                              {contractor.status === "EXECUTING" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast("Tracking payout...");
+                                  }}
+                                >
+                                  Track payout
+                                </Button>
+                              )}
+                              
+                              {contractor.status === "PAID" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast("Viewing receipt...");
+                                  }}
+                                >
+                                  View receipt
+                                </Button>
+                              )}
+                              
+                              {contractor.status === "ON_HOLD" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs h-7 border-red-500/30"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast("Resolving issue...");
+                                  }}
+                                >
+                                  Resolve issue
+                                </Button>
+                              )}
                               
                               {/* Inline Progress */}
                               {contractor.payrollProgress !== undefined && (
