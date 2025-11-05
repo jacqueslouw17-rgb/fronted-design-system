@@ -32,9 +32,6 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
-import { PayrollMetricsPanel } from "@/components/payroll/PayrollMetricsPanel";
-import { PayrollFXTable } from "@/components/payroll/PayrollFXTable";
-import { LiveTrackingPanel } from "@/components/payroll/LiveTrackingPanel";
 
 const ContractFlowDemo = () => {
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -268,35 +265,6 @@ const ContractFlowDemo = () => {
       icon: Clock,
     },
   ];
-  
-  // Payroll mock for Overview tab
-  const payrollData = [
-    {
-      id: "1",
-      contractor: "Anna Larsen",
-      country: "🇳🇴 NO",
-      currency: "NOK",
-      grossPay: 85000,
-      bonus: 5000,
-      deductions: 2000,
-      netPay: 88000,
-      status: "processing" as const,
-      progress: 65,
-    },
-    {
-      id: "2",
-      contractor: "Maria Santos",
-      country: "🇵🇭 PH",
-      currency: "PHP",
-      grossPay: 150000,
-      bonus: 5000,
-      deductions: 2000,
-      netPay: 153000,
-      status: "complete" as const,
-      progress: 100,
-    },
-  ];
-  const fxRates = { NOK: 11.45, PHP: 57.10 };
   
   // Expose handleKurtAction globally for action buttons
   useEffect(() => {
@@ -584,19 +552,6 @@ const ContractFlowDemo = () => {
                                 </Card>
                               </motion.div>
                             ))}
-                          </div>
-
-                          {/* Payroll Overview */}
-                          <PayrollMetricsPanel payrollIssues={0} complianceGaps={0} avgResolutionTime="2.3h" />
-
-                          {/* Execution Snapshot */}
-                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-2">
-                              <PayrollFXTable data={payrollData} fxRates={fxRates} phase="execution" />
-                            </div>
-                            <div>
-                              <LiveTrackingPanel data={payrollData} fxVariance={0.11} slaScore={100} />
-                            </div>
                           </div>
                         </TabsContent>
 
