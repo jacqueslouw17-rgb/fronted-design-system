@@ -28,6 +28,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { usePayrollState } from "@/hooks/usePayrollState";
+import { useContractorStore } from "@/hooks/useContractorStore";
 
 interface Worker {
   id: string;
@@ -117,6 +118,7 @@ const DashboardAdmin = () => {
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { batches, currentBatchId } = usePayrollBatch();
   const { metrics } = usePayrollState();
+  const { contractors, getInBatchCount, getCertifiedCount } = useContractorStore();
   
   // Check if user just completed onboarding
   const searchParams = new URLSearchParams(window.location.search);
@@ -127,11 +129,16 @@ const DashboardAdmin = () => {
   // Get latest batch data
   const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
   
-  // Use reactive payroll metrics from state
-  const thisMonthPayroll = {
-    count: metrics.readyCount + metrics.executingCount + metrics.paidCount,
-    total: metrics.totalGross
-  };
+  // Reactive metrics
+  const inBatchCount = getInBatchCount();
+  const certifiedCount = getCertifiedCount();
+  const totalContractors = contractors.length;
+  const complianceScore = totalContractors > 0 
+    ? Math.round((certifiedCount / totalContractors) * 100) 
+    : 0;
+  
+  // Count unresolved exceptions from the current batch (mock for now - would come from batch state)
+  const [unresolvedExceptions] = useState(4); // TODO: Get from actual exceptions state
   
   const fxVariance = metrics.fxVariance.toFixed(2);
 
@@ -247,15 +254,37 @@ const DashboardAdmin = () => {
                     <TabsContent value="list" className="space-y-6">
                       <div className="max-w-5xl mx-auto">
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {/* This Month's Payroll */}
+                          {/* This Month's Payroll - Count of IN_BATCH */}
                           <MetricWidget
-                            title="This Month's Payroll"
-                            value={`$${thisMonthPayroll.total.toLocaleString()}`}
-                            trend={`${thisMonthPayroll.count} payees • ${metrics.executingCount} executing • ${metrics.paidCount} paid`}
+                            title="This Month Payroll"
+                            value={inBatchCount.toString()}
+                            trend={inBatchCount > 0 ? `${inBatchCount} contractor${inBatchCount !== 1 ? 's' : ''} in current batch` : "No contractors in batch"}
                             icon={DollarSign}
                             onAskGenie={() => console.log('Ask Genie')}
                             onExport={() => console.log('Export')}
-                            onDetails={() => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`)}
+                            onDetails={() => navigate('/payroll/batch/current')}
+                          />
+                          
+                          {/* Pending Actions - Count of Exceptions */}
+                          <MetricWidget
+                            title="Pending Actions"
+                            value={unresolvedExceptions.toString()}
+                            trend={unresolvedExceptions > 0 ? `${unresolvedExceptions} exception${unresolvedExceptions !== 1 ? 's' : ''} need resolution` : "All clear"}
+                            icon={AlertCircle}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => navigate('/payroll/batch/current?step=exceptions')}
+                          />
+
+                          {/* Compliance Score - Certified / Total */}
+                          <MetricWidget
+                            title="Compliance Score"
+                            value={`${complianceScore}%`}
+                            trend={totalContractors > 0 ? `${certifiedCount} of ${totalContractors} certified` : "No contractors yet"}
+                            icon={CheckCircle2}
+                            onAskGenie={() => console.log('Ask Genie')}
+                            onExport={() => console.log('Export')}
+                            onDetails={() => navigate('/flows/contract-flow?filter=non-certified')}
                           />
                           
                           {/* FX Variance */}
@@ -278,28 +307,6 @@ const DashboardAdmin = () => {
                             onAskGenie={() => console.log('Ask Genie')}
                             onExport={() => console.log('Export')}
                             onDetails={() => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`)}
-                          />
-
-                          {/* Pending Actions - Include Payroll */}
-                          <MetricWidget
-                            title="Pending Actions"
-                            value={pendingApprovals.toString()}
-                            trend={pendingApprovals > 0 ? `${pendingApprovals} batch${pendingApprovals > 1 ? 'es' : ''} awaiting CFO approval` : "All clear"}
-                            icon={AlertCircle}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => console.log('Details')}
-                          />
-
-                          {/* Compliance Score - Include Payroll */}
-                          <MetricWidget
-                            title="Compliance Score"
-                            value={batches.filter(b => b.status === "Completed").length === batches.length && batches.length > 0 ? "100%" : "In Progress"}
-                            trend={batches.filter(b => b.status === "Completed").length > 0 ? "All payrolls reconciled" : "Payroll certification pending"}
-                            icon={CheckCircle2}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => console.log('Details')}
                           />
                         </div>
                       </div>

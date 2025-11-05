@@ -116,7 +116,9 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
 
 export default function PayrollBatchCurrent() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialStep = searchParams.get('step') as PayrollStep | null;
+  const [currentStep, setCurrentStep] = useState<PayrollStep>(initialStep || "review-fx");
   const [frequency, setFrequency] = useState("monthly");
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();

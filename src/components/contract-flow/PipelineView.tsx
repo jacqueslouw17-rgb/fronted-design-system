@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
 import { usePayrollState } from "@/hooks/usePayrollState";
+import { useContractorStore } from "@/hooks/useContractorStore";
 
 interface Contractor {
   id: string;
@@ -60,6 +61,7 @@ interface PipelineViewProps {
   onContractorUpdate?: (contractors: Contractor[]) => void;
   onDraftContract?: (contractorIds: string[]) => void;
   onSignatureComplete?: () => void;
+  filterNonCertified?: boolean;
 }
 
 const statusConfig = {
@@ -162,10 +164,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onContractorUpdate,
   onDraftContract,
   onSignatureComplete,
+  filterNonCertified = false,
 }) => {
   const navigate = useNavigate();
   const { createBatch, batches } = usePayrollBatch();
   const { updateMetrics } = usePayrollState();
+  const { setContractors: updateContractorStore } = useContractorStore();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
@@ -215,7 +219,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       executingCount,
       paidCount,
     });
-  }, [contractors, selectedPayrollCycle, batches.length, updateMetrics]);
+    
+    // Sync to contractor store for dashboard
+    updateContractorStore(contractors);
+  }, [contractors, selectedPayrollCycle, batches.length, updateMetrics, updateContractorStore]);
   
   // Helper to ensure a contractor has payroll details
   const ensurePayrollDetails = React.useCallback((c: Contractor): Contractor => {
@@ -432,10 +439,15 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const getContractorsByStatus = (status: typeof columns[number]) => {
     // Handle payroll-ready column - include all payroll statuses
     if (status === "payroll-ready") {
-      return contractors.filter((c) => 
+      let filtered = contractors.filter((c) => 
         payrollStatuses.includes(c.status as any) &&
         (c.payrollMonth === selectedPayrollCycle || !c.payrollMonth)
       );
+      // Apply non-certified filter if enabled
+      if (filterNonCertified) {
+        filtered = filtered.filter(c => c.status !== "CERTIFIED");
+      }
+      return filtered;
     }
     // Include transitioning contractors in drafting column
     if (status === "drafting") {
