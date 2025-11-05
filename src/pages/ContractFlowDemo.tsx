@@ -32,12 +32,15 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
+import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 
 const ContractFlowDemo = () => {
+  const navigate = useNavigate();
   const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { toast } = useToast();
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
+  const { batches } = usePayrollBatch();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
@@ -48,7 +51,6 @@ const ContractFlowDemo = () => {
   const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const userData = {
@@ -227,6 +229,7 @@ const ContractFlowDemo = () => {
   const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
 
   // KPI Widgets data
+  const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
   const widgets = [
     {
       title: "Total Contractors",
@@ -235,10 +238,11 @@ const ContractFlowDemo = () => {
       icon: Users,
     },
     {
-      title: "Monthly Payroll",
-      value: "Pending",
-      trend: "Starts after onboarding",
+      title: "This Month Payroll",
+      value: latestBatch ? latestBatch.payees.length.toString() : "0",
+      trend: latestBatch ? `$${latestBatch.totals.gross.toLocaleString()}` : "No batches yet",
       icon: DollarSign,
+      onClick: () => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`),
     },
     {
       title: "Compliance Score",
@@ -528,15 +532,18 @@ const ContractFlowDemo = () => {
                           {/* KPI Metric Widgets Grid */}
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
                             {widgets.map((widget, idx) => (
-                              <motion.div
+                               <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                 <Card className={`hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm ${
-                                   idx === 0 ? 'bg-gradient-to-br from-primary/[0.02] to-primary/[0.01]' : ''
-                                 }`}>
+                                 <Card 
+                                   className={`hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm ${
+                                     idx === 0 ? 'bg-gradient-to-br from-primary/[0.02] to-primary/[0.01]' : ''
+                                   } ${widget.onClick ? 'cursor-pointer' : ''}`}
+                                   onClick={widget.onClick}
+                                 >
                                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
                                     <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
