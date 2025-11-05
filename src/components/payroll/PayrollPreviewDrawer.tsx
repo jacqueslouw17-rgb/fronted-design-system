@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { X, Calendar, BanknoteIcon } from "lucide-react";
+import { X, Calendar, BanknoteIcon, Sparkles, HelpCircle } from "lucide-react";
 import type { PayrollPayee } from "@/types/payroll";
 import {
   Table,
@@ -13,6 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PayrollPreviewDrawerProps {
   open: boolean;
@@ -33,6 +39,8 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
   onReschedule,
   onNotifyContractor,
 }) => {
+  const [showWhyTooltip, setShowWhyTooltip] = useState(false);
+  
   if (!payee) return null;
 
   const adjustmentsTotal = payee.adjustments.reduce((sum, adj) => sum + adj.amount, 0);
@@ -88,6 +96,51 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
             Payroll: {payee.status}
           </Badge>
         </SheetHeader>
+
+        <Separator className="my-4" />
+
+        {/* Genie Insight */}
+        <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm text-foreground leading-relaxed">
+                  {payee.proposedFxRate && payee.eta ? (
+                    <>
+                      FX locked at <span className="font-semibold">{payee.proposedFxRate.toFixed(2)}</span> for 15 min window. 
+                      Expected arrival: <span className="font-semibold">{new Date(payee.eta).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span> {getCountryFlag(payee.countryCode)}
+                    </>
+                  ) : (
+                    <>
+                      Payment processing for {payee.name}. We'll lock the best FX rate when you approve. {getCountryFlag(payee.countryCode)}
+                    </>
+                  )}
+                </p>
+                <TooltipProvider>
+                  <Tooltip open={showWhyTooltip} onOpenChange={setShowWhyTooltip}>
+                    <TooltipTrigger asChild>
+                      <button
+                        className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1 flex-shrink-0"
+                        onClick={() => setShowWhyTooltip(!showWhyTooltip)}
+                      >
+                        Why?
+                        <HelpCircle className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="text-xs leading-relaxed">
+                        Rates are sourced from mid-market data with provider fees shown transparently. 
+                        We lock rates for short windows to protect you from volatility while ensuring 
+                        your contractors get paid on time.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <Separator className="my-4" />
 
