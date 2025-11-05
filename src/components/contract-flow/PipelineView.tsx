@@ -187,6 +187,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedPayrollCycle, setSelectedPayrollCycle] = useState<"last" | "current" | "next">("current");
   const [certifiedDrawerOpen, setCertifiedDrawerOpen] = useState(false);
   const [selectedForCertified, setSelectedForCertified] = useState<Contractor | null>(null);
+  const [batchSelectedIds, setBatchSelectedIds] = useState<Set<string>>(new Set());
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -848,6 +849,30 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const getSelectedCount = (status: typeof columns[number]) => {
     return getContractorsByStatus(status).filter(c => selectedIds.has(c.id)).length;
   };
+  
+  const getBatchSelectedCount = () => {
+    return contractors.filter(c => 
+      c.status === "PAYROLL_PENDING" && batchSelectedIds.has(c.id)
+    ).length;
+  };
+  
+  const handleBatchSelectContractor = (contractorId: string, checked: boolean) => {
+    setBatchSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(contractorId);
+      } else {
+        newSet.delete(contractorId);
+      }
+      return newSet;
+    });
+  };
+  
+  const handleOpenBatchReview = () => {
+    if (getBatchSelectedCount() > 0) {
+      navigate('/payroll/batch');
+    }
+  };
 
   return (
     <div className={cn("overflow-x-auto pb-4", className)}>
@@ -900,11 +925,15 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </TooltipProvider>
                   </div>
                   <div className="flex items-center gap-2">
-                    {getSelectedCount(status) > 0 && (
+                    {status === "payroll-ready" ? (
+                      <span className="text-xs text-muted-foreground">
+                        Selected {getBatchSelectedCount()} / {items.filter(c => c.status === "PAYROLL_PENDING").length}
+                      </span>
+                    ) : getSelectedCount(status) > 0 ? (
                       <span className="text-xs text-muted-foreground">
                         {getSelectedCount(status)} selected
                       </span>
-                    )}
+                    ) : null}
                     <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                       {items.length}
                     </Badge>
@@ -1066,10 +1095,21 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header with Checkbox */}
                         <div className="flex items-start gap-2">
-                          {!["data-pending", "payroll-ready"].includes(status) && (
+                          {!["data-pending"].includes(status) && 
+                           !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && (
                             <Checkbox
-                              checked={selectedIds.has(contractor.id)}
-                              onCheckedChange={(checked) => handleSelectContractor(contractor.id, checked as boolean)}
+                              checked={
+                                status === "payroll-ready" && contractor.status === "PAYROLL_PENDING"
+                                  ? batchSelectedIds.has(contractor.id)
+                                  : selectedIds.has(contractor.id)
+                              }
+                              onCheckedChange={(checked) => {
+                                if (status === "payroll-ready" && contractor.status === "PAYROLL_PENDING") {
+                                  handleBatchSelectContractor(contractor.id, checked as boolean);
+                                } else {
+                                  handleSelectContractor(contractor.id, checked as boolean);
+                                }
+                              }}
                               className="h-4 w-4 mt-1"
                               onClick={(e) => e.stopPropagation()}
                             />
@@ -1089,6 +1129,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <p className="text-xs text-muted-foreground truncate">
                               {contractor.role}
                             </p>
+                            {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && batchSelectedIds.has(contractor.id) && (
+                              <p className="text-[10px] text-primary font-medium mt-0.5">
+                                Include in this month's batch
+                              </p>
+                            )}
                           </div>
                         </div>
 
@@ -1430,13 +1475,28 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         </CardContent>
                       </Card>
                     </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+                
+                {/* Column Footer - Only for payroll-ready column */}
+                {status === "payroll-ready" && (
+                  <div className="p-3 border-x border-b rounded-b-lg bg-card">
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8"
+                      disabled={getBatchSelectedCount() === 0}
+                      onClick={handleOpenBatchReview}
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Open Batch Review {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
 
       {/* Configuration Drawer */}
       <OnboardingFormDrawer
