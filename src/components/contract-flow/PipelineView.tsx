@@ -1068,15 +1068,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <p className="text-xs text-muted-foreground truncate">
                               {contractor.role}
                             </p>
-                            {/* Status Badge - Read-only */}
-                            <div className="mt-1.5">
-                              <Badge
-                                variant="outline"
-                                className={cn("text-[10px] px-2 py-0.5", config.badgeColor)}
-                              >
-                                {config.label}
-                              </Badge>
-                            </div>
                           </div>
                         </div>
 
