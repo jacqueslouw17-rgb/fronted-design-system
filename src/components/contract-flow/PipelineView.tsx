@@ -1070,7 +1070,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         <Button 
                           size="sm"
                           className="w-full text-xs h-8 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30"
-                          onClick={() => navigate('/payroll/batch')}
+                          onClick={() => {
+                            if (batchSelectedIds.size === 0) {
+                              toast.error("No people marked 'Include in batch' — choose them in Pipeline → Payroll Ready.");
+                            } else {
+                              navigate('/payroll/batch/current');
+                            }
+                          }}
                         >
                           <DollarSign className="h-3 w-3 mr-1" />
                           Run Payroll
