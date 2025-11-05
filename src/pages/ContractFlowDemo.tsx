@@ -514,9 +514,9 @@ const ContractFlowDemo = () => {
                     <div className="space-y-4">
                   <Tabs defaultValue="pipeline" className="w-full">
                     <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm">
-                      <TabsTrigger value="overview" data-testid="tab-overview">
+                      <TabsTrigger value="list" data-testid="tab-metrics">
                         <BarChart3 className="h-4 w-4" />
-                        Overview
+                        Metrics
                       </TabsTrigger>
                       <TabsTrigger value="pipeline" data-testid="tab-pipeline">
                         <GitBranch className="h-4 w-4" />
@@ -524,7 +524,7 @@ const ContractFlowDemo = () => {
                       </TabsTrigger>
                     </TabsList>
 
-                        <TabsContent value="overview" className="space-y-6">
+                        <TabsContent value="list" className="space-y-6">
                           {/* KPI Metric Widgets Grid */}
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
                             {widgets.map((widget, idx) => (

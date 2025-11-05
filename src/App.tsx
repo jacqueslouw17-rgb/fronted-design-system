@@ -67,7 +67,6 @@ import CostTaxVisualizerPattern from "./pages/CostTaxVisualizerPattern";
 import ContextualInlineActionsPattern from "./pages/ContextualInlineActionsPattern";
 import OnboardingFlowPattern from "./pages/OnboardingFlowPattern";
 import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
-import PayrollFXEngine from "./pages/flows/PayrollFXEngine";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -104,7 +103,6 @@ const App = () => (
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
         <Route path="/flows/admin-payroll-dashboard" element={<AdminPayrollDashboard />} />
         <Route path="/flows/candidate-payroll-dashboard" element={<CandidatePayrollDashboard />} />
-        <Route path="/flows/payroll-fx-engine" element={<PayrollFXEngine />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />
           <Route path="/contextual-drawer" element={<ContextualDrawerPattern />} />
           <Route path="/hover-toolbar" element={<HoverToolbarPattern />} />

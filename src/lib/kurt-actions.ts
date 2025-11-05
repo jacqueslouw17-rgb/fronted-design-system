@@ -138,10 +138,10 @@ export async function executeIntentAction(
         };
       
       case 'open_metrics':
-        actions.click('[data-testid="tab-overview"]');
+        actions.click('[data-testid="tab-metrics"]');
         return {
           success: true,
-          message: 'Opened overview view',
+          message: 'Opened metrics view',
           action: 'tab_switch'
         };
       
