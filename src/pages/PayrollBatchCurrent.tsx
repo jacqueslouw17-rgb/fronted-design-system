@@ -630,14 +630,7 @@ export default function PayrollBatchCurrent() {
                               )}
                             >
                               <TableCell className="font-medium text-sm">
-                                <div className="flex items-center gap-2">
-                                  {contractor.name}
-                                  {isNewlyAdded && (
-                                    <Badge className="bg-gradient-primary text-primary-foreground text-xs animate-pulse">
-                                      Just Added
-                                    </Badge>
-                                  )}
-                                </div>
+                                {contractor.name}
                               </TableCell>
                               <TableCell>
                                 <Badge 
