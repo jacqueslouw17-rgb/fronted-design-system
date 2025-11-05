@@ -1039,37 +1039,40 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   const fxVariance = 2.3; // Mock FX variance percentage
                   
                   return (
-                    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 mb-3">
-                      <CardContent className="p-3 space-y-3">
-                        <div>
-                          <h4 className="text-xs font-semibold text-foreground">Monthly Payroll Summary</h4>
+                    <Card className="bg-gradient-to-br from-accent-green-fill/40 to-accent-green-fill/20 border-accent-green-outline/30 mb-3 shadow-sm">
+                      <CardContent className="p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-accent-green-text">Monthly Payroll Summary</h4>
+                          <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 text-[10px]">
+                            {selectedPayrollCycle === "last" ? "Last Month" : selectedPayrollCycle === "current" ? "Current" : "Next Month"}
+                          </Badge>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">Contractors</p>
-                            <p className="text-lg font-bold text-foreground">{totalContractors}</p>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-1.5 bg-background/50 rounded-lg p-2.5">
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Contractors</p>
+                            <p className="text-2xl font-bold text-foreground">{totalContractors}</p>
                           </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">Total Gross</p>
-                            <p className="text-lg font-bold text-foreground">
+                          <div className="space-y-1.5 bg-background/50 rounded-lg p-2.5">
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Total Gross</p>
+                            <p className="text-2xl font-bold text-foreground">
                               ${totalGross >= 1000000 
                                 ? `${(totalGross / 1000000).toFixed(1)}M` 
                                 : `${(totalGross / 1000).toFixed(0)}K`}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">FX Variance</p>
-                            <p className="text-lg font-bold text-accent-green-text">+{fxVariance}%</p>
+                          <div className="space-y-1.5 bg-background/50 rounded-lg p-2.5">
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">FX Variance</p>
+                            <p className="text-2xl font-bold text-accent-green-text">+{fxVariance}%</p>
                           </div>
                         </div>
                         
                         <Button 
                           size="sm"
-                          className="w-full text-xs h-8 bg-primary hover:bg-primary/90"
+                          className="w-full text-xs h-9 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium"
                           onClick={() => navigate('/payroll/batch')}
                         >
-                          <DollarSign className="h-3 w-3 mr-1" />
+                          <DollarSign className="h-3.5 w-3.5 mr-1.5" />
                           Run Payroll
                         </Button>
                       </CardContent>
@@ -1110,7 +1113,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   handleSelectContractor(contractor.id, checked as boolean);
                                 }
                               }}
-                              className="h-4 w-4 mt-1"
+                              className={cn(
+                                "h-4 w-4 mt-1",
+                                status === "payroll-ready" && "data-[state=checked]:bg-accent-green-fill data-[state=checked]:border-accent-green-outline data-[state=checked]:text-accent-green-text"
+                              )}
                               onClick={(e) => e.stopPropagation()}
                             />
                           )}
@@ -1477,22 +1483,20 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </motion.div>
                     ))}
                   </AnimatePresence>
-                </div>
-                
-                {/* Column Footer - Only for payroll-ready column */}
-                {status === "payroll-ready" && (
-                  <div className="p-3 border-x border-b rounded-b-lg bg-card">
+                  
+                  {/* Open Batch Review Button - Only for payroll-ready column */}
+                  {status === "payroll-ready" && (
                     <Button
                       size="sm"
-                      className="w-full text-xs h-8"
+                      className="w-full text-xs h-9 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium mt-3"
                       disabled={getBatchSelectedCount() === 0}
                       onClick={handleOpenBatchReview}
                     >
-                      <FileText className="h-3 w-3 mr-1" />
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
                       Open Batch Review {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </motion.div>
             );
           })}
