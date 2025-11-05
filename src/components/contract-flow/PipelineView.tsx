@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -16,7 +16,11 @@ import { DocumentBundleDrawer } from "./DocumentBundleDrawer";
 import { SignatureWorkflowDrawer } from "./SignatureWorkflowDrawer";
 import { StartOnboardingConfirmation } from "./StartOnboardingConfirmation";
 import { PayrollStatusDrawer } from "./PayrollStatusDrawer";
+import { PayrollPreviewDrawer } from "@/components/payroll/PayrollPreviewDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
+import { usePayrollBatch } from "@/hooks/usePayrollBatch";
+import { useNavigate } from "react-router-dom";
+import type { PayrollPayee } from "@/types/payroll";
 import { getChecklistForProfile, type ChecklistRequirement } from "@/data/candidateChecklistData";
 
 interface Contractor {
@@ -116,6 +120,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onDraftContract,
   onSignatureComplete,
 }) => {
+  const navigate = useNavigate();
+  const { createBatch, batches } = usePayrollBatch();
   const [contractors, setContractors] = useState<Contractor[]>(initialContractors);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [configureDrawerOpen, setConfigureDrawerOpen] = useState(false);
@@ -132,6 +138,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [selectedForOnboarding, setSelectedForOnboarding] = useState<Contractor | null>(null);
   const [payrollDrawerOpen, setPayrollDrawerOpen] = useState(false);
   const [selectedForPayroll, setSelectedForPayroll] = useState<Contractor | null>(null);
+  const [payrollPreviewDrawerOpen, setPayrollPreviewDrawerOpen] = useState(false);
+  const [selectedPayrollPayee, setSelectedPayrollPayee] = useState<PayrollPayee | null>(null);
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
