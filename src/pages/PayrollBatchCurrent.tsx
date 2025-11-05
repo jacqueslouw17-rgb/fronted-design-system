@@ -454,6 +454,31 @@ export default function PayrollBatchCurrent() {
   const renderStepContent = () => {
     switch (currentStep) {
       case "review-fx":
+        // Check if no payees selected
+        if (allContractors.length === 0) {
+          return (
+            <div className="space-y-6">
+              <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-12">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted/30 mb-4">
+                      <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No Payees Selected</h3>
+                    <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                      Select people in 'Payroll Ready' to start a batch.
+                    </p>
+                    <Button onClick={() => navigate('/flows/contract-flow')} variant="outline">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Go to Pipeline
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        }
+        
         return (
           <div className="space-y-6">
             {/* Status Bar */}
@@ -758,8 +783,25 @@ export default function PayrollBatchCurrent() {
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
+            {/* Empty state when no exceptions at all */}
+            {exceptions.length === 0 && (
+              <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+                <CardContent className="p-12">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent-green-fill/30 mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-accent-green-text" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">All Clear</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      No exceptions found. You can proceed to approvals.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Green banner when all resolved */}
-            {allExceptionsResolved && (
+            {exceptions.length > 0 && allExceptionsResolved && (
               <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -767,8 +809,8 @@ export default function PayrollBatchCurrent() {
                       <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">No blocking exceptions</p>
-                      <p className="text-xs text-muted-foreground">All issues resolved - ready to proceed</p>
+                      <p className="text-sm font-semibold text-foreground">All Clear</p>
+                      <p className="text-xs text-muted-foreground">All issues resolved - you can proceed to approvals.</p>
                     </div>
                   </div>
                 </CardContent>
@@ -776,7 +818,8 @@ export default function PayrollBatchCurrent() {
             )}
 
             {/* Exception List */}
-            <div className="space-y-3">
+            {exceptions.length > 0 && (
+              <div className="space-y-3">
               {activeExceptions.map((exception) => {
                 const severityConfig = {
                   high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600" },
@@ -868,6 +911,7 @@ export default function PayrollBatchCurrent() {
                 </div>
               )}
             </div>
+            )}
 
             {/* Summary */}
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
@@ -1573,6 +1617,14 @@ export default function PayrollBatchCurrent() {
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Download Audit PDF
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/audit-trail')}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Audit Log
                   </Button>
                   <Separator className="my-2" />
                   <p className="text-xs text-muted-foreground mb-2">Sync to Accounting</p>
