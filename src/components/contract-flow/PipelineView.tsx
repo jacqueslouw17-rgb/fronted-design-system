@@ -19,6 +19,7 @@ import { StartOnboardingConfirmation } from "./StartOnboardingConfirmation";
 import { PayrollStatusDrawer } from "./PayrollStatusDrawer";
 import { PayrollPreviewDrawer } from "@/components/payroll/PayrollPreviewDrawer";
 import { CertifiedActionDrawer } from "./CertifiedActionDrawer";
+import { ResolvePayrollIssueDrawer } from "./ResolvePayrollIssueDrawer";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
@@ -192,6 +193,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [certifiedDrawerOpen, setCertifiedDrawerOpen] = useState(false);
   const [selectedForCertified, setSelectedForCertified] = useState<Contractor | null>(null);
   const [batchSelectedIds, setBatchSelectedIds] = useState<Set<string>>(new Set());
+  const [resolveIssueDrawerOpen, setResolveIssueDrawerOpen] = useState(false);
+  const [selectedForResolveIssue, setSelectedForResolveIssue] = useState<Contractor | null>(null);
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -1432,7 +1435,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    toast("Tracking payout...");
+                                    navigate('/payroll/batch/current#track');
                                   }}
                                 >
                                   Track payout
@@ -1460,7 +1463,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7 border-red-500/30"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    toast("Resolving issue...");
+                                    setSelectedForResolveIssue(contractor);
+                                    setResolveIssueDrawerOpen(true);
                                   }}
                                 >
                                   Resolve issue
@@ -1610,6 +1614,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
             toast.success(`${selectedForCertified.name} is now ready for payroll`);
           }
         }}
+      />
+
+      {/* Resolve Payroll Issue Drawer */}
+      <ResolvePayrollIssueDrawer
+        open={resolveIssueDrawerOpen}
+        onClose={() => setResolveIssueDrawerOpen(false)}
+        contractorName={selectedForResolveIssue?.name || ""}
+        contractorCountry={selectedForResolveIssue?.country || ""}
       />
     </div>
   );
