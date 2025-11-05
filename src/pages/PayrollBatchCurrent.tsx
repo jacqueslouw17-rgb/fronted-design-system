@@ -125,6 +125,14 @@ export default function PayrollBatchCurrent() {
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
   const [bankAccountType, setBankAccountType] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState<"pending" | "requested" | "viewed" | "approved">("pending");
+  const [approvalTimeline, setApprovalTimeline] = useState<Array<{ status: string; timestamp: Date | null }>>([
+    { status: "requested", timestamp: null },
+    { status: "viewed", timestamp: null },
+    { status: "approved", timestamp: null },
+  ]);
+  const [isRequestingApproval, setIsRequestingApproval] = useState(false);
+  const [userRole] = useState<"admin" | "user">("admin"); // In real app, get from auth/Supabase
 
   const handleKurtAction = (action: string) => {
     setOpen(true);
@@ -210,6 +218,42 @@ export default function PayrollBatchCurrent() {
 
   const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
   const allExceptionsResolved = activeExceptions.length === 0;
+
+  const handleRequestApproval = () => {
+    setIsRequestingApproval(true);
+    
+    // Simulate sending request
+    setTimeout(() => {
+      setApprovalStatus("requested");
+      setApprovalTimeline(prev => prev.map((item, idx) => 
+        idx === 0 ? { ...item, timestamp: new Date() } : item
+      ));
+      setIsRequestingApproval(false);
+      toast.success("Approval request sent to Howard (CFO)");
+      
+      // Simulate CFO viewing after 3 seconds
+      setTimeout(() => {
+        setApprovalStatus("viewed");
+        setApprovalTimeline(prev => prev.map((item, idx) => 
+          idx === 1 ? { ...item, timestamp: new Date() } : item
+        ));
+        toast.info("Howard has viewed the approval request");
+      }, 3000);
+    }, 1500);
+  };
+
+  const handleAdminOverride = () => {
+    setApprovalStatus("approved");
+    setApprovalTimeline(prev => prev.map((item, idx) => 
+      idx === 2 ? { ...item, timestamp: new Date() } : item
+    ));
+    toast.success("Approved via admin override");
+    
+    // Auto-advance to Execute step after approval
+    setTimeout(() => {
+      setCurrentStep("execute");
+    }, 1500);
+  };
 
   const getCurrentStepIndex = () => {
     return steps.findIndex(s => s.id === currentStep);
@@ -630,51 +674,217 @@ export default function PayrollBatchCurrent() {
 
       case "approvals":
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Financial Approval</h3>
+
+            {/* Approval Card for CFO */}
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Approval Workflow</h3>
-                
+              <CardContent className="p-6 space-y-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">CFO Approval Required</h3>
+                    <p className="text-xs text-muted-foreground">Howard Mitchell • Chief Financial Officer</p>
+                  </div>
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "text-xs",
+                      approvalStatus === "approved" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                      approvalStatus === "requested" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                      approvalStatus === "viewed" && "bg-amber-500/10 text-amber-600 border-amber-500/30",
+                      approvalStatus === "pending" && "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {approvalStatus === "approved" && "Approved"}
+                    {approvalStatus === "requested" && "Pending"}
+                    {approvalStatus === "viewed" && "Under Review"}
+                    {approvalStatus === "pending" && "Not Requested"}
+                  </Badge>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
+                      <div className="space-y-1">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">EUR</span>
+                          <span className="text-sm font-semibold">€14,500</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">NOK</span>
+                          <span className="text-sm font-semibold">kr137,000</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">PHP</span>
+                          <span className="text-sm font-semibold">₱785,000</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">FX Variance</p>
+                      <div className="space-y-1">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">vs Last Month</span>
+                          <span className="text-sm font-semibold text-accent-green-text">+2.3%</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Est. Savings</span>
+                          <span className="text-sm font-semibold text-accent-green-text">$15.2K</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">Payees</p>
+                      <p className="text-2xl font-bold">8</p>
+                      <p className="text-xs text-muted-foreground mt-1">contractors across 3 currencies</p>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">SLA Status</p>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                        <span className="text-sm font-medium text-foreground">On Track</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">2 days until deadline</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Risk Flags */}
+                <div className="p-4 rounded-lg border border-blue-500/20 bg-blue-500/5">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs font-medium text-foreground mb-1">SLA Risk Assessment</p>
+                      <p className="text-xs text-muted-foreground">
+                        Payment processing by Oct 30 required to meet contractor payment dates. No critical blockers identified.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Approval Timeline */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-accent-green-fill/20 border border-accent-green-outline/30">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">HR Approval</p>
-                        <p className="text-xs text-muted-foreground">Approved by Sarah Chen</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                      Approved
-                    </Badge>
+                  <p className="text-xs font-medium text-muted-foreground">Approval Timeline</p>
+                  <div className="space-y-2">
+                    {approvalTimeline.map((item, index) => {
+                      const isActive = approvalStatus === item.status || 
+                        (approvalStatus === "approved" && item.status !== "approved") ||
+                        (approvalStatus === "viewed" && item.status === "requested");
+                      
+                      return (
+                        <div key={item.status} className="flex items-center gap-3">
+                          <div className={cn(
+                            "flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors",
+                            isActive || item.timestamp 
+                              ? "bg-accent-green-fill border-accent-green-outline" 
+                              : "bg-muted border-border"
+                          )}>
+                            {item.timestamp ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                            ) : (
+                              <Circle className={cn(
+                                "h-2 w-2",
+                                isActive ? "fill-accent-green-text" : "fill-muted-foreground"
+                              )} />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={cn(
+                              "text-sm font-medium",
+                              item.timestamp ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            </p>
+                            {item.timestamp && (
+                              <p className="text-xs text-muted-foreground">
+                                {item.timestamp.toLocaleTimeString('en-US', { 
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                    <div className="flex items-center gap-3">
-                      <Circle className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Finance Approval</p>
-                        <p className="text-xs text-muted-foreground">Awaiting John Mitchell</p>
-                      </div>
-                    </div>
-                    <Badge variant="outline">Pending</Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-                    <div className="flex items-center gap-3">
-                      <Circle className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Final Sign-off</p>
-                        <p className="text-xs text-muted-foreground">Your approval required</p>
-                      </div>
-                    </div>
-                    <Button size="sm">
-                      Approve
+                {/* Action Buttons */}
+                {approvalStatus !== "approved" && (
+                  <div className="flex gap-3 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      disabled={approvalStatus !== "pending" || isRequestingApproval}
+                      onClick={handleRequestApproval}
+                    >
+                      {isRequestingApproval ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Request Approval"
+                      )}
                     </Button>
+                    {userRole === "admin" && (
+                      <Button
+                        className="flex-1"
+                        onClick={handleAdminOverride}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Approve Now (Admin Override)
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {approvalStatus === "approved" && (
+                  <div className="flex items-center gap-2 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                    <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Approved</p>
+                      <p className="text-xs text-muted-foreground">Ready to execute payroll batch</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Info Note */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-foreground">Approval Notifications</p>
+                    <p className="text-xs text-muted-foreground">
+                      Requesting approval will send an email and Slack message to Howard with a secure deep-link to review and approve this batch.
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Footer CTA */}
+            {approvalStatus !== "approved" && (
+              <div className="pt-4 border-t border-border">
+                <Button
+                  className="w-full h-11 text-sm font-medium"
+                  disabled
+                >
+                  Waiting for Approval
+                </Button>
+              </div>
+            )}
           </div>
         );
 
