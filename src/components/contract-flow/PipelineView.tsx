@@ -1009,11 +1009,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   return (
                     <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 mb-3">
                       <CardContent className="p-3 space-y-3">
-                        <div className="flex items-center justify-between">
+                        <div>
                           <h4 className="text-xs font-semibold text-foreground">Monthly Payroll Summary</h4>
-                          <Badge variant="outline" className="text-[10px] bg-background/50">
-                            {selectedPayrollCycle === "last" ? "Last Month" : selectedPayrollCycle === "next" ? "Next Month" : "Current Month"}
-                          </Badge>
                         </div>
                         
                         <div className="grid grid-cols-3 gap-2">
@@ -1023,7 +1020,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] text-muted-foreground">Total Gross</p>
-                            <p className="text-lg font-bold text-foreground">${totalGross.toLocaleString()}</p>
+                            <p className="text-lg font-bold text-foreground">
+                              ${totalGross >= 1000000 
+                                ? `${(totalGross / 1000000).toFixed(1)}M` 
+                                : `${(totalGross / 1000).toFixed(0)}K`}
+                            </p>
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] text-muted-foreground">FX Variance</p>
