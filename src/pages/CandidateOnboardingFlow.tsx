@@ -86,18 +86,10 @@ export default function CandidateOnboardingFlow() {
     }
   };
 
-  // Auto-speak when entering the form (after welcome screen)
+  // Visual indicator only - no audio playback
   useEffect(() => {
-    if (currentStep !== "welcome" && currentStep !== "complete" && !isSpeaking) {
-      // Delay to ensure the component is mounted
-      const timer = setTimeout(() => {
-        setIsSpeaking(true);
-        speak(kurtMessage, () => {
-          setIsSpeaking(false);
-        });
-      }, 500);
-      
-      return () => clearTimeout(timer);
+    if (currentStep !== "welcome" && currentStep !== "complete") {
+      setIsSpeaking(false);
     }
   }, [currentStep]);
 

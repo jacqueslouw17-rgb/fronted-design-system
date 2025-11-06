@@ -18,7 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { motion } from "framer-motion";
 
 // Step components
@@ -64,25 +63,12 @@ const AdminOnboarding = () => {
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
-
-  // Auto-speak welcome message on page load only if not muted
-  useEffect(() => {
-    if (!hasWelcomeSpoken && !isKurtMuted) {
-      const timer = setTimeout(() => {
-        setHasWelcomeSpoken(true);
-        handleSpeak(welcomeMessage);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [hasWelcomeSpoken, welcomeMessage, isKurtMuted]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -94,31 +80,16 @@ const AdminOnboarding = () => {
     }, 100);
   };
 
-  // Handle mute toggle
-  const handleMuteToggle = () => {
-    setIsKurtMuted(!isKurtMuted);
-    if (isSpeaking && !isKurtMuted) {
-      stop(); // Stop audio if currently speaking and switching to muted
-    }
-  };
-
-  // Helper function to handle speaking with mute awareness
+  // Helper function to handle speaking (visual only, no audio)
   const handleSpeak = (message: string, onEnd?: () => void) => {
     setIsSpeaking(true);
     setKurtMessage(message);
     
-    // Always call speak for word-by-word progression, but stop immediately if muted
-    speak(message, () => {
+    // Visual indicators only - no audio playback
+    setTimeout(() => {
       setIsSpeaking(false);
       onEnd?.();
-    });
-    
-    // If muted, stop the audio immediately but keep visual indicators
-    if (isKurtMuted) {
-      setTimeout(() => {
-        stop();
-      }, 50);
-    }
+    }, 2000);
   };
 
   // Handle speak button click
@@ -137,18 +108,10 @@ const AdminOnboarding = () => {
       scrollToStep("intro_trust_model");
     }, 2000);
     
-    stop();
-    if (!isKurtMuted) {
-      speak(initialMessage, () => {
-        setIsSpeaking(false);
-        setHasFinishedReading(true);
-        setHasAutoStarted(false);
-      });
-    } else {
-      setIsSpeaking(false);
-      setHasFinishedReading(true);
-      setHasAutoStarted(false);
-    }
+    // Visual only - no audio
+    setIsSpeaking(false);
+    setHasFinishedReading(true);
+    setHasAutoStarted(false);
   };
 
   // Auto-start listening after AI finishes speaking (only once per message)
@@ -808,25 +771,20 @@ const AdminOnboarding = () => {
             <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
 
-          {/* Title and Subtitle Container */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-center space-y-3 max-w-2xl"
-          >
-            <h1 className="text-3xl font-bold text-foreground">Admin Onboarding</h1>
-            
-            {/* Subtitle with Mute Button */}
-            <div className="flex items-center justify-center gap-2">
+            {/* Title and Subtitle Container */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+              className="text-center space-y-3 max-w-2xl"
+            >
+              <h1 className="text-3xl font-bold text-foreground">Admin Onboarding</h1>
               <p className={`text-base text-center transition-colors duration-300 ${
                 isSpeaking ? "text-foreground/80" : "text-muted-foreground"
               }`}>
                 Let's get you ready to start drafting contracts and collecting key details.
               </p>
-              <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
-            </div>
-          </motion.div>
+            </motion.div>
         </div>
 
         {/* Progress Bar */}

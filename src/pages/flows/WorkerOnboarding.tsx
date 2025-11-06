@@ -13,7 +13,6 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -40,7 +39,6 @@ const WorkerOnboarding = () => {
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "worker_onboarding",
@@ -56,32 +54,6 @@ const WorkerOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Handle mute toggle
-  const handleMuteToggle = () => {
-    setIsKurtMuted(!isKurtMuted);
-    if (isSpeaking && !isKurtMuted) {
-      stop();
-    }
-  };
-
-  // Helper function to handle speaking with mute awareness
-  const handleSpeak = (message: string, onEnd?: () => void) => {
-    setIsSpeaking(true);
-    
-    // Always call speak for word-by-word progression, but stop immediately if muted
-    speak(message, () => {
-      setIsSpeaking(false);
-      onEnd?.();
-    });
-    
-    // If muted, stop the audio immediately but keep visual indicators
-    if (isKurtMuted) {
-      setTimeout(() => {
-        stop();
-      }, 50);
-    }
-  };
-
   // Prefill demo data
   useEffect(() => {
     updateFormData({
@@ -91,14 +63,6 @@ const WorkerOnboarding = () => {
       employmentType: "employee"
     });
   }, [updateFormData]);
-
-  // Auto-speak welcome message
-  useEffect(() => {
-    if (!hasSpokenWelcome.current && state.currentStep === "welcome") {
-      handleSpeak(welcomeMessage);
-      hasSpokenWelcome.current = true;
-    }
-  }, [state.currentStep, welcomeMessage]);
 
   const scrollToStep = (stepId: string) => {
     const element = document.getElementById(`step-${stepId}`);
@@ -206,25 +170,20 @@ const WorkerOnboarding = () => {
             <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
 
-          {/* Title and Subtitle Container */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-center space-y-3 max-w-2xl"
-          >
-            <h1 className="text-3xl font-bold text-foreground">Candidate Onboarding</h1>
-            
-            {/* Subtitle with Mute Button */}
-            <div className="flex items-center justify-center gap-2">
+            {/* Title and Subtitle Container */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+              className="text-center space-y-3 max-w-2xl"
+            >
+              <h1 className="text-3xl font-bold text-foreground">Candidate Onboarding</h1>
               <p className={`text-base text-center transition-colors duration-300 ${
                 isSpeaking ? "text-foreground/80" : "text-muted-foreground"
               }`}>
                 It's go time! Review, confirm, and welcome your new hire onboard.
               </p>
-              <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
-            </div>
-          </motion.div>
+            </motion.div>
         </div>
 
         {/* Progress bar */}
