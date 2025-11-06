@@ -162,7 +162,7 @@ const CandidateOnboarding = () => {
             className="flex justify-center"
             style={{ maxHeight: '240px' }}
           >
-            <AudioWaveVisualizer isActive={true} />
+            <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 10 }}

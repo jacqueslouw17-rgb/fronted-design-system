@@ -175,7 +175,7 @@ export default function CandidateOnboardingFlow() {
             className="max-w-2xl w-full text-center space-y-8"
           >
             <div className="mx-auto">
-              <AudioWaveVisualizer isActive={true} />
+              <AudioWaveVisualizer isActive={false} />
             </div>
             
             <div className="space-y-4">
