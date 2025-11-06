@@ -58,13 +58,11 @@ const StepCard = ({
   };
 
   if (isExpanded) {
-    const borderClass = status === 'active' && !isLocked 
-      ? 'border-primary/40 ring-2 ring-primary/20' 
-      : 'border-white/40';
+    const borderClass = 'border-white/40';
       
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden relative z-10">
-        <Card className={`p-4 sm:p-5 ${borderClass} bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate`}>
+        <Card className={`p-4 sm:p-5 ${borderClass} bg-white/30 backdrop-blur-md hover:bg-white/35 transition-colors duration-200 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none`}>
           <div 
             className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" 
             onClick={onClick}
@@ -103,7 +101,7 @@ const StepCard = ({
   return (
     <div className="transition-all duration-500 ease-in-out relative z-10">
       <Card
-        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out group border-white/10 bg-white/5 backdrop-blur-md relative isolate touch-manipulation ${
+        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out group border-white/10 bg-white/5 backdrop-blur-md relative isolate touch-manipulation focus:outline-none focus-visible:outline-none ${
           isDisabled 
             ? "opacity-40 cursor-not-allowed" 
             : "cursor-pointer hover:bg-white/10"

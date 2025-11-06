@@ -22,11 +22,6 @@ const WorkerStep1Welcome = ({ formData, onComplete, isProcessing = false, isLoad
   const handleAuthComplete = (method: string, data?: Record<string, any>) => {
     setAuthMethod(method);
     setAuthData(data || {});
-    
-    toast({
-      title: "Authentication method selected",
-      description: `You'll sign in with ${method === 'email' ? 'email and password' : method}`,
-    });
   };
 
   const handleContinue = () => {
