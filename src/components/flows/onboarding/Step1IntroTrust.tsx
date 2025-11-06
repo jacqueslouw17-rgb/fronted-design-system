@@ -93,8 +93,8 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         </div>
 
         {/* Kurt Assistant Callout */}
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-[#EAF3FF] dark:bg-primary/10 border border-primary/20">
-          <span className="text-lg leading-none flex-shrink-0">💡</span>
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-[#EAF3FF] dark:bg-primary/10 border border-primary/20 animate-[fadeSlideIn_0.6s_ease-out] motion-reduce:animate-none">
+          <span className="text-lg leading-none flex-shrink-0 animate-[iconGlowPulse_2s_ease-in-out_infinite] motion-reduce:animate-none">💡</span>
           <p className="text-sm text-foreground/90 leading-relaxed">
             You'll have <span className="font-medium">Kurt</span>, your AI assistant, helping with setup and next steps whenever you need guidance.
           </p>

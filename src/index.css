@@ -357,6 +357,27 @@ All colors MUST be HSL.
     }
   }
   
+  /* Kurt callout animations */
+  @keyframes fadeSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes iconGlowPulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 0px hsl(221 83% 53% / 0));
+    }
+    50% {
+      filter: drop-shadow(0 0 6px hsl(221 83% 53% / 0.15));
+    }
+  }
+  
   /* React Grid Layout styles */
   .react-grid-layout {
     position: relative;
