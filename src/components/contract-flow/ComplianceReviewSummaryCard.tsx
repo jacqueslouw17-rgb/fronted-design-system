@@ -11,6 +11,7 @@ interface ComplianceReviewSummaryCardProps {
   reviewedBy?: string;
   onDownloadReport?: () => void;
   onViewDashboard?: () => void;
+  onProceedToPayroll?: () => void;
 }
 
 export const ComplianceReviewSummaryCard: React.FC<ComplianceReviewSummaryCardProps> = ({
@@ -20,6 +21,7 @@ export const ComplianceReviewSummaryCard: React.FC<ComplianceReviewSummaryCardPr
   reviewedBy = "You",
   onDownloadReport,
   onViewDashboard,
+  onProceedToPayroll,
 }) => {
   const slaMet = issuesResolved === issuesFound ? 100 : Math.round((issuesResolved / issuesFound) * 100);
   const currentDate = new Date().toLocaleDateString('en-US', {
@@ -76,25 +78,37 @@ export const ComplianceReviewSummaryCard: React.FC<ComplianceReviewSummaryCardPr
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-3 border-t border-success/20">
-            <Button
-              onClick={onDownloadReport}
-              variant="outline"
-              size="sm"
-              className="flex-1 gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download Audit Report
-            </Button>
-            <Button
-              onClick={onViewDashboard}
-              variant="outline"
-              size="sm"
-              className="flex-1 gap-2"
-            >
-              <BarChart3 className="h-4 w-4" />
-              View in Dashboard
-            </Button>
+          <div className="space-y-2 pt-3 border-t border-success/20">
+            <div className="flex gap-2">
+              <Button
+                onClick={onDownloadReport}
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Audit Report
+              </Button>
+              <Button
+                onClick={onViewDashboard}
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-2"
+              >
+                <BarChart3 className="h-4 w-4" />
+                View in Dashboard
+              </Button>
+            </div>
+            {onProceedToPayroll && (
+              <Button
+                onClick={onProceedToPayroll}
+                variant="default"
+                size="sm"
+                className="w-full"
+              >
+                💸 Proceed to Payroll
+              </Button>
+            )}
           </div>
         </div>
       </Card>

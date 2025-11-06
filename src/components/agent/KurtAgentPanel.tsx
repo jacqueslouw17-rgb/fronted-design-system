@@ -8,6 +8,9 @@ import { Card } from '@/components/ui/card';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { ComplianceReviewSummaryCard } from '@/components/contract-flow/ComplianceReviewSummaryCard';
+import { PayrollBatchPreviewCard } from '@/components/contract-flow/PayrollBatchPreviewCard';
+import { usePayrollBatch } from '@/hooks/usePayrollBatch';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const loadingPhrases = [
@@ -20,13 +23,15 @@ const loadingPhrases = [
 ];
 
 export const KurtAgentPanel: React.FC = () => {
-  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking, setCurrentWordIndex } = useAgentState();
+  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking, setCurrentWordIndex, addMessage } = useAgentState();
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [readingMessageId, setReadingMessageId] = useState<string | null>(null);
   const [kurtState, setKurtState] = useState<'idle' | 'listening' | 'thinking' | 'responding' | 'working' | 'complete'>('idle');
   const scrollRef = useRef<HTMLDivElement>(null);
   const { speak, stop, currentWordIndex: localWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
+  const { createBatch, batches } = usePayrollBatch();
+  const navigate = useNavigate();
 
   // Preserve conversation when panel opens; do not clear on mount
   // If needed, we can clear explicitly via a control elsewhere.
@@ -228,6 +233,103 @@ export const KurtAgentPanel: React.FC = () => {
                             }}
                             onViewDashboard={() => {
                               toast.info("Scrolling to compliance summary...");
+                            }}
+                            onProceedToPayroll={() => {
+                              // Add context message
+                              addMessage({
+                                role: 'kurt',
+                                text: "Perfect. All contracts are verified — let's prepare the next payroll batch.",
+                              });
+                              
+                              // Show loading message
+                              setTimeout(() => {
+                                addMessage({
+                                  role: 'kurt',
+                                  text: "Pulling all certified contractors into the current month's batch...",
+                                });
+                                
+                                // Create mock payees data
+                                const mockPayees = [
+                                  {
+                                    workerId: "w1",
+                                    name: "Oskar Nilsen",
+                                    countryCode: "NO",
+                                    currency: "NOK",
+                                    gross: 35000,
+                                    employerCosts: 3500,
+                                    adjustments: [],
+                                    status: "CERTIFIED" as const,
+                                  },
+                                  {
+                                    workerId: "w2",
+                                    name: "Maria Santos",
+                                    countryCode: "PH",
+                                    currency: "PHP",
+                                    gross: 25000,
+                                    employerCosts: 2500,
+                                    adjustments: [],
+                                    status: "CERTIFIED" as const,
+                                  },
+                                  {
+                                    workerId: "w3",
+                                    name: "John Peterson",
+                                    countryCode: "NO",
+                                    currency: "NOK",
+                                    gross: 32600,
+                                    employerCosts: 3260,
+                                    adjustments: [],
+                                    status: "CERTIFIED" as const,
+                                  },
+                                ];
+                                
+                                // Create the batch
+                                const batchId = createBatch("2025-11", mockPayees, "Admin User");
+                                
+                                // Show batch preview
+                                setTimeout(() => {
+                                  addMessage({
+                                    role: 'kurt',
+                                    text: "💸 PAYROLL_BATCH_PREVIEW",
+                                  });
+                                }, 1500);
+                              }, 800);
+                            }}
+                          />
+                        ) : msg.text.includes('💸 PAYROLL_BATCH_PREVIEW') ? (
+                          // Render the Payroll Batch Preview Card
+                          <PayrollBatchPreviewCard
+                            month="November 2025"
+                            countrySplit={[
+                              { code: "NO", count: 3 },
+                              { code: "PH", count: 5 },
+                            ]}
+                            totalPayout={92600}
+                            fxVariance={0.4}
+                            onReviewFX={() => {
+                              const batch = batches[0];
+                              if (batch) {
+                                addMessage({
+                                  role: 'kurt',
+                                  text: "Pulling numbers like a pro accountant... but with better UX. 📊",
+                                });
+                                setTimeout(() => {
+                                  navigate(`/payroll-batch?batchId=${batch.id}`);
+                                }, 500);
+                              }
+                            }}
+                            onSendForApproval={() => {
+                              addMessage({
+                                role: 'kurt',
+                                text: "CFO approval request sent to @Howard. You'll be notified once he approves.",
+                              });
+                              
+                              // Update batch status
+                              setTimeout(() => {
+                                addMessage({
+                                  role: 'kurt',
+                                  text: "✅ Batch status updated to: 🕓 Pending CFO Review.",
+                                });
+                              }, 1000);
                             }}
                           />
                         ) : msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
