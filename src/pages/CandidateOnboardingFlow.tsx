@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { useEffect } from "react";
 import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
+import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
 
 type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
 
@@ -44,78 +43,109 @@ export default function CandidateOnboardingFlow() {
   const { candidateId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
+  // Use persistent store
+  const { state, updateFormData: updateStoreFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useCandidateDataFlowBridge();
+  
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [kurtMessage, setKurtMessage] = useState(
     "Let's complete a few quick details so we can finalize your contract."
   );
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "Maria Santos",
-    email: "maria.santos@example.com",
-    phone: "",
-    address: "",
-    city: "",
-    country: "Philippines",
-    taxResidence: "Philippines",
-    tin: "",
-    nationalIdFile: null,
-    bankName: "",
-    accountNumber: "",
-    swiftBic: "",
-    currency: "PHP",
-    emergencyName: "",
-    emergencyPhone: "",
-    emergencyRelation: "",
-  });
   const [agreed, setAgreed] = useState(false);
-  const [expandedStep, setExpandedStep] = useState<string | null>(null);
 
   const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "review"];
-  const currentStepIndex = steps.indexOf(currentStep);
+  const currentStepIndex = steps.indexOf(state.currentStep as OnboardingStep);
   const progressPercent = ((currentStepIndex) / (steps.length - 1)) * 100;
 
+  // Initialize form data if empty
+  useEffect(() => {
+    if (!state.formData.welcome) {
+      updateStoreFormData({
+        fullName: "Maria Santos",
+        email: "maria.santos@example.com",
+        phone: "",
+        address: "",
+        city: "",
+        country: "Philippines",
+        taxResidence: "Philippines",
+        tin: "",
+        nationalIdFile: null,
+        bankName: "",
+        accountNumber: "",
+        swiftBic: "",
+        currency: "PHP",
+        emergencyName: "",
+        emergencyPhone: "",
+        emergencyRelation: "",
+      });
+    }
+  }, []);
+
+  const formData = state.formData[state.currentStep] || state.formData;
+
   const updateFormData = (updates: Partial<FormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    updateStoreFormData({ ...formData, ...updates });
   };
 
   const handleNext = () => {
+    // Complete current step
+    completeStep(state.currentStep);
+    
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
       const nextStep = steps[nextIndex];
-      setCurrentStep(nextStep);
+      goToStep(nextStep);
+      setExpandedStep(nextStep);
       utilScrollToStep(nextStep, { focusHeader: true, delay: 100 });
     }
   };
 
   // Visual indicator only - no audio playback
   useEffect(() => {
-    if (currentStep !== "welcome" && currentStep !== "complete") {
+    if (state.currentStep !== "welcome" && state.currentStep !== "complete") {
       setIsSpeaking(false);
     }
-  }, [currentStep]);
+  }, [state.currentStep]);
 
   const handleBack = () => {
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
       const prevStep = steps[prevIndex];
-      setCurrentStep(prevStep);
+      goToStep(prevStep);
+      setExpandedStep(prevStep);
       utilScrollToStep(prevStep, { focusHeader: true, delay: 100 });
     }
   };
 
   const handleSubmit = () => {
+    // Complete final step
+    completeStep("review");
+    
     toast({
       title: "✅ Form Submitted Successfully!",
       description: "Your information has been received.",
     });
 
-    // Simulate backend update
-    console.log("Candidate onboarding complete:", candidateId, formData);
-    
     // Navigate directly to dashboard
     navigate('/candidate-dashboard');
+  };
+
+  const handleStepClick = (stepId: string) => {
+    const status = getStepStatus(stepId);
+    if (status !== "inactive") {
+      // Toggle: collapse if already expanded, expand if not
+      const wasExpanded = expandedStep === stepId;
+      const newExpandedStep = wasExpanded ? null : stepId;
+      setExpandedStep(newExpandedStep);
+      goToStep(stepId);
+      
+      if (newExpandedStep) {
+        // Scroll to the step when opening it
+        setTimeout(() => {
+          utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
+        }, 50);
+      }
+    }
   };
 
   const renderGenieTip = (message: string) => (
@@ -134,7 +164,7 @@ export default function CandidateOnboardingFlow() {
 
 
   // Welcome Screen
-  if (currentStep === "welcome") {
+  if (state.currentStep === "welcome") {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
@@ -242,26 +272,20 @@ export default function CandidateOnboardingFlow() {
               };
               const mappedStepId = stepMapping[step.id];
               const stepIndex = steps.indexOf(mappedStepId);
-              const isCompleted = currentStepIndex > stepIndex;
-              const isActive = currentStep === mappedStepId;
+              const status = getStepStatus(mappedStepId);
+              const isLocked = status === "inactive" && stepIndex > currentStepIndex;
 
               return (
                 <StepCard
                   key={step.id}
                   title={step.title}
                   stepNumber={idx + 1}
-                  status={isCompleted ? "completed" : isActive ? "active" : "pending"}
+                  status={status}
                   isExpanded={expandedStep === step.id}
-                  onClick={() => {
-                    if (isActive) {
-                      setExpandedStep(expandedStep === step.id ? null : step.id);
-                    }
-                  }}
+                  isLocked={isLocked}
+                  onClick={() => handleStepClick(mappedStepId)}
                 >
                   <p className="text-xs text-muted-foreground mb-1">{step.desc}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isCompleted ? "✓ Completed" : isActive ? "In progress" : "Pending"}
-                  </p>
                 </StepCard>
               );
             })}
@@ -271,19 +295,19 @@ export default function CandidateOnboardingFlow() {
           <div className="flex-1">
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentStep}
+                key={state.currentStep}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                data-step={currentStep}
+                data-step={state.currentStep}
                 role="region"
-                aria-labelledby={`step-header-${currentStep}`}
+                aria-labelledby={`step-header-${state.currentStep}`}
               >
                 <Card>
                   <CardContent className="p-8 space-y-8">
                     {/* Personal Info */}
-                    {currentStep === "personal" && (
+                    {state.currentStep === "personal" && (
                       <div className="space-y-6">
                         <div className="space-y-2" data-step-header id="step-header-personal">
                           <h2 className="text-2xl font-bold">Personal Information</h2>
@@ -333,7 +357,7 @@ export default function CandidateOnboardingFlow() {
                     )}
 
                     {/* Address & Residency */}
-                    {currentStep === "address" && (
+                    {state.currentStep === "address" && (
                       <div className="space-y-6">
                         <div className="space-y-2" data-step-header id="step-header-address">
                           <h2 className="text-2xl font-bold">Address & Residency</h2>
@@ -405,7 +429,7 @@ export default function CandidateOnboardingFlow() {
                     )}
 
                     {/* Tax & Compliance */}
-                    {currentStep === "tax" && (
+                    {state.currentStep === "tax" && (
                       <div className="space-y-6">
                         <div className="space-y-2" data-step-header id="step-header-tax">
                           <h2 className="text-2xl font-bold">Tax & Compliance</h2>
@@ -461,7 +485,7 @@ export default function CandidateOnboardingFlow() {
                     )}
 
                     {/* Review & Submit */}
-                    {currentStep === "review" && (
+                    {state.currentStep === "review" && (
                       <div className="space-y-6">
                         <div className="space-y-2" data-step-header id="step-header-review">
                           <h2 className="text-2xl font-bold">Review & Submit</h2>

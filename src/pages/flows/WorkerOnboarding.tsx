@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
-import { useFlowState } from "@/hooks/useFlowState";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useWorkerFlowBridge } from "@/hooks/useWorkerFlowBridge";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -36,18 +35,15 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 const WorkerOnboarding = () => {
   const navigate = useNavigate();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
-  const [expandedStep, setExpandedStep] = useState<string>("welcome");
+  
+  // Use persistent store
+  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useWorkerFlowBridge();
+  
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  
-  const { state, updateFormData, completeStep, goToStep } = useFlowState(
-    "worker_onboarding",
-    "welcome"
-  );
 
-  const { speak, stop, currentWordIndex } = useTextToSpeech();
   const hasSpokenWelcome = useRef(false);
   const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted - we'll help you complete a few quick tasks so your first day is smooth and compliant.");
 
@@ -103,21 +99,26 @@ const WorkerOnboarding = () => {
   };
 
   const handleStepClick = (stepId: string) => {
-    const isCompleted = state.completedSteps.includes(stepId);
-    const isCurrent = state.currentStep === stepId;
-    
-    if (isCompleted || isCurrent) {
+    const status = getStepStatus(stepId);
+    if (status !== "inactive") {
+      // Toggle: collapse if already expanded, expand if not
       const wasExpanded = expandedStep === stepId;
-      setExpandedStep(wasExpanded ? "" : stepId);
+      const newExpandedStep = wasExpanded ? null : stepId;
+      setExpandedStep(newExpandedStep);
+      goToStep(stepId);
       
-      if (!wasExpanded) {
-        scrollToStep(stepId);
+      if (newExpandedStep) {
+        // Scroll to the step when opening it
+        setTimeout(() => {
+          scrollToStep(stepId);
+        }, 50);
       }
     }
   };
 
   if (showCompletionScreen) {
-    return <WorkerCompletionScreen workerName={state.formData.workerName} />;
+    const workerName = state.formData[state.currentStep]?.workerName || state.formData.workerName || "Maria";
+    return <WorkerCompletionScreen workerName={workerName} />;
   }
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
@@ -190,13 +191,13 @@ const WorkerOnboarding = () => {
         {/* Steps */}
         <div className="space-y-4">
           {FLOW_STEPS.map((step, index) => {
-            const isCompleted = state.completedSteps.includes(step.id);
-            const isCurrent = state.currentStep === step.id;
+            const status = getStepStatus(step.id);
             const isExpanded = expandedStep === step.id;
-            
-            const status: "pending" | "active" | "completed" = 
-              isCompleted ? "completed" : isCurrent ? "active" : "pending";
             const headerId = `step-header-${step.id}`;
+            
+            // Lock steps that come after the current active step
+            const currentIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
+            const isLocked = index > currentIndex && status === 'inactive';
 
             return (
               <div 
@@ -211,6 +212,7 @@ const WorkerOnboarding = () => {
                   title={step.title}
                   status={status}
                   isExpanded={isExpanded}
+                  isLocked={isLocked}
                   onClick={() => handleStepClick(step.id)}
                   headerId={headerId}
                 >
