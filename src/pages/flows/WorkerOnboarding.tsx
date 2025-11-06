@@ -31,6 +31,8 @@ const FLOW_STEPS = [
   { id: "finish", title: "All Set!", icon: "🎉" }
 ];
 
+import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+
 const WorkerOnboarding = () => {
   const navigate = useNavigate();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
@@ -65,13 +67,7 @@ const WorkerOnboarding = () => {
   }, [updateFormData]);
 
   const scrollToStep = (stepId: string) => {
-    const element = document.getElementById(`step-${stepId}`);
-    
-    if (element) {
-      setTimeout(() => {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
+    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
   };
 
   const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
@@ -200,15 +196,23 @@ const WorkerOnboarding = () => {
             
             const status: "pending" | "active" | "completed" = 
               isCompleted ? "completed" : isCurrent ? "active" : "pending";
+            const headerId = `step-header-${step.id}`;
 
             return (
-              <div key={step.id} id={`step-${step.id}`}>
+              <div 
+                key={step.id} 
+                id={`step-${step.id}`}
+                data-step={step.id}
+                role="region"
+                aria-labelledby={headerId}
+              >
                 <StepCard
                   stepNumber={index + 1}
                   title={step.title}
                   status={status}
                   isExpanded={isExpanded}
                   onClick={() => handleStepClick(step.id)}
+                  headerId={headerId}
                 >
                   <AnimatePresence mode="wait">
                     {isExpanded && (

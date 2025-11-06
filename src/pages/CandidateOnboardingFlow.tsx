@@ -38,6 +38,8 @@ interface FormData {
   emergencyRelation: string;
 }
 
+import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+
 export default function CandidateOnboardingFlow() {
   const { candidateId } = useParams();
   const navigate = useNavigate();
@@ -79,10 +81,11 @@ export default function CandidateOnboardingFlow() {
   };
 
   const handleNext = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
-      setCurrentStep(steps[nextIndex]);
+      const nextStep = steps[nextIndex];
+      setCurrentStep(nextStep);
+      utilScrollToStep(nextStep, { focusHeader: true, delay: 100 });
     }
   };
 
@@ -94,10 +97,11 @@ export default function CandidateOnboardingFlow() {
   }, [currentStep]);
 
   const handleBack = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
-      setCurrentStep(steps[prevIndex]);
+      const prevStep = steps[prevIndex];
+      setCurrentStep(prevStep);
+      utilScrollToStep(prevStep, { focusHeader: true, delay: 100 });
     }
   };
 
@@ -272,13 +276,16 @@ export default function CandidateOnboardingFlow() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
+                data-step={currentStep}
+                role="region"
+                aria-labelledby={`step-header-${currentStep}`}
               >
                 <Card>
                   <CardContent className="p-8 space-y-8">
                     {/* Personal Info */}
                     {currentStep === "personal" && (
                       <div className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2" data-step-header id="step-header-personal">
                           <h2 className="text-2xl font-bold">Personal Information</h2>
                           <p className="text-foreground/60">Basic details about you</p>
                         </div>
@@ -328,7 +335,7 @@ export default function CandidateOnboardingFlow() {
                     {/* Address & Residency */}
                     {currentStep === "address" && (
                       <div className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2" data-step-header id="step-header-address">
                           <h2 className="text-2xl font-bold">Address & Residency</h2>
                           <p className="text-foreground/60">Where you live and work</p>
                         </div>
@@ -400,7 +407,7 @@ export default function CandidateOnboardingFlow() {
                     {/* Tax & Compliance */}
                     {currentStep === "tax" && (
                       <div className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2" data-step-header id="step-header-tax">
                           <h2 className="text-2xl font-bold">Tax & Compliance</h2>
                           <p className="text-foreground/60">Required for legal compliance</p>
                         </div>
@@ -456,7 +463,7 @@ export default function CandidateOnboardingFlow() {
                     {/* Review & Submit */}
                     {currentStep === "review" && (
                       <div className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2" data-step-header id="step-header-review">
                           <h2 className="text-2xl font-bold">Review & Submit</h2>
                           <p className="text-foreground/60">Please review your information</p>
                         </div>

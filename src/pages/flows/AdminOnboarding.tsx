@@ -19,6 +19,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import { motion } from "framer-motion";
+import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -70,14 +71,9 @@ const AdminOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Scroll to step helper
+  // Scroll to step helper with accessibility
   const scrollToStep = (stepId: string) => {
-    setTimeout(() => {
-      const stepElement = stepRefs.current[stepId];
-      if (stepElement) {
-        stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
   };
 
   // Helper function to handle speaking (visual only, no audio)
@@ -782,25 +778,33 @@ const AdminOnboarding = () => {
           {FLOW_STEPS.map((step) => {
             const status = getStepStatus(step.id);
             const isExpanded = expandedStep === step.id;
+            const headerId = `step-header-${step.id}`;
 
             return (
-              <StepCard
+              <div 
                 key={step.id}
-                title={step.title}
-                status={status}
-                stepNumber={step.stepNumber}
-                isExpanded={isExpanded}
-                onClick={() => handleStepClick(step.id)}
+                data-step={step.id}
+                role="region"
+                aria-labelledby={headerId}
               >
-                {isExpanded && (
-                  <div 
-                    ref={(el) => stepRefs.current[step.id] = el}
-                    className="pt-6"
-                  >
-                    {renderStepContent(step.id)}
-                  </div>
-                )}
-              </StepCard>
+                <StepCard
+                  title={step.title}
+                  status={status}
+                  stepNumber={step.stepNumber}
+                  isExpanded={isExpanded}
+                  onClick={() => handleStepClick(step.id)}
+                  headerId={headerId}
+                >
+                  {isExpanded && (
+                    <div 
+                      ref={(el) => stepRefs.current[step.id] = el}
+                      className="pt-6"
+                    >
+                      {renderStepContent(step.id)}
+                    </div>
+                  )}
+                </StepCard>
+              </div>
             );
           })}
         </div>

@@ -12,6 +12,7 @@ interface StepCardProps {
   isExpanded?: boolean;
   onClick?: () => void;
   children?: ReactNode;
+  headerId?: string;
 }
 
 const StepCard = ({
@@ -21,6 +22,7 @@ const StepCard = ({
   isExpanded = false,
   onClick,
   children,
+  headerId,
 }: StepCardProps) => {
   const getStatusBadge = () => {
     switch (status) {
@@ -46,7 +48,12 @@ const StepCard = ({
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden relative z-10">
         <Card className="p-4 sm:p-5 border-white/40 bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate">
-          <div className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" onClick={onClick}>
+          <div 
+            className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" 
+            onClick={onClick}
+            data-step-header
+            id={headerId}
+          >
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
               <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-white/25 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {stepNumber}
