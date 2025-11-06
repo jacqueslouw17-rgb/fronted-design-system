@@ -38,6 +38,7 @@ const CandidateOnboarding = () => {
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const hasInitialized = useRef(false);
 
   const [isSpeaking] = useState(false);
 
@@ -47,22 +48,28 @@ const CandidateOnboarding = () => {
     {} as Record<string, any>
   );
 
-  // Prefill demo data
+  // Prefill demo data and ensure first step is expanded
   useEffect(() => {
-    // Only prefill if no data exists yet
-    if (!allFormData.fullName) {
-      updateFormData({
-        fullName: "Maria Santos",
-        email: "maria.santos@example.com",
-        companyName: "Fronted Inc",
-        jobTitle: "Senior Developer",
-        role: "Senior Developer",
-        startDate: "2024-02-01",
-        employmentType: "contractor", // contractor or employee
-        country: "PH" // PH, NO, XK
-      });
+    if (!hasInitialized.current) {
+      // Only prefill if no data exists yet
+      if (!allFormData.fullName) {
+        updateFormData({
+          fullName: "Maria Santos",
+          email: "maria.santos@example.com",
+          companyName: "Fronted Inc",
+          jobTitle: "Senior Developer",
+          role: "Senior Developer",
+          startDate: "2024-02-01",
+          employmentType: "contractor", // contractor or employee
+          country: "PH" // PH, NO, XK
+        });
+      }
+      
+      // Always ensure first step is expanded on initial page load
+      setExpandedStep("personal_details");
+      hasInitialized.current = true;
     }
-  }, [updateFormData, allFormData.fullName]);
+  }, [updateFormData, allFormData.fullName, setExpandedStep]);
 
 
   // Scroll to step helper

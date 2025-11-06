@@ -62,12 +62,21 @@ const AdminOnboarding = () => {
   const [isKurtVisible, setIsKurtVisible] = useState(false); // Hidden by default
   const [hasActivatedSpeech, setHasActivatedSpeech] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
+  const hasInitialized = useRef(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
+
+  // Ensure first step is expanded on initial page load
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      setExpandedStep("intro_trust_model");
+      hasInitialized.current = true;
+    }
+  }, [setExpandedStep]);
 
   // Scroll to step helper with accessibility
   const scrollToStep = (stepId: string) => {

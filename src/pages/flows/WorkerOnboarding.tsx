@@ -45,6 +45,7 @@ const WorkerOnboarding = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const hasSpokenWelcome = useRef(false);
+  const hasInitialized = useRef(false);
   const [welcomeMessage] = useState("Hi Maria! Welcome to Fronted - we'll help you complete a few quick tasks so your first day is smooth and compliant.");
 
   // Sync local speaking state with agent state
@@ -52,15 +53,22 @@ const WorkerOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Prefill demo data
+  // Prefill demo data and ensure initial step is expanded
   useEffect(() => {
-    updateFormData({
-      workerName: "Maria",
-      email: "maria.santos@example.com",
-      country: "Philippines",
-      employmentType: "employee"
-    });
-  }, [updateFormData]);
+    if (!hasInitialized.current) {
+      updateFormData({
+        workerName: "Maria",
+        email: "maria.santos@example.com",
+        country: "Philippines",
+        employmentType: "employee"
+      });
+
+      // Always ensure first step is expanded on initial page load
+      setExpandedStep('welcome');
+      
+      hasInitialized.current = true;
+    }
+  }, [expandedStep, state.currentStep, updateFormData, setExpandedStep]);
 
   const scrollToStep = (stepId: string) => {
     utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
