@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Loader2, Globe } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AuthOptions from "@/components/shared/AuthOptions";
@@ -17,17 +16,9 @@ interface Step1Props {
 }
 
 const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false, isLoadingFields = false }: Step1Props) => {
-  const [privacyAccepted, setPrivacyAccepted] = useState(formData.privacyAccepted || false);
   const [authMethod, setAuthMethod] = useState(formData.authMethod || "");
   const [authData, setAuthData] = useState<Record<string, any>>(formData.authData || {});
   const [preferredLanguage, setPreferredLanguage] = useState(formData.preferredLanguage || "en");
-
-  // Watch for formData changes to auto-check privacy
-  useEffect(() => {
-    if (formData.privacyAccepted) {
-      setPrivacyAccepted(true);
-    }
-  }, [formData.privacyAccepted]);
 
   const handleAuthComplete = (method: string, data?: Record<string, any>) => {
     setAuthMethod(method);
@@ -40,15 +31,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
   };
 
   const handleContinue = () => {
-    if (!privacyAccepted) {
-      toast({
-        title: "Privacy acceptance required",
-        description: "Please accept the privacy terms to continue",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!authMethod) {
       toast({
         title: "Sign-in method required",
@@ -59,7 +41,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
     }
     
     onComplete("intro_trust_model", {
-      privacyAccepted,
       defaultInputMode: "chat",
       authMethod,
       authData,
@@ -143,21 +124,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         </div>
       </div>
 
-      {/* Privacy & Preferences Section */}
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4">
-        <div className="flex items-start gap-3 p-2 -m-2 rounded-md hover:bg-primary/8 transition-colors cursor-pointer" onClick={() => setPrivacyAccepted(!privacyAccepted)}>
-          <Checkbox
-            id="privacy"
-            checked={privacyAccepted}
-            onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
-            className="mt-0.5 pointer-events-none"
-          />
-          <Label htmlFor="privacy" className="text-sm leading-relaxed cursor-pointer text-foreground/90 pointer-events-none">
-            I accept the privacy policy and agree to data processing for contractor management purposes
-          </Label>
-        </div>
-      </div>
-
       {/* Action Button */}
       <div className="pt-1">
         {isLoadingFields ? (
@@ -165,7 +131,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         ) : (
           <Button
             onClick={handleContinue}
-            disabled={!privacyAccepted || !authMethod || isProcessing}
+            disabled={!authMethod || isProcessing}
             className="w-full"
             size="lg"
           >
