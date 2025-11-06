@@ -23,7 +23,7 @@ import WorkerStep7Finish from "@/components/flows/worker-onboarding/WorkerStep7F
 import WorkerCompletionScreen from "@/components/flows/worker-onboarding/WorkerCompletionScreen";
 
 const FLOW_STEPS = [
-  { id: "welcome", title: "Welcome to Fronted", icon: "👋" },
+  { id: "welcome", title: "Welcome and setup", icon: "👋" },
   { id: "personal", title: "Confirm Personal Information", icon: "👤" },
   { id: "compliance", title: "Compliance Requirements", icon: "📋" },
   { id: "payroll", title: "Payroll Details", icon: "💰" },
