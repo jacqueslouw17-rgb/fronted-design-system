@@ -223,10 +223,10 @@ const Flows = () => {
     {
       id: "f2-1-admin-payroll",
       title: "Flow 2.1 — Admin Payroll",
-      description: "From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance",
-      steps: 6,
-      patterns: ["genie-onboarding", "fx-breakdown", "smart-approval", "audit-trail", "data-cards"],
-      path: "/payroll-batch",
+      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
+      steps: 7,
+      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+      path: "/flows/contract-flow",
       comingSoon: false
     }
   ];
