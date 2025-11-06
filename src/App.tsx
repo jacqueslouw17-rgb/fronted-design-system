@@ -67,6 +67,7 @@ import OnboardingFlowPattern from "./pages/OnboardingFlowPattern";
 import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
 import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
+import PayrollBatch21 from "./pages/PayrollBatch21";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -146,6 +147,7 @@ const App = () => (
         <Route path="/payroll-demo" element={<PayrollUseCaseDemo />} />
         <Route path="/payroll/batch" element={<PayrollBatch />} />
         <Route path="/payroll/batch/current" element={<PayrollBatchCurrent />} />
+        <Route path="/payroll-batch" element={<PayrollBatch21 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
