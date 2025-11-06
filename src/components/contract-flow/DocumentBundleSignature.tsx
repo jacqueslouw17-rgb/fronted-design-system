@@ -28,6 +28,7 @@ import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 import { toast } from "sonner";
+import { ResolveExceptionsDrawer } from "./ResolveExceptionsDrawer";
 
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
@@ -62,6 +63,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [isSendingBundle, setIsSendingBundle] = useState(false);
   const [reviewingCandidateId, setReviewingCandidateId] = useState<string | null>(null);
   const [reviewedCandidates, setReviewedCandidates] = useState<Set<string>>(new Set());
+  const [showExceptionsDrawer, setShowExceptionsDrawer] = useState(false);
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { setOpen, addMessage, setLoading } = useAgentState();
   
@@ -208,6 +210,14 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         }, 1000);
         break;
         
+      case 'resolve-exceptions':
+        setShowExceptionsDrawer(true);
+        addMessage({
+          role: 'kurt',
+          text: "Opening the exceptions panel. Please review and resolve each item.",
+        });
+        break;
+        
       default:
         addMessage({
           role: 'kurt',
@@ -216,6 +226,16 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
     }
 
     setLoading(false);
+  };
+  
+  // Handle exception resolution
+  const handleExceptionResolve = (candidateId: string, action: string, actionLabel: string) => {
+    addMessage({
+      role: 'kurt',
+      text: `✅ ${actionLabel} — exception resolved.`,
+    });
+    
+    toast.success(`Exception resolved for ${actionLabel.split(' — ')[0]}`);
   };
 
   // Generate document bundles for each candidate
@@ -711,6 +731,14 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Resolve Exceptions Drawer */}
+      <ResolveExceptionsDrawer
+        open={showExceptionsDrawer}
+        onClose={() => setShowExceptionsDrawer(false)}
+        candidates={candidates}
+        onResolve={handleExceptionResolve}
+      />
     </div>
   );
 };
