@@ -120,10 +120,10 @@ export const KurtAgentPanel: React.FC = () => {
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="w-full h-full min-h-full bg-background border-l border-border flex flex-col relative"
+      className="w-full h-full bg-background border-l border-border flex flex-col relative overflow-hidden"
     >
-        {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between px-3 py-2 border-b border-border bg-background shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground text-sm">Kurt</span>
             {kurtState === 'thinking' && (
@@ -186,10 +186,13 @@ export const KurtAgentPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div className="flex-1 overflow-hidden overscroll-none">
-          <ScrollArea className="h-full px-4 py-4 overscroll-none">
-            <div className="space-y-6" ref={scrollRef}>
+        {/* Messages Area - Independent Scroll Container */}
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 scroll-smooth"
+          style={{ scrollBehavior: 'smooth' }}
+        >
+          <div className="space-y-6">
               <AnimatePresence mode="popLayout">
                 {messages.map((msg) => (
                   <motion.div
@@ -443,7 +446,6 @@ export const KurtAgentPanel: React.FC = () => {
                 )}
               </AnimatePresence>
             </div>
-          </ScrollArea>
         </div>
 
         {/* Footer */}
