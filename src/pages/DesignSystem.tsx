@@ -401,9 +401,7 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 transition-all duration-200 group-hover:bg-emerald-600 group-hover:border-emerald-600">
                         <Workflow className="h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 2 - Admin Workflow
-
-                    </CardTitle>
+                      <CardTitle className="text-lg">Flow 2 - Admin Contracting</CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">
                       From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow
@@ -618,37 +616,25 @@ const DesignSystem = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge
-                        variant="secondary"
-                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handlePatternClick('/onboarding');
-                        }}
-                      >
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/onboarding');
+                    }}>
                         Genie-Led Conversational Onboarding
                       </Badge>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handlePatternClick('/fx-breakdown');
-                        }}
-                      >
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/fx-breakdown');
+                    }}>
                         FX Breakdown Popover
                       </Badge>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handlePatternClick('/confirmation-modal');
-                        }}
-                      >
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/confirmation-modal');
+                    }}>
                         Confirmation Prompt + Smart Approval Modal
                       </Badge>
                       <Badge variant="outline" className="text-xs">+2</Badge>
