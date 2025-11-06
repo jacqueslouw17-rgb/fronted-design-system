@@ -38,14 +38,14 @@ const StepCard = ({
     switch (status) {
       case "completed":
         return (
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-0 font-normal">
+          <Badge variant="secondary" className="bg-[rgba(0,180,90,0.1)] text-[#027a48] border-0 font-medium rounded-md px-2.5 py-1 transition-all duration-200 ease-out animate-fade-in">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Complete
           </Badge>
         );
       case "active":
         return (
-          <Badge variant="secondary" className="bg-foreground/5 text-foreground/60 border-0 font-normal">
+          <Badge variant="secondary" className="bg-[rgba(100,150,255,0.12)] text-[#2a4fa5] border-0 font-medium rounded-md px-2.5 py-1 transition-all duration-200 ease-out animate-fade-in">
             In Progress
           </Badge>
         );
@@ -58,11 +58,14 @@ const StepCard = ({
   };
 
   if (isExpanded) {
+    const activeClass = status === 'active' && !isLocked
+      ? 'bg-[rgba(240,245,255,0.6)] shadow-[0_0_0_1px_rgba(0,0,0,0.06)]'
+      : 'bg-white/30';
     const borderClass = 'border-white/40';
       
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden relative z-10">
-        <Card className={`p-4 sm:p-5 ${borderClass} bg-white/30 backdrop-blur-md hover:bg-white/35 transition-colors duration-200 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none`}>
+        <Card className={`p-4 sm:p-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none`}>
           <div 
             className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" 
             onClick={onClick}
@@ -101,10 +104,10 @@ const StepCard = ({
   return (
     <div className="transition-all duration-500 ease-in-out relative z-10">
       <Card
-        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out group border-white/10 bg-white/5 backdrop-blur-md relative isolate touch-manipulation focus:outline-none focus-visible:outline-none ${
+        className={`p-3 sm:p-4 transition-all duration-200 ease-out group border-white/10 bg-white/5 backdrop-blur-md relative isolate touch-manipulation focus:outline-none focus-visible:outline-none ${
           isDisabled 
             ? "opacity-40 cursor-not-allowed" 
-            : "cursor-pointer hover:bg-white/10"
+            : "cursor-pointer hover:bg-[rgba(240,245,255,0.3)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.04)]"
         }`}
         onClick={!isDisabled ? onClick : undefined}
         title={isLocked ? "Complete current step first" : undefined}
