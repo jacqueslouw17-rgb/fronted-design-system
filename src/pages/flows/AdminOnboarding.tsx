@@ -186,8 +186,8 @@ const AdminOnboarding = () => {
       // Wait before speaking about org details
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // NOW speak about fetching org details
-      const loadingMessage = "Perfect! Let me fetch your organization details...";
+      // NOW speak about fetching org details - short and simple
+      const loadingMessage = "Retrieving any existing details…";
       setKurtMessage(loadingMessage);
       setMessageStyle("text-foreground/80");
       setHasFinishedReading(false);
@@ -215,42 +215,27 @@ const AdminOnboarding = () => {
         scrollToStep("org_profile");
       }, 800);
         
-      stop();
-      speak(loadingMessage, async () => {
+      // Short typing animation (1-2 seconds), then stop
+      setTimeout(() => {
         setIsSpeaking(false);
-        
-        // Keep skeleton loading visible
-        await new Promise(resolve => setTimeout(resolve, 700));
-        
-        // Populate the data
-        const orgData = {
-          companyName: "Fronted Inc",
-          primaryContactName: "Joe Smith",
-          primaryContactEmail: "joe@fronted.com",
-          hqCountry: "NO",
-          payrollCurrency: "NOK",
-          payrollFrequency: "monthly",
-          payoutDay: "25",
-          dualApproval: true
-        };
-        updateFormData(orgData);
-        setIsLoadingFields(false);
-        
-        // Confirm org details are ready and ask for user approval
-        const confirmMessage = "Here are your organization details. Happy with these? Just say 'yes' when you're ready to continue.";
-        setKurtMessage(confirmMessage);
-        setMessageStyle("text-foreground/80");
-        setHasFinishedReading(false);
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        stop();
-        speak(confirmMessage, () => {
-          setIsSpeaking(false);
-          setHasFinishedReading(true);
-          setHasAutoStarted(false);
-        });
-      });
+      }, 1500);
+      
+      // Keep skeleton loading visible
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Populate the data
+      const orgData = {
+        companyName: "Fronted Inc",
+        primaryContactName: "Joe Smith",
+        primaryContactEmail: "joe@fronted.com",
+        hqCountry: "NO",
+        payrollCurrency: "NOK",
+        payrollFrequency: "monthly",
+        payoutDay: "25",
+        dualApproval: true
+      };
+      updateFormData(orgData);
+      setIsLoadingFields(false);
       
       resetTranscript();
     }
