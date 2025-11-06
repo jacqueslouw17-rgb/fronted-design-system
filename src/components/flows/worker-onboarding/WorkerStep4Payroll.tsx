@@ -19,6 +19,8 @@ interface Step4Props {
 
 const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingFields }: Step4Props) => {
   const isContractor = formData.employmentType === "contractor";
+  // Check if we have persisted data (revisiting step)
+  const hasPersistedData = formData && formData.bankName;
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [autoFilledFields, setAutoFilledFields] = useState<string[]>([]);
   
@@ -27,13 +29,13 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
     accountNumber: formData.accountNumber || "",
     swiftBic: formData.swiftBic || "",
     iban: formData.iban || "",
-    payAcknowledged: false,
-    invoiceRuleConfirmed: false
+    payAcknowledged: formData.payAcknowledged || false,
+    invoiceRuleConfirmed: formData.invoiceRuleConfirmed || false
   });
 
-  // Auto-fill from ATS on mount for employees
+  // Auto-fill from ATS on mount for employees - ONLY if no persisted data
   useEffect(() => {
-    if (!isContractor && !formData.bankName) {
+    if (!isContractor && !hasPersistedData) {
       setIsAutoFilling(true);
       // No auto TTS
       
@@ -49,8 +51,16 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
         setAutoFilledFields(["bankName", "accountNumber", "swiftBic", "iban"]);
         setIsAutoFilling(false);
       }, 2000);
+    } else if (hasPersistedData) {
+      // Mark persisted fields
+      const persistedFields = [];
+      if (formData.bankName) persistedFields.push("bankName");
+      if (formData.accountNumber) persistedFields.push("accountNumber");
+      if (formData.swiftBic) persistedFields.push("swiftBic");
+      if (formData.iban) persistedFields.push("iban");
+      setAutoFilledFields(persistedFields);
     }
-  }, [isContractor, formData.country, formData.bankName]);
+  }, [isContractor, formData.country, hasPersistedData, formData.bankName, formData.accountNumber, formData.swiftBic, formData.iban]);
 
   const handleInputChange = (field: string, value: string) => {
     setData({ ...data, [field]: value });

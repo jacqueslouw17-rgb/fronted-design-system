@@ -20,9 +20,11 @@ interface Step2Props {
 }
 
 const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFields }: Step2Props) => {
+  // Check if we have persisted data (revisiting step)
+  const hasPersistedData = formData && Object.keys(formData).length > 0 && formData.fullName;
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
-    fullName: formData.workerName || "",
+    fullName: formData.fullName || formData.workerName || "",
     email: formData.email || "",
     phone: formData.phone || "",
     dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined,
@@ -31,11 +33,11 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
   });
 
   const [validationError, setValidationError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!hasPersistedData);
 
-  // Simulate data retrieval - visual only, no audio
+  // Simulate data retrieval - visual only, no audio - ONLY if no persisted data
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading && !hasPersistedData) {
       // No auto TTS
       const timer = setTimeout(() => {
         const fieldsToAutoFill = new Set<string>();
@@ -67,8 +69,18 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
       }, 2000);
 
       return () => clearTimeout(timer);
+    } else if (hasPersistedData) {
+      // If we have persisted data, mark those fields as previously filled
+      const persistedFields = new Set<string>();
+      if (formData.fullName || formData.workerName) persistedFields.add('fullName');
+      if (formData.email) persistedFields.add('email');
+      if (formData.phone) persistedFields.add('phone');
+      if (formData.dateOfBirth) persistedFields.add('dateOfBirth');
+      if (formData.nationality) persistedFields.add('nationality');
+      if (formData.address) persistedFields.add('address');
+      setAutoFilledFields(persistedFields);
     }
-  }, [isLoading]);
+  }, [isLoading, hasPersistedData, formData]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });

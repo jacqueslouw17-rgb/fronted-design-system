@@ -27,7 +27,9 @@ const Step2OrgProfileSimplified = ({
   isProcessing: externalProcessing, 
   isLoadingFields = false 
 }: Step2Props) => {
-  const [isAutoFilling, setIsAutoFilling] = useState(true);
+  // Check if we have persisted data (revisiting step)
+  const hasPersistedData = formData && Object.keys(formData).length > 0 && formData.companyName;
+  const [isAutoFilling, setIsAutoFilling] = useState(!hasPersistedData);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
     companyName: formData.companyName || "",
@@ -42,9 +44,9 @@ const Step2OrgProfileSimplified = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   // const { speak } = {} as any; // voice removed
 
-  // Auto-fill data on mount
+  // Auto-fill data on mount ONLY if no persisted data exists
   useEffect(() => {
-    if (isAutoFilling) {
+    if (isAutoFilling && !hasPersistedData) {
       const timer = setTimeout(() => {
         const fieldsToAutoFill = new Set<string>();
         
@@ -73,8 +75,17 @@ const Step2OrgProfileSimplified = ({
       }, 2000);
 
       return () => clearTimeout(timer);
+    } else if (hasPersistedData) {
+      // If we have persisted data, mark those fields as auto-filled for visual indicator
+      const persistedFields = new Set<string>();
+      if (formData.companyName) persistedFields.add('companyName');
+      if (formData.primaryContactName) persistedFields.add('primaryContactName');
+      if (formData.primaryContactEmail) persistedFields.add('primaryContactEmail');
+      if (formData.hqCountry) persistedFields.add('hqCountry');
+      if (formData.payrollCurrency) persistedFields.add('payrollCurrency');
+      setAutoFilledFields(persistedFields);
     }
-  }, [isAutoFilling, formData]);
+  }, [isAutoFilling, formData, hasPersistedData]);
 
   // Watch for formData updates from Kurt
   useEffect(() => {

@@ -21,19 +21,21 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
   const country = formData.country || "Philippines";
   const isContractor = formData.employmentType === "contractor";
   
-  const [isAutoFilling, setIsAutoFilling] = useState(true);
+  // Check if we have persisted data (revisiting step)
+  const hasPersistedData = formData && (formData.tinNumber || formData.nationalId);
+  const [isAutoFilling, setIsAutoFilling] = useState(!hasPersistedData);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
-    tinNumber: "",
-    philHealthNumber: "",
-    nationalId: "",
-    identityDocUploaded: false,
-    taxDocUploaded: false
+    tinNumber: formData.tinNumber || "",
+    philHealthNumber: formData.philHealthNumber || "",
+    nationalId: formData.nationalId || "",
+    identityDocUploaded: formData.identityDocUploaded || false,
+    taxDocUploaded: formData.taxDocUploaded || false
   });
 
-  // Auto-fill data from earlier steps with Kurt's voice
+  // Auto-fill data from earlier steps - ONLY if no persisted data
   useEffect(() => {
-    if (isAutoFilling) {
+    if (isAutoFilling && !hasPersistedData) {
       // No auto TTS
       const timer = setTimeout(() => {
         // Simulate data retrieval and auto-fill with mock data
@@ -79,8 +81,15 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
       }, 2000);
 
       return () => clearTimeout(timer);
+    } else if (hasPersistedData) {
+      // If we have persisted data, mark those fields as previously filled
+      const persistedFields = new Set<string>();
+      if (formData.tinNumber) persistedFields.add('tinNumber');
+      if (formData.philHealthNumber) persistedFields.add('philHealthNumber');
+      if (formData.nationalId) persistedFields.add('nationalId');
+      setAutoFilledFields(persistedFields);
     }
-  }, [isAutoFilling, formData, country, isContractor]);
+  }, [isAutoFilling, formData, country, isContractor, hasPersistedData]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFlowState } from "@/hooks/useFlowState";
+import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
 import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
@@ -32,12 +32,8 @@ const CandidateOnboarding = () => {
   const { token } = useParams<{ token: string }>();
   const isDemoMode = window.location.pathname.includes('demo');
   
-  const { state, updateFormData, completeStep, goToStep } = useFlowState(
-    "flows.candidate.onboarding",
-    "personal_details"
-  );
+  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepData } = useCandidateDataFlowBridge();
 
-  const [expandedStep, setExpandedStep] = useState<string | null>("personal_details");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
@@ -45,21 +41,28 @@ const CandidateOnboarding = () => {
 
   const [isSpeaking] = useState(false);
 
+  // Get all form data (flattened from all steps) with proper typing
+  const allFormData: Record<string, any> = Object.values(state.formData).reduce(
+    (acc, stepData) => ({ ...acc, ...stepData }), 
+    {} as Record<string, any>
+  );
 
   // Prefill demo data
   useEffect(() => {
-    // Always prefill for demo/preview purposes
-    updateFormData({
-      fullName: "Maria Santos",
-      email: "maria.santos@example.com",
-      companyName: "Fronted Inc",
-      jobTitle: "Senior Developer",
-      role: "Senior Developer",
-      startDate: "2024-02-01",
-      employmentType: "contractor", // contractor or employee
-      country: "PH" // PH, NO, XK
-    });
-  }, [updateFormData]);
+    // Only prefill if no data exists yet
+    if (!allFormData.fullName) {
+      updateFormData({
+        fullName: "Maria Santos",
+        email: "maria.santos@example.com",
+        companyName: "Fronted Inc",
+        jobTitle: "Senior Developer",
+        role: "Senior Developer",
+        startDate: "2024-02-01",
+        employmentType: "contractor", // contractor or employee
+        country: "PH" // PH, NO, XK
+      });
+    }
+  }, [updateFormData, allFormData.fullName]);
 
 
   // Scroll to step helper
@@ -126,7 +129,7 @@ const CandidateOnboarding = () => {
 
   // Show completion screen if all steps done
   if (showCompletionScreen) {
-    return <CandidateCompletionScreen candidateName={state.formData.fullName} />;
+    return <CandidateCompletionScreen candidateName={allFormData.fullName} />;
   }
 
   return (
@@ -170,7 +173,7 @@ const CandidateOnboarding = () => {
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             className="text-center space-y-3 max-w-2xl"
           >
-            <h1 className="text-3xl font-bold text-foreground">{`Hi ${state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{`Hi ${allFormData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}</h1>
             <p className={`text-base text-center transition-colors duration-300 ${isSpeaking ? "text-foreground/80" : "text-muted-foreground"}`}>
               Gather everything your new hire needs to get started quickly and compliantly.
             </p>
@@ -212,7 +215,7 @@ const CandidateOnboarding = () => {
                   >
                     {step.id === "personal_details" && (
                       <CandidateStep2PersonalDetails
-                        formData={state.formData}
+                        formData={allFormData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
@@ -220,7 +223,7 @@ const CandidateOnboarding = () => {
                     )}
                     {step.id === "compliance_docs" && (
                       <CandidateStep3Compliance
-                        formData={state.formData}
+                        formData={allFormData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
@@ -228,7 +231,7 @@ const CandidateOnboarding = () => {
                     )}
                     {step.id === "bank_details" && (
                       <CandidateStep4Bank
-                        formData={state.formData}
+                        formData={allFormData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
@@ -236,7 +239,7 @@ const CandidateOnboarding = () => {
                     )}
                     {step.id === "work_setup" && (
                       <CandidateStep5WorkSetup
-                        formData={state.formData}
+                        formData={allFormData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
@@ -244,7 +247,7 @@ const CandidateOnboarding = () => {
                     )}
                     {step.id === "confirm_submit" && (
                       <CandidateStep4Confirm
-                        formData={state.formData}
+                        formData={allFormData}
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
