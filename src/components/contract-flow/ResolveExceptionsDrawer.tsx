@@ -30,6 +30,7 @@ interface ResolveExceptionsDrawerProps {
   onClose: () => void;
   candidates: Candidate[];
   onResolve: (candidateId: string, action: string, actionLabel: string) => void;
+  onAllResolved?: () => void;
 }
 
 export const ResolveExceptionsDrawer: React.FC<ResolveExceptionsDrawerProps> = ({
@@ -37,6 +38,7 @@ export const ResolveExceptionsDrawer: React.FC<ResolveExceptionsDrawerProps> = (
   onClose,
   candidates,
   onResolve,
+  onAllResolved,
 }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [resolvedItems, setResolvedItems] = useState<Set<string>>(new Set());
@@ -235,7 +237,16 @@ export const ResolveExceptionsDrawer: React.FC<ResolveExceptionsDrawerProps> = (
             <p className="text-sm text-muted-foreground mb-4">
               Ready for next payroll cycle.
             </p>
-            <Button onClick={onClose} variant="default" className="w-full">
+            <Button 
+              onClick={() => {
+                onClose();
+                if (onAllResolved) {
+                  setTimeout(() => onAllResolved(), 300);
+                }
+              }} 
+              variant="default" 
+              className="w-full"
+            >
               Return to Review Summary
             </Button>
           </motion.div>

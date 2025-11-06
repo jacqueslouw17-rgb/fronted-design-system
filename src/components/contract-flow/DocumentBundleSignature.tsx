@@ -29,6 +29,7 @@ import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 import { toast } from "sonner";
 import { ResolveExceptionsDrawer } from "./ResolveExceptionsDrawer";
+import { ComplianceReviewSummaryCard } from "./ComplianceReviewSummaryCard";
 
 interface DocumentBundleSignatureProps {
   candidates: Candidate[];
@@ -298,6 +299,48 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
     });
     
     toast.success(`Exception resolved for ${actionLabel.split(' — ')[0]}`);
+  };
+  
+  // Handle all exceptions resolved
+  const handleAllExceptionsResolved = async () => {
+    setOpen(true);
+    setLoading(true);
+    
+    // Show "thinking" message
+    addMessage({
+      role: 'kurt',
+      text: "Finalizing compliance report…",
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setLoading(false);
+    
+    // Show success message
+    addMessage({
+      role: 'kurt',
+      text: "✅ All compliance exceptions resolved successfully.",
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Show summary card using special marker
+    addMessage({
+      role: 'kurt',
+      text: "🧾 Compliance Review Summary",
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Follow-up message
+    addMessage({
+      role: 'kurt',
+      text: "Everything's in order and logged for audit. You can now proceed to payroll or return to the dashboard.",
+      actionButtons: [
+        { label: 'Send for Signature', action: 'send-bundle', variant: 'default' },
+        { label: 'View All Bundles', action: 'check-docs', variant: 'outline' },
+      ]
+    });
   };
 
   // Generate document bundles for each candidate
@@ -833,6 +876,7 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         onClose={() => setShowExceptionsDrawer(false)}
         candidates={candidates}
         onResolve={handleExceptionResolve}
+        onAllResolved={handleAllExceptionsResolved}
       />
     </div>
   );

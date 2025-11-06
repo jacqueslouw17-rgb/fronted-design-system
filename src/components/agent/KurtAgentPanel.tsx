@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { useAgentState } from '@/hooks/useAgentState';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { ComplianceReviewSummaryCard } from '@/components/contract-flow/ComplianceReviewSummaryCard';
+import { toast } from 'sonner';
 
 const loadingPhrases = [
   "Reading contract clauses...",
@@ -215,7 +217,20 @@ export const KurtAgentPanel: React.FC = () => {
                         </div>
                         
                         {/* Check if message has structured content (emojis indicate cards) */}
-                        {msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
+                        {msg.text.includes('🧾 Compliance Review Summary') ? (
+                          // Render the Compliance Summary Card
+                          <ComplianceReviewSummaryCard
+                            totalBundles={14}
+                            issuesFound={2}
+                            issuesResolved={2}
+                            onDownloadReport={() => {
+                              toast.success("Audit report download started");
+                            }}
+                            onViewDashboard={() => {
+                              toast.info("Scrolling to compliance summary...");
+                            }}
+                          />
+                        ) : msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
                           <Card className="p-4 bg-card border-border/50 shadow-sm">
                             <div className="space-y-2">
                               <p className="text-sm leading-relaxed whitespace-pre-wrap">
