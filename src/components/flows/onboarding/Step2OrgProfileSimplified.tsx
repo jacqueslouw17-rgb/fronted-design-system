@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import StandardInput from "@/components/shared/StandardInput";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+// Voice-over removed for this step
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
@@ -40,13 +40,11 @@ const Step2OrgProfileSimplified = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { speak } = useTextToSpeech();
+  // const { speak } = {} as any; // voice removed
 
   // Auto-fill data on mount
   useEffect(() => {
     if (isAutoFilling) {
-      speak("Retrieving your details from your ATS...");
-      
       const timer = setTimeout(() => {
         const fieldsToAutoFill = new Set<string>();
         
@@ -72,16 +70,11 @@ const Step2OrgProfileSimplified = ({
         
         setAutoFilledFields(fieldsToAutoFill);
         setIsAutoFilling(false);
-        
-        // Kurt speaks again after loading
-        setTimeout(() => {
-          speak("I've pre-filled your organization's details from your ATS. Please review and confirm they're correct.");
-        }, 500);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [isAutoFilling, speak, formData]);
+  }, [isAutoFilling, formData]);
 
   // Watch for formData updates from Kurt
   useEffect(() => {
@@ -168,7 +161,7 @@ const Step2OrgProfileSimplified = ({
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-2"
           >
-            <h3 className="text-lg font-semibold">Retrieving your details...</h3>
+            <h3 className="text-lg font-semibold">Retrieving details</h3>
             <p className="text-sm text-muted-foreground">Please wait a moment</p>
           </motion.div>
         </div>

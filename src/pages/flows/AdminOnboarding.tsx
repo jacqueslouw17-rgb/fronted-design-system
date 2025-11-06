@@ -181,7 +181,7 @@ const AdminOnboarding = () => {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       // Visual message only - no audio
-      const loadingMessage = "Retrieving details…";
+      const loadingMessage = "Retrieving details";
       setKurtMessage(loadingMessage);
       setMessageStyle("text-foreground/80");
       
