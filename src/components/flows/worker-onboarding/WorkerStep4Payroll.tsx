@@ -8,7 +8,6 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { bankDetailsSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 
 interface Step4Props {
@@ -20,7 +19,6 @@ interface Step4Props {
 
 const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingFields }: Step4Props) => {
   const isContractor = formData.employmentType === "contractor";
-  const { speak } = useTextToSpeech();
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [autoFilledFields, setAutoFilledFields] = useState<string[]>([]);
   
@@ -37,7 +35,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
   useEffect(() => {
     if (!isContractor && !formData.bankName) {
       setIsAutoFilling(true);
-      speak("Retrieving your payroll details from the ATS...");
+      // No auto TTS
       
       setTimeout(() => {
         const atsData = {
@@ -52,7 +50,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
         setIsAutoFilling(false);
       }, 2000);
     }
-  }, [isContractor, formData.country, formData.bankName, speak]);
+  }, [isContractor, formData.country, formData.bankName]);
 
   const handleInputChange = (field: string, value: string) => {
     setData({ ...data, [field]: value });

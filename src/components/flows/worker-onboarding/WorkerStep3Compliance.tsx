@@ -9,7 +9,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface Step3Props {
   formData: Record<string, any>;
@@ -21,7 +20,6 @@ interface Step3Props {
 const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFields }: Step3Props) => {
   const country = formData.country || "Philippines";
   const isContractor = formData.employmentType === "contractor";
-  const { speak } = useTextToSpeech();
   
   const [isAutoFilling, setIsAutoFilling] = useState(true);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
@@ -36,8 +34,7 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
   // Auto-fill data from earlier steps with Kurt's voice
   useEffect(() => {
     if (isAutoFilling) {
-      speak("Retrieving your details... Please wait a moment.");
-      
+      // No auto TTS
       const timer = setTimeout(() => {
         // Simulate data retrieval and auto-fill with mock data
         const fieldsToAutoFill = new Set<string>();
@@ -75,15 +72,15 @@ const WorkerStep3Compliance = ({ formData, onComplete, isProcessing, isLoadingFi
         setAutoFilledFields(fieldsToAutoFill);
         setIsAutoFilling(false);
 
-        // Kurt speaks after loading
+        // Optional follow-up visual cue
         setTimeout(() => {
-          speak("I've pre-filled your details from earlier. Please review and confirm everything looks correct.");
+          // No auto TTS
         }, 500);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [isAutoFilling, formData, speak, country, isContractor]);
+  }, [isAutoFilling, formData, country, isContractor]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });

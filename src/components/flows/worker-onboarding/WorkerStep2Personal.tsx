@@ -10,7 +10,6 @@ import { z } from "zod";
 import NationalitySelect from "@/components/shared/NationalitySelect";
 import DateOfBirthPicker from "@/components/shared/DateOfBirthPicker";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
@@ -33,13 +32,11 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
 
   const [validationError, setValidationError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const { speak } = useTextToSpeech();
 
-  // Simulate data retrieval with Kurt's voice
+  // Simulate data retrieval - visual only, no audio
   useEffect(() => {
     if (isLoading) {
-      speak("Retrieving your details...");
-      
+      // No auto TTS
       const timer = setTimeout(() => {
         const fieldsToAutoFill = new Set<string>();
         
@@ -63,15 +60,15 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
         setAutoFilledFields(fieldsToAutoFill);
         setIsLoading(false);
         
-        // Kurt speaks again after loading
+        // Optional follow-up visual cue
         setTimeout(() => {
-          speak("I've pre-filled your details. Please review and confirm they're correct.");
+          // No auto TTS
         }, 500);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading, speak]);
+  }, [isLoading]);
 
   const handleInputChange = (fieldName: string, value: string) => {
     setData({ ...data, [fieldName]: value });
