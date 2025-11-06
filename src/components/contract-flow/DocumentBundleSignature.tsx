@@ -60,6 +60,8 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
   const [isSendingBundle, setIsSendingBundle] = useState(false);
+  const [reviewingCandidateId, setReviewingCandidateId] = useState<string | null>(null);
+  const [reviewedCandidates, setReviewedCandidates] = useState<Set<string>>(new Set());
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { setOpen, addMessage, setLoading } = useAgentState();
   
@@ -138,6 +140,71 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         setTimeout(() => {
           handleIncludeAll();
           setOpen(false);
+        }, 1000);
+        break;
+        
+      case 'review-bundle':
+        // Initial message
+        addMessage({
+          role: 'kurt',
+          text: "Let's review each contract bundle one by one.",
+        });
+        
+        // Progressive review for each candidate
+        const reviewCandidate = async (index: number) => {
+          if (index >= candidates.length) {
+            // All reviews complete - show summary
+            const readyCount = candidates.filter(c => {
+              const docs = getDocumentsForCandidate(c);
+              return docs.every(d => d.status === 'drafted' || d.status === 'ready');
+            }).length;
+            const actionRequired = candidates.length - readyCount;
+            
+            setReviewingCandidateId(null);
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            addMessage({
+              role: 'kurt',
+              text: `All ${candidates.length} bundles reviewed — ${readyCount} ready${actionRequired > 0 ? `, ${actionRequired} requires action (bank detail verification)` : ''}.`,
+              actionButtons: actionRequired > 0 ? [
+                { label: 'Resolve Exceptions', action: 'resolve-exceptions', variant: 'default' },
+                { label: 'Send Ready Bundles', action: 'send-bundle', variant: 'outline' },
+              ] : [
+                { label: 'Send for Signature', action: 'send-bundle', variant: 'default' },
+              ]
+            });
+            
+            return;
+          }
+          
+          const candidate = candidates[index];
+          setReviewingCandidateId(candidate.id);
+          
+          await new Promise(resolve => setTimeout(resolve, 1200));
+          
+          const docs = getDocumentsForCandidate(candidate);
+          const allReady = docs.every(d => d.status === 'drafted' || d.status === 'ready');
+          
+          addMessage({
+            role: 'kurt',
+            text: `${index === 0 ? 'Starting with' : 'Now checking'} **${candidate.name} (${candidate.countryCode})** — ${allReady ? 'verifying all required attachments.' : 'contract signed, compliance valid.'}`,
+          });
+          
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          setReviewedCandidates(prev => new Set([...prev, candidate.id]));
+          setReviewingCandidateId(null);
+          
+          await new Promise(resolve => setTimeout(resolve, 400));
+          
+          // Review next candidate
+          reviewCandidate(index + 1);
+        };
+        
+        // Start reviewing after a short delay
+        setTimeout(() => {
+          reviewCandidate(0);
         }, 1000);
         break;
         
@@ -361,21 +428,47 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
-            {candidates.map((candidate, candidateIndex) => (
+            {candidates.map((candidate, candidateIndex) => {
+              const isReviewing = reviewingCandidateId === candidate.id;
+              const isReviewed = reviewedCandidates.has(candidate.id);
+              
+              return (
               <motion.div
                 key={candidate.id}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  scale: isReviewing ? 1.02 : 1,
+                }}
                 transition={{ delay: candidateIndex * 0.2, duration: 0.4 }}
               >
-                <Card className="overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm">
-                  <div className="p-6 border-b bg-muted/30">
-                    <div className="flex items-center justify-between">
+                <Card className={`overflow-hidden border backdrop-blur-sm transition-all duration-500 ${
+                  isReviewing 
+                    ? 'border-primary/60 bg-primary/5 shadow-lg shadow-primary/20 ring-2 ring-primary/30' 
+                    : isReviewed
+                    ? 'border-success/40 bg-success/5'
+                    : 'border-border/40 bg-card/50'
+                }`}>
+                  <div className="p-6 border-b bg-muted/30 relative">
+                    {isReviewing && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent animate-pulse" />
+                    )}
+                    <div className="flex items-center justify-between relative z-10">
                       <div className="flex items-center gap-3">
                         <span className="text-3xl">{candidate.flag}</span>
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground">
+                          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             {candidate.name}
+                            {isReviewed && (
+                              <motion.span
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                              >
+                                <CheckCircle2 className="h-5 w-5 text-success" />
+                              </motion.span>
+                            )}
                           </h3>
                           <p className="text-sm text-muted-foreground">
                             {candidate.role} • {candidate.country} • {candidate.employmentType === "contractor" ? "Contractor" : "Employee"}
@@ -434,7 +527,8 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                   </Table>
                 </Card>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
