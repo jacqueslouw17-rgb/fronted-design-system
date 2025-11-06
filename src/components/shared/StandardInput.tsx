@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, Lock } from "lucide-react";
+import { Check, Lock, Eye, EyeOff } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 interface StandardInputProps {
   id: string;
@@ -37,8 +39,12 @@ const StandardInput = ({
   completed = false,
   rows = 4
 }: StandardInputProps) => {
+  const [showPassword, setShowPassword] = useState(false);
   const InputComponent = type === "textarea" ? Textarea : Input;
-  const inputProps = type === "textarea" ? { rows } : { type };
+  
+  // For password fields, toggle between "password" and "text"
+  const actualType = type === "password" ? (showPassword ? "text" : "password") : type;
+  const inputProps = type === "textarea" ? { rows } : { type: actualType };
 
   return (
     <div className="space-y-2">
@@ -70,15 +76,48 @@ const StandardInput = ({
           </TooltipProvider>
         )}
       </div>
-      <InputComponent
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled || locked}
-        className={locked ? "bg-muted/50 text-muted-foreground cursor-not-allowed" : ""}
-        {...inputProps}
-      />
+      
+      {/* Password input with show/hide toggle */}
+      {type === "password" ? (
+        <div className="relative">
+          <InputComponent
+            id={id}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled || locked}
+            className={locked ? "bg-muted/50 text-muted-foreground cursor-not-allowed pr-10" : "pr-10"}
+            {...inputProps}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowPassword(!showPassword)}
+            disabled={disabled || locked}
+            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent transition-colors duration-200"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            ) : (
+              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            )}
+          </Button>
+        </div>
+      ) : (
+        <InputComponent
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled || locked}
+          className={locked ? "bg-muted/50 text-muted-foreground cursor-not-allowed" : ""}
+          {...inputProps}
+        />
+      )}
+      
       {error && <p className="text-xs text-destructive">{error}</p>}
       {helpText && !error && <p className="text-xs text-muted-foreground">{helpText}</p>}
     </div>
