@@ -219,6 +219,15 @@ const Flows = () => {
       patterns: ["data-cards", "compliance-checklist", "genie-onboarding"],
       path: "/flows/candidate-dashboard",
       comingSoon: false
+    },
+    {
+      id: "f2-1-admin-payroll",
+      title: "Flow 2.1 — Admin Payroll",
+      description: "From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance",
+      steps: 6,
+      patterns: ["genie-onboarding", "fx-breakdown", "smart-approval", "audit-trail", "data-cards"],
+      path: "/payroll-batch",
+      comingSoon: false
     }
   ];
 
