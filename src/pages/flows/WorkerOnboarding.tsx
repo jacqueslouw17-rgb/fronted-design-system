@@ -194,61 +194,37 @@ const WorkerOnboarding = () => {
       >
 
         {/* Header with Agent */}
-        <div className="flex flex-col items-center space-y-4 mb-8">
-          {/* Agent Pulse */}
-          <div className="flex justify-center scale-75">
+        <div className="flex flex-col items-center space-y-6 mb-8">
+          {/* Agent Pulse - centered with gentle animation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex justify-center"
+            style={{ maxHeight: '240px' }}
+          >
             <AudioWaveVisualizer isActive={isSpeaking} />
-          </div>
+          </motion.div>
 
-          {/* Title */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground">Welcome to Fronted</h1>
-          </div>
-
-          {/* Subtitle with Mute Button */}
-          <div className="flex items-center justify-center gap-0.5 w-full max-w-xl">
-            <p className={`text-base text-center flex-1 pr-1 ${
-              isSpeaking ? "" : "text-muted-foreground"
-            }`}>
-              {isSpeaking ? (
-                welcomeMessage.split(' ').map((word, idx) => (
-                  <span
-                    key={idx}
-                    className={
-                      idx < currentWordIndex
-                        ? 'text-foreground/90'
-                        : 'text-muted-foreground/40'
-                    }
-                  >
-                    {word}{' '}
-                  </span>
-                ))
-              ) : (
-                welcomeMessage
-              )}
-            </p>
-            <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
-          </div>
-
-          {/* Chat Input */}
-          <div className="w-full max-w-xl mt-4">
-            <form onSubmit={(e) => e.preventDefault()} className="relative">
-              <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5">
-                <Input
-                  placeholder="Ask Kurt anything..."
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8"
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled
-                  className="h-8 w-8 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </form>
-          </div>
+          {/* Title and Subtitle Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="text-center space-y-3 max-w-2xl"
+          >
+            <h1 className="text-3xl font-bold text-foreground">Candidate Onboarding</h1>
+            
+            {/* Subtitle with Mute Button */}
+            <div className="flex items-center justify-center gap-2">
+              <p className={`text-base text-center transition-colors duration-300 ${
+                isSpeaking ? "text-foreground/80" : "text-muted-foreground"
+              }`}>
+                It's go time! Review, confirm, and welcome your new hire onboard.
+              </p>
+              <KurtMuteToggle isMuted={isKurtMuted} onToggle={handleMuteToggle} />
+            </div>
+          </motion.div>
         </div>
 
         {/* Progress bar */}

@@ -190,29 +190,32 @@ export default function CandidateOnboardingFlow() {
       {/* Top instructional header - Candidate Data Collection */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="mb-4">
-            <h1 className="text-3xl font-bold mb-2">Let's finalize your details 🚀</h1>
-            {/* Reading overlay with word highlighting */}
-            <p className="text-foreground/60 relative">
-              {kurtMessage.split(' ').map((word, index) => (
-                <span
-                  key={index}
-                  className={`transition-colors duration-200 ${
-                    isSpeaking && currentWordIndex === index
-                      ? 'text-foreground/90 font-medium'
-                      : ''
-                  }`}
-                >
-                  {word}{' '}
-                </span>
-              ))}
-            </p>
-          </div>
-          <div className="flex items-center justify-between">
+          {/* Centered pulse animation and text */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex flex-col items-center space-y-6 mb-6"
+          >
+            {/* Agent Pulse - centered with gentle animation */}
+            <div className="flex justify-center" style={{ maxHeight: '240px' }}>
+              <AudioWaveVisualizer isActive={isSpeaking} />
+            </div>
+
+            {/* Title and Subtitle */}
+            <div className="text-center space-y-3 max-w-2xl">
+              <h1 className="text-3xl font-bold">Candidate Data Collection</h1>
+              <p className={`text-base transition-colors duration-300 ${
+                isSpeaking ? "text-foreground/80" : "text-muted-foreground"
+              }`}>
+                Gather everything your new hire needs to get started quickly and compliantly.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Progress bar at bottom */}
+          <div className="flex items-center justify-between pt-4">
             <div className="flex items-center gap-4">
-              <div className="scale-75">
-                <AudioWaveVisualizer isActive={isSpeaking} />
-              </div>
               <div>
                 <p className="text-xs text-muted-foreground">Progress</p>
                 <div className="flex items-center gap-2">
