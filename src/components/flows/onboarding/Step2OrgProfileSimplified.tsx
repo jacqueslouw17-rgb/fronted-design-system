@@ -164,56 +164,61 @@ const Step2OrgProfileSimplified = ({
 
   if (isAutoFilling || isLoadingFields) {
     return (
-      <div className="space-y-6 p-6">
-        <div className="flex flex-col items-center justify-center py-8 space-y-4">
-          <AudioWaveVisualizer isActive={true} />
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-2"
-          >
-            <h3 className="text-lg font-semibold">Retrieving details</h3>
-            <p className="text-sm text-muted-foreground">Please wait a moment</p>
-          </motion.div>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-10 w-full" />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="loading"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="space-y-6 p-6">
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <AudioWaveVisualizer isActive={true} />
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4 }}
+                className="text-center space-y-2"
+              >
+                <h3 className="text-lg font-semibold">Retrieving details</h3>
+                <p className="text-sm text-muted-foreground">Please wait a moment</p>
+              </motion.div>
+            </div>
+            
+            <div className="space-y-4">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 1, y: 0 }}
+                  exit={{ 
+                    opacity: 0, 
+                    y: -6,
+                    transition: {
+                      duration: 0.4,
+                      delay: index * 0.15,
+                      ease: "easeOut"
+                    }
+                  }}
+                  className="space-y-2"
+                >
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-36" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        key="content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
         className="space-y-5 max-w-xl mx-auto"
       >
       {/* Company Information */}

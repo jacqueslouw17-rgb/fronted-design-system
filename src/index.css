@@ -342,6 +342,33 @@ All colors MUST be HSL.
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
   }
   
+  /* Sequential fade animations for loading states */
+  @keyframes fadeOutUp {
+    from { 
+      opacity: 1; 
+      transform: translateY(0px); 
+    }
+    to { 
+      opacity: 0; 
+      transform: translateY(-6px); 
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  .form-field-enter {
+    animation: fadeInUp 0.4s ease-out forwards;
+  }
+  
   .card-expand {
     animation: card-expand 0.3s ease-out;
   }

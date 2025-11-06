@@ -9,6 +9,7 @@ import { bankDetailsSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { toast } from "sonner";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step4Props {
   formData: Record<string, any>;
@@ -39,6 +40,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
       setIsAutoFilling(true);
       // No auto TTS
       
+      // Total animation time: 5 fields * 0.15s = 0.75s + 0.4s fade + 0.2s buffer = ~1.35s
       setTimeout(() => {
         const atsData = {
           bankName: formData.country === "Philippines" ? "BDO Unibank" : "Wells Fargo",
@@ -50,7 +52,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
         setData(prev => ({ ...prev, ...atsData }));
         setAutoFilledFields(["bankName", "accountNumber", "swiftBic", "iban"]);
         setIsAutoFilling(false);
-      }, 2000);
+      }, 2300); // Increased to match sequential fade timing
     } else if (hasPersistedData) {
       // Mark persisted fields
       const persistedFields = [];
@@ -96,14 +98,51 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
 
   if (isLoadingFields || isAutoFilling) {
     return (
-      <div className="space-y-4 p-6">
-        <div className="flex justify-center mb-4">
-          <AudioWaveVisualizer isActive={true} />
-        </div>
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="loading"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="space-y-6 p-6">
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <AudioWaveVisualizer isActive={true} />
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4 }}
+                className="text-center space-y-2"
+              >
+                <h3 className="text-lg font-semibold">Retrieving your details</h3>
+                <p className="text-sm text-muted-foreground">Please wait a moment</p>
+              </motion.div>
+            </div>
+            
+            <div className="space-y-4">
+              {[0, 1, 2, 3, 4].map((index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 1, y: 0 }}
+                  exit={{ 
+                    opacity: 0, 
+                    y: -6,
+                    transition: {
+                      duration: 0.4,
+                      delay: index * 0.15,
+                      ease: "easeOut"
+                    }
+                  }}
+                  className="space-y-2"
+                >
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
