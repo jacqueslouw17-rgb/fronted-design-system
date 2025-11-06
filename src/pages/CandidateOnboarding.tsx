@@ -8,10 +8,8 @@ import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import confetti from "canvas-confetti";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { useAgentState } from "@/hooks/useAgentState";
+import { motion } from "framer-motion";
 
 // Step components
 import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
@@ -33,7 +31,6 @@ const CandidateOnboarding = () => {
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
   const isDemoMode = window.location.pathname.includes('demo');
-  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   
   const { state, updateFormData, completeStep, goToStep } = useFlowState(
     "flows.candidate.onboarding",
@@ -44,19 +41,10 @@ const CandidateOnboarding = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Text-to-Speech (Kurt voice over)
-  const { speak, stop, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'male', rate: 1.05 });
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [hasWelcomeSpoken, setHasWelcomeSpoken] = useState(false);
-  const welcomeMessage = "Let's complete a few quick details so we can finalize your contract.";
+  const [isSpeaking] = useState(false);
 
-  // Sync local speaking state with agent state
-  useEffect(() => {
-    setAgentSpeaking(isSpeaking);
-  }, [isSpeaking, setAgentSpeaking]);
 
   // Prefill demo data
   useEffect(() => {
@@ -73,20 +61,6 @@ const CandidateOnboarding = () => {
     });
   }, [updateFormData]);
 
-  // Auto-speak welcome message on page load
-  useEffect(() => {
-    if (!hasWelcomeSpoken) {
-      const timer = setTimeout(() => {
-        setHasWelcomeSpoken(true);
-        setIsSpeaking(true);
-        speak(welcomeMessage, () => {
-          setIsSpeaking(false);
-        });
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [hasWelcomeSpoken, welcomeMessage, speak]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -180,18 +154,28 @@ const CandidateOnboarding = () => {
       {/* Main Content - Centered Single Column */}
       <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
         {/* Header with Agent */}
-        <AgentHeader
-          title={`Hi ${state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}
-          subtitle={welcomeMessage}
-          showPulse={true}
-          isActive={isSpeaking}
-          placeholder="Ask Kurt anything..."
-          currentWordIndex={currentWordIndex}
-          enableWordHighlight={isSpeaking}
-          isMuted={isKurtMuted}
-          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-          className="mb-8"
-        />
+        <div className="flex flex-col items-center space-y-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex justify-center"
+            style={{ maxHeight: '240px' }}
+          >
+            <AudioWaveVisualizer isActive={true} />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="text-center space-y-3 max-w-2xl"
+          >
+            <h1 className="text-3xl font-bold text-foreground">{`Hi ${state.formData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}</h1>
+            <p className={`text-base text-center transition-colors duration-300 ${isSpeaking ? "text-foreground/80" : "text-muted-foreground"}`}>
+              Gather everything your new hire needs to get started quickly and compliantly.
+            </p>
+          </motion.div>
+        </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
