@@ -64,6 +64,8 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
   const [reviewingCandidateId, setReviewingCandidateId] = useState<string | null>(null);
   const [reviewedCandidates, setReviewedCandidates] = useState<Set<string>>(new Set());
   const [showExceptionsDrawer, setShowExceptionsDrawer] = useState(false);
+  const [checkingCandidateId, setCheckingCandidateId] = useState<string | null>(null);
+  const [complianceResults, setComplianceResults] = useState<Map<string, 'pass' | 'warning'>>(new Map());
   const { speak, currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { setOpen, addMessage, setLoading } = useAgentState();
   
@@ -121,16 +123,76 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
         break;
         
       case 'compliance-review':
-        const phCandidates = candidates.filter(c => c.countryCode === 'PH');
+      case 'check-compliance':
+        // Initial message
+        addMessage({
+          role: 'kurt',
+          text: "Running compliance scan across all active bundles…",
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         addMessage({
           role: 'kurt',
-          text: `🛡️ Compliance Review Complete\n\nI've verified compliance for all candidates:\n\n✅ **General Compliance:**\n• NDAs & Company Policies included\n• Data Privacy Forms attached\n• Contract templates up-to-date\n\n${phCandidates.length > 0 ? `✅ **Philippines-Specific:**\n• DOLE compliance verified\n• Mandatory government forms included\n• Tax documentation complete\n\n` : ''}All bundles meet regulatory requirements. No compliance issues detected!`,
-          actionButtons: [
-            { label: 'Send for Signature', action: 'send-bundle', variant: 'default' },
-            { label: 'Review Bundles', action: 'check-docs', variant: 'outline' },
-          ]
+          text: "Checking country-specific clauses and attached documents…",
         });
+        
+        // Progressive compliance check for each candidate
+        const checkCompliance = async (index: number) => {
+          if (index >= candidates.length) {
+            // All checks complete - show summary
+            const results = Array.from(complianceResults.entries());
+            const passCount = results.filter(([_, status]) => status === 'pass').length;
+            const warningCount = results.filter(([_, status]) => status === 'warning').length;
+            
+            setCheckingCandidateId(null);
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            const summaryLines = candidates.map(c => {
+              const status = complianceResults.get(c.id);
+              const icon = status === 'pass' ? '✅' : '⚠️';
+              const statusText = status === 'pass' 
+                ? 'All good' 
+                : 'Missing Tax Residency Declaration';
+              return `• **${c.name}** — ${statusText} ${icon}`;
+            }).join('\n');
+            
+            addMessage({
+              role: 'kurt',
+              text: `Compliance scan complete ✅\n\n${summaryLines}`,
+              actionButtons: warningCount > 0 ? [
+                { label: 'Resolve All', action: 'resolve-exceptions', variant: 'default' },
+                { label: 'Ignore for Now', action: 'check-docs', variant: 'outline' },
+              ] : [
+                { label: 'Send for Signature', action: 'send-bundle', variant: 'default' },
+              ]
+            });
+            
+            return;
+          }
+          
+          const candidate = candidates[index];
+          setCheckingCandidateId(candidate.id);
+          
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Simulate compliance check - Oskar Nilsen gets warning, others pass
+          const hasIssue = candidate.name === 'Oskar Nilsen';
+          setComplianceResults(prev => new Map(prev).set(candidate.id, hasIssue ? 'warning' : 'pass'));
+          setCheckingCandidateId(null);
+          
+          await new Promise(resolve => setTimeout(resolve, 400));
+          
+          // Check next candidate
+          checkCompliance(index + 1);
+        };
+        
+        // Start checking after a short delay
+        setTimeout(() => {
+          setComplianceResults(new Map()); // Reset results
+          checkCompliance(0);
+        }, 1000);
         break;
         
       case 'send-bundle':
@@ -451,6 +513,8 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
             {candidates.map((candidate, candidateIndex) => {
               const isReviewing = reviewingCandidateId === candidate.id;
               const isReviewed = reviewedCandidates.has(candidate.id);
+              const isCheckingCompliance = checkingCandidateId === candidate.id;
+              const complianceStatus = complianceResults.get(candidate.id);
               
               return (
               <motion.div
@@ -459,13 +523,15 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                 animate={{ 
                   opacity: 1, 
                   y: 0,
-                  scale: isReviewing ? 1.02 : 1,
+                  scale: isReviewing || isCheckingCompliance ? 1.02 : 1,
                 }}
                 transition={{ delay: candidateIndex * 0.2, duration: 0.4 }}
               >
                 <Card className={`overflow-hidden border backdrop-blur-sm transition-all duration-500 ${
                   isReviewing 
                     ? 'border-primary/60 bg-primary/5 shadow-lg shadow-primary/20 ring-2 ring-primary/30' 
+                    : isCheckingCompliance
+                    ? 'border-blue-500/60 bg-blue-500/5 shadow-lg shadow-blue-500/20 ring-2 ring-blue-500/30'
                     : isReviewed
                     ? 'border-success/40 bg-success/5'
                     : 'border-border/40 bg-card/50'
@@ -473,6 +539,9 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                   <div className="p-6 border-b bg-muted/30 relative">
                     {isReviewing && (
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent animate-pulse" />
+                    )}
+                    {isCheckingCompliance && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent animate-pulse" />
                     )}
                     <div className="flex items-center justify-between relative z-10">
                       <div className="flex items-center gap-3">
@@ -487,6 +556,32 @@ export const DocumentBundleSignature: React.FC<DocumentBundleSignatureProps> = (
                                 transition={{ type: "spring", stiffness: 200 }}
                               >
                                 <CheckCircle2 className="h-5 w-5 text-success" />
+                              </motion.span>
+                            )}
+                            {complianceStatus === 'pass' && !isCheckingCompliance && (
+                              <motion.span
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: "spring", duration: 0.5 }}
+                              >
+                                <CheckCircle2 className="h-5 w-5 text-success" />
+                              </motion.span>
+                            )}
+                            {complianceStatus === 'warning' && !isCheckingCompliance && (
+                              <motion.span
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: "spring", duration: 0.5 }}
+                              >
+                                <AlertCircle className="h-5 w-5 text-warning" />
+                              </motion.span>
+                            )}
+                            {isCheckingCompliance && (
+                              <motion.span
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              >
+                                <Shield className="h-5 w-5 text-blue-500" />
                               </motion.span>
                             )}
                           </h3>
