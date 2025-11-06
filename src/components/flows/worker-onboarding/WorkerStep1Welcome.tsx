@@ -15,58 +15,9 @@ const WorkerStep1Welcome = ({ onComplete, isProcessing }: Step1Props) => {
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {/* How Kurt Works Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-2">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
-          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            How Kurt Works
-          </h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Your AI assistant handles the heavy lifting while you stay in control
-        </p>
-        
-        <div className="space-y-2">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-primary">1</span>
-            </div>
-            <div>
-              <p className="font-medium text-sm mb-0.5">Kurt prepares everything</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                The agent asks questions, fills forms, and suggests next steps
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-primary">2</span>
-            </div>
-            <div>
-              <p className="font-medium text-sm mb-0.5">You review and confirm</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Every important action requires your explicit approval
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-card/40 border border-border/40">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-primary">3</span>
-            </div>
-            <div>
-              <p className="font-medium text-sm mb-0.5">Full transparency</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                All changes are logged and auditable
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* What We'll Set Up Section */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
           What We'll Set Up
         </h3>
         
@@ -85,6 +36,14 @@ const WorkerStep1Welcome = ({ onComplete, isProcessing }: Step1Props) => {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Kurt Assistant Callout */}
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-[#EAF3FF] dark:bg-primary/10 border border-primary/20">
+          <span className="text-lg leading-none flex-shrink-0">💡</span>
+          <p className="text-sm text-foreground/90 leading-relaxed">
+            You'll have <span className="font-medium">Kurt</span>, your AI assistant, helping with setup and next steps whenever you need guidance.
+          </p>
         </div>
       </div>
 
