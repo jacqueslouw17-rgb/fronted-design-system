@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
 
-type StepStatus = "pending" | "active" | "completed";
+type StepStatus = "inactive" | "pending" | "active" | "completed";
 
 interface StepCardProps {
   title: string;
@@ -13,6 +13,7 @@ interface StepCardProps {
   onClick?: () => void;
   children?: ReactNode;
   headerId?: string;
+  isLocked?: boolean;
 }
 
 const StepCard = ({
@@ -23,8 +24,17 @@ const StepCard = ({
   onClick,
   children,
   headerId,
+  isLocked = false,
 }: StepCardProps) => {
   const getStatusBadge = () => {
+    if (isLocked) {
+      return (
+        <Badge variant="secondary" className="bg-muted text-muted-foreground border-0 font-normal">
+          Locked
+        </Badge>
+      );
+    }
+    
     switch (status) {
       case "completed":
         return (
@@ -39,15 +49,22 @@ const StepCard = ({
             In Progress
           </Badge>
         );
+      case "inactive":
+      case "pending":
+        return null;
       default:
         return null;
     }
   };
 
   if (isExpanded) {
+    const borderClass = status === 'active' && !isLocked 
+      ? 'border-primary/40 ring-2 ring-primary/20' 
+      : 'border-white/40';
+      
     return (
       <div className="transition-all duration-500 ease-in-out overflow-hidden relative z-10">
-        <Card className="p-4 sm:p-5 border-white/40 bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate">
+        <Card className={`p-4 sm:p-5 ${borderClass} bg-white/30 backdrop-blur-md hover:border-white/50 hover:bg-white/35 shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate`}>
           <div 
             className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" 
             onClick={onClick}
@@ -55,8 +72,16 @@ const StepCard = ({
             id={headerId}
           >
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-white/25 text-foreground flex items-center justify-center text-xs font-medium flex-shrink-0">
-                {stepNumber}
+              <div className={`h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
+                status === "completed" 
+                  ? "bg-primary/20 text-primary" 
+                  : "bg-white/25 text-foreground"
+              }`}>
+                {status === "completed" ? (
+                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                ) : (
+                  stepNumber
+                )}
               </div>
               <h3 className={`font-semibold text-sm sm:text-base truncate ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
             </div>
@@ -73,12 +98,18 @@ const StepCard = ({
     );
   }
 
+  const isDisabled = isLocked || status === "inactive" || status === "pending";
+  
   return (
     <div className="transition-all duration-500 ease-in-out relative z-10">
       <Card
-        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out cursor-pointer group border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 relative isolate touch-manipulation ${
-          status === "pending" ? "opacity-40 cursor-default" : ""}`}
-        onClick={status !== "pending" ? onClick : undefined}
+        className={`p-3 sm:p-4 transition-all duration-500 ease-in-out group border-white/10 bg-white/5 backdrop-blur-md relative isolate touch-manipulation ${
+          isDisabled 
+            ? "opacity-40 cursor-not-allowed" 
+            : "cursor-pointer hover:bg-white/10"
+        }`}
+        onClick={!isDisabled ? onClick : undefined}
+        title={isLocked ? "Complete current step first" : undefined}
       >
       <div className="flex justify-between items-center gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
