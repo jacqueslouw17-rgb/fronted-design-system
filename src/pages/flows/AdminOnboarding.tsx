@@ -180,13 +180,10 @@ const AdminOnboarding = () => {
       // Wait before speaking about org details
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // NOW speak about fetching org details - short and simple
-      const loadingMessage = "Retrieving any existing details…";
+      // Visual message only - no audio
+      const loadingMessage = "Retrieving details…";
       setKurtMessage(loadingMessage);
       setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
       
       // Auto-save policy acceptance to database
       try {
@@ -201,18 +198,13 @@ const AdminOnboarding = () => {
         console.error("Error saving policy acceptance:", error);
       }
       
-      // Expand Step 2 mid-way through voiceover (after 0.8s)
+      // Expand Step 2
       setTimeout(() => {
         setIsLoadingFields(true);
         goToStep("org_profile");
         setExpandedStep("org_profile");
         scrollToStep("org_profile");
-      }, 800);
-        
-      // Short typing animation (1-2 seconds), then stop
-      setTimeout(() => {
-        setIsSpeaking(false);
-      }, 1500);
+      }, 400);
       
       // Keep skeleton loading visible
       await new Promise(resolve => setTimeout(resolve, 1200));
@@ -251,22 +243,13 @@ const AdminOnboarding = () => {
       const countries = ["NO", "PH"];
       updateFormData({ selectedCountries: countries });
       
-      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed, then just say 'yes' when ready.";
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      // Set loading state FIRST, before expanding step 3
-      setIsLoadingFields(true);
-      goToStep("localization_country_blocks");
-      setExpandedStep("localization_country_blocks");
-      scrollToStep("localization_country_blocks");
-      
-      stop();
-      speak(confirmMessage, async () => {
-        setIsSpeaking(false);
+      const confirmMessage = "Great! I've selected Norway and Philippines as your contractor countries. You can adjust these if needed.";
+      handleSpeak(confirmMessage, async () => {
+        // Set loading state FIRST, before expanding step 3
+        setIsLoadingFields(true);
+        goToStep("localization_country_blocks");
+        setExpandedStep("localization_country_blocks");
+        scrollToStep("localization_country_blocks");
         
         // Keep skeleton visible briefly
         await new Promise(resolve => setTimeout(resolve, 400));
@@ -284,15 +267,7 @@ const AdminOnboarding = () => {
       
       if (selectedCountries.length === 0) {
         const errorMessage = "I don't see any countries selected. Could you pick at least one?";
-        setKurtMessage(errorMessage);
-        setMessageStyle("text-foreground/80");
-        setHasFinishedReading(false);
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        stop();
-        speak(errorMessage, () => {
-          setIsSpeaking(false);
+        handleSpeak(errorMessage, () => {
           setHasFinishedReading(true);
           setHasAutoStarted(false);
         });
@@ -321,22 +296,13 @@ const AdminOnboarding = () => {
         return country?.name;
       }).filter(Boolean).join(", ");
       
-      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now let me connect your integrations—Slack and FX.`;
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      // Set loading state FIRST, before expanding step 4
-      setIsLoadingFields(true);
-      goToStep("integrations_connect");
-      setExpandedStep("integrations_connect");
-      scrollToStep("integrations_connect");
-      
-      stop();
-      speak(confirmMessage, async () => {
-        setIsSpeaking(false);
+      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now connecting your integrations—Slack and FX.`;
+      handleSpeak(confirmMessage, async () => {
+        // Set loading state FIRST, before expanding step 4
+        setIsLoadingFields(true);
+        goToStep("integrations_connect");
+        setExpandedStep("integrations_connect");
+        scrollToStep("integrations_connect");
         
         // Keep skeleton visible briefly while connecting
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -351,14 +317,7 @@ const AdminOnboarding = () => {
         setIsLoadingFields(false);
         
         const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
-        setKurtMessage(nextMessage);
-        setHasFinishedReading(false);
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        stop();
-        speak(nextMessage, () => {
-          setIsSpeaking(false);
+        handleSpeak(nextMessage, () => {
           setHasFinishedReading(true);
           setHasAutoStarted(false);
         });
@@ -388,21 +347,12 @@ const AdminOnboarding = () => {
       updateFormData({ miniRules: rules });
       
       const confirmMessage = "I've set up three starter mini-rules for you. These look good?";
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      // Set loading state FIRST, before expanding step 5
-      setIsLoadingFields(true);
-      goToStep("mini_rules_setup");
-      setExpandedStep("mini_rules_setup");
-      scrollToStep("mini_rules_setup");
-      
-      stop();
-      speak(confirmMessage, async () => {
-        setIsSpeaking(false);
+      handleSpeak(confirmMessage, async () => {
+        // Set loading state FIRST, before expanding step 5
+        setIsLoadingFields(true);
+        goToStep("mini_rules_setup");
+        setExpandedStep("mini_rules_setup");
+        scrollToStep("mini_rules_setup");
         
         // Keep skeleton visible briefly
         await new Promise(resolve => setTimeout(resolve, 400));
@@ -426,16 +376,8 @@ const AdminOnboarding = () => {
       // Wait before moving to finish step
       await new Promise(resolve => setTimeout(resolve, 600));
       
-      const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or would you prefer to explore the dashboard?";
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      stop();
-      speak(confirmMessage, () => {
-        setIsSpeaking(false);
+      const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or explore the dashboard?";
+      handleSpeak(confirmMessage, () => {
         setHasFinishedReading(true);
       });
       
@@ -452,17 +394,8 @@ const AdminOnboarding = () => {
   const handleDashboardNavigation = async () => {
     setIsProcessing(true);
     
-    const loadingMessage = "Perfect! Let me save your settings and open your dashboard now.";
-    setKurtMessage(loadingMessage);
-    setMessageStyle("text-foreground/80");
-    setHasFinishedReading(false);
-    setHasAutoStarted(false);
-    setIsSpeaking(true);
-    
-    stop();
-    speak(loadingMessage, async () => {
-      setIsSpeaking(false);
-      
+    const loadingMessage = "Perfect! Saving your settings and opening your dashboard now.";
+    handleSpeak(loadingMessage, async () => {
       // Save all onboarding data to database
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -502,15 +435,7 @@ const AdminOnboarding = () => {
       
       if (selectedCountries.length === 0) {
         const errorMessage = "I don't see any countries selected. Could you pick at least one?";
-        setKurtMessage(errorMessage);
-        setMessageStyle("text-foreground/80");
-        setHasFinishedReading(false);
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        stop();
-        speak(errorMessage, () => {
-          setIsSpeaking(false);
+        handleSpeak(errorMessage, () => {
           setHasFinishedReading(true);
           setHasAutoStarted(false);
         });
@@ -536,17 +461,8 @@ const AdminOnboarding = () => {
         return country?.name;
       }).filter(Boolean).join(", ");
       
-      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now let me connect your integrations.`;
-      setKurtMessage(confirmMessage);
-      setMessageStyle("text-foreground/80");
-      setHasFinishedReading(false);
-      setHasAutoStarted(false);
-      setIsSpeaking(true);
-      
-      stop();
-      speak(confirmMessage, async () => {
-        setIsSpeaking(false);
-        
+      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now connecting your integrations.`;
+      handleSpeak(confirmMessage, async () => {
         // Auto-connect integrations
         await new Promise(resolve => setTimeout(resolve, 700));
         updateFormData({ 
@@ -556,14 +472,7 @@ const AdminOnboarding = () => {
         });
         
         const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
-        setKurtMessage(nextMessage);
-        setHasFinishedReading(false);
-        setHasAutoStarted(false);
-        setIsSpeaking(true);
-        
-        stop();
-        speak(nextMessage, () => {
-          setIsSpeaking(false);
+        handleSpeak(nextMessage, () => {
           setHasFinishedReading(true);
           setHasAutoStarted(false);
         });
