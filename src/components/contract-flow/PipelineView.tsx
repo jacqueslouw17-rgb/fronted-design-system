@@ -1097,7 +1097,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   </div>
                 )}
                 
-                {/* Open Batch Review Button - Only for payroll-ready column */}
+                {/* Open Batch Button - Only for payroll-ready column */}
                 {status === "payroll-ready" && (
                   <div className="mt-2">
                     <Button
@@ -1107,7 +1107,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       onClick={handleOpenBatchReview}
                     >
                       <FileText className="h-3.5 w-3.5 mr-1.5" />
-                      Open Batch Review {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
+                      Open Batch {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
                     </Button>
                   </div>
                 )}
