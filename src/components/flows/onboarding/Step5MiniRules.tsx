@@ -219,7 +219,7 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
         ) : (
           rules.map((rule, index) => (
             <div key={rule.id}>
-              {index > 0 && <div className="my-4 border-t border-border/20" />}
+              {index > 0 && <div className="my-2 border-t border-border/20" />}
               <div className="p-3 rounded-lg border border-border/30 bg-card hover:shadow-sm transition-shadow">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
