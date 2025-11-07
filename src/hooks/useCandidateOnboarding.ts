@@ -7,7 +7,8 @@ export type OnboardingStatus =
   | "validating"
   | "drafting"
   | "awaiting_signature"
-  | "signed";
+  | "signed"
+  | "fully_executed";
 
 export interface OnboardingCandidate {
   id: string;

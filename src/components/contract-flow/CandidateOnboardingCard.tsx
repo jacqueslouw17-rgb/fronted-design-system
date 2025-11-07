@@ -41,14 +41,19 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: "default"
     color: "bg-blue-500/10 text-blue-600 border-blue-500/20",
   },
   awaiting_signature: {
-    label: "Awaiting Signature",
+    label: "Sent for Signature",
     variant: "secondary",
     color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   },
   signed: {
-    label: "Signed & Ready for Onboarding",
+    label: "Signed",
     variant: "default",
     color: "bg-green-500/10 text-green-600 border-green-500/20",
+  },
+  fully_executed: {
+    label: "Fully Executed",
+    variant: "default",
+    color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   },
 };
 
