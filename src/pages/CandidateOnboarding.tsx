@@ -1,273 +1,324 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
-import { toast } from "@/hooks/use-toast";
-import StepCard from "@/components/StepCard";
-import ProgressBar from "@/components/ProgressBar";
-import confetti from "canvas-confetti";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Bot, Shield, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { AgentLayout } from "@/components/agent/AgentLayout";
 
-// Step components
-import CandidateStep2PersonalDetails from "@/components/flows/candidate-onboarding/CandidateStep2PersonalDetails";
-import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/CandidateStep3Compliance";
-import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
-import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
-import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
-import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
+interface PrefilledData {
+  fullName: string;
+  email: string;
+  role: string;
+  salary: string;
+  employmentType: string;
+  country: string;
+}
 
-const FLOW_STEPS = [
-  { id: "personal_details", title: "Personal Details", stepNumber: 1 },
-  { id: "compliance_docs", title: "Compliance", stepNumber: 2 },
-  { id: "bank_details", title: "Payroll Details", stepNumber: 3 },
-  { id: "work_setup", title: "Work Setup & Agreements", stepNumber: 4 },
-  { id: "confirm_submit", title: "Confirm & Submit", stepNumber: 5 }
-];
+interface RequiredFields {
+  idType: string;
+  idNumber: string;
+  taxResidence: string;
+  nationality: string;
+  address: string;
+  bankName: string;
+  accountNumber: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+}
 
 const CandidateOnboarding = () => {
   const navigate = useNavigate();
-  const { token } = useParams<{ token: string }>();
-  const isDemoMode = window.location.pathname.includes('demo');
-  
-  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepData } = useCandidateDataFlowBridge();
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
-  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const hasInitialized = useRef(false);
+  // Pre-filled data from ATS
+  const [prefilledData] = useState<PrefilledData>({
+    fullName: "Sofia Rodriguez",
+    email: "sofia.rodriguez@email.com",
+    role: "Marketing Manager",
+    salary: "$72,000 USD",
+    employmentType: "Contractor",
+    country: "Mexico"
+  });
 
-  const [isSpeaking] = useState(false);
+  // Required fields state
+  const [formData, setFormData] = useState<RequiredFields>({
+    idType: "",
+    idNumber: "",
+    taxResidence: "",
+    nationality: "",
+    address: "",
+    bankName: "",
+    accountNumber: "",
+    emergencyContactName: "",
+    emergencyContactPhone: ""
+  });
 
-  // Get all form data (flattened from all steps) with proper typing
-  const allFormData: Record<string, any> = Object.values(state.formData).reduce(
-    (acc, stepData) => ({ ...acc, ...stepData }), 
-    {} as Record<string, any>
-  );
-
-  // Prefill demo data and ensure first step is expanded
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      // Only prefill if no data exists yet
-      if (!allFormData.fullName) {
-        updateFormData({
-          fullName: "Maria Santos",
-          email: "maria.santos@example.com",
-          companyName: "Fronted Inc",
-          jobTitle: "Senior Developer",
-          role: "Senior Developer",
-          startDate: "2024-02-01",
-          employmentType: "contractor", // contractor or employee
-          country: "PH" // PH, NO, XK
-        });
-      }
-      
-      // Always ensure first step is expanded on initial page load
-      setExpandedStep("personal_details");
-      hasInitialized.current = true;
-    }
-  }, [updateFormData, allFormData.fullName, setExpandedStep]);
-
-
-  // Scroll to step helper
-  const scrollToStep = (stepId: string) => {
-    setTimeout(() => {
-      const stepElement = stepRefs.current[stepId];
-      if (stepElement) {
-        stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+  const isFormValid = () => {
+    return (
+      formData.idType &&
+      formData.idNumber &&
+      formData.taxResidence &&
+      formData.nationality &&
+      formData.address &&
+      formData.bankName &&
+      formData.accountNumber
+    );
   };
 
-  // Handle step completion
-  const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
-    if (data) {
-      updateFormData(data);
+  const handleSendForm = () => {
+    if (!isFormValid()) {
+      toast.error("Please fill in all required fields");
+      return;
     }
-
-    setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    completeStep(stepId);
-    setExpandedStep(null);
-    setIsProcessing(false);
-
-    // Navigate to next step
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const nextStep = FLOW_STEPS[currentIndex + 1];
-
-    if (nextStep) {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setIsLoadingFields(true);
-      goToStep(nextStep.id);
-      setExpandedStep(nextStep.id);
-      scrollToStep(nextStep.id);
-
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setIsLoadingFields(false);
-    } else {
-      // All steps complete - show completion screen
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setShowCompletionScreen(true);
-    }
-  };
-
-  // Handle step click
-  const handleStepClick = (stepId: string) => {
-    const stepIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
     
-    // Only allow clicking on completed steps or current step
-    if (stepIndex <= currentStepIndex) {
-      const wasExpanded = expandedStep === stepId;
-      
-      if (wasExpanded) {
-        setExpandedStep(null);
-      } else {
-        setExpandedStep(stepId);
-        scrollToStep(stepId);
-      }
-    }
+    toast.success("Form sent successfully to " + prefilledData.fullName, {
+      description: "Kurt will handle the ATS notification automatically"
+    });
+    navigate("/flows/admin-dashboard");
   };
 
+  const handleSaveDraft = () => {
+    toast.success("Draft saved", {
+      description: "You can continue editing this form later"
+    });
+  };
 
-  // Show completion screen if all steps done
-  if (showCompletionScreen) {
-    return <CandidateCompletionScreen candidateName={allFormData.fullName} />;
-  }
+  const handleCancel = () => {
+    navigate("/flows/admin-dashboard");
+  };
 
   return (
-    <AgentLayout context="Candidate Onboarding">
-      <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
-
-      {/* Static background (performance-safe) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
-      </div>
-
-      {/* Main Content - Centered Single Column */}
-      <div className="container mx-auto px-4 py-8 max-w-3xl relative z-10">
-        {/* Header with Agent */}
-        <div className="flex flex-col items-center space-y-6 mb-8">
+    <AgentLayout context="Candidate Data Collection">
+      <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+        <div className="container mx-auto px-6 py-8 max-w-3xl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex justify-center"
-            style={{ maxHeight: '240px' }}
-          >
-            <AudioWaveVisualizer isActive={isSpeaking} />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            className="text-center space-y-3 max-w-2xl"
+            transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-bold text-foreground">{`Hi ${allFormData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}</h1>
-            <p className={`text-base text-center transition-colors duration-300 ${isSpeaking ? "text-foreground/80" : "text-muted-foreground"}`}>
-              Gather everything your new hire needs to get started quickly and compliantly.
-            </p>
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold mb-2">Onboarding Data Collection Form</h1>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="text-lg">🇲🇽</span>
+                <span>{prefilledData.fullName} • {prefilledData.role}</span>
+              </div>
+            </div>
+
+            {/* Kurt Message Block */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="mb-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
+            >
+              <div className="flex items-start gap-3">
+                <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-foreground mb-1">Kurt will handle the details</p>
+                  <p className="text-xs text-muted-foreground">
+                    Once this form is submitted, I'll automatically notify the ATS — no manual steps needed.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Compliance Badge */}
+            <div className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
+              <Shield className="h-4 w-4 text-primary" />
+              <span>GDPR & {prefilledData.country} Employment Law Compliant</span>
+            </div>
+
+            {/* Single Step Form */}
+            <div className="space-y-6 bg-card rounded-lg border border-border p-6">
+              {/* Prefilled fields */}
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input value={prefilledData.fullName} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={prefilledData.email} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Input value={prefilledData.role} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Salary</Label>
+                <Input value={prefilledData.salary} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Employment Type</Label>
+                <Input value={prefilledData.employmentType} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Confirmed by admin</p>
+              </div>
+
+              {/* Divider */}
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs font-medium text-muted-foreground mb-4">
+                  Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by candidate</Badge>
+                </p>
+              </div>
+
+              {/* Required fields */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  ID Type & Number
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Select 
+                  value={formData.idType} 
+                  onValueChange={(value) => setFormData({ ...formData, idType: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select ID Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="passport">Passport</SelectItem>
+                    <SelectItem value="national-id">National ID</SelectItem>
+                    <SelectItem value="drivers-license">Driver's License</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="ID Number"
+                  value={formData.idNumber}
+                  onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Tax Residence
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Input
+                  placeholder="e.g., Mexico"
+                  value={formData.taxResidence}
+                  onChange={(e) => setFormData({ ...formData, taxResidence: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Nationality
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Input
+                  placeholder="e.g., Mexican"
+                  value={formData.nationality}
+                  onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Address
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Textarea
+                  placeholder="Full residential address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Bank Details
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Input
+                  placeholder="Bank Name"
+                  value={formData.bankName}
+                  onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                  className="mb-2"
+                />
+                <Input
+                  placeholder="Account Number / IBAN"
+                  value={formData.accountNumber}
+                  onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Emergency Contact
+                  <span className="text-muted-foreground text-xs">(Optional)</span>
+                </Label>
+                <Input
+                  placeholder="Name"
+                  value={formData.emergencyContactName}
+                  onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
+                  className="mb-2"
+                />
+                <Input
+                  placeholder="Phone"
+                  value={formData.emergencyContactPhone}
+                  onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Preview message */}
+            <div className="mt-6 rounded-lg border border-border bg-muted/30 p-4">
+              <p className="text-xs text-muted-foreground mb-2">
+                This form will be sent to:
+              </p>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{prefilledData.fullName}</p>
+                  <p className="text-xs text-muted-foreground">{prefilledData.role}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSaveDraft}
+                className="flex-1"
+              >
+                Save as Draft
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                onClick={handleSendForm}
+                disabled={!isFormValid()}
+                className="flex-1"
+              >
+                Send Form
+              </Button>
+            </div>
           </motion.div>
         </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <ProgressBar 
-            currentStep={FLOW_STEPS.findIndex(s => s.id === state.currentStep) + 1} 
-            totalSteps={FLOW_STEPS.length}
-          />
-        </div>
-
-        {/* Step Cards */}
-        <div className="space-y-3">
-          {FLOW_STEPS.map((step) => {
-            const isCompleted = state.completedSteps.includes(step.id);
-            const isCurrent = state.currentStep === step.id;
-            const isExpanded = expandedStep === step.id;
-            const canExpand = isCompleted || isCurrent;
-            
-            // Determine status
-            const status = isCompleted ? "completed" : isCurrent ? "active" : "pending";
-
-            return (
-              <StepCard
-                key={step.id}
-                title={step.title}
-                stepNumber={step.stepNumber}
-                status={status}
-                isExpanded={isExpanded}
-                onClick={() => canExpand && handleStepClick(step.id)}
-              >
-                {isExpanded && (
-                  <div 
-                    ref={(el) => (stepRefs.current[step.id] = el)}
-                    className="pt-6"
-                  >
-                    {step.id === "personal_details" && (
-                      <CandidateStep2PersonalDetails
-                        formData={allFormData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "compliance_docs" && (
-                      <CandidateStep3Compliance
-                        formData={allFormData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "bank_details" && (
-                      <CandidateStep4Bank
-                        formData={allFormData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "work_setup" && (
-                      <CandidateStep5WorkSetup
-                        formData={allFormData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                    {step.id === "confirm_submit" && (
-                      <CandidateStep4Confirm
-                        formData={allFormData}
-                        onComplete={handleStepComplete}
-                        isProcessing={isProcessing}
-                        isLoadingFields={isLoadingFields}
-                      />
-                    )}
-                  </div>
-                )}
-              </StepCard>
-            );
-          })}
-        </div>
       </div>
-    </div>
     </AgentLayout>
   );
 };
