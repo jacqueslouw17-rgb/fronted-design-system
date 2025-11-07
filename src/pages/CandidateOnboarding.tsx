@@ -20,7 +20,11 @@ import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/Candi
 import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 
 const FLOW_STEPS = [
-  { id: "personal_details", title: "Personal Details", stepNumber: 1 }
+  { id: "personal_details", title: "Personal Details", stepNumber: 1 },
+  { id: "compliance", title: "Compliance & Tax", stepNumber: 2 },
+  { id: "bank_details", title: "Bank Details", stepNumber: 3 },
+  { id: "work_setup", title: "Work Setup", stepNumber: 4 },
+  { id: "confirm", title: "Review & Confirm", stepNumber: 5 }
 ];
 
 const CandidateOnboarding = () => {
@@ -89,12 +93,23 @@ const CandidateOnboarding = () => {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     completeStep(stepId);
-    setExpandedStep(null);
     setIsProcessing(false);
 
-    // Show completion screen immediately (no more steps)
-    await new Promise(resolve => setTimeout(resolve, 400));
-    setShowCompletionScreen(true);
+    // Find the next step
+    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    const nextStep = FLOW_STEPS[currentIndex + 1];
+
+    if (nextStep) {
+      // Go to next step
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setExpandedStep(nextStep.id);
+      scrollToStep(nextStep.id);
+    } else {
+      // All steps complete - show completion screen
+      setExpandedStep(null);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setShowCompletionScreen(true);
+    }
   };
 
   // Handle step click
@@ -199,7 +214,35 @@ const CandidateOnboarding = () => {
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
-                        buttonText="Submit Form"
+                        buttonText="Continue"
+                      />
+                    )}
+                    {step.id === "compliance" && (
+                      <CandidateStep3Compliance
+                        formData={allFormData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                      />
+                    )}
+                    {step.id === "bank_details" && (
+                      <CandidateStep4Bank
+                        formData={allFormData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                      />
+                    )}
+                    {step.id === "work_setup" && (
+                      <CandidateStep5WorkSetup
+                        formData={allFormData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
+                      />
+                    )}
+                    {step.id === "confirm" && (
+                      <CandidateStep4Confirm
+                        formData={allFormData}
+                        onComplete={handleStepComplete}
+                        isProcessing={isProcessing}
                       />
                     )}
                   </div>
