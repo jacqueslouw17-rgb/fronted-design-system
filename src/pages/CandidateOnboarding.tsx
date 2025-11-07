@@ -208,7 +208,7 @@ const CandidateOnboarding = () => {
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
-                        buttonText="Continue"
+                        buttonText="Submit Form"
                       />
                     )}
                   </div>
