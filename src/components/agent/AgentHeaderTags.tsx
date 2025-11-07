@@ -19,7 +19,7 @@ export const AgentHeaderTags: React.FC<AgentHeaderTagsProps> = ({
         variant="ghost"
         size="sm"
         onClick={onAnyUpdates}
-        className="rounded-full h-9 px-4 gap-2 border border-primary/30 text-foreground bg-background/90 backdrop-blur-sm shadow-sm hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+        className="rounded-full h-9 px-4 gap-2 border border-primary/50 text-foreground bg-background/90 backdrop-blur-sm shadow-[0_1px_0_0_hsl(var(--foreground)/0.06),0_10px_24px_-12px_hsl(var(--primary)/0.40)] hover:bg-primary/10 hover:border-primary hover:text-foreground transition-all hover:scale-105"
         aria-label="Any Updates"
       >
         <AlertCircle className="h-3 w-3" />
@@ -29,7 +29,7 @@ export const AgentHeaderTags: React.FC<AgentHeaderTagsProps> = ({
         variant="ghost"
         size="sm"
         onClick={onAskKurt}
-        className="rounded-full h-9 px-4 gap-2 border border-border/50 text-foreground bg-background/90 shadow-sm hover:bg-primary/5 hover:border-primary/20 transition-all"
+        className="rounded-full h-9 px-4 gap-2 border border-border/50 text-foreground bg-gradient-to-b from-background/90 to-primary/10 shadow-[0_10px_24px_-12px_hsl(var(--primary)/0.35)] hover:to-primary/20 hover:border-primary/30 transition-all hover:scale-105"
         aria-label="Ask Kurt"
       >
         <Sparkles className="h-3 w-3" />
