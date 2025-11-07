@@ -95,7 +95,7 @@ const DashboardAdmin = () => {
                         <div className="rounded-full bg-primary/5 p-5 mb-5">
                           <Users className="h-10 w-10 text-primary/40" />
                         </div>
-                        <h3 className="text-xl font-semibold mb-2 text-foreground">No contractors yet</h3>
+                        <h3 className="text-xl font-semibold mb-2 text-foreground">No candidates yet</h3>
                         <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
                           Your pipeline is empty. Start by sending your first offer to a contractor.
                         </p>
