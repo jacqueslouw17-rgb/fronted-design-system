@@ -11,19 +11,17 @@ import { useAgentState } from "@/hooks/useAgentState";
 import Topbar from "@/components/dashboard/Topbar";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
-import Step2OrgProfile from "@/components/flows/onboarding/Step2OrgProfile";
+import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
-import AdminComplianceSettings from "@/components/flows/admin-profile/AdminComplianceSettings";
+import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 
 const PROFILE_SECTIONS = [
-  { id: "company-details", title: "Company Details", step: 1 },
-  { id: "compliance-settings", title: "Compliance Settings", step: 2 },
-  { id: "localization", title: "Hiring Locations", step: 3 },
-  { id: "integrations", title: "Integrations", step: 4 },
-  { id: "user-management", title: "User Management", step: 5 }
+  { id: "company-details", title: "Organization Profile", step: 1 },
+  { id: "localization", title: "Localization & Countries", step: 2 },
+  { id: "mini-rules", title: "Mini-Rules", step: 3 },
+  { id: "user-management", title: "User Management", step: 4 }
 ];
 
 const AdminProfileSettings = () => {
@@ -35,9 +33,8 @@ const AdminProfileSettings = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({
     companyDetails: {},
-    compliance: {},
     localization: {},
-    integrations: {},
+    miniRules: {},
     userManagement: {}
   });
   const [hasChanges, setHasChanges] = useState(false);
@@ -69,10 +66,10 @@ const AdminProfileSettings = () => {
   const loadUserData = async (uid: string) => {
     setLoading(true);
     try {
-      const [orgProfile, localization, integrations] = await Promise.all([
+      const [orgProfile, localization, miniRules] = await Promise.all([
         supabase.from("organization_profiles").select("*").eq("user_id", uid).maybeSingle(),
         supabase.from("localization_settings").select("*").eq("user_id", uid).maybeSingle(),
-        supabase.from("user_integrations").select("*").eq("user_id", uid).maybeSingle()
+        supabase.from("mini_rules").select("*").eq("user_id", uid)
       ]);
 
       // Map database columns to component expected format
@@ -92,23 +89,17 @@ const AdminProfileSettings = () => {
         countries: localization.data.operating_countries || []
       } : {};
 
-      const mappedIntegrations = integrations.data ? {
-        slackConnected: !!integrations.data.hr_system,
-        fxConnected: !!integrations.data.banking_partner,
-        googleSignConnected: false
-      } : {};
+      const mappedMiniRules = miniRules.data ? 
+        miniRules.data.map(rule => ({
+          id: rule.id,
+          type: rule.rule_type,
+          description: rule.description
+        })) : [];
 
       setFormData({
         companyDetails: mappedOrgProfile,
-        compliance: {
-          dataRetentionPolicy: "7-years",
-          autoComplianceCheck: true,
-          documentExpiryReminder: "30-days",
-          laborLawUpdates: true,
-          complianceReportFrequency: "monthly"
-        },
         localization: mappedLocalization,
-        integrations: mappedIntegrations,
+        miniRules: { rules: mappedMiniRules },
         userManagement: {
           users: [
             {
@@ -197,13 +188,27 @@ const AdminProfileSettings = () => {
             }, { onConflict: "user_id" });
           break;
 
-        case "integrations":
-          await supabase
-            .from("user_integrations")
-            .upsert({
-              ...data,
-              user_id: currentUserId
-            }, { onConflict: "user_id" });
+        case "mini-rules":
+          if (data.rules) {
+            // Delete existing rules first
+            await supabase
+              .from("mini_rules")
+              .delete()
+              .eq("user_id", currentUserId);
+            
+            // Insert new rules
+            const rulesToInsert = data.rules.map((rule: any) => ({
+              user_id: currentUserId,
+              rule_type: rule.type,
+              description: rule.description
+            }));
+            
+            if (rulesToInsert.length > 0) {
+              await supabase
+                .from("mini_rules")
+                .insert(rulesToInsert);
+            }
+          }
           break;
       }
 
@@ -230,19 +235,10 @@ const AdminProfileSettings = () => {
     switch (sectionId) {
       case "company-details":
         return (
-          <Step2OrgProfile
+          <Step2OrgProfileSimplified
             formData={formData.companyDetails}
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
-            isProcessing={isSaving}
-          />
-        );
-      
-      case "compliance-settings":
-        return (
-          <AdminComplianceSettings
-            formData={formData.compliance}
-            onComplete={handleSaveChanges}
             isProcessing={isSaving}
           />
         );
@@ -257,10 +253,10 @@ const AdminProfileSettings = () => {
           />
         );
 
-      case "integrations":
+      case "mini-rules":
         return (
-          <Step4Integrations
-            formData={formData.integrations}
+          <Step5MiniRules
+            formData={formData.miniRules}
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
             isProcessing={isSaving}
