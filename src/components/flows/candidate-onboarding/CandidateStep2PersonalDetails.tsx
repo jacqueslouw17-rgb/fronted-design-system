@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StandardInput from "@/components/shared/StandardInput";
 import PhoneInput from "@/components/shared/PhoneInput";
+import NationalitySelect from "@/components/shared/NationalitySelect";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -163,17 +164,16 @@ const CandidateStep2PersonalDetails = ({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              Nationality
-              <Badge variant="secondary" className="text-xs">Required</Badge>
-            </Label>
-            <Input
-              placeholder="e.g., Mexican"
-              value={data.nationality}
-              onChange={(e) => setData({ ...data, nationality: e.target.value })}
-            />
+          <div className="flex items-center gap-2 mb-2">
+            <Label>Nationality</Label>
+            <Badge variant="secondary" className="text-xs">Required</Badge>
           </div>
+          <NationalitySelect
+            value={data.nationality}
+            onValueChange={(value) => setData({ ...data, nationality: value })}
+            placeholder="Select your nationality"
+            label=""
+          />
 
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
