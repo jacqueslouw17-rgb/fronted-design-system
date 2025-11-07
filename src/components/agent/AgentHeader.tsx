@@ -123,17 +123,31 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
       delay: 0.2
     }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
         {simplified ? (
-          // Simplified mode: Show disabled tags
-          <div className="flex items-center justify-center gap-2">
+          // Simplified mode: Show disabled tags with glassy design
+          <div className="flex items-center justify-center gap-3 mt-6">
             <div 
-              className="px-3.5 py-1.5 rounded-full bg-[#F3F4F6] text-[#6B7280] text-sm font-medium cursor-default"
-              title="Coming soon"
+              className="px-4 py-1.5 rounded-full text-[#6B7280] text-sm font-medium cursor-default transition-all duration-250 ease-out hover:bg-white/60"
+              style={{
+                background: 'rgba(255, 255, 255, 0.4)',
+                border: '1px solid rgba(229, 231, 235, 0.6)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}
+              aria-disabled="true"
             >
               Any Updates?
             </div>
             <div 
-              className="px-3.5 py-1.5 rounded-full bg-[#F3F4F6] text-[#6B7280] text-sm font-medium cursor-default"
-              title="Coming soon"
+              className="px-4 py-1.5 rounded-full text-[#6B7280] text-sm font-medium cursor-default transition-all duration-250 ease-out hover:bg-white/60"
+              style={{
+                background: 'rgba(255, 255, 255, 0.4)',
+                border: '1px solid rgba(229, 231, 235, 0.6)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}
+              aria-disabled="true"
             >
               Ask Kurt
             </div>
