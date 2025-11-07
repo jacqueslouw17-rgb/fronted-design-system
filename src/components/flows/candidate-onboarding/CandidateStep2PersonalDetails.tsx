@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StandardInput from "@/components/shared/StandardInput";
 import PhoneInput from "@/components/shared/PhoneInput";
-import NationalitySelect from "@/components/shared/NationalitySelect";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -164,16 +163,32 @@ const CandidateStep2PersonalDetails = ({
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-2">
-            <Label>Nationality</Label>
-            <Badge variant="secondary" className="text-xs">Required</Badge>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Label>Nationality</Label>
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </div>
+            <Select 
+              value={data.nationality} 
+              onValueChange={(value) => setData({ ...data, nationality: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select your nationality" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NO">🇳🇴 Norwegian</SelectItem>
+                <SelectItem value="PH">🇵🇭 Filipino</SelectItem>
+                <SelectItem value="IN">🇮🇳 Indian</SelectItem>
+                <SelectItem value="US">🇺🇸 American</SelectItem>
+                <SelectItem value="GB">🇬🇧 British</SelectItem>
+                <SelectItem value="SE">🇸🇪 Swedish</SelectItem>
+                <SelectItem value="DK">🇩🇰 Danish</SelectItem>
+                <SelectItem value="FI">🇫🇮 Finnish</SelectItem>
+                <SelectItem value="DE">🇩🇪 German</SelectItem>
+                <SelectItem value="FR">🇫🇷 French</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <NationalitySelect
-            value={data.nationality}
-            onValueChange={(value) => setData({ ...data, nationality: value })}
-            placeholder="Select your nationality"
-            label=""
-          />
 
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
