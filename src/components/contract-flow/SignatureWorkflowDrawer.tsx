@@ -30,7 +30,7 @@ interface SignatureStep {
 interface Document {
   name: string;
   type: string;
-  status: "drafted" | "not-sent" | "missing" | "ready";
+  status: "drafted" | "not-sent" | "missing" | "ready" | "pending";
   action: string;
 }
 
@@ -124,6 +124,13 @@ const getDocStatusBadge = (status: Document["status"]) => {
           <span className="text-sm font-medium text-success">Ready</span>
         </div>
       );
+    case "pending":
+      return (
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-warning/10 border border-warning/20">
+          <Clock className="h-4 w-4 text-warning" />
+          <span className="text-sm font-medium text-warning">Pending</span>
+        </div>
+      );
     case "missing":
       return (
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-destructive/10 border border-destructive/20">
@@ -154,6 +161,8 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [justResolved, setJustResolved] = useState(false);
+  const [resolvedDocName, setResolvedDocName] = useState<string>("");
 
   // Update steps and documents when candidate changes
   useEffect(() => {
@@ -164,14 +173,22 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   }, [candidate]);
 
   const handleIncludeDocument = (docName: string) => {
-    // Update the document status from "not-sent" to "ready"
+    // Update the document status from "not-sent" to "pending"
     setDocuments(prevDocs =>
       prevDocs.map(doc =>
         doc.name === docName && doc.status === "not-sent"
-          ? { ...doc, status: "ready" as const, action: "Preview" }
+          ? { ...doc, status: "pending" as const, action: "Preview" }
           : doc
       )
     );
+
+    setResolvedDocName(docName);
+    setJustResolved(true);
+    
+    // Clear resolved state after animation
+    setTimeout(() => {
+      setJustResolved(false);
+    }, 3000);
 
     toast({
       title: "Document included",
@@ -204,14 +221,22 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   };
 
   const handleUploadDocument = () => {
-    // Update the document status from "missing" to "ready"
+    // Update the document status from "missing" to "pending"
     setDocuments(prevDocs =>
       prevDocs.map(doc =>
         doc.name === selectedDoc
-          ? { ...doc, status: "ready" as const, action: "Preview" }
+          ? { ...doc, status: "pending" as const, action: "Preview" }
           : doc
       )
     );
+
+    setResolvedDocName(selectedDoc || "");
+    setJustResolved(true);
+    
+    // Clear resolved state after animation
+    setTimeout(() => {
+      setJustResolved(false);
+    }, 3000);
 
     toast({
       title: "Document uploaded",
@@ -260,7 +285,42 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   const signedCount = steps.filter(s => s.status === "signed").length;
   const totalCount = steps.length;
   const hasDocIssues = documents.some(d => d.status === "missing" || d.status === "not-sent");
+  const hasPendingDocs = documents.some(d => d.status === "pending");
   const canSend = !hasDocIssues && !isSending;
+  
+  // Determine alert state
+  const getAlertState = () => {
+    if (justResolved && !hasDocIssues) {
+      return {
+        variant: "success" as const,
+        message: `${resolvedDocName} added. All documents are now ready to send for signature.`,
+        bgColor: "bg-success/10",
+        borderColor: "border-success/20",
+        textColor: "text-success"
+      };
+    }
+    if (hasPendingDocs && !hasDocIssues) {
+      return {
+        variant: "warning" as const,
+        message: "Processing documents. They will be ready shortly.",
+        bgColor: "bg-warning/10",
+        borderColor: "border-warning/20",
+        textColor: "text-warning"
+      };
+    }
+    if (hasDocIssues) {
+      return {
+        variant: "destructive" as const,
+        message: "Some documents are missing or incomplete. Please resolve before sending.",
+        bgColor: "bg-destructive/10",
+        borderColor: "border-destructive/20",
+        textColor: "text-destructive"
+      };
+    }
+    return null;
+  };
+  
+  const alertState = getAlertState();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -345,24 +405,44 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                 </div>
               </div>
 
-              {hasDocIssues && (
-                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-                  <p className="text-sm text-foreground flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                    Some documents are missing or incomplete. Please resolve before sending.
+              {alertState && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className={`p-4 rounded-lg ${alertState.bgColor} border ${alertState.borderColor}`}
+                >
+                  <p className={`text-sm flex items-center gap-2 ${alertState.textColor}`}>
+                    {alertState.variant === "destructive" && <AlertTriangle className="h-4 w-4" />}
+                    {alertState.variant === "warning" && <Clock className="h-4 w-4" />}
+                    {alertState.variant === "success" && <CheckCircle2 className="h-4 w-4" />}
+                    {alertState.message}
                   </p>
-                </div>
+                </motion.div>
               )}
 
               {/* Send for Signatures Button */}
-              <Button
-                className="w-full"
-                disabled={!canSend}
-                onClick={handleSendForSignaturesClick}
+              <motion.div
+                animate={canSend && !hasDocIssues ? {
+                  scale: [1, 1.02, 1],
+                  boxShadow: [
+                    "0 0 0 0 rgba(139, 92, 246, 0)",
+                    "0 0 0 4px rgba(139, 92, 246, 0.2)",
+                    "0 0 0 0 rgba(139, 92, 246, 0)"
+                  ]
+                } : {}}
+                transition={{ duration: 1.5, repeat: canSend ? Infinity : 0, repeatDelay: 1 }}
               >
-                <FileSignature className="h-4 w-4 mr-2" />
-                {isSending ? "Sending..." : "Send for Signatures"}
-              </Button>
+                <Button
+                  className="w-full disabled:opacity-50"
+                  disabled={!canSend}
+                  onClick={handleSendForSignaturesClick}
+                >
+                  <FileSignature className="h-4 w-4 mr-2" />
+                  {isSending ? "Sending..." : "Send for Signatures"}
+                </Button>
+              </motion.div>
             </div>
 
             <Separator />
