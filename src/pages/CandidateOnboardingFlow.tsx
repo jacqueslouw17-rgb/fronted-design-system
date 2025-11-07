@@ -195,11 +195,11 @@ export default function CandidateOnboardingFlow() {
 
             <Button 
               size="lg" 
-              onClick={handleSubmit}
+              onClick={handleNext}
               className="px-8"
             >
               Send Form
-              <CheckCircle2 className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </motion.div>
         </div>
@@ -271,10 +271,10 @@ export default function CandidateOnboardingFlow() {
         </div>
       </div>
 
-      {/* Main content area - Hidden since we skip directly to success */}
-      <div className="max-w-6xl mx-auto p-6" style={{ display: 'none' }}>
+      {/* Main content area */}
+      <div className="max-w-6xl mx-auto p-6">
         <div className="flex gap-8">
-          {/* Left: Progress sidebar with step cards - Hidden */}
+          {/* Left: Progress sidebar with step cards */}
           <div className="w-80 flex-shrink-0 space-y-3">
             {stepConfigs.map((step, idx) => {
               // Map to actual step IDs in flow
@@ -305,7 +305,7 @@ export default function CandidateOnboardingFlow() {
             })}
           </div>
 
-          {/* Right: Large centered form - Hidden */}
+          {/* Right: Large centered form */}
           <div className="flex-1">
             <AnimatePresence mode="wait">
               <motion.div
