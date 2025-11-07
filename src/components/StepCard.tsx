@@ -60,9 +60,9 @@ const StepCard = ({
       
     return (
       <div className="transition-all duration-300 ease-out overflow-hidden relative z-10 motion-reduce:transition-none">
-        <Card className={`p-4 sm:p-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
+        <Card className={`pt-3 pb-4 px-4 sm:pt-3 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
           <div 
-            className="flex justify-between items-center mb-3 sm:mb-4 cursor-pointer" 
+            className="flex justify-between items-center mb-2 cursor-pointer" 
             onClick={onClick}
             data-step-header
             id={headerId}
