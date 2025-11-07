@@ -541,6 +541,19 @@ const ContractFlowDemo = () => {
                                 dataReceived: false,
                                 employmentType: "employee" as const,
                               },
+                              // Candidate in prepare contract column
+                              {
+                                id: "display-3",
+                                name: "Elena Popescu",
+                                country: "Romania",
+                                countryFlag: "🇷🇴",
+                                role: "Backend Developer",
+                                salary: "RON 18,000/mo",
+                                status: "drafting" as const,
+                                formSent: false,
+                                dataReceived: true,
+                                employmentType: "contractor" as const,
+                              },
                               // Actual candidates in the contract flow
                               ...contractFlow.selectedCandidates.map((candidate, index) => ({
                                 id: candidate.id,
