@@ -68,6 +68,16 @@ const StepCard = ({
             id={headerId}
           >
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              {status === "completed" ? (
+                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />
+              ) : (
+                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium flex-shrink-0">
+                  {stepNumber}
+                </div>
+              )}
+              <div className="truncate">
+                <h3 className="font-semibold text-foreground truncate">{title}</h3>
+              </div>
             </div>
             <div className="flex-shrink-0 ml-2">
               {getStatusBadge()}
@@ -97,6 +107,16 @@ const StepCard = ({
       >
       <div className="flex justify-between items-center gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+          {status === "completed" ? (
+            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />
+          ) : (
+            <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium flex-shrink-0">
+              {stepNumber}
+            </div>
+          )}
+          <div className="truncate">
+            <h3 className="font-medium text-foreground/90 truncate">{title}</h3>
+          </div>
         </div>
         <div className="flex-shrink-0">
           {getStatusBadge()}

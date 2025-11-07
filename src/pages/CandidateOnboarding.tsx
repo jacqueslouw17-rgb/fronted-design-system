@@ -201,6 +201,7 @@ const CandidateOnboarding = () => {
                 title={step.title}
                 stepNumber={step.stepNumber}
                 status={status}
+                isLocked={status === 'pending'}
                 isExpanded={isExpanded}
                 onClick={() => canExpand && handleStepClick(step.id)}
               >
