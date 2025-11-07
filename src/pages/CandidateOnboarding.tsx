@@ -192,7 +192,6 @@ const CandidateOnboarding = () => {
                 {isExpanded && (
                   <div 
                     ref={(el) => (stepRefs.current[step.id] = el)}
-                    className="pt-2"
                   >
                     {step.id === "personal_details" && (
                       <CandidateStep2PersonalDetails
