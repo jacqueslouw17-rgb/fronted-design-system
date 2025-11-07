@@ -97,11 +97,11 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
           <p className="text-sm sm:text-base">
             {enableWordHighlight || isSpeaking ?
           // Word-by-word highlighting when speaking (grey reading effect)
-          subtitle.split(' ').map((word, idx) => <span key={idx} className={idx < displayWordIndex ? 'text-foreground/90' : 'text-muted-foreground/40'}>
+          subtitle.split(' ').map((word, idx) => <span key={idx} className={idx < displayWordIndex ? 'text-foreground/80' : 'text-foreground/50'}>
                   {word}{' '}
                 </span>) :
           // Default static subtitle with darker color if there are changes
-          <span className={hasChanges ? "text-foreground/60" : "text-muted-foreground"}>
+          <span className={hasChanges ? "text-foreground/70" : "text-foreground/65"}>
                 {subtitle}
               </span>}
           </p>
