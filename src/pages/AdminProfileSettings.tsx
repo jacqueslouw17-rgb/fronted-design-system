@@ -16,6 +16,7 @@ import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 
 const PROFILE_SECTIONS = [
   { id: "company-details", title: "Organization Profile", step: 1 },
@@ -98,16 +99,39 @@ const AdminProfileSettings = () => {
           linkedAction: rule.linked_action || undefined
         })) : [];
 
+      // Fallback to onboarding store if DB empty or no auth
+      const store = useOnboardingStore.getState();
+      const storeOrg = store.getAdminStepData("org_profile") || {};
+      const storeLoc = store.getAdminStepData("localization_country_blocks") || {};
+      const storeRules = store.getAdminStepData("mini_rules_setup") || {};
+
+      const finalOrg = Object.keys(mappedOrgProfile).length ? mappedOrgProfile : {
+        companyName: storeOrg.companyName || "",
+        primaryContactName: storeOrg.primaryContactName || "Joe User",
+        primaryContactEmail: storeOrg.primaryContactEmail || "",
+        hqCountry: storeOrg.hqCountry || "",
+        payrollFrequency: storeOrg.payrollFrequency || "monthly",
+        payoutDay: storeOrg.payoutDay || "25",
+        dualApproval: true
+      };
+
+      const finalLoc = Object.keys(mappedLocalization).length ? mappedLocalization : {
+        selectedCountries: storeLoc.selectedCountries || [],
+        countries: storeLoc.selectedCountries || []
+      };
+
+      const finalRules = mappedMiniRules.length ? mappedMiniRules : (storeRules.miniRules || []);
+
       setFormData({
-        companyDetails: mappedOrgProfile,
-        localization: mappedLocalization,
-        miniRules: { rules: mappedMiniRules },
+        companyDetails: finalOrg,
+        localization: finalLoc,
+        miniRules: { rules: finalRules },
         userManagement: {
           users: [
             {
               id: "1",
               name: "Joe User",
-              email: orgProfile.data?.contact_email || "joe@fronted.com",
+              email: (finalOrg as any).primaryContactEmail || "joe@fronted.com",
               role: "admin",
               status: "active"
             }
