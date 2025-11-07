@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
+import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -43,19 +43,10 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         isActive={isAgentSpeaking}
         showInput={false}
         tags={
-          <AgentSuggestionChips
-            chips={[
-              {
-                label: "Highlight Changes",
-                variant: "default",
-                onAction: () => console.log('Review action: highlight-changes'),
-              },
-              {
-                label: "Ask Kurt",
-                variant: "default",
-                onAction: () => console.log('Review action: ask-kurt'),
-              },
-            ]}
+          <KurtContextualTags
+            flowContext="contract-review"
+            onTagClick={(action) => console.log('Review action:', action)}
+            disabled={false}
           />
         }
       />

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
+import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
 
 interface ContractDraftWorkspaceProps {
@@ -279,19 +279,10 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         isActive={isAgentSpeaking}
         showInput={false}
         tags={
-          <AgentSuggestionChips
-            chips={[
-              {
-                label: "Quick Summary",
-                variant: "default",
-                onAction: () => handleKurtAction("quick-summary"),
-              },
-              {
-                label: "Ask Kurt",
-                variant: "default",
-                onAction: () => handleKurtAction("ask-kurt"),
-              },
-            ]}
+          <KurtContextualTags
+            flowContext="contract-workspace"
+            onTagClick={(action) => handleKurtAction(action)}
+            disabled={false}
           />
         }
       />

@@ -11,7 +11,7 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
+import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -394,24 +394,10 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         showPulse={true}
         showInput={false}
         tags={
-          <AgentSuggestionChips
-            chips={[
-              {
-                label: "Review Fields",
-                variant: "default",
-                onAction: () => handleKurtAction("review-fields"),
-              },
-              {
-                label: "Explain Terms",
-                variant: "default",
-                onAction: () => handleKurtAction("explain-terms"),
-              },
-              {
-                label: "Ask Kurt",
-                variant: "default",
-                onAction: () => setOpen(true),
-              },
-            ]}
+          <KurtContextualTags
+            flowContext="contract-creation"
+            onTagClick={(action) => handleKurtAction(action)}
+            disabled={false}
           />
         }
         progressIndicator={
