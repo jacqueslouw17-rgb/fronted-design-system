@@ -11,9 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Upload, Sparkles, FileText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
 
 type OnboardingStep = "welcome" | "personal" | "address" | "tax" | "review" | "complete";
@@ -52,6 +51,7 @@ export default function CandidateOnboardingFlow() {
     "Let's complete a few quick details so we can finalize your contract."
   );
   const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const steps: OnboardingStep[] = ["welcome", "personal", "address", "tax", "review"];
   const currentStepIndex = steps.indexOf(state.currentStep as OnboardingStep);
@@ -117,15 +117,19 @@ export default function CandidateOnboardingFlow() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Complete final step
     completeStep("review");
     
-    toast({
-      title: "✅ Form Submitted Successfully!",
-      description: "Your information has been received.",
-    });
-
+    // Show loading state
+    setIsSubmitting(true);
+    
+    // Fire silent analytics event (if backend is configured)
+    // logEvent?.({ type: 'onboarding_complete', candidateId });
+    
+    // Short delay with loading message
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // Navigate directly to dashboard
     navigate('/candidate-dashboard');
   };
@@ -540,13 +544,22 @@ export default function CandidateOnboardingFlow() {
                         </div>
 
                         <div className="flex gap-3">
-                          <Button variant="outline" onClick={handleBack} className="flex-1">
+                          <Button variant="outline" onClick={handleBack} disabled={isSubmitting} className="flex-1">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back
                           </Button>
-                          <Button onClick={handleSubmit} disabled={!agreed} className="flex-1">
-                            Submit Details
-                            <CheckCircle2 className="ml-2 h-4 w-4" />
+                          <Button onClick={handleSubmit} disabled={!agreed || isSubmitting} className="flex-1">
+                            {isSubmitting ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Wrapping up your setup...
+                              </>
+                            ) : (
+                              <>
+                                Submit Details
+                                <CheckCircle2 className="ml-2 h-4 w-4" />
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>

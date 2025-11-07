@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
 import { toast } from "@/hooks/use-toast";
@@ -17,7 +17,6 @@ import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/Ca
 import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
 import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
 import CandidateStep4Confirm from "@/components/flows/candidate-onboarding/CandidateStep4Confirm";
-import CandidateCompletionScreen from "@/components/flows/candidate-onboarding/CandidateCompletionScreen";
 
 const FLOW_STEPS = [
   { id: "personal_details", title: "Personal Details", stepNumber: 1 },
@@ -36,7 +35,7 @@ const CandidateOnboarding = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
-  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const hasInitialized = useRef(false);
 
@@ -83,7 +82,7 @@ const CandidateOnboarding = () => {
     }, 100);
   };
 
-  // Handle step completion - submit form and show success screen
+  // Handle step completion - submit form and redirect to dashboard
   const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
     if (data) {
       updateFormData(data);
@@ -105,10 +104,18 @@ const CandidateOnboarding = () => {
       setExpandedStep(nextStep.id);
       scrollToStep(nextStep.id);
     } else {
-      // All steps complete - show completion screen
+      // All steps complete - show loading and redirect to dashboard
+      setIsSubmitting(true);
       setExpandedStep(null);
-      await new Promise(resolve => setTimeout(resolve, 400));
-      setShowCompletionScreen(true);
+      
+      // Fire silent analytics event (if backend is configured)
+      // logEvent?.({ type: 'onboarding_complete', candidateId });
+      
+      // Short delay with loading state
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Navigate directly to dashboard
+      navigate('/candidate-dashboard');
     }
   };
 
@@ -131,13 +138,20 @@ const CandidateOnboarding = () => {
   };
 
 
-  // Show completion screen if all steps done
-  if (showCompletionScreen) {
-    return <CandidateCompletionScreen candidateName={allFormData.fullName} />;
-  }
-
   return (
     <AgentLayout context="Candidate Onboarding">
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center gap-4"
+          >
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg font-medium text-foreground">Wrapping up your setup...</p>
+          </motion.div>
+        </div>
+      )}
       <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
