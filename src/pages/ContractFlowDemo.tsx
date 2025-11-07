@@ -502,19 +502,10 @@ const ContractFlowDemo = () => {
                           )}
                           showInput={false}
                           tags={
-                            <AgentSuggestionChips
-                              chips={[
-                                {
-                                  label: "Any Updates?",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction('any-updates'),
-                                },
-                                {
-                                  label: "Ask Kurt",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction('ask-kurt'),
-                                },
-                              ]}
+                            <KurtContextualTags
+                              flowContext="checklist"
+                              onTagClick={(action) => handleKurtAction(action)}
+                              disabled={false}
                             />
                           }
                         />
