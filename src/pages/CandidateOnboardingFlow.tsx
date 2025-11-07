@@ -213,6 +213,16 @@ export default function CandidateOnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/[0.02] to-secondary/[0.03]">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
+        onClick={() => navigate('/flows')}
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+      
       {/* Top instructional header - Candidate Data Collection */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto p-6">
