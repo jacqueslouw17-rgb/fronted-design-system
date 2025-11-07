@@ -107,7 +107,8 @@ You can ask me about:
                       title={`Welcome ${userData.firstName}, review payroll`}
                       subtitle="Kurt can help with: FX rates, compliance checks, or payment execution."
                       showPulse={true}
-                      simplified={true}
+                      showInput={false}
+                      simplified={false}
                       tags={
                         <div className="flex gap-2">
                           <Button
