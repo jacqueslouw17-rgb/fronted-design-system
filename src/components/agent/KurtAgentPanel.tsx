@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, History, Lightbulb, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Copy, History, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { useAgentState } from '@/hooks/useAgentState';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { ComplianceReviewSummaryCard } from '@/components/contract-flow/ComplianceReviewSummaryCard';
 import { PayrollBatchPreviewCard } from '@/components/contract-flow/PayrollBatchPreviewCard';
 import { usePayrollBatch } from '@/hooks/usePayrollBatch';
@@ -23,18 +22,15 @@ const loadingPhrases = [
 ];
 
 export const KurtAgentPanel: React.FC = () => {
-  const { open, messages, loading, setOpen, context, clearMessages, isSpeaking, setIsSpeaking, setCurrentWordIndex, addMessage } = useAgentState();
+  const { open, messages, loading, setOpen, context, clearMessages, addMessage } = useAgentState();
   const [currentPhrase, setCurrentPhrase] = React.useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [readingMessageId, setReadingMessageId] = useState<string | null>(null);
   const [kurtState, setKurtState] = useState<'idle' | 'listening' | 'thinking' | 'responding' | 'working' | 'complete'>('idle');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { speak, stop, currentWordIndex: localWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { createBatch, batches } = usePayrollBatch();
   const navigate = useNavigate();
 
   // Preserve conversation when panel opens; do not clear on mount
-  // If needed, we can clear explicitly via a control elsewhere.
 
   // Update Kurt state based on loading and messages
   useEffect(() => {
@@ -80,30 +76,6 @@ export const KurtAgentPanel: React.FC = () => {
       }, 100);
     }
   }, [open]);
-
-  // Sync local word index to global state
-  useEffect(() => {
-    setCurrentWordIndex(localWordIndex);
-  }, [localWordIndex, setCurrentWordIndex]);
-
-  // Auto-speak the latest Kurt message after loading completes (only first line/heading)
-  useEffect(() => {
-    if (!loading && messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'kurt' && readingMessageId !== lastMessage.id) {
-        setReadingMessageId(lastMessage.id);
-        setIsSpeaking(true);
-        // Only speak the first line (heading)
-        const firstLine = lastMessage.text.split('\n')[0];
-        speak(firstLine, () => {
-          setIsSpeaking(false);
-          setCurrentWordIndex(0);
-          setReadingMessageId(null);
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, messages]);
 
   const handleCopy = () => {
     if (messages.length > 0) {
@@ -232,7 +204,6 @@ export const KurtAgentPanel: React.FC = () => {
                               toast.info("Scrolling to compliance summary...");
                             }}
                             onProceedToPayroll={() => {
-                              // Add context message
                               addMessage({
                                 role: 'kurt',
                                 text: "Perfect. All contracts are verified — let's prepare the next payroll batch.",
@@ -332,46 +303,15 @@ export const KurtAgentPanel: React.FC = () => {
                         ) : msg.text.includes('📄') || msg.text.includes('✅') || msg.text.includes('🔧') || msg.text.includes('📚') || msg.text.includes('📊') || msg.text.includes('🔄') || msg.text.includes('📈') || msg.text.includes('📧') ? (
                           <Card className="p-4 bg-card border-border/50 shadow-sm">
                             <div className="space-y-2">
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                {readingMessageId === msg.id ? (
-                                  // Currently being read - apply word-by-word highlighting
-                                  msg.text.split(' ').map((word, idx) => (
-                                    <span
-                                      key={idx}
-                                      className={
-                                        idx < localWordIndex
-                                          ? 'text-foreground/90'
-                                          : 'text-muted-foreground/40'
-                                      }
-                                    >
-                                      {word}{' '}
-                                    </span>
-                                  ))
-                                ) : (
-                                  <span className="text-foreground">{msg.text}</span>
-                                )}
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                                {msg.text}
                               </p>
                             </div>
                           </Card>
                         ) : (
                           <div className="space-y-1">
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {readingMessageId === msg.id ? (
-                                msg.text.split(' ').map((word, idx) => (
-                                  <span
-                                    key={idx}
-                                    className={
-                                      idx < localWordIndex
-                                        ? 'text-foreground/90'
-                                        : 'text-muted-foreground/40'
-                                    }
-                                  >
-                                    {word}{' '}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-foreground">{msg.text}</span>
-                              )}
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                              {msg.text}
                             </p>
                           </div>
                         )}
@@ -419,18 +359,15 @@ export const KurtAgentPanel: React.FC = () => {
                     exit={{ opacity: 0, y: -10 }}
                     className="space-y-3"
                   >
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Lightbulb className="h-3.5 w-3.5 animate-pulse" />
-                      <motion.span
-                        key={currentPhrase}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="text-xs"
-                      >
-                        {loadingPhrases[currentPhrase]}
-                      </motion.span>
-                    </div>
+                    <motion.span
+                      key={currentPhrase}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-xs text-muted-foreground"
+                    >
+                      {loadingPhrases[currentPhrase]}
+                    </motion.span>
                     <div className="space-y-2 pl-1">
                       <Skeleton className="h-3 w-full" />
                       <Skeleton className="h-3 w-3/4" />
