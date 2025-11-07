@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, MoreVertical, Trash2, Shield, Loader2, Sparkles, Tag, Zap } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import {
@@ -72,6 +72,13 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<Rule | null>(null);
   const [isNewRule, setIsNewRule] = useState(false);
+
+  // Sync with external formData updates (e.g., when profile settings loads from DB)
+  useEffect(() => {
+    if (Array.isArray(formData.miniRules)) {
+      setRules(formData.miniRules);
+    }
+  }, [formData.miniRules]);
 
   const handleOpenEditModal = (rule: Rule, isNew = false) => {
     setEditFormData({ ...rule });

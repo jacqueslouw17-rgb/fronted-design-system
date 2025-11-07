@@ -296,6 +296,7 @@ const AdminProfileSettings = () => {
             onOpenDrawer={() => {}}
             isProcessing={isSaving}
             isLoadingFields={false}
+            showAutoFillLoading={false}
           />
         );
 

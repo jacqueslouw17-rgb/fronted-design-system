@@ -19,17 +19,19 @@ interface Step2Props {
   onOpenDrawer: () => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  showAutoFillLoading?: boolean; // allow disabling auto-fill spinner in settings
 }
 
 const Step2OrgProfileSimplified = ({ 
   formData, 
   onComplete, 
   isProcessing: externalProcessing, 
-  isLoadingFields = false 
+  isLoadingFields = false,
+  showAutoFillLoading = true,
 }: Step2Props) => {
   // Check if we have persisted data (revisiting step)
   const hasPersistedData = formData && Object.keys(formData).length > 0 && formData.companyName;
-  const [isAutoFilling, setIsAutoFilling] = useState(!hasPersistedData);
+  const [isAutoFilling, setIsAutoFilling] = useState(showAutoFillLoading && !hasPersistedData);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
     companyName: formData.companyName || "",
@@ -46,7 +48,7 @@ const Step2OrgProfileSimplified = ({
 
   // Auto-fill data on mount ONLY if no persisted data exists
   useEffect(() => {
-    if (isAutoFilling && !hasPersistedData) {
+    if (showAutoFillLoading && isAutoFilling && !hasPersistedData) {
       const timer = setTimeout(() => {
         const fieldsToAutoFill = new Set<string>();
         
@@ -84,8 +86,11 @@ const Step2OrgProfileSimplified = ({
       if (formData.hqCountry) persistedFields.add('hqCountry');
       if (formData.payrollCurrency) persistedFields.add('payrollCurrency');
       setAutoFilledFields(persistedFields);
+    } else {
+      // If loading is disabled, ensure we don't show skeleton
+      if (!showAutoFillLoading) setIsAutoFilling(false);
     }
-  }, [isAutoFilling, formData, hasPersistedData]);
+  }, [isAutoFilling, formData, hasPersistedData, showAutoFillLoading]);
 
   // Watch for formData updates from Kurt
   useEffect(() => {
