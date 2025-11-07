@@ -84,7 +84,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   }} animate={{
     opacity: 1,
     y: 0
-  }} className={`flex flex-col items-center space-y-4 sm:space-y-6 px-4 ${className}`}>
+  }} className={`flex flex-col items-center space-y-3 sm:space-y-4 px-4 ${className}`}>
       {/* Agent Pulse */}
       {showPulse && <div className="flex justify-center scale-75 sm:scale-100">
           <AudioWaveVisualizer isActive={isActive} isListening={false} />
@@ -124,7 +124,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         y: 0
       }} transition={{
         delay: 0.2
-      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0 -mt-4">
+      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0 -mt-2 sm:-mt-3">
           <>
             {showInput && (
               <form onSubmit={handleSubmit} className="relative">
