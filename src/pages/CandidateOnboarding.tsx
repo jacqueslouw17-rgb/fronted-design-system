@@ -164,7 +164,7 @@ const CandidateOnboarding = () => {
           >
             <h1 className="text-3xl font-bold text-foreground">{`Hi ${allFormData.fullName?.split(' ')[0] || "there"} 👋 Welcome to Fronted!`}</h1>
             <p className={`text-base text-center transition-colors duration-300 ${isSpeaking ? "text-foreground/80" : "text-muted-foreground"}`}>
-              Gather everything your new hire needs to get started quickly and compliantly.
+              Let's gather a few more details to get your onboarding started smoothly.
             </p>
           </motion.div>
         </div>
