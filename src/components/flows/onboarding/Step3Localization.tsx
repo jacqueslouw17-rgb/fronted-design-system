@@ -72,10 +72,7 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
     // Simulate loading
     setTimeout(() => {
       setLoading(false);
-      toast({
-        title: "Country blocks loaded",
-        description: `Loaded compliance rules for ${selectedCountries.length} countries`
-      });
+      // No generic loading notification - let the visual state change speak for itself
       
       onComplete("localization_country_blocks", {
         selectedCountries,

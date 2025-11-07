@@ -109,11 +109,7 @@ const Step2OrgProfile = ({ formData, onComplete, isProcessing: externalProcessin
       return;
     }
 
-    toast({
-      title: "Organization profile saved",
-      description: "Your company information has been recorded"
-    });
-
+    // No generic save notification - let the step transition speak for itself
     onComplete("org_profile", { ...data, payrollScenarios });
   };
 

@@ -124,11 +124,7 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
       return;
     }
 
-    toast({
-      title: "Mini-Rules saved",
-      description: `${rules.length} rules configured successfully`
-    });
-
+    // No generic save notification - let the step transition speak for itself
     onComplete("mini_rules_setup", {
       miniRules: rules
     });
