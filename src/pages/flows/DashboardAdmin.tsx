@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageCircle, BellRing } from "lucide-react";
+import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
@@ -149,26 +150,10 @@ You can ask me about:
                   showInput={false}
                   simplified={false}
                   tags={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleKurtAction('any-updates')}
-                        className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
-                      >
-                        <BellRing className="h-3.5 w-3.5" />
-                        Any Updates?
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleKurtAction('ask-kurt')}
-                        className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        Ask Kurt
-                      </Button>
-                    </div>
+                    <AgentHeaderTags 
+                      onAnyUpdates={() => handleKurtAction('any-updates')}
+                      onAskKurt={() => handleKurtAction('ask-kurt')}
+                    />
                   }
                 />
 
