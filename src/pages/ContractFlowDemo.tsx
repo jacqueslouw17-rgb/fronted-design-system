@@ -533,11 +533,11 @@ const ContractFlowDemo = () => {
                               chips={[
                                 {
                                   label: "Any Updates?",
-                                  variant: "disabled",
+                                  variant: "default",
                                 },
                                 {
                                   label: "Ask Kurt",
-                                  variant: "disabled",
+                                  variant: "default",
                                 },
                               ]}
                             />
