@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Bot, ArrowLeft, X, FileCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { useContractFlow } from "@/hooks/useContractFlow";
 import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
@@ -35,7 +34,6 @@ import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 
 const ContractFlowDemo = () => {
   const navigate = useNavigate();
-  const { speak, currentWordIndex: ttsWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const { toast } = useToast();
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
@@ -44,7 +42,6 @@ const ContractFlowDemo = () => {
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
   const [promptText, setPromptText] = React.useState("");
   const [isTypingPrompt, setIsTypingPrompt] = React.useState(false);
-  const [isSpeaking, setIsSpeaking] = React.useState(false);
   const [hasSpokenPhase, setHasSpokenPhase] = React.useState<Record<string, boolean>>({});
   const [showContractSignedMessage, setShowContractSignedMessage] = useState(false);
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
@@ -297,7 +294,7 @@ const ContractFlowDemo = () => {
     }
   }, [contractFlow.phase]);
 
-  // Auto-speak for each phase (once per phase)
+  // Auto-speak for each phase (disabled - visual only)
   useEffect(() => {
     const phaseKey = contractFlow.phase;
     const movedParam = searchParams.get("moved") === "true";
@@ -313,40 +310,11 @@ const ContractFlowDemo = () => {
       }
     }
     
+    // Mark as spoken for visual animations without actual speech
     if (!hasSpokenPhase[uniquePhaseKey]) {
-      let message = "";
-      
-      if (phaseKey === "offer-accepted" || phaseKey === "data-collection") {
-        if (allSignedParam) {
-          message = "Both candidates have signed! Let's trigger their onboarding checklists.";
-        } else if (movedParam) {
-          message = "Great, contracts sent to candidates via their preferred signing portals.";
-        } else {
-          message = "Let's finalize contracts and complete onboarding.";
-        }
-      } else if (phaseKey === "bundle-creation") {
-        message = "Select documents to include in the signing package";
-      } else if (phaseKey === "drafting" && contractFlow.selectedCandidates[contractFlow.currentDraftIndex]) {
-        const candidate = contractFlow.selectedCandidates[contractFlow.currentDraftIndex];
-        message = `${candidate.name} ${candidate.role} ${candidate.country}`;
-      }
-      
-      if (message && !isKurtMuted) {
-        const timer = setTimeout(() => {
-          setIsSpeaking(true);
-          speak(message, () => {
-            setIsSpeaking(false);
-          });
-          setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-      } else if (message && isKurtMuted) {
-        // Mark as spoken even if muted so it doesn't replay
-        setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
-      }
+      setHasSpokenPhase(prev => ({ ...prev, [uniquePhaseKey]: true }));
     }
-  }, [contractFlow.phase, hasSpokenPhase, speak, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
+  }, [contractFlow.phase, hasSpokenPhase, contractFlow.currentDraftIndex, contractFlow.selectedCandidates, searchParams]);
 
   useEffect(() => {
     if (currentWordIndex < idleWords.length) {
@@ -476,7 +444,7 @@ const ContractFlowDemo = () => {
                           }
                           showPulse={true}
                           hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
-                          isActive={(isSpeaking || isAgentSpeaking) || (
+                          isActive={isAgentSpeaking || (
                             searchParams.get("allSigned") === "true"
                               ? !hasSpokenPhase["data-collection-all-signed"]
                               : searchParams.get("moved") === "true" 
@@ -730,7 +698,7 @@ const ContractFlowDemo = () => {
                           title="Contract Bundle"
                           subtitle="Kurt can help with: adding documents, reviewing bundles, or checking compliance."
                           showPulse={true}
-                          isActive={(isSpeaking || isAgentSpeaking) || !hasSpokenPhase["bundle-creation"]}
+                          isActive={isAgentSpeaking || !hasSpokenPhase["bundle-creation"]}
                           showInput={false}
                           tags={
                             <AgentSuggestionChips
