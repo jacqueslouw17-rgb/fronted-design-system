@@ -18,7 +18,7 @@ interface Step5Props {
 
 const WorkerStep5WorkSetup = ({ formData, onComplete, isProcessing, isLoadingFields }: Step5Props) => {
   const [data, setData] = useState({
-    deviceProvided: formData.deviceProvided ?? true,
+    deviceProvided: formData.deviceProvided ?? undefined,
     reimbursementAmount: formData.reimbursementAmount || "",
     receiptFile: formData.receiptFile || null,
     assetAcknowledged: false,
@@ -40,9 +40,11 @@ const WorkerStep5WorkSetup = ({ formData, onComplete, isProcessing, isLoadingFie
     onComplete("work_setup", data);
   };
 
-  const isValid = data.deviceProvided 
-    ? data.assetAcknowledged && data.agreementSigned
-    : data.agreementSigned;
+  const isValid = data.deviceProvided === undefined
+    ? data.agreementSigned
+    : data.deviceProvided 
+      ? data.assetAcknowledged && data.agreementSigned
+      : data.agreementSigned;
 
   if (isLoadingFields) {
     return (
@@ -67,7 +69,7 @@ const WorkerStep5WorkSetup = ({ formData, onComplete, isProcessing, isLoadingFie
         <div className="space-y-3">
           <Label className="text-base">Did your company provide you with a device for work?</Label>
           <RadioGroup
-            value={data.deviceProvided ? "yes" : "no"}
+            value={data.deviceProvided === undefined ? undefined : data.deviceProvided ? "yes" : "no"}
             onValueChange={(value) => setData({ ...data, deviceProvided: value === "yes" })}
           >
             <div className="flex items-center space-x-2">
@@ -85,80 +87,84 @@ const WorkerStep5WorkSetup = ({ formData, onComplete, isProcessing, isLoadingFie
           </RadioGroup>
         </div>
 
-        {data.deviceProvided ? (
-          <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
-            <h4 className="font-semibold text-sm">Company Asset Acknowledgment</h4>
-            <p className="text-sm text-muted-foreground">
-              You acknowledge receipt of company-owned equipment. This device remains property of the company and must be returned upon request or termination of employment.
-            </p>
-            <div className="flex items-start space-x-2 pt-2">
-              <Checkbox
-                id="assetAck"
-                checked={data.assetAcknowledged}
-                onCheckedChange={(checked) => 
-                  setData({ ...data, assetAcknowledged: checked as boolean })
-                }
-              />
-              <label
-                htmlFor="assetAck"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I acknowledge receipt of company equipment and agree to return it when requested
-              </label>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Equipment Reimbursement (Optional)</h4>
-              <p className="text-sm text-muted-foreground">
-                If eligible, you may claim reimbursement for work-related equipment purchases.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <CurrencyInput
-                label="Reimbursement Amount"
-                value={data.reimbursementAmount}
-                onChange={(value) => setData({ ...data, reimbursementAmount: value })}
-                currency="USD"
-                showCurrencySelect={false}
-              />
-
-              <div className="space-y-2">
-                <Label>Upload Receipt (Optional)</Label>
-                {data.receiptFile ? (
-                  <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
-                    <FileText className="h-4 w-4 text-primary" />
-                    <span className="text-sm flex-1 truncate">
-                      {data.receiptFile.name}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={handleRemoveFile}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <Upload className="h-6 w-6 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Click to upload receipt</p>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      onChange={handleFileUpload}
-                    />
+        {data.deviceProvided !== undefined && (
+          <>
+            {data.deviceProvided ? (
+              <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
+                <h4 className="font-semibold text-sm">Company Asset Acknowledgment</h4>
+                <p className="text-sm text-muted-foreground">
+                  You acknowledge receipt of company-owned equipment. This device remains property of the company and must be returned upon request or termination of employment.
+                </p>
+                <div className="flex items-start space-x-2 pt-2">
+                  <Checkbox
+                    id="assetAck"
+                    checked={data.assetAcknowledged}
+                    onCheckedChange={(checked) => 
+                      setData({ ...data, assetAcknowledged: checked as boolean })
+                    }
+                  />
+                  <label
+                    htmlFor="assetAck"
+                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I acknowledge receipt of company equipment and agree to return it when requested
                   </label>
-                )}
+                </div>
               </div>
-            </div>
-          </div>
+            ) : (
+              <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Equipment Reimbursement (Optional)</h4>
+                  <p className="text-sm text-muted-foreground">
+                    If eligible, you may claim reimbursement for work-related equipment purchases.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <CurrencyInput
+                    label="Reimbursement Amount"
+                    value={data.reimbursementAmount}
+                    onChange={(value) => setData({ ...data, reimbursementAmount: value })}
+                    currency="USD"
+                    showCurrencySelect={false}
+                  />
+
+                  <div className="space-y-2">
+                    <Label>Upload Receipt (Optional)</Label>
+                    {data.receiptFile ? (
+                      <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <span className="text-sm flex-1 truncate">
+                          {data.receiptFile.name}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={handleRemoveFile}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5 transition-colors">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Upload className="h-6 w-6 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">Click to upload receipt</p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={handleFileUpload}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -188,14 +194,16 @@ const WorkerStep5WorkSetup = ({ formData, onComplete, isProcessing, isLoadingFie
         </label>
       </div>
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-600 dark:text-blue-400">
-          💡 <strong>Kurt says:</strong> {data.deviceProvided 
-            ? "Make sure to keep your company device secure and report any issues immediately."
-            : "If you need equipment support, reach out to your manager or HR team."
-          }
-        </p>
-      </div>
+      {data.deviceProvided !== undefined && (
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+          <p className="text-sm text-blue-600 dark:text-blue-400">
+            💡 <strong>Kurt says:</strong> {data.deviceProvided 
+              ? "Make sure to keep your company device secure and report any issues immediately."
+              : "If you need equipment support, reach out to your manager or HR team."
+            }
+          </p>
+        </div>
+      )}
 
       <Button
         onClick={handleContinue}
