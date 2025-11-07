@@ -9,7 +9,6 @@ import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 
 const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -35,7 +34,6 @@ const ContractCreation: React.FC = () => {
 
   const [index, setIndex] = useState(0);
   const current = selected[index] ?? selected[0];
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     if (current) {
@@ -91,7 +89,6 @@ const ContractCreation: React.FC = () => {
                   candidate={current}
                   currentIndex={index}
                   totalCandidates={selected.length}
-                  onChatOpen={() => setIsChatOpen(true)}
                   onNext={() => {
                     if (index < selected.length - 1) {
                       setIndex((i) => i + 1);
@@ -105,9 +102,6 @@ const ContractCreation: React.FC = () => {
             </div>
           </AgentLayout>
         </main>
-
-        {/* Kurt Chat Sidebar */}
-        <KurtChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </div>
     </RoleLensProvider>
   );

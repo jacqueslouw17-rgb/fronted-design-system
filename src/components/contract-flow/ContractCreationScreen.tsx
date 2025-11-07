@@ -20,7 +20,6 @@ interface ContractCreationScreenProps {
   onNext: () => void;
   currentIndex?: number;
   totalCandidates?: number;
-  onChatOpen?: () => void;
 }
 
 interface MissingField {
@@ -34,7 +33,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   onNext,
   currentIndex = 0,
   totalCandidates = 1,
-  onChatOpen,
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
@@ -104,13 +102,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     });
 
-    // Open chat sidebar for review-fields and explain-terms
-    if (action === 'review-fields' || action === 'explain-terms') {
-      onChatOpen?.();
-    } else {
-      setOpen(true);
-    }
-    
+    setOpen(true);
     setLoading(true);
 
     await new Promise(resolve => setTimeout(resolve, 1200));

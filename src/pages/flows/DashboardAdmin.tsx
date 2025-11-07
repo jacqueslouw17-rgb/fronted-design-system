@@ -10,31 +10,25 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
-import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { Button } from "@/components/ui/button";
 import { useContractorStore } from "@/hooks/useContractorStore";
-import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
+import { useAgentState } from "@/hooks/useAgentState";
 
 // Mock contractors for pipeline view - empty state for first time
 const mockContractors: any[] = [];
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const { contractors } = useContractorStore();
-
+  const { addMessage, setLoading, setOpen } = useAgentState();
+    
   const handleKurtAction = async (action: string) => {
-    const { useAgentState } = await import('@/hooks/useAgentState');
-    const { addMessage, setLoading } = useAgentState.getState();
-    
-    // Open chat sidebar
-    setIsChatOpen(true);
-    
     addMessage({
       role: 'user',
       text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     });
 
+    setOpen(true);
     setLoading(true);
 
     await new Promise(resolve => setTimeout(resolve, 1200));
@@ -43,10 +37,64 @@ const DashboardAdmin = () => {
     
     switch(action) {
       case 'any-updates':
-        response = generateAnyUpdatesMessage(contractors);
+        const offerAccepted = contractors.filter((c) => c.status === "offer-accepted");
+        const dataReceived = contractors.filter((c) => c.status === "data-pending" && c.dataReceived);
+        const drafting = contractors.filter((c) => c.status === "drafting");
+        const certified = contractors.filter((c) => c.status === "CERTIFIED");
+        const awaitingSignature = contractors.filter((c) => c.status === "awaiting-signature");
+        
+        if (contractors.length === 0) {
+          response = "No candidates in your pipeline yet. Start by sending your first offer to a contractor.";
+        } else {
+          const messages: string[] = [];
+          
+          if (offerAccepted.length > 0) {
+            offerAccepted.forEach((c) => {
+              messages.push(`🎉 ${c.name} accepted your offer — ${c.role}, ${c.country}`);
+            });
+          }
+          
+          if (dataReceived.length > 0) {
+            const names = dataReceived.map((c) => c.name).join(" and ");
+            messages.push(`✅ ${names} completed form${dataReceived.length > 1 ? "s" : ""} — ready to draft contracts.`);
+          }
+          
+          if (drafting.length > 0) {
+            drafting.forEach((c) => {
+              messages.push(`📄 ${c.name}'s contract auto-verified — waiting for signature stage.`);
+            });
+          }
+          
+          if (certified.length > 0) {
+            messages.push(`💼 Payroll certification available for ${certified.length} candidate${certified.length > 1 ? "s" : ""}.`);
+          }
+          
+          if (awaitingSignature.length > 0) {
+            awaitingSignature.forEach((c) => {
+              messages.push(`✍️ ${c.name}'s contract sent for signature — awaiting completion.`);
+            });
+          }
+          
+          response = messages.length > 0 ? messages.join("\n\n") : "📊 All contractors are progressing smoothly. No urgent updates at the moment.";
+        }
         break;
+        
       case 'ask-kurt':
-        response = generateAskKurtMessage();
+        response = `I'm here to help you manage your contractor pipeline! 
+
+You can ask me about:
+
+💬 Progress tracking
+📝 Draft status updates
+⚠️ Pending actions
+✅ Contract readiness
+💰 Payroll certification
+
+**Try asking:**
+• "Who's ready for contract drafting?"
+• "Any pending forms?"
+• "Show me certified contractors"
+• "What needs my attention?"`;
         break;
       case 'track-progress':
         response = "📊 Latest Onboarding Stats\n\nHere's the latest onboarding completion stats for your team:\n\n✅ 3 contractors fully certified\n🔄 2 contractors in onboarding (avg. 67% complete)\n⏳ 1 contractor awaiting signature\n📝 2 contractors drafting contracts\n\nMaria Santos is at 80% completion. Want me to send her a reminder?";
@@ -145,9 +193,6 @@ const DashboardAdmin = () => {
             </main>
             <FloatingKurtButton />
           </AgentLayout>
-
-          {/* Kurt Chat Sidebar */}
-          <KurtChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </div>
       </TooltipProvider>
     </RoleLensProvider>

@@ -50,7 +50,6 @@ const ContractFlowDemo = () => {
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const { contractors } = useContractorStore();
 
   const userData = {
@@ -70,13 +69,8 @@ const ContractFlowDemo = () => {
       });
     }
 
-    // Open the chat sidebar for "any-updates" and "ask-kurt" actions
-    if (action === 'any-updates' || action === 'ask-kurt') {
-      setIsChatOpen(true);
-    } else {
-      // Open the agent panel for other actions
-      setOpen(true);
-    }
+    // Open the agent panel
+    setOpen(true);
     
     // Set loading state
     setLoading(true);
@@ -919,9 +913,6 @@ const ContractFlowDemo = () => {
             </div>
           </div>
         </AgentLayout>
-
-        {/* Kurt Chat Sidebar */}
-        <KurtChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </main>
     </div>
   </RoleLensProvider>
