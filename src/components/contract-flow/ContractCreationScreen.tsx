@@ -57,7 +57,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
+  const { setOpen, addMessage, setLoading } = useAgentState();
 
   // Function to detect missing required fields
   const getMissingFields = (): MissingField[] => {
@@ -400,7 +400,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         subtitle="Review pre-filled details and make edits before generating the bundle."
         placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
-        isActive={isAgentSpeaking}
         showInput={false}
         tags={
           <AgentSuggestionChips
