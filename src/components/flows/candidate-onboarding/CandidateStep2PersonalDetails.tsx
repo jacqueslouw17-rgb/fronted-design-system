@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StandardInput from "@/components/shared/StandardInput";
 import PhoneInput from "@/components/shared/PhoneInput";
 
@@ -22,10 +27,18 @@ const CandidateStep2PersonalDetails = ({
   const [data, setData] = useState({
     fullName: formData.fullName || "",
     email: formData.email || "",
-    homeAddress: formData.homeAddress || "",
-    phoneNumber: formData.phoneNumber || "",
-    phoneCountryCode: formData.phoneCountryCode || "+47",
-    preferredLanguage: formData.preferredLanguage || "EN"
+    role: formData.role || "",
+    salary: formData.salary || "",
+    employmentType: formData.employmentType || "",
+    idType: formData.idType || "",
+    idNumber: formData.idNumber || "",
+    taxResidence: formData.taxResidence || "",
+    nationality: formData.nationality || "",
+    address: formData.address || "",
+    bankName: formData.bankName || "",
+    accountNumber: formData.accountNumber || "",
+    emergencyContactName: formData.emergencyContactName || "",
+    emergencyContactPhone: formData.emergencyContactPhone || ""
   });
 
   // Sync with formData when it changes
@@ -33,10 +46,18 @@ const CandidateStep2PersonalDetails = ({
     setData({
       fullName: formData.fullName || "",
       email: formData.email || "",
-      homeAddress: formData.homeAddress || "",
-      phoneNumber: formData.phoneNumber || "",
-      phoneCountryCode: formData.phoneCountryCode || "+47",
-      preferredLanguage: formData.preferredLanguage || "EN"
+      role: formData.role || "",
+      salary: formData.salary || "",
+      employmentType: formData.employmentType || "",
+      idType: formData.idType || "",
+      idNumber: formData.idNumber || "",
+      taxResidence: formData.taxResidence || "",
+      nationality: formData.nationality || "",
+      address: formData.address || "",
+      bankName: formData.bankName || "",
+      accountNumber: formData.accountNumber || "",
+      emergencyContactName: formData.emergencyContactName || "",
+      emergencyContactPhone: formData.emergencyContactPhone || ""
     });
   }, [formData]);
 
@@ -44,7 +65,9 @@ const CandidateStep2PersonalDetails = ({
     onComplete("personal_details", data);
   };
 
-  const isValid = data.fullName && data.email && data.homeAddress && data.phoneNumber;
+  const isValid = data.fullName && data.email && data.idType && data.idNumber && 
+                  data.taxResidence && data.nationality && data.address && 
+                  data.bankName && data.accountNumber;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -63,47 +86,143 @@ const CandidateStep2PersonalDetails = ({
           <Skeleton className="h-10 w-full" />
         </div>
       ) : (
-        <div className="space-y-4">
-          <StandardInput
-            id="fullName"
-            label="Full Name"
-            value={data.fullName}
-            onChange={(value) => setData({ ...data, fullName: value })}
-            required
-            placeholder="Enter your full name"
-            helpText="As shown on your government ID"
-          />
+        <div className="space-y-6">
+          {/* Prefilled fields */}
+          <div className="space-y-2">
+            <Label>Full Name</Label>
+            <Input value={data.fullName} disabled className="bg-muted/50" />
+            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+          </div>
 
-          <StandardInput
-            id="email"
-            label="Email"
-            value={data.email}
-            onChange={() => {}}
-            type="email"
-            required
-            locked
-            lockMessage="Email address is locked and cannot be changed"
-          />
+          <div className="space-y-2">
+            <Label>Email</Label>
+            <Input value={data.email} disabled className="bg-muted/50" />
+            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+          </div>
 
-          <StandardInput
-            id="homeAddress"
-            label="Home Address"
-            value={data.homeAddress}
-            onChange={(value) => setData({ ...data, homeAddress: value })}
-            required
-            placeholder="Enter your full home address"
-            helpText="Street address, city, postal code, country"
-          />
+          <div className="space-y-2">
+            <Label>Role</Label>
+            <Input value={data.role} disabled className="bg-muted/50" />
+            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+          </div>
 
-          <PhoneInput
-            value={data.phoneNumber}
-            onChange={(value) => setData({ ...data, phoneNumber: value })}
-            countryCode={data.phoneCountryCode}
-            onCountryCodeChange={(code) => setData({ ...data, phoneCountryCode: code })}
-            label="Phone Number"
-            required
-            helpText="We'll use this for important notifications"
-          />
+          <div className="space-y-2">
+            <Label>Salary</Label>
+            <Input value={data.salary} disabled className="bg-muted/50" />
+            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Employment Type</Label>
+            <Input value={data.employmentType} disabled className="bg-muted/50" />
+            <p className="text-xs text-muted-foreground">Confirmed by admin</p>
+          </div>
+
+          {/* Divider */}
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs font-medium text-muted-foreground mb-4">
+              Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by you</Badge>
+            </p>
+          </div>
+
+          {/* Required fields */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              ID Type & Number
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Select 
+              value={data.idType} 
+              onValueChange={(value) => setData({ ...data, idType: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select ID Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="passport">Passport</SelectItem>
+                <SelectItem value="national-id">National ID</SelectItem>
+                <SelectItem value="drivers-license">Driver's License</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="ID Number"
+              value={data.idNumber}
+              onChange={(e) => setData({ ...data, idNumber: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Tax Residence
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Input
+              placeholder="e.g., Mexico"
+              value={data.taxResidence}
+              onChange={(e) => setData({ ...data, taxResidence: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Nationality
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Input
+              placeholder="e.g., Mexican"
+              value={data.nationality}
+              onChange={(e) => setData({ ...data, nationality: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Address
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Textarea
+              placeholder="Full residential address"
+              value={data.address}
+              onChange={(e) => setData({ ...data, address: e.target.value })}
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Bank Details
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Input
+              placeholder="Bank Name"
+              value={data.bankName}
+              onChange={(e) => setData({ ...data, bankName: e.target.value })}
+              className="mb-2"
+            />
+            <Input
+              placeholder="Account Number / IBAN"
+              value={data.accountNumber}
+              onChange={(e) => setData({ ...data, accountNumber: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Emergency Contact
+              <span className="text-muted-foreground text-xs">(Optional)</span>
+            </Label>
+            <Input
+              placeholder="Name"
+              value={data.emergencyContactName}
+              onChange={(e) => setData({ ...data, emergencyContactName: e.target.value })}
+              className="mb-2"
+            />
+            <Input
+              placeholder="Phone"
+              value={data.emergencyContactPhone}
+              onChange={(e) => setData({ ...data, emergencyContactPhone: e.target.value })}
+            />
+          </div>
         </div>
       )}
 
