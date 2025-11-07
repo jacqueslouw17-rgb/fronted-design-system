@@ -34,6 +34,7 @@ import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
+import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 
 const ContractFlowDemo = () => {
   const navigate = useNavigate();
@@ -266,6 +267,19 @@ const ContractFlowDemo = () => {
         setLoading(false);
         return;
       }
+      
+      case 'add-documents':
+        response = `📄 Add Documents\n\nI can help you add additional documents to the contract bundle:\n\n• Company Handbook\n• Benefits Overview\n• Remote Work Policy\n• Equipment Agreement\n• Custom Addendums\n\nWhich documents would you like to add?`;
+        break;
+        
+      case 'review-bundle':
+        response = `✅ Bundle Review Complete\n\nI've reviewed all documents in the bundle:\n\n✓ All required documents included\n✓ Country-specific compliance documents present\n✓ Signature fields properly placed\n✓ No conflicts between documents\n\nThe bundle is ready to send for signing!`;
+        break;
+        
+      case 'check-compliance':
+        response = `🔍 Compliance Check Complete\n\nI've verified compliance for all documents:\n\n✓ Employment Agreement - compliant with local labor law\n✓ Country Compliance Attachments - all mandatory clauses included\n✓ NDA/Policy Docs - standard language verified\n\nAll documents meet regulatory requirements. Ready to proceed with signing?`;
+        break;
+        
       default:
         response = `I'll help you with "${action}". Let me process that for you.`;
     }
@@ -738,19 +752,20 @@ const ContractFlowDemo = () => {
                           isActive={isAgentSpeaking || !hasSpokenPhase["bundle-creation"]}
                           showInput={false}
                           tags={
-                            <AgentSuggestionChips
-                              chips={[
-                                {
-                                  label: "Check Compliance",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction("check-compliance"),
-                                },
-                                {
-                                  label: "Ask Kurt",
-                                  variant: "default",
-                                  onAction: () => setOpen(true),
-                                },
-                              ]}
+                            <KurtContextualTags
+                              flowContext="contract-bundle"
+                              onTagClick={(action) => {
+                                if (action === "check-compliance") {
+                                  handleKurtAction("check-compliance");
+                                } else if (action === "add-documents") {
+                                  handleKurtAction("add-documents");
+                                } else if (action === "review-bundle") {
+                                  handleKurtAction("review-bundle");
+                                } else {
+                                  setOpen(true);
+                                }
+                              }}
+                              disabled={false}
                             />
                           }
                         />
