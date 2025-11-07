@@ -188,7 +188,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onSignatureComplete,
   filterNonCertified = false,
   mode = "certified",
-const columns = mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
+}) => {
+  const columns = mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
   const { createBatch, batches } = usePayrollBatch();
   const { updateMetrics } = usePayrollState();

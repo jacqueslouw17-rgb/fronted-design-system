@@ -87,6 +87,7 @@ const PayrollBatch: React.FC = () => {
                     <div className="space-y-4">
                       <div className="mt-3">
                         <PipelineView 
+                          mode="payroll-ready"
                           contractors={[
                             {
                               id: "cert-1",
