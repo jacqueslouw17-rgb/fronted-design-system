@@ -120,10 +120,10 @@ export const KurtAgentPanel: React.FC = () => {
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="w-full h-full bg-background border-l border-border flex flex-col relative overflow-hidden"
+      className="w-full h-full bg-background border-l border-border flex flex-col overflow-hidden"
     >
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-3 py-2 border-b border-border bg-background shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        {/* Fixed Header - Never Scrolls */}
+        <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b border-border bg-background shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground text-sm">Kurt</span>
             {kurtState === 'thinking' && (
@@ -186,11 +186,10 @@ export const KurtAgentPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* Messages Area - Independent Scroll Container */}
+        {/* Scrollable Messages Area - Only This Scrolls */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 scroll-smooth"
-          style={{ scrollBehavior: 'smooth' }}
+          className="flex-1 overflow-y-auto px-4 py-4"
         >
           <div className="space-y-6">
               <AnimatePresence mode="popLayout">
@@ -448,8 +447,8 @@ export const KurtAgentPanel: React.FC = () => {
             </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-3 py-1.5 border-t border-border bg-muted/20">
+        {/* Fixed Footer - Never Scrolls */}
+        <div className="flex-shrink-0 px-3 py-1.5 border-t border-border bg-muted/20">
           {kurtState === 'thinking' && (
             <motion.div
               initial={{ width: '0%' }}
