@@ -169,14 +169,6 @@ const CandidateOnboarding = () => {
           </motion.div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <ProgressBar 
-            currentStep={FLOW_STEPS.findIndex(s => s.id === state.currentStep) + 1} 
-            totalSteps={FLOW_STEPS.length}
-          />
-        </div>
-
         {/* Step Cards */}
         <div className="space-y-3">
           {FLOW_STEPS.map((step) => {
