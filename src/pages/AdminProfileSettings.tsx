@@ -379,6 +379,10 @@ const AdminProfileSettings = () => {
                 currentStep={PROFILE_SECTIONS.length}
                 totalSteps={PROFILE_SECTIONS.length}
               />
+              <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
+                <span className="text-accent-green-text">✓</span>
+                Profile Complete and Verified
+              </p>
             </div>
 
             {/* Sections */}

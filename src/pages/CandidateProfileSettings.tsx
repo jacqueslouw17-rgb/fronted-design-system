@@ -176,9 +176,7 @@ const CandidateProfileSettings = () => {
                     subtitle="Update your personal information, compliance documents, and payroll details."
                     showPulse={true}
                     isActive={isSpeaking}
-                    placeholder="Ask Kurt for help..."
-                    isMuted={isKurtMuted}
-                    onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                    showInput={false}
                     className="mb-8"
                   />
 
@@ -190,7 +188,7 @@ const CandidateProfileSettings = () => {
                     />
                     <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
                       <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
-                      Profile complete and verified
+                      Profile Complete and Verified
                     </p>
                   </div>
 
