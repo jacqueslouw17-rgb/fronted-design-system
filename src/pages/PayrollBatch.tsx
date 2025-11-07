@@ -7,13 +7,14 @@ import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { useAgentState } from "@/hooks/useAgentState";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 
 const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
+  const { isSpeaking } = useAgentState();
 
   const userData = {
     firstName: "Joe",
@@ -62,15 +63,21 @@ const PayrollBatch: React.FC = () => {
                     <AgentHeader
                       title={`Welcome ${userData.firstName}, review payroll`}
                       subtitle="Kurt can help with: FX rates, compliance checks, or payment execution."
-                      showPulse={false}
-                      isMuted={isKurtMuted}
-                      onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                      showPulse={true}
+                      isActive={isSpeaking}
+                      enableWordHighlight={true}
                       showInput={false}
                       tags={
                         <AgentSuggestionChips
                           chips={[
-                            { label: "Admin", variant: "default" },
-                            { label: "Payroll", variant: "default" },
+                            {
+                              label: "Any Updates?",
+                              variant: "default",
+                            },
+                            {
+                              label: "Ask Kurt",
+                              variant: "default",
+                            },
                           ]}
                         />
                       }
