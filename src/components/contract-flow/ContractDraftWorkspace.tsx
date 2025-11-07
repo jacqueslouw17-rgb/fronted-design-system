@@ -15,7 +15,6 @@ import { ContractCarousel } from "./ContractCarousel";
 import { ContextualBadge } from "./ContextualBadge";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
 
@@ -64,7 +63,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [promptVisible, setPromptVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const fullContent = getContractContent(candidate);
   const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();
 
@@ -161,6 +159,16 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         addMessage({
           role: "kurt",
           text: "Opening detailed diff viewer with side-by-side comparison...",
+        });
+        break;
+      case "ask-kurt":
+        addMessage({
+          role: "kurt",
+          text: `👋 **How can I help?**\n\nI can assist you with:\n• Quick contract summaries\n• Field verification\n• Clause explanations\n• Compliance checks\n• Term clarifications\n\nWhat would you like to know about ${candidate.name.split(' ')[0]}'s contract?`,
+          actionButtons: [
+            { label: "Quick Summary", action: "quick-summary", variant: "default" },
+            { label: "Check Fields", action: "check-fields", variant: "outline" }
+          ]
         });
         break;
       default:
@@ -361,26 +369,19 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         subtitle="Kurt can help with quick summaries, field checks, or clause explanations."
         showPulse={true}
         isActive={isAgentSpeaking}
-        isMuted={isKurtMuted}
-        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-        placeholder="Try: 'Check overtime clause' or 'Summarize benefits'..."
+        showInput={false}
         tags={
           <AgentSuggestionChips
             chips={[
               {
                 label: "Quick Summary",
-                variant: "primary",
+                variant: "default",
                 onAction: () => handleKurtAction("quick-summary"),
               },
               {
-                label: "Check Fields",
+                label: "Ask Kurt",
                 variant: "default",
-                onAction: () => handleKurtAction("check-fields"),
-              },
-              {
-                label: "Fix Clauses",
-                variant: "default",
-                onAction: () => handleKurtAction("fix-clauses"),
+                onAction: () => handleKurtAction("ask-kurt"),
               },
             ]}
           />
