@@ -216,13 +216,8 @@ export const KurtAgentPanel: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      // Agent response - thinking indicator + word-by-word reading
+                      // Agent response - without thinking indicator
                       <div className="space-y-3 mb-6">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Lightbulb className="h-3.5 w-3.5" />
-                          <span className="text-xs">Thought for 2s</span>
-                        </div>
-                        
                         {/* Check if message has structured content (emojis indicate cards) */}
                         {msg.text.includes('🧾 Compliance Review Summary') ? (
                           // Render the Compliance Summary Card
