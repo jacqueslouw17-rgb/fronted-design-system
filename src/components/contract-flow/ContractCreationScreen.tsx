@@ -11,7 +11,6 @@ import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
@@ -56,7 +55,6 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
 
   // Function to detect missing required fields
@@ -355,14 +353,13 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
         placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
         isActive={isAgentSpeaking}
-        isMuted={isKurtMuted}
-        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        showInput={false}
         tags={
           <AgentSuggestionChips
             chips={[
               {
                 label: "Review Fields",
-                variant: "primary",
+                variant: "default",
                 onAction: () => handleKurtAction("review-fields"),
               },
               {
@@ -371,9 +368,9 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
                 onAction: () => handleKurtAction("explain-terms"),
               },
               {
-                label: "Generate Bundle",
+                label: "Ask Kurt",
                 variant: "default",
-                onAction: () => handleKurtAction("generate-bundle"),
+                onAction: () => setOpen(true),
               },
             ]}
           />
