@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, MoreVertical, Trash2, Shield, Loader2, Sparkles, Tag, Zap } from "lucide-react";
@@ -11,7 +10,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -72,26 +70,51 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<Rule | null>(null);
+  const [isNewRule, setIsNewRule] = useState(false);
 
-  const handleOpenEditModal = (rule: Rule) => {
+  const handleOpenEditModal = (rule: Rule, isNew = false) => {
     setEditFormData({ ...rule });
+    setIsNewRule(isNew);
     setEditModalOpen(true);
   };
 
-  const handleSaveEdit = () => {
-    if (!editFormData) return;
-    
-    setRules(prev =>
-      prev.map(r =>
-        r.id === editFormData.id ? editFormData : r
-      )
-    );
+  const handleCloseModal = () => {
     setEditModalOpen(false);
     setEditFormData(null);
-    toast({
-      title: "Rule updated",
-      description: "Your changes have been saved"
-    });
+    setIsNewRule(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editFormData || !editFormData.description.trim()) {
+      toast({
+        title: "Description required",
+        description: "Please provide a rule description",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (isNewRule) {
+      // Add new rule
+      setRules(prev => [...prev, editFormData]);
+      toast({
+        title: "Rule added",
+        description: "New rule has been created"
+      });
+    } else {
+      // Update existing rule
+      setRules(prev =>
+        prev.map(r =>
+          r.id === editFormData.id ? editFormData : r
+        )
+      );
+      toast({
+        title: "Rule updated",
+        description: "Your changes have been saved"
+      });
+    }
+    
+    handleCloseModal();
   };
 
   const handleDelete = (id: string) => {
@@ -105,13 +128,12 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
   const handleAddRule = () => {
     const newRule: Rule = {
       id: `r${Date.now()}`,
-      tag: "policy",
+      tag: "policy", // Auto-assigned internally
       triggerType: "threshold",
-      description: "New rule (click ⋮ to edit)",
+      description: "",
       linkedAction: "Auto-adjust"
     };
-    setRules(prev => [...prev, newRule]);
-    handleOpenEditModal(newRule);
+    handleOpenEditModal(newRule, true);
   };
 
   const handleSave = () => {
@@ -128,17 +150,6 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
     onComplete("mini_rules_setup", {
       miniRules: rules
     });
-  };
-
-  const getTagColor = (tag: RuleTag) => {
-    const colors = {
-      approval: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-      compliance: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-      policy: "bg-green-500/10 text-green-600 border-green-500/20",
-      payroll: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-      fx: "bg-orange-500/10 text-orange-600 border-orange-500/20"
-    };
-    return colors[tag];
   };
 
   const getTriggerTypeLabel = (type: TriggerType) => {
@@ -189,8 +200,8 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
         </motion.div>
       </div>
 
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between">
+      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-2">
+        <div className="flex items-center justify-between mb-3">
           <Label className="text-sm font-medium">Your Rules</Label>
           {!isLoadingFields && (
             <Button size="sm" variant="outline" onClick={handleAddRule}>
@@ -206,64 +217,51 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
             <Skeleton className="h-20 w-full" />
           </div>
         ) : (
-          rules.map((rule) => (
-            <div
-              key={rule.id}
-              className="p-3 rounded-lg border border-border/50 bg-card hover:shadow-sm transition-shadow"
-            >
-              <div className="flex items-start gap-2">
-                <Badge variant="secondary" className={cn("mt-1 text-xs", getTagColor(rule.tag))}>
-                  {rule.tag}
-                </Badge>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm mb-2">{rule.description}</p>
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      {getTriggerTypeLabel(rule.triggerType)}
-                    </span>
-                    {rule.linkedAction && (
+          rules.map((rule, index) => (
+            <div key={rule.id}>
+              {index > 0 && <div className="my-4 border-t border-border/20" />}
+              <div className="p-3 rounded-lg border border-border/30 bg-card hover:shadow-sm transition-shadow">
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm mb-2">{rule.description}</p>
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <Tag className="h-3 w-3" />
-                        {rule.linkedAction}
+                        <Zap className="h-3 w-3" />
+                        {getTriggerTypeLabel(rule.triggerType)}
                       </span>
-                    )}
+                      {rule.linkedAction && (
+                        <span className="flex items-center gap-1">
+                          <Tag className="h-3 w-3" />
+                          {rule.linkedAction}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                      >
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40 bg-card z-50">
+                      <DropdownMenuItem onClick={() => handleOpenEditModal(rule, false)} className="text-sm">
+                        Edit Rule
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(rule.id)}
+                        className="text-sm text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 w-7 p-0"
-                    >
-                      <MoreVertical className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
-                      <Tag className="h-3 w-3 mr-2" />
-                      Edit Tags
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
-                      <Zap className="h-3 w-3 mr-2" />
-                      Change Trigger Type
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleOpenEditModal(rule)} className="text-sm">
-                      Update Description
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(rule.id)}
-                      className="text-sm text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3 mr-2" />
-                      Delete Rule
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
           ))
@@ -280,37 +278,29 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
               Processing...
             </>
           ) : (
-            "Save Rules & Continue"
+            "Continue Setup"
           )}
         </Button>
       )}
 
       {/* Edit Rule Modal */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+      <Dialog open={editModalOpen} onOpenChange={(open) => !open && handleCloseModal()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base">Edit Rule</DialogTitle>
+            <DialogTitle className="text-base">{isNewRule ? "Add New Rule" : "Edit Rule"}</DialogTitle>
           </DialogHeader>
           
           {editFormData && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="tag" className="text-sm">Rule Tag</Label>
-                <Select
-                  value={editFormData.tag}
-                  onValueChange={(val: RuleTag) => setEditFormData(prev => prev ? { ...prev, tag: val } : null)}
-                >
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="approval">Approval</SelectItem>
-                    <SelectItem value="compliance">Compliance</SelectItem>
-                    <SelectItem value="policy">Policy</SelectItem>
-                    <SelectItem value="payroll">Payroll</SelectItem>
-                    <SelectItem value="fx">FX</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="description" className="text-sm">Rule Description</Label>
+                <Input
+                  id="description"
+                  placeholder="e.g., Notify finance when payment exceeds $10,000"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData(prev => prev ? { ...prev, description: e.target.value } : null)}
+                  className="text-sm"
+                />
               </div>
 
               <div className="space-y-2">
@@ -322,7 +312,7 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
                   <SelectTrigger className="text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-card z-50">
                     <SelectItem value="date">Date</SelectItem>
                     <SelectItem value="threshold">Threshold</SelectItem>
                     <SelectItem value="country_change">Country Change</SelectItem>
@@ -331,41 +321,12 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="linkedAction" className="text-sm">Linked Action</Label>
-                <Select
-                  value={editFormData.linkedAction || "none"}
-                  onValueChange={(val) => setEditFormData(prev => prev ? { ...prev, linkedAction: val === "none" ? undefined : val } : null)}
-                >
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="Trigger compliance check">Trigger compliance check</SelectItem>
-                    <SelectItem value="Notify approver">Notify approver</SelectItem>
-                    <SelectItem value="Auto-adjust">Auto-adjust</SelectItem>
-                    <SelectItem value="Send alert">Send alert</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm">Description</Label>
-                <Input
-                  id="description"
-                  value={editFormData.description}
-                  onChange={(e) => setEditFormData(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  className="text-sm"
-                />
-              </div>
-
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" onClick={() => setEditModalOpen(false)} className="flex-1">
+                <Button variant="outline" onClick={handleCloseModal} className="flex-1">
                   Cancel
                 </Button>
                 <Button onClick={handleSaveEdit} className="flex-1">
-                  Save Changes
+                  {isNewRule ? "Add Rule" : "Save Changes"}
                 </Button>
               </div>
             </div>
@@ -374,10 +335,6 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
       </Dialog>
     </div>
   );
-};
-
-const cn = (...classes: (string | boolean | undefined)[]) => {
-  return classes.filter(Boolean).join(" ");
 };
 
 export default Step5MiniRules;
