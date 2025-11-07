@@ -218,7 +218,7 @@ export default function CandidateOnboardingFlow() {
         variant="ghost"
         size="icon"
         className="absolute top-4 left-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={() => navigate('/flows')}
+        onClick={() => navigate('/?tab=flows')}
       >
         <ArrowLeft className="h-5 w-5" />
       </Button>
