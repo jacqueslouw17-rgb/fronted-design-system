@@ -11,15 +11,16 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Auto-notify parent that email method is selected on mount
+  // Validate and update parent when email or password changes
   useEffect(() => {
-    onComplete("email", {});
-  }, [onComplete]);
-
-  // Update parent when email or password changes with valid data
-  useEffect(() => {
-    if (email && password && password.length >= 8 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const isEmailValid = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isPasswordValid = password.length >= 8;
+    
+    if (isEmailValid && isPasswordValid) {
       onComplete("email", { email, password });
+    } else {
+      // Clear auth method if data becomes invalid
+      onComplete("", {});
     }
   }, [email, password, onComplete]);
 

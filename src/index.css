@@ -212,6 +212,12 @@ All colors MUST be HSL.
     letter-spacing: var(--tracking-normal);
   }
   
+  /* Enhanced disabled button states */
+  button:disabled,
+  button[aria-disabled="true"] {
+    @apply cursor-not-allowed opacity-50;
+  }
+  
   /* Typography hierarchy */
   h1 {
     font-size: var(--text-4xl);
