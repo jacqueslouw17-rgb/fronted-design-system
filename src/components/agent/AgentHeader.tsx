@@ -124,7 +124,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         y: 0
       }} transition={{
         delay: 0.2
-      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
+      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0 -mt-2">
           <>
             {showInput && (
               <form onSubmit={handleSubmit} className="relative">
@@ -138,7 +138,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
             )}
             
             {/* Contextual Tags */}
-            {tags && <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ marginTop: showInput ? undefined : '0.5rem' }}>
+            {tags && <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ marginTop: showInput ? undefined : '0' }}>
                 {tags}
               </div>}
           </>
