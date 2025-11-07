@@ -128,7 +128,7 @@ const getDocStatusBadge = (status: Document["status"]) => {
       return (
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-warning/10 border border-warning/20">
           <Clock className="h-4 w-4 text-warning" />
-          <span className="text-sm font-medium text-warning">Pending</span>
+          <span className="text-sm font-medium text-warning">Awaiting Signature</span>
         </div>
       );
     case "missing":
@@ -173,11 +173,11 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   }, [candidate]);
 
   const handleIncludeDocument = (docName: string) => {
-    // Update the document status from "not-sent" to "pending"
+    // Update the document status from "not-sent" to "ready" immediately
     setDocuments(prevDocs =>
       prevDocs.map(doc =>
         doc.name === docName && doc.status === "not-sent"
-          ? { ...doc, status: "pending" as const, action: "Preview" }
+          ? { ...doc, status: "ready" as const, action: "Preview" }
           : doc
       )
     );
@@ -192,7 +192,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
     toast({
       title: "Document included",
-      description: `${docName} will be sent with the bundle.`,
+      description: `${docName} is ready to send.`,
     });
   };
 
@@ -210,10 +210,19 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
     setConfirmationOpen(false);
     setIsSending(true);
     
+    // Update all documents to "pending" status (waiting for candidate signature)
+    setDocuments(prevDocs =>
+      prevDocs.map(doc => ({
+        ...doc,
+        status: "pending" as const,
+        action: "View Status"
+      }))
+    );
+    
     setTimeout(() => {
       toast({
         title: "Documents sent",
-        description: "Signature request has been sent to all parties.",
+        description: "Waiting for candidate signatures. You'll be notified when ready to sign.",
       });
       onSendForSignatures?.();
       setIsSending(false);
@@ -221,11 +230,11 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   };
 
   const handleUploadDocument = () => {
-    // Update the document status from "missing" to "pending"
+    // Update the document status from "missing" to "ready" immediately
     setDocuments(prevDocs =>
       prevDocs.map(doc =>
         doc.name === selectedDoc
-          ? { ...doc, status: "pending" as const, action: "Preview" }
+          ? { ...doc, status: "ready" as const, action: "Preview" }
           : doc
       )
     );
@@ -240,7 +249,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
     toast({
       title: "Document uploaded",
-      description: `${selectedDoc} has been added successfully.`,
+      description: `${selectedDoc} is ready to send.`,
     });
     setAddDocDialogOpen(false);
     setSelectedDoc(null);
@@ -286,11 +295,12 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   const totalCount = steps.length;
   const hasDocIssues = documents.some(d => d.status === "missing" || d.status === "not-sent");
   const hasPendingDocs = documents.some(d => d.status === "pending");
+  const allDocumentsReady = documents.every(d => d.status === "drafted" || d.status === "ready");
   const canSend = !hasDocIssues && !isSending;
   
   // Determine alert state
   const getAlertState = () => {
-    if (justResolved && !hasDocIssues) {
+    if (justResolved && allDocumentsReady) {
       return {
         variant: "success" as const,
         message: `${resolvedDocName} added. All documents are now ready to send for signature.`,
@@ -299,10 +309,10 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
         textColor: "text-success"
       };
     }
-    if (hasPendingDocs && !hasDocIssues) {
+    if (hasPendingDocs) {
       return {
         variant: "warning" as const,
-        message: "Processing documents. They will be ready shortly.",
+        message: "Documents sent. Waiting for candidate signatures before admin can sign.",
         bgColor: "bg-warning/10",
         borderColor: "border-warning/20",
         textColor: "text-warning"
@@ -424,7 +434,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
               {/* Send for Signatures Button */}
               <motion.div
-                animate={canSend && !hasDocIssues ? {
+                animate={canSend && allDocumentsReady && !hasPendingDocs ? {
                   scale: [1, 1.02, 1],
                   boxShadow: [
                     "0 0 0 0 rgba(139, 92, 246, 0)",
@@ -432,15 +442,15 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                     "0 0 0 0 rgba(139, 92, 246, 0)"
                   ]
                 } : {}}
-                transition={{ duration: 1.5, repeat: canSend ? Infinity : 0, repeatDelay: 1 }}
+                transition={{ duration: 1.5, repeat: (canSend && allDocumentsReady && !hasPendingDocs) ? Infinity : 0, repeatDelay: 1 }}
               >
                 <Button
                   className="w-full disabled:opacity-50"
-                  disabled={!canSend}
+                  disabled={!canSend || hasPendingDocs}
                   onClick={handleSendForSignaturesClick}
                 >
                   <FileSignature className="h-4 w-4 mr-2" />
-                  {isSending ? "Sending..." : "Send for Signatures"}
+                  {isSending ? "Sending..." : hasPendingDocs ? "Waiting for Candidate Signatures" : "Send for Signatures"}
                 </Button>
               </motion.div>
             </div>
