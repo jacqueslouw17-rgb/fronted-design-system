@@ -1288,138 +1288,33 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Payroll Status Badge & Actions - Simplified for certified column */}
+                          {/* Certified Column - All contractors show same badge and action */}
                           {status === "payroll-ready" && (
                             <div className="pt-2 space-y-2">
-                              {/* Show contractor's individual payroll status */}
+                              {/* Certified Badge for all contractors in this column */}
                               <Badge 
                                 variant="outline" 
-                                className={cn(
-                                  "w-full justify-center text-xs",
-                                  statusConfig[contractor.status as keyof typeof statusConfig]?.badgeColor || config.badgeColor
-                                )}
+                                className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
                               >
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                                {statusConfig[contractor.status as keyof typeof statusConfig]?.label || config.label}
+                                Certified
                               </Badge>
                               
-                              {/* Download Certificate button for CERTIFIED contractors */}
-                              {contractor.status === "CERTIFIED" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.success(`Downloading certificate for ${contractor.name}`, {
-                                      description: "Certificate will be downloaded shortly"
-                                    });
-                                  }}
-                                >
-                                  <Download className="h-3 w-3 mr-1" />
-                                  Download Certificate
-                                </Button>
-                              )}
-                              
-                              {/* Keep other payroll statuses as-is */}
-                              {contractor.status === "PAYROLL_PENDING" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate('/payroll/batch/current', { state: { selectedPayee: contractor } });
-                                  }}
-                                >
-                                  Add to batch
-                                </Button>
-                              )}
-                              
-                              {contractor.status === "IN_BATCH" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate('/payroll/batch/current', { state: { selectedPayee: contractor } });
-                                  }}
-                                >
-                                  Review in batch
-                                </Button>
-                              )}
-                              
-                              {contractor.status === "EXECUTING" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate('/payroll/batch/current#track');
-                                  }}
-                                >
-                                  Track payout
-                                </Button>
-                              )}
-                              
-                              {contractor.status === "PAID" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast("Viewing receipt...");
-                                  }}
-                                >
-                                  View receipt
-                                </Button>
-                              )}
-                              
-                              {contractor.status === "ON_HOLD" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs h-7 border-red-500/30"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedForResolveIssue(contractor);
-                                    setResolveIssueDrawerOpen(true);
-                                  }}
-                                >
-                                  Resolve issue
-                                </Button>
-                              )}
-                              
-                              {/* Keep other payroll statuses with progress */}
-                              {contractor.status !== "CERTIFIED" && contractor.payrollProgress !== undefined && (
-                                <div className="space-y-1.5">
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-muted-foreground">Progress</span>
-                                    <span className="font-medium">{contractor.payrollProgress}%</span>
-                                  </div>
-                                  <Progress value={contractor.payrollProgress} className="h-1.5" />
-                                  <div className="text-[10px] text-muted-foreground">
-                                    {contractor.payrollChecklist?.filter(i => i.status === "verified").length || 0} / {contractor.payrollChecklist?.length || 0} items completed
-                                  </div>
-                                  
-                                  {/* Show status indicators */}
-                                  {contractor.payrollChecklist && contractor.payrollChecklist.some(i => i.status === "pending") && (
-                                    <div className="flex items-center gap-1 text-[10px] text-accent-yellow-text">
-                                      <Clock className="h-3 w-3" />
-                                      <span>Items pending review</span>
-                                    </div>
-                                  )}
-                                  {contractor.payrollChecklist && contractor.payrollChecklist.some(i => i.status === "issue") && (
-                                    <div className="flex items-center gap-1 text-[10px] text-destructive">
-                                      <AlertCircle className="h-3 w-3" />
-                                      <span>Action required</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                              {/* Download Certificate button for all contractors */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="w-full text-xs h-7"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.success(`Downloading certificate for ${contractor.name}`, {
+                                    description: "Certificate will be downloaded shortly"
+                                  });
+                                }}
+                              >
+                                <Download className="h-3 w-3 mr-1" />
+                                Download Certificate
+                              </Button>
                             </div>
                           )}
                         </CardContent>
