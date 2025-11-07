@@ -13,7 +13,6 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -36,7 +35,7 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
 const WorkerOnboarding = () => {
   const navigate = useNavigate();
-  const { setIsSpeaking: setAgentSpeaking, setOpen } = useAgentState();
+  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   
   // Use persistent store
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useWorkerFlowBridge();
@@ -144,24 +143,6 @@ const WorkerOnboarding = () => {
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
-  const suggestionChips = [
-    {
-      label: "Any Updates?",
-      onAction: () => {
-        setOpen(true);
-        toast("Opening Kurt to check for updates...");
-      },
-      disabled: false,
-    },
-    {
-      label: "Ask Kurt",
-      onAction: () => {
-        setOpen(true);
-      },
-      disabled: false,
-    },
-  ];
-
   return (
     <AgentLayout context="Worker Onboarding">
       <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
@@ -200,7 +181,6 @@ const WorkerOnboarding = () => {
           showPulse={true}
           isActive={isSpeaking}
           showInput={false}
-          tags={<AgentSuggestionChips chips={suggestionChips} />}
         />
 
         {/* Progress bar */}
