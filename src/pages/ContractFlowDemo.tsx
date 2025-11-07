@@ -527,8 +527,7 @@ const ContractFlowDemo = () => {
                                 ? !hasSpokenPhase["data-collection-moved"]
                                 : !hasSpokenPhase["offer-accepted"]
                           )}
-                          isMuted={isKurtMuted}
-                          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                          showInput={false}
                           tags={
                             <AgentSuggestionChips
                               chips={[
