@@ -122,20 +122,14 @@ const CandidateDashboard = () => {
 
   const suggestionChips = [
     {
-      label: "View Contract",
-      action: () => toast.info("Opening contract viewer..."),
+      label: "Any Updates?",
+      action: () => toast.info("Checking for updates..."),
+      disabled: true,
     },
     {
-      label: "Upload Document",
-      action: () => toast.info("Opening document uploader..."),
-    },
-    {
-      label: "Ask About Progress",
+      label: "Ask Kurt",
       action: () => toast.info("Opening Kurt chat..."),
-    },
-    {
-      label: "View History",
-      action: () => toast.info("Opening timeline..."),
+      disabled: true,
     },
   ];
 
@@ -164,8 +158,7 @@ const CandidateDashboard = () => {
                     subtitle="Track your onboarding progress and access important information."
                     showPulse={true}
                     isActive={false}
-                    isMuted={isKurtMuted}
-                    onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                    showInput={false}
                     tags={<AgentSuggestionChips chips={suggestionChips} />}
                   />
 
