@@ -37,12 +37,7 @@ const StepCard = ({
     
     switch (status) {
       case "completed":
-        return (
-          <Badge variant="secondary" className="bg-[rgba(0,180,90,0.1)] text-[#027a48] border-0 font-medium rounded-md px-2.5 py-1 transition-all duration-250 ease-out animate-fade-in motion-reduce:transition-none">
-            <CheckCircle2 className="h-3 w-3 mr-1 transition-transform duration-250" />
-            Complete
-          </Badge>
-        );
+        return null;
       case "active":
         return (
           <Badge variant="secondary" className="bg-[rgba(100,150,255,0.12)] text-[#2a4fa5] border-0 font-medium rounded-md px-2.5 py-1 transition-all duration-250 ease-out animate-fade-in motion-reduce:transition-none">
