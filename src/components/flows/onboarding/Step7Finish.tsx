@@ -42,10 +42,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
   const completedItems = [
     { label: "Organization profile", icon: CheckCircle2, done: !!formData.companyName },
     { label: "Country blocks loaded", icon: CheckCircle2, done: !!formData.selectedCountries },
-    { label: "Slack connected", icon: CheckCircle2, done: !!formData.slackConnected },
-    { label: "FX rates connected", icon: CheckCircle2, done: !!formData.fxConnected },
-    { label: "Mini-Rules configured", icon: CheckCircle2, done: !!formData.miniRules },
-    { label: "Transparency Pledge signed", icon: CheckCircle2, done: !!formData.pledgeSigned }
+    { label: "Mini-Rules configured", icon: CheckCircle2, done: !!formData.miniRules }
   ];
 
   return (
@@ -96,7 +93,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
             {/* What we configured */}
             <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
               <Label className="text-sm font-medium">What We've Configured</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-2">
                 {completedItems.map((item, idx) => {
                   const Icon = item.icon;
                   return (
@@ -105,10 +102,10 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05, duration: 0.3, ease: "easeOut" }}
-                    className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
+                    className="flex items-center gap-2 text-sm p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
                   >
                       <Icon className={cn(
-                        "h-3 w-3 flex-shrink-0",
+                        "h-4 w-4 flex-shrink-0",
                         item.done ? "text-green-600" : "text-muted-foreground"
                       )} />
                       <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
