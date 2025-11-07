@@ -163,23 +163,26 @@ const AdminProfileSettings = () => {
       // Handle different section saves
       switch (stepId) {
         case "company-details":
+        case "org_profile":
           await supabase
             .from("organization_profiles")
             .upsert({
               user_id: currentUserId,
               company_name: data.companyName,
+              contact_name: data.primaryContactName,
               contact_email: data.primaryContactEmail,
               contact_phone: data.contact_phone || null,
               website: data.website || null,
               industry: data.industry || null,
               company_size: data.company_size || null,
               hq_country: data.hqCountry || null,
-              default_currency: data.default_currency || null,
+              default_currency: data.payrollCurrency || null,
               payroll_frequency: data.payrollFrequency || null
             }, { onConflict: "user_id" });
           break;
 
         case "localization":
+        case "localization_country_blocks":
           await supabase
             .from("localization_settings")
             .upsert({
@@ -189,7 +192,8 @@ const AdminProfileSettings = () => {
           break;
 
         case "mini-rules":
-          if (data.rules) {
+        case "mini_rules_setup":
+          if (data.miniRules) {
             // Delete existing rules first
             await supabase
               .from("mini_rules")
@@ -197,9 +201,9 @@ const AdminProfileSettings = () => {
               .eq("user_id", currentUserId);
             
             // Insert new rules
-            const rulesToInsert = data.rules.map((rule: any) => ({
+            const rulesToInsert = data.miniRules.map((rule: any) => ({
               user_id: currentUserId,
-              rule_type: rule.type,
+              rule_type: rule.tag || rule.type,
               description: rule.description
             }));
             
@@ -214,6 +218,12 @@ const AdminProfileSettings = () => {
 
       handleFormDataChange(stepId, data);
       setHasChanges(false);
+      
+      // Update mini-rules structure to match expected format
+      if (stepId === "mini-rules" && data.miniRules) {
+        handleFormDataChange("miniRules", { rules: data.miniRules });
+      }
+      
       toast.success("✅ Settings saved successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to save settings");
@@ -225,10 +235,22 @@ const AdminProfileSettings = () => {
   const getSectionStatus = (sectionId: string): "completed" | "active" | "pending" => {
     if (expandedSection === sectionId) return "active";
     
-    // All sections are marked completed since this is settings (not onboarding)
-    const sectionKey = sectionId.replace(/-/g, "");
-    const hasData = formData[sectionKey] && Object.keys(formData[sectionKey]).length > 0;
-    return hasData ? "completed" : "completed"; // Always show as completed
+    // Check if section has data - mark as completed if it does
+    const sectionKey = sectionId === "company-details" ? "companyDetails" : 
+                      sectionId === "mini-rules" ? "miniRules" :
+                      sectionId === "user-management" ? "userManagement" : 
+                      "localization";
+    
+    const sectionData = formData[sectionKey];
+    
+    // For mini-rules, check if rules array exists and has items
+    if (sectionId === "mini-rules") {
+      return sectionData?.rules?.length > 0 ? "completed" : "completed";
+    }
+    
+    // For other sections, check if they have data
+    const hasData = sectionData && Object.keys(sectionData).length > 0;
+    return hasData ? "completed" : "completed"; // Always show as completed in settings
   };
 
   const renderSectionContent = (sectionId: string) => {
@@ -240,6 +262,7 @@ const AdminProfileSettings = () => {
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
             isProcessing={isSaving}
+            isLoadingFields={false}
           />
         );
 
@@ -256,7 +279,7 @@ const AdminProfileSettings = () => {
       case "mini-rules":
         return (
           <Step5MiniRules
-            formData={formData.miniRules}
+            formData={{ miniRules: formData.miniRules.rules || [] }}
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
             isProcessing={isSaving}
@@ -310,6 +333,9 @@ const AdminProfileSettings = () => {
               <AgentHeader 
                 title="Profile Settings"
                 subtitle="Update your organization profile and preferences"
+                showPulse={true}
+                isActive={isSpeaking}
+                showInput={false}
               />
             </div>
 

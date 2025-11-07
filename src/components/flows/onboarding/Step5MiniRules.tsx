@@ -65,6 +65,7 @@ const STARTER_RULES: Rule[] = [
 ];
 
 const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step5Props) => {
+  const hasPersistedData = formData && formData.miniRules && Array.isArray(formData.miniRules) && formData.miniRules.length > 0;
   const [rules, setRules] = useState<Rule[]>(
     formData.miniRules || STARTER_RULES
   );
@@ -275,10 +276,10 @@ const Step5MiniRules = ({ formData, onComplete, isProcessing: externalProcessing
           {externalProcessing ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Processing...
+              Saving...
             </>
           ) : (
-            "Continue Setup"
+            hasPersistedData ? "Save Changes" : "Continue Setup"
           )}
         </Button>
       )}

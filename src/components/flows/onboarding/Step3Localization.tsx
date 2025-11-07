@@ -44,6 +44,7 @@ const COUNTRIES = [
 ];
 
 const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step3Props) => {
+  const hasPersistedData = formData && formData.selectedCountries && formData.selectedCountries.length > 0;
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
   );
@@ -182,10 +183,10 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
         {(loading || externalProcessing) ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Loading...
+            Saving...
           </>
         ) : (
-          "Load Blocks & Continue"
+          hasPersistedData ? "Save Changes" : "Load Blocks & Continue"
         )}
         </Button>
       )}

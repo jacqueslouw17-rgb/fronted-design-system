@@ -479,10 +479,10 @@ const Step2OrgProfileSimplified = ({
         {externalProcessing ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Processing...
+            Saving...
           </>
         ) : (
-          "Save & Continue"
+          hasPersistedData ? "Save Changes" : "Save & Continue"
         )}
       </Button>
     </motion.div>
