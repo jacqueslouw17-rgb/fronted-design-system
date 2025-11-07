@@ -177,7 +177,6 @@ const PayrollBatch: React.FC = () => {
                               payrollMonth: "current" as const,
                             },
                           ]}
-                          filterNonCertified={true}
                         />
                       </div>
                     </div>
