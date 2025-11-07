@@ -126,22 +126,16 @@ function getTagsForContext(context: FlowContext): Tag[] {
         icon: <FileText className="h-3.5 w-3.5" />,
       },
       {
-        id: "check-fields",
-        label: "Check Fields",
-        description: "Verify all required fields are complete",
-        icon: <CheckSquare className="h-3.5 w-3.5" />,
-      },
-      {
-        id: "fix-clauses",
-        label: "Fix Clauses",
-        description: "Analyze and improve contract clauses",
-        icon: <Wrench className="h-3.5 w-3.5" />,
-      },
-      {
         id: "explain-term",
         label: "Explain Term",
         description: "Get clarification on legal terminology",
         icon: <HelpCircle className="h-3.5 w-3.5" />,
+      },
+      {
+        id: "ask-kurt",
+        label: "Ask Kurt",
+        description: "Open chat to ask Kurt anything",
+        icon: <Sparkles className="h-3.5 w-3.5" />,
       },
     ],
     "contract-bundle": [
