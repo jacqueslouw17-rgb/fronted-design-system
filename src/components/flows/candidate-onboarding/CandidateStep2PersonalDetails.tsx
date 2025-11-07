@@ -33,7 +33,7 @@ const CandidateStep2PersonalDetails = ({
     idType: formData.idType || "",
     idNumber: formData.idNumber || "",
     taxResidence: formData.taxResidence || "",
-    nationality: formData.nationality || "",
+    nationality: formData.nationality || undefined,
     address: formData.address || "",
     bankName: formData.bankName || "",
     accountNumber: formData.accountNumber || "",
@@ -52,7 +52,7 @@ const CandidateStep2PersonalDetails = ({
       idType: formData.idType || "",
       idNumber: formData.idNumber || "",
       taxResidence: formData.taxResidence || "",
-      nationality: formData.nationality || "",
+      nationality: formData.nationality || undefined,
       address: formData.address || "",
       bankName: formData.bankName || "",
       accountNumber: formData.accountNumber || "",
@@ -169,7 +169,7 @@ const CandidateStep2PersonalDetails = ({
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </div>
             <Select 
-              value={data.nationality || undefined} 
+              value={data.nationality} 
               onValueChange={(value) => setData({ ...data, nationality: value })}
             >
               <SelectTrigger>
