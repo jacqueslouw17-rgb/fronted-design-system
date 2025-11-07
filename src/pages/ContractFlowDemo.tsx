@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot, Users, DollarSign, FileCheck, TrendingUp, AlertCircle, Clock, ArrowLeft, X, BarChart3, GitBranch } from "lucide-react";
+import { Bot, ArrowLeft, X, FileCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -20,7 +20,6 @@ import { DocumentBundleSignature } from "@/components/contract-flow/DocumentBund
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { ContractSignedMessage } from "@/components/contract-flow/ContractSignedMessage";
 import { AgentChatBox } from "@/components/contract-flow/AgentChatBox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
@@ -40,7 +39,6 @@ const ContractFlowDemo = () => {
   const { toast } = useToast();
   const [version, setVersion] = React.useState<"v1" | "v2" | "v3" | "v4" | "v5">("v3");
   const contractFlow = useContractFlow(version === "v3" || version === "v5" ? version : "v3");
-  const { batches } = usePayrollBatch();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { setOpen, addMessage, setLoading, isSpeaking: isAgentSpeaking } = useAgentState();
   const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
@@ -266,48 +264,6 @@ const ContractFlowDemo = () => {
   const idleWords = idleMessage.split(' ');
 
   const mockPrompt = "Generate contracts for Maria Santos, Oskar Nilsen, and Arta Krasniqi";
-
-  // KPI Widgets data
-  const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
-  const widgets = [
-    {
-      title: "Total Contractors",
-      value: contractFlow.selectedCandidates.length.toString(),
-      trend: "+100%",
-      icon: Users,
-    },
-    {
-      title: "This Month Payroll",
-      value: latestBatch ? latestBatch.payees.length.toString() : "0",
-      trend: latestBatch ? `$${latestBatch.totals.gross.toLocaleString()}` : "No batches yet",
-      icon: DollarSign,
-      onClick: () => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`),
-    },
-    {
-      title: "Compliance Score",
-      value: "100%",
-      trend: "All certified",
-      icon: FileCheck,
-    },
-    {
-      title: "Active Contracts",
-      value: contractFlow.selectedCandidates.length.toString(),
-      trend: "+100%",
-      icon: TrendingUp,
-    },
-    {
-      title: "Pending Actions",
-      value: "2",
-      trend: "Send onboarding forms",
-      icon: AlertCircle,
-    },
-    {
-      title: "Avg Response Time",
-      value: "N/A",
-      trend: "No data yet",
-      icon: Clock,
-    },
-  ];
   
   // Expose handleKurtAction globally for action buttons
   useEffect(() => {
@@ -547,53 +503,7 @@ const ContractFlowDemo = () => {
 
                     {/* Pipeline Tracking - Full Width */}
                     <div className="space-y-4">
-                  <Tabs defaultValue="pipeline" className="w-full">
-                    <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm">
-                      <TabsTrigger value="list" data-testid="tab-metrics">
-                        <BarChart3 className="h-4 w-4" />
-                        Metrics
-                      </TabsTrigger>
-                      <TabsTrigger value="pipeline" data-testid="tab-pipeline">
-                        <GitBranch className="h-4 w-4" />
-                        Pipeline View
-                      </TabsTrigger>
-                    </TabsList>
-
-                        <TabsContent value="list" className="space-y-6">
-                          {/* KPI Metric Widgets Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                            {widgets.map((widget, idx) => (
-                               <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1 }}
-                              >
-                                 <Card 
-                                   className={`hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm ${
-                                     idx === 0 ? 'bg-gradient-to-br from-primary/[0.02] to-primary/[0.01]' : ''
-                                   } ${widget.onClick ? 'cursor-pointer' : ''}`}
-                                   onClick={widget.onClick}
-                                 >
-                                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
-                                    <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
-                                      <widget.icon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <div className="text-2xl font-bold">{widget.value}</div>
-                                    <p className="text-xs mt-1 text-muted-foreground">
-                                      {widget.trend}
-                                    </p>
-                                  </CardContent>
-                                </Card>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="pipeline">
+                      <div className="mt-3">
                           <PipelineView 
                             contractors={[
                               // Display-only candidates (not in contract flow)
@@ -770,8 +680,7 @@ const ContractFlowDemo = () => {
                               navigate("/flows/contract-flow?phase=data-collection&allSigned=true");
                             }}
                           />
-                        </TabsContent>
-                      </Tabs>
+                      </div>
                       </div>
                     </div>
                   </motion.div>
