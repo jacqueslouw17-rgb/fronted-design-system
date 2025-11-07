@@ -546,232 +546,45 @@ const ContractFlowDemo = () => {
                       )}
 
                     {/* Pipeline Tracking - Full Width */}
-                    <div className="space-y-4">
-                  <Tabs defaultValue="pipeline" className="w-full">
-                    <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm">
-                      <TabsTrigger value="list" data-testid="tab-metrics">
-                        <BarChart3 className="h-4 w-4" />
-                        Metrics
-                      </TabsTrigger>
-                      <TabsTrigger value="pipeline" data-testid="tab-pipeline">
-                        <GitBranch className="h-4 w-4" />
-                        Pipeline View
-                      </TabsTrigger>
-                    </TabsList>
-
-                        <TabsContent value="list" className="space-y-6">
-                          {/* KPI Metric Widgets Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                            {widgets.map((widget, idx) => (
-                               <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1 }}
-                              >
-                                 <Card 
-                                   className={`hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm ${
-                                     idx === 0 ? 'bg-gradient-to-br from-primary/[0.02] to-primary/[0.01]' : ''
-                                   } ${widget.onClick ? 'cursor-pointer' : ''}`}
-                                   onClick={widget.onClick}
-                                 >
-                                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">{widget.title}</CardTitle>
-                                    <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
-                                      <widget.icon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <div className="text-2xl font-bold">{widget.value}</div>
-                                    <p className="text-xs mt-1 text-muted-foreground">
-                                      {widget.trend}
-                                    </p>
-                                  </CardContent>
-                                </Card>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="pipeline">
-                          <PipelineView 
-                            contractors={[
-                              // Display-only candidates (not in contract flow)
-                              {
-                                id: "display-1",
-                                name: "Liam Chen",
-                                country: "Singapore",
-                                countryFlag: "🇸🇬",
-                                role: "Frontend Developer",
-                                salary: "SGD 7,500/mo",
-                                status: "offer-accepted" as const,
-                                formSent: false,
-                                dataReceived: false,
-                                employmentType: "contractor" as const,
-                              },
-                              {
-                                id: "display-2",
-                                name: "Sofia Rodriguez",
-                                country: "Mexico",
-                                countryFlag: "🇲🇽",
-                                role: "Marketing Manager",
-                                salary: "MXN 45,000/mo",
-                                status: "data-pending" as const,
-                                formSent: true,
-                                dataReceived: false,
-                                employmentType: "employee" as const,
-                              },
-                              // Actual candidates in the contract flow
-                              ...contractFlow.selectedCandidates.map((candidate, index) => ({
-                                id: candidate.id,
-                                name: candidate.name,
-                                country: candidate.country,
-                                countryFlag: candidate.flag,
-                                role: candidate.role,
-                                salary: candidate.salary,
-                                 status: (searchParams.get("phase") === "data-collection" && searchParams.get("moved") === "true") 
-                                   ? "awaiting-signature" as const 
-                                   : (searchParams.get("onboarding") === "true")
-                                     ? "trigger-onboarding" as const
-                                     : "drafting" as const,
-                                formSent: false,
-                                dataReceived: true,
-                                employmentType: candidate.employmentType || "contractor",
-                              })),
-                              // Payroll Ready candidates
-                              {
-                                id: "cert-0",
-                                name: "David Martinez",
-                                country: "Portugal",
-                                countryFlag: "🇵🇹",
-                                role: "Technical Writer",
-                                salary: "€4,200/mo",
-                                status: "CERTIFIED" as const,
-                                employmentType: "contractor" as const,
-                              },
-                              {
-                                id: "cert-1",
-                                name: "Emma Wilson",
-                                country: "United Kingdom",
-                                countryFlag: "🇬🇧",
-                                role: "Senior Backend Developer",
-                                salary: "£6,500/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-2",
-                                name: "Luis Hernandez",
-                                country: "Spain",
-                                countryFlag: "🇪🇸",
-                                role: "Product Manager",
-                                salary: "€5,200/mo",
-                                status: "IN_BATCH" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-3",
-                                name: "Yuki Tanaka",
-                                country: "Japan",
-                                countryFlag: "🇯🇵",
-                                role: "UI/UX Designer",
-                                salary: "¥650,000/mo",
-                                status: "EXECUTING" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-4",
-                                name: "Sophie Dubois",
-                                country: "France",
-                                countryFlag: "🇫🇷",
-                                role: "Data Scientist",
-                                salary: "€5,800/mo",
-                                status: "PAID" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "last" as const,
-                              },
-                              {
-                                id: "cert-5",
-                                name: "Ahmed Hassan",
-                                country: "Egypt",
-                                countryFlag: "🇪🇬",
-                                role: "Mobile Developer",
-                                salary: "EGP 45,000/mo",
-                                status: "ON_HOLD" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-6",
-                                name: "Anna Kowalski",
-                                country: "Poland",
-                                countryFlag: "🇵🇱",
-                                role: "QA Engineer",
-                                salary: "PLN 15,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-7",
-                                name: "Marcus Silva",
-                                country: "Brazil",
-                                countryFlag: "🇧🇷",
-                                role: "Full Stack Developer",
-                                salary: "R$ 18,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-8",
-                                name: "Priya Sharma",
-                                country: "India",
-                                countryFlag: "🇮🇳",
-                                role: "DevOps Engineer",
-                                salary: "₹2,50,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "next" as const,
-                              },
-                              {
-                                id: "cert-9",
-                                name: "Lars Anderson",
-                                country: "Sweden",
-                                countryFlag: "🇸🇪",
-                                role: "Security Engineer",
-                                salary: "SEK 58,000/mo",
-                                status: "PAID" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "last" as const,
-                              },
-                              {
-                                id: "cert-10",
-                                name: "Isabella Costa",
-                                country: "Portugal",
-                                countryFlag: "🇵🇹",
-                                role: "Content Strategist",
-                                salary: "€3,200/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                            ]}
-                            onDraftContract={(ids) => {
-                              // Navigate to dedicated contract creation page with selected ids
-                              const params = new URLSearchParams({ ids: ids.join(',') }).toString();
-                              navigate(`/flows/contract-creation?${params}`);
-                            }}
-                            onSignatureComplete={() => {
-                              // Navigate with allSigned param to show new heading/subtext
-                              navigate("/flows/contract-flow?phase=data-collection&allSigned=true");
-                            }}
-                          />
-                        </TabsContent>
-                      </Tabs>
+                    <div className="mt-3">
+                      <PipelineView 
+                        contractors={[
+                          // Display-only candidates (not in contract flow)
+                          {
+                            id: "display-1",
+                            name: "Liam Chen",
+                            country: "Singapore",
+                            countryFlag: "🇸🇬",
+                            role: "Frontend Developer",
+                            salary: "SGD 7,500/mo",
+                            status: "offer-accepted" as const,
+                            formSent: false,
+                            dataReceived: false,
+                            employmentType: "contractor" as const,
+                          },
+                          {
+                            id: "display-2",
+                            name: "Sofia Rodriguez",
+                            country: "Mexico",
+                            countryFlag: "🇲🇽",
+                            role: "Marketing Manager",
+                            salary: "MXN 45,000/mo",
+                            status: "data-pending" as const,
+                            formSent: true,
+...
+                            payrollMonth: "current" as const,
+                          },
+                        ]}
+                        onDraftContract={(ids) => {
+                          // Navigate to dedicated contract creation page with selected ids
+                          const params = new URLSearchParams({ ids: ids.join(',') }).toString();
+                          navigate(`/flows/contract-creation?${params}`);
+                        }}
+                        onSignatureComplete={() => {
+                          // Navigate with allSigned param to show new heading/subtext
+                          navigate("/flows/contract-flow?phase=data-collection&allSigned=true");
+                        }}
+                      />
                       </div>
                     </div>
                   </motion.div>
