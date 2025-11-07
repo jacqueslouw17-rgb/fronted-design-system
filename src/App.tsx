@@ -146,6 +146,7 @@ const App = () => (
         <Route path="/patterns/onboarding-flow" element={<OnboardingFlowPattern />} />
         <Route path="/payroll-demo" element={<PayrollUseCaseDemo />} />
         <Route path="/payroll/batch" element={<PayrollBatch />} />
+        <Route path="/payroll-batch" element={<PayrollBatch />} />
         <Route path="/payroll/batch/current" element={<PayrollBatchCurrent />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
