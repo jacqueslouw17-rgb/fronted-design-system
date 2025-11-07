@@ -130,7 +130,6 @@ export default function PayrollBatchCurrent() {
   const selectedPayeeFromState = location.state?.selectedPayee;
   const [currentStep, setCurrentStep] = useState<PayrollStep>(initialStep || "review-fx");
   const [frequency, setFrequency] = useState("monthly");
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { setOpen, addMessage, isSpeaking: isAgentSpeaking } = useAgentState();
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
@@ -1597,9 +1596,7 @@ export default function PayrollBatchCurrent() {
           subtitle="Review FX, exceptions, approvals — then execute."
           showPulse={true}
           isActive={isAgentSpeaking}
-          isMuted={isKurtMuted}
-          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-          placeholder="Try: 'FX summary' or 'Check exceptions'..."
+          showInput={false}
           tags={
             <div className="flex items-center gap-3">
               <AgentSuggestionChips
