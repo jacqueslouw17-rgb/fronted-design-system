@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StandardInput from "@/components/shared/StandardInput";
 import PhoneInput from "@/components/shared/PhoneInput";
-
 interface Step2Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
@@ -16,11 +15,10 @@ interface Step2Props {
   isLoadingFields?: boolean;
   buttonText?: string;
 }
-
-const CandidateStep2PersonalDetails = ({ 
-  formData, 
-  onComplete, 
-  isProcessing = false, 
+const CandidateStep2PersonalDetails = ({
+  formData,
+  onComplete,
+  isProcessing = false,
   isLoadingFields = false,
   buttonText = "Continue"
 }: Step2Props) => {
@@ -60,33 +58,24 @@ const CandidateStep2PersonalDetails = ({
       emergencyContactPhone: formData.emergencyContactPhone || ""
     });
   }, [formData]);
-
   const handleContinue = () => {
     onComplete("personal_details", data);
   };
-
-  const isValid = data.fullName && data.email && data.idType && data.idNumber && 
-                  data.taxResidence && data.nationality && data.address && 
-                  data.bankName && data.accountNumber;
-
-  return (
-    <div className="space-y-6 animate-fade-in">
+  const isValid = data.fullName && data.email && data.idType && data.idNumber && data.taxResidence && data.nationality && data.address && data.bankName && data.accountNumber;
+  return <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Personal Details</h3>
+        <h3 className="text-xl font-semibold">Missing Details</h3>
         <p className="text-sm text-muted-foreground">
           Please confirm your details and fill in any missing information.
         </p>
       </div>
 
-      {isLoadingFields ? (
-        <div className="space-y-4">
+      {isLoadingFields ? <div className="space-y-4">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="space-y-6">
+        </div> : <div className="space-y-6">
           {/* Prefilled fields */}
           <div className="space-y-2">
             <Label>Full Name</Label>
@@ -131,10 +120,10 @@ const CandidateStep2PersonalDetails = ({
               ID Type & Number
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Select 
-              value={data.idType} 
-              onValueChange={(value) => setData({ ...data, idType: value })}
-            >
+            <Select value={data.idType} onValueChange={value => setData({
+          ...data,
+          idType: value
+        })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select ID Type" />
               </SelectTrigger>
@@ -144,11 +133,10 @@ const CandidateStep2PersonalDetails = ({
                 <SelectItem value="drivers-license">Driver's License</SelectItem>
               </SelectContent>
             </Select>
-            <Input
-              placeholder="ID Number"
-              value={data.idNumber}
-              onChange={(e) => setData({ ...data, idNumber: e.target.value })}
-            />
+            <Input placeholder="ID Number" value={data.idNumber} onChange={e => setData({
+          ...data,
+          idNumber: e.target.value
+        })} />
           </div>
 
           <div className="space-y-2">
@@ -156,11 +144,10 @@ const CandidateStep2PersonalDetails = ({
               Tax Residence
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              placeholder="e.g., Mexico"
-              value={data.taxResidence}
-              onChange={(e) => setData({ ...data, taxResidence: e.target.value })}
-            />
+            <Input placeholder="e.g., Mexico" value={data.taxResidence} onChange={e => setData({
+          ...data,
+          taxResidence: e.target.value
+        })} />
           </div>
 
           <div className="space-y-2">
@@ -168,10 +155,10 @@ const CandidateStep2PersonalDetails = ({
               <Label>Nationality</Label>
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </div>
-            <Select 
-              value={data.nationality} 
-              onValueChange={(value) => setData({ ...data, nationality: value })}
-            >
+            <Select value={data.nationality} onValueChange={value => setData({
+          ...data,
+          nationality: value
+        })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your nationality" />
               </SelectTrigger>
@@ -195,12 +182,10 @@ const CandidateStep2PersonalDetails = ({
               Address
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Textarea
-              placeholder="Full residential address"
-              value={data.address}
-              onChange={(e) => setData({ ...data, address: e.target.value })}
-              rows={3}
-            />
+            <Textarea placeholder="Full residential address" value={data.address} onChange={e => setData({
+          ...data,
+          address: e.target.value
+        })} rows={3} />
           </div>
 
           <div className="space-y-2">
@@ -208,17 +193,14 @@ const CandidateStep2PersonalDetails = ({
               Bank Details
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </Label>
-            <Input
-              placeholder="Bank Name"
-              value={data.bankName}
-              onChange={(e) => setData({ ...data, bankName: e.target.value })}
-              className="mb-2"
-            />
-            <Input
-              placeholder="Account Number / IBAN"
-              value={data.accountNumber}
-              onChange={(e) => setData({ ...data, accountNumber: e.target.value })}
-            />
+            <Input placeholder="Bank Name" value={data.bankName} onChange={e => setData({
+          ...data,
+          bankName: e.target.value
+        })} className="mb-2" />
+            <Input placeholder="Account Number / IBAN" value={data.accountNumber} onChange={e => setData({
+          ...data,
+          accountNumber: e.target.value
+        })} />
           </div>
 
           <div className="space-y-2">
@@ -226,41 +208,27 @@ const CandidateStep2PersonalDetails = ({
               Emergency Contact
               <span className="text-muted-foreground text-xs">(Optional)</span>
             </Label>
-            <Input
-              placeholder="Name"
-              value={data.emergencyContactName}
-              onChange={(e) => setData({ ...data, emergencyContactName: e.target.value })}
-              className="mb-2"
-            />
-            <Input
-              placeholder="Phone"
-              value={data.emergencyContactPhone}
-              onChange={(e) => setData({ ...data, emergencyContactPhone: e.target.value })}
-            />
+            <Input placeholder="Name" value={data.emergencyContactName} onChange={e => setData({
+          ...data,
+          emergencyContactName: e.target.value
+        })} className="mb-2" />
+            <Input placeholder="Phone" value={data.emergencyContactPhone} onChange={e => setData({
+          ...data,
+          emergencyContactPhone: e.target.value
+        })} />
           </div>
-        </div>
-      )}
+        </div>}
 
       <div className="flex justify-end pt-2">
-        {isProcessing ? (
-          <Button disabled size="lg">
+        {isProcessing ? <Button disabled size="lg">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
               Saving...
             </div>
-          </Button>
-        ) : (
-          <Button 
-            onClick={handleContinue} 
-            disabled={!isValid}
-            size="lg"
-          >
+          </Button> : <Button onClick={handleContinue} disabled={!isValid} size="lg">
             {buttonText}
-          </Button>
-        )}
+          </Button>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CandidateStep2PersonalDetails;
