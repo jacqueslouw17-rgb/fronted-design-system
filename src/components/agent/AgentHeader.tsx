@@ -112,47 +112,17 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
           {progressIndicator}
         </div>}
 
-      {/* Chat Input or Simplified Tags */}
-      <motion.div initial={{
-      opacity: 0,
-      y: 10
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      delay: 0.2
-    }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
-        {simplified ? (
-          // Simplified mode: Show disabled tags with glassy design
-          <div className="flex items-center justify-center gap-3 mt-2">
-            <div 
-              className="px-4 py-1.5 rounded-full text-[#6B7280] text-sm font-medium cursor-default transition-all duration-250 ease-out hover:bg-white/60"
-              style={{
-                background: 'rgba(255, 255, 255, 0.4)',
-                border: '1px solid rgba(229, 231, 235, 0.6)',
-                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.6)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
-              }}
-              aria-disabled="true"
-            >
-              Any Updates?
-            </div>
-            <div 
-              className="px-4 py-1.5 rounded-full text-[#6B7280] text-sm font-medium cursor-default transition-all duration-250 ease-out hover:bg-white/60"
-              style={{
-                background: 'rgba(255, 255, 255, 0.4)',
-                border: '1px solid rgba(229, 231, 235, 0.6)',
-                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.6)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
-              }}
-              aria-disabled="true"
-            >
-              Ask Kurt
-            </div>
-          </div>
-        ) : (
+      {/* Chat Input or Tags */}
+      {!simplified && (
+        <motion.div initial={{
+        opacity: 0,
+        y: 10
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        delay: 0.2
+      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
           <>
             <form onSubmit={handleSubmit} className="relative">
               <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5 sm:py-2">
@@ -168,7 +138,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
                 {tags}
               </div>}
           </>
-        )}
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>;
 };
