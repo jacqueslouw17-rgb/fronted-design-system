@@ -169,7 +169,7 @@ const CandidateStep2PersonalDetails = ({
               <Badge variant="secondary" className="text-xs">Required</Badge>
             </div>
             <Select 
-              value={data.nationality} 
+              value={data.nationality || undefined} 
               onValueChange={(value) => setData({ ...data, nationality: value })}
             >
               <SelectTrigger>
