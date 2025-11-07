@@ -25,7 +25,6 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
@@ -33,9 +32,8 @@ const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Welcome & Setup", stepNumber: 1 },
   { id: "org_profile", title: "Organization Profile", stepNumber: 2 },
   { id: "localization_country_blocks", title: "Localization & Countries", stepNumber: 3 },
-  { id: "integrations_connect", title: "Integrations", stepNumber: 4 },
-  { id: "mini_rules_setup", title: "Mini-Rules", stepNumber: 5 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 6 }
+  { id: "mini_rules_setup", title: "Mini-Rules", stepNumber: 4 },
+  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 5 }
 ];
 
 const AdminOnboarding = () => {
@@ -270,7 +268,7 @@ const AdminOnboarding = () => {
       resetTranscript();
     }
     
-    // STEP 3 → STEP 4 (when user confirms pre-selected countries with "yes")
+    // STEP 3 → STEP 4 (Mini-Rules - when user confirms pre-selected countries)
     else if (state.currentStep === "localization_country_blocks") {
       const selectedCountries = state.formData.selectedCountries || [];
       
@@ -292,7 +290,7 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
-      // Wait before moving to step 4
+      // Wait before moving to step 4 (mini-rules)
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const countryNames = selectedCountries.map((code: string) => {
@@ -305,48 +303,6 @@ const AdminOnboarding = () => {
         return country?.name;
       }).filter(Boolean).join(", ");
       
-      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. Now connecting your integrations—Slack and FX.`;
-      handleSpeak(confirmMessage, async () => {
-        // Set loading state FIRST, before expanding step 4
-        setIsLoadingFields(true);
-        goToStep("integrations_connect");
-        setExpandedStep("integrations_connect");
-        scrollToStep("integrations_connect");
-        
-        // Keep skeleton visible briefly while connecting
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Auto-connect integrations
-        updateFormData({ 
-          slackConnected: true, 
-          fxConnected: true,
-          googleSignConnected: false 
-        });
-        
-        setIsLoadingFields(false);
-        
-        const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
-        handleSpeak(nextMessage, () => {
-          setHasFinishedReading(true);
-          setHasAutoStarted(false);
-        });
-      });
-      
-      resetTranscript();
-    }
-    
-    // STEP 4 → STEP 5
-    else if (state.currentStep === "integrations_connect") {
-      setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
-      completeStep("integrations_connect");
-      setExpandedStep(null);
-      setIsProcessing(false);
-      
-      // Wait before moving to step 5
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
       // Pre-populate mini rules
       const rules = [
         { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
@@ -355,9 +311,9 @@ const AdminOnboarding = () => {
       ];
       updateFormData({ miniRules: rules });
       
-      const confirmMessage = "I've set up three starter mini-rules for you. These look good?";
+      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. I've set up three starter mini-rules for you. These look good?`;
       handleSpeak(confirmMessage, async () => {
-        // Set loading state FIRST, before expanding step 5
+        // Set loading state FIRST, before expanding step 4
         setIsLoadingFields(true);
         goToStep("mini_rules_setup");
         setExpandedStep("mini_rules_setup");
@@ -373,7 +329,7 @@ const AdminOnboarding = () => {
       resetTranscript();
     }
     
-    // STEP 5 → STEP 6 (Finish)
+    // STEP 4 → STEP 5 (Finish)
     else if (state.currentStep === "mini_rules_setup") {
       setIsProcessing(true);
       await new Promise(resolve => setTimeout(resolve, 1200));
@@ -470,27 +426,27 @@ const AdminOnboarding = () => {
         return country?.name;
       }).filter(Boolean).join(", ");
       
-      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. Now connecting your integrations.`;
+      // Pre-populate mini rules
+      const rules = [
+        { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
+        { id: "r2", type: "compliance", description: "Remind contractor 7 days before doc expiry" },
+        { id: "r3", type: "policy", description: "Default paid leave: 5d (PH), 0d (NO)" }
+      ];
+      updateFormData({ miniRules: rules });
+      
+      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. I've set up three starter mini-rules for you. These look good?`;
       handleSpeak(confirmMessage, async () => {
-        // Auto-connect integrations
-        await new Promise(resolve => setTimeout(resolve, 700));
-        updateFormData({ 
-          slackConnected: true, 
-          fxConnected: true,
-          googleSignConnected: false 
-        });
-        
-        const nextMessage = "All set! Slack and FX are connected. Ready to configure your mini-rules?";
-        handleSpeak(nextMessage, () => {
-          setHasFinishedReading(true);
-          setHasAutoStarted(false);
-        });
-        
-        goToStep("integrations_connect");
+        setIsLoadingFields(true);
+        goToStep("mini_rules_setup");
         setTimeout(() => {
-          setExpandedStep("integrations_connect");
-          scrollToStep("integrations_connect");
+          setExpandedStep("mini_rules_setup");
+          scrollToStep("mini_rules_setup");
         }, 400);
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        setIsLoadingFields(false);
+        setHasFinishedReading(true);
+        setHasAutoStarted(false);
       });
       
       resetTranscript();
@@ -560,8 +516,6 @@ const AdminOnboarding = () => {
         return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
-      case "integrations_connect":
-        return <Step4Integrations {...stepProps} />;
       case "mini_rules_setup":
         return <Step5MiniRules {...stepProps} />;
       case "finish_dashboard_transition":
