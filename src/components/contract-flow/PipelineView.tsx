@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -911,8 +911,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for all columns except data-pending and payroll statuses */}
-                    {items.length > 0 && !["data-pending", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
+                    {/* Select All for all columns except data-pending, payroll-ready, and payroll statuses */}
+                    {items.length > 0 && !["data-pending", "payroll-ready", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -940,11 +940,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </TooltipProvider>
                   </div>
                   <div className="flex items-center gap-2">
-                    {status === "payroll-ready" ? (
-                      <span className="text-xs text-muted-foreground">
-                        Selected {getBatchSelectedCount()} / {items.filter(c => c.status === "PAYROLL_PENDING").length}
-                      </span>
-                    ) : getSelectedCount(status) > 0 ? (
+                    {status !== "payroll-ready" && getSelectedCount(status) > 0 ? (
                       <span className="text-xs text-muted-foreground">
                         {getSelectedCount(status)} selected
                       </span>
@@ -954,25 +950,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </Badge>
                   </div>
                 </div>
-                
-                {/* Payroll Cycle Selector - Only for payroll-ready column */}
-                {status === "payroll-ready" && (
-                  <div className="mt-2 px-1">
-                    <Select
-                      value={selectedPayrollCycle}
-                      onValueChange={(value: "last" | "current" | "next") => setSelectedPayrollCycle(value)}
-                    >
-                      <SelectTrigger className="h-7 text-xs bg-background/80 border-border/50">
-                        <SelectValue placeholder="Select cycle" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border-border z-50">
-                        <SelectItem value="last" className="text-xs">Last Month</SelectItem>
-                        <SelectItem value="current" className="text-xs">Current Month</SelectItem>
-                        <SelectItem value="next" className="text-xs">Next Month</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
                 
                 {/* Bulk Actions */}
                 {status === "offer-accepted" && getSelectedCount(status) > 0 && (
@@ -1041,65 +1018,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 "min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg",
                 config.color
               )}>
-                {/* Payroll Summary Card - Only for payroll-ready column */}
-                {status === "payroll-ready" && items.length > 0 && (() => {
-                  // Calculate totals for the current cycle
-                  const totalContractors = items.length;
-                  const totalGross = items.reduce((sum, c) => {
-                    // Extract numeric value from salary string
-                    const salaryStr = c.salary.replace(/[^0-9.,]/g, '').replace(',', '');
-                    const salary = parseFloat(salaryStr) || 0;
-                    return sum + salary;
-                  }, 0);
-                  const fxVariance = 2.3; // Mock FX variance percentage
-                  
-                  return (
-                    <Card className="bg-gradient-to-br from-accent-green-fill/40 to-accent-green-fill/20 border-accent-green-outline/30 mb-3">
-                      <CardContent className="p-3 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-semibold text-foreground">Monthly Payroll Summary</h4>
-                          <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 text-[10px]">
-                            {selectedPayrollCycle === "last" ? "Last Month" : selectedPayrollCycle === "current" ? "Current" : "Next Month"}
-                          </Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">Contractors</p>
-                            <p className="text-lg font-bold text-foreground">{totalContractors}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">Total Gross</p>
-                            <p className="text-lg font-bold text-foreground">
-                              ${totalGross >= 1000000 
-                                ? `${(totalGross / 1000000).toFixed(1)}M` 
-                                : `${(totalGross / 1000).toFixed(0)}K`}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground">FX Variance</p>
-                            <p className="text-lg font-bold text-accent-green-text">+{fxVariance}%</p>
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          size="sm"
-                          className="w-full text-xs h-8 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30"
-                          onClick={() => {
-                            if (batchSelectedIds.size === 0) {
-                              toast.error("No people marked 'Include in batch' — choose them in Pipeline → Payroll Ready.");
-                            } else {
-                              navigate('/payroll/batch/current');
-                            }
-                          }}
-                        >
-                          <DollarSign className="h-3 w-3 mr-1" />
-                          Run Payroll
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })()}
+                {/* Payroll Summary Card - Removed for certified column */}
                 
                 <AnimatePresence mode="popLayout">
                   {items.map((contractor, index) => (
@@ -1117,9 +1036,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     >
                     <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm">
                       <CardContent className="p-3 space-y-2">
-                         {/* Contractor Header with Checkbox */}
+                         {/* Contractor Header - No checkbox for certified column */}
                         <div className="flex items-start gap-2">
-                          {!["data-pending"].includes(status) && 
+                          {!["data-pending", "payroll-ready"].includes(status) && 
                            !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && (
                             <Checkbox
                               checked={
@@ -1369,7 +1288,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Payroll Status Badge & Actions - Only in payroll-ready column */}
+                          {/* Payroll Status Badge & Actions - Simplified for certified column */}
                           {status === "payroll-ready" && (
                             <div className="pt-2 space-y-2">
                               {/* Show contractor's individual payroll status */}
@@ -1384,7 +1303,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 {statusConfig[contractor.status as keyof typeof statusConfig]?.label || config.label}
                               </Badge>
                               
-                              {/* Next Step Button based on contractor's payroll status */}
+                              {/* Download Certificate button for CERTIFIED contractors */}
                               {contractor.status === "CERTIFIED" && (
                                 <Button
                                   size="sm"
@@ -1392,14 +1311,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   className="w-full text-xs h-7"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setSelectedForCertified(contractor);
-                                    setCertifiedDrawerOpen(true);
+                                    toast.success(`Downloading certificate for ${contractor.name}`, {
+                                      description: "Certificate will be downloaded shortly"
+                                    });
                                   }}
                                 >
-                                  Prepare for payroll
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Download Certificate
                                 </Button>
                               )}
                               
+                              {/* Keep other payroll statuses as-is */}
                               {contractor.status === "PAYROLL_PENDING" && (
                                 <Button
                                   size="sm"
@@ -1471,8 +1393,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 </Button>
                               )}
                               
-                              {/* Inline Progress */}
-                              {contractor.payrollProgress !== undefined && (
+                              {/* Keep other payroll statuses with progress */}
+                              {contractor.status !== "CERTIFIED" && contractor.payrollProgress !== undefined && (
                                 <div className="space-y-1.5">
                                   <div className="flex items-center justify-between text-xs">
                                     <span className="text-muted-foreground">Progress</span>
