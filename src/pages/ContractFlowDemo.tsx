@@ -532,19 +532,12 @@ const ContractFlowDemo = () => {
                             <AgentSuggestionChips
                               chips={[
                                 {
-                                  label: "Track Progress",
-                                  variant: "primary",
-                                  onAction: () => handleKurtAction("track-progress"),
+                                  label: "Any Updates?",
+                                  variant: "disabled",
                                 },
                                 {
-                                  label: "Resend Link",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction("resend-link"),
-                                },
-                                {
-                                  label: "Mark Complete",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction("mark-complete"),
+                                  label: "Ask Kurt",
+                                  variant: "disabled",
                                 },
                               ]}
                             />
