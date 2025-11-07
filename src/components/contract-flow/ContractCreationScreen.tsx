@@ -20,6 +20,7 @@ interface ContractCreationScreenProps {
   onNext: () => void;
   currentIndex?: number;
   totalCandidates?: number;
+  onChatOpen?: () => void;
 }
 
 interface MissingField {
@@ -33,6 +34,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   onNext,
   currentIndex = 0,
   totalCandidates = 1,
+  onChatOpen,
 }) => {
   const defaultEmploymentType = candidate.employmentType || "contractor";
   const [employmentType, setEmploymentType] = useState<"employee" | "contractor">(defaultEmploymentType);
@@ -102,14 +104,60 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
       text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     });
 
-    setOpen(true);
+    // Open chat sidebar for review-fields and explain-terms
+    if (action === 'review-fields' || action === 'explain-terms') {
+      onChatOpen?.();
+    } else {
+      setOpen(true);
+    }
+    
     setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     let response = '';
     
     switch(action) {
+      case 'review-fields':
+        response = `🔍 Contract Field Review for ${candidate.name.split(' ')[0]}
+
+I've scanned all fields in the contract draft:
+
+✅ **Pre-filled Fields:**
+• Full Name: ${contractData.fullName}
+• Email: ${contractData.email || '(needs attention)'}
+• Role: ${contractData.role}
+• Start Date: ${contractData.startDate || '(needs attention)'}
+• Salary: ${contractData.salary}
+• Country: ${contractData.country}
+• Employment Type: ${employmentType}
+
+${contractData.email && contractData.startDate ? 
+  '✓ All key fields are complete and ready!' : 
+  '⚠️ Some required fields need your attention before proceeding.'}
+
+💡 **Tip:** Need to modify a clause? Edits can be made before bundle generation.`;
+        break;
+        
+      case 'explain-terms':
+        response = `📚 Contract Terms Explained
+
+Here are the key legal terms in ${candidate.name.split(' ')[0]}'s contract:
+
+**Confidentiality Clause**
+Ensures the contractor won't disclose sensitive company information, trade secrets, or proprietary data during and after employment.
+
+**IP Rights Assignment**
+All work created during employment belongs to the company. This includes code, designs, documents, and any intellectual property.
+
+**Notice Period**
+The required advance notice (typically 30 days) before either party can terminate the contract.
+
+**Probation Period**
+Initial 3-6 month evaluation period where performance is closely monitored and termination notice is shorter.
+
+💡 **Tip:** You can ask me about any specific clause for a plain-language summary.`;
+        break;
       case 'whats-missing':
         const missingFields = getMissingFields();
         if (missingFields.length === 0) {
