@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 type ChipVariant = "default" | "primary" | "info" | "critical" | "disabled";
 
@@ -12,26 +13,13 @@ interface SuggestionChip {
   variant?: ChipVariant;
   tooltip?: string;
   onAction?: () => void;
+  disabled?: boolean;
 }
 
 interface AgentSuggestionChipsProps {
   chips: SuggestionChip[];
   className?: string;
 }
-
-const getChipStyles = (variant: ChipVariant = "default") => {
-  const baseStyles = "h-8 px-3 rounded-md text-xs font-normal transition-all duration-200 backdrop-blur-sm border";
-  
-  const variantStyles = {
-    default: "bg-background/80 hover:bg-background/90 border-border/40 hover:border-border/60",
-    primary: "bg-primary/[0.06] text-foreground hover:bg-primary/[0.1] border-primary/20 hover:border-primary/30",
-    info: "bg-primary/[0.03] text-primary hover:bg-primary/[0.06] border-primary/20 hover:border-primary/30",
-    critical: "bg-destructive/[0.06] text-destructive hover:bg-destructive/10 border-destructive/20 hover:border-destructive/30",
-    disabled: "bg-muted/30 text-muted-foreground cursor-not-allowed opacity-50 border-muted/30",
-  };
-
-  return cn(baseStyles, variantStyles[variant]);
-};
 
 const SuggestionChipButton = ({ 
   chip, 
@@ -41,7 +29,7 @@ const SuggestionChipButton = ({
   index: number;
 }) => {
   const Icon = chip.icon;
-  const isDisabled = chip.variant === "disabled";
+  const isDisabled = chip.disabled || chip.variant === "disabled";
 
   const handleClick = () => {
     if (isDisabled) return;
@@ -54,17 +42,34 @@ const SuggestionChipButton = ({
   };
 
   const chipButton = (
-    <Button
-      id={`chip-${index}`}
-      variant="ghost"
-      size="sm"
-      className={getChipStyles(chip.variant)}
+    <motion.button
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.3 }}
+      whileHover={{ scale: isDisabled ? 1 : 1.04, y: -2 }}
+      whileTap={{ scale: isDisabled ? 1 : 0.96 }}
       onClick={handleClick}
       disabled={isDisabled}
+      className={cn(
+        "group relative px-4 py-2 rounded-full text-xs font-medium",
+        "bg-gradient-to-br from-background via-background to-primary/5",
+        "border border-border/40 shadow-sm",
+        "transition-all duration-300 ease-out",
+        "flex items-center gap-2",
+        !isDisabled && "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 cursor-pointer",
+        isDisabled && "opacity-50 cursor-not-allowed"
+      )}
     >
-      {Icon && <Icon className="w-4 h-4" />}
-      {chip.label}
-    </Button>
+      {Icon && (
+        <span className={cn(
+          "transition-colors duration-200",
+          "text-muted-foreground group-hover:text-primary"
+        )}>
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+      )}
+      <span className="text-foreground">{chip.label}</span>
+    </motion.button>
   );
 
   if (chip.tooltip) {
@@ -92,16 +97,18 @@ export const AgentSuggestionChips = ({ chips, className }: AgentSuggestionChipsP
   const visibleChips = chips.slice(0, 5);
 
   return (
-    <div className={cn("w-full animate-fade-in", className)}>
-      <div className="flex items-center justify-center gap-2 flex-wrap">
-        {visibleChips.map((chip, index) => (
-          <SuggestionChipButton 
-            key={`${chip.label}-${index}`} 
-            chip={chip} 
-            index={index}
-          />
-        ))}
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn("flex flex-wrap justify-center gap-2", className)}
+    >
+      {visibleChips.map((chip, index) => (
+        <SuggestionChipButton 
+          key={`${chip.label}-${index}`} 
+          chip={chip} 
+          index={index}
+        />
+      ))}
+    </motion.div>
   );
 };

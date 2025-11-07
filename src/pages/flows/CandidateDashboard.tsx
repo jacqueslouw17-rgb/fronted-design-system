@@ -123,12 +123,12 @@ const CandidateDashboard = () => {
   const suggestionChips = [
     {
       label: "Any Updates?",
-      action: () => toast.info("Checking for updates..."),
+      onAction: () => toast.info("Checking for updates..."),
       disabled: true,
     },
     {
       label: "Ask Kurt",
-      action: () => toast.info("Opening Kurt chat..."),
+      onAction: () => toast.info("Opening Kurt chat..."),
       disabled: true,
     },
   ];
