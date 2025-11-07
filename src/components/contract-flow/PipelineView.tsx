@@ -1451,6 +1451,31 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               )}
                             </div>
                           )}
+                          
+                          {/* Certified Column - Show certified badge and download button */}
+                          {status === "CERTIFIED" && (
+                            <div className="pt-2 space-y-2">
+                              <Badge 
+                                variant="outline" 
+                                className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Certified
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="w-full text-xs h-7"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toast.success(`Certificate downloaded for ${contractor.name}`);
+                                }}
+                              >
+                                <Download className="h-3 w-3 mr-1" />
+                                Download Certificate
+                              </Button>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     </motion.div>
