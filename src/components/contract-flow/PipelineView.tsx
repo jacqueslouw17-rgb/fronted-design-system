@@ -142,7 +142,7 @@ const statusConfig = {
     label: "Certified",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-    tooltip: "All contractors ready for payroll processing",
+    tooltip: "Contracts & compliance completed ✅",
   },
 };
 
