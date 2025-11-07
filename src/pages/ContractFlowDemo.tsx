@@ -31,6 +31,9 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { KurtIntroTooltip } from "@/components/contract-flow/KurtIntroTooltip";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
+import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
+import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
+import { useContractorStore } from "@/hooks/useContractorStore";
 
 const ContractFlowDemo = () => {
   const navigate = useNavigate();
@@ -47,6 +50,8 @@ const ContractFlowDemo = () => {
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const { contractors } = useContractorStore();
 
   const userData = {
     firstName: "Joe",
@@ -65,19 +70,55 @@ const ContractFlowDemo = () => {
       });
     }
 
-    // Open the agent panel
-    setOpen(true);
+    // Open the chat sidebar for "any-updates" and "ask-kurt" actions
+    if (action === 'any-updates' || action === 'ask-kurt') {
+      setIsChatOpen(true);
+    } else {
+      // Open the agent panel for other actions
+      setOpen(true);
+    }
     
     // Set loading state
     setLoading(true);
 
     // Simulate processing with delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     // Generate contextual response based on action
     let response = '';
     
     switch(action) {
+      case 'any-updates':
+        response = generateAnyUpdatesMessage(contractors.length > 0 ? contractors : [
+          {
+            id: "display-1",
+            name: "Liam Chen",
+            country: "Singapore",
+            countryFlag: "🇸🇬",
+            role: "Frontend Developer",
+            salary: "SGD 7,500/mo",
+            status: "offer-accepted" as const,
+            formSent: false,
+            dataReceived: false,
+            employmentType: "contractor" as const,
+          },
+          {
+            id: "display-2",
+            name: "Sofia Rodriguez",
+            country: "Mexico",
+            countryFlag: "🇲🇽",
+            role: "Marketing Manager",
+            salary: "MXN 45,000/mo",
+            status: "data-pending" as const,
+            formSent: true,
+            dataReceived: false,
+            employmentType: "employee" as const,
+          },
+        ]);
+        break;
+      case 'ask-kurt':
+        response = generateAskKurtMessage();
+        break;
       case 'quick-summary':
         response = `✅ Contract Summary Complete\n\nI checked all required fields — looks good!\n\nKey Terms:\n• Salary: [to be filled]\n• Start Date: [to be filled]\n• Notice Period: [to be filled]\n• PTO: [to be filled]\n\nWant me to auto-fill missing data from the candidate record?`;
         break;
@@ -458,10 +499,12 @@ const ContractFlowDemo = () => {
                                 {
                                   label: "Any Updates?",
                                   variant: "default",
+                                  onAction: () => handleKurtAction('any-updates'),
                                 },
                                 {
                                   label: "Ask Kurt",
                                   variant: "default",
+                                  onAction: () => handleKurtAction('ask-kurt'),
                                 },
                               ]}
                             />
@@ -876,6 +919,9 @@ const ContractFlowDemo = () => {
             </div>
           </div>
         </AgentLayout>
+
+        {/* Kurt Chat Sidebar */}
+        <KurtChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </main>
     </div>
   </RoleLensProvider>
