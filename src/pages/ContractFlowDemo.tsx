@@ -529,18 +529,22 @@ const ContractFlowDemo = () => {
                           )}
                           showInput={false}
                           tags={
-                            <AgentSuggestionChips
-                              chips={[
-                                {
-                                  label: "Any Updates?",
-                                  variant: "default",
-                                },
-                                {
-                                  label: "Ask Kurt",
-                                  variant: "default",
-                                },
-                              ]}
-                            />
+                            <div className="flex items-center justify-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-4 rounded-lg text-sm font-normal bg-background/80 hover:bg-primary/5 border border-border/40 transition-all"
+                              >
+                                Any Updates?
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-4 rounded-lg text-sm font-normal bg-background/80 hover:bg-primary/5 border border-border/40 transition-all"
+                              >
+                                Ask Kurt
+                              </Button>
+                            </div>
                           }
                         />
                       )}
