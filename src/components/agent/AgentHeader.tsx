@@ -138,7 +138,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
             )}
             
             {/* Contextual Tags */}
-            {tags && <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ marginTop: showInput ? undefined : '0' }}>
+            {tags && <div className="flex items-center justify-center gap-3 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ marginTop: showInput ? undefined : '0' }}>
                 {tags}
               </div>}
           </>
