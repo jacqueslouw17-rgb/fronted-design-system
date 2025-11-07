@@ -63,6 +63,7 @@ interface PipelineViewProps {
   onDraftContract?: (contractorIds: string[]) => void;
   onSignatureComplete?: () => void;
   filterNonCertified?: boolean;
+  mode?: "certified" | "payroll-ready";
 }
 
 const statusConfig = {
@@ -139,22 +140,42 @@ const statusConfig = {
     tooltip: "Blocked - requires attention",
   },
   "payroll-ready": {
-    label: "Certified",
+    label: "Payroll Ready",
     color: "bg-accent-green-fill/30 border-accent-green-outline/20",
     badgeColor: "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
     tooltip: "Contracts & compliance completed ✅",
   },
 };
 
-const columns = [
+type ColumnKey =
+  | "offer-accepted"
+  | "data-pending"
+  | "drafting"
+  | "awaiting-signature"
+  | "trigger-onboarding"
+  | "onboarding-pending"
+  | "payroll-ready"
+  | "CERTIFIED";
+
+const COLUMNS_MERGED: ReadonlyArray<ColumnKey> = [
   "offer-accepted",
   "data-pending",
   "drafting",
   "awaiting-signature",
   "trigger-onboarding",
   "onboarding-pending",
-  "payroll-ready", // Single column for all payroll statuses
-] as const;
+  "payroll-ready",
+];
+
+const COLUMNS_CERTIFIED: ReadonlyArray<ColumnKey> = [
+  "offer-accepted",
+  "data-pending",
+  "drafting",
+  "awaiting-signature",
+  "trigger-onboarding",
+  "onboarding-pending",
+  "CERTIFIED",
+];
 
 // Payroll statuses that show within the payroll-ready column
 const payrollStatuses = ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"] as const;
@@ -166,7 +187,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onDraftContract,
   onSignatureComplete,
   filterNonCertified = false,
-}) => {
+  mode = "certified",
+const columns = mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
   const { createBatch, batches } = usePayrollBatch();
   const { updateMetrics } = usePayrollState();
@@ -1038,7 +1060,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certified column */}
                         <div className="flex items-start gap-2">
-                          {!["data-pending", "payroll-ready"].includes(status) && 
+                          {!["data-pending", "payroll-ready", "CERTIFIED"].includes(status) && 
                            !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && (
                             <Checkbox
                               checked={
