@@ -146,7 +146,8 @@ You can ask me about:
                   title={`Welcome, Joe, get to work!`}
                   subtitle="Your dashboard is ready for action."
                   showPulse={true}
-                  simplified={true}
+                  showInput={false}
+                  simplified={false}
                   tags={
                     <div className="flex gap-2">
                       <Button
