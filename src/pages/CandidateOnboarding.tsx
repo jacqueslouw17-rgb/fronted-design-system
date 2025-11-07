@@ -162,7 +162,7 @@ const CandidateOnboarding = () => {
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             className="text-center space-y-3 max-w-2xl"
           >
-            <h1 className="text-3xl font-bold text-foreground">{`Hi ${allFormData.fullName?.split(' ')[0] || "there"}! Just a few details to complete your profile`}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{`Hi ${allFormData.fullName?.split(' ')[0] || "there"}! Let's complete your profile`}</h1>
             <p className={`text-base text-center transition-colors duration-300 ${isSpeaking ? "text-foreground/80" : "text-muted-foreground"}`}>
               Let's gather a few more details to get your onboarding started smoothly.
             </p>
