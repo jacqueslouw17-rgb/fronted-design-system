@@ -906,10 +906,72 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     });
   };
   
+  const handleAddToBatchFromCertified = (contractor: Contractor) => {
+    // Update contractor status to PAYROLL_PENDING
+    const updated = contractors.map(c =>
+      c.id === contractor.id
+        ? { ...c, status: "PAYROLL_PENDING" as const }
+        : c
+    );
+    setContractors(updated);
+    onContractorUpdate?.(updated);
+    
+    // Add to batch selection
+    setBatchSelectedIds(prev => new Set(prev).add(contractor.id));
+    
+    toast.success(`Added ${contractor.name} to batch`, {
+      description: "Ready to process in next payroll cycle"
+    });
+  };
+  
   const handleOpenBatchReview = () => {
-    if (getBatchSelectedCount() > 0) {
-      navigate('/payroll/batch/current');
+    const selectedContractors = contractors.filter(c => 
+      c.status === "PAYROLL_PENDING" && batchSelectedIds.has(c.id)
+    );
+    
+    if (selectedContractors.length === 0) {
+      toast.error("No contractors selected for batch");
+      return;
     }
+    
+    // Create payees from selected contractors
+    const payees: PayrollPayee[] = selectedContractors.map(contractor => {
+      const salaryAmount = parseFloat(contractor.salary.replace(/[^0-9.]/g, ''));
+      const currency = contractor.salary.match(/[A-Z]{3}/)?.[0] || 'USD';
+      
+      return {
+        workerId: contractor.id,
+        name: contractor.name,
+        countryCode: contractor.country.slice(0, 2).toUpperCase(),
+        currency: currency,
+        gross: salaryAmount,
+        employerCosts: salaryAmount * 0.15,
+        adjustments: [],
+        status: "IN_BATCH" as const,
+      };
+    });
+    
+    // Create or get existing batch
+    const period = new Date().toISOString().slice(0, 7);
+    let batchId: string;
+    
+    if (batches.length > 0 && batches[batches.length - 1].status === "Draft") {
+      batchId = batches[batches.length - 1].id;
+    } else {
+      batchId = createBatch(period, payees, "admin-001");
+    }
+    
+    // Update contractor statuses to IN_BATCH
+    const updatedContractors = contractors.map(c =>
+      batchSelectedIds.has(c.id) && c.status === "PAYROLL_PENDING"
+        ? { ...c, status: "IN_BATCH" as const }
+        : c
+    );
+    setContractors(updatedContractors);
+    onContractorUpdate?.(updatedContractors);
+    
+    // Navigate to batch review page
+    navigate(`/payroll/batch/current?batchId=${batchId}`);
   };
 
   return (
@@ -1329,10 +1391,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                     className="w-full text-xs h-7"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleBatchSelectContractor(contractor.id, true);
-                                      toast.success(`Added ${contractor.name} to batch`, {
-                                        description: "Ready to process in next payroll cycle"
-                                      });
+                                      handleAddToBatchFromCertified(contractor);
                                     }}
                                   >
                                     <Plus className="h-3 w-3 mr-1" />
