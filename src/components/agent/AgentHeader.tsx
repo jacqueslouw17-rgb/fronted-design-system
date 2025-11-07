@@ -20,6 +20,7 @@ interface AgentHeaderProps {
   isMuted?: boolean;
   onMuteToggle?: () => void;
   tags?: React.ReactNode;
+  simplified?: boolean;
 }
 export const AgentHeader: React.FC<AgentHeaderProps> = ({
   title = "Welcome back",
@@ -34,7 +35,8 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
   progressIndicator,
   isMuted = false,
   onMuteToggle,
-  tags
+  tags,
+  simplified = false
 }) => {
   const [inputValue, setInputValue] = useState('');
   const {
@@ -101,7 +103,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
                 {subtitle}
               </span>}
           </p>
-          {onMuteToggle && <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />}
+          {onMuteToggle && !simplified && <KurtMuteToggle isMuted={isMuted} onToggle={onMuteToggle} />}
         </div>
       </div>
 
@@ -110,7 +112,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
           {progressIndicator}
         </div>}
 
-      {/* Chat Input */}
+      {/* Chat Input or Simplified Tags */}
       <motion.div initial={{
       opacity: 0,
       y: 10
@@ -120,19 +122,39 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
     }} transition={{
       delay: 0.2
     }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5 sm:py-2">
-            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isSubmitting} className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8 sm:h-9" />
-            <Button type="submit" size="icon" disabled={!inputValue.trim() || isSubmitting} className="h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0 touch-manipulation min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0">
-              {isSubmitting ? <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
-            </Button>
+        {simplified ? (
+          // Simplified mode: Show disabled tags
+          <div className="flex items-center justify-center gap-2">
+            <div 
+              className="px-3.5 py-1.5 rounded-full bg-[#F3F4F6] text-[#6B7280] text-sm font-medium cursor-default"
+              title="Coming soon"
+            >
+              Any Updates?
+            </div>
+            <div 
+              className="px-3.5 py-1.5 rounded-full bg-[#F3F4F6] text-[#6B7280] text-sm font-medium cursor-default"
+              title="Coming soon"
+            >
+              Ask Kurt
+            </div>
           </div>
-        </form>
-        
-        {/* Contextual Tags */}
-        {tags && <div className="flex items-center justify-center overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-            {tags}
-          </div>}
+        ) : (
+          <>
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="relative flex items-center gap-1.5 bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow px-2 py-1.5 sm:py-2">
+                <Input value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isSubmitting} className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground h-8 sm:h-9" />
+                <Button type="submit" size="icon" disabled={!inputValue.trim() || isSubmitting} className="h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-primary hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0 touch-manipulation min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0">
+                  {isSubmitting ? <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                </Button>
+              </div>
+            </form>
+            
+            {/* Contextual Tags */}
+            {tags && <div className="flex items-center justify-center overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                {tags}
+              </div>}
+          </>
+        )}
       </motion.div>
     </motion.div>;
 };

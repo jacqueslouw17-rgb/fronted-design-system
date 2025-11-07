@@ -209,33 +209,10 @@ const DashboardAdmin = () => {
               <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-20 sm:pb-32 space-y-6 sm:space-y-8 relative z-10">
                 {/* Agent Header */}
                 <AgentHeader
-                  title={welcomeTitle}
-                  subtitle="Let's finalize contracts and complete onboarding."
+                  title={`Welcome, Joe, get to work!`}
+                  subtitle="Your dashboard is ready for action."
                   showPulse={true}
-                  isActive={false}
-                  isMuted={isKurtMuted}
-                  onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-                  tags={
-                    <div className="flex flex-wrap justify-center gap-2 px-4 mt-2">
-                      {[
-                        { id: 'track-progress', label: 'Track Progress' },
-                        { id: 'resend-link', label: 'Resend Link' },
-                        { id: 'mark-complete', label: 'Mark Complete' }
-                      ].map((tag) => (
-                        <motion.button
-                          key={tag.id}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ scale: 1.04, y: -2 }}
-                          whileTap={{ scale: 0.96 }}
-                          onClick={() => handleKurtAction(tag.id)}
-                          className="group relative px-3 py-1.5 rounded-full text-xs font-normal bg-background/60 hover:bg-primary/[0.03] hover:border-primary/30 border border-border/30 backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                        >
-                          <span className="text-foreground">{tag.label}</span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  }
+                  simplified={true}
                 />
 
                 {/* People Pipeline Tracking - Full Width */}
