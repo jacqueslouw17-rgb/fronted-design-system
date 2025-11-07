@@ -7,11 +7,13 @@ import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import { useWorkerFlowBridge } from "@/hooks/useWorkerFlowBridge";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 
 import WorkerStep1Welcome from "@/components/flows/worker-onboarding/WorkerStep1Welcome";
 import WorkerStep2Personal from "@/components/flows/worker-onboarding/WorkerStep2Personal";
@@ -34,7 +36,7 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 
 const WorkerOnboarding = () => {
   const navigate = useNavigate();
-  const { setIsSpeaking: setAgentSpeaking } = useAgentState();
+  const { setIsSpeaking: setAgentSpeaking, setOpen } = useAgentState();
   
   // Use persistent store
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useWorkerFlowBridge();
@@ -142,6 +144,24 @@ const WorkerOnboarding = () => {
 
   const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
 
+  const suggestionChips = [
+    {
+      label: "Any Updates?",
+      onAction: () => {
+        setOpen(true);
+        toast("Opening Kurt to check for updates...");
+      },
+      disabled: false,
+    },
+    {
+      label: "Ask Kurt",
+      onAction: () => {
+        setOpen(true);
+      },
+      disabled: false,
+    },
+  ];
+
   return (
     <AgentLayout context="Worker Onboarding">
       <main className="flex min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
@@ -174,33 +194,14 @@ const WorkerOnboarding = () => {
       >
 
         {/* Header with Agent */}
-        <div className="flex flex-col items-center space-y-6 mb-8">
-          {/* Agent Pulse - centered with gentle animation */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex justify-center"
-            style={{ maxHeight: '240px' }}
-          >
-            <AudioWaveVisualizer isActive={isSpeaking} />
-          </motion.div>
-
-            {/* Title and Subtitle Container */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-              className="text-center space-y-3 max-w-2xl"
-            >
-              <h1 className="text-3xl font-bold text-foreground">Candidate Onboarding</h1>
-              <p className={`text-base text-center transition-colors duration-300 ${
-                isSpeaking ? "text-foreground/80" : "text-muted-foreground"
-              }`}>
-                It's go time! Review, confirm, and welcome your new hire onboard.
-              </p>
-            </motion.div>
-        </div>
+        <AgentHeader
+          title="Hi Maria! Let's complete your onboarding"
+          subtitle="Review, confirm, and welcome your new hire onboard."
+          showPulse={true}
+          isActive={isSpeaking}
+          showInput={false}
+          tags={<AgentSuggestionChips chips={suggestionChips} />}
+        />
 
         {/* Progress bar */}
         <div>

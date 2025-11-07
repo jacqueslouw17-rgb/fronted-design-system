@@ -17,6 +17,7 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import ProgressBar from "@/components/ProgressBar";
 import { usePayrollSync } from "@/hooks/usePayrollSync";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
+import { useAgentState } from "@/hooks/useAgentState";
 import { cn } from "@/lib/utils";
 
 const CandidateDashboard = () => {
@@ -29,6 +30,7 @@ const CandidateDashboard = () => {
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const [checklistRequirements, setChecklistRequirements] = useState<any[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
+  const { setOpen } = useAgentState();
 
   // Collapsible states
   const [onboardingOpen, setOnboardingOpen] = useState(true);
@@ -123,13 +125,18 @@ const CandidateDashboard = () => {
   const suggestionChips = [
     {
       label: "Any Updates?",
-      onAction: () => toast.info("Checking for updates..."),
-      disabled: true,
+      onAction: () => {
+        setOpen(true);
+        toast.info("Opening Kurt to check for updates...");
+      },
+      disabled: false,
     },
     {
       label: "Ask Kurt",
-      onAction: () => toast.info("Opening Kurt chat..."),
-      disabled: true,
+      onAction: () => {
+        setOpen(true);
+      },
+      disabled: false,
     },
   ];
 
