@@ -68,13 +68,6 @@ const StepCard = ({
             id={headerId}
           >
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className={`h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
-                status === "completed" 
-                  ? "bg-primary/20 text-primary" 
-                  : "bg-white/25 text-foreground"
-              }`}>
-                {stepNumber}
-              </div>
             </div>
             <div className="flex-shrink-0 ml-2">
               {getStatusBadge()}
@@ -104,17 +97,6 @@ const StepCard = ({
       >
       <div className="flex justify-between items-center gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-          <div
-            className={`h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-250 flex-shrink-0 motion-reduce:transition-none ${
-              status === "completed"
-                ? "bg-primary/20 text-primary"
-                : status === "active"
-                ? "bg-white/15 text-foreground group-hover:bg-white/20"
-                : "bg-white/8 text-foreground/50"
-            }`}
-          >
-            {stepNumber}
-          </div>
         </div>
         <div className="flex-shrink-0">
           {getStatusBadge()}
