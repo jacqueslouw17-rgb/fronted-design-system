@@ -25,7 +25,7 @@ export const AgentLayout: React.FC<AgentLayoutProps> = ({ children, context }) =
           width: open && window.innerWidth >= 1024 ? '70%' : '100%',
         }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="h-full w-full lg:w-auto overflow-hidden"
+        className="h-full w-full lg:w-auto overflow-y-auto"
       >
         {children}
       </motion.div>
