@@ -1,23 +1,7 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
-  Users, 
-  DollarSign, 
-  FileCheck, 
-  TrendingUp, 
-  Clock, 
-  AlertCircle,
-  CheckCircle2, 
-  X,
-  Download,
-  MessageSquare,
-  ExternalLink,
-  BarChart3,
-  GitBranch
-} from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,124 +10,12 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
-import { usePayrollBatch } from "@/hooks/usePayrollBatch";
-import { usePayrollState } from "@/hooks/usePayrollState";
-import { useContractorStore } from "@/hooks/useContractorStore";
-
-interface Worker {
-  id: string;
-  name: string;
-  country: string;
-  countryFlag: string;
-  role: string;
-  status: "certified";
-  avatarUrl?: string;
-}
-
-// Empty state for first time users
-const mockWorkers: Worker[] = [];
 
 // Mock contractors for pipeline view - empty state for first time
 const mockContractors: any[] = [];
 
-// Metric Widget Component with hover toolbar
-const MetricWidget = ({ title, value, trend, icon: Icon, onAskGenie, onExport, onDetails }: any) => {
-  const [showToolbar, setShowToolbar] = useState(false);
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      onMouseEnter={() => setShowToolbar(true)}
-      onMouseLeave={() => setShowToolbar(false)}
-      className="relative"
-    >
-      <Card className="hover:shadow-lg transition-all h-full border border-border/40 bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Icon className="h-4 w-4 text-primary" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{value}</div>
-          <p className={`text-xs mt-1 ${trend.startsWith('+') ? 'text-accent' : trend.startsWith('-') ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-            {trend} from last month
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Hover Micro-Toolbar */}
-      <AnimatePresence>
-        {showToolbar && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-2 right-2 flex gap-1 bg-card/95 backdrop-blur-sm border border-border rounded-lg p-1 shadow-lg z-10"
-          >
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-7 w-7"
-              onClick={onAskGenie}
-            >
-              <MessageSquare className="h-3.5 w-3.5" />
-            </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-7 w-7"
-              onClick={onExport}
-            >
-              <Download className="h-3.5 w-3.5" />
-            </Button>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-7 w-7"
-              onClick={onDetails}
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-};
-
 const DashboardAdmin = () => {
   const navigate = useNavigate();
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
-  const { batches, currentBatchId } = usePayrollBatch();
-  const { metrics } = usePayrollState();
-  const { contractors, getInBatchCount, getCertifiedCount, getPayrollCount } = useContractorStore();
-  
-  // Check if user just completed onboarding
-  const searchParams = new URLSearchParams(window.location.search);
-  const isFirstTime = searchParams.get('onboarding') === 'complete';
-  
-  const welcomeTitle = isFirstTime ? "Welcome onboard, Joe! 🎉" : "Welcome Joe, get to work!";
-
-  // Get latest batch data
-  const latestBatch = batches.length > 0 ? batches[batches.length - 1] : null;
-  
-  // Reactive metrics - all update automatically when contractor status changes
-  const payrollCount = getPayrollCount(); // IN_BATCH + EXECUTING + PAID
-  const inBatchCount = getInBatchCount();
-  const certifiedCount = getCertifiedCount();
-  const totalContractors = contractors.length;
-  const complianceScore = totalContractors > 0 
-    ? Math.round((certifiedCount / totalContractors) * 100) 
-    : 0;
-  
-  // Unresolved exceptions from live payroll state
-  const unresolvedExceptions = metrics.unresolvedExceptions;
-  
-  const fxVariance = metrics.fxVariance.toFixed(2);
-
-  const pendingApprovals = batches.filter(b => b.status === "AwaitingApproval").length;
 
   const handleKurtAction = async (action: string) => {
     const { useAgentState } = await import('@/hooks/useAgentState');
@@ -215,101 +87,32 @@ const DashboardAdmin = () => {
                   simplified={true}
                 />
 
-                {/* People Pipeline Tracking - Full Width */}
+                {/* Pipeline View */}
                 <div className="space-y-4">
-                  <Tabs defaultValue="pipeline" className="w-full">
-                    <TabsList className="grid w-64 grid-cols-2 mx-auto mb-6 rounded-xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm">
-                      <TabsTrigger value="list" data-testid="tab-metrics">
-                        <BarChart3 className="h-4 w-4" />
-                        Metrics
-                      </TabsTrigger>
-                      <TabsTrigger value="pipeline" data-testid="tab-pipeline">
-                        <GitBranch className="h-4 w-4" />
-                        Pipeline View
-                      </TabsTrigger>
-                    </TabsList>
+                  {/* Pipeline Heading */}
+                  <div className="max-w-5xl mx-auto">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Pipeline Overview</h2>
+                    <div className="h-px bg-border/40 mb-6" />
+                  </div>
 
-                    <TabsContent value="list" className="space-y-6">
-                      <div className="max-w-5xl mx-auto">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {/* This Month's Payroll - Count of IN_BATCH + EXECUTING + PAID */}
-                          <MetricWidget
-                            title="This Month Payroll"
-                            value={payrollCount.toString()}
-                            trend={payrollCount > 0 ? `${payrollCount} contractor${payrollCount !== 1 ? 's' : ''} in payroll cycle` : "No contractors in payroll"}
-                            icon={DollarSign}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => navigate('/payroll/batch/current')}
-                          />
-                          
-                          {/* Pending Actions - Count of Exceptions */}
-                          <MetricWidget
-                            title="Pending Actions"
-                            value={unresolvedExceptions.toString()}
-                            trend={unresolvedExceptions > 0 ? `${unresolvedExceptions} exception${unresolvedExceptions !== 1 ? 's' : ''} need resolution` : "All clear"}
-                            icon={AlertCircle}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => navigate('/payroll/batch/current?step=exceptions')}
-                          />
-
-                          {/* Compliance Score - Certified / Total */}
-                          <MetricWidget
-                            title="Compliance Score"
-                            value={`${complianceScore}%`}
-                            trend={totalContractors > 0 ? `${certifiedCount} of ${totalContractors} certified` : "No contractors yet"}
-                            icon={CheckCircle2}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => navigate('/flows/contract-flow?filter=non-certified')}
-                          />
-                          
-                          {/* FX Variance */}
-                          <MetricWidget
-                            title="FX Variance"
-                            value={`${parseFloat(fxVariance) >= 0 ? '+' : ''}${fxVariance}%`}
-                            trend="vs base currency"
-                            icon={TrendingUp}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => console.log('Details')}
-                          />
-                          
-                          {/* Last Batch Status */}
-                          <MetricWidget
-                            title="Last Batch Status"
-                            value={latestBatch?.status || "No Batch"}
-                            trend={latestBatch ? `Created ${new Date(latestBatch.createdAt).toLocaleDateString()}` : "Create first batch"}
-                            icon={FileCheck}
-                            onAskGenie={() => console.log('Ask Genie')}
-                            onExport={() => console.log('Export')}
-                            onDetails={() => latestBatch && navigate(`/payroll/batch?id=${latestBatch.id}`)}
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="pipeline">
-                      {mockContractors.length === 0 ? (
-                        <div className="max-w-5xl mx-auto">
-                          <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
-                            <CardContent className="flex flex-col items-center justify-center py-12">
-                              <div className="rounded-full bg-muted p-4 mb-4">
-                                <Users className="h-8 w-8 text-muted-foreground" />
-                              </div>
-                              <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
-                              <p className="text-sm text-muted-foreground text-center max-w-md">
-                                Send your first offer to a contractor to see them in your pipeline.
-                              </p>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      ) : (
-                        <PipelineView contractors={mockContractors} />
-                      )}
-                    </TabsContent>
-                  </Tabs>
+                  {/* Pipeline Content */}
+                  {mockContractors.length === 0 ? (
+                    <div className="max-w-5xl mx-auto">
+                      <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
+                        <CardContent className="flex flex-col items-center justify-center py-12">
+                          <div className="rounded-full bg-muted p-4 mb-4">
+                            <Users className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
+                          <p className="text-sm text-muted-foreground text-center max-w-md">
+                            Send your first offer to a contractor to see them in your pipeline.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <PipelineView contractors={mockContractors} />
+                  )}
                 </div>
               </div>
             </main>
