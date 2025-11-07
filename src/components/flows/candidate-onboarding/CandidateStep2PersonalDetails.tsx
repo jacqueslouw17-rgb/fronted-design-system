@@ -64,10 +64,8 @@ const CandidateStep2PersonalDetails = ({
   const isValid = data.fullName && data.email && data.idType && data.idNumber && data.taxResidence && data.nationality && data.address && data.bankName && data.accountNumber;
   return <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Missing Details</h3>
-        <p className="text-sm text-muted-foreground">
-          Please confirm your details and fill in any missing information.
-        </p>
+        
+        
       </div>
 
       {isLoadingFields ? <div className="space-y-4">
