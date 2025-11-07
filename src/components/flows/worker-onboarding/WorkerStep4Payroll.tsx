@@ -1,15 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { bankDetailsSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { toast } from "sonner";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Step4Props {
   formData: Record<string, any>;
@@ -20,10 +17,6 @@ interface Step4Props {
 
 const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingFields }: Step4Props) => {
   const isContractor = formData.employmentType === "contractor";
-  // Check if we have persisted data (revisiting step)
-  const hasPersistedData = formData && formData.bankName;
-  const [isAutoFilling, setIsAutoFilling] = useState(false);
-  const [autoFilledFields, setAutoFilledFields] = useState<string[]>([]);
   
   const [data, setData] = useState({
     bankName: formData.bankName || "",
@@ -34,42 +27,8 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
     invoiceRuleConfirmed: formData.invoiceRuleConfirmed || false
   });
 
-  // Auto-fill from ATS on mount for employees - ONLY if no persisted data
-  useEffect(() => {
-    if (!isContractor && !hasPersistedData) {
-      setIsAutoFilling(true);
-      // No auto TTS
-      
-      // Total animation time: 5 fields * 0.15s = 0.75s + 0.4s fade + 0.2s buffer = ~1.35s
-      setTimeout(() => {
-        const atsData = {
-          bankName: formData.country === "Philippines" ? "BDO Unibank" : "Wells Fargo",
-          accountNumber: "1234567890",
-          swiftBic: formData.country === "Philippines" ? "BNORPHMM" : "WFBIUS6S",
-          iban: formData.country === "Philippines" ? "" : "GB82WEST12345698765432"
-        };
-        
-        setData(prev => ({ ...prev, ...atsData }));
-        setAutoFilledFields(["bankName", "accountNumber", "swiftBic", "iban"]);
-        setIsAutoFilling(false);
-      }, 2300); // Increased to match sequential fade timing
-    } else if (hasPersistedData) {
-      // Mark persisted fields
-      const persistedFields = [];
-      if (formData.bankName) persistedFields.push("bankName");
-      if (formData.accountNumber) persistedFields.push("accountNumber");
-      if (formData.swiftBic) persistedFields.push("swiftBic");
-      if (formData.iban) persistedFields.push("iban");
-      setAutoFilledFields(persistedFields);
-    }
-  }, [isContractor, formData.country, hasPersistedData, formData.bankName, formData.accountNumber, formData.swiftBic, formData.iban]);
-
   const handleInputChange = (field: string, value: string) => {
     setData({ ...data, [field]: value });
-    // Remove auto-fill indicator when user edits
-    if (autoFilledFields.includes(field)) {
-      setAutoFilledFields(autoFilledFields.filter(f => f !== field));
-    }
   };
 
   const handleContinue = () => {
@@ -95,56 +54,6 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
   const isValid = isContractor 
     ? data.invoiceRuleConfirmed 
     : (data.bankName && data.accountNumber && data.payAcknowledged);
-
-  if (isLoadingFields || isAutoFilling) {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="loading"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="space-y-6 p-6">
-            <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <AudioWaveVisualizer isActive={true} />
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4 }}
-                className="text-center space-y-2"
-              >
-                <h3 className="text-lg font-semibold">Retrieving your details</h3>
-                <p className="text-sm text-muted-foreground">Please wait a moment</p>
-              </motion.div>
-            </div>
-            
-            <div className="space-y-4">
-              {[0, 1, 2, 3, 4].map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 1, y: 0 }}
-                  exit={{ 
-                    opacity: 0, 
-                    y: -6,
-                    transition: {
-                      duration: 0.4,
-                      delay: index * 0.15,
-                      ease: "easeOut"
-                    }
-                  }}
-                  className="space-y-2"
-                >
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
 
   if (isContractor) {
     return (
@@ -206,24 +115,13 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Payroll Details</h3>
         <p className="text-sm text-muted-foreground">
-          {autoFilledFields.length > 0 
-            ? "Some of your details were pre-filled from your company's ATS."
-            : "Enter your bank details to receive salary payments."
-          }
+          Enter your bank details to receive salary payments.
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="bankName">Bank Name *</Label>
-            {autoFilledFields.includes("bankName") && (
-              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </span>
-            )}
-          </div>
+          <Label htmlFor="bankName">Bank Name *</Label>
           <Input
             id="bankName"
             value={data.bankName}
@@ -233,15 +131,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="accountNumber">Account Number / IBAN *</Label>
-            {autoFilledFields.includes("accountNumber") && (
-              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </span>
-            )}
-          </div>
+          <Label htmlFor="accountNumber">Account Number / IBAN *</Label>
           <Input
             id="accountNumber"
             value={data.accountNumber}
@@ -251,15 +141,7 @@ const WorkerStep4Payroll = ({ formData, onComplete, isProcessing, isLoadingField
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="swiftBic">SWIFT / BIC Code</Label>
-            {autoFilledFields.includes("swiftBic") && (
-              <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </span>
-            )}
-          </div>
+          <Label htmlFor="swiftBic">SWIFT / BIC Code</Label>
           <Input
             id="swiftBic"
             value={data.swiftBic}
