@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, Briefcase, Shield } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
+import { ContractCarousel } from "./ContractCarousel";
+import { ContextualBadge } from "./ContextualBadge";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
@@ -162,6 +164,112 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     };
   }, [candidate, handleKurtAction]);
 
+  // Carousel pages
+  const carouselPages = [
+    {
+      id: "summary",
+      title: "Page 1: Summary & Compensation",
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Position</p>
+              <p className="text-sm font-medium text-foreground">{candidate.role}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Salary</p>
+              <p className="text-sm font-medium text-foreground">{candidate.salary}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Start Date</p>
+              <p className="text-sm font-medium text-foreground">{candidate.startDate}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">PTO</p>
+              <p className="text-sm font-medium text-foreground">{candidate.pto}</p>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground mb-2">Benefits Package</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <Briefcase className="h-3 w-3 text-primary" />
+                <span className="text-foreground">Standard health coverage</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <Shield className="h-3 w-3 text-primary" />
+                <span className="text-foreground">Professional development budget</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "legal",
+      title: "Page 2: Legal & Compliance Clauses",
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-xs font-medium text-foreground">Clause 6: Overtime Pay</p>
+                <ContextualBadge
+                  text="AI Context"
+                  explanation={`Overtime pay adjusted for ${candidate.country}. Want to sync this across NO/XK for parity?`}
+                  onApplyGlobally={() => console.log("Apply globally")}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Overtime compensation follows {candidate.country} labor law standards.
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-xs font-medium text-foreground mb-2">IP Assignment</p>
+              <p className="text-xs text-muted-foreground">
+                All intellectual property created during employment belongs to the company.
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border">
+              <p className="text-xs font-medium text-foreground mb-2">Notice Period</p>
+              <p className="text-xs text-muted-foreground">
+                {candidate.noticePeriod} notice required as per local regulations.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "signoff",
+      title: "Page 3: Sign-off & Signatures",
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <p className="text-xs font-medium text-foreground mb-2">Employer Signature</p>
+            <div className="h-16 border-b-2 border-dashed border-border mb-2 flex items-end pb-2">
+              <span className="text-sm italic text-muted-foreground">Company Representative</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Date: {new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+            <p className="text-xs font-medium text-foreground mb-2">Employee Signature</p>
+            <div className="h-16 border-b-2 border-dashed border-border mb-2 flex items-end pb-2">
+              <span className="text-sm italic text-muted-foreground">{candidate.name}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">To be signed via: {candidate.signingPortal}</p>
+          </div>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-success/5 border border-success/20">
+            <FileText className="h-4 w-4 text-success" />
+            <p className="text-xs text-muted-foreground">
+              Contract ready for review and signature
+            </p>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <AgentHeader
@@ -302,6 +410,16 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                 ))}
               </div>
             </Card>
+
+            {/* Carousel navigation */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-4"
+            >
+              <ContractCarousel pages={carouselPages} />
+            </motion.div>
 
             <Button
               onClick={() => {
