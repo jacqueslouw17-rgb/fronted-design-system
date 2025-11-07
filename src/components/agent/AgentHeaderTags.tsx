@@ -1,6 +1,7 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { AlertCircle, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AgentHeaderTagsProps {
   onAnyUpdates: () => void;
@@ -14,27 +15,58 @@ export const AgentHeaderTags: React.FC<AgentHeaderTagsProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`flex gap-3 ${className}`}>
-      <Button
-        variant="ghost"
-        size="sm"
+    <div className={`flex gap-2 ${className}`}>
+      <motion.button
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ scale: 1.04, y: -2 }}
+        whileTap={{ scale: 0.96 }}
         onClick={onAnyUpdates}
-        className="rounded-full h-10 px-5 gap-2 border border-primary/40 text-foreground bg-background/95 backdrop-blur-sm shadow-[0_12px_28px_-12px_hsl(var(--primary)/0.45)] hover:bg-primary/5 hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-all"
+        className={cn(
+          "group relative px-4 py-2 rounded-full text-xs font-medium",
+          "bg-gradient-to-br from-background via-background to-primary/5",
+          "border border-border/40 shadow-sm",
+          "transition-all duration-300 ease-out",
+          "flex items-center gap-2",
+          "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
+        )}
         aria-label="Any Updates"
       >
-        <AlertCircle className="h-3 w-3 text-primary" />
-        <span className="text-sm font-medium">Any Updates?</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
+        <span className={cn(
+          "transition-colors duration-200",
+          "text-muted-foreground group-hover:text-primary"
+        )}>
+          <AlertCircle className="h-3.5 w-3.5" />
+        </span>
+        <span className="text-foreground">Any Updates?</span>
+      </motion.button>
+      
+      <motion.button
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08, duration: 0.3 }}
+        whileHover={{ scale: 1.04, y: -2 }}
+        whileTap={{ scale: 0.96 }}
         onClick={onAskKurt}
-        className="rounded-full h-10 px-5 gap-2 border border-border/50 text-foreground bg-gradient-to-b from-background/95 to-primary/10 shadow-[0_10px_24px_-12px_hsl(var(--primary)/0.35)] hover:to-primary/20 hover:border-primary/30 hover:scale-105 transition-all"
+        className={cn(
+          "group relative px-4 py-2 rounded-full text-xs font-medium",
+          "bg-gradient-to-br from-background via-background to-primary/5",
+          "border border-border/40 shadow-sm",
+          "transition-all duration-300 ease-out",
+          "flex items-center gap-2",
+          "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
+        )}
         aria-label="Ask Kurt"
       >
-        <Sparkles className="h-3 w-3 text-muted-foreground" />
-        <span className="text-sm font-medium">Ask Kurt</span>
-      </Button>
+        <span className={cn(
+          "transition-colors duration-200",
+          "text-muted-foreground group-hover:text-primary"
+        )}>
+          <Sparkles className="h-3.5 w-3.5" />
+        </span>
+        <span className="text-foreground">Ask Kurt</span>
+      </motion.button>
     </div>
   );
 };
