@@ -124,7 +124,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
         y: 0
       }} transition={{
         delay: 0.2
-      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0 -mt-2">
+      }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0 -mt-4">
           <>
             {showInput && (
               <form onSubmit={handleSubmit} className="relative">
