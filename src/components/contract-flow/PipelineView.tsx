@@ -1096,6 +1096,21 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </Button>
                   </div>
                 )}
+                
+                {/* Open Batch Review Button - Only for payroll-ready column */}
+                {status === "payroll-ready" && (
+                  <div className="mt-2">
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-9 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium"
+                      disabled={getBatchSelectedCount() === 0}
+                      onClick={handleOpenBatchReview}
+                    >
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
+                      Open Batch Review {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Column Body */}
@@ -1481,19 +1496,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     </motion.div>
                     ))}
                   </AnimatePresence>
-                  
-                  {/* Open Batch Review Button - Only for payroll-ready column */}
-                  {status === "payroll-ready" && (
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-9 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium mt-3"
-                      disabled={getBatchSelectedCount() === 0}
-                      onClick={handleOpenBatchReview}
-                    >
-                      <FileText className="h-3.5 w-3.5 mr-1.5" />
-                      Open Batch Review {getBatchSelectedCount() > 0 && `(${getBatchSelectedCount()})`}
-                    </Button>
-                  )}
                 </div>
               </motion.div>
             );
