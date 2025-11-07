@@ -73,13 +73,8 @@ const StepCard = ({
                   ? "bg-primary/20 text-primary" 
                   : "bg-white/25 text-foreground"
               }`}>
-                {status === "completed" ? (
-                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                ) : (
-                  stepNumber
-                )}
+                {stepNumber}
               </div>
-              <h3 className={`font-semibold text-sm sm:text-base truncate ${status === "completed" ? "text-foreground/70" : "text-foreground"}`}>{title}</h3>
             </div>
             <div className="flex-shrink-0 ml-2">
               {getStatusBadge()}
@@ -118,19 +113,8 @@ const StepCard = ({
                 : "bg-white/8 text-foreground/50"
             }`}
           >
-            {status === "completed" ? (
-              <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform duration-250 motion-reduce:transition-none" />
-            ) : (
-              stepNumber
-            )}
+            {stepNumber}
           </div>
-          <p className={`font-medium text-xs sm:text-sm truncate ${
-            status === "completed" 
-              ? "text-foreground/70" 
-              : status === "active"
-              ? "text-foreground"
-              : "text-foreground"
-          }`}>{title}</p>
         </div>
         <div className="flex-shrink-0">
           {getStatusBadge()}
