@@ -30,7 +30,7 @@ const CandidateDashboard = () => {
   const [isKurtMuted, setIsKurtMuted] = useState(false);
   const [checklistRequirements, setChecklistRequirements] = useState<any[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
-  const { setOpen } = useAgentState();
+  const { setOpen, simulateResponse } = useAgentState();
 
   // Collapsible states
   const [onboardingOpen, setOnboardingOpen] = useState(true);
@@ -125,9 +125,9 @@ const CandidateDashboard = () => {
   const suggestionChips = [
     {
       label: "Any Updates?",
-      onAction: () => {
+      onAction: async () => {
         setOpen(true);
-        toast.info("Opening Kurt to check for updates...");
+        await simulateResponse("Any updates on my onboarding progress?");
       },
       disabled: false,
     },
