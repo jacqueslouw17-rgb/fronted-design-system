@@ -75,21 +75,32 @@ const WorkerOnboarding = () => {
   };
 
   const handleStepComplete = async (stepId: string, data?: Record<string, any>) => {
-    setIsProcessing(true);
+    // Check if this is the final step
+    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
+    const isFinalStep = currentIndex === FLOW_STEPS.length - 1;
+    
+    // Skip loading animation for final step
+    if (!isFinalStep) {
+      setIsProcessing(true);
+    }
     
     if (data) {
       updateFormData(data);
     }
 
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Only delay for non-final steps
+    if (!isFinalStep) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
 
     completeStep(stepId);
-    setIsProcessing(false);
-
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
     
-    if (currentIndex === FLOW_STEPS.length - 1) {
-      // Final step - show completion
+    if (!isFinalStep) {
+      setIsProcessing(false);
+    }
+    
+    if (isFinalStep) {
+      // Final step - show completion directly with smooth fade
       confetti({
         particleCount: 100,
         spread: 70,

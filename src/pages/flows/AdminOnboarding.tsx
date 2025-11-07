@@ -148,7 +148,6 @@ const AdminOnboarding = () => {
     // Navigate to dashboard (step 7)
     if ((lowerTranscript.includes("dashboard") || lowerTranscript.includes("let's go") || lowerTranscript.includes("lets go")) && state.currentStep === "finish_dashboard_transition") {
       stopListening();
-      setIsProcessing(true);
       resetTranscript();
       handleDashboardNavigation();
     }
@@ -357,8 +356,7 @@ const AdminOnboarding = () => {
   };
 
   const handleDashboardNavigation = async () => {
-    setIsProcessing(true);
-    
+    // Skip loading state for final transition - use smooth fade instead
     const loadingMessage = "Perfect! Saving your settings and opening your dashboard now.";
     handleSpeak(loadingMessage, async () => {
       // Save all onboarding data to database
@@ -385,8 +383,8 @@ const AdminOnboarding = () => {
         console.error("Error saving onboarding data:", error);
       }
       
-      // Navigate to dashboard
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Navigate to dashboard with smooth transition (no loader)
+      await new Promise(resolve => setTimeout(resolve, 250));
       navigate('/dashboard?onboarding=complete');
     });
     
