@@ -1583,7 +1583,7 @@ export default function PayrollBatchCurrent() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/flows/contract-flow')}
+          onClick={() => navigate(-1)}
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
