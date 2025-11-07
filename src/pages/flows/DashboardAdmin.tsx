@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -91,14 +92,33 @@ const DashboardAdmin = () => {
                 {mockContractors.length === 0 ? (
                   <div className="max-w-4xl mx-auto">
                     <Card className="border border-border/20 bg-background/60 backdrop-blur-sm shadow-sm">
-                      <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-                        <div className="rounded-full bg-primary/5 p-5 mb-5">
-                          <Users className="h-10 w-10 text-primary/40" />
+                      <CardContent className="flex flex-col items-center justify-center py-20 px-6">
+                        {/* Icon with subtle background */}
+                        <div className="rounded-full bg-primary/5 p-6 mb-6">
+                          <Users className="h-12 w-12 text-primary/40" />
                         </div>
-                        <h3 className="text-xl font-semibold mb-2 text-foreground">No contractors yet</h3>
-                        <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
-                          Your pipeline is empty. Start by sending your first offer to a contractor.
+                        
+                        {/* Headline */}
+                        <h3 className="text-2xl font-semibold mb-3 text-foreground">
+                          Your pipeline is ready.
+                        </h3>
+                        
+                        {/* Subtext */}
+                        <p className="text-[15px] text-[#6B7280] text-center max-w-lg leading-relaxed mb-6">
+                          Once contracts are finalized, your first records will appear here. You'll be able to track onboarding, payroll, and compliance progress in real time.
                         </p>
+                        
+                        {/* Disabled CTA Button */}
+                        <div className="relative">
+                          <Button 
+                            variant="ghost" 
+                            disabled
+                            className="cursor-not-allowed opacity-50"
+                            title="This action will be available once the pilot setup is complete."
+                          >
+                            Add First Contract
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
