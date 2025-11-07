@@ -76,7 +76,7 @@ const StepCard = ({
                 </div>
               )}
               <div className="truncate">
-                <h3 className="font-semibold text-foreground truncate">{title}</h3>
+                <h3 className="text-sm font-semibold text-foreground truncate">{title}</h3>
               </div>
             </div>
             <div className="flex-shrink-0 ml-2">
@@ -115,7 +115,7 @@ const StepCard = ({
             </div>
           )}
           <div className="truncate">
-            <h3 className="font-medium text-foreground/90 truncate">{title}</h3>
+            <h3 className="text-sm font-medium text-foreground/90 truncate">{title}</h3>
           </div>
         </div>
         <div className="flex-shrink-0">
