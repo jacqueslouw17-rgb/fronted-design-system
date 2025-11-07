@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, MessageCircle, BellRing } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,30 +10,44 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
+import { Button } from "@/components/ui/button";
+import { useContractorStore } from "@/hooks/useContractorStore";
+import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 
 // Mock contractors for pipeline view - empty state for first time
 const mockContractors: any[] = [];
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const { contractors } = useContractorStore();
 
   const handleKurtAction = async (action: string) => {
     const { useAgentState } = await import('@/hooks/useAgentState');
-    const { addMessage, setLoading, setOpen } = useAgentState.getState();
+    const { addMessage, setLoading } = useAgentState.getState();
+    
+    // Open chat sidebar
+    setIsChatOpen(true);
     
     addMessage({
       role: 'user',
       text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     });
 
-    setOpen(true);
     setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     let response = '';
     
     switch(action) {
+      case 'any-updates':
+        response = generateAnyUpdatesMessage(contractors);
+        break;
+      case 'ask-kurt':
+        response = generateAskKurtMessage();
+        break;
       case 'track-progress':
         response = "📊 Latest Onboarding Stats\n\nHere's the latest onboarding completion stats for your team:\n\n✅ 3 contractors fully certified\n🔄 2 contractors in onboarding (avg. 67% complete)\n⏳ 1 contractor awaiting signature\n📝 2 contractors drafting contracts\n\nMaria Santos is at 80% completion. Want me to send her a reminder?";
         break;
@@ -85,6 +99,28 @@ const DashboardAdmin = () => {
                   subtitle="Your dashboard is ready for action."
                   showPulse={true}
                   simplified={true}
+                  tags={
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleKurtAction('any-updates')}
+                        className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                      >
+                        <BellRing className="h-3.5 w-3.5" />
+                        Any Updates?
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleKurtAction('ask-kurt')}
+                        className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        Ask Kurt
+                      </Button>
+                    </div>
+                  }
                 />
 
                 {/* Pipeline Content */}
@@ -109,6 +145,9 @@ const DashboardAdmin = () => {
             </main>
             <FloatingKurtButton />
           </AgentLayout>
+
+          {/* Kurt Chat Sidebar */}
+          <KurtChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
