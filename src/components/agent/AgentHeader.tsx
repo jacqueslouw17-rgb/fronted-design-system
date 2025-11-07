@@ -124,7 +124,7 @@ export const AgentHeader: React.FC<AgentHeaderProps> = ({
     }} className="w-full max-w-xl space-y-2 sm:space-y-3 px-4 sm:px-0">
         {simplified ? (
           // Simplified mode: Show disabled tags with glassy design
-          <div className="flex items-center justify-center gap-3 mt-1.5">
+          <div className="flex items-center justify-center gap-3 mt-2">
             <div 
               className="px-4 py-1.5 rounded-full text-[#6B7280] text-sm font-medium cursor-default transition-all duration-250 ease-out hover:bg-white/60"
               style={{
