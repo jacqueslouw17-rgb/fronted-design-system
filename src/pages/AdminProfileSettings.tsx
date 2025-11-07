@@ -92,8 +92,10 @@ const AdminProfileSettings = () => {
       const mappedMiniRules = miniRules.data ? 
         miniRules.data.map(rule => ({
           id: rule.id,
-          type: rule.rule_type,
-          description: rule.description
+          tag: rule.rule_type as any,
+          triggerType: rule.trigger_type as any || "threshold",
+          description: rule.description,
+          linkedAction: rule.linked_action || undefined
         })) : [];
 
       setFormData({
@@ -204,7 +206,9 @@ const AdminProfileSettings = () => {
             const rulesToInsert = data.miniRules.map((rule: any) => ({
               user_id: currentUserId,
               rule_type: rule.tag || rule.type,
-              description: rule.description
+              trigger_type: rule.triggerType,
+              description: rule.description,
+              linked_action: rule.linkedAction || null
             }));
             
             if (rulesToInsert.length > 0) {
@@ -245,7 +249,12 @@ const AdminProfileSettings = () => {
     
     // For mini-rules, check if rules array exists and has items
     if (sectionId === "mini-rules") {
-      return sectionData?.rules?.length > 0 ? "completed" : "completed";
+      return (sectionData?.rules && Array.isArray(sectionData.rules) && sectionData.rules.length > 0) ? "completed" : "completed";
+    }
+    
+    // For localization, check selectedCountries
+    if (sectionId === "localization") {
+      return (sectionData?.selectedCountries && sectionData.selectedCountries.length > 0) ? "completed" : "completed";
     }
     
     // For other sections, check if they have data
@@ -279,7 +288,7 @@ const AdminProfileSettings = () => {
       case "mini-rules":
         return (
           <Step5MiniRules
-            formData={{ miniRules: formData.miniRules.rules || [] }}
+            formData={{ miniRules: formData.miniRules?.rules || [] }}
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
             isProcessing={isSaving}

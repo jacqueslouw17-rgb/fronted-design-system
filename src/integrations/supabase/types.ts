@@ -43,7 +43,9 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          linked_action: string | null
           rule_type: string
+          trigger_type: string | null
           updated_at: string
           user_id: string
         }
@@ -51,7 +53,9 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          linked_action?: string | null
           rule_type: string
+          trigger_type?: string | null
           updated_at?: string
           user_id: string
         }
@@ -59,7 +63,9 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          linked_action?: string | null
           rule_type?: string
+          trigger_type?: string | null
           updated_at?: string
           user_id?: string
         }
