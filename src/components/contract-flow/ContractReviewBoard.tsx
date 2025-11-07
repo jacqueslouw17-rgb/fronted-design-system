@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, DollarSign, Calendar, Clock } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { AgentHeader } from "@/components/agent/AgentHeader";
-import KurtMuteToggle from "@/components/shared/KurtMuteToggle";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
@@ -28,7 +27,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   const [globalComment, setGlobalComment] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
-  const [isKurtMuted, setIsKurtMuted] = useState(false);
   const { isSpeaking: isAgentSpeaking } = useAgentState();
 
   return (
@@ -43,25 +41,19 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         subtitle="Kurt can help with: highlighting changes, checking compliance, or previewing contracts."
         showPulse={true}
         isActive={isAgentSpeaking}
-        isMuted={isKurtMuted}
-        onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+        showInput={false}
         tags={
           <AgentSuggestionChips
             chips={[
               {
                 label: "Highlight Changes",
-                variant: "primary",
+                variant: "default",
                 onAction: () => console.log('Review action: highlight-changes'),
               },
               {
-                label: "Check Compliance",
+                label: "Ask Kurt",
                 variant: "default",
-                onAction: () => console.log('Review action: check-compliance'),
-              },
-              {
-                label: "Preview Contracts",
-                variant: "default",
-                onAction: () => console.log('Review action: preview-contracts'),
+                onAction: () => console.log('Review action: ask-kurt'),
               },
             ]}
           />
