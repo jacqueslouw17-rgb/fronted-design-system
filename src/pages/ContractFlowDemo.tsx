@@ -731,25 +731,19 @@ const ContractFlowDemo = () => {
                           subtitle="Kurt can help with: adding documents, reviewing bundles, or checking compliance."
                           showPulse={true}
                           isActive={(isSpeaking || isAgentSpeaking) || !hasSpokenPhase["bundle-creation"]}
-                          isMuted={isKurtMuted}
-                          onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
+                          showInput={false}
                           tags={
                             <AgentSuggestionChips
                               chips={[
                                 {
-                                  label: "Add Documents",
-                                  variant: "primary",
-                                  onAction: () => handleKurtAction("add-documents"),
-                                },
-                                {
-                                  label: "Review Bundle",
-                                  variant: "default",
-                                  onAction: () => handleKurtAction("review-bundle"),
-                                },
-                                {
                                   label: "Check Compliance",
                                   variant: "default",
                                   onAction: () => handleKurtAction("check-compliance"),
+                                },
+                                {
+                                  label: "Ask Kurt",
+                                  variant: "default",
+                                  onAction: () => setOpen(true),
                                 },
                               ]}
                             />
