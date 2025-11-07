@@ -204,10 +204,19 @@ const CandidateOnboarding = () => {
             const isCompleted = state.completedSteps.includes(step.id);
             const isCurrent = state.currentStep === step.id;
             const isExpanded = expandedStep === step.id;
-            const canExpand = isCompleted || isCurrent;
+            const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
+            const stepIndex = FLOW_STEPS.findIndex(s => s.id === step.id);
+            const isLocked = stepIndex > currentStepIndex && !isCompleted;
             
-            // Determine status
-            const status = isCompleted ? "completed" : isCurrent ? "active" : "pending";
+            // Determine status - match admin onboarding pattern
+            let status: "inactive" | "active" | "completed" = "inactive";
+            if (isCompleted) {
+              status = "completed";
+            } else if (isCurrent) {
+              status = "active";
+            } else if (stepIndex <= currentStepIndex) {
+              status = "completed"; // Already passed steps should be completed
+            }
 
             return (
               <StepCard
@@ -215,9 +224,9 @@ const CandidateOnboarding = () => {
                 title={step.title}
                 stepNumber={step.stepNumber}
                 status={status}
-                isLocked={status === 'pending'}
+                isLocked={isLocked}
                 isExpanded={isExpanded}
-                onClick={() => canExpand && handleStepClick(step.id)}
+                onClick={() => !isLocked && handleStepClick(step.id)}
               >
                 {isExpanded && (
                   <div 
