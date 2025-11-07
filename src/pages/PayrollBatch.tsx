@@ -8,13 +8,15 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
+import { Button } from "@/components/ui/button";
+import { BellRing, MessageCircle } from "lucide-react";
+import FloatingKurtButton from "@/components/FloatingKurtButton";
 
 const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
-  const { isSpeaking } = useAgentState();
+  const { isSpeaking, addMessage, setLoading, setOpen } = useAgentState();
 
   const userData = {
     firstName: "Joe",
@@ -22,6 +24,47 @@ const PayrollBatch: React.FC = () => {
     email: "joe@example.com",
     country: "United States",
     role: "admin"
+  };
+
+  const handleKurtAction = async (action: string) => {
+    addMessage({
+      role: 'user',
+      text: action.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    });
+
+    setOpen(true);
+    setLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 1200));
+
+    let response = '';
+    
+    if (action === 'any-updates') {
+      response = `📊 Payroll Status Update\n\n✅ 2 contractors ready for batch\n🔄 2 contractors in current batch\n⚡ 1 contractor executing payment\n💰 1 contractor paid (last month)\n⏸️ 1 contractor on hold\n\nYou have 2 contractors ready to be added to the current payroll batch.`;
+    } else if (action === 'ask-kurt') {
+      response = `I'm here to help you with payroll! 
+      
+You can ask me about:
+
+💱 FX rates and currency conversions
+📋 Compliance checks and requirements
+💸 Payment execution and timing
+🔍 Batch review and adjustments
+⚠️ Exception handling
+
+**Try asking:**
+• "What's the total for this batch?"
+• "Any compliance issues?"
+• "Show me FX rates"
+• "When will payments execute?"`;
+    }
+
+    addMessage({
+      role: 'kurt',
+      text: response,
+    });
+
+    setLoading(false);
   };
 
   return (
@@ -64,22 +107,28 @@ const PayrollBatch: React.FC = () => {
                       title={`Welcome ${userData.firstName}, review payroll`}
                       subtitle="Kurt can help with: FX rates, compliance checks, or payment execution."
                       showPulse={true}
-                      isActive={isSpeaking}
-                      enableWordHighlight={true}
-                      showInput={false}
+                      simplified={true}
                       tags={
-                        <AgentSuggestionChips
-                          chips={[
-                            {
-                              label: "Any Updates?",
-                              variant: "default",
-                            },
-                            {
-                              label: "Ask Kurt",
-                              variant: "default",
-                            },
-                          ]}
-                        />
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleKurtAction('any-updates')}
+                            className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                          >
+                            <BellRing className="h-3.5 w-3.5" />
+                            Any Updates?
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleKurtAction('ask-kurt')}
+                            className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            Ask Kurt
+                          </Button>
+                        </div>
                       }
                     />
 
@@ -185,6 +234,7 @@ const PayrollBatch: React.FC = () => {
                 </motion.div>
               </div>
             </div>
+            <FloatingKurtButton />
           </AgentLayout>
         </main>
       </div>
