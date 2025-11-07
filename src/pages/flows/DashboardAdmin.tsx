@@ -87,33 +87,24 @@ const DashboardAdmin = () => {
                   simplified={true}
                 />
 
-                {/* Pipeline View */}
-                <div className="space-y-4">
-                  {/* Pipeline Heading */}
-                  <div className="max-w-5xl mx-auto">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Pipeline Overview</h2>
-                    <div className="h-px bg-border/40 mb-6" />
+                {/* Pipeline Content */}
+                {mockContractors.length === 0 ? (
+                  <div className="max-w-4xl mx-auto">
+                    <Card className="border border-border/20 bg-background/60 backdrop-blur-sm shadow-sm">
+                      <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+                        <div className="rounded-full bg-primary/5 p-5 mb-5">
+                          <Users className="h-10 w-10 text-primary/40" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2 text-foreground">No contractors yet</h3>
+                        <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
+                          Your pipeline is empty. Start by sending your first offer to a contractor.
+                        </p>
+                      </CardContent>
+                    </Card>
                   </div>
-
-                  {/* Pipeline Content */}
-                  {mockContractors.length === 0 ? (
-                    <div className="max-w-5xl mx-auto">
-                      <Card className="border-dashed border-border/40 bg-card/50 backdrop-blur-sm">
-                        <CardContent className="flex flex-col items-center justify-center py-12">
-                          <div className="rounded-full bg-muted p-4 mb-4">
-                            <Users className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">No new offers yet</h3>
-                          <p className="text-sm text-muted-foreground text-center max-w-md">
-                            Send your first offer to a contractor to see them in your pipeline.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ) : (
-                    <PipelineView contractors={mockContractors} />
-                  )}
-                </div>
+                ) : (
+                  <PipelineView contractors={mockContractors} />
+                )}
               </div>
             </main>
             <FloatingKurtButton />
