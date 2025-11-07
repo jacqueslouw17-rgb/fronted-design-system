@@ -42,13 +42,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         showPulse={true}
         isActive={isAgentSpeaking}
         showInput={false}
-        tags={
-          <KurtContextualTags
-            flowContext="contract-review"
-            onTagClick={(action) => console.log('Review action:', action)}
-            disabled={false}
-          />
-        }
       />
 
       {/* Review cards */}
