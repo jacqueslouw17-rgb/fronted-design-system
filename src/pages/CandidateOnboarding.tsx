@@ -200,7 +200,7 @@ const CandidateOnboarding = () => {
 
         {/* Step Cards */}
         <div className="space-y-3">
-          {FLOW_STEPS.map((step) => {
+          {FLOW_STEPS.filter(step => step.id === "personal_details").map((step) => {
             const isCompleted = state.completedSteps.includes(step.id);
             const isCurrent = state.currentStep === step.id;
             const isExpanded = expandedStep === step.id;
@@ -238,7 +238,7 @@ const CandidateOnboarding = () => {
                         onComplete={handleStepComplete}
                         isProcessing={isProcessing}
                         isLoadingFields={isLoadingFields}
-                        buttonText="Continue"
+                        buttonText="Send Form"
                       />
                     )}
                     {step.id === "compliance" && (
