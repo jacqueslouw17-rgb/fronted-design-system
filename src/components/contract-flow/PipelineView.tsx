@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1288,33 +1288,85 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </div>
                           )}
 
-                          {/* Certified Column - All contractors show same badge and action */}
+                          {/* Payroll Ready Column - Different UI based on payroll status */}
                           {status === "payroll-ready" && (
                             <div className="pt-2 space-y-2">
-                              {/* Certified Badge for all contractors in this column */}
-                              <Badge 
-                                variant="outline" 
-                                className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
-                              >
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Certified
-                              </Badge>
+                              {contractor.status === "CERTIFIED" && (
+                                <>
+                                  <Badge 
+                                    variant="outline" 
+                                    className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
+                                  >
+                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    Payroll Ready
+                                  </Badge>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full text-xs h-7"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleBatchSelectContractor(contractor.id, true);
+                                      toast.success(`Added ${contractor.name} to batch`, {
+                                        description: "Ready to process in next payroll cycle"
+                                      });
+                                    }}
+                                  >
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    Add to Batch
+                                  </Button>
+                                </>
+                              )}
                               
-                              {/* Download Certificate button for all contractors */}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full text-xs h-7"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toast.success(`Downloading certificate for ${contractor.name}`, {
-                                    description: "Certificate will be downloaded shortly"
-                                  });
-                                }}
-                              >
-                                <Download className="h-3 w-3 mr-1" />
-                                Download Certificate
-                              </Button>
+                              {contractor.status === "PAYROLL_PENDING" && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="w-full justify-center text-xs bg-primary/10 text-primary border-primary/30"
+                                >
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  In Current Batch
+                                </Badge>
+                              )}
+                              
+                              {contractor.status === "IN_BATCH" && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="w-full justify-center text-xs bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-500/30"
+                                >
+                                  <FileText className="h-3 w-3 mr-1" />
+                                  Batch Created
+                                </Badge>
+                              )}
+                              
+                              {contractor.status === "EXECUTING" && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="w-full justify-center text-xs bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                >
+                                  <Activity className="h-3 w-3 mr-1" />
+                                  Processing
+                                </Badge>
+                              )}
+                              
+                              {contractor.status === "PAID" && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="w-full justify-center text-xs bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-500/30"
+                                >
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Paid
+                                </Badge>
+                              )}
+                              
+                              {contractor.status === "ON_HOLD" && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="w-full justify-center text-xs bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-500/30"
+                                >
+                                  <AlertCircle className="h-3 w-3 mr-1" />
+                                  On Hold
+                                </Badge>
+                              )}
                             </div>
                           )}
                         </CardContent>
