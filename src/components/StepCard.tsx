@@ -28,11 +28,7 @@ const StepCard = ({
 }: StepCardProps) => {
   const getStatusBadge = () => {
     if (isLocked) {
-      return (
-        <Badge variant="secondary" className="bg-muted text-muted-foreground border-0 font-normal">
-          Locked
-        </Badge>
-      );
+      return null;
     }
     
     switch (status) {
