@@ -282,6 +282,8 @@ const Step2OrgProfileSimplified = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="NO">🇳🇴 Norway</SelectItem>
+                <SelectItem value="DK">🇩🇰 Denmark</SelectItem>
+                <SelectItem value="SE">🇸🇪 Sweden</SelectItem>
                 <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
                 <SelectItem value="IN">🇮🇳 India</SelectItem>
                 <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
