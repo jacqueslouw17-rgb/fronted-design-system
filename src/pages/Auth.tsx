@@ -108,7 +108,7 @@ export default function Auth() {
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Logo/Header */}
         <div className="flex justify-center mb-8">
-          <img src={frontedLogo} alt="Fronted Logo" className="h-12 object-contain" />
+          <img src={frontedLogo} alt="Fronted Logo" className="h-10 object-contain" />
         </div>
 
         {/* Main Auth Card */}
