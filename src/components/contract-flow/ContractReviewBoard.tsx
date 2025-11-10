@@ -130,6 +130,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.3 }}
+        className="flex justify-center"
       >
         <Button
           onClick={() => {
@@ -150,7 +151,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
             }, totalDelay);
           }}
           disabled={isSending}
-          className="w-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
+          className="max-w-md bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
           size="lg"
         >
           {isSending ? (
