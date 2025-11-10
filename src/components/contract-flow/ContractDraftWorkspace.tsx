@@ -9,7 +9,6 @@ import { CheckCircle2, Briefcase, Shield, FileText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
-import { ContextualBadge } from "./ContextualBadge";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
@@ -254,10 +253,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     content: <div className="space-y-4">
           <div className="space-y-3">
             <div className="p-3 rounded-lg bg-muted/30 border border-border">
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-xs font-medium text-foreground">Clause 6: Overtime Pay</p>
-                <ContextualBadge text="AI Context" explanation={`Overtime pay adjusted for ${candidate.country}. Want to sync this across NO/XK for parity?`} onApplyGlobally={() => console.log("Apply globally")} />
-              </div>
+              <p className="text-xs font-medium text-foreground mb-2">Clause 6: Overtime Pay</p>
               <p className="text-xs text-muted-foreground">
                 Overtime compensation follows {candidate.country} labor law standards.
               </p>
