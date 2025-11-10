@@ -129,13 +129,13 @@ export const ContractSignaturePhase: React.FC<ContractSignaturePhaseProps> = ({
         isActive={isAgentSpeaking}
         isMuted={isKurtMuted}
         onMuteToggle={() => setIsKurtMuted(!isKurtMuted)}
-        tags={
-          <KurtContextualTags
-            flowContext="signature-phase"
-            onTagClick={(action) => console.log('Signature action:', action)}
-            disabled={false}
-          />
-        }
+        // tags={
+        //   <KurtContextualTags
+        //     flowContext="signature-phase"
+        //     onTagClick={(action) => console.log('Signature action:', action)}
+        //     disabled={false}
+        //   />
+        // }
       />
 
       {/* Genie message */}

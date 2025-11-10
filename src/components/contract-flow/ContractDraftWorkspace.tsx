@@ -278,19 +278,19 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         showPulse={true}
         isActive={isAgentSpeaking}
         showInput={false}
-        tags={
-          <KurtContextualTags
-            flowContext="contract-workspace"
-            onTagClick={(action) => {
-              if (action === "ask-kurt") {
-                setOpen(true);
-              } else {
-                handleKurtAction(action);
-              }
-            }}
-            disabled={false}
-          />
-        }
+        // tags={
+        //   <KurtContextualTags
+        //     flowContext="contract-workspace"
+        //     onTagClick={(action) => {
+        //       if (action === "ask-kurt") {
+        //         setOpen(true);
+        //       } else {
+        //         handleKurtAction(action);
+        //       }
+        //     }}
+        //     disabled={false}
+        //   />
+        // }
       />
       <motion.div
         initial={{ opacity: 0 }}
