@@ -9,7 +9,6 @@ import { Loader2, Sparkles, Shield, Zap } from "lucide-react";
 import { authSchema, signInSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import KurtAvatar from "@/components/KurtAvatar";
 import frontedLogo from "@/assets/fronted-logo.png";
 
 export default function Auth() {
@@ -122,9 +121,6 @@ export default function Auth() {
             {/* Kurt Introduction */}
             <div className="p-6 pb-4 border-b border-border/30">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <KurtAvatar size="sm" />
-                </div>
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold text-foreground mb-1">
                     {isSignUp ? "Welcome to Fronted!" : "Welcome back!"}
