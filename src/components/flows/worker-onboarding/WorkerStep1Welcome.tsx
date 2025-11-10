@@ -88,8 +88,8 @@ const WorkerStep1Welcome = ({ formData, onComplete, isProcessing = false, isLoad
           <AuthOptions onComplete={handleAuthComplete} isProcessing={isProcessing} />
         )}
 
-        {/* Preferred Language */}
-        <div className="space-y-2 pt-2 border-t border-border/40">
+        {/* Preferred Language - Hidden for now */}
+        {/* <div className="space-y-2 pt-2 border-t border-border/40">
           <div className="flex items-center gap-2">
             <Globe className="h-3.5 w-3.5 text-primary" />
             <Label htmlFor="language" className="text-sm">
@@ -115,7 +115,7 @@ const WorkerStep1Welcome = ({ formData, onComplete, isProcessing = false, isLoad
               </SelectContent>
             </Select>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Action Button */}
