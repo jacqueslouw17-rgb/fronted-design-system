@@ -41,8 +41,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
 
   const completedItems = [
     { label: "Organization profile", icon: CheckCircle2, done: !!formData.companyName },
-    { label: "Country blocks loaded", icon: CheckCircle2, done: !!formData.selectedCountries },
-    { label: "Mini-Rules configured", icon: CheckCircle2, done: !!formData.miniRules }
+    { label: "Country blocks loaded", icon: CheckCircle2, done: !!formData.selectedCountries }
   ];
 
   return (
