@@ -290,7 +290,7 @@ const CandidateDashboard = () => {
                                       >
                                         <div className="flex items-start gap-3">
                                           {getStatusIcon(step.status)}
-                                          <div className="flex-1 space-y-1">
+                                          <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center justify-between gap-4">
                                               <p className={cn(
                                                 "text-sm font-medium",
@@ -358,7 +358,7 @@ const CandidateDashboard = () => {
                                       >
                                         <div className="flex items-start gap-3">
                                           {getStatusIcon(step.status)}
-                                          <div className="flex-1 space-y-1">
+                                          <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center justify-between gap-4">
                                               <p className={cn(
                                                 "text-sm font-medium",
