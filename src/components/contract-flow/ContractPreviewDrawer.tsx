@@ -139,7 +139,7 @@ const ContractPreviewDrawer: React.FC<ContractPreviewDrawerProps> = ({
                 {section.heading && (
                   <h3 className={`font-semibold ${
                     index === 0 
-                      ? "text-xl mb-6 text-muted-foreground" 
+                      ? "text-xl mb-1 text-muted-foreground" 
                       : "text-sm text-foreground"
                   }`}>
                     {section.heading}
