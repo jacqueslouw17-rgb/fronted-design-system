@@ -321,24 +321,28 @@ const Step2OrgProfileSimplified = ({
                 <Button
                   variant="outline"
                   role="combobox"
-                  className="w-full justify-between text-sm h-auto min-h-10 py-2"
+                  className="w-full justify-between text-sm h-auto min-h-10 py-2 hover:bg-accent/50 transition-colors"
                 >
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
                       data.payrollCurrency.map((currency) => (
-                        <Badge
+                        <span
                           key={currency}
-                          variant="secondary"
-                          className="text-xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
-                            handleFieldChange('payrollCurrency', newCurrencies);
-                          }}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20"
                         >
                           {currency}
-                          <X className="ml-1 h-3 w-3" />
-                        </Badge>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
+                              handleFieldChange('payrollCurrency', newCurrencies);
+                            }}
+                            className="hover:bg-primary/20 rounded-sm p-0.5 transition-colors"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </span>
                       ))
                     ) : (
                       <span className="text-muted-foreground">Select currencies</span>
@@ -348,7 +352,7 @@ const Step2OrgProfileSimplified = ({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
-                <div className="p-2 space-y-1">
+                <div className="p-1.5 space-y-0.5">
                   {[
                     { value: "NOK", label: "NOK - Norwegian Krone" },
                     { value: "DKK", label: "DKK - Danish Krone" },
@@ -363,7 +367,7 @@ const Step2OrgProfileSimplified = ({
                     return (
                       <div
                         key={currency.value}
-                        className="flex items-center space-x-2 p-2 hover:bg-accent rounded cursor-pointer"
+                        className="flex items-center space-x-2.5 px-2.5 py-2 hover:bg-primary/5 rounded-md cursor-pointer transition-colors group"
                         onClick={() => {
                           const currentCurrencies = Array.isArray(data.payrollCurrency) ? data.payrollCurrency : [];
                           const newCurrencies = isSelected
@@ -375,8 +379,9 @@ const Step2OrgProfileSimplified = ({
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => {}}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <label className="text-sm cursor-pointer flex-1">
+                        <label className="text-sm cursor-pointer flex-1 text-foreground group-hover:text-primary transition-colors">
                           {currency.label}
                         </label>
                       </div>
