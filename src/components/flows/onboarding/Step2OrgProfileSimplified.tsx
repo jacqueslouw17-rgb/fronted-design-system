@@ -483,27 +483,16 @@ const Step2OrgProfileSimplified = ({
         </div>
         
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="frequency" className="text-sm">Payroll Frequency</Label>
-            <Select
-              value={data.payrollFrequency}
-              onValueChange={(val) => handleFieldChange('payrollFrequency', val)}
-            >
-              <SelectTrigger className="text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-            {data.payrollFrequency && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Info className="h-3 w-3" />
-                {getFrequencyHint(data.payrollFrequency)}
+          <div className="flex items-start gap-2.5 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Monthly payroll frequency
               </p>
-            )}
+              <p className="text-xs text-blue-700/80 dark:text-blue-300/70">
+                We currently support monthly payroll cycles. This ensures consistent processing and makes it easier to manage your team's payments.
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">
