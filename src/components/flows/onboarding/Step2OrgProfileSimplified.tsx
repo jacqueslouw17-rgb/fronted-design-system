@@ -390,7 +390,7 @@ const Step2OrgProfileSimplified = ({
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="h-4 w-4 text-primary" />
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Payroll Frequency & Payout Schedule
+            Payroll Details
           </h3>
         </div>
         
