@@ -41,7 +41,7 @@ const AdminUserManagement = ({
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "hr-partner"
+    role: "admin"
   });
 
   const handleAddUser = () => {
@@ -59,7 +59,7 @@ const AdminUserManagement = ({
     };
 
     setUsers(prev => [...prev, user]);
-    setNewUser({ name: "", email: "", role: "hr-partner" });
+    setNewUser({ name: "", email: "", role: "admin" });
     setShowAddUser(false);
     
     toast.success(`Invitation sent to ${newUser.email}`);
@@ -136,10 +136,6 @@ const AdminUserManagement = ({
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm">{user.name}</span>
-                      <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-                        {user.role === "admin" && <Shield className="h-3 w-3 mr-1" />}
-                        {user.role.replace("-", " ")}
-                      </Badge>
                       <Badge variant={getStatusBadgeVariant(user.status)} className="text-xs">
                         {user.status}
                       </Badge>
@@ -210,28 +206,6 @@ const AdminUserManagement = ({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="userRole" className="text-sm">
-                  Role <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={newUser.role}
-                  onValueChange={(val) => setNewUser(prev => ({ ...prev, role: val }))}
-                >
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin (Full Access)</SelectItem>
-                    <SelectItem value="hr-partner">HR Partner (Manage People)</SelectItem>
-                    <SelectItem value="viewer">Viewer (Read Only)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Determines access level and permissions
-                </p>
-              </div>
-
               <div className="flex gap-2">
                 <Button 
                   onClick={handleAddUser} 
@@ -244,8 +218,8 @@ const AdminUserManagement = ({
                 <Button 
                   onClick={() => {
                     setShowAddUser(false);
-                    setNewUser({ name: "", email: "", role: "hr-partner" });
-                  }} 
+                    setNewUser({ name: "", email: "", role: "admin" });
+                  }}
                   size="sm" 
                   variant="outline"
                 >
