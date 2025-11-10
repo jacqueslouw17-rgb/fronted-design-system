@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import StandardInput from "./StandardInput";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 interface AuthOptionsProps {
   onComplete: (method: string, data?: Record<string, any>) => void;
@@ -26,9 +27,14 @@ const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => 
 
   return (
     <div className="space-y-4 max-w-md mx-auto">
+      {/* Logo */}
+      <div className="flex justify-center mb-4">
+        <img src={frontedLogo} alt="Fronted Logo" className="h-10 object-contain" />
+      </div>
+      
       <div className="text-center space-y-1.5 mb-6">
-        <h3 className="text-lg font-semibold text-foreground">Create your Fronted account</h3>
-        <p className="text-sm text-muted-foreground">Sign up securely with your work email.</p>
+        <h3 className="text-lg font-semibold text-foreground">Welcome to Fronted</h3>
+        <p className="text-sm text-muted-foreground">Sign in to continue with your onboarding.</p>
       </div>
 
       <div className="space-y-4">
