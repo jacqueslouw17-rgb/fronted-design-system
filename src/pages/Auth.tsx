@@ -236,33 +236,6 @@ export default function Auth() {
               </div>
             </div>
           </motion.div>
-
-          {/* Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 grid grid-cols-3 gap-4"
-          >
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary" />
-              </div>
-              <p className="text-xs text-muted-foreground">Secure & Compliant</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Zap className="h-5 w-5 text-primary" />
-              </div>
-              <p className="text-xs text-muted-foreground">AI-Powered</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-primary" />
-              </div>
-              <p className="text-xs text-muted-foreground">Global Reach</p>
-            </div>
-          </motion.div>
         </div>
       </div>
     </div>
