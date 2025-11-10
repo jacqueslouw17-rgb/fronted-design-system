@@ -291,26 +291,24 @@ const CandidateDashboard = () => {
                                         <div className="flex items-center gap-3">
                                           {getStatusIcon(step.status)}
                                           <div className="flex-1 space-y-0.5">
-                                            <div className="flex items-center justify-between gap-4">
-                                              <p className={cn(
-                                                "text-sm font-medium",
-                                                step.status === "complete" && "line-through text-muted-foreground"
-                                              )}>
-                                                {step.label}
-                                              </p>
-                                              {step.action && step.status !== "pending" && (
-                                                <Button
-                                                  size="sm"
-                                                  variant={step.status === "active" ? "default" : "ghost"}
-                                                  onClick={step.action.onClick}
-                                                  className="shrink-0"
-                                                >
-                                                  {step.action.label}
-                                                </Button>
-                                              )}
-                                            </div>
+                                            <p className={cn(
+                                              "text-sm font-medium",
+                                              step.status === "complete" && "line-through text-muted-foreground"
+                                            )}>
+                                              {step.label}
+                                            </p>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
+                                          {step.action && step.status !== "pending" && (
+                                            <Button
+                                              size="sm"
+                                              variant={step.status === "active" ? "default" : "ghost"}
+                                              onClick={step.action.onClick}
+                                              className="shrink-0"
+                                            >
+                                              {step.action.label}
+                                            </Button>
+                                          )}
                                         </div>
                                       </motion.div>
                                     ))}
@@ -359,26 +357,24 @@ const CandidateDashboard = () => {
                                         <div className="flex items-center gap-3">
                                           {getStatusIcon(step.status)}
                                           <div className="flex-1 space-y-0.5">
-                                            <div className="flex items-center justify-between gap-4">
-                                              <p className={cn(
-                                                "text-sm font-medium",
-                                                step.status === "complete" && "text-muted-foreground"
-                                              )}>
-                                                {step.label}
-                                              </p>
-                                              {step.action && step.status === "complete" && (
-                                                <Button
-                                                  size="sm"
-                                                  variant="ghost"
-                                                  onClick={step.action.onClick}
-                                                  className="shrink-0"
-                                                >
-                                                  {step.action.label}
-                                                </Button>
-                                              )}
-                                            </div>
+                                            <p className={cn(
+                                              "text-sm font-medium",
+                                              step.status === "complete" && "text-muted-foreground"
+                                            )}>
+                                              {step.label}
+                                            </p>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
+                                          {step.action && step.status === "complete" && (
+                                            <Button
+                                              size="sm"
+                                              variant="ghost"
+                                              onClick={step.action.onClick}
+                                              className="shrink-0"
+                                            >
+                                              {step.action.label}
+                                            </Button>
+                                          )}
                                         </div>
                                       </motion.div>
                                     ))}
