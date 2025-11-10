@@ -321,14 +321,14 @@ const Step2OrgProfileSimplified = ({
                 <Button
                   variant="outline"
                   role="combobox"
-                  className="w-full justify-between text-sm h-auto min-h-10 py-2 hover:bg-accent/50 transition-colors"
+                  className="w-full justify-between text-sm h-auto min-h-10 py-2"
                 >
                   <div className="flex flex-wrap gap-1.5">
                     {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
                       data.payrollCurrency.map((currency) => (
                         <span
                           key={currency}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/15 transition-colors"
                         >
                           {currency}
                           <button
@@ -338,7 +338,7 @@ const Step2OrgProfileSimplified = ({
                               const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
                               handleFieldChange('payrollCurrency', newCurrencies);
                             }}
-                            className="hover:bg-primary/20 rounded-sm p-0.5 transition-colors"
+                            className="hover:bg-primary/25 rounded-sm p-0.5 transition-colors"
                           >
                             <X className="h-2.5 w-2.5" />
                           </button>
