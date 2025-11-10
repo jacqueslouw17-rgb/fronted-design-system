@@ -3,7 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Building2, User, Calendar, Loader2, Info, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Building2, User, Calendar, Loader2, Info, Sparkles, ChevronDown, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,7 +40,7 @@ const Step2OrgProfileSimplified = ({
     primaryContactName: formData.primaryContactName || "",
     primaryContactEmail: formData.primaryContactEmail || "",
     hqCountry: formData.hqCountry || "",
-    payrollCurrency: formData.payrollCurrency || "",
+    payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
     payrollFrequency: formData.payrollFrequency || "monthly",
     payoutDay: formData.payoutDay || "25",
   });
@@ -58,7 +60,7 @@ const Step2OrgProfileSimplified = ({
           primaryContactName: formData.primaryContactName || "Joe Smith",
           primaryContactEmail: formData.primaryContactEmail || "joe@fronted.com",
           hqCountry: formData.hqCountry || "NO",
-          payrollCurrency: formData.payrollCurrency || "NOK",
+          payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : ["NOK"]),
           payrollFrequency: formData.payrollFrequency || "monthly",
           payoutDay: formData.payoutDay || "25",
         };
@@ -100,7 +102,7 @@ const Step2OrgProfileSimplified = ({
         primaryContactName: formData.primaryContactName || "",
         primaryContactEmail: formData.primaryContactEmail || "",
         hqCountry: formData.hqCountry || "",
-        payrollCurrency: formData.payrollCurrency || "",
+        payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
         payrollFrequency: formData.payrollFrequency || "monthly",
         payoutDay: formData.payoutDay || "25",
       });
@@ -118,7 +120,9 @@ const Step2OrgProfileSimplified = ({
       newErrors.primaryContactEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    if (!data.payrollCurrency) newErrors.payrollCurrency = "Payroll currency is required";
+    if (!Array.isArray(data.payrollCurrency) || data.payrollCurrency.length === 0) {
+      newErrors.payrollCurrency = "At least one payroll currency is required";
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -151,7 +155,7 @@ const Step2OrgProfileSimplified = ({
     }
   };
 
-  const handleFieldChange = (fieldName: string, value: string) => {
+  const handleFieldChange = (fieldName: string, value: string | string[]) => {
     setData(prev => ({ ...prev, [fieldName]: value }));
     // Remove auto-fill indicator when user edits the field
     if (autoFilledFields.has(fieldName)) {
@@ -299,7 +303,7 @@ const Step2OrgProfileSimplified = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="payrollCurrency" className="text-sm">
-                Payroll Currency <span className="text-destructive">*</span>
+                Payroll Currencies <span className="text-destructive">*</span>
               </Label>
               {autoFilledFields.has('payrollCurrency') && (
                 <motion.span
@@ -312,24 +316,80 @@ const Step2OrgProfileSimplified = ({
                 </motion.span>
               )}
             </div>
-            <Select value={data.payrollCurrency} onValueChange={(val) => handleFieldChange('payrollCurrency', val)}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Select payroll currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NOK">NOK - Norwegian Krone</SelectItem>
-                <SelectItem value="PHP">PHP - Philippine Peso</SelectItem>
-                <SelectItem value="INR">INR - Indian Rupee</SelectItem>
-                <SelectItem value="USD">USD - US Dollar</SelectItem>
-                <SelectItem value="EUR">EUR - Euro</SelectItem>
-                <SelectItem value="GBP">GBP - British Pound</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between text-sm h-auto min-h-10 py-2"
+                >
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
+                      data.payrollCurrency.map((currency) => (
+                        <Badge
+                          key={currency}
+                          variant="secondary"
+                          className="text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
+                            handleFieldChange('payrollCurrency', newCurrencies);
+                          }}
+                        >
+                          {currency}
+                          <X className="ml-1 h-3 w-3" />
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-muted-foreground">Select currencies</span>
+                    )}
+                  </div>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <div className="p-2 space-y-1">
+                  {[
+                    { value: "NOK", label: "NOK - Norwegian Krone" },
+                    { value: "DKK", label: "DKK - Danish Krone" },
+                    { value: "SEK", label: "SEK - Swedish Krona" },
+                    { value: "PHP", label: "PHP - Philippine Peso" },
+                    { value: "INR", label: "INR - Indian Rupee" },
+                    { value: "USD", label: "USD - US Dollar" },
+                    { value: "EUR", label: "EUR - Euro" },
+                    { value: "GBP", label: "GBP - British Pound" },
+                  ].map((currency) => {
+                    const isSelected = Array.isArray(data.payrollCurrency) && data.payrollCurrency.includes(currency.value);
+                    return (
+                      <div
+                        key={currency.value}
+                        className="flex items-center space-x-2 p-2 hover:bg-accent rounded cursor-pointer"
+                        onClick={() => {
+                          const currentCurrencies = Array.isArray(data.payrollCurrency) ? data.payrollCurrency : [];
+                          const newCurrencies = isSelected
+                            ? currentCurrencies.filter((c: string) => c !== currency.value)
+                            : [...currentCurrencies, currency.value];
+                          handleFieldChange('payrollCurrency', newCurrencies);
+                        }}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => {}}
+                        />
+                        <label className="text-sm cursor-pointer flex-1">
+                          {currency.label}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
             {errors.payrollCurrency && (
               <p className="text-xs text-destructive">{errors.payrollCurrency}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Choose the currency you'll use for payroll. You can adjust this later for each country setup.
+              Choose the currencies you'll use for payroll. You can adjust this later for each country setup.
             </p>
           </div>
         </div>
