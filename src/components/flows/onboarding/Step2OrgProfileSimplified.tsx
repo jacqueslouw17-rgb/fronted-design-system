@@ -321,7 +321,7 @@ const Step2OrgProfileSimplified = ({
                 <Button
                   variant="outline"
                   role="combobox"
-                  className="w-full justify-between text-sm h-10 hover:bg-background"
+                  className="w-full justify-between text-sm h-10"
                 >
                   <div className="flex flex-wrap gap-1.5 items-center">
                     {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
