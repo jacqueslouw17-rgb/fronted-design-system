@@ -379,9 +379,9 @@ const Step2OrgProfileSimplified = ({
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => {}}
-                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary shrink-0"
                         />
-                        <label className="text-sm cursor-pointer flex-1 text-foreground group-hover:text-primary transition-colors">
+                        <label className="text-sm cursor-pointer flex-1 text-foreground group-hover:text-primary transition-colors leading-none">
                           {currency.label}
                         </label>
                       </div>
