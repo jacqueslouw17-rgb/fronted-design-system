@@ -166,9 +166,9 @@ You can ask me about:
                           <Users className="h-10 w-10 text-primary/40" />
                         </div>
                         <h3 className="text-xl font-semibold mb-2 text-foreground">No candidates yet</h3>
-                  <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
-                    No team members yet. Add your first to get started.
-                  </p>
+              <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
+                Team members will appear here once they complete onboarding.
+              </p>
                       </CardContent>
                     </Card>
                   </div>
