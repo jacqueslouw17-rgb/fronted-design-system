@@ -25,15 +25,15 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
+// import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules"; // Hidden for now
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Welcome & Setup", stepNumber: 1 },
   { id: "org_profile", title: "Organization Profile", stepNumber: 2 },
   { id: "localization_country_blocks", title: "Localization & Countries", stepNumber: 3 },
-  { id: "mini_rules_setup", title: "Mini-Rules", stepNumber: 4 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 5 }
+  // { id: "mini_rules_setup", title: "Mini-Rules", stepNumber: 4 }, // Hidden for now
+  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 4 } // Updated step number
 ];
 
 const AdminOnboarding = () => {
@@ -163,7 +163,7 @@ const AdminOnboarding = () => {
       stopListening();
       setIsProcessing(true);
       resetTranscript();
-      handleUserSaveAction();
+      handleUserConfirmation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcript, isProcessing, isSpeaking, isListening]);
@@ -267,7 +267,7 @@ const AdminOnboarding = () => {
       resetTranscript();
     }
     
-    // STEP 3 → STEP 4 (Mini-Rules - when user confirms pre-selected countries)
+    // STEP 3 → STEP 5 (Finish - Skip Mini-Rules for now)
     else if (state.currentStep === "localization_country_blocks") {
       const selectedCountries = state.formData.selectedCountries || [];
       
@@ -289,56 +289,8 @@ const AdminOnboarding = () => {
       setExpandedStep(null);
       setIsProcessing(false);
       
-      // Wait before moving to step 4 (mini-rules)
+      // Wait before moving to finish step (skip mini-rules)
       await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const countryNames = selectedCountries.map((code: string) => {
-        const country = [
-          { code: "NO", name: "Norway" },
-          { code: "PH", name: "Philippines" },
-          { code: "IN", name: "India" },
-          { code: "XK", name: "Kosovo" }
-        ].find(c => c.code === code);
-        return country?.name;
-      }).filter(Boolean).join(", ");
-      
-      // Pre-populate mini rules
-      const rules = [
-        { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
-        { id: "r2", type: "compliance", description: "Remind contractor 7 days before doc expiry" },
-        { id: "r3", type: "policy", description: "Default paid leave: 5d (PH), 0d (NO)" }
-      ];
-      updateFormData({ miniRules: rules });
-      
-      const confirmMessage = `Perfect! Compliance blocks loaded for ${countryNames}. I've set up three starter mini-rules for you. These look good?`;
-      handleSpeak(confirmMessage, async () => {
-        // Set loading state FIRST, before expanding step 4
-        setIsLoadingFields(true);
-        goToStep("mini_rules_setup");
-        setExpandedStep("mini_rules_setup");
-        scrollToStep("mini_rules_setup");
-        
-        // Keep skeleton visible briefly
-        await new Promise(resolve => setTimeout(resolve, 400));
-        setIsLoadingFields(false);
-        setHasFinishedReading(true);
-        setHasAutoStarted(false);
-      });
-      
-      resetTranscript();
-    }
-    
-    // STEP 4 → STEP 5 (Finish)
-    else if (state.currentStep === "mini_rules_setup") {
-      setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      
-      completeStep("mini_rules_setup");
-      setExpandedStep(null);
-      setIsProcessing(false);
-      
-      // Wait before moving to finish step
-      await new Promise(resolve => setTimeout(resolve, 600));
       
       const confirmMessage = "Excellent! You're all set up, Joe. Want me to draft your first contractor agreement, or explore the dashboard?";
       handleSpeak(confirmMessage, () => {
@@ -389,66 +341,6 @@ const AdminOnboarding = () => {
     });
     
     resetTranscript();
-  };
-
-  const handleUserSaveAction = async () => {
-    // Handle save for Step 3 (when user manually edits countries)
-    if (state.currentStep === "localization_country_blocks") {
-      const selectedCountries = state.formData.selectedCountries || [];
-      
-      if (selectedCountries.length === 0) {
-        const errorMessage = "I don't see any countries selected. Could you pick at least one?";
-        handleSpeak(errorMessage, () => {
-          setHasFinishedReading(true);
-          setHasAutoStarted(false);
-        });
-        
-        resetTranscript();
-        return;
-      }
-      
-      setIsProcessing(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      completeStep("localization_country_blocks");
-      setExpandedStep(null);
-      setIsProcessing(false);
-      
-      const countryNames = selectedCountries.map((code: string) => {
-        const country = [
-          { code: "NO", name: "Norway" },
-          { code: "PH", name: "Philippines" },
-          { code: "IN", name: "India" },
-          { code: "XK", name: "Kosovo" }
-        ].find(c => c.code === code);
-        return country?.name;
-      }).filter(Boolean).join(", ");
-      
-      // Pre-populate mini rules
-      const rules = [
-        { id: "r1", type: "approval", description: "Tag Finance when payroll batch > 100k" },
-        { id: "r2", type: "compliance", description: "Remind contractor 7 days before doc expiry" },
-        { id: "r3", type: "policy", description: "Default paid leave: 5d (PH), 0d (NO)" }
-      ];
-      updateFormData({ miniRules: rules });
-      
-      const confirmMessage = `Perfect! I've loaded compliance blocks for ${countryNames}. I've set up three starter mini-rules for you. These look good?`;
-      handleSpeak(confirmMessage, async () => {
-        setIsLoadingFields(true);
-        goToStep("mini_rules_setup");
-        setTimeout(() => {
-          setExpandedStep("mini_rules_setup");
-          scrollToStep("mini_rules_setup");
-        }, 400);
-        
-        await new Promise(resolve => setTimeout(resolve, 400));
-        setIsLoadingFields(false);
-        setHasFinishedReading(true);
-        setHasAutoStarted(false);
-      });
-      
-      resetTranscript();
-    }
   };
 
   const handleStepComplete = (stepId: string, data?: Record<string, any>) => {
@@ -514,8 +406,8 @@ const AdminOnboarding = () => {
         return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
-      case "mini_rules_setup":
-        return <Step5MiniRules {...stepProps} />;
+      // case "mini_rules_setup":
+      //   return <Step5MiniRules {...stepProps} />; // Hidden for now
       case "finish_dashboard_transition":
         return <Step7Finish {...stepProps} />;
       default:
