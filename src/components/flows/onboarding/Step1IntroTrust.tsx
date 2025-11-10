@@ -55,7 +55,6 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
           <ul className="space-y-2.5">
             {[
               "Organization profile and settings",
-              "Slack and payment integrations",
               "Approval workflows and notifications",
               "Your personalized dashboard"
             ].map((item, idx) => (
