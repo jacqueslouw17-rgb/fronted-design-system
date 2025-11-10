@@ -16,6 +16,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { AgentSuggestionChips } from "@/components/AgentSuggestionChips";
 import { useAgentState } from "@/hooks/useAgentState";
 import { cn } from "@/lib/utils";
+import ContractPreviewDrawer from "@/components/contract-flow/ContractPreviewDrawer";
 
 type ContractStepStatus = "complete" | "active" | "pending";
 
@@ -34,9 +35,17 @@ const CandidateDashboard = () => {
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
+    role: "Senior Backend Engineer",
+    salary: "$85,000",
+    currency: "USD",
+    startDate: "March 15, 2024",
+    noticePeriod: "30 days",
+    pto: "25 days",
+    country: "Philippines",
   };
 
   const [showCompletion, setShowCompletion] = useState(false);
+  const [contractDrawerOpen, setContractDrawerOpen] = useState(false);
   const { setOpen, simulateResponse } = useAgentState();
 
   // Collapsible states
@@ -58,7 +67,7 @@ const CandidateDashboard = () => {
       status: "active",
       action: {
         label: "View Contract",
-        onClick: () => toast.info("Opening contract preview..."),
+        onClick: () => setContractDrawerOpen(true),
       },
     },
     {
@@ -387,6 +396,20 @@ const CandidateDashboard = () => {
             </AgentLayout>
           </div>
         </div>
+
+        {/* Contract Preview Drawer */}
+        <ContractPreviewDrawer
+          open={contractDrawerOpen}
+          onOpenChange={setContractDrawerOpen}
+          candidateName={candidateProfile.name}
+          candidateRole={candidateProfile.role}
+          salary={candidateProfile.salary}
+          currency={candidateProfile.currency}
+          startDate={candidateProfile.startDate}
+          noticePeriod={candidateProfile.noticePeriod}
+          pto={candidateProfile.pto}
+          country={candidateProfile.country}
+        />
       </TooltipProvider>
     </RoleLensProvider>
   );
