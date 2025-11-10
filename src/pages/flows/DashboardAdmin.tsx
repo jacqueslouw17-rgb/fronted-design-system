@@ -149,12 +149,12 @@ You can ask me about:
                   showPulse={true}
                   showInput={false}
                   simplified={false}
-                  tags={
-                    <AgentHeaderTags 
-                      onAnyUpdates={() => handleKurtAction('any-updates')}
-                      onAskKurt={() => handleKurtAction('ask-kurt')}
-                    />
-                  }
+                  // tags={
+                  //   <AgentHeaderTags 
+                  //     onAnyUpdates={() => handleKurtAction('any-updates')}
+                  //     onAskKurt={() => handleKurtAction('ask-kurt')}
+                  //   />
+                  // }
                 />
 
                 {/* Pipeline Content */}
