@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Shield, Zap } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
 import { authSchema, signInSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -14,7 +14,6 @@ import frontedLogo from "@/assets/fronted-logo.png";
 export default function Auth() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -33,38 +32,6 @@ export default function Auth() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const validated = authSchema.parse({ email, password });
-
-      const { error } = await supabase.auth.signUp({
-        email: validated.email,
-        password: validated.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard-admin`
-        }
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Account created! You can now sign in.");
-        setIsSignUp(false);
-        setPassword("");
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      } else {
-        toast.error("An error occurred during sign up");
-      }
-    }
-    setLoading(false);
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,18 +85,15 @@ export default function Auth() {
             transition={{ duration: 0.5 }}
             className="bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl overflow-hidden"
           >
-            {/* Kurt Introduction */}
+            {/* Header */}
             <div className="p-6 pb-4 border-b border-border/30">
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold text-foreground mb-1">
-                    {isSignUp ? "Welcome to Fronted!" : "Welcome back!"}
+                    Welcome back!
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {isSignUp 
-                      ? "Create your account to get started with managing your workforce efficiently."
-                      : "Sign in to continue managing your workforce and operations."
-                    }
+                    Sign in to continue managing your workforce and operations.
                   </p>
                 </div>
               </div>
@@ -137,7 +101,7 @@ export default function Auth() {
 
             {/* Form */}
             <div className="p-6">
-              <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-5">
+              <form onSubmit={handleSignIn} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email Address
@@ -160,19 +124,12 @@ export default function Auth() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={isSignUp ? 8 : undefined}
                     className="h-11 bg-background/50 border-border/50 focus:border-primary/50"
                   />
-                  {isSignUp && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Shield className="h-3 w-3" />
-                      8+ characters with uppercase, lowercase, number, and special character
-                    </p>
-                  )}
                 </div>
 
                 <Button 
@@ -183,49 +140,16 @@ export default function Auth() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isSignUp ? "Creating Account..." : "Signing In..."}
+                      Signing In...
                     </>
                   ) : (
                     <>
-                      {isSignUp ? (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Create Account
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="mr-2 h-4 w-4" />
-                          Sign In
-                        </>
-                      )}
+                      <Zap className="mr-2 h-4 w-4" />
+                      Sign In
                     </>
                   )}
                 </Button>
               </form>
-
-              {/* Toggle Sign In / Sign Up */}
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setPassword("");
-                  }}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {isSignUp ? (
-                    <>
-                      Already have an account?{" "}
-                      <span className="text-primary font-medium">Sign in</span>
-                    </>
-                  ) : (
-                    <>
-                      Don't have an account?{" "}
-                      <span className="text-primary font-medium">Sign up</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </div>
           </motion.div>
         </div>
