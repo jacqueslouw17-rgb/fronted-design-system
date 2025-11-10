@@ -321,7 +321,7 @@ const Step2OrgProfileSimplified = ({
                 <Button
                   variant="outline"
                   role="combobox"
-                  className="w-full justify-between text-sm h-10 hover:bg-transparent hover:border-border"
+                  className="w-full justify-between text-sm h-10 hover:bg-card hover:text-foreground"
                 >
                   <div className="flex flex-wrap gap-1.5 items-center">
                     {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
@@ -348,7 +348,7 @@ const Step2OrgProfileSimplified = ({
                       <span className="text-muted-foreground">Select currencies</span>
                     )}
                   </div>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
+                  <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
