@@ -288,7 +288,7 @@ const CandidateDashboard = () => {
                                           getStepColor(step.status)
                                         )}
                                       >
-                                        <div className="flex items-start gap-3">
+                                        <div className="flex items-center gap-3">
                                           {getStatusIcon(step.status)}
                                           <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center justify-between gap-4">
@@ -356,7 +356,7 @@ const CandidateDashboard = () => {
                                           getStepColor(step.status)
                                         )}
                                       >
-                                        <div className="flex items-start gap-3">
+                                        <div className="flex items-center gap-3">
                                           {getStatusIcon(step.status)}
                                           <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center justify-between gap-4">
