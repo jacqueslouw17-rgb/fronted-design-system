@@ -188,6 +188,14 @@ const AdminProfileSettings = () => {
 
       // Handle different section saves
       switch (stepId) {
+        case "user-management":
+          // User management is local only for now, no DB save needed
+          handleFormDataChange("userManagement", data);
+          setHasChanges(false);
+          toast.success("✅ User management settings saved");
+          setIsSaving(false);
+          return;
+
         case "company-details":
         case "org_profile":
           await supabase
