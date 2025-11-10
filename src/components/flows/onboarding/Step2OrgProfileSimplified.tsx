@@ -328,7 +328,7 @@ const Step2OrgProfileSimplified = ({
                       data.payrollCurrency.map((currency) => (
                         <span
                           key={currency}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors"
+                          className="inline-flex items-center gap-0.5 pl-2 pr-1 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors"
                         >
                           {currency}
                           <button
