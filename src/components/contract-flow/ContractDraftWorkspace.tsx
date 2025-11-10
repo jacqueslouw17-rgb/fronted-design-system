@@ -253,7 +253,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     content: <div className="space-y-4">
           <div className="space-y-3">
             <div className="p-3 rounded-lg bg-muted/30 border border-border">
-              <p className="text-xs font-medium text-foreground mb-2">Clause 6: Overtime Pay</p>
+              <p className="text-xs font-medium text-foreground mb-2">Overtime Pay</p>
               <p className="text-xs text-muted-foreground">
                 Overtime compensation follows {candidate.country} labor law standards.
               </p>
@@ -297,26 +297,21 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </div>
   }];
   return <div className="space-y-6">
-      <AgentHeader 
-        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
-        subtitle="Kurt can help with quick summaries or explaining terms." 
-        showPulse={true} 
-        isActive={isAgentSpeaking} 
-        showInput={false}
-        // tags={
-        //   <KurtContextualTags 
-        //     flowContext="contract-workspace" 
-        //     onTagClick={action => {
-        //       if (action === "ask-kurt") {
-        //         setOpen(true);
-        //       } else {
-        //         handleKurtAction(action);
-        //       }
-        //     }} 
-        //     disabled={false} 
-        //   />
-        // }
-      />
+      <AgentHeader title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} subtitle="Kurt can help with quick summaries or explaining terms." showPulse={true} isActive={isAgentSpeaking} showInput={false}
+    // tags={
+    //   <KurtContextualTags 
+    //     flowContext="contract-workspace" 
+    //     onTagClick={action => {
+    //       if (action === "ask-kurt") {
+    //         setOpen(true);
+    //       } else {
+    //         handleKurtAction(action);
+    //       }
+    //     }} 
+    //     disabled={false} 
+    //   />
+    // }
+    />
       <motion.div initial={{
       opacity: 0
     }} animate={{
