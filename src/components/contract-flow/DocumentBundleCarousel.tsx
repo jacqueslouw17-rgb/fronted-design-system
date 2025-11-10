@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   FileText,
   Handshake,
@@ -126,7 +125,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
         <div className="flex items-center gap-3">
           <Package className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">Signing Bundle</h3>
-          <Badge variant="secondary" className="text-xs">{selectedCount} documents</Badge>
+          <span className="text-xs text-muted-foreground">({selectedCount} documents)</span>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -171,20 +170,9 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
                     {documents[currentIndex].icon}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-lg text-foreground">
-                        {documents[currentIndex].title}
-                      </h4>
-                      <Badge 
-                        variant="default" 
-                        className={documents[currentIndex].required 
-                          ? "bg-primary/20 text-primary" 
-                          : "bg-muted text-muted-foreground"
-                        }
-                      >
-                        {documents[currentIndex].required ? "Required" : "Optional"}
-                      </Badge>
-                    </div>
+                    <h4 className="font-semibold text-lg text-foreground mb-2">
+                      {documents[currentIndex].title}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
                       {documents[currentIndex].description}
                     </p>
