@@ -127,8 +127,8 @@ export default function Auth() {
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     {isSignUp 
-                      ? "I'm Kurt, your AI assistant. Let's get you set up with payroll magic."
-                      : "I'm Kurt, ready to help you manage global payroll with ease."
+                      ? "Create your account to get started with managing your workforce efficiently."
+                      : "Sign in to continue managing your workforce and operations."
                     }
                   </p>
                 </div>
