@@ -328,7 +328,7 @@ const Step2OrgProfileSimplified = ({
                       data.payrollCurrency.map((currency) => (
                         <span
                           key={currency}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/15 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors"
                         >
                           {currency}
                           <button
@@ -338,7 +338,7 @@ const Step2OrgProfileSimplified = ({
                               const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
                               handleFieldChange('payrollCurrency', newCurrencies);
                             }}
-                            className="hover:bg-primary/25 rounded-sm p-0.5 transition-colors"
+                            className="rounded-sm p-0.5"
                           >
                             <X className="h-2.5 w-2.5" />
                           </button>
