@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   FileText,
   Handshake,
@@ -100,16 +99,6 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
   const [documents, setDocuments] = useState<Document[]>(generateDocuments());
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const toggleDocument = (id: string) => {
-    setDocuments((prev) =>
-      prev.map((doc) =>
-        doc.id === id && !doc.required
-          ? { ...doc, selected: !doc.selected }
-          : doc
-      )
-    );
-  };
-
   const selectedCount = documents.filter((d) => d.selected).length;
 
   const handleNext = () => {
@@ -186,21 +175,15 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
                       <h4 className="font-semibold text-lg text-foreground">
                         {documents[currentIndex].title}
                       </h4>
-                      {documents[currentIndex].required ? (
-                        <Badge variant="default" className="bg-primary/20 text-primary">
-                          Required
-                        </Badge>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            checked={documents[currentIndex].selected}
-                            onCheckedChange={() =>
-                              toggleDocument(documents[currentIndex].id)
-                            }
-                          />
-                          <span className="text-xs text-muted-foreground">Include</span>
-                        </div>
-                      )}
+                      <Badge 
+                        variant="default" 
+                        className={documents[currentIndex].required 
+                          ? "bg-primary/20 text-primary" 
+                          : "bg-muted text-muted-foreground"
+                        }
+                      >
+                        {documents[currentIndex].required ? "Required" : "Optional"}
+                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {documents[currentIndex].description}
