@@ -13,7 +13,7 @@ import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules";
+// import Step5MiniRules from "@/components/flows/onboarding/Step5MiniRules"; // Removed
 import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { useOnboardingStore } from "@/stores/onboardingStore";
@@ -21,8 +21,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 const PROFILE_SECTIONS = [
   { id: "company-details", title: "Organization Profile", step: 1 },
   { id: "localization", title: "Localization & Countries", step: 2 },
-  { id: "mini-rules", title: "Mini-Rules", step: 3 },
-  { id: "user-management", title: "User Management", step: 4 }
+  { id: "user-management", title: "User Management", step: 3 }
 ];
 
 const AdminProfileSettings = () => {
@@ -35,7 +34,6 @@ const AdminProfileSettings = () => {
   const [formData, setFormData] = useState<Record<string, any>>({
     companyDetails: {},
     localization: {},
-    miniRules: {},
     userManagement: {}
   });
   const [hasChanges, setHasChanges] = useState(false);
@@ -67,10 +65,9 @@ const AdminProfileSettings = () => {
   const loadUserData = async (uid: string) => {
     setLoading(true);
     try {
-      const [orgProfile, localization, miniRules] = await Promise.all([
+      const [orgProfile, localization] = await Promise.all([
         supabase.from("organization_profiles").select("*").eq("user_id", uid).maybeSingle(),
-        supabase.from("localization_settings").select("*").eq("user_id", uid).maybeSingle(),
-        supabase.from("mini_rules").select("*").eq("user_id", uid)
+        supabase.from("localization_settings").select("*").eq("user_id", uid).maybeSingle()
       ]);
 
       // Map database columns to component expected format
@@ -90,20 +87,10 @@ const AdminProfileSettings = () => {
         countries: localization.data.operating_countries || []
       } : {};
 
-      const mappedMiniRules = miniRules.data ? 
-        miniRules.data.map(rule => ({
-          id: rule.id,
-          tag: rule.rule_type as any,
-          triggerType: rule.trigger_type as any || "threshold",
-          description: rule.description,
-          linkedAction: rule.linked_action || undefined
-        })) : [];
-
       // Fallback to onboarding store if DB empty or no auth
       const store = useOnboardingStore.getState();
       const storeOrg = store.getAdminStepData("org_profile") || {};
       const storeLoc = store.getAdminStepData("localization_country_blocks") || {};
-      const storeRules = store.getAdminStepData("mini_rules_setup") || {};
 
       const finalOrg = Object.keys(mappedOrgProfile).length ? mappedOrgProfile : {
         companyName: storeOrg.companyName || "",
@@ -120,12 +107,9 @@ const AdminProfileSettings = () => {
         countries: storeLoc.selectedCountries || []
       };
 
-      const finalRules = mappedMiniRules.length ? mappedMiniRules : (storeRules.miniRules || []);
-
       setFormData({
         companyDetails: finalOrg,
         localization: finalLoc,
-        miniRules: { rules: finalRules },
         userManagement: {
           users: [
             {
@@ -224,41 +208,10 @@ const AdminProfileSettings = () => {
               user_id: currentUserId
             }, { onConflict: "user_id" });
           break;
-
-        case "mini-rules":
-        case "mini_rules_setup":
-          if (data.miniRules) {
-            // Delete existing rules first
-            await supabase
-              .from("mini_rules")
-              .delete()
-              .eq("user_id", currentUserId);
-            
-            // Insert new rules
-            const rulesToInsert = data.miniRules.map((rule: any) => ({
-              user_id: currentUserId,
-              rule_type: rule.tag || rule.type,
-              trigger_type: rule.triggerType,
-              description: rule.description,
-              linked_action: rule.linkedAction || null
-            }));
-            
-            if (rulesToInsert.length > 0) {
-              await supabase
-                .from("mini_rules")
-                .insert(rulesToInsert);
-            }
-          }
-          break;
       }
 
       handleFormDataChange(stepId, data);
       setHasChanges(false);
-      
-      // Update mini-rules structure to match expected format
-      if (stepId === "mini-rules" && data.miniRules) {
-        handleFormDataChange("miniRules", { rules: data.miniRules });
-      }
       
       toast.success("✅ Settings saved successfully");
     } catch (error: any) {
@@ -273,16 +226,10 @@ const AdminProfileSettings = () => {
     
     // Check if section has data - mark as completed if it does
     const sectionKey = sectionId === "company-details" ? "companyDetails" : 
-                      sectionId === "mini-rules" ? "miniRules" :
                       sectionId === "user-management" ? "userManagement" : 
                       "localization";
     
     const sectionData = formData[sectionKey];
-    
-    // For mini-rules, check if rules array exists and has items
-    if (sectionId === "mini-rules") {
-      return (sectionData?.rules && Array.isArray(sectionData.rules) && sectionData.rules.length > 0) ? "completed" : "completed";
-    }
     
     // For localization, check selectedCountries
     if (sectionId === "localization") {
@@ -312,16 +259,6 @@ const AdminProfileSettings = () => {
         return (
           <Step3Localization
             formData={formData.localization}
-            onComplete={handleSaveChanges}
-            onOpenDrawer={() => {}}
-            isProcessing={isSaving}
-          />
-        );
-
-      case "mini-rules":
-        return (
-          <Step5MiniRules
-            formData={{ miniRules: formData.miniRules?.rules || [] }}
             onComplete={handleSaveChanges}
             onOpenDrawer={() => {}}
             isProcessing={isSaving}
