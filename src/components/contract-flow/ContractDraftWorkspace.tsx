@@ -341,12 +341,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="pt-4">
-              <p className="text-xs text-primary font-medium flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Draft ready
-              </p>
-            </div>
           </div>
         </Card>
       </motion.div>
