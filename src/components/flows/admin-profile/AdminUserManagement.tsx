@@ -58,13 +58,9 @@ const AdminUserManagement = ({
       status: "pending"
     };
 
-    const updatedUsers = [...users, user];
-    setUsers(updatedUsers);
+    setUsers(prev => [...prev, user]);
     setNewUser({ name: "", email: "", role: "admin" });
     setShowAddUser(false);
-    
-    // Update parent component with new users list
-    onComplete("user-management", { users: updatedUsers });
     
     toast.success(`Invitation sent to ${newUser.email}`);
   };
@@ -76,12 +72,7 @@ const AdminUserManagement = ({
       return;
     }
 
-    const updatedUsers = users.filter(u => u.id !== id);
-    setUsers(updatedUsers);
-    
-    // Update parent component with new users list
-    onComplete("user-management", { users: updatedUsers });
-    
+    setUsers(prev => prev.filter(u => u.id !== id));
     toast.success("User removed successfully");
   };
 
