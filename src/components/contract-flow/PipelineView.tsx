@@ -1289,9 +1289,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   </>
                                 )}
                               </Button>
-                              <p className="text-[10px] text-muted-foreground text-center leading-tight">
-                                You'll be able to review and edit contracts in the next step before sending.
-                              </p>
                             </div>
                           )}
 
