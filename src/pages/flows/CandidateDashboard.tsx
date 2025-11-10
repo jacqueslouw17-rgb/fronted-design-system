@@ -19,12 +19,14 @@ import { cn } from "@/lib/utils";
 import ContractPreviewDrawer from "@/components/contract-flow/ContractPreviewDrawer";
 
 type ContractStepStatus = "complete" | "active" | "pending";
+type DocuSignStatus = "not_sent" | "sent" | "opened" | "signer_completed" | "completed";
 
 interface ContractStep {
   id: string;
   label: string;
   description: string;
   status: ContractStepStatus;
+  docusignStatus?: DocuSignStatus;
   action?: {
     label: string;
     onClick: () => void;
@@ -52,6 +54,25 @@ const CandidateDashboard = () => {
   const [step1Open, setStep1Open] = useState(true);
   const [step2Open, setStep2Open] = useState(true);
 
+  // DocuSign status tracking (in real implementation, this would come from backend/webhooks)
+  const [docusignStatus, setDocusignStatus] = useState<DocuSignStatus>("sent");
+
+  // Helper function to get DocuSign description
+  const getDocuSignDescription = (status: DocuSignStatus): string => {
+    switch (status) {
+      case "not_sent":
+        return "Waiting for DocuSign invitation to be sent.";
+      case "sent":
+        return "Your contract is ready for signature — check your email to sign.";
+      case "opened":
+        return "Signing in progress… we'll update once complete.";
+      case "signer_completed":
+        return "You've signed your contract. Waiting for HR to counter-sign.";
+      case "completed":
+        return "All signatures are complete. Your contract is now certified.";
+    }
+  };
+
   // Contract steps state
   const [contractSteps, setContractSteps] = useState<ContractStep[]>([
     {
@@ -73,11 +94,16 @@ const CandidateDashboard = () => {
     {
       id: "sign_contract",
       label: "Sign Contract",
-      description: "Sign via DocuSign to confirm your acceptance.",
-      status: "pending",
+      description: getDocuSignDescription(docusignStatus),
+      status: docusignStatus === "not_sent" ? "pending" : "active",
+      docusignStatus: docusignStatus,
       action: {
-        label: "Sign Now",
-        onClick: () => toast.info("Opening DocuSign..."),
+        label: docusignStatus === "sent" ? "Sign Now" : undefined,
+        onClick: () => {
+          toast.info("Opening DocuSign...");
+          // Simulate opening DocuSign
+          setTimeout(() => setDocusignStatus("opened"), 1000);
+        },
       },
     },
     {
@@ -129,6 +155,26 @@ const CandidateDashboard = () => {
   // Check if certified
   const isCertified = contractSteps.find(s => s.id === "contract_certified")?.status === "complete";
 
+  // Auto-progress when candidate completes signing
+  useEffect(() => {
+    if (docusignStatus === "signer_completed") {
+      // Auto-transition to counter-signature step
+      setTimeout(() => {
+        const updatedSteps = contractSteps.map(step => {
+          if (step.id === "sign_contract") {
+            return { ...step, status: "complete" as ContractStepStatus };
+          }
+          if (step.id === "counter_signature") {
+            return { ...step, status: "active" as ContractStepStatus };
+          }
+          return step;
+        });
+        setContractSteps(updatedSteps);
+        toast.success(`Thanks, ${candidateProfile.firstName}! We've received your signature — HR will counter-sign next.`);
+      }, 500);
+    }
+  }, [docusignStatus, candidateProfile.firstName]);
+
   useEffect(() => {
     if (isCertified && !showCompletion) {
       setShowCompletion(true);
@@ -141,7 +187,39 @@ const CandidateDashboard = () => {
     }
   }, [isCertified, showCompletion]);
 
-  const getStatusIcon = (status: ContractStepStatus) => {
+  // Helper function to get DocuSign status badge
+  const getDocuSignBadge = (status: DocuSignStatus) => {
+    switch (status) {
+      case "sent":
+        return <Badge variant="outline" className="text-xs border-accent-yellow-outline/50 text-accent-yellow-text bg-accent-yellow-fill/10">🟠 Action Needed</Badge>;
+      case "opened":
+        return <Badge variant="outline" className="text-xs border-purple-500/50 text-purple-400 bg-purple-500/10">🟣 In Progress</Badge>;
+      case "signer_completed":
+        return <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">🟢 Signed by You</Badge>;
+      case "completed":
+        return <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">✅ Fully Signed</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusIcon = (status: ContractStepStatus, docusignStatus?: DocuSignStatus) => {
+    // Special handling for sign_contract step with docusign status
+    if (docusignStatus) {
+      switch (docusignStatus) {
+        case "not_sent":
+          return <Circle className="h-4 w-4 text-muted-foreground" />;
+        case "sent":
+          return <Clock className="h-4 w-4 text-accent-yellow-text animate-pulse" />;
+        case "opened":
+          return <Clock className="h-4 w-4 text-purple-400 animate-pulse" />;
+        case "signer_completed":
+          return <CheckCircle2 className="h-4 w-4 text-accent-green-text" />;
+        case "completed":
+          return <CheckCircle2 className="h-4 w-4 text-accent-green-text" />;
+      }
+    }
+    
     switch (status) {
       case "complete":
         return <CheckCircle2 className="h-4 w-4 text-accent-green-text" />;
@@ -152,7 +230,23 @@ const CandidateDashboard = () => {
     }
   };
 
-  const getStepColor = (status: ContractStepStatus) => {
+  const getStepColor = (status: ContractStepStatus, docusignStatus?: DocuSignStatus) => {
+    // Special handling for sign_contract step with docusign status
+    if (docusignStatus) {
+      switch (docusignStatus) {
+        case "sent":
+          return "border-accent-yellow-outline/30 bg-accent-yellow-fill/10";
+        case "opened":
+          return "border-purple-500/30 bg-purple-500/10";
+        case "signer_completed":
+          return "border-accent-green-outline/30 bg-accent-green-fill/10";
+        case "completed":
+          return "border-accent-green-outline/30 bg-accent-green-fill/10";
+        default:
+          return "border-border bg-muted/30";
+      }
+    }
+    
     switch (status) {
       case "complete":
         return "border-accent-green-outline/30 bg-accent-green-fill/10";
@@ -278,33 +372,37 @@ const CandidateDashboard = () => {
                                 <CardContent className="p-6">
                                   <div className="space-y-3">
                                     {contractSteps.map((step, index) => (
-                                      <motion.div
+                                       <motion.div
                                         key={step.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05 }}
                                         className={cn(
                                           "border rounded-lg p-4 transition-all",
-                                          getStepColor(step.status)
+                                          getStepColor(step.status, step.docusignStatus)
                                         )}
                                       >
                                         <div className="flex items-center gap-3">
-                                          {getStatusIcon(step.status)}
+                                          {getStatusIcon(step.status, step.docusignStatus)}
                                           <div className="flex-1 space-y-0.5">
-                                            <p className={cn(
-                                              "text-sm font-medium",
-                                              step.status === "complete" && "line-through text-muted-foreground"
-                                            )}>
-                                              {step.label}
-                                            </p>
+                                            <div className="flex items-center gap-2">
+                                              <p className={cn(
+                                                "text-sm font-medium",
+                                                step.status === "complete" && "line-through text-muted-foreground"
+                                              )}>
+                                                {step.label}
+                                              </p>
+                                              {step.docusignStatus && getDocuSignBadge(step.docusignStatus)}
+                                            </div>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
-                                          {step.action && step.status !== "pending" && (
+                                          {step.action && step.action.label && step.status !== "pending" && (
                                             <Button
                                               size="sm"
-                                              variant={step.status === "active" ? "default" : "ghost"}
+                                              variant={step.docusignStatus === "sent" ? "default" : "ghost"}
                                               onClick={step.action.onClick}
                                               className="shrink-0"
+                                              disabled={step.docusignStatus === "opened"}
                                             >
                                               {step.action.label}
                                             </Button>
