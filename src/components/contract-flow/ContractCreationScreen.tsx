@@ -393,13 +393,13 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
         showInput={false}
-        tags={
-          <KurtContextualTags
-            flowContext="contract-creation"
-            onTagClick={(action) => handleKurtAction(action)}
-            disabled={false}
-          />
-        }
+        // tags={
+        //   <KurtContextualTags
+        //     flowContext="contract-creation"
+        //     onTagClick={(action) => handleKurtAction(action)}
+        //     disabled={false}
+        //   />
+        // }
         progressIndicator={
           totalCandidates > 1 ? (
             <motion.div
@@ -452,7 +452,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         <div className="flex items-start gap-3">
           <Bot className="h-5 w-5 text-primary mt-0.5" />
           <p className="text-sm text-foreground">
-            💬 Hi there! I can help review fields, generate bundles, or explain clauses — just click the tags above.
+            💬 Hi there! I can help review fields, generate bundles, or explain clauses — just ask me anything.
           </p>
         </div>
       </motion.div>
