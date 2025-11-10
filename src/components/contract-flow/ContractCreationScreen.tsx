@@ -443,20 +443,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
       {/* Contract Form View */}
       <div className="space-y-6">{/* ... keep existing code */}
 
-      {/* Kurt First-Use Welcome Bubble */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
-      >
-        <div className="flex items-start gap-3">
-          <Bot className="h-5 w-5 text-primary mt-0.5" />
-          <p className="text-sm text-foreground">
-            💬 Hi there! I can help review fields, generate bundles, or explain clauses — just ask me anything.
-          </p>
-        </div>
-      </motion.div>
-
       {/* Employment Type Toggle */}
       <Card className="p-6 space-y-6 border border-border/40 bg-card/50 backdrop-blur-sm">
         {/* Auto-populated fields */}
