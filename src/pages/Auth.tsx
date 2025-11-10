@@ -10,6 +10,7 @@ import { authSchema, signInSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import KurtAvatar from "@/components/KurtAvatar";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ export default function Auth() {
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <img src={frontedLogo} alt="Fronted Logo" className="h-6 w-6 object-contain" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Fronted</h1>
           </div>
