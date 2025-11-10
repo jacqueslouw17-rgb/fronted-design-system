@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, Loader2, Plus, UserPlus, Mail, Trash2, Shield } from "lucide-react";
+import { Users, UserPlus, Mail, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,9 +58,13 @@ const AdminUserManagement = ({
       status: "pending"
     };
 
-    setUsers(prev => [...prev, user]);
+    const updatedUsers = [...users, user];
+    setUsers(updatedUsers);
     setNewUser({ name: "", email: "", role: "admin" });
     setShowAddUser(false);
+    
+    // Update parent component with new users list
+    onComplete("user-management", { users: updatedUsers });
     
     toast.success(`Invitation sent to ${newUser.email}`);
   };
@@ -72,13 +76,13 @@ const AdminUserManagement = ({
       return;
     }
 
-    setUsers(prev => prev.filter(u => u.id !== id));
+    const updatedUsers = users.filter(u => u.id !== id);
+    setUsers(updatedUsers);
+    
+    // Update parent component with new users list
+    onComplete("user-management", { users: updatedUsers });
+    
     toast.success("User removed successfully");
-  };
-
-  const handleSave = () => {
-    toast.success("User management settings saved");
-    onComplete("user-management", { users });
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -230,22 +234,6 @@ const AdminUserManagement = ({
           </motion.div>
         )}
       </AnimatePresence>
-
-      <Button 
-        onClick={handleSave} 
-        size="lg" 
-        className="w-full" 
-        disabled={isProcessing}
-      >
-        {isProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          "Save Changes"
-        )}
-      </Button>
     </div>
   );
 };
