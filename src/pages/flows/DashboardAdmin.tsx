@@ -166,9 +166,9 @@ You can ask me about:
                           <Users className="h-10 w-10 text-primary/40" />
                         </div>
                         <h3 className="text-xl font-semibold mb-2 text-foreground">No candidates yet</h3>
-                        <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
-                          Your pipeline is empty. Start by sending your first offer to a contractor.
-                        </p>
+                  <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
+                    Your pipeline is empty. Add your first team member to get started.
+                  </p>
                       </CardContent>
                     </Card>
                   </div>
