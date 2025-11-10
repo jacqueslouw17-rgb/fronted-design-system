@@ -341,22 +341,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs text-muted-foreground mb-2">Key Clauses</p>
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <ClauseTooltip
-                  clauseNumber="2"
-                  title="Compensation Structure"
-                  explanation={`Salary is set in ${candidate.currency} to comply with local banking regulations.`}
-                />
-                <ClauseTooltip
-                  clauseNumber="4"
-                  title="Termination Notice"
-                  explanation={`${candidate.noticePeriod} notice period aligns with ${candidate.country} labor law.`}
-                />
-              </div>
-            </div>
-
             <div className="pt-4">
               <p className="text-xs text-primary font-medium flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
