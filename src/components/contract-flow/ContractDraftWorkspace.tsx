@@ -301,13 +301,26 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </div>
   }];
   return <div className="space-y-6">
-      <AgentHeader title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} subtitle="Kurt can help with quick summaries or explaining terms." showPulse={true} isActive={isAgentSpeaking} showInput={false} tags={<KurtContextualTags flowContext="contract-workspace" onTagClick={action => {
-      if (action === "ask-kurt") {
-        setOpen(true);
-      } else {
-        handleKurtAction(action);
-      }
-    }} disabled={false} />} />
+      <AgentHeader 
+        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
+        subtitle="Kurt can help with quick summaries or explaining terms." 
+        showPulse={true} 
+        isActive={isAgentSpeaking} 
+        showInput={false}
+        // tags={
+        //   <KurtContextualTags 
+        //     flowContext="contract-workspace" 
+        //     onTagClick={action => {
+        //       if (action === "ask-kurt") {
+        //         setOpen(true);
+        //       } else {
+        //         handleKurtAction(action);
+        //       }
+        //     }} 
+        //     disabled={false} 
+        //   />
+        // }
+      />
       <motion.div initial={{
       opacity: 0
     }} animate={{
@@ -364,20 +377,6 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs text-muted-foreground mb-2">Key Clauses</p>
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <ClauseTooltip clauseNumber="2" title="Compensation Structure" explanation={`Salary is set in ${candidate.currency} to comply with local banking regulations.`} />
-                <ClauseTooltip clauseNumber="4" title="Termination Notice" explanation={`${candidate.noticePeriod} notice period aligns with ${candidate.country} labor law.`} />
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <p className="text-xs text-primary font-medium flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Draft ready
-              </p>
-            </div>
           </div>
         </Card>
       </motion.div>
