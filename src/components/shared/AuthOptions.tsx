@@ -7,26 +7,39 @@ interface AuthOptionsProps {
 }
 
 const AuthOptions = ({ onComplete, isProcessing = false }: AuthOptionsProps) => {
+  const [fullName, setFullName] = useState("Joe Smith");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Validate and update parent when email or password changes
+  // Validate and update parent when fields change
   useEffect(() => {
+    const isNameValid = fullName.trim().length > 0;
     const isEmailValid = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPasswordValid = password.length >= 8;
     
-    if (isEmailValid && isPasswordValid) {
-      onComplete("email", { email, password });
+    if (isNameValid && isEmailValid && isPasswordValid) {
+      onComplete("email", { fullName, email, password });
     } else {
       // Clear auth method if data becomes invalid
       onComplete("", {});
     }
-  }, [email, password, onComplete]);
+  }, [fullName, email, password, onComplete]);
 
   return (
     <div className="space-y-4 max-w-md mx-auto">
       <div className="space-y-4">
+        <StandardInput
+          id="fullName"
+          label="Full Name"
+          value={fullName}
+          onChange={setFullName}
+          type="text"
+          required
+          error={errors.fullName}
+          placeholder="John Doe"
+        />
+
         <StandardInput
           id="email"
           label="Email"

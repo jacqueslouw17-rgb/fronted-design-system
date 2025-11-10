@@ -37,8 +37,6 @@ const Step2OrgProfileSimplified = ({
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
     companyName: formData.companyName || "",
-    primaryContactName: formData.primaryContactName || "",
-    primaryContactEmail: formData.primaryContactEmail || "",
     hqCountry: formData.hqCountry || "",
     payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
     payrollFrequency: formData.payrollFrequency || "monthly",
@@ -57,8 +55,6 @@ const Step2OrgProfileSimplified = ({
         // Auto-fill with mock data from ATS
         const mockData = {
           companyName: formData.companyName || "Fronted Inc",
-          primaryContactName: formData.primaryContactName || "Joe Smith",
-          primaryContactEmail: formData.primaryContactEmail || "joe@fronted.com",
           hqCountry: formData.hqCountry || "NO",
           payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : ["NOK"]),
           payrollFrequency: formData.payrollFrequency || "monthly",
@@ -69,8 +65,6 @@ const Step2OrgProfileSimplified = ({
         
         // Track which fields were auto-filled
         fieldsToAutoFill.add('companyName');
-        fieldsToAutoFill.add('primaryContactName');
-        fieldsToAutoFill.add('primaryContactEmail');
         fieldsToAutoFill.add('hqCountry');
         fieldsToAutoFill.add('payrollCurrency');
         
@@ -83,8 +77,6 @@ const Step2OrgProfileSimplified = ({
       // If we have persisted data, mark those fields as auto-filled for visual indicator
       const persistedFields = new Set<string>();
       if (formData.companyName) persistedFields.add('companyName');
-      if (formData.primaryContactName) persistedFields.add('primaryContactName');
-      if (formData.primaryContactEmail) persistedFields.add('primaryContactEmail');
       if (formData.hqCountry) persistedFields.add('hqCountry');
       if (formData.payrollCurrency) persistedFields.add('payrollCurrency');
       setAutoFilledFields(persistedFields);
@@ -99,8 +91,6 @@ const Step2OrgProfileSimplified = ({
     if (!isAutoFilling && formData.companyName && formData.companyName !== data.companyName) {
       setData({
         companyName: formData.companyName || "",
-        primaryContactName: formData.primaryContactName || "",
-        primaryContactEmail: formData.primaryContactEmail || "",
         hqCountry: formData.hqCountry || "",
         payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
         payrollFrequency: formData.payrollFrequency || "monthly",
@@ -113,12 +103,6 @@ const Step2OrgProfileSimplified = ({
     const newErrors: Record<string, string> = {};
     
     if (!data.companyName) newErrors.companyName = "Company name is required";
-    if (!data.primaryContactName) newErrors.primaryContactName = "Name is required";
-    if (!data.primaryContactEmail) {
-      newErrors.primaryContactEmail = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.primaryContactEmail)) {
-      newErrors.primaryContactEmail = "Invalid email format";
-    }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
     if (!Array.isArray(data.payrollCurrency) || data.payrollCurrency.length === 0) {
       newErrors.payrollCurrency = "At least one payroll currency is required";
@@ -400,78 +384,6 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      {/* Primary Admin Contact */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-2">
-          <User className="h-4 w-4 text-primary" />
-          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Primary Admin Contact
-          </h3>
-        </div>
-        
-        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="contactName" className="text-sm">
-                Full Name <span className="text-destructive">*</span>
-              </Label>
-              {autoFilledFields.has('primaryContactName') && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
-            <Input
-              id="contactName"
-              value={data.primaryContactName}
-              onChange={(e) => handleFieldChange('primaryContactName', e.target.value)}
-              placeholder="John Doe"
-              className="text-sm"
-            />
-            {errors.primaryContactName && (
-              <p className="text-xs text-destructive">{errors.primaryContactName}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="contactEmail" className="text-sm">
-                Email <span className="text-destructive">*</span>
-              </Label>
-              {autoFilledFields.has('primaryContactEmail') && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
-            <Input
-              id="contactEmail"
-              type="email"
-              value={data.primaryContactEmail}
-              onChange={(e) => handleFieldChange('primaryContactEmail', e.target.value)}
-              placeholder="john@fronted.com"
-              className="text-sm"
-            />
-            {errors.primaryContactEmail && (
-              <p className="text-xs text-destructive">{errors.primaryContactEmail}</p>
-            )}
-          </div>
-
-          <p className="text-xs text-muted-foreground">
-            Add only the primary setup admin for this pilot. You can invite other team members once Fronted goes live.
-          </p>
-        </div>
-      </div>
 
       {/* Payroll Frequency & Payout Schedule */}
       <div className="space-y-3">
