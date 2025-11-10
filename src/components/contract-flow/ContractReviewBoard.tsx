@@ -24,7 +24,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
   onBack,
   onClose,
 }) => {
-  const [globalComment, setGlobalComment] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [loadingCardIds, setLoadingCardIds] = useState<Set<string>>(new Set());
   const { isSpeaking: isAgentSpeaking } = useAgentState();
@@ -125,28 +124,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           );
         })}
       </div>
-
-      {/* Comment section */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.3 }}
-      >
-        <Card className="p-4 border border-border/40 bg-card/50 backdrop-blur-sm">
-          <label className="text-sm font-medium text-foreground mb-2 block">
-            Review Comment (Optional)
-          </label>
-          <Textarea
-            placeholder="Add any notes or comments..."
-            value={globalComment}
-            onChange={(e) => setGlobalComment(e.target.value)}
-            className="mb-3 min-h-[80px]"
-          />
-          <p className="text-xs text-muted-foreground italic">
-            Ensure notice period aligns with region policy.
-          </p>
-        </Card>
-      </motion.div>
 
       {/* Action button */}
       <motion.div
