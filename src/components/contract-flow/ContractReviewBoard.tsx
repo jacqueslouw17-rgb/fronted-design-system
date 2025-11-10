@@ -106,18 +106,6 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
                     <span className="text-foreground">{candidate.noticePeriod}</span>
                   </div>
                 </div>
-
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6 + index * 0.1, type: "spring" }}
-                  className="flex justify-center"
-                >
-                  <Badge variant="default" className="bg-success/10 text-success hover:bg-success/20">
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                    Reviewed
-                  </Badge>
-                </motion.div>
                 </div>
               </Card>
             </motion.div>
