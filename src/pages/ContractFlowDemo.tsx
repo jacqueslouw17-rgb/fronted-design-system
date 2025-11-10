@@ -501,13 +501,13 @@ const ContractFlowDemo = () => {
                                 : !hasSpokenPhase["offer-accepted"]
                           )}
                           showInput={false}
-                          tags={
-                            <KurtContextualTags
-                              flowContext="checklist"
-                              onTagClick={(action) => handleKurtAction(action)}
-                              disabled={false}
-                            />
-                          }
+                          // tags={
+                          //   <KurtContextualTags
+                          //     flowContext="checklist"
+                          //     onTagClick={(action) => handleKurtAction(action)}
+                          //     disabled={false}
+                          //   />
+                          // }
                         />
                       )}
 
@@ -755,23 +755,23 @@ const ContractFlowDemo = () => {
                           showPulse={true}
                           isActive={isAgentSpeaking || !hasSpokenPhase["bundle-creation"]}
                           showInput={false}
-                          tags={
-                            <KurtContextualTags
-                              flowContext="contract-bundle"
-                              onTagClick={(action) => {
-                                if (action === "check-compliance") {
-                                  handleKurtAction("check-compliance");
-                                } else if (action === "add-documents") {
-                                  handleKurtAction("add-documents");
-                                } else if (action === "review-bundle") {
-                                  handleKurtAction("review-bundle");
-                                } else {
-                                  setOpen(true);
-                                }
-                              }}
-                              disabled={false}
-                            />
-                          }
+                          // tags={
+                          //   <KurtContextualTags
+                          //     flowContext="contract-bundle"
+                          //     onTagClick={(action) => {
+                          //       if (action === "check-compliance") {
+                          //         handleKurtAction("check-compliance");
+                          //       } else if (action === "add-documents") {
+                          //         handleKurtAction("add-documents");
+                          //       } else if (action === "review-bundle") {
+                          //         handleKurtAction("review-bundle");
+                          //       } else {
+                          //         setOpen(true);
+                          //       }
+                          //     }}
+                          //     disabled={false}
+                          //   />
+                          // }
                         />
                       </div>
 
