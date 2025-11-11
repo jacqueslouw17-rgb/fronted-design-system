@@ -84,19 +84,17 @@ const ContractPreviewDrawer: React.FC<ContractPreviewDrawerProps> = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-hidden flex flex-col">
         <SheetHeader className="space-y-3 pb-4 border-b border-border">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <SheetTitle className="text-xl flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Employment Contract
-              </SheetTitle>
-              <SheetDescription>
-                Contract preview for {candidateName}
-              </SheetDescription>
-            </div>
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-              Draft
-            </Badge>
+          <div className="space-y-1">
+            <SheetTitle className="text-xl flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Employment Contract
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs">
+                Draft
+              </Badge>
+            </SheetTitle>
+            <SheetDescription>
+              Contract preview for {candidateName}
+            </SheetDescription>
           </div>
 
           {/* Key Details Card */}
