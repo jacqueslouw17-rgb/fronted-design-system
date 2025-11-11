@@ -75,7 +75,6 @@ export const bankDetailsSchema = z.object({
     .min(4, 'Account number must be at least 4 characters')
     .max(50, 'Account number must be less than 50 characters'),
   swiftBic: z.string()
-    .regex(/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/i, 'Invalid SWIFT/BIC code format')
     .optional()
     .or(z.literal('')),
   iban: z.string().max(50, 'IBAN must be less than 50 characters').optional().or(z.literal(''))
