@@ -450,10 +450,7 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 transition-all duration-200 group-hover:bg-violet-600 group-hover:border-violet-600">
                         <UserCheck className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <div className="flex items-center gap-2 flex-1">
-                        <CardTitle className="text-lg">Flow 3 - Candidate Data Collection</CardTitle>
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                      </div>
+                      <CardTitle className="text-lg flex-1">Flow 3 - Candidate Data Collection</CardTitle>
                       <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
                         🔒
                       </Badge>
