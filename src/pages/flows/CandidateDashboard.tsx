@@ -51,6 +51,7 @@ const CandidateDashboard = () => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [contractDrawerOpen, setContractDrawerOpen] = useState(false);
   const { setOpen, simulateResponse } = useAgentState();
+  const [demoMode, setDemoMode] = useState(true); // Enable demo mode
 
   // Trigger confetti on arrival from onboarding
   useEffect(() => {
@@ -121,8 +122,75 @@ const CandidateDashboard = () => {
         label: docusignStatus === "sent" ? "Sign Now" : undefined,
         onClick: () => {
           toast.info("Opening DocuSign...");
-          // Simulate opening DocuSign
-          setTimeout(() => setDocusignStatus("opened"), 1000);
+          
+          if (demoMode) {
+            // Demo mode: Auto-complete the signing flow
+            setTimeout(() => {
+              // Step 1: Update to opened
+              setDocusignStatus("opened");
+              
+              setTimeout(() => {
+                // Step 2: Mark as signed by candidate
+                setDocusignStatus("signer_completed");
+                
+                setTimeout(() => {
+                  // Step 3: Update contract steps - mark sign_contract as complete
+                  setContractSteps(prev => prev.map(step => {
+                    if (step.id === "sign_contract") {
+                      return { ...step, status: "complete" as ContractStepStatus };
+                    }
+                    if (step.id === "counter_signature") {
+                      return { ...step, status: "active" as ContractStepStatus };
+                    }
+                    return step;
+                  }));
+                  
+                  setTimeout(() => {
+                    // Step 4: Complete counter-signature
+                    setContractSteps(prev => prev.map(step => {
+                      if (step.id === "counter_signature") {
+                        return { ...step, status: "complete" as ContractStepStatus };
+                      }
+                      if (step.id === "contract_certified") {
+                        return { ...step, status: "active" as ContractStepStatus };
+                      }
+                      return step;
+                    }));
+                    
+                    setTimeout(() => {
+                      // Step 5: Complete certification
+                      setDocusignStatus("completed");
+                      setContractSteps(prev => prev.map(step => {
+                        if (step.id === "contract_certified") {
+                          return { ...step, status: "complete" as ContractStepStatus };
+                        }
+                        return step;
+                      }));
+                      
+                      // Step 6: Activate and complete documents
+                      setDocumentSteps(prev => prev.map(step => ({
+                        ...step,
+                        status: "complete" as ContractStepStatus
+                      })));
+                      
+                      // Show success toast
+                      toast.success("Your contract has been signed and certified.");
+                      
+                      // Trigger confetti
+                      confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                      });
+                    }, 1000);
+                  }, 1000);
+                }, 1000);
+              }, 1000);
+            }, 2000);
+          } else {
+            // Real mode: Just open DocuSign
+            setTimeout(() => setDocusignStatus("opened"), 1000);
+          }
         },
       },
     },
@@ -506,6 +574,15 @@ const CandidateDashboard = () => {
                   </div>
                 </div>
               </main>
+
+              {/* Demo Mode Indicator */}
+              {demoMode && (
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+                  <Badge variant="outline" className="bg-card/95 backdrop-blur-sm border-muted-foreground/30 text-muted-foreground px-4 py-2 shadow-lg">
+                    🎭 Demo mode active – no documents were actually signed.
+                  </Badge>
+                </div>
+              )}
             </AgentLayout>
           </div>
         </div>
