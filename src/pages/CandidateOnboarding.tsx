@@ -105,18 +105,19 @@ const CandidateOnboarding = () => {
       setExpandedStep(nextStep.id);
       scrollToStep(nextStep.id);
     } else {
-      // All steps complete - show loading and redirect to dashboard
+      // All steps complete - show success message
       setIsSubmitting(true);
       setExpandedStep(null);
       
-      // Fire silent analytics event (if backend is configured)
-      // logEvent?.({ type: 'onboarding_complete', candidateId });
+      // Show success toast
+      toast({
+        title: "Form submitted successfully!",
+        description: `Your data has been sent to ${allFormData.fullName}. Kurt will handle the ATS notification automatically.`,
+      });
       
-      // Short delay with loading state
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Navigate directly to dashboard
-      navigate('/candidate-dashboard');
+      // Wait a bit then navigate to admin dashboard
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      navigate('/flows/dashboard-admin');
     }
   };
 
@@ -148,8 +149,13 @@ const CandidateOnboarding = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center gap-4"
           >
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="text-lg font-medium text-foreground">Wrapping up your setup...</p>
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-lg font-medium text-foreground">Form submitted successfully!</p>
+            <p className="text-sm text-muted-foreground">Redirecting to dashboard...</p>
           </motion.div>
         </div>
       )}
