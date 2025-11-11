@@ -56,30 +56,7 @@ const StepCard = ({
       
     return (
       <div className="transition-all duration-300 ease-out overflow-hidden relative z-10 motion-reduce:transition-none">
-        <Card className={`pt-4 pb-4 px-4 sm:pt-4 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
-          <div 
-            className="flex justify-between items-center mb-4 cursor-pointer" 
-            onClick={onClick}
-            data-step-header
-            id={headerId}
-          >
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {status === "completed" ? (
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />
-              ) : (
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium flex-shrink-0">
-                  {stepNumber}
-                </div>
-              )}
-              <div className="truncate">
-                <h3 className="text-sm font-semibold text-foreground truncate">{title}</h3>
-              </div>
-            </div>
-            <div className="flex-shrink-0 ml-2">
-              {getStatusBadge()}
-            </div>
-          </div>
-
+        <Card className={`pt-2 pb-4 px-4 sm:pt-2 sm:pb-5 sm:px-5 ${borderClass} ${activeClass} backdrop-blur-md hover:bg-[rgba(240,245,255,0.3)] transition-all duration-200 ease-out shadow-[0_8px_16px_rgba(255,255,255,0.1)] relative isolate focus:outline-none focus-visible:outline-none animate-fade-in origin-top`}>
           <div className="space-y-4 animate-fade-in motion-reduce:animate-none">
             {children}
           </div>
