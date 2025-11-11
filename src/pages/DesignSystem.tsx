@@ -343,14 +343,14 @@ const DesignSystem = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link to="/flows/admin/onboarding">
                 <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
+                  <CardHeader className="relative">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
                         <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
                       <CardTitle className="text-lg">Flow 1 — Admin Onboarding</CardTitle>
                     </div>
-                    <Badge variant="secondary" className="bg-muted text-muted-foreground border-border mb-2">
+                    <Badge variant="secondary" className="absolute right-4 top-4 bg-muted text-muted-foreground border-border">
                       🔒 Locked
                     </Badge>
                     <CardDescription className="line-clamp-3">
