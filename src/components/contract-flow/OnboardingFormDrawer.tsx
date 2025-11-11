@@ -467,27 +467,18 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting || isSavingDraft}
+              disabled={isSubmitting}
               className="flex-1"
             >
               Cancel
             </Button>
             <Button
               type="button"
-              variant="secondary"
-              onClick={handleSaveDraft}
-              disabled={isSubmitting || isSavingDraft}
-              className="flex-1"
-            >
-              {isSavingDraft ? "Saving..." : "Save as Draft"}
-            </Button>
-            <Button
-              type="button"
               onClick={handleSendForm}
-              disabled={isSubmitting || isSavingDraft}
+              disabled={isSubmitting}
               className="flex-1"
             >
-              {isSubmitting ? "Sending..." : (isResend ? "Resend Form" : "Send Form")}
+              {isSubmitting ? "Resending..." : "Resend Form"}
             </Button>
           </div>
         </div>
