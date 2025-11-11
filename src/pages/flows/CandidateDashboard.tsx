@@ -179,13 +179,7 @@ const CandidateDashboard = () => {
                       description: getSigningDescription("fully_signed"),
                       status: "complete" as ContractStepStatus,
                       signingSubStatus: "fully_signed",
-                      action: {
-                        label: "View Certificate",
-                        onClick: () => {
-                          window.open("#", "_blank");
-                          toast.success("Opening certificate...");
-                        }
-                      }
+                      action: undefined
                     };
                   }
                   if (step.id === "counter_signature" || step.id === "contract_certified") {
