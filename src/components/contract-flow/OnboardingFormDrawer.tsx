@@ -167,7 +167,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={candidate.email || ""} disabled className="bg-muted/50" />
+              <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50" />
               <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
             </div>
 
