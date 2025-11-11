@@ -37,7 +37,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
     >
       <AgentHeader
         title="Review Contracts"
-        subtitle="Kurt can help with: highlighting changes, checking compliance, or previewing contracts."
+        subtitle="Ready to send contract bundles to your candidates for electronic signature."
         showPulse={true}
         isActive={isAgentSpeaking}
         showInput={false}
