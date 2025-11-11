@@ -562,7 +562,7 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
                         <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 5 — Candidate Checklist</CardTitle>
+                      <CardTitle className="text-lg">Flow 5 — Candidate Dashboard</CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">
                       Post-onboarding home for candidates with a guided checklist, metrics, and AI help via Genie. Auto-hides completed items and celebrates completion.
