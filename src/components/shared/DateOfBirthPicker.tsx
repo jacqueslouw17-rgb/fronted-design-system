@@ -51,7 +51,7 @@ const DateOfBirthPicker = ({
             id="dateOfBirth"
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal hover:bg-transparent hover:text-current",
               !value && "text-muted-foreground"
             )}
           >
