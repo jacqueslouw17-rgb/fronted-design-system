@@ -2,6 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
 import { toast } from "@/hooks/use-toast";
 import StepCard from "@/components/StepCard";
@@ -105,19 +113,16 @@ const CandidateOnboarding = () => {
       setExpandedStep(nextStep.id);
       scrollToStep(nextStep.id);
     } else {
-      // All steps complete - show success message
+      // All steps complete - show success modal with confetti
       setIsSubmitting(true);
       setExpandedStep(null);
       
-      // Show success toast
-      toast({
-        title: "Form submitted successfully!",
-        description: `Your data has been sent to ${allFormData.fullName}. Kurt will handle the ATS notification automatically.`,
+      // Fire confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
-      
-      // Wait a bit then navigate to admin dashboard
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      navigate('/flows/dashboard-admin');
     }
   };
 
@@ -142,23 +147,28 @@ const CandidateOnboarding = () => {
 
   return (
     <AgentLayout context="Candidate Onboarding">
-      {isSubmitting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center gap-4"
-          >
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+      <AlertDialog open={isSubmitting}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <svg className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
             </div>
-            <p className="text-lg font-medium text-foreground">Form submitted successfully!</p>
-            <p className="text-sm text-muted-foreground">Redirecting to dashboard...</p>
-          </motion.div>
-        </div>
-      )}
+            <AlertDialogTitle className="text-center text-2xl">Form Submitted Successfully!</AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base">
+              Thanks, {allFormData.fullName?.split(' ')[0] || "there"}! Your details have been sent to the admin for verification.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <Button onClick={() => navigate('/flows/dashboard-admin')} className="w-full sm:w-auto">
+              Return to Dashboard
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
