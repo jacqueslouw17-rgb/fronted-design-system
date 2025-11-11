@@ -18,16 +18,19 @@ interface PrefilledData {
   role: string;
   salary: string;
   employmentType: string;
+  startDate: string | null;
 }
 
 interface RequiredFields {
   idType: string;
   idNumber: string;
   taxResidence: string;
+  city: string;
   nationality: string;
   address: string;
   bankName: string;
   accountNumber: string;
+  payFrequency: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }
@@ -41,7 +44,8 @@ const CandidateDataCollection: React.FC = () => {
     email: "sofia.rodriguez@email.com",
     role: "Marketing Manager",
     salary: "$72,000 USD",
-    employmentType: "Contractor"
+    employmentType: "Contractor",
+    startDate: "2025-02-01" // null if not available from ATS
   });
 
   // Required fields state
@@ -49,10 +53,12 @@ const CandidateDataCollection: React.FC = () => {
     idType: "",
     idNumber: "",
     taxResidence: "",
+    city: "",
     nationality: "",
     address: "",
     bankName: "",
     accountNumber: "",
+    payFrequency: "",
     emergencyContactName: "",
     emergencyContactPhone: ""
   });
@@ -64,10 +70,12 @@ const CandidateDataCollection: React.FC = () => {
       formData.idType &&
       formData.idNumber &&
       formData.taxResidence &&
+      formData.city &&
       formData.nationality &&
       formData.address &&
       formData.bankName &&
-      formData.accountNumber
+      formData.accountNumber &&
+      formData.payFrequency
     );
   };
 
@@ -177,10 +185,18 @@ const CandidateDataCollection: React.FC = () => {
                   <p className="text-xs text-muted-foreground">Confirmed by admin</p>
                 </div>
 
+                {prefilledData.startDate && (
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <Input value={prefilledData.startDate} disabled className="bg-muted/50" />
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  </div>
+                )}
+
                 {/* Divider */}
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-4">
-                    Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by candidate</Badge>
+                    Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by you</Badge>
                   </p>
                 </div>
 
@@ -219,6 +235,18 @@ const CandidateDataCollection: React.FC = () => {
                     placeholder="e.g., Mexico"
                     value={formData.taxResidence}
                     onChange={(e) => setFormData({ ...formData, taxResidence: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    City
+                    <Badge variant="secondary" className="text-xs">Required</Badge>
+                  </Label>
+                  <Input
+                    placeholder="e.g., Monterrey"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   />
                 </div>
 
@@ -263,6 +291,26 @@ const CandidateDataCollection: React.FC = () => {
                     value={formData.accountNumber}
                     onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Pay Frequency
+                    <Badge variant="secondary" className="text-xs">Required</Badge>
+                  </Label>
+                  <Select 
+                    value={formData.payFrequency} 
+                    onValueChange={(value) => setFormData({ ...formData, payFrequency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Pay Frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
