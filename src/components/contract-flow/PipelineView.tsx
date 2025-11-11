@@ -1060,14 +1060,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <FileEdit className="h-3 w-3 mr-1" />
                       Draft Contracts ({getSelectedCount(status)})
                     </Button>
-                    
-                    {/* Manual Review Toggle */}
-                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border border-border/50">
-                      <Label htmlFor="require-review" className="text-[10px] leading-tight cursor-pointer">
-                        Require manual approval
-                      </Label>
-                      <Checkbox id="require-review" className="h-3 w-3" />
-                    </div>
                   </div>
                 )}
                 
