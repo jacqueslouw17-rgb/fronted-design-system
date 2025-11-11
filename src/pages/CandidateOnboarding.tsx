@@ -58,10 +58,10 @@ const CandidateOnboarding = () => {
           role: "Marketing Manager",
           salary: "$72,000 USD",
           employmentType: "Contractor",
+          startDate: "2025-02-01",
           country: "Mexico",
           companyName: "Fronted Inc",
-          jobTitle: "Marketing Manager",
-          startDate: "2024-02-01"
+          jobTitle: "Marketing Manager"
         });
       }
       

@@ -28,13 +28,16 @@ const CandidateStep2PersonalDetails = ({
     role: formData.role || "",
     salary: formData.salary || "",
     employmentType: formData.employmentType || "",
+    startDate: formData.startDate || null,
     idType: formData.idType || "",
     idNumber: formData.idNumber || "",
     taxResidence: formData.taxResidence || "",
+    city: formData.city || "",
     nationality: formData.nationality || undefined,
     address: formData.address || "",
     bankName: formData.bankName || "",
     accountNumber: formData.accountNumber || "",
+    payFrequency: formData.payFrequency || "",
     emergencyContactName: formData.emergencyContactName || "",
     emergencyContactPhone: formData.emergencyContactPhone || ""
   });
@@ -47,13 +50,16 @@ const CandidateStep2PersonalDetails = ({
       role: formData.role || "",
       salary: formData.salary || "",
       employmentType: formData.employmentType || "",
+      startDate: formData.startDate || null,
       idType: formData.idType || "",
       idNumber: formData.idNumber || "",
       taxResidence: formData.taxResidence || "",
+      city: formData.city || "",
       nationality: formData.nationality || undefined,
       address: formData.address || "",
       bankName: formData.bankName || "",
       accountNumber: formData.accountNumber || "",
+      payFrequency: formData.payFrequency || "",
       emergencyContactName: formData.emergencyContactName || "",
       emergencyContactPhone: formData.emergencyContactPhone || ""
     });
@@ -61,7 +67,7 @@ const CandidateStep2PersonalDetails = ({
   const handleContinue = () => {
     onComplete("personal_details", data);
   };
-  const isValid = data.fullName && data.email && data.idType && data.idNumber && data.taxResidence && data.nationality && data.address && data.bankName && data.accountNumber;
+  const isValid = data.fullName && data.email && data.idType && data.idNumber && data.taxResidence && data.city && data.nationality && data.address && data.bankName && data.accountNumber && data.payFrequency;
   return <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
         
@@ -105,6 +111,14 @@ const CandidateStep2PersonalDetails = ({
             <p className="text-xs text-muted-foreground">Confirmed by admin</p>
           </div>
 
+          {data.startDate && (
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Input value={data.startDate} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+          )}
+
           {/* Divider */}
           <div className="pt-4 border-t border-border">
             <p className="text-xs font-medium text-muted-foreground mb-4">
@@ -145,6 +159,17 @@ const CandidateStep2PersonalDetails = ({
             <Input placeholder="e.g., Mexico" value={data.taxResidence} onChange={e => setData({
           ...data,
           taxResidence: e.target.value
+        })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              City
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Input placeholder="e.g., Monterrey" value={data.city} onChange={e => setData({
+          ...data,
+          city: e.target.value
         })} />
           </div>
 
@@ -199,6 +224,26 @@ const CandidateStep2PersonalDetails = ({
           ...data,
           accountNumber: e.target.value
         })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              Pay Frequency
+              <Badge variant="secondary" className="text-xs">Required</Badge>
+            </Label>
+            <Select value={data.payFrequency} onValueChange={value => setData({
+          ...data,
+          payFrequency: value
+        })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Pay Frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
