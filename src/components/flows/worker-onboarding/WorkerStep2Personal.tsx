@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, AlertCircle, Sparkles } from "lucide-react";
+import { ArrowRight, AlertCircle, Sparkles, Lock, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
@@ -212,9 +212,13 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
       )}
 
       <div className="space-y-4">
+        {/* Read-only field: Full Name */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="fullName">Full Name *</Label>
+            <Label htmlFor="fullName" className="flex items-center gap-2">
+              Full Name *
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            </Label>
             {autoFilledFields.has('fullName') && (
               <motion.span
                 initial={{ opacity: 0, x: -5 }}
@@ -229,8 +233,8 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
           <Input
             id="fullName"
             value={data.fullName}
-            onChange={(e) => handleInputChange('fullName', e.target.value)}
-            placeholder="Enter your full legal name"
+            disabled
+            className="bg-muted/50 cursor-not-allowed"
           />
         </div>
 
@@ -280,21 +284,63 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
           />
         </div>
 
-        <DateOfBirthPicker
-          value={data.dateOfBirth}
-          onChange={handleDateChange}
-          autoFilled={autoFilledFields.has('dateOfBirth')}
-        />
-
-        <NationalitySelect
-          value={data.nationality}
-          onValueChange={handleNationalityChange}
-          autoFilled={autoFilledFields.has('nationality')}
-        />
-
+        {/* Read-only field: Date of Birth */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="address">Residential Address</Label>
+            <Label className="flex items-center gap-2">
+              Date of Birth *
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            </Label>
+            {autoFilledFields.has('dateOfBirth') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
+          <Input
+            value={data.dateOfBirth ? data.dateOfBirth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
+            disabled
+            className="bg-muted/50 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Read-only field: Nationality */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center gap-2">
+              Nationality *
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            </Label>
+            {autoFilledFields.has('nationality') && (
+              <motion.span
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3" />
+                Auto-filled by Kurt
+              </motion.span>
+            )}
+          </div>
+          <Input
+            value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality}
+            disabled
+            className="bg-muted/50 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Read-only field: Residential Address */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="address" className="flex items-center gap-2">
+              Residential Address *
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            </Label>
             {autoFilledFields.has('address') && (
               <motion.span
                 initial={{ opacity: 0, x: -5 }}
@@ -309,16 +355,23 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
           <Input
             id="address"
             value={data.address}
-            onChange={(e) => handleInputChange('address', e.target.value)}
-            placeholder="Street, City, Postal Code"
+            disabled
+            className="bg-muted/50 cursor-not-allowed"
           />
         </div>
       </div>
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-600 dark:text-blue-400">
-          💡 <strong>Kurt says:</strong> Make sure your legal name matches your government ID exactly for compliance purposes.
-        </p>
+      {/* Info banner about contract-linked fields */}
+      <div className="bg-blue-500/10 border-l-4 border-blue-500 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-blue-600 dark:text-blue-400">
+              <strong>Kurt says:</strong> Some details like your name, date of birth, or nationality are linked to your contract.
+              To update these, please contact your HR representative so your contract stays accurate.
+            </p>
+          </div>
+        </div>
       </div>
 
       <Button
