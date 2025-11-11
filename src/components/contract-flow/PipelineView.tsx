@@ -755,9 +755,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         newSet.delete(contractorId);
         return newSet;
       });
-      
-      const contractor = contractors.find(c => c.id === contractorId);
-      toast.success(`Form sent to ${contractor?.name}`);
     }, 800);
   };
 

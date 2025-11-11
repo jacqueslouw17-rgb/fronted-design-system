@@ -66,6 +66,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     });
     
     setIsSubmitting(false);
+    onSent();
     onOpenChange(false);
   };
 
