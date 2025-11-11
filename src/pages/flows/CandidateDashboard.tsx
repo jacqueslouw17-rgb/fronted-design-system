@@ -238,10 +238,6 @@ const CandidateDashboard = () => {
       label: "Contract Certified",
       description: "Your contract is fully signed and verified.",
       status: "pending",
-      action: {
-        label: "View Certificate",
-        onClick: () => toast.success("Opening certificate..."),
-      },
     },
   ]);
 
