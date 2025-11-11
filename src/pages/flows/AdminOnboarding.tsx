@@ -1,3 +1,19 @@
+/**
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
+ * 
+ * Flow 1 — Admin Onboarding
+ * Status: LOCKED (finalized for backend integration)
+ * Locked Date: 2025-01-13
+ * 
+ * This flow is finalized and frozen. Do NOT make changes to:
+ * - Structure (steps, navigation, flow control)
+ * - Design (styling, layout, components)
+ * - Logic (validation, state management, business rules)
+ * 
+ * Batch updates, pattern-level edits, or refactoring should skip this flow.
+ * To unlock, update src/config/flowRegistry.ts
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, PanelLeft } from "lucide-react";

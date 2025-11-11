@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Workflow, Plus } from "lucide-react";
+import { ArrowLeft, Workflow, Plus, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -201,7 +201,8 @@ const Flows = () => {
       steps: 5,
       patterns: ["genie-onboarding", "step-card-progress", "inline-edit"],
       path: "/candidate-onboarding/1",
-      comingSoon: false
+      comingSoon: false,
+      locked: true
     },
     {
       id: "f4-worker-onboarding",
@@ -260,10 +261,15 @@ const Flows = () => {
                     <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
                       <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                     </div>
-                    <CardTitle className="text-lg flex-1">{flow.title}</CardTitle>
+                    <div className="flex items-center gap-2 flex-1">
+                      <CardTitle className="text-lg">{flow.title}</CardTitle>
+                      {('locked' in flow && flow.locked) && (
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
                     {('locked' in flow && flow.locked) && (
                       <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
+                        🔒 Locked
                       </Badge>
                     )}
                   </div>
