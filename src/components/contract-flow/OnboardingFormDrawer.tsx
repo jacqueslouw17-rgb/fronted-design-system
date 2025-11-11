@@ -406,17 +406,19 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </div>
               ))}
 
-              {/* Add custom field button */}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddCustomField}
-                className="w-full flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add Custom Field
-              </Button>
+              {/* Add custom field button - hidden for now */}
+              {false && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddCustomField}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Custom Field
+                </Button>
+              )}
             </div>
           </div>
 
