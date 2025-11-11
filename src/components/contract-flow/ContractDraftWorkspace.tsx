@@ -13,7 +13,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
 
-type DocumentType = "employment-agreement" | "nda" | "data-privacy";
+type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
   index: number;
@@ -49,6 +49,51 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         text: `This Agreement shall be governed by the laws of ${candidate.country}.`
       }];
     
+    case "contractor-agreement":
+      return [{
+        heading: "INDEPENDENT CONTRACTOR AGREEMENT",
+        text: ""
+      }, {
+        heading: "",
+        text: `This Independent Contractor Agreement ("Agreement") is entered into between Fronted AS ("Company") and ${candidate.name} ("Contractor").`
+      }, {
+        heading: "1. SCOPE OF SERVICES",
+        text: `Contractor will provide services as ${candidate.role}. Contractor acknowledges they are an independent contractor and not an employee.`
+      }, {
+        heading: "2. COMPENSATION",
+        text: `Contractor will receive ${candidate.salary}, payable in ${candidate.currency} on a monthly basis for services rendered.`
+      }, {
+        heading: "3. TERM",
+        text: `This Agreement commences on ${candidate.startDate} and continues until terminated by either party with ${candidate.noticePeriod} written notice.`
+      }, {
+        heading: "4. INDEPENDENT CONTRACTOR STATUS",
+        text: "Contractor is responsible for all taxes, insurance, and benefits. Company will not withhold taxes or provide employee benefits."
+      }, {
+        heading: "5. INTELLECTUAL PROPERTY",
+        text: "All work product created under this Agreement shall be considered work-made-for-hire and property of the Company."
+      }];
+    
+    case "country-compliance":
+      return [{
+        heading: `COUNTRY COMPLIANCE ATTACHMENTS (${candidate.countryCode})`,
+        text: ""
+      }, {
+        heading: "",
+        text: `This attachment supplements the Employment Agreement and includes mandatory clauses for ${candidate.country}.`
+      }, {
+        heading: "1. LOCAL LABOR LAW COMPLIANCE",
+        text: `This employment relationship is governed by ${candidate.country} labor laws including regulations on working hours, overtime, holidays, and termination procedures.`
+      }, {
+        heading: "2. STATUTORY BENEFITS",
+        text: `Employee is entitled to all statutory benefits required under ${candidate.country} law, including but not limited to: government-mandated insurance, pension contributions, and statutory leave entitlements.`
+      }, {
+        heading: "3. MANDATORY CLAUSES",
+        text: `In accordance with ${candidate.country} employment regulations, this Agreement includes all mandatory clauses required by local law regarding: workplace safety, anti-discrimination, harassment prevention, and dispute resolution.`
+      }, {
+        heading: "4. LOCAL LANGUAGE REQUIREMENTS",
+        text: `This Agreement has been prepared in English. In accordance with local requirements, a certified translation in the official language of ${candidate.country} shall be provided if required by law.`
+      }];
+    
     case "nda":
       return [{
         heading: "NON-DISCLOSURE AGREEMENT",
@@ -58,19 +103,37 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         text: `This Non-Disclosure Agreement ("Agreement") is made between Fronted AS ("Company") and ${candidate.name} ("Recipient").`
       }, {
         heading: "1. CONFIDENTIAL INFORMATION",
-        text: "Recipient acknowledges that during employment, they may have access to confidential and proprietary information including but not limited to: trade secrets, business strategies, client lists, technical data, and product designs."
+        text: "Recipient acknowledges that during the relationship, they may have access to confidential and proprietary information including but not limited to: trade secrets, business strategies, client lists, technical data, and product designs."
       }, {
         heading: "2. OBLIGATIONS",
-        text: "Recipient agrees to: (a) maintain confidentiality of all proprietary information, (b) not disclose such information to third parties, (c) use information solely for employment purposes, (d) return all materials upon termination."
+        text: "Recipient agrees to: (a) maintain confidentiality of all proprietary information, (b) not disclose such information to third parties, (c) use information solely for authorized purposes, (d) return all materials upon termination."
       }, {
         heading: "3. EXCLUSIONS",
         text: "This Agreement does not apply to information that: (a) is publicly available, (b) was known prior to disclosure, (c) is independently developed, or (d) is required to be disclosed by law."
       }, {
         heading: "4. TERM",
-        text: "The obligations under this Agreement shall remain in effect during employment and for 3 years following termination."
+        text: "The obligations under this Agreement shall remain in effect during the relationship and for 3 years following termination."
+      }];
+    
+    case "nda-policy":
+      return [{
+        heading: "NDA & COMPANY POLICY ACKNOWLEDGMENT",
+        text: ""
       }, {
-        heading: "5. REMEDIES",
-        text: "Recipient acknowledges that breach of this Agreement may cause irreparable harm, and Company is entitled to seek injunctive relief in addition to other remedies."
+        heading: "",
+        text: `This document serves as acknowledgment by ${candidate.name} of receipt and understanding of Company policies and confidentiality obligations.`
+      }, {
+        heading: "1. CONFIDENTIALITY AGREEMENT",
+        text: "Employee/Contractor agrees to maintain confidentiality of all Company proprietary information, trade secrets, client data, and business strategies. This obligation extends beyond termination of the relationship."
+      }, {
+        heading: "2. COMPANY POLICIES",
+        text: "I acknowledge receipt of and agree to comply with all Company policies including: Code of Conduct, Information Security Policy, Anti-Harassment Policy, and Data Protection Guidelines."
+      }, {
+        heading: "3. INTELLECTUAL PROPERTY",
+        text: "I understand that all work product, inventions, and intellectual property created during my engagement with the Company belongs exclusively to the Company."
+      }, {
+        heading: "4. POLICY ACKNOWLEDGMENT",
+        text: "I confirm that I have read, understood, and agree to abide by all Company policies. I understand that violation of these policies may result in disciplinary action up to and including termination."
       }];
     
     case "data-privacy":
@@ -79,25 +142,22 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         text: ""
       }, {
         heading: "",
-        text: `This Data Privacy Addendum supplements the Employment Agreement between Fronted AS ("Company") and ${candidate.name} ("Employee").`
+        text: `This Data Privacy Addendum supplements the Agreement between Fronted AS ("Company") and ${candidate.name}.`
       }, {
         heading: "1. DATA COLLECTION",
-        text: `Company collects and processes personal data in accordance with ${candidate.country} data protection laws, including: contact information, identification documents, banking details, and employment records.`
+        text: `Company collects and processes personal data in accordance with ${candidate.country} data protection laws, including: contact information, identification documents, banking details, and work records.`
       }, {
         heading: "2. PURPOSE OF PROCESSING",
-        text: "Personal data is processed for: employment administration, payroll processing, compliance with legal obligations, benefits administration, and performance management."
+        text: "Personal data is processed for: administration, payroll processing, compliance with legal obligations, benefits administration, and performance management."
       }, {
         heading: "3. DATA RIGHTS",
-        text: "Employee has the right to: access personal data, request corrections, request deletion (subject to legal requirements), object to processing, and lodge complaints with supervisory authorities."
+        text: "You have the right to: access personal data, request corrections, request deletion (subject to legal requirements), object to processing, and lodge complaints with supervisory authorities."
       }, {
         heading: "4. DATA SECURITY",
         text: "Company implements appropriate technical and organizational measures to protect personal data against unauthorized access, alteration, disclosure, or destruction."
       }, {
         heading: "5. DATA RETENTION",
-        text: "Personal data will be retained for the duration of employment and as required by law, typically 7 years after termination for tax and employment law purposes."
-      }, {
-        heading: "6. CROSS-BORDER TRANSFERS",
-        text: "If data is transferred internationally, Company ensures adequate protection through standard contractual clauses or other approved mechanisms."
+        text: "Personal data will be retained for the duration of the relationship and as required by law, typically 7 years after termination for tax and employment law purposes."
       }];
   }
 };
@@ -107,34 +167,64 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   total,
   onNext
 }) => {
-  const [activeDocument, setActiveDocument] = useState<DocumentType>("employment-agreement");
+  // Determine employment type (default to contractor if not specified)
+  const employmentType = candidate.employmentType || "contractor";
+  
+  // Define available documents based on employment type
+  const getAvailableDocuments = () => {
+    if (employmentType === "employee") {
+      return [
+        { 
+          id: "employment-agreement" as DocumentType, 
+          label: "Employment Agreement", 
+          icon: FileText,
+          shortLabel: "Employment"
+        },
+        { 
+          id: "country-compliance" as DocumentType, 
+          label: `Country Compliance (${candidate.countryCode})`, 
+          icon: Shield,
+          shortLabel: "Compliance"
+        },
+        { 
+          id: "nda-policy" as DocumentType, 
+          label: "NDA / Policy Docs", 
+          icon: Handshake,
+          shortLabel: "NDA/Policy"
+        }
+      ];
+    } else {
+      return [
+        { 
+          id: "contractor-agreement" as DocumentType, 
+          label: "Contractor Agreement", 
+          icon: FileText,
+          shortLabel: "Contract"
+        },
+        { 
+          id: "nda" as DocumentType, 
+          label: "Non-Disclosure Agreement", 
+          icon: Handshake,
+          shortLabel: "NDA"
+        },
+        { 
+          id: "data-privacy" as DocumentType, 
+          label: `Data Privacy (${candidate.countryCode})`, 
+          icon: ScrollText,
+          shortLabel: "Privacy"
+        }
+      ];
+    }
+  };
+
+  const documents = getAvailableDocuments();
+  const [activeDocument, setActiveDocument] = useState<DocumentType>(documents[0].id);
   const fullContent = getContractContent(candidate, activeDocument);
   const {
     setOpen,
     addMessage,
     isSpeaking: isAgentSpeaking
   } = useAgentState();
-
-  const documents = [
-    { 
-      id: "employment-agreement" as DocumentType, 
-      label: "Employment Agreement", 
-      icon: FileText,
-      shortLabel: "Employment"
-    },
-    { 
-      id: "nda" as DocumentType, 
-      label: "Non-Disclosure Agreement", 
-      icon: Handshake,
-      shortLabel: "NDA"
-    },
-    { 
-      id: "data-privacy" as DocumentType, 
-      label: `Data Privacy (${candidate.countryCode})`, 
-      icon: ScrollText,
-      shortLabel: "Privacy"
-    },
-  ];
   const handleKurtAction = async (action: string) => {
     setOpen(true);
     switch (action) {
