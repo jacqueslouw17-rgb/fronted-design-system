@@ -200,6 +200,9 @@ const CandidateDashboard = () => {
                   status: "complete" as ContractStepStatus
                 })));
                 
+                // Auto-expand Step 2
+                setStep2Open(true);
+                
                 toast.success("All steps complete — your contract is certified and documents are ready.");
                 
                 // Trigger confetti
