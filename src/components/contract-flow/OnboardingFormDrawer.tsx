@@ -478,7 +478,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               disabled={isSubmitting}
               className="flex-1"
             >
-              {isSubmitting ? "Resending..." : "Resend Form"}
+              {isSubmitting ? "Sending..." : "Send Form"}
             </Button>
           </div>
         </div>
