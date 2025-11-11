@@ -1517,6 +1517,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
             handleSendForm(selectedContractor.id);
           }
         }}
+        isResend={selectedContractor?.status === "data-pending"}
       />
 
       {/* Document Bundle Drawer */}
