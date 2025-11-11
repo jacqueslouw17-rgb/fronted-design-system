@@ -1,49 +1,105 @@
-import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, Briefcase, Shield, FileText } from "lucide-react";
+import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
 import { ContractCarousel } from "./ContractCarousel";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
+
+type DocumentType = "employment-agreement" | "nda" | "data-privacy";
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
   index: number;
   total: number;
   onNext: () => void;
 }
-const getContractContent = (candidate: Candidate) => {
-  return [{
-    heading: "EMPLOYMENT AGREEMENT",
-    text: ""
-  }, {
-    heading: "",
-    text: `This Employment Agreement ("Agreement") is entered into between Fronted AS ("Company") and ${candidate.name} ("Employee").`
-  }, {
-    heading: "1. POSITION AND DUTIES",
-    text: `Employee will serve as ${candidate.role}, reporting to the Head of Engineering. Employee agrees to perform duties as assigned by the Company.`
-  }, {
-    heading: "2. COMPENSATION",
-    text: `Employee will receive a salary of ${candidate.salary}, payable in ${candidate.currency} on a monthly basis.`
-  }, {
-    heading: "3. START DATE",
-    text: `Employment will commence on ${candidate.startDate}.`
-  }, {
-    heading: "4. NOTICE PERIOD",
-    text: `Either party may terminate this Agreement with ${candidate.noticePeriod} written notice.`
-  }, {
-    heading: "5. PAID TIME OFF",
-    text: `Employee is entitled to ${candidate.pto} of paid time off annually.`
-  }, {
-    heading: "6. GOVERNING LAW",
-    text: `This Agreement shall be governed by the laws of ${candidate.country}.`
-  }];
+const getContractContent = (candidate: Candidate, documentType: DocumentType) => {
+  switch (documentType) {
+    case "employment-agreement":
+      return [{
+        heading: "EMPLOYMENT AGREEMENT",
+        text: ""
+      }, {
+        heading: "",
+        text: `This Employment Agreement ("Agreement") is entered into between Fronted AS ("Company") and ${candidate.name} ("Employee").`
+      }, {
+        heading: "1. POSITION AND DUTIES",
+        text: `Employee will serve as ${candidate.role}, reporting to the Head of Engineering. Employee agrees to perform duties as assigned by the Company.`
+      }, {
+        heading: "2. COMPENSATION",
+        text: `Employee will receive a salary of ${candidate.salary}, payable in ${candidate.currency} on a monthly basis.`
+      }, {
+        heading: "3. START DATE",
+        text: `Employment will commence on ${candidate.startDate}.`
+      }, {
+        heading: "4. NOTICE PERIOD",
+        text: `Either party may terminate this Agreement with ${candidate.noticePeriod} written notice.`
+      }, {
+        heading: "5. PAID TIME OFF",
+        text: `Employee is entitled to ${candidate.pto} of paid time off annually.`
+      }, {
+        heading: "6. GOVERNING LAW",
+        text: `This Agreement shall be governed by the laws of ${candidate.country}.`
+      }];
+    
+    case "nda":
+      return [{
+        heading: "NON-DISCLOSURE AGREEMENT",
+        text: ""
+      }, {
+        heading: "",
+        text: `This Non-Disclosure Agreement ("Agreement") is made between Fronted AS ("Company") and ${candidate.name} ("Recipient").`
+      }, {
+        heading: "1. CONFIDENTIAL INFORMATION",
+        text: "Recipient acknowledges that during employment, they may have access to confidential and proprietary information including but not limited to: trade secrets, business strategies, client lists, technical data, and product designs."
+      }, {
+        heading: "2. OBLIGATIONS",
+        text: "Recipient agrees to: (a) maintain confidentiality of all proprietary information, (b) not disclose such information to third parties, (c) use information solely for employment purposes, (d) return all materials upon termination."
+      }, {
+        heading: "3. EXCLUSIONS",
+        text: "This Agreement does not apply to information that: (a) is publicly available, (b) was known prior to disclosure, (c) is independently developed, or (d) is required to be disclosed by law."
+      }, {
+        heading: "4. TERM",
+        text: "The obligations under this Agreement shall remain in effect during employment and for 3 years following termination."
+      }, {
+        heading: "5. REMEDIES",
+        text: "Recipient acknowledges that breach of this Agreement may cause irreparable harm, and Company is entitled to seek injunctive relief in addition to other remedies."
+      }];
+    
+    case "data-privacy":
+      return [{
+        heading: `DATA PRIVACY ADDENDUM (${candidate.countryCode})`,
+        text: ""
+      }, {
+        heading: "",
+        text: `This Data Privacy Addendum supplements the Employment Agreement between Fronted AS ("Company") and ${candidate.name} ("Employee").`
+      }, {
+        heading: "1. DATA COLLECTION",
+        text: `Company collects and processes personal data in accordance with ${candidate.country} data protection laws, including: contact information, identification documents, banking details, and employment records.`
+      }, {
+        heading: "2. PURPOSE OF PROCESSING",
+        text: "Personal data is processed for: employment administration, payroll processing, compliance with legal obligations, benefits administration, and performance management."
+      }, {
+        heading: "3. DATA RIGHTS",
+        text: "Employee has the right to: access personal data, request corrections, request deletion (subject to legal requirements), object to processing, and lodge complaints with supervisory authorities."
+      }, {
+        heading: "4. DATA SECURITY",
+        text: "Company implements appropriate technical and organizational measures to protect personal data against unauthorized access, alteration, disclosure, or destruction."
+      }, {
+        heading: "5. DATA RETENTION",
+        text: "Personal data will be retained for the duration of employment and as required by law, typically 7 years after termination for tax and employment law purposes."
+      }, {
+        heading: "6. CROSS-BORDER TRANSFERS",
+        text: "If data is transferred internationally, Company ensures adequate protection through standard contractual clauses or other approved mechanisms."
+      }];
+  }
 };
 export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   candidate,
@@ -51,12 +107,34 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   total,
   onNext
 }) => {
-  const fullContent = getContractContent(candidate);
+  const [activeDocument, setActiveDocument] = useState<DocumentType>("employment-agreement");
+  const fullContent = getContractContent(candidate, activeDocument);
   const {
     setOpen,
     addMessage,
     isSpeaking: isAgentSpeaking
   } = useAgentState();
+
+  const documents = [
+    { 
+      id: "employment-agreement" as DocumentType, 
+      label: "Employment Agreement", 
+      icon: FileText,
+      shortLabel: "Employment"
+    },
+    { 
+      id: "nda" as DocumentType, 
+      label: "Non-Disclosure Agreement", 
+      icon: Handshake,
+      shortLabel: "NDA"
+    },
+    { 
+      id: "data-privacy" as DocumentType, 
+      label: `Data Privacy (${candidate.countryCode})`, 
+      icon: ScrollText,
+      shortLabel: "Privacy"
+    },
+  ];
   const handleKurtAction = async (action: string) => {
     setOpen(true);
     switch (action) {
@@ -383,6 +461,39 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         delay: 0.2,
         duration: 0.3
       }} className="flex-1 flex flex-col max-h-[600px]">
+        {/* Document Bundle Toggle */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.3 }}
+          className="mb-4 flex-shrink-0"
+        >
+          <div className="flex gap-2 p-1.5 bg-muted/30 rounded-lg border border-border/40">
+            {documents.map((doc) => {
+              const Icon = doc.icon;
+              const isActive = activeDocument === doc.id;
+              return (
+                <button
+                  key={doc.id}
+                  onClick={() => setActiveDocument(doc.id)}
+                  className={`
+                    flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
+                    text-sm font-medium transition-all duration-200
+                    ${isActive 
+                      ? 'bg-background text-foreground shadow-sm border border-border/60' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                    }
+                  `}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{doc.label}</span>
+                  <span className="sm:hidden">{doc.shortLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Info message */}
         <motion.div initial={{
           opacity: 0,
@@ -401,19 +512,29 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 
         <ScrollArea className="flex-1 overflow-auto">
           <div className="pr-4 pb-4">
-            {/* Static contract display */}
-            <Card className="p-6 mb-4 bg-background border-border">
-              <div className="space-y-4 select-none">
-                {fullContent.map((section, idx) => <div key={idx}>
-                    {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
-                        {section.heading}
-                      </h3>}
-                    {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                        {section.text}
-                      </p>}
-                  </div>)}
-              </div>
-            </Card>
+            {/* Static contract display with animation */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeDocument}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="p-6 mb-4 bg-background border-border">
+                  <div className="space-y-4 select-none">
+                    {fullContent.map((section, idx) => <div key={idx}>
+                        {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                            {section.heading}
+                          </h3>}
+                        {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                            {section.text}
+                          </p>}
+                      </div>)}
+                  </div>
+                </Card>
+              </motion.div>
+            </AnimatePresence>
 
             {/* Carousel navigation */}
             <motion.div initial={{
