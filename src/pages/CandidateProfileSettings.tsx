@@ -170,6 +170,12 @@ const CandidateProfileSettings = () => {
 
                 {/* Main Content */}
                 <div className="container mx-auto px-4 py-4 sm:py-8 max-w-3xl relative z-10 pb-20 sm:pb-8">
+                  {/* Back Button */}
+                  <Button variant="ghost" onClick={() => navigate("/candidate-dashboard")} className="mb-4">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  
                   {/* Header with Kurt */}
                   <AgentHeader
                     title="Profile Settings"
