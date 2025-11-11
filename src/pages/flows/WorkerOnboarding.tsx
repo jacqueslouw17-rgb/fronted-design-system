@@ -177,7 +177,7 @@ const WorkerOnboarding = () => {
         {/* Header with Agent */}
         <AgentHeader
           title="Hi Maria! Let's complete your onboarding"
-          subtitle="Review, confirm, and welcome your new hire onboard."
+          subtitle="Review and confirm your details below to finalize your profile."
           showPulse={true}
           isActive={isSpeaking}
           showInput={false}
