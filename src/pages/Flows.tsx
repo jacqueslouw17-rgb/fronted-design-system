@@ -207,11 +207,12 @@ const Flows = () => {
     {
       id: "f4-worker-onboarding",
       title: "Flow 4 — Worker Onboarding",
-      description: "Post-contract onboarding for workers: verify personal info, compliance docs, payroll setup, work agreements, and checklist completion guided by Kurt",
+      description: "Post-contract onboarding for workers: verify personal info, compliance docs, payroll setup, work agreements, and checklist completion guided by Kurt. Locked for backend build — no further changes allowed.",
       steps: 7,
       patterns: ["genie-onboarding", "step-card-progress", "compliance-checklist"],
       path: "/flows/worker-onboarding",
-      comingSoon: false
+      comingSoon: false,
+      locked: true
     },
     {
       id: "f5-candidate-checklist",

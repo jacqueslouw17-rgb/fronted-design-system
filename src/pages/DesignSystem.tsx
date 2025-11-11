@@ -506,10 +506,13 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 transition-all duration-200 group-hover:bg-emerald-600 group-hover:border-emerald-600">
                         <UserCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 4 — Candidate Onboarding</CardTitle>
+                      <CardTitle className="text-lg flex-1">Flow 4 — Candidate Onboarding</CardTitle>
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+                        🔒
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-3">
-                      Post-contract onboarding for workers: verify personal info, upload compliance docs, set up payroll, complete work setup, and review onboarding checklist for a smooth first day
+                      Post-contract onboarding for workers: verify personal info, upload compliance docs, set up payroll, complete work setup, and review onboarding checklist for a smooth first day. Locked for backend build — no further changes allowed.
                     </CardDescription>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
                       <span className="font-medium">7 steps</span>
