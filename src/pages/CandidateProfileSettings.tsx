@@ -170,7 +170,7 @@ const CandidateProfileSettings = () => {
 
                 {/* Back Button */}
                 <div className="relative z-10">
-                  <div className="max-w-3xl mx-auto px-6 pt-4 pb-2">
+                  <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
                     <Button variant="ghost" size="sm" onClick={() => navigate("/candidate-dashboard")} className="gap-2">
                       <ArrowLeft className="h-4 w-4" />
                       Back
