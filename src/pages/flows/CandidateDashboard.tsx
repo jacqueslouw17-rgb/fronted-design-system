@@ -5,7 +5,6 @@ import { CheckCircle2, FileText, Download, Eye, FileCheck, ChevronDown, Clock, C
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import Topbar from "@/components/dashboard/Topbar";
@@ -48,7 +47,6 @@ const CandidateDashboard = () => {
     country: "Philippines",
   };
 
-  const [showCompletion, setShowCompletion] = useState(false);
   const [contractDrawerOpen, setContractDrawerOpen] = useState(false);
   const { setOpen, simulateResponse } = useAgentState();
   const [demoMode, setDemoMode] = useState(true); // Enable demo mode
@@ -126,67 +124,51 @@ const CandidateDashboard = () => {
           if (demoMode) {
             // Demo mode: Auto-complete the signing flow
             setTimeout(() => {
-              // Step 1: Update to opened
-              setDocusignStatus("opened");
+              // Mark as signed by candidate
+              setDocusignStatus("signer_completed");
               
+              // Mark sign_contract as complete, counter_signature as active
+              setContractSteps(prev => prev.map(step => {
+                if (step.id === "sign_contract") {
+                  return { ...step, status: "complete" as ContractStepStatus };
+                }
+                if (step.id === "counter_signature") {
+                  return { ...step, status: "active" as ContractStepStatus };
+                }
+                return step;
+              }));
+              
+              toast.success("Contract signed. Awaiting admin counter-signature...");
+              
+              // Simulate admin counter-signature
               setTimeout(() => {
-                // Step 2: Mark as signed by candidate
-                setDocusignStatus("signer_completed");
+                setDocusignStatus("completed");
                 
-                setTimeout(() => {
-                  // Step 3: Update contract steps - mark sign_contract as complete
-                  setContractSteps(prev => prev.map(step => {
-                    if (step.id === "sign_contract") {
-                      return { ...step, status: "complete" as ContractStepStatus };
-                    }
-                    if (step.id === "counter_signature") {
-                      return { ...step, status: "active" as ContractStepStatus };
-                    }
-                    return step;
-                  }));
-                  
-                  setTimeout(() => {
-                    // Step 4: Complete counter-signature
-                    setContractSteps(prev => prev.map(step => {
-                      if (step.id === "counter_signature") {
-                        return { ...step, status: "complete" as ContractStepStatus };
-                      }
-                      if (step.id === "contract_certified") {
-                        return { ...step, status: "active" as ContractStepStatus };
-                      }
-                      return step;
-                    }));
-                    
-                    setTimeout(() => {
-                      // Step 5: Complete certification
-                      setDocusignStatus("completed");
-                      setContractSteps(prev => prev.map(step => {
-                        if (step.id === "contract_certified") {
-                          return { ...step, status: "complete" as ContractStepStatus };
-                        }
-                        return step;
-                      }));
-                      
-                      // Step 6: Activate and complete documents
-                      setDocumentSteps(prev => prev.map(step => ({
-                        ...step,
-                        status: "complete" as ContractStepStatus
-                      })));
-                      
-                      // Show success toast
-                      toast.success("Your contract has been signed and certified.");
-                      
-                      // Trigger confetti
-                      confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 },
-                      });
-                    }, 1000);
-                  }, 1000);
-                }, 1000);
+                // Complete counter-signature and certification
+                setContractSteps(prev => prev.map(step => {
+                  if (step.id === "counter_signature" || step.id === "contract_certified") {
+                    return { ...step, status: "complete" as ContractStepStatus };
+                  }
+                  return step;
+                }));
+                
+                // Activate and complete documents
+                setDocumentSteps(prev => prev.map(step => ({
+                  ...step,
+                  status: "complete" as ContractStepStatus
+                })));
+                
+                // Show final success toast
+                toast.success("All set. Contract certified. Documents are ready.");
+                
+                // Trigger confetti
+                confetti({
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                });
               }, 1000);
-            }, 2000);
+            }, 1200);
           } else {
             // Real mode: Just open DocuSign
             setTimeout(() => setDocusignStatus("opened"), 1000);
@@ -216,21 +198,29 @@ const CandidateDashboard = () => {
     {
       id: "signed_bundle",
       label: "Signed Contract Bundle",
-      description: "View or download your final signed contract.",
+      description: "Ready",
       status: "pending",
       action: {
-        label: "Download Contract PDF",
-        onClick: () => toast.info("Downloading contract..."),
+        label: "Download",
+        onClick: () => {
+          // Stub URL for demo - in production would be real signed PDF URL
+          window.open("#", "_blank");
+          toast.info("Downloading contract...");
+        },
       },
     },
     {
       id: "certificate",
       label: "Certificate of Contract",
-      description: "View and verify your certified contract record.",
+      description: "Ready",
       status: "pending",
       action: {
         label: "View Certificate",
-        onClick: () => toast.success("Opening certificate..."),
+        onClick: () => {
+          // Stub URL for demo - in production would be real certificate URL
+          window.open("#", "_blank");
+          toast.success("Opening certificate...");
+        },
       },
     },
   ]);
@@ -243,37 +233,6 @@ const CandidateDashboard = () => {
   // Check if certified
   const isCertified = contractSteps.find(s => s.id === "contract_certified")?.status === "complete";
 
-  // Auto-progress when candidate completes signing
-  useEffect(() => {
-    if (docusignStatus === "signer_completed") {
-      // Auto-transition to counter-signature step
-      setTimeout(() => {
-        const updatedSteps = contractSteps.map(step => {
-          if (step.id === "sign_contract") {
-            return { ...step, status: "complete" as ContractStepStatus };
-          }
-          if (step.id === "counter_signature") {
-            return { ...step, status: "active" as ContractStepStatus };
-          }
-          return step;
-        });
-        setContractSteps(updatedSteps);
-        toast.success(`Thanks, ${candidateProfile.firstName}! We've received your signature — HR will counter-sign next.`);
-      }, 500);
-    }
-  }, [docusignStatus, candidateProfile.firstName]);
-
-  useEffect(() => {
-    if (isCertified && !showCompletion) {
-      setShowCompletion(true);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-      toast.success("🎉 You're certified! Your contract has been fully signed and verified.");
-    }
-  }, [isCertified, showCompletion]);
 
   // Helper function to get DocuSign status badge
   const getDocuSignBadge = (status: DocuSignStatus) => {
@@ -408,33 +367,8 @@ const CandidateDashboard = () => {
 
                   {/* Main Content Cards */}
                   <div className="grid gap-6">
-                    <AnimatePresence mode="wait">
-                      {showCompletion ? (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="text-center py-12"
-                        >
-                          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-accent-green-fill/20 mb-6">
-                            <CheckCircle2 className="h-10 w-10 text-accent-green-text" />
-                          </div>
-                          <h2 className="text-2xl font-bold mb-3">
-                            You're certified! 🎉
-                          </h2>
-                          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                            Your contract has been fully signed and verified. You'll be notified when payroll setup begins.
-                          </p>
-                          <Button 
-                            size="lg" 
-                            onClick={() => toast.info("Dashboard coming soon...")}
-                          >
-                            Go to My Dashboard
-                          </Button>
-                        </motion.div>
-                      ) : (
-                        <>
-                          {/* Step 1: Contract Review & Signing */}
-                          <Collapsible open={step1Open} onOpenChange={setStep1Open}>
+                    {/* Step 1: Contract Review & Signing */}
+                    <Collapsible open={step1Open} onOpenChange={setStep1Open}>
                             <Card className="overflow-hidden border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                               <CollapsibleTrigger asChild>
                                 <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 cursor-pointer hover:from-primary/[0.04] hover:to-secondary/[0.04] transition-all duration-200">
@@ -458,12 +392,9 @@ const CandidateDashboard = () => {
                               <CollapsibleContent>
                                 <CardContent className="p-6">
                                   <div className="space-y-3">
-                                    {contractSteps.map((step, index) => (
-                                       <motion.div
+                                     {contractSteps.map((step, index) => (
+                                       <div
                                         key={step.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.05 }}
                                         className={cn(
                                           "border rounded-lg p-4 transition-all",
                                           getStepColor(step.status, step.docusignStatus)
@@ -495,7 +426,7 @@ const CandidateDashboard = () => {
                                             </Button>
                                           )}
                                         </div>
-                                      </motion.div>
+                                      </div>
                                     ))}
                                   </div>
                                 </CardContent>
@@ -528,12 +459,9 @@ const CandidateDashboard = () => {
                               <CollapsibleContent>
                                 <CardContent className="p-6">
                                   <div className="space-y-3">
-                                    {documentSteps.map((step, index) => (
-                                      <motion.div
+                                     {documentSteps.map((step, index) => (
+                                      <div
                                         key={step.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.05 }}
                                         className={cn(
                                           "border rounded-lg p-4 transition-all",
                                           getStepColor(step.status)
@@ -561,16 +489,13 @@ const CandidateDashboard = () => {
                                             </Button>
                                           )}
                                         </div>
-                                      </motion.div>
+                                      </div>
                                     ))}
                                   </div>
                                 </CardContent>
                               </CollapsibleContent>
                             </Card>
                           </Collapsible>
-                        </>
-                      )}
-                    </AnimatePresence>
                   </div>
                 </div>
               </main>
