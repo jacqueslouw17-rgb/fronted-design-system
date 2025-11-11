@@ -104,8 +104,9 @@ const CandidateOnboarding = () => {
     setIsProcessing(false);
 
     // Find the next step
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const nextStep = FLOW_STEPS[currentIndex + 1];
+    const visibleSteps = FLOW_STEPS.filter(s => s.id === "personal_details");
+    const currentIndex = visibleSteps.findIndex(s => s.id === stepId);
+    const nextStep = visibleSteps[currentIndex + 1];
 
     if (nextStep) {
       // Go to next step
@@ -163,7 +164,7 @@ const CandidateOnboarding = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="sm:justify-center">
-            <Button onClick={() => navigate('/flows/dashboard-admin')} className="w-full sm:w-auto">
+            <Button onClick={() => navigate('/flows/candidate-onboarding')} className="w-full sm:w-auto">
               Return to Dashboard
             </Button>
           </AlertDialogFooter>
