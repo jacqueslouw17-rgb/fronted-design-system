@@ -1514,7 +1514,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         }}
         onSent={() => {
           if (selectedContractor) {
-            handleSendForm(selectedContractor.id);
+            if (selectedContractor.status === "data-pending") {
+              // Already in data-pending, just mark as resent
+              setResentFormIds(prev => new Set([...prev, selectedContractor.id]));
+              toast.info(`Form resent to ${selectedContractor.name}`);
+            } else {
+              // Move from offer-accepted to data-pending
+              handleSendForm(selectedContractor.id);
+            }
           }
         }}
         isResend={selectedContractor?.status === "data-pending"}
