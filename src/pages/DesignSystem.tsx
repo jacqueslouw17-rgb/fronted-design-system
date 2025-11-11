@@ -562,13 +562,16 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
                         <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 5 — Candidate Dashboard</CardTitle>
+                      <CardTitle className="text-lg flex-1">Flow 5 — Candidate Dashboard</CardTitle>
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+                        🔒
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-3">
-                      Post-onboarding home for candidates with a guided checklist, metrics, and AI help via Genie. Auto-hides completed items and celebrates completion.
+                      Post-onboarding candidate dashboard: contract review & signing with DocuSign sub-statuses, document management, and certification tracking. Locked — finalized flow.
                     </CardDescription>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">1 step</span>
+                      <span className="font-medium">2 steps</span>
                       <span>•</span>
                       <span>3 patterns</span>
                     </div>
