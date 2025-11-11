@@ -184,6 +184,22 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             </div>
           </div>
 
+          {/* Start Date */}
+          <div className="space-y-2">
+            <Label>Start Date</Label>
+            {candidate.startDate ? (
+              <>
+                <Input value={candidate.startDate} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </>
+            ) : (
+              <>
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
+              </>
+            )}
+          </div>
+
           {/* Employment Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
@@ -248,15 +264,6 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             )}
           </div>
 
-          {/* Start Date - conditional field */}
-          {candidate.startDate && (
-            <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Input value={candidate.startDate} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-            </div>
-          )}
-
           {/* Document Bundle Preview */}
           {employmentType && (
             <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
@@ -320,7 +327,8 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     <SelectItem value="national-id">National ID</SelectItem>
                   </SelectContent>
                 </Select>
-                <Input placeholder="ID Number" disabled className="bg-muted/30" />
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -329,6 +337,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
                 <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -337,6 +346,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
                 <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -345,6 +355,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
                 <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -353,6 +364,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
                 <Textarea placeholder="To be filled by candidate" disabled className="bg-muted/30" rows={3} />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -360,8 +372,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   Bank Details
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
-                <Input placeholder="Bank Name" disabled className="bg-muted/30 mb-2" />
-                <Input placeholder="Account Number / IBAN" disabled className="bg-muted/30" />
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30 mb-2" />
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -379,6 +392,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                     <SelectItem value="daily">Daily</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               <div className="space-y-2">
@@ -386,8 +400,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   Emergency Contact
                   <span className="text-muted-foreground text-xs">(Optional)</span>
                 </Label>
-                <Input placeholder="Name" disabled className="bg-muted/30 mb-2" />
-                <Input placeholder="Phone" disabled className="bg-muted/30" />
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30 mb-2" />
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
               </div>
 
               {/* Custom fields */}
