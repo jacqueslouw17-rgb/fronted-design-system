@@ -122,23 +122,6 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
         </SheetHeader>
 
         {/* Kurt Agent bubble */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="mt-6 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
-        >
-          <div className="flex items-start gap-3">
-            <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-foreground mb-1">Kurt will handle the details</p>
-              <p className="text-xs text-muted-foreground">
-                Once this form is submitted, I'll automatically notify the ATS — no manual steps needed.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Compliance badge */}
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Shield className="h-4 w-4 text-primary" />
