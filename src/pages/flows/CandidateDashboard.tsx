@@ -105,8 +105,8 @@ const CandidateDashboard = () => {
       id: "review_contract",
       label: "Review Contract",
       description: "Check the contract details before signing.",
-      status: contractReviewed ? "complete" : "active",
-      action: contractReviewed ? undefined : {
+      status: "active",
+      action: {
         label: "View Contract",
         onClick: () => setContractDrawerOpen(true),
       },
@@ -527,6 +527,13 @@ const CandidateDashboard = () => {
           country={candidateProfile.country}
           onMarkReviewed={() => {
             setContractReviewed(true);
+            // Update the review step to complete
+            setContractSteps(prev => prev.map(step => {
+              if (step.id === "review_contract") {
+                return { ...step, status: "complete" as ContractStepStatus, action: undefined };
+              }
+              return step;
+            }));
             toast.success("Contract marked as reviewed");
           }}
         />
