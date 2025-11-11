@@ -48,6 +48,7 @@ const CandidateDashboard = () => {
   };
 
   const [contractDrawerOpen, setContractDrawerOpen] = useState(false);
+  const [contractReviewed, setContractReviewed] = useState(false);
   const { setOpen, simulateResponse } = useAgentState();
   const [demoMode, setDemoMode] = useState(true); // Enable demo mode
 
@@ -104,8 +105,8 @@ const CandidateDashboard = () => {
       id: "review_contract",
       label: "Review Contract",
       description: "Check the contract details before signing.",
-      status: "active",
-      action: {
+      status: contractReviewed ? "complete" : "active",
+      action: contractReviewed ? undefined : {
         label: "View Contract",
         onClick: () => setContractDrawerOpen(true),
       },
@@ -524,6 +525,10 @@ const CandidateDashboard = () => {
           noticePeriod={candidateProfile.noticePeriod}
           pto={candidateProfile.pto}
           country={candidateProfile.country}
+          onMarkReviewed={() => {
+            setContractReviewed(true);
+            toast.success("Contract marked as reviewed");
+          }}
         />
       </TooltipProvider>
     </RoleLensProvider>

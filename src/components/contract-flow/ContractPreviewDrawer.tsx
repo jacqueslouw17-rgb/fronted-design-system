@@ -2,6 +2,7 @@ import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FileText, Calendar, DollarSign, Briefcase } from "lucide-react";
 
 interface ContractPreviewDrawerProps {
@@ -15,6 +16,7 @@ interface ContractPreviewDrawerProps {
   noticePeriod: string;
   pto: string;
   country: string;
+  onMarkReviewed?: () => void;
 }
 
 const ContractPreviewDrawer: React.FC<ContractPreviewDrawerProps> = ({
@@ -28,6 +30,7 @@ const ContractPreviewDrawer: React.FC<ContractPreviewDrawerProps> = ({
   noticePeriod,
   pto,
   country,
+  onMarkReviewed,
 }) => {
   const contractSections = [
     { 
@@ -168,6 +171,23 @@ const ContractPreviewDrawer: React.FC<ContractPreviewDrawerProps> = ({
                 </div>
                 <p className="text-xs text-muted-foreground">To be signed via: DocuSign</p>
               </div>
+            </div>
+
+            {/* Confirmation Button */}
+            <div className="pt-6 pb-2">
+              <Button
+                onClick={() => {
+                  onMarkReviewed?.();
+                  onOpenChange(false);
+                }}
+                className="w-full"
+                size="lg"
+              >
+                I've Reviewed This Contract
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                You'll be able to sign once all details are confirmed
+              </p>
             </div>
           </div>
         </ScrollArea>
