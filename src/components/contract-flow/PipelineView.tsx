@@ -993,8 +993,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               )}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
-                    {/* Select All for all columns except data-pending, payroll-ready, and payroll statuses */}
-                    {items.length > 0 && !["data-pending", "payroll-ready", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
+                    {/* Select All for all columns except data-pending, awaiting-signature, payroll-ready, and payroll statuses */}
+                    {items.length > 0 && !["data-pending", "awaiting-signature", "payroll-ready", "CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"].includes(status) && (
                       <Checkbox
                         checked={areAllSelected(status)}
                         onCheckedChange={(checked) => handleSelectAll(status, checked as boolean)}
@@ -1056,19 +1056,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     >
                       <FileEdit className="h-3 w-3 mr-1" />
                       Draft Contracts ({getSelectedCount(status)})
-                    </Button>
-                  </div>
-                )}
-                
-                {status === "awaiting-signature" && getSelectedCount(status) > 0 && (
-                  <div className="mt-2">
-                    <Button 
-                      size="sm" 
-                      className="w-full text-xs h-7"
-                      onClick={handleBulkTriggerOnboarding}
-                    >
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Trigger All ({getSelectedCount(status)})
                     </Button>
                   </div>
                 )}
