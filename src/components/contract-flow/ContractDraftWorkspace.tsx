@@ -12,7 +12,6 @@ import { ContractCarousel } from "./ContractCarousel";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { useAgentState } from "@/hooks/useAgentState";
-
 type DocumentType = "employment-agreement" | "contractor-agreement" | "nda" | "nda-policy" | "data-privacy" | "country-compliance";
 interface ContractDraftWorkspaceProps {
   candidate: Candidate;
@@ -48,7 +47,6 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         heading: "6. GOVERNING LAW",
         text: `This Agreement shall be governed by the laws of ${candidate.country}.`
       }];
-    
     case "contractor-agreement":
       return [{
         heading: "INDEPENDENT CONTRACTOR AGREEMENT",
@@ -72,7 +70,6 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         heading: "5. INTELLECTUAL PROPERTY",
         text: "All work product created under this Agreement shall be considered work-made-for-hire and property of the Company."
       }];
-    
     case "country-compliance":
       return [{
         heading: `COUNTRY COMPLIANCE ATTACHMENTS (${candidate.countryCode})`,
@@ -93,7 +90,6 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         heading: "4. LOCAL LANGUAGE REQUIREMENTS",
         text: `This Agreement has been prepared in English. In accordance with local requirements, a certified translation in the official language of ${candidate.country} shall be provided if required by law.`
       }];
-    
     case "nda":
       return [{
         heading: "NON-DISCLOSURE AGREEMENT",
@@ -114,7 +110,6 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         heading: "4. TERM",
         text: "The obligations under this Agreement shall remain in effect during the relationship and for 3 years following termination."
       }];
-    
     case "nda-policy":
       return [{
         heading: "NDA & COMPANY POLICY ACKNOWLEDGMENT",
@@ -135,7 +130,6 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
         heading: "4. POLICY ACKNOWLEDGMENT",
         text: "I confirm that I have read, understood, and agree to abide by all Company policies. I understand that violation of these policies may result in disciplinary action up to and including termination."
       }];
-    
     case "data-privacy":
       return [{
         heading: `DATA PRIVACY ADDENDUM (${candidate.countryCode})`,
@@ -169,54 +163,45 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
 }) => {
   // Determine employment type (default to contractor if not specified)
   const employmentType = candidate.employmentType || "contractor";
-  
+
   // Define available documents based on employment type
   const getAvailableDocuments = () => {
     if (employmentType === "employee") {
-      return [
-        { 
-          id: "employment-agreement" as DocumentType, 
-          label: "Employment Agreement", 
-          icon: FileText,
-          shortLabel: "Employment"
-        },
-        { 
-          id: "country-compliance" as DocumentType, 
-          label: `Country Compliance (${candidate.countryCode})`, 
-          icon: Shield,
-          shortLabel: "Compliance"
-        },
-        { 
-          id: "nda-policy" as DocumentType, 
-          label: "NDA / Policy Docs", 
-          icon: Handshake,
-          shortLabel: "NDA/Policy"
-        }
-      ];
+      return [{
+        id: "employment-agreement" as DocumentType,
+        label: "Employment Agreement",
+        icon: FileText,
+        shortLabel: "Employment"
+      }, {
+        id: "country-compliance" as DocumentType,
+        label: `Country Compliance (${candidate.countryCode})`,
+        icon: Shield,
+        shortLabel: "Compliance"
+      }, {
+        id: "nda-policy" as DocumentType,
+        label: "NDA / Policy Docs",
+        icon: Handshake,
+        shortLabel: "NDA/Policy"
+      }];
     } else {
-      return [
-        { 
-          id: "contractor-agreement" as DocumentType, 
-          label: "Contractor Agreement", 
-          icon: FileText,
-          shortLabel: "Contract"
-        },
-        { 
-          id: "nda" as DocumentType, 
-          label: "Non-Disclosure Agreement", 
-          icon: Handshake,
-          shortLabel: "NDA"
-        },
-        { 
-          id: "data-privacy" as DocumentType, 
-          label: `Data Privacy (${candidate.countryCode})`, 
-          icon: ScrollText,
-          shortLabel: "Privacy"
-        }
-      ];
+      return [{
+        id: "contractor-agreement" as DocumentType,
+        label: "Contractor Agreement",
+        icon: FileText,
+        shortLabel: "Contract"
+      }, {
+        id: "nda" as DocumentType,
+        label: "Non-Disclosure Agreement",
+        icon: Handshake,
+        shortLabel: "NDA"
+      }, {
+        id: "data-privacy" as DocumentType,
+        label: `Data Privacy (${candidate.countryCode})`,
+        icon: ScrollText,
+        shortLabel: "Privacy"
+      }];
     }
   };
-
   const documents = getAvailableDocuments();
   const [activeDocument, setActiveDocument] = useState<DocumentType>(documents[0].id);
   const fullContent = getContractContent(candidate, activeDocument);
@@ -552,34 +537,29 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         duration: 0.3
       }} className="flex-1 flex flex-col max-h-[600px]">
         {/* Document Bundle Toggle */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.3 }}
-          className="mb-4 flex-shrink-0"
-        >
+        <motion.div initial={{
+          opacity: 0,
+          y: -10
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          delay: 0.25,
+          duration: 0.3
+        }} className="mb-4 flex-shrink-0">
           <div className="flex gap-2 p-1.5 bg-muted/30 rounded-lg border border-border/40">
-            {documents.map((doc) => {
+            {documents.map(doc => {
               const Icon = doc.icon;
               const isActive = activeDocument === doc.id;
-              return (
-                <button
-                  key={doc.id}
-                  onClick={() => setActiveDocument(doc.id)}
-                  className={`
+              return <button key={doc.id} onClick={() => setActiveDocument(doc.id)} className={`
                     flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
                     text-sm font-medium transition-all duration-200
-                    ${isActive 
-                      ? 'bg-background text-foreground shadow-sm border border-border/60' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
-                    }
-                  `}
-                >
+                    ${isActive ? 'bg-background text-foreground shadow-sm border border-border/60' : 'text-muted-foreground hover:text-foreground hover:bg-background/50'}
+                  `}>
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{doc.label}</span>
                   <span className="sm:hidden">{doc.shortLabel}</span>
-                </button>
-              );
+                </button>;
             })}
           </div>
         </motion.div>
@@ -595,22 +575,25 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           delay: 0.3,
           duration: 0.3
         }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
-          <p className="text-sm text-foreground">
-            This contract uses a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.
-          </p>
+          <p className="text-sm text-foreground">This document uses a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
         </motion.div>
 
         <ScrollArea className="flex-1 overflow-auto">
           <div className="pr-4 pb-4">
             {/* Static contract display with animation */}
             <AnimatePresence mode="wait">
-              <motion.div
-                key={activeDocument}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-              >
+              <motion.div key={activeDocument} initial={{
+                opacity: 0,
+                x: 20
+              }} animate={{
+                opacity: 1,
+                x: 0
+              }} exit={{
+                opacity: 0,
+                x: -20
+              }} transition={{
+                duration: 0.2
+              }}>
                 <Card className="p-6 mb-4 bg-background border-border">
                   <div className="space-y-4 select-none">
                     {fullContent.map((section, idx) => <div key={idx}>
