@@ -752,7 +752,7 @@ const ContractFlowDemo = () => {
                       <div className="mb-8">
                         <AgentHeader
                           title="Contract Bundle"
-                          subtitle="Kurt can help with: adding documents, reviewing bundles, or checking compliance."
+                          subtitle="Review the contract bundle each candidate will receive before sending for signature."
                           showPulse={true}
                           isActive={isAgentSpeaking || !hasSpokenPhase["bundle-creation"]}
                           showInput={false}
