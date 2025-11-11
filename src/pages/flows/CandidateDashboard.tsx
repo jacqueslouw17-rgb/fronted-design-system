@@ -321,7 +321,6 @@ const CandidateDashboard = () => {
                     showPulse={true}
                     isActive={false}
                     showInput={false}
-                    tags={<AgentSuggestionChips chips={suggestionChips} />}
                   />
 
                   {/* Overall Progress Section */}
