@@ -179,7 +179,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-auto space-y-3">
+                <div className="mt-6 space-y-3">
                   <div className="p-3 rounded-lg bg-muted/30 border border-border">
                     <p className="text-xs text-muted-foreground mb-2">Document details:</p>
                     <div className="space-y-1">
