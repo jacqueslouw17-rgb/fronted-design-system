@@ -188,19 +188,7 @@ const CandidateDashboard = () => {
                   if (step.id === "certification_complete") {
                     return { 
                       ...step, 
-                      status: "complete" as ContractStepStatus,
-                      action: {
-                        label: "View Documents →",
-                        onClick: () => {
-                          setStep2Open(true);
-                          setTimeout(() => {
-                            const step2Element = document.querySelector('[data-step="step2"]');
-                            if (step2Element) {
-                              step2Element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
-                          }, 100);
-                        }
-                      }
+                      status: "complete" as ContractStepStatus
                     };
                   }
                   return step;
@@ -256,19 +244,6 @@ const CandidateDashboard = () => {
       label: "Certification Complete",
       description: "Your contract is now fully signed and verified.",
       status: "pending",
-      action: {
-        label: "View Documents →",
-        onClick: () => {
-          setStep2Open(true);
-          // Smooth scroll to Step 2
-          setTimeout(() => {
-            const step2Element = document.querySelector('[data-step="step2"]');
-            if (step2Element) {
-              step2Element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-          }, 100);
-        }
-      }
     },
   ]);
 
