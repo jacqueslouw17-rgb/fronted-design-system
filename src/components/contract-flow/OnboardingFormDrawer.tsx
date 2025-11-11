@@ -246,6 +246,15 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             )}
           </div>
 
+          {/* Start Date - conditional field */}
+          {candidate.startDate && (
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Input value={candidate.startDate} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+          )}
+
           {/* Document Bundle Preview */}
           {employmentType && (
             <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
@@ -322,6 +331,14 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
+                  City
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
                   Nationality
                   <Badge variant="secondary" className="text-xs">Required</Badge>
                 </Label>
@@ -343,6 +360,23 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </Label>
                 <Input placeholder="Bank Name" disabled className="bg-muted/30 mb-2" />
                 <Input placeholder="Account Number / IBAN" disabled className="bg-muted/30" />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Pay Frequency
+                  <Badge variant="secondary" className="text-xs">Required</Badge>
+                </Label>
+                <Select disabled>
+                  <SelectTrigger className="bg-muted/30">
+                    <SelectValue placeholder="To be filled by candidate" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="daily">Daily</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
