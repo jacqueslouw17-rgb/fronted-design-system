@@ -58,6 +58,7 @@ const CandidateOnboarding = () => {
           role: "Marketing Manager",
           salary: "$72,000 USD",
           employmentType: "Contractor",
+          payFrequency: "Monthly",
           startDate: "2025-02-01",
           country: "Mexico",
           companyName: "Fronted Inc",
