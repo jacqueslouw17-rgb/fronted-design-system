@@ -455,7 +455,7 @@ const DesignSystem = () => {
                         <Lock className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒 Locked
+                        🔒
                       </Badge>
                     </div>
                     <CardDescription className="line-clamp-3">

@@ -269,7 +269,7 @@ const Flows = () => {
                     </div>
                     {('locked' in flow && flow.locked) && (
                       <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒 Locked
+                        🔒
                       </Badge>
                     )}
                   </div>
