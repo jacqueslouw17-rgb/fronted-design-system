@@ -87,6 +87,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
       duration: 3000,
     });
     setIsSavingDraft(false);
+    onOpenChange(false);
   };
 
   const handleAddCustomField = () => {
