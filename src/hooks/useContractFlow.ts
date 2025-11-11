@@ -33,6 +33,16 @@ export interface Candidate {
   employmentType?: "contractor" | "employee";
   employmentTypeSource?: "ats" | "suggested";
   documents?: string[];
+  idType?: string;
+  idNumber?: string;
+  taxResidence?: string;
+  city?: string;
+  nationality?: string;
+  address?: string;
+  bankName?: string;
+  bankAccount?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export const useMockCandidates = (): Candidate[] => [

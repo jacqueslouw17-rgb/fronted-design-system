@@ -48,10 +48,16 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     workHours: employmentType === "employee" ? "40 hours/week" : "Flexible",
     socialId: "",
     employerEntity: candidate.countryCode === "PH" ? "Fronted PH" : "Fronted NO",
-    optionalClauses: "",
-    variablePay: "",
-    paymentSchedule: "Monthly",
-    customAttachments: "",
+    idType: candidate.idType || "",
+    idNumber: candidate.idNumber || "",
+    taxResidence: candidate.taxResidence || "",
+    city: candidate.city || "",
+    nationality: candidate.nationality || "",
+    address: candidate.address || "",
+    bankName: candidate.bankName || "",
+    bankAccount: candidate.bankAccount || "",
+    emergencyContactName: candidate.emergencyContactName || "",
+    emergencyContactPhone: candidate.emergencyContactPhone || "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -539,6 +545,102 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
             <Label>Employer Legal Entity</Label>
             <Input value={contractData.employerEntity} disabled />
           </div>
+
+          <div className="space-y-2">
+            <Label>ID Type</Label>
+            <Input
+              value={contractData.idType || ""}
+              onChange={(e) => setContractData({ ...contractData, idType: e.target.value })}
+              placeholder="e.g., Passport, National ID"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>ID Number</Label>
+            <Input
+              value={contractData.idNumber || ""}
+              onChange={(e) => setContractData({ ...contractData, idNumber: e.target.value })}
+              placeholder="ID Number"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tax Residence</Label>
+            <Input
+              value={contractData.taxResidence || ""}
+              onChange={(e) => setContractData({ ...contractData, taxResidence: e.target.value })}
+              placeholder="e.g., Mexico"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>City</Label>
+            <Input
+              value={contractData.city || ""}
+              onChange={(e) => setContractData({ ...contractData, city: e.target.value })}
+              placeholder="City"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Nationality</Label>
+            <Input
+              value={contractData.nationality || ""}
+              onChange={(e) => setContractData({ ...contractData, nationality: e.target.value })}
+              placeholder="Nationality"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Address</Label>
+            <Textarea
+              value={contractData.address || ""}
+              onChange={(e) => setContractData({ ...contractData, address: e.target.value })}
+              placeholder="Full address"
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Bank Name</Label>
+            <Input
+              value={contractData.bankName || ""}
+              onChange={(e) => setContractData({ ...contractData, bankName: e.target.value })}
+              placeholder="Bank Name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Bank Account / IBAN</Label>
+            <Input
+              value={contractData.bankAccount || ""}
+              onChange={(e) => setContractData({ ...contractData, bankAccount: e.target.value })}
+              placeholder="Account Number / IBAN"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Pay Frequency</Label>
+            <Input value="Monthly" disabled />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Emergency Contact Name <Badge variant="secondary" className="ml-2 text-xs">Optional</Badge></Label>
+            <Input
+              value={contractData.emergencyContactName || ""}
+              onChange={(e) => setContractData({ ...contractData, emergencyContactName: e.target.value })}
+              placeholder="Emergency contact name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Emergency Contact Phone <Badge variant="secondary" className="ml-2 text-xs">Optional</Badge></Label>
+            <Input
+              value={contractData.emergencyContactPhone || ""}
+              onChange={(e) => setContractData({ ...contractData, emergencyContactPhone: e.target.value })}
+              placeholder="Emergency contact phone"
+            />
+          </div>
         </div>
 
         {/* Compliance Preview */}
@@ -549,48 +651,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
           employmentType={employmentType}
         />
 
-        {/* Admin Additional Inputs */}
-        <div className="space-y-4 pt-4 border-t border-border">
-          <h3 className="text-sm font-medium text-foreground">Additional Contract Terms</h3>
-          
-          <div className="space-y-2">
-            <Label>Optional Clauses</Label>
-            <Textarea
-              value={contractData.optionalClauses}
-              onChange={(e) => setContractData({ ...contractData, optionalClauses: e.target.value })}
-              placeholder="Add any additional clauses or terms..."
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Variable Pay / Bonus Config</Label>
-              <Input
-                value={contractData.variablePay}
-                onChange={(e) => setContractData({ ...contractData, variablePay: e.target.value })}
-                placeholder="e.g., 10% annual bonus"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Payment Schedule</Label>
-              <Input
-                value={contractData.paymentSchedule}
-                onChange={(e) => setContractData({ ...contractData, paymentSchedule: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Custom Attachments (NDA, Policies)</Label>
-            <Input
-              value={contractData.customAttachments}
-              onChange={(e) => setContractData({ ...contractData, customAttachments: e.target.value })}
-              placeholder="e.g., NDA, Company Policy Handbook"
-            />
-          </div>
-        </div>
       </Card>
 
       {/* Navigation */}
