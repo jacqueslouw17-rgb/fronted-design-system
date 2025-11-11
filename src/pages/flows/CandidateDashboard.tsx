@@ -1,3 +1,20 @@
+/**
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
+ * 
+ * Flow 5 — Candidate Dashboard
+ * Status: LOCKED (finalized contract flow with signing sub-statuses)
+ * Locked Date: 2025-01-14
+ * 
+ * This flow is finalized and frozen. Do NOT make changes to:
+ * - Structure (steps, navigation, flow control)
+ * - Design (styling, layout, components)
+ * - Logic (validation, state management, business rules)
+ * - Signing sub-statuses and state machine
+ * - Document management and certification flow
+ * 
+ * All future modifications must be approved and tracked in flowRegistry.ts
+ */
+
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";

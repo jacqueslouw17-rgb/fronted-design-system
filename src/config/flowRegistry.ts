@@ -53,6 +53,35 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/pages/CandidateOnboarding.tsx',
       'src/components/flows/candidate-onboarding/CandidateStep2PersonalDetails.tsx'
     ]
+  },
+  'f4-candidate-onboarding-flow': {
+    id: 'f4-candidate-onboarding-flow',
+    title: 'Flow 4 — Candidate Onboarding',
+    path: '/flows/candidate-onboarding-flow',
+    locked: true,
+    lockedDate: '2025-01-14',
+    lockedReason: 'Locked for backend build — no further changes allowed.',
+    filePaths: [
+      'src/pages/CandidateOnboardingFlow.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep2Personal.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep2WorkPay.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep3Tax.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep4Bank.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep5Emergency.tsx',
+      'src/components/flows/candidate-onboarding/CandidateStep6Review.tsx'
+    ]
+  },
+  'f5-candidate-dashboard': {
+    id: 'f5-candidate-dashboard',
+    title: 'Flow 5 — Candidate Dashboard',
+    path: '/flows/candidate-dashboard',
+    locked: true,
+    lockedDate: '2025-01-14',
+    lockedReason: 'Finalized contract flow with signing sub-statuses and document management. All steps, patterns, and screens frozen.',
+    filePaths: [
+      'src/pages/flows/CandidateDashboard.tsx',
+      'src/components/contract-flow/ContractPreviewDrawer.tsx'
+    ]
   }
 };
 

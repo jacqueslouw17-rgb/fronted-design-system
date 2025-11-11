@@ -216,12 +216,13 @@ const Flows = () => {
     },
     {
       id: "f5-candidate-checklist",
-      title: "Flow 5 — Candidate Checklist",
-      description: "Post-onboarding candidate checklist: guided progress, compliance states, payroll readiness, and AI help via Genie.",
-      steps: 1,
+      title: "Flow 5 — Candidate Dashboard",
+      description: "Post-onboarding candidate dashboard: contract review & signing with DocuSign sub-statuses, document management, and certification tracking. Locked — finalized flow.",
+      steps: 2,
       patterns: ["data-cards", "compliance-checklist", "genie-onboarding"],
       path: "/flows/candidate-dashboard",
-      comingSoon: false
+      comingSoon: false,
+      locked: true
     },
     {
       id: "f2-1-admin-payroll",
