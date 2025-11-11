@@ -260,13 +260,13 @@ const Flows = () => {
                     <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
                       <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                     </div>
-                    <CardTitle className="text-lg">{flow.title}</CardTitle>
+                    <CardTitle className="text-lg flex-1">{flow.title}</CardTitle>
+                    {('locked' in flow && flow.locked) && (
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+                        🔒
+                      </Badge>
+                    )}
                   </div>
-                  {('locked' in flow && flow.locked) && (
-                    <Badge variant="secondary" className="absolute right-4 top-4 bg-muted text-muted-foreground border-border">
-                      🔒 Locked
-                    </Badge>
-                  )}
                   <CardDescription className="line-clamp-3">{flow.description}</CardDescription>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
                     <span className="font-medium">{flow.steps} steps</span>
