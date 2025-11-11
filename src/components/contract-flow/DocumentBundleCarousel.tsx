@@ -164,7 +164,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
             className="absolute inset-0"
           >
             <Card className="h-full p-6 border border-border/40 bg-card/50 backdrop-blur-sm">
-              <div className="flex flex-col h-full justify-between">
+              <div className="flex flex-col h-full">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="p-3 rounded-lg bg-primary/10">
                     {documents[currentIndex].icon}
@@ -179,7 +179,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-3">
+                <div className="mt-4 space-y-3">
                   <div className="p-3 rounded-lg bg-muted/30 border border-border">
                     <p className="text-xs text-muted-foreground mb-2">Document details:</p>
                     <div className="space-y-0.5">
