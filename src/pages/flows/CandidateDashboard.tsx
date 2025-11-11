@@ -72,7 +72,7 @@ const CandidateDashboard = () => {
 
   // Collapsible states
   const [step1Open, setStep1Open] = useState(true);
-  const [step2Open, setStep2Open] = useState(true);
+  const [step2Open, setStep2Open] = useState(false);
 
   // Signing sub-status tracking
   const [signingSubStatus, setSigningSubStatus] = useState<SigningSubStatus>("ready_to_sign");
@@ -182,8 +182,26 @@ const CandidateDashboard = () => {
                       action: undefined
                     };
                   }
-                  if (step.id === "counter_signature" || step.id === "contract_certified") {
+                  if (step.id === "counter_signature") {
                     return { ...step, status: "complete" as ContractStepStatus };
+                  }
+                  if (step.id === "certification_complete") {
+                    return { 
+                      ...step, 
+                      status: "complete" as ContractStepStatus,
+                      action: {
+                        label: "View Documents →",
+                        onClick: () => {
+                          setStep2Open(true);
+                          setTimeout(() => {
+                            const step2Element = document.querySelector('[data-step="step2"]');
+                            if (step2Element) {
+                              step2Element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                          }, 100);
+                        }
+                      }
+                    };
                   }
                   return step;
                 }));
@@ -194,7 +212,7 @@ const CandidateDashboard = () => {
                   status: "complete" as ContractStepStatus
                 })));
                 
-                toast.success("Contract fully certified.");
+                toast.success("All steps complete — your contract is certified and documents are ready.");
                 
                 // Trigger confetti
                 confetti({
@@ -229,15 +247,28 @@ const CandidateDashboard = () => {
     },
     {
       id: "counter_signature",
-      label: "Await Admin Counter-Signature",
-      description: "Once signed, HR will counter-sign to finalize.",
+      label: "Admin Counter-Signature",
+      description: "HR has counter-signed your contract.",
       status: "pending",
     },
     {
-      id: "contract_certified",
-      label: "Contract Certified",
-      description: "Your contract is fully signed and verified.",
+      id: "certification_complete",
+      label: "Certification Complete",
+      description: "Your contract is now fully signed and verified.",
       status: "pending",
+      action: {
+        label: "View Documents →",
+        onClick: () => {
+          setStep2Open(true);
+          // Smooth scroll to Step 2
+          setTimeout(() => {
+            const step2Element = document.querySelector('[data-step="step2"]');
+            if (step2Element) {
+              step2Element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }, 100);
+        }
+      }
     },
   ]);
 
@@ -245,10 +276,10 @@ const CandidateDashboard = () => {
     {
       id: "signed_bundle",
       label: "Signed Contract Bundle",
-      description: "Ready",
+      description: "Your final HR-approved contract bundle.",
       status: "pending",
       action: {
-        label: "Download",
+        label: "Download PDF",
         onClick: () => {
           // Stub URL for demo - in production would be real signed PDF URL
           window.open("#", "_blank");
@@ -259,7 +290,7 @@ const CandidateDashboard = () => {
     {
       id: "certificate",
       label: "Certificate of Contract",
-      description: "Ready",
+      description: "Official certification record verifying signatures.",
       status: "pending",
       action: {
         label: "View Certificate",
@@ -278,7 +309,7 @@ const CandidateDashboard = () => {
   const progressPercentage = Math.round((completedSteps / totalSteps) * 100);
 
   // Check if certified
-  const isCertified = contractSteps.find(s => s.id === "contract_certified")?.status === "complete";
+  const isCertified = contractSteps.find(s => s.id === "certification_complete")?.status === "complete";
 
 
   // Helper function to get signing sub-status badge
@@ -443,7 +474,7 @@ const CandidateDashboard = () => {
                                       >
                                         <div className="flex items-center gap-3">
                                           {getStatusIcon(step.status, step.signingSubStatus)}
-                                          <div className="flex-1 space-y-0.5">
+                                           <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center gap-2">
                                               <p className={cn(
                                                 "text-sm font-medium",
@@ -452,13 +483,24 @@ const CandidateDashboard = () => {
                                                 {step.label}
                                               </p>
                                               {step.signingSubStatus && getSigningBadge(step.signingSubStatus)}
+                                              {step.id === "certification_complete" && step.status === "complete" && (
+                                                <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10 animate-pulse">
+                                                  Certified
+                                                </Badge>
+                                              )}
                                             </div>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
                                           {step.action && step.action.label && step.status !== "pending" && (
                                             <Button
                                               size="sm"
-                                              variant={step.signingSubStatus === "ready_to_sign" ? "default" : "ghost"}
+                                              variant={
+                                                step.signingSubStatus === "ready_to_sign" 
+                                                  ? "default" 
+                                                  : step.id === "certification_complete" && step.status === "complete"
+                                                  ? "default"
+                                                  : "ghost"
+                                              }
                                               onClick={step.action.onClick}
                                               className="shrink-0"
                                               disabled={step.signingSubStatus === "opening_docusign"}
@@ -477,7 +519,7 @@ const CandidateDashboard = () => {
 
                           {/* Step 2: Documents & Certificate */}
                           <Collapsible open={step2Open} onOpenChange={setStep2Open}>
-                            <Card className="overflow-hidden border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+                            <Card data-step="step2" className="overflow-hidden border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                               <CollapsibleTrigger asChild>
                                 <CardHeader className="bg-gradient-to-r from-secondary/[0.02] to-accent/[0.02] border-b border-border/40 cursor-pointer hover:from-secondary/[0.04] hover:to-accent/[0.04] transition-all duration-200">
                                   <div className="flex items-start justify-between">
@@ -491,7 +533,7 @@ const CandidateDashboard = () => {
                                         )} />
                                       </CardTitle>
                                       <CardDescription>
-                                        Access your signed contract bundle and official certification.
+                                        Your signed documents are ready to download or view.
                                       </CardDescription>
                                     </div>
                                   </div>
@@ -519,12 +561,12 @@ const CandidateDashboard = () => {
                                             </p>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
-                                          {step.action && step.status === "complete" && (
+                                           {step.action && step.status === "complete" && (
                                             <Button
                                               size="sm"
                                               variant="ghost"
                                               onClick={step.action.onClick}
-                                              className="shrink-0"
+                                              className="shrink-0 min-w-[140px]"
                                             >
                                               {step.action.label}
                                             </Button>
