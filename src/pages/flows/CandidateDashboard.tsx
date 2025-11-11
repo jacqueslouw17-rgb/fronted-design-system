@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { CheckCircle2, FileText, Download, Eye, FileCheck, ChevronDown, Clock, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ interface ContractStep {
 }
 
 const CandidateDashboard = () => {
+  const location = useLocation();
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
@@ -49,6 +51,24 @@ const CandidateDashboard = () => {
   const [showCompletion, setShowCompletion] = useState(false);
   const [contractDrawerOpen, setContractDrawerOpen] = useState(false);
   const { setOpen, simulateResponse } = useAgentState();
+
+  // Trigger confetti on arrival from onboarding
+  useEffect(() => {
+    const fromOnboarding = location.state?.fromOnboarding;
+    if (fromOnboarding) {
+      // Clear the state to prevent confetti on refresh
+      window.history.replaceState({}, document.title);
+      
+      // Trigger confetti
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      }, 300);
+    }
+  }, [location.state]);
 
   // Collapsible states
   const [step1Open, setStep1Open] = useState(true);

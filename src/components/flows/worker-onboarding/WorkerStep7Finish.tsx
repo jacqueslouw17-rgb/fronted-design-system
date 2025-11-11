@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
+import { useCallback } from "react";
+import { motion } from "framer-motion";
 
 interface Step7Props {
   formData: Record<string, any>;
@@ -16,26 +14,13 @@ interface Step7Props {
 
 const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcessing }: Step7Props) => {
   const navigate = useNavigate();
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
-  const handleFinish = useCallback(async () => {
-    // Show button loading immediately
-    setIsButtonLoading(true);
-    
+  const handleFinish = useCallback(() => {
     // Complete the step
     onComplete("finish");
     
-    // Small delay before showing transition screen
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    // Start transition
-    setIsTransitioning(true);
-    
-    // Navigate to dashboard
-    setTimeout(() => {
-      navigate('/flows/candidate-dashboard');
-    }, 1500);
+    // Navigate directly to dashboard with state indicating fresh arrival
+    navigate('/flows/candidate-dashboard', { state: { fromOnboarding: true } });
   }, [navigate, onComplete]);
 
   const completedItems = [
@@ -48,36 +33,11 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
 
   return (
     <div className="max-w-xl mx-auto space-y-6 relative">
-      <AnimatePresence mode="wait">
-        {isTransitioning ? (
-          <motion.div
-            key="transitioning"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
-          >
-            <motion.div 
-              className="flex flex-col items-center space-y-6"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
-            >
-              <AudioWaveVisualizer isActive={true} />
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold">Setting up your dashboard...</h3>
-                <p className="text-muted-foreground">This will just take a moment</p>
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="content"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+      <motion.div
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
             {/* Header */}
             <div className="text-center space-y-2">
               <div className="flex justify-center mb-3">
@@ -123,10 +83,10 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
               <Button 
                 size="lg" 
                 className="w-full" 
-                disabled={externalProcessing || isButtonLoading || isTransitioning}
+                disabled={externalProcessing}
                 onClick={handleFinish}
               >
-                {(externalProcessing || isButtonLoading) ? (
+                {externalProcessing ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Launching...
@@ -143,8 +103,6 @@ const WorkerStep7Finish = ({ formData, onComplete, isProcessing: externalProcess
               </p>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
