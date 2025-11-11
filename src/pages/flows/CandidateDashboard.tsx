@@ -19,14 +19,14 @@ import { cn } from "@/lib/utils";
 import ContractPreviewDrawer from "@/components/contract-flow/ContractPreviewDrawer";
 
 type ContractStepStatus = "complete" | "active" | "pending";
-type DocuSignStatus = "not_sent" | "sent" | "opened" | "signer_completed" | "completed";
+type SigningSubStatus = "ready_to_sign" | "opening_docusign" | "signed_pending_admin" | "fully_signed";
 
 interface ContractStep {
   id: string;
   label: string;
   description: string;
   status: ContractStepStatus;
-  docusignStatus?: DocuSignStatus;
+  signingSubStatus?: SigningSubStatus;
   action?: {
     label: string;
     onClick: () => void;
@@ -74,22 +74,34 @@ const CandidateDashboard = () => {
   const [step1Open, setStep1Open] = useState(true);
   const [step2Open, setStep2Open] = useState(true);
 
-  // DocuSign status tracking (in real implementation, this would come from backend/webhooks)
-  const [docusignStatus, setDocusignStatus] = useState<DocuSignStatus>("sent");
+  // Signing sub-status tracking
+  const [signingSubStatus, setSigningSubStatus] = useState<SigningSubStatus>("ready_to_sign");
 
-  // Helper function to get DocuSign description
-  const getDocuSignDescription = (status: DocuSignStatus): string => {
+  // Helper function to get signing sub-status label
+  const getSigningLabel = (status: SigningSubStatus): string => {
     switch (status) {
-      case "not_sent":
-        return "Waiting for DocuSign invitation to be sent.";
-      case "sent":
+      case "ready_to_sign":
+        return "Sign Contract";
+      case "opening_docusign":
+        return "Signing in Progress";
+      case "signed_pending_admin":
+        return "Awaiting HR Counter-Signature";
+      case "fully_signed":
+        return "Contract Certified";
+    }
+  };
+
+  // Helper function to get signing sub-status description
+  const getSigningDescription = (status: SigningSubStatus): string => {
+    switch (status) {
+      case "ready_to_sign":
         return "Your contract is ready for signature — check your email to sign.";
-      case "opened":
-        return "Signing in progress… we'll update once complete.";
-      case "signer_completed":
-        return "You've signed your contract. Waiting for HR to counter-sign.";
-      case "completed":
-        return "All signatures are complete. Your contract is now certified.";
+      case "opening_docusign":
+        return "You're being redirected to DocuSign to sign your contract.";
+      case "signed_pending_admin":
+        return "Your signature has been received. HR will counter-sign to finalize.";
+      case "fully_signed":
+        return "Your contract has been fully signed and certified.";
     }
   };
 
@@ -113,40 +125,69 @@ const CandidateDashboard = () => {
     },
     {
       id: "sign_contract",
-      label: "Sign Contract",
-      description: getDocuSignDescription(docusignStatus),
-      status: docusignStatus === "not_sent" ? "pending" : "active",
-      docusignStatus: docusignStatus,
-      action: {
-        label: docusignStatus === "sent" ? "Sign Now" : undefined,
+      label: getSigningLabel(signingSubStatus),
+      description: getSigningDescription(signingSubStatus),
+      status: signingSubStatus === "fully_signed" ? "complete" : "active",
+      signingSubStatus: signingSubStatus,
+      action: signingSubStatus === "ready_to_sign" ? {
+        label: "Sign Now",
         onClick: () => {
+          // Step 1: Move to opening_docusign
+          setSigningSubStatus("opening_docusign");
+          setContractSteps(prev => prev.map(step => {
+            if (step.id === "sign_contract") {
+              return {
+                ...step,
+                label: getSigningLabel("opening_docusign"),
+                description: getSigningDescription("opening_docusign"),
+                signingSubStatus: "opening_docusign",
+                action: undefined
+              };
+            }
+            return step;
+          }));
           toast.info("Opening DocuSign...");
           
           if (demoMode) {
-            // Demo mode: Auto-complete the signing flow
+            // Demo mode: Auto-progress through states
+            // Step 2: After 1s, move to signed_pending_admin
             setTimeout(() => {
-              // Mark as signed by candidate
-              setDocusignStatus("signer_completed");
-              
-              // Mark sign_contract as complete, counter_signature as active
+              setSigningSubStatus("signed_pending_admin");
               setContractSteps(prev => prev.map(step => {
                 if (step.id === "sign_contract") {
-                  return { ...step, status: "complete" as ContractStepStatus };
-                }
-                if (step.id === "counter_signature") {
-                  return { ...step, status: "active" as ContractStepStatus };
+                  return {
+                    ...step,
+                    label: getSigningLabel("signed_pending_admin"),
+                    description: getSigningDescription("signed_pending_admin"),
+                    signingSubStatus: "signed_pending_admin"
+                  };
                 }
                 return step;
               }));
+              toast.success("Contract signed. Awaiting HR counter-signature...");
               
-              toast.success("Contract signed. Awaiting admin counter-signature...");
-              
-              // Simulate admin counter-signature
+              // Step 3: After 2s more, move to fully_signed
               setTimeout(() => {
-                setDocusignStatus("completed");
+                setSigningSubStatus("fully_signed");
                 
-                // Complete counter-signature and certification
+                // Complete all contract steps
                 setContractSteps(prev => prev.map(step => {
+                  if (step.id === "sign_contract") {
+                    return {
+                      ...step,
+                      label: getSigningLabel("fully_signed"),
+                      description: getSigningDescription("fully_signed"),
+                      status: "complete" as ContractStepStatus,
+                      signingSubStatus: "fully_signed",
+                      action: {
+                        label: "View Certificate",
+                        onClick: () => {
+                          window.open("#", "_blank");
+                          toast.success("Opening certificate...");
+                        }
+                      }
+                    };
+                  }
                   if (step.id === "counter_signature" || step.id === "contract_certified") {
                     return { ...step, status: "complete" as ContractStepStatus };
                   }
@@ -159,8 +200,7 @@ const CandidateDashboard = () => {
                   status: "complete" as ContractStepStatus
                 })));
                 
-                // Show final success toast
-                toast.success("All set. Contract certified. Documents are ready.");
+                toast.success("Contract fully certified.");
                 
                 // Trigger confetti
                 confetti({
@@ -168,14 +208,30 @@ const CandidateDashboard = () => {
                   spread: 70,
                   origin: { y: 0.6 },
                 });
-              }, 1000);
-            }, 1200);
+              }, 2000);
+            }, 1000);
           } else {
-            // Real mode: Just open DocuSign
-            setTimeout(() => setDocusignStatus("opened"), 1000);
+            // Real mode: Wait for webhook after opening
+            setTimeout(() => {
+              setSigningSubStatus("signed_pending_admin");
+              setContractSteps(prev => prev.map(step => {
+                if (step.id === "sign_contract") {
+                  return {
+                    ...step,
+                    label: getSigningLabel("signed_pending_admin"),
+                    description: getSigningDescription("signed_pending_admin"),
+                    signingSubStatus: "signed_pending_admin"
+                  };
+                }
+                return step;
+              }));
+            }, 2000);
           }
         },
-      },
+      } : signingSubStatus === "opening_docusign" ? {
+        label: "Opening...",
+        onClick: () => {}
+      } : undefined,
     },
     {
       id: "counter_signature",
@@ -235,35 +291,31 @@ const CandidateDashboard = () => {
   const isCertified = contractSteps.find(s => s.id === "contract_certified")?.status === "complete";
 
 
-  // Helper function to get DocuSign status badge
-  const getDocuSignBadge = (status: DocuSignStatus) => {
+  // Helper function to get signing sub-status badge
+  const getSigningBadge = (status: SigningSubStatus) => {
     switch (status) {
-      case "sent":
+      case "ready_to_sign":
         return <Badge variant="outline" className="text-xs border-accent-yellow-outline/50 text-accent-yellow-text bg-accent-yellow-fill/10">🟠 Action Needed</Badge>;
-      case "opened":
-        return <Badge variant="outline" className="text-xs border-purple-500/50 text-purple-400 bg-purple-500/10">🟣 In Progress</Badge>;
-      case "signer_completed":
-        return <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">🟢 Signed by You</Badge>;
-      case "completed":
-        return <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">✅ Fully Signed</Badge>;
-      default:
-        return null;
+      case "opening_docusign":
+        return <Badge variant="outline" className="text-xs border-blue-500/50 text-blue-400 bg-blue-500/10">🔵 Opening DocuSign...</Badge>;
+      case "signed_pending_admin":
+        return <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-400 bg-yellow-500/10">🟡 Pending HR</Badge>;
+      case "fully_signed":
+        return <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">🟢 Completed</Badge>;
     }
   };
 
-  const getStatusIcon = (status: ContractStepStatus, docusignStatus?: DocuSignStatus) => {
-    // Special handling for sign_contract step with docusign status
-    if (docusignStatus) {
-      switch (docusignStatus) {
-        case "not_sent":
-          return <Circle className="h-4 w-4 text-muted-foreground" />;
-        case "sent":
+  const getStatusIcon = (status: ContractStepStatus, signingSubStatus?: SigningSubStatus) => {
+    // Special handling for sign_contract step with signing sub-status
+    if (signingSubStatus) {
+      switch (signingSubStatus) {
+        case "ready_to_sign":
           return <Clock className="h-4 w-4 text-accent-yellow-text animate-pulse" />;
-        case "opened":
-          return <Clock className="h-4 w-4 text-purple-400 animate-pulse" />;
-        case "signer_completed":
-          return <CheckCircle2 className="h-4 w-4 text-accent-green-text" />;
-        case "completed":
+        case "opening_docusign":
+          return <Clock className="h-4 w-4 text-blue-400 animate-pulse" />;
+        case "signed_pending_admin":
+          return <Clock className="h-4 w-4 text-yellow-400 animate-pulse" />;
+        case "fully_signed":
           return <CheckCircle2 className="h-4 w-4 text-accent-green-text" />;
       }
     }
@@ -278,20 +330,18 @@ const CandidateDashboard = () => {
     }
   };
 
-  const getStepColor = (status: ContractStepStatus, docusignStatus?: DocuSignStatus) => {
-    // Special handling for sign_contract step with docusign status
-    if (docusignStatus) {
-      switch (docusignStatus) {
-        case "sent":
+  const getStepColor = (status: ContractStepStatus, signingSubStatus?: SigningSubStatus) => {
+    // Special handling for sign_contract step with signing sub-status
+    if (signingSubStatus) {
+      switch (signingSubStatus) {
+        case "ready_to_sign":
           return "border-accent-yellow-outline/30 bg-accent-yellow-fill/10";
-        case "opened":
-          return "border-purple-500/30 bg-purple-500/10";
-        case "signer_completed":
+        case "opening_docusign":
+          return "border-blue-500/30 bg-blue-500/10";
+        case "signed_pending_admin":
+          return "border-yellow-500/30 bg-yellow-500/10";
+        case "fully_signed":
           return "border-accent-green-outline/30 bg-accent-green-fill/10";
-        case "completed":
-          return "border-accent-green-outline/30 bg-accent-green-fill/10";
-        default:
-          return "border-border bg-muted/30";
       }
     }
     
@@ -398,11 +448,11 @@ const CandidateDashboard = () => {
                                         key={step.id}
                                         className={cn(
                                           "border rounded-lg p-4 transition-all",
-                                          getStepColor(step.status, step.docusignStatus)
+                                          getStepColor(step.status, step.signingSubStatus)
                                         )}
                                       >
                                         <div className="flex items-center gap-3">
-                                          {getStatusIcon(step.status, step.docusignStatus)}
+                                          {getStatusIcon(step.status, step.signingSubStatus)}
                                           <div className="flex-1 space-y-0.5">
                                             <div className="flex items-center gap-2">
                                               <p className={cn(
@@ -411,17 +461,17 @@ const CandidateDashboard = () => {
                                               )}>
                                                 {step.label}
                                               </p>
-                                              {step.docusignStatus && getDocuSignBadge(step.docusignStatus)}
+                                              {step.signingSubStatus && getSigningBadge(step.signingSubStatus)}
                                             </div>
                                             <p className="text-xs text-muted-foreground">{step.description}</p>
                                           </div>
                                           {step.action && step.action.label && step.status !== "pending" && (
                                             <Button
                                               size="sm"
-                                              variant={step.docusignStatus === "sent" ? "default" : "ghost"}
+                                              variant={step.signingSubStatus === "ready_to_sign" ? "default" : "ghost"}
                                               onClick={step.action.onClick}
                                               className="shrink-0"
-                                              disabled={step.docusignStatus === "opened"}
+                                              disabled={step.signingSubStatus === "opening_docusign"}
                                             >
                                               {step.action.label}
                                             </Button>
