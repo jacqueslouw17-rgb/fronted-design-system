@@ -59,24 +59,13 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
   const handleSendForm = async () => {
     setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // ATS notification
-    toast.success(`✅ Secure onboarding form ${isResend ? 'resent' : 'sent'} to ${candidate.name}. You'll be notified once it's completed.`, {
-      duration: 5000,
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    toast.success(`✅ Form sent to ${candidate.name}. They'll receive it via email.`, {
+      duration: 4000,
     });
     
-    // Simulate ATS notification
-    setTimeout(() => {
-      toast.success("🔗 ATS notified of new document update.", {
-        duration: 3000,
-      });
-    }, 2000);
-
     setIsSubmitting(false);
-    onSent();
     onOpenChange(false);
   };
 
@@ -511,7 +500,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
             <Button
               type="button"
               onClick={handleSendForm}
-              disabled={isSubmitting || isSavingDraft || !candidate.email}
+              disabled={isSubmitting || isSavingDraft}
               className="flex-1"
             >
               {isSubmitting ? "Sending..." : (isResend ? "Resend Form" : "Send Form")}
