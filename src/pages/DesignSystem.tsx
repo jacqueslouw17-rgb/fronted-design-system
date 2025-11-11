@@ -348,11 +348,11 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
                         <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg flex-1">Flow 1 — Admin Onboarding</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒 Locked
-                      </Badge>
+                      <CardTitle className="text-lg">Flow 1 — Admin Onboarding</CardTitle>
                     </div>
+                    <Badge variant="secondary" className="bg-muted text-muted-foreground border-border mb-2">
+                      🔒 Locked
+                    </Badge>
                     <CardDescription className="line-clamp-3">
                       Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3
                     </CardDescription>
