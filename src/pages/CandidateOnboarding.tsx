@@ -1,17 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useCandidateDataFlowBridge } from "@/hooks/useCandidateDataFlowBridge";
-import { toast } from "@/hooks/use-toast";
+
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import confetti from "canvas-confetti";
@@ -148,28 +140,22 @@ const CandidateOnboarding = () => {
 
   return (
     <AgentLayout context="Candidate Onboarding">
-      <AlertDialog open={isSubmitting}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <svg className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
+      {isSubmitting ? (
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
+          <div className="max-w-md w-full text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <svg className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
             </div>
-            <AlertDialogTitle className="text-center text-2xl">Form Submitted Successfully!</AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-base">
-              Thanks, {allFormData.fullName?.split(' ')[0] || "there"}! Your details have been sent to the admin for verification.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="sm:justify-center">
-            <Button onClick={() => navigate('/flows/candidate-onboarding')} className="w-full sm:w-auto">
-              Return to Dashboard
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <h1 className="text-2xl font-semibold">Form Submitted Successfully!</h1>
+            <p className="text-base text-muted-foreground mt-2">Thanks, {allFormData.fullName?.split(' ')[0] || "there"}! Your details have been sent to the admin for verification.</p>
+            <div className="mt-6 flex justify-center">
+              <Button onClick={() => navigate('/')} className="w-full sm:w-auto">Close</Button>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
       {/* Back Button */}
       <Button
@@ -295,6 +281,7 @@ const CandidateOnboarding = () => {
         </div>
       </div>
     </div>
+      )}
     </AgentLayout>
   );
 };
