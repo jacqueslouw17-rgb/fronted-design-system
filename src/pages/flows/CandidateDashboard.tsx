@@ -484,7 +484,7 @@ const CandidateDashboard = () => {
                                               </p>
                                               {step.signingSubStatus && getSigningBadge(step.signingSubStatus)}
                                               {step.id === "certification_complete" && step.status === "complete" && (
-                                                <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10 animate-pulse">
+                                                <Badge variant="outline" className="text-xs border-accent-green-outline/50 text-accent-green-text bg-accent-green-fill/10">
                                                   Certified
                                                 </Badge>
                                               )}
