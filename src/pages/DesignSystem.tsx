@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
 import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow, Lock } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
 const patterns = [{
@@ -450,7 +450,13 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 transition-all duration-200 group-hover:bg-violet-600 group-hover:border-violet-600">
                         <UserCheck className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 3 - Candidate Data Collection</CardTitle>
+                      <div className="flex items-center gap-2 flex-1">
+                        <CardTitle className="text-lg">Flow 3 - Candidate Data Collection</CardTitle>
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+                        🔒 Locked
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-3">
                       Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration
