@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, AlertCircle, Sparkles, Lock, Info } from "lucide-react";
+import { ArrowRight, AlertCircle, Sparkles, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalInfoSchema } from "@/lib/validation-schemas";
 import { z } from "zod";
@@ -362,16 +362,10 @@ const WorkerStep2Personal = ({ formData, onComplete, isProcessing, isLoadingFiel
       </div>
 
       {/* Info banner about contract-linked fields */}
-      <div className="bg-blue-500/10 border-l-4 border-blue-500 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm text-blue-600 dark:text-blue-400">
-              <strong>Kurt says:</strong> Some details like your name, date of birth, or nationality are linked to your contract.
-              To update these, please contact your HR representative so your contract stays accurate.
-            </p>
-          </div>
-        </div>
+      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+        <p className="text-sm text-blue-600 dark:text-blue-400">
+          💡 <strong>Kurt says:</strong> Some details like your name, date of birth, or nationality are linked to your contract. To update these, please contact your HR representative so your contract stays accurate.
+        </p>
       </div>
 
       <Button
