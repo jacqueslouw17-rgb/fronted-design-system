@@ -119,7 +119,7 @@ export const DocumentBundleCarousel: React.FC<DocumentBundleCarouselProps> = ({
       </div>
 
       {/* Carousel */}
-      <div className="relative h-[280px] overflow-hidden">
+      <div className="relative h-[220px] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div key={currentIndex} initial={{
           opacity: 0,
