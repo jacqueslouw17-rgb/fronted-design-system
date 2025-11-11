@@ -297,7 +297,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </div>
   }];
   return <div className="space-y-6">
-      <AgentHeader title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} subtitle="Kurt can help with quick summaries or explaining terms." showPulse={true} isActive={isAgentSpeaking} showInput={false}
+      <AgentHeader title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} subtitle="Preview how this contract will appear to the candidate before sending for signature." showPulse={true} isActive={isAgentSpeaking} showInput={false}
     // tags={
     //   <KurtContextualTags 
     //     flowContext="contract-workspace" 
