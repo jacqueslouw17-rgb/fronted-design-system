@@ -205,8 +205,8 @@ const Flows = () => {
     },
     {
       id: "f4-worker-onboarding",
-      title: "Flow 4 — Candidate Onboarding",
-      description: "Post-contract onboarding for candidates: verify personal info, compliance docs, payroll setup, work agreements, and checklist completion guided by Kurt",
+      title: "Flow 4 — Worker Onboarding",
+      description: "Post-contract onboarding for workers: verify personal info, compliance docs, payroll setup, work agreements, and checklist completion guided by Kurt",
       steps: 7,
       patterns: ["genie-onboarding", "step-card-progress", "compliance-checklist"],
       path: "/flows/worker-onboarding",
