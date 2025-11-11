@@ -157,29 +157,31 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
         {/* Form fields - prefilled and pending */}
         <div className="mt-6 space-y-6">
-          {/* Prefilled fields */}
-          <div className="space-y-2">
-            <Label>Full Name</Label>
-            <Input value={candidate.name} disabled className="bg-muted/50" />
-            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-          </div>
+          {/* Section: Prefilled from ATS */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input value={candidate.name} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input value={candidate.email || ""} disabled className="bg-muted/50" />
-            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-          </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input value={candidate.email || ""} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Role</Label>
-            <Input value={candidate.role} disabled className="bg-muted/50" />
-            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-          </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Input value={candidate.role} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Salary</Label>
-            <Input value={candidate.salary} disabled className="bg-muted/50" />
-            <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            <div className="space-y-2">
+              <Label>Salary</Label>
+              <Input value={candidate.salary} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
           </div>
 
           {/* Employment Type */}
@@ -300,7 +302,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           {/* Pending fields */}
           <div className="pt-4 border-t border-border">
             <p className="text-xs font-medium text-muted-foreground mb-4">
-              Required Fields <Badge variant="secondary" className="ml-2 text-xs">Pending from Candidate</Badge>
+              Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by candidate</Badge>
             </p>
 
             <div className="space-y-4">
