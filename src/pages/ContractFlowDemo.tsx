@@ -490,7 +490,7 @@ const ContractFlowDemo = () => {
                               ? "Both candidates have signed! Let's trigger their onboarding checklists."
                               : searchParams.get("moved") === "true" 
                                 ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Track progress, resend links, or mark tasks complete as needed."
+                                : "Monitor candidate signatures and complete certification to finalize contracts."
                           }
                           showPulse={true}
                           hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
