@@ -284,6 +284,7 @@ const PayrollBatch: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [additionalFees, setAdditionalFees] = useState<Record<string, { amount: number; accepted: boolean }>>({});
   const [oneTimeAdjustment, setOneTimeAdjustment] = useState<number>(0);
+  const [scrollStates, setScrollStates] = useState<Record<string, boolean>>({});
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -372,6 +373,14 @@ const PayrollBatch: React.FC = () => {
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
     return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) !== 1 ? 's' : ''} ago`;
+  };
+
+  const handleTableScroll = (currency: string, e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    setScrollStates(prev => ({
+      ...prev,
+      [currency]: scrollLeft > 0
+    }));
   };
   const [paymentReceipts, setPaymentReceipts] = useState([
     {
@@ -826,11 +835,19 @@ const PayrollBatch: React.FC = () => {
                     </div>
                     
                     {/* Horizontal Scroll Container */}
-                    <div className="overflow-x-auto">
+                    <div 
+                      className="overflow-x-auto" 
+                      onScroll={(e) => handleTableScroll(currency, e)}
+                    >
                       <Table className="relative">
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="text-xs sticky left-0 z-10 bg-card/95 backdrop-blur-sm min-w-[180px]">Name</TableHead>
+                            <TableHead className={cn(
+                              "text-xs sticky left-0 z-20 bg-card/95 backdrop-blur-sm min-w-[180px] transition-shadow duration-200",
+                              scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
+                            )}>
+                              Name
+                            </TableHead>
                             <TableHead className="text-xs min-w-[120px]">Role</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
@@ -861,7 +878,10 @@ const PayrollBatch: React.FC = () => {
                               className="cursor-pointer hover:bg-muted/30 transition-colors"
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
-                              <TableCell className="font-medium text-sm sticky left-0 z-10 bg-card/95 backdrop-blur-sm">
+                              <TableCell className={cn(
+                                "font-medium text-sm sticky left-0 z-20 bg-card/95 backdrop-blur-sm transition-shadow duration-200",
+                                scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
+                              )}>
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
                                   {hasLeave && (
@@ -972,7 +992,10 @@ const PayrollBatch: React.FC = () => {
                         
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
-                          <TableCell colSpan={3} className="text-sm sticky left-0 z-10 bg-muted/95 backdrop-blur-sm">
+                          <TableCell colSpan={3} className={cn(
+                            "text-sm sticky left-0 z-20 bg-muted/95 backdrop-blur-sm transition-shadow duration-200",
+                            scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
+                          )}>
                             Total {currency}
                           </TableCell>
                           <TableCell className="text-right text-sm">
