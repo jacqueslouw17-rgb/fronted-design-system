@@ -2109,8 +2109,9 @@ You can ask me about:
                         {/* Existing Batch Workflow */}
                         <div className="space-y-4">
                           {/* Horizontal Steps - Clean sticky */}
-                          <div className="sticky top-16 z-30 py-4">
-                            <div className="flex items-center gap-3 overflow-x-auto">
+                          <div className="sticky top-14 sm:top-16 z-30 py-2 relative">
+                            <div className="rounded-xl border border-border/10 bg-card/20 px-3 py-2">
+                              <div className="flex items-center gap-3 overflow-x-auto">
                               {steps.map((step, index) => {
                                 const isActive = currentStep === step.id;
                                 const isCompleted = getCurrentStepIndex() > index;
@@ -2148,6 +2149,9 @@ You can ask me about:
                                 );
                               })}
                             </div>
+                            </div>
+                            {/* Subtle gradient fade over content below */}
+                            <div className="pointer-events-none absolute left-0 right-0 -bottom-1 h-6 bg-gradient-to-b from-background/0 to-background" />
                           </div>
 
                           {/* Right: Step Content */}
