@@ -1088,7 +1088,7 @@ const PayrollBatch: React.FC = () => {
                 Step 1 of 5 – FX Review
               </div>
               <Button 
-                className="h-11 px-6 text-sm font-medium"
+                className="h-9 px-4 text-sm"
                 onClick={() => setCurrentStep("exceptions")}
               >
                 Go to Exceptions
@@ -1276,12 +1276,13 @@ const PayrollBatch: React.FC = () => {
                 )}
                 <Button
                   variant="outline"
+                  className="h-9 px-4 text-sm"
                   onClick={() => setCurrentStep("review-fx")}
                 >
                   Previous
                 </Button>
                 <Button
-                  className="h-11 px-6 text-sm font-medium"
+                  className="h-9 px-4 text-sm"
                   disabled={!allExceptionsResolved}
                   onClick={() => setCurrentStep("execute")}
                 >
@@ -1457,13 +1458,13 @@ const PayrollBatch: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <Button 
                       variant="outline"
-                      className="h-11 text-sm font-medium"
+                      className="h-9 px-4 text-sm"
                       onClick={() => setCurrentStep("exceptions")}
                     >
                       Previous
                     </Button>
                     <Button 
-                      className="flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90"
+                      className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
                       onClick={handleExecutePayroll}
                     >
                       <Play className="h-4 w-4 mr-2" />
