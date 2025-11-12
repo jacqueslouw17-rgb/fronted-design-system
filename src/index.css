@@ -287,9 +287,8 @@ All colors MUST be HSL.
     background-color: hsl(var(--muted) / 0.2);
   }
   
-  /* Table scrollbar - hide by default, show on hover */
+  /* Table scrollbar - hidden by default, appears on hover */
   .table-scroll-container::-webkit-scrollbar {
-    width: 4px;
     height: 4px;
   }
   
@@ -300,10 +299,11 @@ All colors MUST be HSL.
   .table-scroll-container::-webkit-scrollbar-thumb {
     background-color: transparent;
     border-radius: 9999px;
+    transition: background-color 0.2s;
   }
   
   .table-scroll-container:hover::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted) / 0.15);
+    background-color: hsl(var(--border) / 0.15);
   }
   
   .table-scroll-container {
@@ -312,7 +312,7 @@ All colors MUST be HSL.
   }
   
   .table-scroll-container:hover {
-    scrollbar-color: hsl(var(--muted) / 0.15) transparent;
+    scrollbar-color: hsl(var(--border) / 0.15) transparent;
   }
 }
 
