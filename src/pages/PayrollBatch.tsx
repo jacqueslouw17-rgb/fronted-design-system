@@ -674,6 +674,11 @@ const PayrollBatch: React.FC = () => {
   };
 
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
+    // For completed payroll cycles, all payments are marked as Paid
+    if (currentCycleData.status === "completed") {
+      return "Paid";
+    }
+    
     const receipt = paymentReceipts.find(r => r.payeeId === contractorId);
     return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
   };
@@ -1718,16 +1723,20 @@ const PayrollBatch: React.FC = () => {
                 <CheckCircle2 className="h-5 w-5 text-accent-green-text flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground mb-1">
-                    All payments for this cycle have been reconciled successfully.
+                    {currentCycleData.status === "completed" 
+                      ? "All payments for this historical cycle were reconciled successfully."
+                      : "All payments for this cycle have been reconciled successfully."}
                   </p>
-                  <Button
-                    onClick={handleReturnToPayrollOverview}
-                    size="sm"
-                    variant="outline"
-                    className="mt-2"
-                  >
-                    Return to Payroll Overview
-                  </Button>
+                  {currentCycleData.status !== "completed" && (
+                    <Button
+                      onClick={handleReturnToPayrollOverview}
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                    >
+                      Return to Payroll Overview
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             )}
