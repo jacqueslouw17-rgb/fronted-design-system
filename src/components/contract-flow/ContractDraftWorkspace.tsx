@@ -23,7 +23,7 @@ const getContractContent = (candidate: Candidate, documentType: DocumentType) =>
   switch (documentType) {
     case "employment-agreement":
       return [{
-        heading: "EMPLOYMENT AGREEMENT",
+        heading: "Employment Agreement",
         text: ""
       }, {
         heading: "",
