@@ -994,12 +994,14 @@ const PayrollBatch: React.FC = () => {
                         
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
-                          <TableCell colSpan={3} className={cn(
-                            "text-sm sticky left-0 z-20 transition-all duration-200",
+                          <TableCell className={cn(
+                            "text-sm sticky left-0 z-20 min-w-[180px] transition-all duration-200",
                             scrollStates[currency] ? "bg-muted/50 backdrop-blur-sm shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]" : "bg-transparent"
                           )}>
                             Total {currency}
                           </TableCell>
+                          <TableCell className="text-sm"></TableCell>
+                          <TableCell className="text-sm"></TableCell>
                           <TableCell className="text-right text-sm">
                             {symbol}{contractors.reduce((sum, c) => sum + c.baseSalary, 0).toLocaleString()}
                           </TableCell>
