@@ -1108,12 +1108,12 @@ const PayrollBatch: React.FC = () => {
 
         return (
           <div className="space-y-6">
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Step Label - hidden to match Review FX style */}
+            {/* <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                 Step 2 of 5 – Exceptions
               </Badge>
-            </div>
+            </div> */}
 
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
@@ -1318,12 +1318,12 @@ const PayrollBatch: React.FC = () => {
                   </p>
                 </div>
               </div>
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Step Label - hidden to match Review FX style */}
+            {/* <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                 Step 3 of 4 – Execute Payroll
               </Badge>
-            </div>
+            </div> */}
 
             <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
 
@@ -1509,12 +1509,12 @@ const PayrollBatch: React.FC = () => {
 
         return (
           <div className="space-y-6">
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Step Label - hidden to match Review FX style */}
+            {/* <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                 Step 4 of 4 – Track & Reconcile
               </Badge>
-            </div>
+            </div> */}
 
             {/* Header Context Bar */}
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/20 bg-card/30 backdrop-blur-sm">
