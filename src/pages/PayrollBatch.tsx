@@ -474,7 +474,8 @@ const PayrollBatch: React.FC = () => {
         amountProcessed: 118240,
         skippedSnoozed: 0
       },
-      status: "completed" as const
+      status: "completed" as const,
+      hasData: true
     },
     current: {
       label: "November 2025",
@@ -488,21 +489,24 @@ const PayrollBatch: React.FC = () => {
         amountProcessed: 118240,
         skippedSnoozed: 0
       },
-      status: "active" as const
+      status: "active" as const,
+      hasData: true
     },
     next: {
       label: "December 2025",
-      totalSalaryCost: 126400,
-      frontedFees: 3792,
-      totalPayrollCost: 130192,
+      totalSalaryCost: null, // No data yet for upcoming cycle
+      frontedFees: null,
+      totalPayrollCost: null,
       nextPayrollRun: "Dec 15",
       nextPayrollYear: "2025",
+      opensOn: "Dec 12, 2025",
       previousBatch: {
-        employeesPaid: 8,
-        amountProcessed: 124850,
+        employeesPaid: 0,
+        amountProcessed: 0,
         skippedSnoozed: 0
       },
-      status: "upcoming" as const
+      status: "upcoming" as const,
+      hasData: false // Set to true if preloaded
     }
   };
 
@@ -2243,14 +2247,14 @@ You can ask me about:
                                     <>
                                       <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
                                       <p className="text-xs text-foreground">
-                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — all actions are disabled for historical runs.
+                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — actions are limited to reconciliation.
                                       </p>
                                     </>
                                   ) : (
                                     <>
-                                      <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                                      <Clock className="h-4 w-4 text-blue-600 flex-shrink-0" />
                                       <p className="text-xs text-foreground">
-                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — actions will be available when this cycle opens.
+                                        🕒 You're viewing an upcoming payroll cycle. Preparation opens automatically 3 days before payout.
                                       </p>
                                     </>
                                   )}
@@ -2270,8 +2274,16 @@ You can ask me about:
                                     <DollarSign className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Total Salary Cost</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalSalaryCost.toLocaleString()}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">{currentCycleData.label}</p>
+                                  {currentCycleData.status === "upcoming" && !currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">—</p>
+                                  ) : currentCycleData.status === "upcoming" && currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">${currentCycleData.totalSalaryCost?.toLocaleString()}</p>
+                                  ) : (
+                                    <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalSalaryCost?.toLocaleString()}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {currentCycleData.status === "upcoming" && currentCycleData.hasData ? "Pending Calculation" : currentCycleData.label}
+                                  </p>
                                 </div>
 
                                 {/* Fronted Fees */}
@@ -2280,8 +2292,16 @@ You can ask me about:
                                     <Building2 className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Fronted Fees (Est.)</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.frontedFees.toLocaleString()}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+                                  {currentCycleData.status === "upcoming" && !currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">—</p>
+                                  ) : currentCycleData.status === "upcoming" && currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">${currentCycleData.frontedFees?.toLocaleString()}</p>
+                                  ) : (
+                                    <p className="text-2xl font-semibold text-foreground">${currentCycleData.frontedFees?.toLocaleString()}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {currentCycleData.status === "upcoming" && currentCycleData.hasData ? "Pending Calculation" : "Transaction + Service"}
+                                  </p>
                                 </div>
 
                                 {/* Total Payroll Cost */}
@@ -2290,8 +2310,16 @@ You can ask me about:
                                     <Activity className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Total Payroll Cost</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalPayrollCost.toLocaleString()}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
+                                  {currentCycleData.status === "upcoming" && !currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">—</p>
+                                  ) : currentCycleData.status === "upcoming" && currentCycleData.hasData ? (
+                                    <p className="text-2xl font-semibold text-muted-foreground">${currentCycleData.totalPayrollCost?.toLocaleString()}</p>
+                                  ) : (
+                                    <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalPayrollCost?.toLocaleString()}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {currentCycleData.status === "upcoming" && currentCycleData.hasData ? "Pending Calculation" : "Salary + Fees"}
+                                  </p>
                                 </div>
 
                                 {/* Next Payroll Run or Completion Status */}
@@ -2323,34 +2351,71 @@ You can ask me about:
                               </motion.div>
 
                               {/* Previous Batch Summary or Historical Summary */}
-                              <motion.div
-                                key={`summary-${selectedCycle}`}
-                                initial={{ opacity: 0, y: 5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, delay: 0.1 }}
-                                className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20"
-                              >
-                                <div className="flex items-center gap-2 mb-3">
-                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                  <p className="text-sm font-medium text-foreground">
-                                    {currentCycleData.status === "completed" ? "Batch Summary" : "Previous Batch Summary"}
+                              {currentCycleData.status === "upcoming" && !currentCycleData.hasData ? (
+                                <motion.div
+                                  key={`summary-${selectedCycle}`}
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, delay: 0.1 }}
+                                  className="p-6 rounded-lg bg-muted/20 border border-border text-center"
+                                >
+                                  <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                                  <p className="text-sm font-medium text-foreground mb-2">
+                                    Payroll preparation for {currentCycleData.label} will open soon.
                                   </p>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
-                                    <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.employeesPaid}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    No salary data available yet for this cycle.
+                                  </p>
+                                  <Button disabled className="mt-4" size="sm" variant="outline">
+                                    <Clock className="h-3.5 w-3.5 mr-2" />
+                                    Prepare Next Payroll (coming soon)
+                                  </Button>
+                                </motion.div>
+                              ) : currentCycleData.status === "upcoming" && currentCycleData.hasData ? (
+                                <motion.div
+                                  key={`summary-${selectedCycle}`}
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, delay: 0.1 }}
+                                  className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Info className="h-4 w-4 text-blue-600" />
+                                    <p className="text-xs text-foreground">
+                                      Data preloaded based on previous payroll — will auto-refresh once rates and attendance are confirmed.
+                                    </p>
                                   </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
-                                    <p className="text-lg font-semibold text-foreground">${currentCycleData.previousBatch.amountProcessed.toLocaleString()}</p>
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key={`summary-${selectedCycle}`}
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, delay: 0.1 }}
+                                  className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20"
+                                >
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                    <p className="text-sm font-medium text-foreground">
+                                      {currentCycleData.status === "completed" ? "Batch Summary" : "Previous Batch Summary"}
+                                    </p>
                                   </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
-                                    <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.skippedSnoozed}</p>
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
+                                      <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.employeesPaid}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
+                                      <p className="text-lg font-semibold text-foreground">${currentCycleData.previousBatch.amountProcessed.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
+                                      <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.skippedSnoozed}</p>
+                                    </div>
                                   </div>
-                                </div>
-                              </motion.div>
+                                </motion.div>
+                              )}
                             </CardContent>
                           </Card>
                         </motion.div>
@@ -2364,19 +2429,30 @@ You can ask me about:
                                 const isActive = currentStep === step.id;
                                 const isCompleted = getCurrentStepIndex() > index;
                                 const Icon = step.icon;
+                                const isDisabled = currentCycleData.status === "completed" && step.id !== "track";
+                                const isUpcomingDisabled = currentCycleData.status === "upcoming";
+                                
                                 return (
-                                  <button
-                                    key={step.id}
-                                    onClick={() => currentCycleData.status === "active" && setCurrentStep(step.id as PayrollStep)}
-                                    disabled={currentCycleData.status !== "active"}
-                                    className={cn(
-                                      "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
-                                      isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
-                                      isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                                      !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
-                                      currentCycleData.status !== "active" && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
-                                    )}
-                                  >
+                                  <TooltipProvider key={step.id}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => {
+                                            if (currentCycleData.status === "active") {
+                                              setCurrentStep(step.id as PayrollStep);
+                                            } else if (currentCycleData.status === "completed" && step.id === "track") {
+                                              setCurrentStep(step.id as PayrollStep);
+                                            }
+                                          }}
+                                          disabled={isDisabled || isUpcomingDisabled}
+                                          className={cn(
+                                            "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
+                                            isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
+                                            isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                                            !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
+                                            (isDisabled || isUpcomingDisabled) && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
+                                          )}
+                                        >
                                     <span className={cn(
                                       "inline-flex items-center justify-center w-6 h-6 rounded-full",
                                       isActive && "bg-primary/20",
@@ -2389,13 +2465,27 @@ You can ask me about:
                                         <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
                                       )}
                                     </span>
-                                    <span className={cn(
-                                      "text-sm font-medium",
-                                      isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
-                                    )}>
-                                      {step.label}
-                                    </span>
-                                  </button>
+                                          <span className={cn(
+                                            "text-sm font-medium",
+                                            isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
+                                          )}>
+                                            {step.label}
+                                          </span>
+                                        </button>
+                                      </TooltipTrigger>
+                                      {(isDisabled || isUpcomingDisabled) && (
+                                        <TooltipContent side="bottom" className="max-w-xs">
+                                          <p className="text-xs">
+                                            {isUpcomingDisabled 
+                                              ? `Payroll actions will be available when the ${currentCycleData.label} cycle opens on ${(currentCycleData as any).opensOn}.`
+                                              : currentCycleData.status === "completed" && step.id !== "track"
+                                              ? "This action is disabled for historical payrolls. Only reconciliation is available."
+                                              : "This action is currently unavailable."}
+                                          </p>
+                                        </TooltipContent>
+                                      )}
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 );
                               })}
                             </div>
