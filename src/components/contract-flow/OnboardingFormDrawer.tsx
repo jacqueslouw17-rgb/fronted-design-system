@@ -1,28 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield, CheckCircle2, Plus, Bot, Pencil, Check, X } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
-
 interface OnboardingFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,87 +18,70 @@ interface OnboardingFormDrawerProps {
   onSent: () => void;
   isResend?: boolean;
 }
-
 interface CustomField {
   id: string;
   label: string;
 }
-
 export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
   candidate,
   onComplete,
   onSent,
-  isResend = false,
+  isResend = false
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState("");
-  const [employmentType, setEmploymentType] = useState<"contractor" | "employee" | null>(
-    candidate.employmentType || null
-  );
-  const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(
-    !candidate.employmentType && candidate.employmentTypeSource === "suggested"
-  );
-
+  const [employmentType, setEmploymentType] = useState<"contractor" | "employee" | null>(candidate.employmentType || null);
+  const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(!candidate.employmentType && candidate.employmentTypeSource === "suggested");
   const handleSendForm = async () => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+    await new Promise(resolve => setTimeout(resolve, 1000));
     toast.success(`✅ Form sent to ${candidate.name}. They'll receive it via email.`, {
-      duration: 4000,
+      duration: 4000
     });
-    
     setIsSubmitting(false);
     onSent();
     onOpenChange(false);
   };
-
   const handleSaveDraft = async () => {
     setIsSavingDraft(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     toast.success("📝 Form configuration saved as draft.", {
-      duration: 3000,
+      duration: 3000
     });
     setIsSavingDraft(false);
     onOpenChange(false);
   };
-
   const handleAddCustomField = () => {
     const newField: CustomField = {
       id: `custom-${Date.now()}`,
-      label: "Custom Field",
+      label: "Custom Field"
     };
     setCustomFields([...customFields, newField]);
   };
-
   const handleStartEdit = (field: CustomField) => {
     setEditingFieldId(field.id);
     setEditingLabel(field.label);
   };
-
   const handleSaveEdit = () => {
     if (editingFieldId && editingLabel.trim()) {
-      setCustomFields(
-        customFields.map((field) =>
-          field.id === editingFieldId ? { ...field, label: editingLabel.trim() } : field
-        )
-      );
+      setCustomFields(customFields.map(field => field.id === editingFieldId ? {
+        ...field,
+        label: editingLabel.trim()
+      } : field));
       setEditingFieldId(null);
       setEditingLabel("");
     }
   };
-
   const handleCancelEdit = () => {
     setEditingFieldId(null);
     setEditingLabel("");
   };
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+  return <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-base">Onboarding Data Collection Form</SheetTitle>
@@ -160,38 +130,25 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           {/* Start Date */}
           <div className="space-y-2">
             <Label>Start Date</Label>
-            {candidate.startDate ? (
-              <>
+            {candidate.startDate ? <>
                 <Input value={candidate.startDate} disabled className="bg-muted/50" />
                 <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-              </>
-            ) : (
-              <>
+              </> : <>
                 <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
                 <p className="text-xs text-muted-foreground">To be filled by candidate</p>
-              </>
-            )}
+              </>}
           </div>
 
           {/* Employment Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               Employment Type
-              {candidate.employmentTypeSource === "ats" && (
-                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>
-              )}
+              {candidate.employmentTypeSource === "ats" && <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>}
             </Label>
-            {candidate.employmentTypeSource === "ats" ? (
-              <>
-                <Input 
-                  value={candidate.employmentType === "contractor" ? "Contractor" : "Employee"} 
-                  disabled 
-                  className="bg-muted/50" 
-                />
+            {candidate.employmentTypeSource === "ats" ? <>
+                <Input value={candidate.employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
                 <p className="text-xs text-muted-foreground">Locked from ATS</p>
-              </>
-            ) : showEmploymentConfirm ? (
-              <div className="space-y-3">
+              </> : showEmploymentConfirm ? <div className="space-y-3">
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
                   <Bot className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-muted-foreground">
@@ -199,51 +156,30 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={employmentType === "contractor" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setEmploymentType("contractor");
-                      setShowEmploymentConfirm(false);
-                    }}
-                    className="flex-1"
-                  >
+                  <Button type="button" variant={employmentType === "contractor" ? "default" : "outline"} size="sm" onClick={() => {
+                setEmploymentType("contractor");
+                setShowEmploymentConfirm(false);
+              }} className="flex-1">
                     ✅ Contractor
                   </Button>
-                  <Button
-                    type="button"
-                    variant={employmentType === "employee" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setEmploymentType("employee");
-                      setShowEmploymentConfirm(false);
-                    }}
-                    className="flex-1"
-                  >
+                  <Button type="button" variant={employmentType === "employee" ? "default" : "outline"} size="sm" onClick={() => {
+                setEmploymentType("employee");
+                setShowEmploymentConfirm(false);
+              }} className="flex-1">
                     💼 Employee
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <>
-                <Input 
-                  value={employmentType === "contractor" ? "Contractor" : "Employee"} 
-                  disabled 
-                  className="bg-muted/50" 
-                />
+              </div> : <>
+                <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
                 <p className="text-xs text-muted-foreground">Confirmed by admin</p>
-              </>
-            )}
+              </>}
           </div>
 
           {/* Document Bundle Preview */}
-          {employmentType && (
-            <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
+          {employmentType && <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
               <Label className="text-xs font-medium">Contract Documents to be Generated</Label>
               <div className="space-y-1.5">
-                {employmentType === "contractor" ? (
-                  <>
+                {employmentType === "contractor" ? <>
                     <div className="flex items-center gap-2 text-xs">
                       <span>📄</span>
                       <span>Contractor Agreement</span>
@@ -252,15 +188,11 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                       <span>📄</span>
                       <span>NDA</span>
                     </div>
-                    {candidate.country === "Philippines" && (
-                      <div className="flex items-center gap-2 text-xs">
+                    {candidate.country === "Philippines" && <div className="flex items-center gap-2 text-xs">
                         <span>📄</span>
                         <span>Data Privacy Addendum (PH)</span>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
+                      </div>}
+                  </> : <>
                     <div className="flex items-center gap-2 text-xs">
                       <span>📄</span>
                       <span>Employment Agreement</span>
@@ -273,11 +205,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                       <span>📄</span>
                       <span>NDA / Policy Docs</span>
                     </div>
-                  </>
-                )}
+                  </>}
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Pending fields */}
           <div className="pt-4 border-t border-border">
@@ -379,79 +309,38 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               </div>
 
               {/* Custom fields */}
-              {customFields.map((field) => (
-                <div key={field.id} className="space-y-2">
-                  {editingFieldId === field.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editingLabel}
-                        onChange={(e) => setEditingLabel(e.target.value)}
-                        className="flex-1"
-                        placeholder="Field name"
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleSaveEdit();
-                          if (e.key === "Escape") handleCancelEdit();
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={handleSaveEdit}
-                        className="h-8 w-8 text-primary hover:bg-primary/10"
-                      >
+              {customFields.map(field => <div key={field.id} className="space-y-2">
+                  {editingFieldId === field.id ? <div className="flex items-center gap-2">
+                      <Input value={editingLabel} onChange={e => setEditingLabel(e.target.value)} className="flex-1" placeholder="Field name" autoFocus onKeyDown={e => {
+                  if (e.key === "Enter") handleSaveEdit();
+                  if (e.key === "Escape") handleCancelEdit();
+                }} />
+                      <Button type="button" size="icon" variant="ghost" onClick={handleSaveEdit} className="h-8 w-8 text-primary hover:bg-primary/10">
                         <Check className="h-4 w-4" />
                       </Button>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={handleCancelEdit}
-                        className="h-8 w-8 text-muted-foreground hover:bg-muted"
-                      >
+                      <Button type="button" size="icon" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8 text-muted-foreground hover:bg-muted">
                         <X className="h-4 w-4" />
                       </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
+                    </div> : <div className="flex items-center justify-between">
                       <Label>{field.label}</Label>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleStartEdit(field)}
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted"
-                      >
+                      <Button type="button" size="icon" variant="ghost" onClick={() => handleStartEdit(field)} className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted">
                         <Pencil className="h-3 w-3" />
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                   <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
-                </div>
-              ))}
+                </div>)}
 
               {/* Add custom field button - hidden for now */}
-              {false && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAddCustomField}
-                  className="w-full flex items-center gap-2"
-                >
+              {false && <Button type="button" variant="outline" size="sm" onClick={handleAddCustomField} className="w-full flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Add Custom Field
-                </Button>
-              )}
+                </Button>}
             </div>
           </div>
 
           {/* Preview message */}
           <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground mb-2">
-              This form will be sent to:
-            </p>
+            <p className="text-xs text-muted-foreground mb-2">This form was sent to:</p>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary" />
               <div>
@@ -463,26 +352,14 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="flex-1"
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="flex-1">
               Cancel
             </Button>
-            <Button
-              type="button"
-              onClick={handleSendForm}
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting ? (isResend ? "Resending..." : "Sending...") : (isResend ? "Resend Form" : "Send Form")}
+            <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
+              {isSubmitting ? isResend ? "Resending..." : "Sending..." : isResend ? "Resend Form" : "Send Form"}
             </Button>
           </div>
         </div>
       </SheetContent>
-    </Sheet>
-  );
+    </Sheet>;
 };
