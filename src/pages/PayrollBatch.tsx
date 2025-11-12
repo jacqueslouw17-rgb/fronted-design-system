@@ -38,12 +38,24 @@ const steps = [
   { id: "track", label: "Track & Reconcile", icon: TrendingUp },
 ] as const;
 
+interface LeaveRecord {
+  contractorId: string;
+  leaveDays: number;
+  workingDays: number;
+  leaveReason?: string;
+  leaveDate?: string;
+  approvedBy?: string;
+  clientConfirmed: boolean;
+  contractorReported: boolean;
+}
+
 interface ContractorPayment {
   id: string;
   name: string;
   country: string;
   countryCode: string;
   netPay: number;
+  baseSalary: number;
   currency: string;
   estFees: number;
   fxRate: number;
@@ -51,6 +63,7 @@ interface ContractorPayment {
   eta: string;
   employmentType: "employee" | "contractor";
   employerTaxes?: number;
+  leaveData?: LeaveRecord;
 }
 
 interface PayrollException {
@@ -89,18 +102,145 @@ const initialExceptions: PayrollException[] = [
 
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
   EUR: [
-    { id: "1", name: "David Martinez", country: "Portugal", countryCode: "PT", netPay: 4200, currency: "EUR", estFees: 25, fxRate: 0.92, recvLocal: 4200, eta: "Oct 30", employmentType: "contractor" },
-    { id: "2", name: "Sophie Laurent", country: "France", countryCode: "FR", netPay: 5800, currency: "EUR", estFees: 35, fxRate: 0.92, recvLocal: 5800, eta: "Oct 30", employmentType: "employee", employerTaxes: 1740 },
-    { id: "3", name: "Marco Rossi", country: "Italy", countryCode: "IT", netPay: 4500, currency: "EUR", estFees: 28, fxRate: 0.92, recvLocal: 4500, eta: "Oct 30", employmentType: "contractor" },
+    { 
+      id: "1", 
+      name: "David Martinez", 
+      country: "Portugal", 
+      countryCode: "PT", 
+      baseSalary: 4200,
+      netPay: 4200, 
+      currency: "EUR", 
+      estFees: 25, 
+      fxRate: 0.92, 
+      recvLocal: 4200, 
+      eta: "Oct 30", 
+      employmentType: "contractor" 
+    },
+    { 
+      id: "2", 
+      name: "Sophie Laurent", 
+      country: "France", 
+      countryCode: "FR", 
+      baseSalary: 5800,
+      netPay: 5800, 
+      currency: "EUR", 
+      estFees: 35, 
+      fxRate: 0.92, 
+      recvLocal: 5800, 
+      eta: "Oct 30", 
+      employmentType: "employee", 
+      employerTaxes: 1740,
+      leaveData: {
+        contractorId: "2",
+        leaveDays: 2,
+        workingDays: 21.67,
+        leaveReason: "Personal leave",
+        leaveDate: "Nov 10-11, 2025",
+        approvedBy: "HR Manager",
+        clientConfirmed: true,
+        contractorReported: true
+      }
+    },
+    { 
+      id: "3", 
+      name: "Marco Rossi", 
+      country: "Italy", 
+      countryCode: "IT", 
+      baseSalary: 4500,
+      netPay: 4500, 
+      currency: "EUR", 
+      estFees: 28, 
+      fxRate: 0.92, 
+      recvLocal: 4500, 
+      eta: "Oct 30", 
+      employmentType: "contractor" 
+    },
   ],
   NOK: [
-    { id: "4", name: "Alex Hansen", country: "Norway", countryCode: "NO", netPay: 65000, currency: "NOK", estFees: 250, fxRate: 10.45, recvLocal: 65000, eta: "Oct 31", employmentType: "employee", employerTaxes: 9750 },
-    { id: "5", name: "Emma Wilson", country: "Norway", countryCode: "NO", netPay: 72000, currency: "NOK", estFees: 280, fxRate: 10.45, recvLocal: 72000, eta: "Oct 31", employmentType: "contractor" },
+    { 
+      id: "4", 
+      name: "Alex Hansen", 
+      country: "Norway", 
+      countryCode: "NO", 
+      baseSalary: 65000,
+      netPay: 65000, 
+      currency: "NOK", 
+      estFees: 250, 
+      fxRate: 10.45, 
+      recvLocal: 65000, 
+      eta: "Oct 31", 
+      employmentType: "employee", 
+      employerTaxes: 9750 
+    },
+    { 
+      id: "5", 
+      name: "Emma Wilson", 
+      country: "Norway", 
+      countryCode: "NO", 
+      baseSalary: 72000,
+      netPay: 72000, 
+      currency: "NOK", 
+      estFees: 280, 
+      fxRate: 10.45, 
+      recvLocal: 72000, 
+      eta: "Oct 31", 
+      employmentType: "contractor",
+      leaveData: {
+        contractorId: "5",
+        leaveDays: 1,
+        workingDays: 21.67,
+        leaveReason: "Sick leave",
+        leaveDate: "Nov 8, 2025",
+        approvedBy: "Manager",
+        clientConfirmed: true,
+        contractorReported: true
+      }
+    },
   ],
   PHP: [
-    { id: "6", name: "Maria Santos", country: "Philippines", countryCode: "PH", netPay: 280000, currency: "PHP", estFees: 850, fxRate: 56.2, recvLocal: 280000, eta: "Oct 30", employmentType: "employee", employerTaxes: 42000 },
-    { id: "7", name: "Jose Reyes", country: "Philippines", countryCode: "PH", netPay: 245000, currency: "PHP", estFees: 750, fxRate: 56.2, recvLocal: 245000, eta: "Oct 30", employmentType: "contractor" },
-    { id: "8", name: "Luis Hernandez", country: "Philippines", countryCode: "PH", netPay: 260000, currency: "PHP", estFees: 800, fxRate: 56.2, recvLocal: 260000, eta: "Oct 30", employmentType: "contractor" },
+    { 
+      id: "6", 
+      name: "Maria Santos", 
+      country: "Philippines", 
+      countryCode: "PH", 
+      baseSalary: 280000,
+      netPay: 280000, 
+      currency: "PHP", 
+      estFees: 850, 
+      fxRate: 56.2, 
+      recvLocal: 280000, 
+      eta: "Oct 30", 
+      employmentType: "employee", 
+      employerTaxes: 42000 
+    },
+    { 
+      id: "7", 
+      name: "Jose Reyes", 
+      country: "Philippines", 
+      countryCode: "PH", 
+      baseSalary: 245000,
+      netPay: 245000, 
+      currency: "PHP", 
+      estFees: 750, 
+      fxRate: 56.2, 
+      recvLocal: 245000, 
+      eta: "Oct 30", 
+      employmentType: "contractor" 
+    },
+    { 
+      id: "8", 
+      name: "Luis Hernandez", 
+      country: "Philippines", 
+      countryCode: "PH", 
+      baseSalary: 260000,
+      netPay: 260000, 
+      currency: "PHP", 
+      estFees: 800, 
+      fxRate: 56.2, 
+      recvLocal: 260000, 
+      eta: "Oct 30", 
+      employmentType: "contractor" 
+    },
   ],
 };
 
@@ -135,6 +275,64 @@ const PayrollBatch: React.FC = () => {
   const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(addDays(new Date(), 1));
   const [rescheduleReason, setRescheduleReason] = useState<string>("bank-delay");
   const [notifyContractor, setNotifyContractor] = useState(true);
+  const [showLeaveSection, setShowLeaveSection] = useState(false);
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [selectedLeaveContractor, setSelectedLeaveContractor] = useState<ContractorPayment | null>(null);
+  const [leaveRecords, setLeaveRecords] = useState<Record<string, LeaveRecord>>({});
+
+  // Initialize leave records from contractor data
+  React.useEffect(() => {
+    const initialLeaveRecords: Record<string, LeaveRecord> = {};
+    allContractors.forEach(contractor => {
+      if (contractor.leaveData) {
+        initialLeaveRecords[contractor.id] = contractor.leaveData;
+      }
+    });
+    setLeaveRecords(initialLeaveRecords);
+  }, []);
+
+  // Pro-rating calculation helpers
+  const calculateProratedPay = (baseSalary: number, leaveDays: number, workingDays: number = 21.67) => {
+    const dailyRate = baseSalary / workingDays;
+    const payDays = workingDays - leaveDays;
+    const proratedPay = dailyRate * payDays;
+    return {
+      dailyRate,
+      payDays,
+      proratedPay,
+      difference: baseSalary - proratedPay
+    };
+  };
+
+  const getPaymentDue = (contractor: ContractorPayment): number => {
+    const leaveData = leaveRecords[contractor.id];
+    if (!leaveData || leaveData.leaveDays === 0) {
+      return contractor.baseSalary;
+    }
+    const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
+    return proratedPay;
+  };
+
+  const handleUpdateLeave = (contractorId: string, updates: Partial<LeaveRecord>) => {
+    setLeaveRecords(prev => ({
+      ...prev,
+      [contractorId]: {
+        ...prev[contractorId],
+        contractorId,
+        workingDays: 21.67,
+        leaveDays: 0,
+        clientConfirmed: false,
+        contractorReported: false,
+        ...prev[contractorId],
+        ...updates
+      }
+    }));
+  };
+
+  const handleViewLeaveDetails = (contractor: ContractorPayment) => {
+    setSelectedLeaveContractor(contractor);
+    setLeaveModalOpen(true);
+  };
   const [paymentReceipts, setPaymentReceipts] = useState([
     {
       payeeId: "1",
@@ -403,6 +601,145 @@ const PayrollBatch: React.FC = () => {
               </div>
             </div>
 
+            {/* Leave & Attendance Section */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-4">
+                <button
+                  onClick={() => setShowLeaveSection(!showLeaveSection)}
+                  className="w-full flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
+                    <Badge variant="outline" className="text-xs">
+                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} with leave
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {showLeaveSection ? "Hide details" : "View details"}
+                    </span>
+                    <div className={cn(
+                      "transition-transform duration-200",
+                      showLeaveSection && "rotate-180"
+                    )}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-muted-foreground">
+                        <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                </button>
+
+                {showLeaveSection && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="mt-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground mb-3">
+                        Pro-rated salaries calculated using: Base Salary ÷ 21.67 × (Working Days - Leave Days)
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-xs">Name</TableHead>
+                            <TableHead className="text-xs text-right">Leave Days</TableHead>
+                            <TableHead className="text-xs text-right">Working Days</TableHead>
+                            <TableHead className="text-xs text-right">Pay Days</TableHead>
+                            <TableHead className="text-xs text-right">Base Salary</TableHead>
+                            <TableHead className="text-xs text-right">Payment Due</TableHead>
+                            <TableHead className="text-xs text-center">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allContractors.map((contractor) => {
+                            const leaveData = leaveRecords[contractor.id];
+                            const hasLeave = leaveData && leaveData.leaveDays > 0;
+                            const workingDays = leaveData?.workingDays || 21.67;
+                            const leaveDays = leaveData?.leaveDays || 0;
+                            const payDays = workingDays - leaveDays;
+                            const paymentDue = getPaymentDue(contractor);
+                            
+                            return (
+                              <TableRow key={contractor.id} className={cn(
+                                hasLeave && "bg-amber-500/5"
+                              )}>
+                                <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
+                                <TableCell className="text-right">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="31"
+                                    step="0.5"
+                                    value={leaveDays}
+                                    onChange={(e) => handleUpdateLeave(contractor.id, { 
+                                      leaveDays: parseFloat(e.target.value) || 0 
+                                    })}
+                                    className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
+                                  />
+                                </TableCell>
+                                <TableCell className="text-right text-xs text-muted-foreground">
+                                  {workingDays.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-right text-xs font-medium">
+                                  {payDays.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-right text-sm">
+                                  {contractor.currency} {contractor.baseSalary.toLocaleString()}
+                                </TableCell>
+                                <TableCell className="text-right text-sm font-semibold">
+                                  {contractor.currency} {Math.round(paymentDue).toLocaleString()}
+                                  {hasLeave && (
+                                    <div className="text-xs text-amber-600 mt-0.5">
+                                      -{contractor.currency} {Math.round(contractor.baseSalary - paymentDue).toLocaleString()}
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <div className="flex items-center justify-center gap-1">
+                                    {leaveData?.clientConfirmed && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">
+                                              ✓
+                                            </Badge>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Client confirmed</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    {hasLeave && !leaveData?.clientConfirmed && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                              ⏳
+                                            </Badge>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Awaiting confirmation</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Currency Tables */}
             {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
               const currencySymbols: Record<string, string> = {
@@ -453,40 +790,84 @@ const PayrollBatch: React.FC = () => {
                           <TableHead className="text-xs">Name</TableHead>
                           <TableHead className="text-xs">Role</TableHead>
                           <TableHead className="text-xs">Country</TableHead>
-                          <TableHead className="text-xs text-right">Net Pay ({currency})</TableHead>
+                          <TableHead className="text-xs text-right">Base Salary</TableHead>
+                          <TableHead className="text-xs text-right">Payment Due</TableHead>
                           <TableHead className="text-xs text-right">Est. Fees</TableHead>
                           <TableHead className="text-xs text-right">FX Rate</TableHead>
-                          <TableHead className="text-xs text-right">Recv (Local)</TableHead>
                           <TableHead className="text-xs">ETA</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {contractors.map((contractor) => (
-                          <TableRow key={contractor.id}>
-                            <TableCell className="font-medium text-sm">
-                              {contractor.name}
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                variant="outline" 
-                                className={cn(
-                                  "text-xs",
-                                  contractor.employmentType === "employee" 
-                                    ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
-                                    : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                        {contractors.map((contractor) => {
+                          const leaveData = leaveRecords[contractor.id];
+                          const hasLeave = leaveData && leaveData.leaveDays > 0;
+                          const paymentDue = getPaymentDue(contractor);
+                          const difference = contractor.baseSalary - paymentDue;
+                          
+                          return (
+                            <TableRow key={contractor.id}>
+                              <TableCell className="font-medium text-sm">
+                                <div className="flex items-center gap-2">
+                                  {contractor.name}
+                                  {hasLeave && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            onClick={() => handleViewLeaveDetails(contractor)}
+                                            className="inline-flex"
+                                          >
+                                            <Badge 
+                                              variant="outline" 
+                                              className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1 cursor-pointer hover:bg-amber-500/20"
+                                            >
+                                              -{leaveData.leaveDays}d Leave
+                                            </Badge>
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <div className="text-xs space-y-1">
+                                            <p className="font-semibold">Leave Impact</p>
+                                            <p>Prorated Pay: {symbol}{Math.round(difference).toLocaleString()} less</p>
+                                            <p className="text-muted-foreground">Click to view details</p>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-xs",
+                                    contractor.employmentType === "employee" 
+                                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                      : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                  )}
+                                >
+                                  {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">{contractor.country}</TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">
+                                {symbol}{contractor.baseSalary.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right text-sm font-semibold">
+                                {symbol}{Math.round(paymentDue).toLocaleString()}
+                                {hasLeave && (
+                                  <div className="text-xs text-amber-600 mt-0.5">
+                                    -{symbol}{Math.round(difference).toLocaleString()}
+                                  </div>
                                 )}
-                              >
-                                {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">{contractor.country}</TableCell>
-                            <TableCell className="text-right text-sm">{symbol}{contractor.netPay.toLocaleString()}</TableCell>
-                            <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
-                            <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
-                            <TableCell className="text-right text-sm font-medium">{symbol}{contractor.recvLocal.toLocaleString()}</TableCell>
-                            <TableCell className="text-sm">{contractor.eta}</TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
+                              <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                              <TableCell className="text-sm">{contractor.eta}</TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -503,10 +884,15 @@ const PayrollBatch: React.FC = () => {
                     <p className="text-2xl font-bold text-foreground">{allContractors.length}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Net Pay</p>
+                    <p className="text-xs text-muted-foreground mb-1">Total Payment Due</p>
                     <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + c.netPay, 0) / 1000).toFixed(1)}K
+                      ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
+                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Includes pro-rated adjustments
+                      </p>
+                    )}
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Est. Fees</p>
@@ -1771,6 +2157,114 @@ You can ask me about:
                                     </p>
                                   </div>
                                 </div>
+                              </div>
+                            </div>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+
+                      {/* Leave Details Modal */}
+                      <Dialog open={leaveModalOpen} onOpenChange={setLeaveModalOpen}>
+                        <DialogContent className="max-w-lg">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                              <Clock className="h-5 w-5 text-primary" />
+                              Leave Details
+                            </DialogTitle>
+                          </DialogHeader>
+                          {selectedLeaveContractor && leaveRecords[selectedLeaveContractor.id] && (
+                            <div className="space-y-6">
+                              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
+                                <div>
+                                  <p className="text-lg font-semibold text-foreground">{selectedLeaveContractor.name}</p>
+                                  <p className="text-sm text-muted-foreground">{selectedLeaveContractor.country}</p>
+                                </div>
+                                <Badge
+                                  variant="outline"
+                                  className="bg-amber-500/10 text-amber-600 border-amber-500/30"
+                                >
+                                  {leaveRecords[selectedLeaveContractor.id].leaveDays} Days Leave
+                                </Badge>
+                              </div>
+
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground">Leave Information</h4>
+                                <div className="space-y-3 p-4 rounded-lg bg-muted/20">
+                                  {leaveRecords[selectedLeaveContractor.id].leaveDate && (
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Leave Date(s)</p>
+                                      <p className="text-sm font-medium text-foreground">
+                                        {leaveRecords[selectedLeaveContractor.id].leaveDate}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {leaveRecords[selectedLeaveContractor.id].leaveReason && (
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Reason</p>
+                                      <p className="text-sm font-medium text-foreground">
+                                        {leaveRecords[selectedLeaveContractor.id].leaveReason}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {leaveRecords[selectedLeaveContractor.id].approvedBy && (
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Approved By</p>
+                                      <p className="text-sm font-medium text-foreground">
+                                        {leaveRecords[selectedLeaveContractor.id].approvedBy}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground">Payment Calculation</h4>
+                                <div className="space-y-2 p-4 rounded-lg bg-muted/20">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-muted-foreground">Base Salary</span>
+                                    <span className="text-sm font-medium">
+                                      {selectedLeaveContractor.currency} {selectedLeaveContractor.baseSalary.toLocaleString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-muted-foreground">Working Days</span>
+                                    <span className="text-sm font-medium">
+                                      {leaveRecords[selectedLeaveContractor.id].workingDays.toFixed(2)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-muted-foreground">Leave Days</span>
+                                    <span className="text-sm font-medium text-amber-600">
+                                      -{leaveRecords[selectedLeaveContractor.id].leaveDays}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-muted-foreground">Pay Days</span>
+                                    <span className="text-sm font-medium">
+                                      {(leaveRecords[selectedLeaveContractor.id].workingDays - leaveRecords[selectedLeaveContractor.id].leaveDays).toFixed(2)}
+                                    </span>
+                                  </div>
+                                  <Separator className="my-2" />
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-semibold text-foreground">Payment Due</span>
+                                    <span className="text-lg font-bold text-foreground">
+                                      {selectedLeaveContractor.currency} {Math.round(getPaymentDue(selectedLeaveContractor)).toLocaleString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between text-amber-600">
+                                    <span className="text-xs">Leave Adjustment</span>
+                                    <span className="text-sm font-semibold">
+                                      -{selectedLeaveContractor.currency} {Math.round(selectedLeaveContractor.baseSalary - getPaymentDue(selectedLeaveContractor)).toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <Info className="h-4 w-4 text-blue-600" />
+                                <p className="text-xs text-blue-600">
+                                  Formula: Base Salary ÷ 21.67 × Pay Days
+                                </p>
                               </div>
                             </div>
                           )}
