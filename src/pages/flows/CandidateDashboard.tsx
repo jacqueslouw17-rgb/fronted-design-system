@@ -1,9 +1,16 @@
 /**
- * Flow 5 — Candidate Dashboard
- * Status: UNLOCKED (Simplified completion view)
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
  * 
- * This flow displays the post-certification dashboard for candidates.
- * Shows contract certification confirmation and provides document access.
+ * Flow 5 — Candidate Dashboard
+ * Status: LOCKED (finalized simplified completion view)
+ * Locked Date: 2025-01-14
+ * 
+ * This flow is finalized and frozen. Do NOT make changes to:
+ * - Structure (navigation, flow control)
+ * - Design (styling, layout, components)
+ * - Logic (document access, certification display)
+ * 
+ * All future modifications must be approved and tracked.
  */
 
 import { useEffect } from "react";

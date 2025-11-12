@@ -1,3 +1,18 @@
+/**
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
+ * 
+ * Flow 3 — Candidate Data Collection
+ * Status: LOCKED (finalized for backend integration)
+ * Locked Date: 2025-01-14
+ * 
+ * This flow is finalized and frozen. Do NOT make changes to:
+ * - Structure (steps, navigation, flow control)
+ * - Design (styling, layout, components)
+ * - Logic (validation, state management, business rules)
+ * 
+ * All future modifications must be approved and tracked.
+ */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
