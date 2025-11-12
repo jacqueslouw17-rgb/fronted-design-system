@@ -266,7 +266,7 @@ All colors MUST be HSL.
   /* Custom scrollbar styles for native scrollbars */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted) / 0.3) transparent;
+    scrollbar-color: hsl(var(--muted) / 0.12) transparent;
   }
   
   *::-webkit-scrollbar {
@@ -279,12 +279,12 @@ All colors MUST be HSL.
   }
   
   *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted) / 0.3);
+    background-color: hsl(var(--muted) / 0.12);
     border-radius: 9999px;
   }
   
   *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted) / 0.4);
+    background-color: hsl(var(--muted) / 0.2);
   }
 }
 
