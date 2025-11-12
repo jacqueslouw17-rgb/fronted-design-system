@@ -389,19 +389,20 @@ const DesignSystem = () => {
                         +15
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
                       <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
                         View flow
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
+                      <div className="h-4 w-px bg-border" />
                       <a 
                         href="/docs/Flow1_Admin_Onboarding_Data_Model.md" 
                         download="Flow1_Admin_Onboarding_Data_Model.md"
-                        className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <FileText className="w-3.5 h-3.5 mr-1" strokeWidth={2} />
-                        Download Data Model
+                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
+                        Data Model
                       </a>
                     </div>
                   </CardContent>
