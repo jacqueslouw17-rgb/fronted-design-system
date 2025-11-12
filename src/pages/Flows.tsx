@@ -192,7 +192,8 @@ const Flows = () => {
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
       path: "/flows/contract-flow",
-      comingSoon: false
+      comingSoon: false,
+      locked: true
     },
     {
       id: "f3-candidate-onboarding",

@@ -1,3 +1,18 @@
+/**
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
+ * 
+ * Flow 2 — Admin Contracting
+ * Status: LOCKED (finalized for backend integration)
+ * Locked Date: 2025-01-14
+ * 
+ * This flow is finalized and frozen. Do NOT make changes to:
+ * - Structure (pipeline stages, navigation, flow control)
+ * - Design (styling, layout, components)
+ * - Logic (validation, state management, business rules)
+ * 
+ * All future modifications must be approved and tracked.
+ */
+
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
