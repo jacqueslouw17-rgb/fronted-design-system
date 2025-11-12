@@ -1560,7 +1560,7 @@ const PayrollBatch: React.FC = () => {
                       initial={{ width: 0 }}
                       animate={{ width: `${(paidCount / allContractors.length) * 100}%` }}
                       transition={{ duration: 0.8, ease: "easeOut" }}
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-secondary to-accent"
+                      className="absolute inset-y-0 left-0 bg-gradient-progress rounded-full"
                     />
                   </div>
                 </div>
