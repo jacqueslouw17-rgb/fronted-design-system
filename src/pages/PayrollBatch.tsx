@@ -650,7 +650,8 @@ const PayrollBatch: React.FC = () => {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <Button
+                {/* Refresh Quote button temporarily hidden - logic preserved for future reactivation */}
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRefreshQuote}
@@ -659,7 +660,7 @@ const PayrollBatch: React.FC = () => {
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
                   Refresh Quote
-                </Button>
+                </Button> */}
                 {/* Lock Rate button temporarily hidden - logic preserved for future reactivation */}
               </div>
             </div>
