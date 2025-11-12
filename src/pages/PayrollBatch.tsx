@@ -120,8 +120,56 @@ You can ask me about:
                     <div className="space-y-4">
                       <div className="mt-3">
                         <PipelineView 
-                          mode="payroll-ready"
+                          mode="full-pipeline-with-payroll"
                           contractors={[
+                            // Early stage candidates from Flow 2
+                            {
+                              id: "display-1",
+                              name: "Liam Chen",
+                              country: "Singapore",
+                              countryFlag: "🇸🇬",
+                              role: "Frontend Developer",
+                              salary: "SGD 7,500/mo",
+                              status: "offer-accepted" as const,
+                              formSent: false,
+                              dataReceived: false,
+                              employmentType: "contractor" as const,
+                            },
+                            {
+                              id: "display-2",
+                              name: "Sofia Rodriguez",
+                              country: "Mexico",
+                              countryFlag: "🇲🇽",
+                              role: "Marketing Manager",
+                              salary: "MXN 45,000/mo",
+                              status: "data-pending" as const,
+                              formSent: true,
+                              dataReceived: false,
+                              employmentType: "employee" as const,
+                            },
+                            {
+                              id: "display-3",
+                              name: "Elena Popescu",
+                              country: "Romania",
+                              countryFlag: "🇷🇴",
+                              role: "Backend Developer",
+                              salary: "RON 18,000/mo",
+                              status: "drafting" as const,
+                              formSent: false,
+                              dataReceived: true,
+                              employmentType: "contractor" as const,
+                            },
+                            // Certified and payroll candidates
+                            {
+                              id: "cert-0",
+                              name: "David Martinez",
+                              country: "Portugal",
+                              countryFlag: "🇵🇹",
+                              role: "Technical Writer",
+                              salary: "€4,200/mo",
+                              status: "CERTIFIED" as const,
+                              employmentType: "contractor" as const,
+                            },
                             {
                               id: "cert-1",
                               name: "Emma Wilson",
@@ -193,9 +241,9 @@ You can ask me about:
                               name: "Marcus Silva",
                               country: "Brazil",
                               countryFlag: "🇧🇷",
-                              role: "DevOps Engineer",
+                              role: "Full Stack Developer",
                               salary: "R$ 18,000/mo",
-                              status: "IN_BATCH" as const,
+                              status: "PAYROLL_PENDING" as const,
                               employmentType: "contractor" as const,
                               payrollMonth: "current" as const,
                             },
@@ -204,13 +252,41 @@ You can ask me about:
                               name: "Priya Sharma",
                               country: "India",
                               countryFlag: "🇮🇳",
-                              role: "Software Engineer",
-                              salary: "₹450,000/mo",
-                              status: "CERTIFIED" as const,
+                              role: "DevOps Engineer",
+                              salary: "₹2,50,000/mo",
+                              status: "PAYROLL_PENDING" as const,
+                              employmentType: "employee" as const,
+                              payrollMonth: "next" as const,
+                            },
+                            {
+                              id: "cert-9",
+                              name: "Lars Anderson",
+                              country: "Sweden",
+                              countryFlag: "🇸🇪",
+                              role: "Security Engineer",
+                              salary: "SEK 58,000/mo",
+                              status: "PAID" as const,
+                              employmentType: "contractor" as const,
+                              payrollMonth: "last" as const,
+                            },
+                            {
+                              id: "cert-10",
+                              name: "Isabella Costa",
+                              country: "Portugal",
+                              countryFlag: "🇵🇹",
+                              role: "Content Strategist",
+                              salary: "€3,200/mo",
+                              status: "PAYROLL_PENDING" as const,
                               employmentType: "employee" as const,
                               payrollMonth: "current" as const,
                             },
                           ]}
+                          onDraftContract={(ids) => {
+                            console.log("Draft contracts for:", ids);
+                          }}
+                          onSignatureComplete={() => {
+                            console.log("Signatures complete");
+                          }}
                         />
                       </div>
                     </div>

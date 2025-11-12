@@ -60,7 +60,7 @@ interface PipelineViewProps {
   onDraftContract?: (contractorIds: string[]) => void;
   onSignatureComplete?: () => void;
   filterNonCertified?: boolean;
-  mode?: "certified" | "payroll-ready";
+  mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
 }
 const statusConfig = {
   "offer-accepted": {
@@ -145,6 +145,7 @@ const statusConfig = {
 type ColumnKey = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "payroll-ready" | "CERTIFIED";
 const COLUMNS_MERGED: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "payroll-ready"];
 const COLUMNS_CERTIFIED: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "CERTIFIED"];
+const COLUMNS_FULL_PIPELINE: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "CERTIFIED", "payroll-ready"];
 
 // Payroll statuses that show within the payroll-ready column
 const payrollStatuses = ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"] as const;
@@ -157,7 +158,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   filterNonCertified = false,
   mode = "certified"
 }) => {
-  const columns = mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
+  const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
   const {
     createBatch,
