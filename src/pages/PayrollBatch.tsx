@@ -11,8 +11,7 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
@@ -119,27 +118,17 @@ You can ask me about:
                       // }
                     />
 
-                    {/* View Mode Toggle */}
-                    <div className="flex items-center justify-center gap-6 py-6 px-8 bg-card/50 backdrop-blur-sm border border-border/40 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Label 
-                          htmlFor="view-mode" 
-                          className={`text-sm font-medium cursor-pointer transition-colors ${viewMode === "tracker" ? "text-foreground" : "text-muted-foreground"}`}
-                        >
-                          Tracker
-                        </Label>
-                        <Switch
-                          id="view-mode"
-                          checked={viewMode === "payroll"}
-                          onCheckedChange={(checked) => setViewMode(checked ? "payroll" : "tracker")}
-                        />
-                        <Label 
-                          htmlFor="view-mode" 
-                          className={`text-sm font-medium cursor-pointer transition-colors ${viewMode === "payroll" ? "text-foreground" : "text-muted-foreground"}`}
-                        >
-                          Payroll
-                        </Label>
-                      </div>
+                    {/* View Mode Switch */}
+                    <div className="flex items-center justify-center py-4">
+                      <Tabs 
+                        value={viewMode} 
+                        onValueChange={(value) => setViewMode(value as "tracker" | "payroll")}
+                      >
+                        <TabsList className="grid w-[280px] grid-cols-2">
+                          <TabsTrigger value="tracker">Tracker</TabsTrigger>
+                          <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
                     </div>
 
                     {/* Conditional View */}
