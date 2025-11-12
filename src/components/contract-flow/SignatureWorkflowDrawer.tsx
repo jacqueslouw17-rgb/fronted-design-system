@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, FileSignature, FileText, ExternalLink, Info, Circle, FileCheck } from "lucide-react";
+import { CheckCircle2, Clock, FileSignature, FileText, ExternalLink, Info, Circle, FileCheck, Send } from "lucide-react";
 import { toast } from "sonner";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { Badge } from "@/components/ui/badge";
@@ -130,12 +130,14 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   const [documents, setDocuments] = useState<Document[]>([]);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [contractItems, setContractItems] = useState<ContractItem[]>([]);
+  const [resendSent, setResendSent] = useState(false);
 
   // Update documents when candidate changes
   useEffect(() => {
     if (candidate) {
       setDocuments(getDocumentsForCandidate(candidate));
       setSigningStatus("pending_candidate");
+      setResendSent(false);
       
       // Initialize contract items
       setContractItems([
@@ -320,6 +322,21 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                         </p>
                       )}
                     </div>
+                    {item.id === "candidate_signature" && item.status === "active" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setResendSent(true);
+                          toast.success("Reminder sent to candidate");
+                        }}
+                        disabled={resendSent}
+                        className="flex-shrink-0"
+                      >
+                        <Send className="h-3 w-3 mr-1.5" />
+                        {resendSent ? "Sent" : "Send Again"}
+                      </Button>
+                    )}
                   </motion.div>
                 ))}
               </div>
