@@ -404,7 +404,10 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 transition-all duration-200 group-hover:bg-emerald-600 group-hover:border-emerald-600">
                         <Workflow className="h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 2 - Admin Contracting</CardTitle>
+                      <CardTitle className="text-lg flex-1">Flow 2 - Admin Contracting</CardTitle>
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
+                        🔒
+                      </Badge>
                     </div>
                     <CardDescription className="line-clamp-3">
                       From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow
