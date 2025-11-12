@@ -1308,15 +1308,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           {/* Onboarding Progress Display */}
                           {status === "onboarding-pending" && contractor.checklist && (
                             <div className="pt-2 space-y-2">
-                              {/* Progress Bar */}
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground">Progress</span>
-                                  <span className="font-semibold text-foreground">{contractor.checklistProgress || 0}%</span>
-                                </div>
-                                <Progress value={contractor.checklistProgress || 0} className="h-1.5" />
-                              </div>
-
                               {/* Badge: Checklist in Progress */}
                               <Badge
                                 variant="outline" 
