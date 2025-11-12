@@ -843,8 +843,8 @@ const PayrollBatch: React.FC = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead className={cn(
-                              "text-xs sticky left-0 z-20 bg-inherit min-w-[180px] transition-all duration-200",
-                              scrollStates[currency] && "shadow-[2px_0_8px_0px_rgba(0,0,0,0.04)]"
+                              "relative text-xs sticky left-0 z-30 bg-card min-w-[180px] border-r border-border/20 transition-all duration-200 after:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:-right-2 after:w-6 after:bg-gradient-to-r after:from-card after:to-transparent after:opacity-0 after:transition-opacity",
+                              scrollStates[currency] && "shadow-[2px_0_8px_0px_rgba(0,0,0,0.04)] after:opacity-100"
                             )}>
                               Name
                             </TableHead>
@@ -879,8 +879,8 @@ const PayrollBatch: React.FC = () => {
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
                               <TableCell className={cn(
-                                "font-medium text-sm sticky left-0 z-20 bg-inherit min-w-[180px] transition-all duration-200",
-                                scrollStates[currency] && "shadow-[2px_0_8px_0px_rgba(0,0,0,0.04)]"
+                                "relative font-medium text-sm sticky left-0 z-30 bg-card min-w-[180px] border-r border-border/20 transition-all duration-200 after:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:-right-2 after:w-6 after:bg-gradient-to-r after:from-card after:to-transparent after:opacity-0 after:transition-opacity",
+                                scrollStates[currency] && "shadow-[2px_0_8px_0px_rgba(0,0,0,0.04)] after:opacity-100"
                               )}>
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
