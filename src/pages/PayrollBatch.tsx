@@ -1040,7 +1040,7 @@ const PayrollBatch: React.FC = () => {
             })}
 
             {/* Summary Card */}
-            <Card className="border-border/40 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
                 <div className="grid grid-cols-3 gap-6">
                   <div>
