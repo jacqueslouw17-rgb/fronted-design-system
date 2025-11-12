@@ -158,12 +158,6 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
           description: "Admin must sign after candidate completes.",
           status: "pending",
         },
-        {
-          id: "certification",
-          label: "Certification & Delivery",
-          description: "Finalize and send certified copy to candidate.",
-          status: "pending",
-        },
       ]);
     }
   }, [candidate]);
@@ -200,38 +194,29 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
           if (item.id === "admin_signature") {
             return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
           }
-          if (item.id === "certification") {
-            return { ...item, status: "active" as const };
-          }
           return item;
         }));
         
         toast.success("Admin signature completed. Contract is fully signed.");
+        
+        // Auto-certify after a brief delay
+        setTimeout(() => {
+          setSigningStatus("certified");
+          
+          // Trigger confetti
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          
+          toast.success("Contract certified and sent to candidate. Ready for onboarding!");
+          onComplete?.();
+        }, 1500);
       }, 1500);
     }, 1000);
   };
 
-  // Handle certification
-  const handleCertify = () => {
-    setSigningStatus("certified");
-    setContractItems(prev => prev.map(item => {
-      if (item.id === "certification") {
-        return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
-      }
-      return item;
-    }));
-    
-    // Trigger confetti
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-    
-    toast.success("Contract certified and sent to candidate. Ready for onboarding!");
-    
-    onComplete?.();
-  };
 
   // Calculate progress percentage
   const getProgressPercentage = () => {
@@ -383,17 +368,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                 </Button>
               )}
 
-              {signingStatus === "fully_signed" && (
-                <Button
-                  className="w-full"
-                  onClick={handleCertify}
-                >
-                  <FileCheck className="h-4 w-4 mr-2" />
-                  Certify & Send to Candidate
-                </Button>
-              )}
-
-              {signingStatus === "certified" && (
+              {(signingStatus === "fully_signed" || signingStatus === "certified") && (
                 <motion.div
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
