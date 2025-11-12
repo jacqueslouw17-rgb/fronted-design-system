@@ -340,7 +340,9 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
           {/* Preview message */}
           <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground mb-2">This form will be sent to:</p>
+            <p className="text-xs text-muted-foreground mb-2">
+              {isResend ? "This form was sent to:" : "This form will be sent to:"}
+            </p>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary" />
               <div>
