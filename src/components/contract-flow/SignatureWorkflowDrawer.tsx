@@ -3,16 +3,12 @@ import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, FileSignature, FileText, AlertTriangle, Upload, ExternalLink, CheckCheck, Info } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { CheckCircle2, Clock, FileSignature, FileText, ExternalLink, Info, Circle, FileCheck } from "lucide-react";
+import { toast } from "sonner";
 import type { Candidate } from "@/hooks/useContractFlow";
-import { SendForSigningConfirmation } from "./SendForSigningConfirmation";
-import StandardProgress from "@/components/shared/StandardProgress";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface SignatureWorkflowDrawerProps {
   open: boolean;
@@ -22,19 +18,20 @@ interface SignatureWorkflowDrawerProps {
   onSendForSignatures?: () => void;
 }
 
-type ContractStage = 
-  | "draft_review"           // Step 1: Reviewing draft and documents
-  | "pending_candidate"      // Step 2: Waiting for candidate signature
-  | "candidate_signed"       // Step 2: Candidate signed, admin can now sign
-  | "fully_signed"           // Step 2: Both signed
-  | "certified";             // Step 3: Contract certified
+type SigningStatus = 
+  | "pending_candidate"      // Sent to candidate, awaiting signature
+  | "candidate_signed"       // Candidate signed, admin must sign
+  | "opening_docusign"       // Admin clicked sign, opening DocuSign
+  | "admin_signing"          // Admin is signing
+  | "fully_signed"           // Both signed
+  | "certified";             // Certified and sent to candidate
 
-interface SignatureParty {
+interface ContractItem {
   id: string;
-  role: string;
-  name: string;
-  status: "pending" | "signed";
-  signedAt?: string;
+  label: string;
+  description: string;
+  status: "complete" | "active" | "pending";
+  timestamp?: string;
 }
 
 interface Document {
@@ -71,6 +68,57 @@ const getDocumentsForCandidate = (candidate: Candidate | null): Document[] => {
   return baseDocuments;
 };
 
+// Helper functions for status labels and descriptions
+const getStatusLabel = (status: SigningStatus): string => {
+  switch (status) {
+    case "pending_candidate":
+      return "Awaiting Candidate Signature";
+    case "candidate_signed":
+      return "Ready for Admin Signature";
+    case "opening_docusign":
+      return "Opening DocuSign...";
+    case "admin_signing":
+      return "Admin Signing in Progress";
+    case "fully_signed":
+      return "Fully Signed";
+    case "certified":
+      return "Certified & Sent";
+  }
+};
+
+const getStatusDescription = (status: SigningStatus, candidateName: string): string => {
+  switch (status) {
+    case "pending_candidate":
+      return `Contract sent to ${candidateName}. Waiting for their signature via DocuSign.`;
+    case "candidate_signed":
+      return `${candidateName} has signed. Admin must now counter-sign to finalize.`;
+    case "opening_docusign":
+      return "Redirecting to DocuSign for admin signature...";
+    case "admin_signing":
+      return "Admin signature in progress via DocuSign.";
+    case "fully_signed":
+      return "Both parties have signed. Contract is fully executed.";
+    case "certified":
+      return "Contract certified and copy sent to candidate. Ready for onboarding.";
+  }
+};
+
+const getStatusBadge = (status: SigningStatus) => {
+  switch (status) {
+    case "pending_candidate":
+      return <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">🟡 Pending</Badge>;
+    case "candidate_signed":
+      return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 Action Needed</Badge>;
+    case "opening_docusign":
+    case "admin_signing":
+      return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 In Progress</Badge>;
+    case "fully_signed":
+      return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Completed</Badge>;
+    case "certified":
+      return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Certified</Badge>;
+  }
+};
+
 export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = ({
   open,
   onOpenChange,
@@ -78,82 +126,100 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   onComplete,
   onSendForSignatures,
 }) => {
-  const [stage, setStage] = useState<ContractStage>("draft_review");
+  const [signingStatus, setSigningStatus] = useState<SigningStatus>("pending_candidate");
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [signatureParties, setSignatureParties] = useState<SignatureParty[]>([]);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [contractItems, setContractItems] = useState<ContractItem[]>([]);
 
-  // Update documents and signature parties when candidate changes
+  // Update documents when candidate changes
   useEffect(() => {
     if (candidate) {
       setDocuments(getDocumentsForCandidate(candidate));
-      setSignatureParties([
+      setSigningStatus("pending_candidate");
+      
+      // Initialize contract items
+      setContractItems([
         {
-          id: "candidate",
-          role: "Candidate",
-          name: candidate.name,
+          id: "sent_to_candidate",
+          label: "Contract Sent to Candidate",
+          description: `Sent to ${candidate.name} for signature via DocuSign.`,
+          status: "complete",
+          timestamp: new Date().toLocaleString(),
+        },
+        {
+          id: "candidate_signature",
+          label: "Candidate Signature",
+          description: `Waiting for ${candidate.name} to sign.`,
+          status: "active",
+        },
+        {
+          id: "admin_signature",
+          label: "Admin Counter-Signature",
+          description: "Admin must sign after candidate completes.",
           status: "pending",
         },
         {
-          id: "admin",
-          role: "Admin",
-          name: "Joe User",
+          id: "certification",
+          label: "Certification & Delivery",
+          description: "Finalize and send certified copy to candidate.",
           status: "pending",
         },
       ]);
-      setStage("draft_review");
     }
   }, [candidate]);
 
-  const handleSendForSignatures = () => {
-    setConfirmationOpen(true);
-  };
-
-  const handleConfirmSend = () => {
-    setConfirmationOpen(false);
-    setStage("pending_candidate");
+  // Simulate candidate signing
+  const handleSimulateCandidateSigned = () => {
+    setSigningStatus("candidate_signed");
+    setContractItems(prev => prev.map(item => {
+      if (item.id === "candidate_signature") {
+        return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
+      }
+      if (item.id === "admin_signature") {
+        return { ...item, status: "active" as const };
+      }
+      return item;
+    }));
     
-    toast({
-      title: "✓ Contract sent for signature",
-      description: `Sent to ${candidate?.name}. Awaiting candidate signature.`,
-    });
-    onSendForSignatures?.();
+    toast.success(`${candidate?.name} has signed the contract.`);
   };
 
-  const handleCandidateSigned = () => {
-    setSignatureParties(prev => 
-      prev.map(p => 
-        p.id === "candidate" 
-          ? { ...p, status: "signed" as const, signedAt: new Date().toLocaleString() }
-          : p
-      )
-    );
-    setStage("candidate_signed");
-    
-    toast({
-      title: "Candidate signed",
-      description: `${candidate?.name} has signed the contract.`,
-    });
-  };
-
+  // Handle admin signing
   const handleAdminSign = () => {
-    setSignatureParties(prev => 
-      prev.map(p => 
-        p.id === "admin" 
-          ? { ...p, status: "signed" as const, signedAt: new Date().toLocaleString() }
-          : p
-      )
-    );
-    setStage("fully_signed");
+    setSigningStatus("opening_docusign");
     
-    toast({
-      title: "Contract fully signed",
-      description: "All parties have signed. Ready for certification.",
-    });
+    toast.info("Opening DocuSign...");
+    
+    // Simulate DocuSign flow
+    setTimeout(() => {
+      setSigningStatus("admin_signing");
+      
+      setTimeout(() => {
+        setSigningStatus("fully_signed");
+        setContractItems(prev => prev.map(item => {
+          if (item.id === "admin_signature") {
+            return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
+          }
+          if (item.id === "certification") {
+            return { ...item, status: "active" as const };
+          }
+          return item;
+        }));
+        
+        toast.success("Admin signature completed. Contract is fully signed.");
+      }, 1500);
+    }, 1000);
   };
 
+  // Handle certification
   const handleCertify = () => {
-    setStage("certified");
+    setSigningStatus("certified");
+    setContractItems(prev => prev.map(item => {
+      if (item.id === "certification") {
+        return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
+      }
+      return item;
+    }));
     
     // Trigger confetti
     confetti({
@@ -162,24 +228,15 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
       origin: { y: 0.6 }
     });
     
-    toast({
-      title: "✓ Contract certified",
-      description: "Fully signed and verified. Certified copy sent to candidate.",
-    });
+    toast.success("Contract certified and sent to candidate. Ready for onboarding!");
     
     onComplete?.();
   };
 
-  // Calculate progress
-  const getProgressStep = () => {
-    switch (stage) {
-      case "draft_review": return 1;
-      case "pending_candidate": return 2;
-      case "candidate_signed": return 2;
-      case "fully_signed": return 2;
-      case "certified": return 3;
-      default: return 1;
-    }
+  // Calculate progress percentage
+  const getProgressPercentage = () => {
+    const completed = contractItems.filter(item => item.status === "complete").length;
+    return (completed / contractItems.length) * 100;
   };
 
   return (
@@ -208,237 +265,147 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
         {candidate && (
           <div className="space-y-6 mt-6">
-            {/* Progress Tracker */}
+            {/* Progress Bar */}
             <div className="space-y-2">
-              <StandardProgress
-                currentStep={getProgressStep()}
-                totalSteps={3}
-                showLabel={true}
-              />
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Signing Progress</span>
+                <span className="font-semibold">{Math.round(getProgressPercentage())}%</span>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-primary"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${getProgressPercentage()}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+            </div>
+
+            {/* Current Status Badge */}
+            <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Current Status</p>
+                <p className="text-lg font-semibold mt-1">{getStatusLabel(signingStatus)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {getStatusDescription(signingStatus, candidate.name)}
+                </p>
+              </div>
+              {getStatusBadge(signingStatus)}
             </div>
 
             <Separator />
 
-            {/* Step 1: Contract Preparation */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-foreground">Step 1 — Contract Preparation</h3>
-                {stage !== "draft_review" && (
-                  <CheckCircle2 className="h-5 w-5 text-success" />
-                )}
+            {/* Contract Progress Tracker */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-foreground">Signature Workflow</h3>
+              
+              <div className="space-y-2">
+                {contractItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={cn(
+                      "flex items-start gap-3 p-4 rounded-lg border transition-all",
+                      item.status === "complete" && "bg-success/5 border-success/20",
+                      item.status === "active" && "bg-primary/5 border-primary/20",
+                      item.status === "pending" && "bg-muted/30 border-border opacity-60"
+                    )}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {item.status === "complete" ? (
+                        <CheckCircle2 className="h-5 w-5 text-success" />
+                      ) : item.status === "active" ? (
+                        <Clock className="h-5 w-5 text-primary" />
+                      ) : (
+                        <Circle className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{item.label}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                      {item.timestamp && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {item.timestamp}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
+            </div>
 
-              {/* Draft Generated */}
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="font-medium text-sm">Draft Generated</p>
-                  <p className="text-xs text-muted-foreground">
-                    The candidate's draft contract has been created.
-                  </p>
-                </div>
-              </div>
+            <Separator />
 
-              {/* Review Details */}
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <p className="font-medium text-sm">Review Details</p>
-                  <p className="text-xs text-muted-foreground">
-                    Check all details before sending for signature.
-                  </p>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <FileText className="h-4 w-4" />
-                    View Contract
-                  </Button>
-                </div>
-              </div>
-
-              {/* Attach Supporting Docs */}
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <p className="font-medium text-sm">Attach Supporting Docs</p>
-                  <div className="space-y-1.5">
-                    {documents.map((doc) => (
-                      <div key={doc.name} className="flex items-center gap-2 text-xs">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                        <span className="text-muted-foreground">{doc.name} included</span>
-                      </div>
-                    ))}
+            {/* Supporting Documents */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-foreground text-sm">Supporting Documents</h3>
+              <div className="space-y-2">
+                {documents.map((doc) => (
+                  <div key={doc.name} className="flex items-center gap-2 p-3 rounded-lg border bg-card">
+                    <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground">{doc.type}</p>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
+            </div>
 
-              {/* Send for Signatures Button */}
-              {stage === "draft_review" && (
+            <Separator />
+
+            {/* Action Buttons */}
+            <div className="space-y-2">
+              {signingStatus === "pending_candidate" && (
                 <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full"
-                  onClick={handleSendForSignatures}
+                  onClick={handleSimulateCandidateSigned}
                 >
-                  <FileSignature className="h-4 w-4 mr-2" />
-                  Send for Signatures
+                  Simulate Candidate Signed
                 </Button>
               )}
-            </motion.div>
 
-            {stage !== "draft_review" && (
-              <>
-                <Separator />
-
-                {/* Step 2: Signatures in Progress */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4"
+              {signingStatus === "candidate_signed" && (
+                <Button
+                  className="w-full"
+                  onClick={handleAdminSign}
                 >
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-foreground">Step 2 — Signatures in Progress</h3>
-                    {stage === "fully_signed" && (
-                      <CheckCircle2 className="h-5 w-5 text-success" />
-                    )}
-                  </div>
+                  <FileSignature className="h-4 w-4 mr-2" />
+                  Sign as Admin
+                </Button>
+              )}
 
-                  {/* Signature Status */}
-                  <div className="p-4 rounded-lg border bg-card space-y-3">
-                    {stage === "pending_candidate" && (
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-5 w-5 text-warning flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">🟡 Pending Candidate</p>
-                          <p className="text-xs text-muted-foreground">
-                            Waiting for signature from {candidate?.name}.
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCandidateSigned}
-                        >
-                          Simulate Sign
-                        </Button>
-                      </div>
-                    )}
-
-                    {stage === "candidate_signed" && (
-                      <div className="flex items-center gap-3">
-                        <FileSignature className="h-5 w-5 text-primary flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">🔵 Candidate Signed</p>
-                          <p className="text-xs text-muted-foreground">
-                            Candidate has signed via DocuSign.
-                          </p>
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={handleAdminSign}
-                        >
-                          Sign & Counter-Sign
-                        </Button>
-                      </div>
-                    )}
-
-                    {stage === "fully_signed" && (
-                      <div className="flex items-center gap-3">
-                        <CheckCheck className="h-5 w-5 text-success flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">🟢 Fully Signed</p>
-                          <p className="text-xs text-muted-foreground">
-                            All signatures collected and verified.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Signature Avatars */}
-                    <div className="pt-2 space-y-2 border-t">
-                      {signatureParties.map((party) => (
-                        <div key={party.id} className="flex items-center gap-2 text-xs">
-                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-[10px] font-medium text-primary">
-                              {party.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="font-medium">{party.name}</span>
-                          <span className="text-muted-foreground">—</span>
-                          {party.status === "signed" ? (
-                            <>
-                              <Badge variant="secondary" className="h-5 text-[10px]">Signed</Badge>
-                              <span className="text-muted-foreground">{party.signedAt}</span>
-                            </>
-                          ) : (
-                            <span className="text-muted-foreground">Awaiting Signature</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {stage === "fully_signed" && (
-                    <Button
-                      className="w-full"
-                      onClick={handleCertify}
-                    >
-                      <CheckCheck className="h-4 w-4 mr-2" />
-                      Certify Contract
-                    </Button>
-                  )}
-                </motion.div>
-              </>
-            )}
-
-            {stage === "certified" && (
-              <>
-                <Separator />
-
-                {/* Step 3: Certification & Completion */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4"
+              {signingStatus === "fully_signed" && (
+                <Button
+                  className="w-full"
+                  onClick={handleCertify}
                 >
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-foreground">Step 3 — Certification & Completion</h3>
-                    <CheckCircle2 className="h-5 w-5 text-success" />
-                  </div>
+                  <FileCheck className="h-4 w-4 mr-2" />
+                  Certify & Send to Candidate
+                </Button>
+              )}
 
-                  <motion.div
-                    initial={{ scale: 0.95 }}
-                    animate={{ scale: 1 }}
-                    className="p-4 rounded-lg bg-success/10 border border-success/20 text-center space-y-3"
-                  >
-                    <CheckCircle2 className="h-8 w-8 text-success mx-auto" />
-                    <div>
-                      <p className="font-medium text-success">Contract Certified</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Fully signed and verified. The contract has been returned to the candidate.
-                      </p>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Send Certified Copy to Candidate
-                    </Button>
-                  </motion.div>
+              {signingStatus === "certified" && (
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  className="p-4 rounded-lg bg-success/10 border border-success/20 text-center"
+                >
+                  <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
+                  <p className="font-medium text-success">Contract Certified</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Ready to move candidate to onboarding phase.
+                  </p>
                 </motion.div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         )}
       </SheetContent>
-
-      {/* Send for Signing Confirmation */}
-      <SendForSigningConfirmation
-        open={confirmationOpen}
-        onOpenChange={setConfirmationOpen}
-        candidate={candidate}
-        onConfirm={handleConfirmSend}
-        onReview={() => {
-          setConfirmationOpen(false);
-        }}
-      />
     </Sheet>
   );
 };
