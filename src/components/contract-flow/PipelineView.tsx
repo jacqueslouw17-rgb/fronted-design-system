@@ -145,7 +145,7 @@ const statusConfig = {
 type ColumnKey = "offer-accepted" | "data-pending" | "drafting" | "awaiting-signature" | "trigger-onboarding" | "onboarding-pending" | "payroll-ready" | "CERTIFIED";
 const COLUMNS_MERGED: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "payroll-ready"];
 const COLUMNS_CERTIFIED: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "CERTIFIED"];
-const COLUMNS_FULL_PIPELINE: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "CERTIFIED", "payroll-ready"];
+const COLUMNS_FULL_PIPELINE: ReadonlyArray<ColumnKey> = ["offer-accepted", "data-pending", "drafting", "awaiting-signature", "trigger-onboarding", "onboarding-pending", "CERTIFIED"];
 
 // Payroll statuses that show within the payroll-ready column
 const payrollStatuses = ["CERTIFIED", "PAYROLL_PENDING", "IN_BATCH", "EXECUTING", "PAID", "ON_HOLD"] as const;
