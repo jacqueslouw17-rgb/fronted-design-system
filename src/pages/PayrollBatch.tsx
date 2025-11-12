@@ -605,6 +605,12 @@ const PayrollBatch: React.FC = () => {
     setPaymentDetailDrawerOpen(true);
   };
 
+  const handleReturnToPayrollOverview = () => {
+    setViewMode("payroll");
+    setCurrentStep("review-fx");
+    toast.success("Returned to Payroll Overview");
+  };
+
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
     const receipt = paymentReceipts.find(r => r.payeeId === contractorId);
     return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
@@ -1622,9 +1628,17 @@ const PayrollBatch: React.FC = () => {
               >
                 <CheckCircle2 className="h-5 w-5 text-accent-green-text flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground mb-1">
                     All payments for this cycle have been reconciled successfully.
                   </p>
+                  <Button
+                    onClick={handleReturnToPayrollOverview}
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                  >
+                    Return to Payroll Overview
+                  </Button>
                 </div>
               </motion.div>
             )}
@@ -1761,29 +1775,6 @@ const PayrollBatch: React.FC = () => {
                       </TableRow>
                     </TableBody>
                   </Table>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Next Payroll Cycle Widget */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-base font-semibold text-foreground mb-1">Next Payroll Cycle</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Next run scheduled for <span className="font-medium text-foreground">December 15, 2025</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-4">
-                      Payroll preparation opens 3 days before the run.
-                    </p>
-                    <Button disabled size="sm" variant="outline">
-                      Prepare Next Payroll (coming soon)
-                    </Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -2085,9 +2076,110 @@ You can ask me about:
                       </div>
                     ) : (
                       /* Payroll Batch Workflow */
-                      <div className="space-y-4">
-                        {/* Horizontal Steps - Clean sticky */}
-                        <div className="sticky top-16 z-30 py-4">
+                      <div className="space-y-6">
+                        {/* Payroll Overview Section */}
+                        <motion.div
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between mb-6">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    Summary of current payroll cycle and key metrics
+                                  </p>
+                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                                        <Clock className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left" className="max-w-xs">
+                                      <p className="text-xs">
+                                        Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                                {/* Total Salary Cost */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <DollarSign className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Total Salary Cost</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$124,850</p>
+                                  <p className="text-xs text-muted-foreground mt-1">This Month</p>
+                                </div>
+
+                                {/* Fronted Fees */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Building2 className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Fronted Fees (Est.)</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$3,742</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+                                </div>
+
+                                {/* Total Payroll Cost */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Activity className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Total Payroll Cost</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$128,592</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
+                                </div>
+
+                                {/* Next Payroll Run */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Clock className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Next Payroll Run</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">Nov 15</p>
+                                  <p className="text-xs text-muted-foreground mt-1">2025 (or prior weekday)</p>
+                                </div>
+                              </div>
+
+                              {/* Previous Batch Summary */}
+                              <div className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                  <p className="text-sm font-medium text-foreground">Previous Batch Summary</p>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
+                                    <p className="text-lg font-semibold text-foreground">8</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
+                                    <p className="text-lg font-semibold text-foreground">$118,240</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
+                                    <p className="text-lg font-semibold text-foreground">0</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+
+                        {/* Existing Batch Workflow */}
+                        <div className="space-y-4">
+                          {/* Horizontal Steps - Clean sticky */}
+                          <div className="sticky top-16 z-30 py-4">
                             <div className="flex items-center gap-3 overflow-x-auto">
                               {steps.map((step, index) => {
                                 const isActive = currentStep === step.id;
@@ -2167,11 +2259,12 @@ You can ask me about:
                             </Button>
                           </div>
                         </motion.div>
-                      </div>
-                    )}
+                        </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Payment Detail Drawer */}
+                      {/* Payment Detail Drawer */}
                       <Sheet open={paymentDetailDrawerOpen} onOpenChange={setPaymentDetailDrawerOpen}>
                         <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
                           {selectedPaymentDetail && (
