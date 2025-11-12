@@ -102,7 +102,7 @@ You can ask me about:
                   exit={{ opacity: 0 }}
                   className="flex-1 overflow-y-auto"
                 >
-                  <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
+                  <div className="max-w-7xl mx-auto p-8 pb-32 space-y-2">
                     {/* Agent Header */}
                     <AgentHeader
                       title={`Welcome ${userData.firstName}, review payroll`}
@@ -119,7 +119,7 @@ You can ask me about:
                     />
 
                     {/* View Mode Switch */}
-                    <div className="flex items-center justify-center py-4">
+                    <div className="flex items-center justify-center py-2">
                       <Tabs 
                         value={viewMode} 
                         onValueChange={(value) => setViewMode(value as "tracker" | "payroll")}
@@ -132,7 +132,7 @@ You can ask me about:
                     </div>
 
                     {/* Conditional View */}
-                    {viewMode === "tracker" ? (
+                    <div className="pt-6">{viewMode === "tracker" ? (
                       /* Pipeline Tracking - Full Width */
                       <div className="space-y-4">
                         <div className="mt-3">
@@ -317,7 +317,7 @@ You can ask me about:
                           </p>
                         </div>
                       </div>
-                    )}
+                    )}</div>
                   </div>
                 </motion.div>
               </div>
