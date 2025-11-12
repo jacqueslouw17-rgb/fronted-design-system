@@ -287,8 +287,6 @@ const PayrollBatch: React.FC = () => {
   const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
-  const [payrollView, setPayrollView] = useState<"overview" | "batch">("overview");
-  const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employees" | "contractors">("all");
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -607,18 +605,6 @@ const PayrollBatch: React.FC = () => {
     setPaymentDetailDrawerOpen(true);
   };
 
-  const handleReturnToPayrollOverview = () => {
-    setPayrollView("overview");
-    setCurrentStep("review-fx");
-    toast.success("Returned to Payroll Overview");
-  };
-
-  const handleOpenBatch = (monthKey: string) => {
-    setPayrollView("batch");
-    setCurrentStep("review-fx");
-    toast.info(`Opening ${monthKey} payroll batch`);
-  };
-
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
     const receipt = paymentReceipts.find(r => r.payeeId === contractorId);
     return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
@@ -627,12 +613,6 @@ const PayrollBatch: React.FC = () => {
   const filteredContractors = statusFilter === "all" 
     ? allContractors 
     : allContractors.filter(c => getPaymentStatus(c.id) === statusFilter);
-
-  const filteredByWorkerType = workerTypeFilter === "all"
-    ? filteredContractors
-    : workerTypeFilter === "employees"
-    ? filteredContractors.filter(c => c.employmentType === "employee")
-    : filteredContractors.filter(c => c.employmentType === "contractor");
 
   const paidCount = allContractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
   const pendingCount = allContractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
@@ -1642,17 +1622,9 @@ const PayrollBatch: React.FC = () => {
               >
                 <CheckCircle2 className="h-5 w-5 text-accent-green-text flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground mb-1">
+                  <p className="text-sm font-medium text-foreground">
                     All payments for this cycle have been reconciled successfully.
                   </p>
-                  <Button
-                    onClick={handleReturnToPayrollOverview}
-                    size="sm"
-                    variant="outline"
-                    className="mt-2"
-                  >
-                    Return to Payroll Overview
-                  </Button>
                 </div>
               </motion.div>
             )}
@@ -1789,6 +1761,29 @@ const PayrollBatch: React.FC = () => {
                       </TableRow>
                     </TableBody>
                   </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Next Payroll Cycle Widget */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-base font-semibold text-foreground mb-1">Next Payroll Cycle</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Next run scheduled for <span className="font-medium text-foreground">December 15, 2025</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Payroll preparation opens 3 days before the run.
+                    </p>
+                    <Button disabled size="sm" variant="outline">
+                      Prepare Next Payroll (coming soon)
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -2089,439 +2084,10 @@ You can ask me about:
                         </div>
                       </div>
                     ) : (
-                      /* Payroll View - Overview or Batch */
-                      <div className="space-y-6">
-                        {payrollView === "overview" ? (
-                          /* Payroll Overview Dashboard */
-                          <motion.div
-                            initial={{ y: -10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
-                          >
-                            {/* Header Context */}
-                            <div>
-                              <h2 className="text-2xl font-bold text-foreground mb-2">
-                                Payroll Overview – November 2025
-                              </h2>
-                              <p className="text-sm text-muted-foreground">
-                                Fronted automatically prepares payouts on the 15th of each month (or previous weekday).
-                              </p>
-                            </div>
-
-                            {/* Aggregate Metrics Bar */}
-                            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-                              <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-2">Total Gross Cost</p>
-                                    <p className="text-2xl font-bold text-foreground">$747K</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-2">Total Fronted Fees</p>
-                                    <p className="text-2xl font-bold text-amber-600">$18.5K</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-2">Total Net Paid</p>
-                                    <p className="text-2xl font-bold text-foreground">$621K</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-2">Workers</p>
-                                    <p className="text-2xl font-bold text-foreground">
-                                      {allContractors.filter(c => c.employmentType === "employee").length} / {allContractors.filter(c => c.employmentType === "contractor").length}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-1">Employees / Contractors</p>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-
-                            {/* Monthly Payroll Cards */}
-                            <div>
-                              <h3 className="text-lg font-semibold text-foreground mb-4">Monthly Payroll Batches</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {/* November 2025 - In Progress */}
-                                <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                  <CardContent className="p-5">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <h4 className="font-semibold text-foreground">November 2025</h4>
-                                      <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
-                                        In Progress
-                                      </Badge>
-                                    </div>
-                                    <div className="space-y-2 mb-4">
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Gross Total</span>
-                                        <span className="font-medium">$747K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Net Total</span>
-                                        <span className="font-medium">$621K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Fees Total</span>
-                                        <span className="font-medium text-amber-600">$18.5K</span>
-                                      </div>
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-muted/20 mb-4">
-                                      <div className="flex items-center justify-between text-xs mb-1">
-                                        <span className="text-muted-foreground">Employees</span>
-                                        <span className="font-medium">{allContractors.filter(c => c.employmentType === "employee").length} • $425K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground">Contractors</span>
-                                        <span className="font-medium">{allContractors.filter(c => c.employmentType === "contractor").length} • $196K</span>
-                                      </div>
-                                    </div>
-                                    <Button
-                                      onClick={() => handleOpenBatch("November 2025")}
-                                      variant="outline"
-                                      className="w-full"
-                                      size="sm"
-                                    >
-                                      View Details
-                                    </Button>
-                                  </CardContent>
-                                </Card>
-
-                                {/* October 2025 - Completed */}
-                                <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                                  <CardContent className="p-5">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <h4 className="font-semibold text-foreground">October 2025</h4>
-                                      <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                                        Completed
-                                      </Badge>
-                                    </div>
-                                    <div className="space-y-2 mb-4">
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Gross Total</span>
-                                        <span className="font-medium">$732K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Net Total</span>
-                                        <span className="font-medium">$608K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Fees Total</span>
-                                        <span className="font-medium text-amber-600">$17.8K</span>
-                                      </div>
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-muted/20 mb-4">
-                                      <div className="flex items-center justify-between text-xs mb-1">
-                                        <span className="text-muted-foreground">Employees</span>
-                                        <span className="font-medium">3 • $410K</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground">Contractors</span>
-                                        <span className="font-medium">4 • $198K</span>
-                                      </div>
-                                    </div>
-                                    <Button
-                                      onClick={() => handleOpenBatch("October 2025")}
-                                      variant="outline"
-                                      className="w-full"
-                                      size="sm"
-                                    >
-                                      View Details
-                                    </Button>
-                                  </CardContent>
-                                </Card>
-
-                                {/* December 2025 - Upcoming */}
-                                <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm opacity-60">
-                                  <CardContent className="p-5">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <h4 className="font-semibold text-foreground">December 2025</h4>
-                                      <Badge variant="outline" className="bg-muted/30">
-                                        Upcoming
-                                      </Badge>
-                                    </div>
-                                    <div className="space-y-2 mb-4">
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Gross Total</span>
-                                        <span className="font-medium">TBD</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Net Total</span>
-                                        <span className="font-medium">TBD</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Fees Total</span>
-                                        <span className="font-medium text-amber-600">TBD</span>
-                                      </div>
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-muted/20 mb-4">
-                                      <div className="flex items-center justify-between text-xs mb-1">
-                                        <span className="text-muted-foreground">Employees</span>
-                                        <span className="font-medium">— • —</span>
-                                      </div>
-                                      <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground">Contractors</span>
-                                        <span className="font-medium">— • —</span>
-                                      </div>
-                                    </div>
-                                    <Button
-                                      variant="outline"
-                                      className="w-full"
-                                      size="sm"
-                                      disabled
-                                    >
-                                      Not Available
-                                    </Button>
-                                  </CardContent>
-                                </Card>
-                              </div>
-                            </div>
-
-                            {/* Worker Type Tabs & Table */}
-                            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-                              <CardContent className="p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                  <h3 className="text-lg font-semibold text-foreground">Current Cycle Workers</h3>
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={() => setWorkerTypeFilter("all")}
-                                      className={cn(
-                                        "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                                        workerTypeFilter === "all"
-                                          ? "bg-primary/10 text-primary border border-primary/20"
-                                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                                      )}
-                                    >
-                                      All
-                                    </button>
-                                    <button
-                                      onClick={() => setWorkerTypeFilter("employees")}
-                                      className={cn(
-                                        "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                                        workerTypeFilter === "employees"
-                                          ? "bg-blue-500/10 text-blue-600 border border-blue-500/20"
-                                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                                      )}
-                                    >
-                                      Employees ({allContractors.filter(c => c.employmentType === "employee").length})
-                                    </button>
-                                    <button
-                                      onClick={() => setWorkerTypeFilter("contractors")}
-                                      className={cn(
-                                        "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                                        workerTypeFilter === "contractors"
-                                          ? "bg-purple-500/10 text-purple-600 border border-purple-500/20"
-                                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                                      )}
-                                    >
-                                      Contractors ({allContractors.filter(c => c.employmentType === "contractor").length})
-                                    </button>
-                                  </div>
-                                </div>
-
-                                <div className="overflow-x-auto">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead className="text-xs font-medium">Name</TableHead>
-                                        <TableHead className="text-xs font-medium">Role</TableHead>
-                                        <TableHead className="text-xs font-medium text-right">Gross Pay</TableHead>
-                                        <TableHead className="text-xs font-medium text-right">Taxes & Fees</TableHead>
-                                        <TableHead className="text-xs font-medium text-right">Net Pay</TableHead>
-                                        <TableHead className="text-xs font-medium">Currency</TableHead>
-                                        <TableHead className="text-xs font-medium text-center">Status</TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {filteredByWorkerType.map((contractor) => {
-                                        const status = getPaymentStatus(contractor.id);
-                                        const taxesAndFees = (contractor.employerTaxes || 0) + contractor.estFees;
-                                        const netPay = getPaymentDue(contractor);
-
-                                        return (
-                                          <TableRow
-                                            key={contractor.id}
-                                            className="hover:bg-muted/30 cursor-pointer transition-colors"
-                                            onClick={() => handleOpenPaymentDetail(contractor)}
-                                          >
-                                            <TableCell>
-                                              <div className="flex items-center gap-2">
-                                                <span className="font-medium text-foreground">{contractor.name}</span>
-                                                <Badge
-                                                  variant="outline"
-                                                  className={cn(
-                                                    "text-[10px]",
-                                                    contractor.employmentType === "employee"
-                                                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30"
-                                                      : "bg-purple-500/10 text-purple-600 border-purple-500/30"
-                                                  )}
-                                                >
-                                                  {contractor.employmentType === "employee" ? "EE" : "IC"}
-                                                </Badge>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">
-                                              {contractor.country}
-                                            </TableCell>
-                                            <TableCell className="text-right font-medium">
-                                              {contractor.currency} {contractor.baseSalary.toLocaleString()}
-                                            </TableCell>
-                                            <TableCell className="text-right text-amber-600 font-medium">
-                                              +{contractor.currency} {taxesAndFees.toLocaleString()}
-                                            </TableCell>
-                                            <TableCell className="text-right font-semibold text-foreground">
-                                              {contractor.currency} {Math.round(netPay).toLocaleString()}
-                                            </TableCell>
-                                            <TableCell className="text-sm">{contractor.currency}</TableCell>
-                                            <TableCell className="text-center">
-                                              <Badge
-                                                variant={status === "Paid" ? "default" : "outline"}
-                                                className={cn(
-                                                  "text-[10px]",
-                                                  status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-                                                  status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30"
-                                                )}
-                                              >
-                                                {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                                {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
-                                                {status}
-                                              </Badge>
-                                            </TableCell>
-                                          </TableRow>
-                                        );
-                                      })}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              </CardContent>
-                            </Card>
-
-                            {/* Upcoming Payroll Section */}
-                            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-                              <CardContent className="p-6">
-                                <div className="flex items-start gap-4">
-                                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <Clock className="h-6 w-6 text-primary" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-foreground mb-2">Next Payroll Cycle</h3>
-                                    <p className="text-sm text-muted-foreground mb-1">
-                                      Next run scheduled for <strong>December 15, 2025</strong>.
-                                    </p>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                      Payroll preparation opens 3 days before the run.
-                                    </p>
-                                    <Button variant="outline" disabled size="sm">
-                                      Prepare Next Payroll (coming soon)
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ) : (
-                        /* Payroll Batch Workflow */
-                        <div className="space-y-6">
-                        {/* Payroll Overview Section */}
-                        <motion.div
-                          initial={{ y: -10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-                            <CardContent className="p-6">
-                              <div className="flex items-center justify-between mb-6">
-                                <div>
-                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    Summary of current payroll cycle and key metrics
-                                  </p>
-                                </div>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                                        <Clock className="h-3.5 w-3.5 text-primary" />
-                                        <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="left" className="max-w-xs">
-                                      <p className="text-xs">
-                                        Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
-                                      </p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                                {/* Total Salary Cost */}
-                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <DollarSign className="h-4 w-4 text-primary" />
-                                    <p className="text-xs text-muted-foreground">Total Salary Cost</p>
-                                  </div>
-                                  <p className="text-2xl font-semibold text-foreground">$124,850</p>
-                                  <p className="text-xs text-muted-foreground mt-1">This Month</p>
-                                </div>
-
-                                {/* Fronted Fees */}
-                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Building2 className="h-4 w-4 text-primary" />
-                                    <p className="text-xs text-muted-foreground">Fronted Fees (Est.)</p>
-                                  </div>
-                                  <p className="text-2xl font-semibold text-foreground">$3,742</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
-                                </div>
-
-                                {/* Total Payroll Cost */}
-                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Activity className="h-4 w-4 text-primary" />
-                                    <p className="text-xs text-muted-foreground">Total Payroll Cost</p>
-                                  </div>
-                                  <p className="text-2xl font-semibold text-foreground">$128,592</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
-                                </div>
-
-                                {/* Next Payroll Run */}
-                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Clock className="h-4 w-4 text-primary" />
-                                    <p className="text-xs text-muted-foreground">Next Payroll Run</p>
-                                  </div>
-                                  <p className="text-2xl font-semibold text-foreground">Nov 15</p>
-                                  <p className="text-xs text-muted-foreground mt-1">2025 (or prior weekday)</p>
-                                </div>
-                              </div>
-
-                              {/* Previous Batch Summary */}
-                              <div className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                  <p className="text-sm font-medium text-foreground">Previous Batch Summary</p>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
-                                    <p className="text-lg font-semibold text-foreground">8</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
-                                    <p className="text-lg font-semibold text-foreground">$118,240</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
-                                    <p className="text-lg font-semibold text-foreground">0</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-
-                        {/* Existing Batch Workflow */}
-                        <div className="space-y-4">
-                          {/* Horizontal Steps - Clean sticky */}
-                          <div className="sticky top-16 z-30 py-4">
+                      /* Payroll Batch Workflow */
+                      <div className="space-y-4">
+                        {/* Horizontal Steps - Clean sticky */}
+                        <div className="sticky top-16 z-30 py-4">
                             <div className="flex items-center gap-3 overflow-x-auto">
                               {steps.map((step, index) => {
                                 const isActive = currentStep === step.id;
@@ -2601,12 +2167,9 @@ You can ask me about:
                             </Button>
                           </div>
                         </motion.div>
-                          </div>
-                         </div>
-                         )}
-                       </div>
-                     )}
-                     </div>
+                      </div>
+                    )}
+                    </div>
 
                     {/* Payment Detail Drawer */}
                       <Sheet open={paymentDetailDrawerOpen} onOpenChange={setPaymentDetailDrawerOpen}>
