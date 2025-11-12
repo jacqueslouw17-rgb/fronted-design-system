@@ -70,11 +70,12 @@ interface PayrollException {
   id: string;
   contractorId: string;
   contractorName: string;
-  type: "missing-bank" | "holiday-rails" | "doc-expiry" | "over-threshold";
+  type: "missing-bank" | "fx-mismatch" | "pending-leave" | "unverified-identity";
   description: string;
   severity: "high" | "medium" | "low";
   resolved: boolean;
   snoozed: boolean;
+  formSent?: boolean;
 }
 
 const initialExceptions: PayrollException[] = [
@@ -83,20 +84,22 @@ const initialExceptions: PayrollException[] = [
     contractorId: "5",
     contractorName: "Emma Wilson",
     type: "missing-bank",
-    description: "Bank account type not specified (Checking/Savings required)",
+    description: "Bank account IBAN/routing number missing – cannot process payment",
     severity: "high",
     resolved: false,
     snoozed: false,
+    formSent: false,
   },
   {
     id: "exc-2",
     contractorId: "7",
     contractorName: "Luis Hernandez",
-    type: "holiday-rails",
-    description: "Holiday payout adjustment of +$850 needs approval",
+    type: "fx-mismatch",
+    description: "Currency preference set to USD but contract specifies PHP",
     severity: "medium",
     resolved: false,
     snoozed: false,
+    formSent: false,
   },
 ];
 
@@ -506,12 +509,22 @@ const PayrollBatch: React.FC = () => {
   };
 
   const handleSnoozeException = (exceptionId: string) => {
+    const exception = exceptions.find(exc => exc.id === exceptionId);
     setExceptions(prev => prev.map(exc =>
       exc.id === exceptionId
         ? { ...exc, snoozed: true }
         : exc
     ));
-    toast.info("Exception snoozed to next cycle");
+    toast.info(`${exception?.contractorName || 'Candidate'} snoozed to next cycle`);
+  };
+
+  const handleSendFormToCandidate = (exception: PayrollException) => {
+    setExceptions(prev => prev.map(exc =>
+      exc.id === exception.id
+        ? { ...exc, formSent: true }
+        : exc
+    ));
+    toast.success(`Form sent to ${exception.contractorName}`);
   };
 
   const handleRequestApproval = () => {
@@ -617,6 +630,8 @@ const PayrollBatch: React.FC = () => {
   };
 
   const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
+  const snoozedExceptions = exceptions.filter(exc => exc.snoozed);
+  const resolvedExceptions = exceptions.filter(exc => exc.resolved);
   const allExceptionsResolved = activeExceptions.length === 0;
 
   const renderStepContent = () => {
@@ -1084,6 +1099,13 @@ const PayrollBatch: React.FC = () => {
         );
 
       case "exceptions":
+        const exceptionTypeLabels: Record<string, string> = {
+          "missing-bank": "Missing Bank Details",
+          "fx-mismatch": "FX Mismatch",
+          "pending-leave": "Pending Leave Confirmation",
+          "unverified-identity": "Unverified Identity"
+        };
+
         return (
           <div className="space-y-6">
             {/* Step Label */}
@@ -1095,62 +1117,112 @@ const PayrollBatch: React.FC = () => {
 
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
+            {/* Exception Summary Counter */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-foreground">Exceptions Summary:</span>
+                  {activeExceptions.length > 0 && (
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      {activeExceptions.length} unresolved
+                    </Badge>
+                  )}
+                  {snoozedExceptions.length > 0 && (
+                    <Badge variant="outline" className="bg-muted text-muted-foreground gap-1">
+                      <Circle className="h-3 w-3" />
+                      {snoozedExceptions.length} snoozed
+                    </Badge>
+                  )}
+                  {resolvedExceptions.length > 0 && (
+                    <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30 gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {resolvedExceptions.length} cleared successfully
+                    </Badge>
+                  )}
+                  {allExceptionsResolved && (
+                    <span className="text-xs text-accent-green-text ml-2">✓ All clear!</span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {allExceptionsResolved && (
-              <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+              <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10 animate-fade-in">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-green-fill/30">
                       <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">All Clear</p>
-                      <p className="text-xs text-muted-foreground">All issues resolved - you can proceed to approvals.</p>
+                      <p className="text-sm font-semibold text-foreground">All clear! You can now continue to batch submission.</p>
+                      <p className="text-xs text-muted-foreground">All mandatory exceptions have been resolved or snoozed.</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Exception List */}
-            {exceptions.length > 0 && (
+            {/* Active Exceptions List */}
+            {activeExceptions.length > 0 && (
               <div className="space-y-3">
               {activeExceptions.map((exception) => {
                 const severityConfig = {
-                  high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600" },
-                  medium: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600" },
-                  low: { color: "border-blue-500/30 bg-blue-500/5", icon: "text-blue-600" },
+                  high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600", warningIcon: true },
+                  medium: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600", warningIcon: true },
+                  low: { color: "border-blue-500/30 bg-blue-500/5", icon: "text-blue-600", warningIcon: false },
                 };
 
                 const config = severityConfig[exception.severity];
 
                 return (
-                  <Card key={exception.id} className={cn("border", config.color)}>
+                  <Card key={exception.id} className={cn("border", config.color, "transition-all duration-300")}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/50">
+                        <div className={cn("flex items-center justify-center w-8 h-8 rounded-full bg-muted/50", config.warningIcon && "animate-pulse")}>
                           <AlertTriangle className={cn("h-4 w-4", config.icon)} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium text-foreground">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
                               {exception.contractorName}
+                              {exception.severity === "high" && (
+                                <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                              )}
                             </span>
                             <Badge variant="outline" className="text-[10px]">
-                              {exception.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              {exceptionTypeLabels[exception.type] || exception.type}
                             </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground mb-3">
                             {exception.description}
                           </p>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-7 text-xs"
-                              onClick={() => handleOpenFixDrawer(exception)}
-                            >
-                              Fix
-                            </Button>
+                          <div className="flex gap-2 flex-wrap">
+                            {exception.type === "missing-bank" && !exception.formSent && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-7 text-xs"
+                                onClick={() => handleSendFormToCandidate(exception)}
+                              >
+                                Send Form to Candidate
+                              </Button>
+                            )}
+                            {exception.formSent && (
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30 h-7 px-3 text-xs">
+                                Form Sent
+                              </Badge>
+                            )}
+                            {(exception.type === "fx-mismatch" || exception.type === "pending-leave" || exception.type === "unverified-identity") && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-7 text-xs"
+                                onClick={() => handleOpenFixDrawer(exception)}
+                              >
+                                Resolve
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
@@ -1169,29 +1241,28 @@ const PayrollBatch: React.FC = () => {
             </div>
             )}
 
-            {/* Summary */}
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Active</p>
-                    <p className="text-2xl font-bold text-foreground">{activeExceptions.length}</p>
+            {/* Snoozed Exceptions (if any) */}
+            {snoozedExceptions.length > 0 && (
+              <Card className="border-border/20 bg-muted/10">
+                <CardContent className="p-4">
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                    <Circle className="h-3.5 w-3.5" />
+                    Snoozed ({snoozedExceptions.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {snoozedExceptions.map((exception) => (
+                      <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50 opacity-60">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground line-through">{exception.contractorName}</span>
+                          <Badge variant="outline" className="text-[10px]">Skipped</Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground">Will roll over to next cycle</span>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Resolved</p>
-                    <p className="text-2xl font-bold text-accent-green-text">
-                      {exceptions.filter(exc => exc.resolved).length}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Snoozed</p>
-                    <p className="text-2xl font-bold text-muted-foreground">
-                      {exceptions.filter(exc => exc.snoozed).length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Footer CTA */}
             <div className="pt-4 border-t border-border flex items-center justify-between">
@@ -1201,13 +1272,20 @@ const PayrollBatch: React.FC = () => {
               >
                 Back to FX Review
               </Button>
-              <Button
-                className="h-11 px-6 text-sm font-medium"
-                disabled={!allExceptionsResolved}
-                onClick={() => setCurrentStep("approvals")}
-              >
-                {allExceptionsResolved ? "Go to Approvals" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
-              </Button>
+              <div className="flex flex-col items-end gap-1">
+                {snoozedExceptions.length > 0 && !allExceptionsResolved && (
+                  <p className="text-xs text-muted-foreground">
+                    {snoozedExceptions.length} candidate{snoozedExceptions.length !== 1 ? 's' : ''} will roll over to next month's payroll
+                  </p>
+                )}
+                <Button
+                  className="h-11 px-6 text-sm font-medium"
+                  disabled={!allExceptionsResolved}
+                  onClick={() => setCurrentStep("approvals")}
+                >
+                  {allExceptionsResolved ? "Go to Approvals" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
+                </Button>
+              </div>
             </div>
           </div>
         );
@@ -2245,24 +2323,64 @@ You can ask me about:
                                 </div>
                               )}
 
-                              {selectedException.type === "holiday-rails" && (
+                              {selectedException.type === "fx-mismatch" && (
                                 <div className="space-y-4">
                                   <div className="space-y-2">
-                                    <Label className="text-sm font-medium">Holiday Adjustment</Label>
+                                    <Label className="text-sm font-medium">Currency Resolution</Label>
                                     <div className="p-3 rounded-lg bg-muted/30">
                                       <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs text-muted-foreground">Base Pay</span>
-                                        <span className="text-sm font-medium">$4,650</span>
+                                        <span className="text-xs text-muted-foreground">Contract Currency</span>
+                                        <span className="text-sm font-medium">PHP</span>
                                       </div>
                                       <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">Holiday Bonus</span>
-                                        <span className="text-sm font-medium text-accent-green-text">+$850</span>
+                                        <span className="text-xs text-muted-foreground">Candidate Preference</span>
+                                        <span className="text-sm font-medium text-amber-600">USD</span>
                                       </div>
                                     </div>
                                   </div>
                                   <p className="text-xs text-muted-foreground">
-                                    Approve the holiday adjustment to include in this batch.
+                                    Send form to candidate to confirm currency preference update.
                                   </p>
+                                </div>
+                              )}
+
+                              {selectedException.type === "pending-leave" && (
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-sm font-medium">Leave Confirmation</Label>
+                                    <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Leave Days</span>
+                                        <span className="text-sm font-medium">2 days</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Status</span>
+                                        <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600">
+                                          Awaiting Client Approval
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Leave days reported by candidate but not yet confirmed by client.
+                                  </p>
+                                </div>
+                              )}
+
+                              {selectedException.type === "unverified-identity" && (
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-sm font-medium">Compliance Verification</Label>
+                                    <div className="p-3 rounded-lg bg-muted/30">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <AlertCircle className="h-4 w-4 text-amber-600" />
+                                        <span className="text-xs font-medium">Identity documents pending review</span>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Candidate requires identity verification before payment processing.
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                             </div>
