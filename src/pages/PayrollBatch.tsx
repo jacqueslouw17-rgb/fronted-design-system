@@ -2264,31 +2264,33 @@ You can ask me about:
                           </div>
 
                           {/* Navigation */}
-                          <div className="flex items-center justify-between mt-6 pt-6 border-t border-border">
-                            <Button
-                              variant="outline"
-                              disabled={getCurrentStepIndex() === 0}
-                              onClick={() => {
-                                const prevIndex = getCurrentStepIndex() - 1;
-                                if (prevIndex >= 0) {
-                                  setCurrentStep(steps[prevIndex].id as PayrollStep);
-                                }
-                              }}
-                            >
-                              Previous Step
-                            </Button>
-                            <Button
-                              disabled={getCurrentStepIndex() === steps.length - 1}
-                              onClick={() => {
-                                const nextIndex = getCurrentStepIndex() + 1;
-                                if (nextIndex < steps.length) {
-                                  setCurrentStep(steps[nextIndex].id as PayrollStep);
-                                }
-                              }}
-                            >
-                              Next Step
-                            </Button>
-                          </div>
+                          {currentStep !== "review-fx" && (
+                            <div className="flex items-center justify-between mt-6 pt-6 border-t border-border">
+                              <Button
+                                variant="outline"
+                                disabled={getCurrentStepIndex() === 0}
+                                onClick={() => {
+                                  const prevIndex = getCurrentStepIndex() - 1;
+                                  if (prevIndex >= 0) {
+                                    setCurrentStep(steps[prevIndex].id as PayrollStep);
+                                  }
+                                }}
+                              >
+                                Previous Step
+                              </Button>
+                              <Button
+                                disabled={getCurrentStepIndex() === steps.length - 1}
+                                onClick={() => {
+                                  const nextIndex = getCurrentStepIndex() + 1;
+                                  if (nextIndex < steps.length) {
+                                    setCurrentStep(steps[nextIndex].id as PayrollStep);
+                                  }
+                                }}
+                              >
+                                Next Step
+                              </Button>
+                            </div>
+                          )}
                         </motion.div>
                         </div>
                         </div>
