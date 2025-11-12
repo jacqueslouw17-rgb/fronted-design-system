@@ -2109,8 +2109,8 @@ You can ask me about:
                         {/* Existing Batch Workflow */}
                         <div className="space-y-4">
                           {/* Horizontal Steps - Clean sticky */}
-                          <div className="sticky top-0 z-30 py-3">
-                            <div className="flex items-center gap-3 overflow-x-auto rounded-xl border border-border/20 bg-card/20 px-3">
+                          <div className="sticky top-16 z-30 py-4">
+                            <div className="flex items-center gap-3 overflow-x-auto">
                               {steps.map((step, index) => {
                                 const isActive = currentStep === step.id;
                                 const isCompleted = getCurrentStepIndex() > index;
