@@ -28,12 +28,12 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { addDays, format } from "date-fns";
 
-type PayrollStep = "review-fx" | "exceptions" | "approvals" | "execute" | "track";
+type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
 
 const steps = [
   { id: "review-fx", label: "Review FX", icon: DollarSign },
   { id: "exceptions", label: "Exceptions", icon: AlertTriangle },
-  { id: "approvals", label: "Approvals", icon: CheckSquare },
+  // { id: "approvals", label: "Approvals", icon: CheckSquare }, // TODO: reinstate approval gate once role management is live
   { id: "execute", label: "Execute", icon: Play },
   { id: "track", label: "Track & Reconcile", icon: TrendingUp },
 ] as const;
@@ -260,13 +260,9 @@ const PayrollBatch: React.FC = () => {
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
   const [bankAccountType, setBankAccountType] = useState("");
-  const [approvalStatus, setApprovalStatus] = useState<"pending" | "requested" | "viewed" | "approved">("pending");
-  const [approvalTimeline, setApprovalTimeline] = useState<Array<{ status: string; timestamp: Date | null }>>([
-    { status: "requested", timestamp: null },
-    { status: "viewed", timestamp: null },
-    { status: "approved", timestamp: null },
-  ]);
-  const [isRequestingApproval, setIsRequestingApproval] = useState(false);
+  // Approval logic temporarily disabled - auto-approved for MVP
+  // TODO: reinstate dual-approval flow later
+  const approvalStatus = "auto-approved";
   const [userRole] = useState<"admin" | "user">("admin");
   const [autoRetryEnabled, setAutoRetryEnabled] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -527,38 +523,10 @@ const PayrollBatch: React.FC = () => {
     toast.success(`Form sent to ${exception.contractorName}`);
   };
 
-  const handleRequestApproval = () => {
-    setIsRequestingApproval(true);
-    
-    setTimeout(() => {
-      setApprovalStatus("requested");
-      setApprovalTimeline(prev => prev.map((item, idx) => 
-        idx === 0 ? { ...item, timestamp: new Date() } : item
-      ));
-      setIsRequestingApproval(false);
-      toast.success("Approval request sent to Howard (CFO)");
-      
-      setTimeout(() => {
-        setApprovalStatus("viewed");
-        setApprovalTimeline(prev => prev.map((item, idx) => 
-          idx === 1 ? { ...item, timestamp: new Date() } : item
-        ));
-        toast.info("Howard has viewed the approval request");
-      }, 3000);
-    }, 1500);
-  };
-
-  const handleAdminOverride = () => {
-    setApprovalStatus("approved");
-    setApprovalTimeline(prev => prev.map((item, idx) => 
-      idx === 2 ? { ...item, timestamp: new Date() } : item
-    ));
-    toast.success("Approved via admin override");
-    
-    setTimeout(() => {
-      setCurrentStep("execute");
-    }, 1500);
-  };
+  // Approval handlers temporarily disabled - auto-approved for MVP
+  // TODO: reinstate dual-approval flow later
+  // const handleRequestApproval = () => { ... }
+  // const handleAdminOverride = () => { ... }
 
   const handleExecutePayroll = async () => {
     setIsExecuting(true);
@@ -1281,207 +1249,43 @@ const PayrollBatch: React.FC = () => {
                 <Button
                   className="h-11 px-6 text-sm font-medium"
                   disabled={!allExceptionsResolved}
-                  onClick={() => setCurrentStep("approvals")}
+                  onClick={() => setCurrentStep("execute")}
                 >
-                  {allExceptionsResolved ? "Go to Approvals" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
+                  {allExceptionsResolved ? "Proceed to Execute" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
                 </Button>
               </div>
             </div>
           </div>
         );
 
+
+      // Approvals step temporarily hidden - auto-approved for MVP
+      // TODO: reinstate approval gate here once role management is live
+      /* 
       case "approvals":
-        const employees = allContractors.filter(c => c.employmentType === "employee");
-        const contractors = allContractors.filter(c => c.employmentType === "contractor");
-        
-        const employeesTotalNetPay = employees.reduce((sum, e) => sum + e.netPay, 0);
-        const employeesTotalEmployerTaxes = employees.reduce((sum, e) => sum + (e.employerTaxes || 0), 0);
-        const employeesTotalCost = employeesTotalNetPay + employeesTotalEmployerTaxes;
-        
-        const contractorsTotalNetPay = contractors.reduce((sum, c) => sum + c.netPay, 0);
-        
-        return (
-          <div className="space-y-6">
+        ... (approvals UI code preserved but commented out)
+      */
+
+        case "execute":
+          return (
+            <div className="space-y-6">
+              {/* Info note for legacy batches or auto-approval context */}
+              <div className="flex items-start gap-3 p-4 rounded-lg border border-border/20 bg-muted/20">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">
+                    Approvals are handled internally during the pilot. This batch moved directly to Execute.
+                  </p>
+                </div>
+              </div>
             {/* Step Label */}
             <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 3 of 5 – Financial Approval
-              </Badge>
-            </div>
-
-            <h3 className="text-lg font-semibold text-foreground">Financial Approval</h3>
-
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">CFO Approval Required</h3>
-                    <p className="text-xs text-muted-foreground">Howard Mitchell • Chief Financial Officer</p>
-                  </div>
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "text-xs",
-                      approvalStatus === "approved" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-                      approvalStatus === "requested" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
-                      approvalStatus === "viewed" && "bg-amber-500/10 text-amber-600 border-amber-500/30",
-                      approvalStatus === "pending" && "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {approvalStatus === "approved" && "Approved"}
-                    {approvalStatus === "requested" && "Pending"}
-                    {approvalStatus === "viewed" && "Under Review"}
-                    {approvalStatus === "pending" && "Not Requested"}
-                  </Badge>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">
-                          Employees
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">({employees.length})</span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-baseline justify-between">
-                          <span className="text-xs text-muted-foreground">Net Pay</span>
-                          <span className="text-sm font-medium">${(employeesTotalNetPay / 1000).toFixed(1)}K</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
-                          <span className="text-sm font-medium text-amber-600">+${(employeesTotalEmployerTaxes / 1000).toFixed(1)}K</span>
-                        </div>
-                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
-                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
-                          <span className="text-base font-bold text-foreground">${(employeesTotalCost / 1000).toFixed(1)}K</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">
-                          Contractors
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">({contractors.length})</span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-baseline justify-between">
-                          <span className="text-xs text-muted-foreground">Net Pay</span>
-                          <span className="text-sm font-medium">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
-                        </div>
-                        <div className="flex items-baseline justify-between">
-                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
-                          <span className="text-sm font-medium text-muted-foreground">N/A</span>
-                        </div>
-                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
-                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
-                          <span className="text-base font-bold text-foreground">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground">Approval Timeline</p>
-                  <div className="space-y-2">
-                    {approvalTimeline.map((item, index) => {
-                      const isActive = approvalStatus === item.status || 
-                        (approvalStatus === "approved" && item.status !== "approved") ||
-                        (approvalStatus === "viewed" && item.status === "requested");
-                      
-                      return (
-                        <div key={item.status} className="flex items-center gap-3">
-                          <div className={cn(
-                            "flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors",
-                            isActive || item.timestamp 
-                              ? "bg-accent-green-fill border-accent-green-outline" 
-                              : "bg-muted border-border"
-                          )}>
-                            {item.timestamp ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                            ) : (
-                              <Circle className={cn(
-                                "h-2 w-2",
-                                isActive ? "fill-accent-green-text" : "fill-muted-foreground"
-                              )} />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className={cn(
-                              "text-sm font-medium",
-                              item.timestamp ? "text-foreground" : "text-muted-foreground"
-                            )}>
-                              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                            </p>
-                            {item.timestamp && (
-                              <p className="text-xs text-muted-foreground">
-                                {item.timestamp.toLocaleTimeString('en-US', { 
-                                  hour: '2-digit', 
-                                  minute: '2-digit' 
-                                })}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {approvalStatus !== "approved" && (
-                  <div className="flex gap-3 pt-4 border-t border-border">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      disabled={approvalStatus !== "pending" || isRequestingApproval}
-                      onClick={handleRequestApproval}
-                    >
-                      {isRequestingApproval ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        "Request Approval"
-                      )}
-                    </Button>
-                    {userRole === "admin" && (
-                      <Button
-                        className="flex-1"
-                        onClick={handleAdminOverride}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Approve Now (Admin Override)
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                {approvalStatus === "approved" && (
-                  <div className="flex items-center gap-2 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
-                    <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">Approved</p>
-                      <p className="text-xs text-muted-foreground">Ready to execute payroll batch</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case "execute":
-        return (
-          <div className="space-y-6">
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 4 of 5 – Execute Payroll
+                Step 3 of 4 – Execute Payroll
               </Badge>
             </div>
 
@@ -1536,10 +1340,6 @@ const PayrollBatch: React.FC = () => {
                     <div className="flex items-center gap-2 text-xs">
                       <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
                       <span className="text-muted-foreground">All exceptions resolved</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                      <span className="text-muted-foreground">CFO approval received</span>
                     </div>
                   </div>
                 )}
@@ -1658,7 +1458,7 @@ const PayrollBatch: React.FC = () => {
             {/* Step Label */}
             <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 5 of 5 – Track & Reconcile
+                Step 4 of 4 – Track & Reconcile
               </Badge>
               <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
                 <Activity className="h-3 w-3 mr-1" />
