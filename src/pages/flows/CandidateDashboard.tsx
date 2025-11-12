@@ -84,7 +84,7 @@ const CandidateDashboard = () => {
                   <AgentHeader
                     title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`}
                     subtitle="Everything is finalized. Access your documents below."
-                    showPulse={false}
+                    showPulse={true}
                     isActive={false}
                     showInput={false}
                   />
