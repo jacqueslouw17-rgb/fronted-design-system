@@ -845,7 +845,7 @@ const PayrollBatch: React.FC = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead className={cn(
-                              "text-xs sticky left-0 z-30 min-w-[180px] bg-card transition-all duration-200",
+                              "text-xs sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200",
                               scrollStates[currency] && "bg-card/30 backdrop-blur-sm shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
                             )}>
                               Name
@@ -881,7 +881,7 @@ const PayrollBatch: React.FC = () => {
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
                               <TableCell className={cn(
-                                "font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-card transition-all duration-200",
+                                "font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200",
                                 scrollStates[currency] && "bg-card/30 backdrop-blur-sm shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
                               )}>
                                 <div className="flex items-center gap-2">
@@ -995,7 +995,7 @@ const PayrollBatch: React.FC = () => {
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
                           <TableCell className={cn(
-                            "text-sm sticky left-0 z-20 min-w-[180px] bg-muted/50 transition-all duration-200",
+                            "text-sm sticky left-0 z-20 min-w-[180px] bg-transparent transition-all duration-200",
                             scrollStates[currency] && "bg-muted/30 backdrop-blur-sm shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
                           )}>
                             Total {currency}
