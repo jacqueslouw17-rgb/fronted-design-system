@@ -108,7 +108,7 @@ const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { isSpeaking, addMessage, setLoading, setOpen } = useAgentState();
-  const [viewMode, setViewMode] = useState<"tracker" | "payroll">("tracker");
+  const [viewMode, setViewMode] = useState<"tracker" | "payroll">("payroll");
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
@@ -399,15 +399,7 @@ const PayrollBatch: React.FC = () => {
                   <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
                   Refresh Quote
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={handleLockRates}
-                  disabled={fxRatesLocked}
-                  className="gap-2"
-                >
-                  <Lock className="h-3.5 w-3.5" />
-                  Lock Rate (15 min)
-                </Button>
+                {/* Lock Rate button temporarily hidden - logic preserved for future reactivation */}
               </div>
             </div>
 
@@ -1433,7 +1425,108 @@ You can ask me about:
                       </div>
                     ) : (
                       /* Payroll Batch Workflow */
-                      <div className="flex gap-6">
+                      <div className="space-y-6">
+                        {/* Payroll Overview Section */}
+                        <motion.div
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between mb-6">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    Summary of current payroll cycle and key metrics
+                                  </p>
+                                </div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                                        <Clock className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left" className="max-w-xs">
+                                      <p className="text-xs">
+                                        Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                {/* Total Salary Cost */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <DollarSign className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Total Salary Cost</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$124,850</p>
+                                  <p className="text-xs text-muted-foreground mt-1">This Month</p>
+                                </div>
+
+                                {/* Fronted Fees */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Building2 className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Fronted Fees (Est.)</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$3,742</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+                                </div>
+
+                                {/* Total Payroll Cost */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Activity className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Total Payroll Cost</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">$128,592</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
+                                </div>
+
+                                {/* Next Payroll Run */}
+                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Clock className="h-4 w-4 text-primary" />
+                                    <p className="text-xs text-muted-foreground">Next Payroll Run</p>
+                                  </div>
+                                  <p className="text-2xl font-semibold text-foreground">Nov 15</p>
+                                  <p className="text-xs text-muted-foreground mt-1">2025 (or prior weekday)</p>
+                                </div>
+                              </div>
+
+                              {/* Previous Batch Summary */}
+                              <div className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                  <p className="text-sm font-medium text-foreground">Previous Batch Summary</p>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
+                                    <p className="text-lg font-semibold text-foreground">8</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
+                                    <p className="text-lg font-semibold text-foreground">$118,240</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
+                                    <p className="text-lg font-semibold text-foreground">0</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+
+                        {/* Existing Batch Workflow */}
+                        <div className="flex gap-6">
                         {/* Left: Stepper */}
                         <motion.div
                           initial={{ x: -20, opacity: 0 }}
@@ -1532,7 +1625,8 @@ You can ask me about:
                             </Button>
                           </div>
                         </motion.div>
-                      </div>
+                        </div>
+                        </div>
                       )}
                     </div>
 
