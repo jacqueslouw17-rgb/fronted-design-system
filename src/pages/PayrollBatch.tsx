@@ -279,6 +279,11 @@ const PayrollBatch: React.FC = () => {
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [selectedLeaveContractor, setSelectedLeaveContractor] = useState<ContractorPayment | null>(null);
   const [leaveRecords, setLeaveRecords] = useState<Record<string, LeaveRecord>>({});
+  const [contractorDrawerOpen, setContractorDrawerOpen] = useState(false);
+  const [selectedContractor, setSelectedContractor] = useState<ContractorPayment | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [additionalFees, setAdditionalFees] = useState<Record<string, { amount: number; accepted: boolean }>>({});
+  const [oneTimeAdjustment, setOneTimeAdjustment] = useState<number>(0);
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -332,6 +337,41 @@ const PayrollBatch: React.FC = () => {
   const handleViewLeaveDetails = (contractor: ContractorPayment) => {
     setSelectedLeaveContractor(contractor);
     setLeaveModalOpen(true);
+  };
+
+  const handleOpenContractorDetail = (contractor: ContractorPayment) => {
+    setSelectedContractor(contractor);
+    setOneTimeAdjustment(0);
+    setContractorDrawerOpen(true);
+  };
+
+  const handleSaveContractorAdjustment = () => {
+    if (selectedContractor && oneTimeAdjustment !== 0) {
+      // In real implementation, update contractor payment data
+      toast.success(`Adjustment saved for ${selectedContractor.name}. Totals recalculated.`);
+      setLastUpdated(new Date());
+      setContractorDrawerOpen(false);
+    }
+  };
+
+  const handleToggleAdditionalFee = (contractorId: string, accept: boolean) => {
+    setAdditionalFees(prev => ({
+      ...prev,
+      [contractorId]: {
+        amount: prev[contractorId]?.amount || 50,
+        accepted: accept
+      }
+    }));
+    setLastUpdated(new Date());
+    toast.success(`Additional fee ${accept ? 'accepted' : 'declined'} – totals updated.`);
+  };
+
+  const getTimeSinceUpdate = () => {
+    const seconds = Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000);
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) !== 1 ? 's' : ''} ago`;
   };
   const [paymentReceipts, setPaymentReceipts] = useState([
     {
@@ -575,6 +615,18 @@ const PayrollBatch: React.FC = () => {
       case "review-fx":
         return (
               <div className="space-y-3">
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                  Step 1 of 5 – FX Review
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Updated {getTimeSinceUpdate()}
+                </span>
+              </div>
+            </div>
+
             {/* Status Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -790,10 +842,13 @@ const PayrollBatch: React.FC = () => {
                           <TableHead className="text-xs">Name</TableHead>
                           <TableHead className="text-xs">Role</TableHead>
                           <TableHead className="text-xs">Country</TableHead>
-                          <TableHead className="text-xs text-right">Base Salary</TableHead>
-                          <TableHead className="text-xs text-right">Payment Due</TableHead>
+                          <TableHead className="text-xs text-right">Gross Pay</TableHead>
+                          <TableHead className="text-xs text-right">Deductions</TableHead>
+                          <TableHead className="text-xs text-right">Net Pay</TableHead>
                           <TableHead className="text-xs text-right">Est. Fees</TableHead>
-                          <TableHead className="text-xs text-right">FX Rate</TableHead>
+                          <TableHead className="text-xs text-right">Additional Fees</TableHead>
+                          <TableHead className="text-xs text-right">Total Payable</TableHead>
+                          <TableHead className="text-xs">Status</TableHead>
                           <TableHead className="text-xs">ETA</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -803,9 +858,18 @@ const PayrollBatch: React.FC = () => {
                           const hasLeave = leaveData && leaveData.leaveDays > 0;
                           const paymentDue = getPaymentDue(contractor);
                           const difference = contractor.baseSalary - paymentDue;
+                          const grossPay = contractor.baseSalary;
+                          const deductions = 0; // Placeholder - would be calculated based on taxes
+                          const netPay = paymentDue;
+                          const additionalFee = additionalFees[contractor.id];
+                          const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                           
                           return (
-                            <TableRow key={contractor.id}>
+                            <TableRow 
+                              key={contractor.id}
+                              className="cursor-pointer hover:bg-muted/30 transition-colors"
+                              onClick={() => handleOpenContractorDetail(contractor)}
+                            >
                               <TableCell className="font-medium text-sm">
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
@@ -814,7 +878,10 @@ const PayrollBatch: React.FC = () => {
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <button
-                                            onClick={() => handleViewLeaveDetails(contractor)}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleViewLeaveDetails(contractor);
+                                            }}
                                             className="inline-flex"
                                           >
                                             <Badge 
@@ -852,22 +919,100 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               <TableCell className="text-sm">{contractor.country}</TableCell>
                               <TableCell className="text-right text-sm text-muted-foreground">
-                                {symbol}{contractor.baseSalary.toLocaleString()}
+                                {symbol}{grossPay.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger className="underline decoration-dotted cursor-help">
+                                      {symbol}{hasLeave ? Math.round(difference).toLocaleString() : deductions}
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="text-xs space-y-1">
+                                        <p className="font-semibold">Deductions</p>
+                                        {hasLeave && <p>Leave proration: {symbol}{Math.round(difference).toLocaleString()}</p>}
+                                        {contractor.employmentType === "employee" && <p>Taxes: Included in employer cost</p>}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </TableCell>
                               <TableCell className="text-right text-sm font-semibold">
-                                {symbol}{Math.round(paymentDue).toLocaleString()}
-                                {hasLeave && (
-                                  <div className="text-xs text-amber-600 mt-0.5">
-                                    -{symbol}{Math.round(difference).toLocaleString()}
-                                  </div>
-                                )}
+                                {symbol}{Math.round(netPay).toLocaleString()}
                               </TableCell>
                               <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
-                              <TableCell className="text-right text-sm font-mono">{contractor.fxRate}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <span className="text-sm">{symbol}{additionalFee?.amount || 50}</span>
+                                  <Select
+                                    value={additionalFee?.accepted ? "accept" : "decline"}
+                                    onValueChange={(value) => {
+                                      handleToggleAdditionalFee(contractor.id, value === "accept");
+                                    }}
+                                  >
+                                    <SelectTrigger 
+                                      className="w-24 h-7 text-xs"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="accept" className="text-xs">Accept</SelectItem>
+                                      <SelectItem value="decline" className="text-xs">Decline</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right text-sm font-bold">
+                                {symbol}{Math.round(totalPayable).toLocaleString()}
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30"
+                                >
+                                  Ready
+                                </Badge>
+                              </TableCell>
                               <TableCell className="text-sm">{contractor.eta}</TableCell>
                             </TableRow>
                           );
                         })}
+                        
+                        {/* Total Summary Row */}
+                        <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
+                          <TableCell colSpan={3} className="text-sm">
+                            Total {currency}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + c.baseSalary, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => {
+                              const leaveData = leaveRecords[c.id];
+                              return sum + (leaveData?.leaveDays > 0 ? c.baseSalary - getPaymentDue(c) : 0);
+                            }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + getPaymentDue(c), 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => {
+                              const additionalFee = additionalFees[c.id];
+                              return sum + (additionalFee?.accepted ? additionalFee.amount : 0);
+                            }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm font-bold">
+                            {symbol}{contractors.reduce((sum, c) => {
+                              const additionalFee = additionalFees[c.id];
+                              return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                            }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell colSpan={2}></TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -905,12 +1050,15 @@ const PayrollBatch: React.FC = () => {
             </Card>
 
             {/* Footer CTA */}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Step 1 of 5 – FX Review
+              </div>
               <Button 
-                className="w-full h-11 text-sm font-medium"
+                className="h-11 px-6 text-sm font-medium"
                 onClick={() => setCurrentStep("exceptions")}
               >
-                Continue to Exceptions
+                Go to Exceptions
               </Button>
             </div>
           </div>
@@ -919,6 +1067,13 @@ const PayrollBatch: React.FC = () => {
       case "exceptions":
         return (
           <div className="space-y-6">
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                Step 2 of 5 – Exceptions
+              </Badge>
+            </div>
+
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
             {allExceptionsResolved && (
@@ -1020,13 +1175,19 @@ const PayrollBatch: React.FC = () => {
             </Card>
 
             {/* Footer CTA */}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border flex items-center justify-between">
               <Button
-                className="w-full h-11 text-sm font-medium"
+                variant="outline"
+                onClick={() => setCurrentStep("review-fx")}
+              >
+                Back to FX Review
+              </Button>
+              <Button
+                className="h-11 px-6 text-sm font-medium"
                 disabled={!allExceptionsResolved}
                 onClick={() => setCurrentStep("approvals")}
               >
-                {allExceptionsResolved ? "Send for Approval" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} to Continue`}
+                {allExceptionsResolved ? "Go to Approvals" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
               </Button>
             </div>
           </div>
@@ -1044,6 +1205,13 @@ const PayrollBatch: React.FC = () => {
         
         return (
           <div className="space-y-6">
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                Step 3 of 5 – Financial Approval
+              </Badge>
+            </div>
+
             <h3 className="text-lg font-semibold text-foreground">Financial Approval</h3>
 
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
@@ -1213,6 +1381,13 @@ const PayrollBatch: React.FC = () => {
       case "execute":
         return (
           <div className="space-y-6">
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                Step 4 of 5 – Execute Payroll
+              </Badge>
+            </div>
+
             <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
 
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
@@ -1383,13 +1558,18 @@ const PayrollBatch: React.FC = () => {
       case "track":
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-foreground">Track & Reconcile</h2>
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                Step 5 of 5 – Track & Reconcile
+              </Badge>
               <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
                 <Activity className="h-3 w-3 mr-1" />
                 Live Tracking
               </Badge>
             </div>
+
+            <h2 className="text-xl font-semibold text-foreground">Track & Reconcile</h2>
 
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm md:col-span-2">
@@ -2270,6 +2450,193 @@ You can ask me about:
                           )}
                         </DialogContent>
                       </Dialog>
+
+                      {/* Contractor Detail Drawer */}
+                      <Sheet open={contractorDrawerOpen} onOpenChange={setContractorDrawerOpen}>
+                        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+                          {selectedContractor && (
+                            <>
+                              <SheetHeader>
+                                <SheetTitle className="text-xl">
+                                  {selectedContractor.name}
+                                </SheetTitle>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Badge 
+                                    variant="outline" 
+                                    className={cn(
+                                      "text-xs",
+                                      selectedContractor.employmentType === "employee" 
+                                        ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                        : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                    )}
+                                  >
+                                    {selectedContractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                                  </Badge>
+                                  <span className="text-sm text-muted-foreground">•</span>
+                                  <span className="text-sm text-muted-foreground">{selectedContractor.country}</span>
+                                </div>
+                              </SheetHeader>
+
+                              <div className="space-y-6 mt-6">
+                                {/* Payment Breakdown */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                    <Receipt className="h-4 w-4" />
+                                    Payment Breakdown
+                                  </h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Base Salary</span>
+                                        <span className="text-sm font-semibold">
+                                          {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      
+                                      {selectedContractor.employmentType === "employee" && selectedContractor.employerTaxes && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Benefits (included)</span>
+                                          <span className="text-sm font-medium text-blue-600">
+                                            +{selectedContractor.currency} {selectedContractor.employerTaxes.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {leaveRecords[selectedContractor.id]?.leaveDays > 0 && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Leave Deduction</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            -{selectedContractor.currency} {Math.round(selectedContractor.baseSalary - getPaymentDue(selectedContractor)).toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      <Separator />
+
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-foreground">Net Pay</span>
+                                        <span className="text-lg font-bold text-foreground">
+                                          {selectedContractor.currency} {Math.round(getPaymentDue(selectedContractor)).toLocaleString()}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex items-center justify-between text-muted-foreground">
+                                        <span className="text-sm">Est. Fees</span>
+                                        <span className="text-sm">
+                                          +{selectedContractor.currency} {selectedContractor.estFees}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex items-center justify-between text-muted-foreground">
+                                        <span className="text-sm">Additional Fees</span>
+                                        <span className="text-sm">
+                                          +{selectedContractor.currency} {additionalFees[selectedContractor.id]?.accepted ? (additionalFees[selectedContractor.id]?.amount || 50) : 0}
+                                        </span>
+                                      </div>
+
+                                      <Separator />
+
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-base font-bold text-foreground">Total Payable</span>
+                                        <span className="text-xl font-bold text-primary">
+                                          {selectedContractor.currency} {Math.round(
+                                            getPaymentDue(selectedContractor) + 
+                                            selectedContractor.estFees + 
+                                            (additionalFees[selectedContractor.id]?.accepted ? (additionalFees[selectedContractor.id]?.amount || 50) : 0)
+                                          ).toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                {/* FX Information */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                    <DollarSign className="h-4 w-4" />
+                                    FX Details
+                                  </h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Currency</span>
+                                        <span className="text-sm font-semibold">{selectedContractor.currency}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">FX Rate</span>
+                                        <span className="text-sm font-mono">{selectedContractor.fxRate} USD → {selectedContractor.currency}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">ETA</span>
+                                        <span className="text-sm font-medium">{selectedContractor.eta}</span>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                {/* One-time Adjustment */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground">Adjustments</h4>
+                                  <div className="space-y-3">
+                                    <div>
+                                      <Label htmlFor="adjustment" className="text-sm font-medium mb-2 block">
+                                        One-time Adjustment
+                                      </Label>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
+                                        <input
+                                          id="adjustment"
+                                          type="number"
+                                          value={oneTimeAdjustment}
+                                          onChange={(e) => setOneTimeAdjustment(parseFloat(e.target.value) || 0)}
+                                          className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                                          placeholder="0"
+                                        />
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                        Enter positive for bonus, negative for deduction
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {oneTimeAdjustment !== 0 && (
+                                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium text-blue-600">
+                                        Adjusted Total Payable
+                                      </span>
+                                      <span className="text-lg font-bold text-blue-600">
+                                        {selectedContractor.currency} {Math.round(
+                                          getPaymentDue(selectedContractor) + 
+                                          selectedContractor.estFees + 
+                                          (additionalFees[selectedContractor.id]?.accepted ? (additionalFees[selectedContractor.id]?.amount || 50) : 0) +
+                                          oneTimeAdjustment
+                                        ).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              <SheetFooter className="mt-6">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setContractorDrawerOpen(false)}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  onClick={handleSaveContractorAdjustment}
+                                  disabled={oneTimeAdjustment === 0}
+                                >
+                                  Save & Recalculate
+                                </Button>
+                              </SheetFooter>
+                            </>
+                          )}
+                        </SheetContent>
+                      </Sheet>
                   </div>
                 </motion.div>
               </div>
