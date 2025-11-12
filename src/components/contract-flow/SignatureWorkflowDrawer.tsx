@@ -243,13 +243,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
         <SheetHeader className="space-y-3">
-          <div className="flex items-center justify-between">
-            <SheetTitle>Contract Progress for {candidate?.name}</SheetTitle>
-            <Button variant="outline" size="sm" className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              View Contract Bundle
-            </Button>
-          </div>
+          <SheetTitle>Contract Progress for {candidate?.name}</SheetTitle>
           {candidate && (
             <p className="text-sm text-muted-foreground">
               {candidate.role} · {candidate.country} · {candidate.salary}
