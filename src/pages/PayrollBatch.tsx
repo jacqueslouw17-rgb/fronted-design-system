@@ -2184,15 +2184,15 @@ You can ask me about:
                           <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-4">
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                      Summary of payroll cycle and key metrics
-                                    </p>
-                                  </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    Summary of payroll cycle and key metrics
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
-                                    <SelectTrigger className="w-[160px] h-9 text-sm border-border/50 bg-background/50">
+                                    <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -2201,22 +2201,22 @@ You can ask me about:
                                       <SelectItem value="next">December 2025</SelectItem>
                                     </SelectContent>
                                   </Select>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                                          <Clock className="h-3.5 w-3.5 text-primary" />
+                                          <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="left" className="max-w-xs">
+                                        <p className="text-xs">
+                                          Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 </div>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                                        <Clock className="h-3.5 w-3.5 text-primary" />
-                                        <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="left" className="max-w-xs">
-                                      <p className="text-xs">
-                                        Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
-                                      </p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
                               </div>
 
                               <motion.div 
