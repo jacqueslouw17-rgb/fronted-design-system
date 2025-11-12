@@ -11,11 +11,14 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { isSpeaking, addMessage, setLoading, setOpen } = useAgentState();
+  const [viewMode, setViewMode] = useState<"tracker" | "payroll">("tracker");
 
   const userData = {
     firstName: "Joe",
@@ -116,180 +119,216 @@ You can ask me about:
                       // }
                     />
 
-                    {/* Pipeline Tracking - Full Width */}
-                    <div className="space-y-4">
-                      <div className="mt-3">
-                        <PipelineView 
-                          mode="full-pipeline-with-payroll"
-                          contractors={[
-                            // Early stage candidates from Flow 2
-                            {
-                              id: "display-1",
-                              name: "Liam Chen",
-                              country: "Singapore",
-                              countryFlag: "🇸🇬",
-                              role: "Frontend Developer",
-                              salary: "SGD 7,500/mo",
-                              status: "offer-accepted" as const,
-                              formSent: false,
-                              dataReceived: false,
-                              employmentType: "contractor" as const,
-                            },
-                            {
-                              id: "display-2",
-                              name: "Sofia Rodriguez",
-                              country: "Mexico",
-                              countryFlag: "🇲🇽",
-                              role: "Marketing Manager",
-                              salary: "MXN 45,000/mo",
-                              status: "data-pending" as const,
-                              formSent: true,
-                              dataReceived: false,
-                              employmentType: "employee" as const,
-                            },
-                            {
-                              id: "display-3",
-                              name: "Elena Popescu",
-                              country: "Romania",
-                              countryFlag: "🇷🇴",
-                              role: "Backend Developer",
-                              salary: "RON 18,000/mo",
-                              status: "drafting" as const,
-                              formSent: false,
-                              dataReceived: true,
-                              employmentType: "contractor" as const,
-                            },
-                            // Certified and payroll candidates
-                            {
-                              id: "cert-0",
-                              name: "David Martinez",
-                              country: "Portugal",
-                              countryFlag: "🇵🇹",
-                              role: "Technical Writer",
-                              salary: "€4,200/mo",
-                              status: "CERTIFIED" as const,
-                              employmentType: "contractor" as const,
-                            },
-                            {
-                              id: "cert-1",
-                              name: "Emma Wilson",
-                              country: "United Kingdom",
-                              countryFlag: "🇬🇧",
-                              role: "Senior Backend Developer",
-                              salary: "£6,500/mo",
-                              status: "PAYROLL_PENDING" as const,
-                              employmentType: "employee" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-2",
-                              name: "Luis Hernandez",
-                              country: "Spain",
-                              countryFlag: "🇪🇸",
-                              role: "Product Manager",
-                              salary: "€5,200/mo",
-                              status: "IN_BATCH" as const,
-                              employmentType: "contractor" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-3",
-                              name: "Yuki Tanaka",
-                              country: "Japan",
-                              countryFlag: "🇯🇵",
-                              role: "UI/UX Designer",
-                              salary: "¥650,000/mo",
-                              status: "EXECUTING" as const,
-                              employmentType: "contractor" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-4",
-                              name: "Sophie Dubois",
-                              country: "France",
-                              countryFlag: "🇫🇷",
-                              role: "Data Scientist",
-                              salary: "€5,800/mo",
-                              status: "PAID" as const,
-                              employmentType: "employee" as const,
-                              payrollMonth: "last" as const,
-                            },
-                            {
-                              id: "cert-5",
-                              name: "Ahmed Hassan",
-                              country: "Egypt",
-                              countryFlag: "🇪🇬",
-                              role: "Mobile Developer",
-                              salary: "EGP 45,000/mo",
-                              status: "ON_HOLD" as const,
-                              employmentType: "contractor" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-6",
-                              name: "Anna Kowalski",
-                              country: "Poland",
-                              countryFlag: "🇵🇱",
-                              role: "QA Engineer",
-                              salary: "PLN 15,000/mo",
-                              status: "PAYROLL_PENDING" as const,
-                              employmentType: "employee" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-7",
-                              name: "Marcus Silva",
-                              country: "Brazil",
-                              countryFlag: "🇧🇷",
-                              role: "Full Stack Developer",
-                              salary: "R$ 18,000/mo",
-                              status: "PAYROLL_PENDING" as const,
-                              employmentType: "contractor" as const,
-                              payrollMonth: "current" as const,
-                            },
-                            {
-                              id: "cert-8",
-                              name: "Priya Sharma",
-                              country: "India",
-                              countryFlag: "🇮🇳",
-                              role: "DevOps Engineer",
-                              salary: "₹2,50,000/mo",
-                              status: "PAYROLL_PENDING" as const,
-                              employmentType: "employee" as const,
-                              payrollMonth: "next" as const,
-                            },
-                            {
-                              id: "cert-9",
-                              name: "Lars Anderson",
-                              country: "Sweden",
-                              countryFlag: "🇸🇪",
-                              role: "Security Engineer",
-                              salary: "SEK 58,000/mo",
-                              status: "PAID" as const,
-                              employmentType: "contractor" as const,
-                              payrollMonth: "last" as const,
-                            },
-                            {
-                              id: "cert-10",
-                              name: "Isabella Costa",
-                              country: "Portugal",
-                              countryFlag: "🇵🇹",
-                              role: "Content Strategist",
-                              salary: "€3,200/mo",
-                              status: "PAYROLL_PENDING" as const,
-                              employmentType: "employee" as const,
-                              payrollMonth: "current" as const,
-                            },
-                          ]}
-                          onDraftContract={(ids) => {
-                            console.log("Draft contracts for:", ids);
-                          }}
-                          onSignatureComplete={() => {
-                            console.log("Signatures complete");
-                          }}
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center justify-center gap-6 py-6 px-8 bg-card/50 backdrop-blur-sm border border-border/40 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Label 
+                          htmlFor="view-mode" 
+                          className={`text-sm font-medium cursor-pointer transition-colors ${viewMode === "tracker" ? "text-foreground" : "text-muted-foreground"}`}
+                        >
+                          Tracker
+                        </Label>
+                        <Switch
+                          id="view-mode"
+                          checked={viewMode === "payroll"}
+                          onCheckedChange={(checked) => setViewMode(checked ? "payroll" : "tracker")}
                         />
+                        <Label 
+                          htmlFor="view-mode" 
+                          className={`text-sm font-medium cursor-pointer transition-colors ${viewMode === "payroll" ? "text-foreground" : "text-muted-foreground"}`}
+                        >
+                          Payroll
+                        </Label>
                       </div>
                     </div>
+
+                    {/* Conditional View */}
+                    {viewMode === "tracker" ? (
+                      /* Pipeline Tracking - Full Width */
+                      <div className="space-y-4">
+                        <div className="mt-3">
+                          <PipelineView 
+                            mode="full-pipeline-with-payroll"
+                            contractors={[
+                              // Early stage candidates from Flow 2
+                              {
+                                id: "display-1",
+                                name: "Liam Chen",
+                                country: "Singapore",
+                                countryFlag: "🇸🇬",
+                                role: "Frontend Developer",
+                                salary: "SGD 7,500/mo",
+                                status: "offer-accepted" as const,
+                                formSent: false,
+                                dataReceived: false,
+                                employmentType: "contractor" as const,
+                              },
+                              {
+                                id: "display-2",
+                                name: "Sofia Rodriguez",
+                                country: "Mexico",
+                                countryFlag: "🇲🇽",
+                                role: "Marketing Manager",
+                                salary: "MXN 45,000/mo",
+                                status: "data-pending" as const,
+                                formSent: true,
+                                dataReceived: false,
+                                employmentType: "employee" as const,
+                              },
+                              {
+                                id: "display-3",
+                                name: "Elena Popescu",
+                                country: "Romania",
+                                countryFlag: "🇷🇴",
+                                role: "Backend Developer",
+                                salary: "RON 18,000/mo",
+                                status: "drafting" as const,
+                                formSent: false,
+                                dataReceived: true,
+                                employmentType: "contractor" as const,
+                              },
+                              // Certified and payroll candidates
+                              {
+                                id: "cert-0",
+                                name: "David Martinez",
+                                country: "Portugal",
+                                countryFlag: "🇵🇹",
+                                role: "Technical Writer",
+                                salary: "€4,200/mo",
+                                status: "CERTIFIED" as const,
+                                employmentType: "contractor" as const,
+                              },
+                              {
+                                id: "cert-1",
+                                name: "Emma Wilson",
+                                country: "United Kingdom",
+                                countryFlag: "🇬🇧",
+                                role: "Senior Backend Developer",
+                                salary: "£6,500/mo",
+                                status: "PAYROLL_PENDING" as const,
+                                employmentType: "employee" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-2",
+                                name: "Luis Hernandez",
+                                country: "Spain",
+                                countryFlag: "🇪🇸",
+                                role: "Product Manager",
+                                salary: "€5,200/mo",
+                                status: "IN_BATCH" as const,
+                                employmentType: "contractor" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-3",
+                                name: "Yuki Tanaka",
+                                country: "Japan",
+                                countryFlag: "🇯🇵",
+                                role: "UI/UX Designer",
+                                salary: "¥650,000/mo",
+                                status: "EXECUTING" as const,
+                                employmentType: "contractor" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-4",
+                                name: "Sophie Dubois",
+                                country: "France",
+                                countryFlag: "🇫🇷",
+                                role: "Data Scientist",
+                                salary: "€5,800/mo",
+                                status: "PAID" as const,
+                                employmentType: "employee" as const,
+                                payrollMonth: "last" as const,
+                              },
+                              {
+                                id: "cert-5",
+                                name: "Ahmed Hassan",
+                                country: "Egypt",
+                                countryFlag: "🇪🇬",
+                                role: "Mobile Developer",
+                                salary: "EGP 45,000/mo",
+                                status: "ON_HOLD" as const,
+                                employmentType: "contractor" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-6",
+                                name: "Anna Kowalski",
+                                country: "Poland",
+                                countryFlag: "🇵🇱",
+                                role: "QA Engineer",
+                                salary: "PLN 15,000/mo",
+                                status: "PAYROLL_PENDING" as const,
+                                employmentType: "employee" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-7",
+                                name: "Marcus Silva",
+                                country: "Brazil",
+                                countryFlag: "🇧🇷",
+                                role: "Full Stack Developer",
+                                salary: "R$ 18,000/mo",
+                                status: "PAYROLL_PENDING" as const,
+                                employmentType: "contractor" as const,
+                                payrollMonth: "current" as const,
+                              },
+                              {
+                                id: "cert-8",
+                                name: "Priya Sharma",
+                                country: "India",
+                                countryFlag: "🇮🇳",
+                                role: "DevOps Engineer",
+                                salary: "₹2,50,000/mo",
+                                status: "PAYROLL_PENDING" as const,
+                                employmentType: "employee" as const,
+                                payrollMonth: "next" as const,
+                              },
+                              {
+                                id: "cert-9",
+                                name: "Lars Anderson",
+                                country: "Sweden",
+                                countryFlag: "🇸🇪",
+                                role: "Security Engineer",
+                                salary: "SEK 58,000/mo",
+                                status: "PAID" as const,
+                                employmentType: "contractor" as const,
+                                payrollMonth: "last" as const,
+                              },
+                              {
+                                id: "cert-10",
+                                name: "Isabella Costa",
+                                country: "Portugal",
+                                countryFlag: "🇵🇹",
+                                role: "Content Strategist",
+                                salary: "€3,200/mo",
+                                status: "PAYROLL_PENDING" as const,
+                                employmentType: "employee" as const,
+                                payrollMonth: "current" as const,
+                              },
+                            ]}
+                            onDraftContract={(ids) => {
+                              console.log("Draft contracts for:", ids);
+                            }}
+                            onSignatureComplete={() => {
+                              console.log("Signatures complete");
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      /* Payroll Batch Workflow */
+                      <div className="space-y-6">
+                        <div className="text-center py-12 px-6 bg-card/50 backdrop-blur-sm border border-border/40 rounded-lg">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">Payroll Batch Workflow</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Complete payroll batch workflow will be displayed here.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               </div>
