@@ -1317,42 +1317,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 <Progress value={contractor.checklistProgress || 0} className="h-1.5" />
                               </div>
 
-                              {/* Top 3 Checklist Items */}
-                              <div className="space-y-1.5">
-                                {contractor.checklist.slice(0, 3).map((item) => {
-                                  const badge = getChecklistStatusBadge(item.status);
-                                  const Icon = badge.icon;
-                                  const isProcessing = item.status === 'pending_review';
-                                  return (
-                                    <motion.div 
-                                      key={item.id} 
-                                      className="flex items-start gap-1.5 text-xs"
-                                      animate={isProcessing ? { scale: [1, 1.02, 1] } : {}}
-                                      transition={{ duration: 0.5, repeat: Infinity }}
-                                    >
-                                      <Icon className={cn("h-3 w-3 flex-shrink-0 mt-0.5", 
-                                        item.status === 'verified' && "text-accent-green-text",
-                                        item.status === 'pending_review' && "text-accent-blue-text animate-spin",
-                                        item.status === 'todo' && "text-accent-yellow-text"
-                                      )} />
-                                      <span className={cn(
-                                        "truncate leading-tight",
-                                        item.status === 'verified' && "text-foreground/80",
-                                        item.status === 'pending_review' && "text-foreground font-medium",
-                                        item.status === 'todo' && "text-foreground/60"
-                                      )}>{item.label}</span>
-                                    </motion.div>
-                                  );
-                                })}
-                                {contractor.checklist.length > 3 && (
-                                  <div className="text-xs text-muted-foreground italic">
-                                    +{contractor.checklist.length - 3} more items...
-                                  </div>
-                                )}
-                              </div>
-
                               {/* Badge: Checklist in Progress */}
-                              <Badge 
+                              <Badge
                                 variant="outline" 
                                 className="w-full justify-center text-xs bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
                               >
