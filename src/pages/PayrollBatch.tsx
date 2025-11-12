@@ -888,31 +888,6 @@ const PayrollBatch: React.FC = () => {
                         <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
                         <Badge variant="outline" className="text-xs">{contractors.length} {contractors.length === 1 ? 'payee' : 'payees'}</Badge>
                       </div>
-                      <TooltipProvider delayDuration={200}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
-                              <Info className="h-3.5 w-3.5" />
-                              Why this rate?
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" align="end" sideOffset={8} className="max-w-xs z-50">
-                            <div className="space-y-2">
-                              <p className="font-semibold text-xs">Mid-Market Rate</p>
-                              <p className="text-xs text-muted-foreground">
-                                Rate: {contractors[0].fxRate} USD → {currency}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Source: Wise mid-market rate
-                              </p>
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t">
-                                <Clock className="h-3 w-3" />
-                                <span>Updated 2 minutes ago</span>
-                              </div>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
                     </div>
                     
                     {/* Horizontal Scroll Container */}
