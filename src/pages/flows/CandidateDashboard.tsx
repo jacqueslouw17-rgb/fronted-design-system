@@ -91,43 +91,6 @@ const CandidateDashboard = () => {
 
                   {/* Main Content */}
                   <div className="space-y-6">
-                    {/* Contract Certified Summary Card */}
-                    <Card className="border border-accent-green-outline/30 bg-accent-green-fill/10 shadow-sm">
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0 mt-1">
-                            <CheckCircle2 className="h-8 w-8 text-accent-green-text" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-foreground mb-1">Contract Certified</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Your contract has been fully signed and verified.
-                            </p>
-                            <div className="flex gap-3">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={handleViewContract}
-                                className="flex items-center gap-2"
-                              >
-                                <FileText className="h-4 w-4" />
-                                View Final Contract
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={handleViewCertificate}
-                                className="flex items-center gap-2"
-                              >
-                                <Award className="h-4 w-4" />
-                                View Certificate
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
                     {/* Documents & Certificate Section */}
                     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
