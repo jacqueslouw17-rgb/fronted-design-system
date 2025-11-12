@@ -2109,7 +2109,7 @@ You can ask me about:
                         {/* Existing Batch Workflow */}
                         <div className="space-y-4">
                           {/* Horizontal Steps - Clean sticky */}
-                          <div className="sticky top-[72px] z-30 py-4">
+                          <div className="sticky top-16 z-30 py-4">
                             <div className="flex items-center gap-3 overflow-x-auto">
                               {steps.map((step, index) => {
                                 const isActive = currentStep === step.id;
@@ -2158,9 +2158,9 @@ You can ask me about:
                           transition={{ duration: 0.3 }}
                           className="flex-1 min-w-0"
                         >
-                          <ScrollArea className="h-[calc(100vh-300px)]">
+                          <div>
                             {renderStepContent()}
-                          </ScrollArea>
+                          </div>
 
                           {/* Navigation */}
                           <div className="flex items-center justify-between mt-6 pt-6 border-t border-border">
