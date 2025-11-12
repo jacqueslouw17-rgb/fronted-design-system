@@ -870,14 +870,6 @@ const PayrollBatch: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Total Payees Info */}
-            <div className="flex items-center justify-between px-1 py-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Total Payees</span>
-                <Badge variant="outline" className="text-xs">{allContractors.length}</Badge>
-              </div>
-            </div>
-
             {/* Currency Tables */}
             {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
               const currencySymbols: Record<string, string> = {
@@ -1106,35 +1098,29 @@ const PayrollBatch: React.FC = () => {
             {/* Summary Card */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
-                <div className="grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-3 gap-6">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Gross Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + c.baseSalary, 0) / 1000).toFixed(1)}K
-                    </p>
+                    <p className="text-xs text-muted-foreground mb-1">Total Payees</p>
+                    <p className="text-2xl font-bold text-foreground">{allContractors.length}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Net Pay</p>
+                    <p className="text-xs text-muted-foreground mb-1">Total Payment Due</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
+                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Includes pro-rated adjustments
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
+                    <p className="text-xs text-muted-foreground mb-1">Est. Fees</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${allContractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Payroll Cost</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${((allContractors.reduce((sum, c) => sum + c.baseSalary + c.estFees + (c.employerTaxes || 0), 0)) / 1000).toFixed(1)}K
-                    </p>
-                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4">
-                  Includes pro-rated adjustments and currency conversions
-                </p>
               </CardContent>
             </Card>
 
