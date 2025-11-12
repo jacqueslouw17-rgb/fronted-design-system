@@ -262,6 +262,30 @@ All colors MUST be HSL.
     font-size: var(--text-sm);
     line-height: var(--leading-normal);
   }
+  
+  /* Custom scrollbar styles for native scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted) / 0.3) transparent;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted) / 0.3);
+    border-radius: 9999px;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted) / 0.4);
+  }
 }
 
 @layer utilities {
