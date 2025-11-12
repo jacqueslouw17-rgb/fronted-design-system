@@ -205,6 +205,19 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const documents = getAvailableDocuments();
   const [activeDocument, setActiveDocument] = useState<DocumentType>(documents[0].id);
   const fullContent = getContractContent(candidate, activeDocument);
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+
+  // Reset to first tab when candidate changes
+  useEffect(() => {
+    setActiveDocument(documents[0].id);
+    // Scroll to top when candidate changes
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = 0;
+      }
+    }
+  }, [candidate.id]);
   const {
     setOpen,
     addMessage,
@@ -578,7 +591,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
         </motion.div>
 
-        <ScrollArea className="flex-1 overflow-auto">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-auto">
           <div className="pr-4 pb-4">
             {/* Static contract display with animation */}
             <AnimatePresence mode="wait">
