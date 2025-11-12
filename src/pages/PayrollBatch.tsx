@@ -2108,47 +2108,49 @@ You can ask me about:
 
                         {/* Existing Batch Workflow */}
                         <div className="space-y-4">
-                          {/* Horizontal Steps */}
-                          <div className="flex items-center gap-4 overflow-x-auto py-2">
-                            {steps.map((step, index) => {
-                              const isActive = currentStep === step.id;
-                              const isCompleted = getCurrentStepIndex() > index;
-                              const Icon = step.icon;
-                              return (
-                                <button
-                                  key={step.id}
-                                  onClick={() => setCurrentStep(step.id as PayrollStep)}
-                                  className={cn(
-                                    "group inline-flex items-center gap-3 px-3 py-2 rounded-full border",
-                                    isActive && "bg-primary/10 border-primary/20",
-                                    isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                                    !isActive && !isCompleted && "bg-muted/30 border-border hover:bg-muted/40"
-                                  )}
-                                >
-                                  <span className={cn(
-                                    "inline-flex items-center justify-center w-7 h-7 rounded-full",
-                                    isActive && "bg-primary/20",
-                                    isCompleted && "bg-accent-green-fill/30",
-                                    !isActive && !isCompleted && "bg-muted/40"
-                                  )}>
-                                    {isCompleted ? (
-                                      <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                    ) : (
-                                      <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                          {/* Horizontal Steps - Sticky on scroll */}
+                          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border py-3 -mx-6 px-6">
+                            <div className="flex items-center gap-4 overflow-x-auto">
+                              {steps.map((step, index) => {
+                                const isActive = currentStep === step.id;
+                                const isCompleted = getCurrentStepIndex() > index;
+                                const Icon = step.icon;
+                                return (
+                                  <button
+                                    key={step.id}
+                                    onClick={() => setCurrentStep(step.id as PayrollStep)}
+                                    className={cn(
+                                      "group inline-flex items-center gap-3 px-3 py-2 rounded-full border whitespace-nowrap",
+                                      isActive && "bg-primary/10 border-primary/20",
+                                      isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                                      !isActive && !isCompleted && "bg-muted/30 border-border hover:bg-muted/40"
                                     )}
-                                  </span>
-                                  <span className={cn(
-                                    "text-sm font-medium",
-                                    isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
-                                  )}>
-                                    {step.label}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground hidden sm:inline">
-                                    {isCompleted ? "• Complete" : isActive ? "• In Progress" : "• Pending"}
-                                  </span>
-                                </button>
-                              );
-                            })}
+                                  >
+                                    <span className={cn(
+                                      "inline-flex items-center justify-center w-7 h-7 rounded-full",
+                                      isActive && "bg-primary/20",
+                                      isCompleted && "bg-accent-green-fill/30",
+                                      !isActive && !isCompleted && "bg-muted/40"
+                                    )}>
+                                      {isCompleted ? (
+                                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                      ) : (
+                                        <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                                      )}
+                                    </span>
+                                    <span className={cn(
+                                      "text-sm font-medium",
+                                      isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
+                                    )}>
+                                      {step.label}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">
+                                      {isCompleted ? "• Complete" : isActive ? "• In Progress" : "• Pending"}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
 
                           {/* Right: Step Content */}
