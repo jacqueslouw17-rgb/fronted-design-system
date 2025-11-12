@@ -2197,16 +2197,23 @@ You can ask me about:
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
-                                    <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="previous">October 2025</SelectItem>
-                                      <SelectItem value="current">November 2025 (Current)</SelectItem>
-                                      <SelectItem value="next">December 2025</SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                  <div className="flex items-center gap-2">
+                                    <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
+                                      <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="previous">October 2025</SelectItem>
+                                        <SelectItem value="current">November 2025</SelectItem>
+                                        <SelectItem value="next">December 2025</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    {selectedCycle === "current" && (
+                                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 px-2 py-0.5 rounded-full">
+                                        Current
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -2243,7 +2250,7 @@ You can ask me about:
                                     <>
                                       <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
                                       <p className="text-xs text-foreground">
-                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — all actions are disabled for historical runs.
+                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — actions are limited to reconciliation.
                                       </p>
                                     </>
                                   ) : (
@@ -2367,14 +2374,19 @@ You can ask me about:
                                 return (
                                   <button
                                     key={step.id}
-                                    onClick={() => currentCycleData.status === "active" && setCurrentStep(step.id as PayrollStep)}
-                                    disabled={currentCycleData.status !== "active"}
+                                    onClick={() => {
+                                      const canNavigate = currentCycleData.status === "active" || 
+                                                        (currentCycleData.status === "completed" && step.id === "track");
+                                      if (canNavigate) setCurrentStep(step.id as PayrollStep);
+                                    }}
+                                    disabled={currentCycleData.status === "upcoming" || 
+                                             (currentCycleData.status === "completed" && step.id !== "track")}
                                     className={cn(
                                       "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
-                                      isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
+                                      isActive && (currentCycleData.status === "active" || (currentCycleData.status === "completed" && step.id === "track")) && "bg-primary/10 border-primary/20",
                                       isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                                      !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
-                                      currentCycleData.status !== "active" && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
+                                      !isActive && !isCompleted && (currentCycleData.status === "active" || (currentCycleData.status === "completed" && step.id === "track")) && "bg-muted/20 border-border/50 hover:bg-muted/30",
+                                      (currentCycleData.status === "upcoming" || (currentCycleData.status === "completed" && step.id !== "track")) && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
                                     )}
                                   >
                                     <span className={cn(
