@@ -2107,67 +2107,51 @@ You can ask me about:
                         </motion.div>
 
                         {/* Existing Batch Workflow */}
-                        <div className="flex gap-6">
-                        {/* Left: Stepper */}
-                        <motion.div
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.1, duration: 0.3 }}
-                          className="w-80 flex-shrink-0"
-                        >
-                          <Card className="p-6 border border-border/10 bg-card/20 backdrop-blur-sm">
-                            <h3 className="text-sm font-semibold text-foreground mb-4">Batch Steps</h3>
-                            <div className="space-y-2">
-                              {steps.map((step, index) => {
-                                const isActive = currentStep === step.id;
-                                const isCompleted = getCurrentStepIndex() > index;
-                                const Icon = step.icon;
-
-                                return (
-                                  <button
-                                    key={step.id}
-                                    onClick={() => setCurrentStep(step.id as PayrollStep)}
-                                    className={cn(
-                                      "w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left",
-                                      isActive && "bg-primary/10 border border-primary/20",
-                                      !isActive && !isCompleted && "hover:bg-muted/30",
-                                      isCompleted && "bg-accent-green-fill/10 border border-accent-green-outline/20"
+                        <div className="space-y-4">
+                          {/* Horizontal Steps */}
+                          <div className="flex items-center gap-4 overflow-x-auto py-2">
+                            {steps.map((step, index) => {
+                              const isActive = currentStep === step.id;
+                              const isCompleted = getCurrentStepIndex() > index;
+                              const Icon = step.icon;
+                              return (
+                                <button
+                                  key={step.id}
+                                  onClick={() => setCurrentStep(step.id as PayrollStep)}
+                                  className={cn(
+                                    "group inline-flex items-center gap-3 px-3 py-2 rounded-full border",
+                                    isActive && "bg-primary/10 border-primary/20",
+                                    isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                                    !isActive && !isCompleted && "bg-muted/30 border-border hover:bg-muted/40"
+                                  )}
+                                >
+                                  <span className={cn(
+                                    "inline-flex items-center justify-center w-7 h-7 rounded-full",
+                                    isActive && "bg-primary/20",
+                                    isCompleted && "bg-accent-green-fill/30",
+                                    !isActive && !isCompleted && "bg-muted/40"
+                                  )}>
+                                    {isCompleted ? (
+                                      <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                    ) : (
+                                      <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
                                     )}
-                                  >
-                                    <div className={cn(
-                                      "flex items-center justify-center w-8 h-8 rounded-full",
-                                      isActive && "bg-primary/20",
-                                      isCompleted && "bg-accent-green-fill/30",
-                                      !isActive && !isCompleted && "bg-muted/30"
-                                    )}>
-                                      {isCompleted ? (
-                                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                      ) : (
-                                        <Icon className={cn(
-                                          "h-4 w-4",
-                                          isActive ? "text-primary" : "text-muted-foreground"
-                                        )} />
-                                      )}
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className={cn(
-                                        "text-sm font-medium",
-                                        isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
-                                      )}>
-                                        {step.label}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {isCompleted ? "Complete" : isActive ? "In Progress" : "Pending"}
-                                      </p>
-                                    </div>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </Card>
-                        </motion.div>
+                                  </span>
+                                  <span className={cn(
+                                    "text-sm font-medium",
+                                    isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
+                                  )}>
+                                    {step.label}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                                    {isCompleted ? "• Complete" : isActive ? "• In Progress" : "• Pending"}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                        {/* Right: Step Content */}
+                          {/* Right: Step Content */}
                         <motion.div
                           key={currentStep}
                           initial={{ x: 20, opacity: 0 }}
