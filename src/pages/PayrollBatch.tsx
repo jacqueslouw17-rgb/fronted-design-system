@@ -1555,7 +1555,7 @@ const PayrollBatch: React.FC = () => {
                       {paidCount} / {allContractors.length} Completed ({pendingCount} Pending)
                     </span>
                   </div>
-                  <div className="relative h-2 bg-muted/30 rounded-full overflow-hidden">
+                  <div className="relative h-1 bg-muted/30 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${(paidCount / allContractors.length) * 100}%` }}
