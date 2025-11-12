@@ -824,23 +824,26 @@ const PayrollBatch: React.FC = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-xs">Name</TableHead>
-                          <TableHead className="text-xs">Role</TableHead>
-                          <TableHead className="text-xs">Country</TableHead>
-                          <TableHead className="text-xs text-right">Gross Pay</TableHead>
-                          <TableHead className="text-xs text-right">Deductions</TableHead>
-                          <TableHead className="text-xs text-right">Net Pay</TableHead>
-                          <TableHead className="text-xs text-right">Est. Fees</TableHead>
-                          <TableHead className="text-xs text-right">Additional Fees</TableHead>
-                          <TableHead className="text-xs text-right">Total Payable</TableHead>
-                          <TableHead className="text-xs">Status</TableHead>
-                          <TableHead className="text-xs">ETA</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+                    
+                    {/* Horizontal Scroll Container */}
+                    <div className="overflow-x-auto">
+                      <Table className="relative">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="text-xs sticky left-0 z-10 bg-card/95 backdrop-blur-sm min-w-[180px]">Name</TableHead>
+                            <TableHead className="text-xs min-w-[120px]">Role</TableHead>
+                            <TableHead className="text-xs min-w-[120px]">Country</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Deductions</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Net Pay</TableHead>
+                            <TableHead className="text-xs text-right min-w-[100px]">Est. Fees</TableHead>
+                            <TableHead className="text-xs text-right min-w-[150px]">Additional Fees</TableHead>
+                            <TableHead className="text-xs text-right min-w-[130px]">Total Payable</TableHead>
+                            <TableHead className="text-xs min-w-[100px]">Status</TableHead>
+                            <TableHead className="text-xs min-w-[90px]">ETA</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                         {contractors.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
                           const hasLeave = leaveData && leaveData.leaveDays > 0;
@@ -858,7 +861,7 @@ const PayrollBatch: React.FC = () => {
                               className="cursor-pointer hover:bg-muted/30 transition-colors"
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
-                              <TableCell className="font-medium text-sm">
+                              <TableCell className="font-medium text-sm sticky left-0 z-10 bg-card/95 backdrop-blur-sm">
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
                                   {hasLeave && (
@@ -969,7 +972,7 @@ const PayrollBatch: React.FC = () => {
                         
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
-                          <TableCell colSpan={3} className="text-sm">
+                          <TableCell colSpan={3} className="text-sm sticky left-0 z-10 bg-muted/95 backdrop-blur-sm">
                             Total {currency}
                           </TableCell>
                           <TableCell className="text-right text-sm">
@@ -1003,6 +1006,7 @@ const PayrollBatch: React.FC = () => {
                         </TableRow>
                       </TableBody>
                     </Table>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -2146,7 +2150,7 @@ You can ask me about:
                           initial={{ x: 20, opacity: 0 }}
                           animate={{ x: 0, opacity: 1 }}
                           transition={{ duration: 0.3 }}
-                          className="flex-1"
+                          className="flex-1 min-w-0"
                         >
                           <ScrollArea className="h-[calc(100vh-300px)]">
                             {renderStepContent()}
