@@ -2421,91 +2421,88 @@ You can ask me about:
                         </motion.div>
 
                         {/* Existing Batch Workflow */}
-                        <div className="space-y-4">
-                          {/* Horizontal Steps - Clean sticky */}
-                          <div className="sticky top-16 z-30 py-4">
-                            <div className="flex items-center gap-3 overflow-x-auto">
-                              {steps.map((step, index) => {
-                                const isActive = currentStep === step.id;
-                                const isCompleted = getCurrentStepIndex() > index;
-                                const Icon = step.icon;
-                                const isDisabled = currentCycleData.status === "completed" && step.id !== "track";
-                                const isUpcomingDisabled = currentCycleData.status === "upcoming";
-                                
-                                return (
-                                  <TooltipProvider key={step.id}>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          onClick={() => {
-                                            if (currentCycleData.status === "active") {
-                                              setCurrentStep(step.id as PayrollStep);
-                                            } else if (currentCycleData.status === "completed" && step.id === "track") {
-                                              setCurrentStep(step.id as PayrollStep);
-                                            }
-                                          }}
-                                          disabled={isDisabled || isUpcomingDisabled}
-                                          className={cn(
-                                            "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
-                                            isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
-                                            isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                                            !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
-                                            (isDisabled || isUpcomingDisabled) && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
-                                          )}
-                                        >
-                                    <span className={cn(
-                                      "inline-flex items-center justify-center w-6 h-6 rounded-full",
-                                      isActive && "bg-primary/20",
-                                      isCompleted && "bg-accent-green-fill/30",
-                                      !isActive && !isCompleted && "bg-muted/30"
-                                    )}>
-                                      {isCompleted ? (
-                                        <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                                      ) : (
-                                        <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
-                                      )}
-                                    </span>
-                                          <span className={cn(
-                                            "text-sm font-medium",
-                                            isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
-                                          )}>
-                                            {step.label}
-                                          </span>
-                                        </button>
-                                      </TooltipTrigger>
-                                      {(isDisabled || isUpcomingDisabled) && (
-                                        <TooltipContent side="bottom" className="max-w-xs">
-                                          <p className="text-xs">
-                                            {isUpcomingDisabled 
-                                              ? `Payroll actions will be available when the ${currentCycleData.label} cycle opens on ${(currentCycleData as any).opensOn}.`
-                                              : currentCycleData.status === "completed" && step.id !== "track"
-                                              ? "This action is disabled for historical payrolls. Only reconciliation is available."
-                                              : "This action is currently unavailable."}
-                                          </p>
-                                        </TooltipContent>
-                                      )}
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                );
-                              })}
+                        {currentCycleData.status !== "upcoming" && (
+                          <div className="space-y-4">
+                            {/* Horizontal Steps - Clean sticky */}
+                            <div className="sticky top-16 z-30 py-4">
+                              <div className="flex items-center gap-3 overflow-x-auto">
+                                {steps.map((step, index) => {
+                                  const isActive = currentStep === step.id;
+                                  const isCompleted = getCurrentStepIndex() > index;
+                                  const Icon = step.icon;
+                                  const isDisabled = currentCycleData.status === "completed" && step.id !== "track";
+                                  
+                                  return (
+                                    <TooltipProvider key={step.id}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            onClick={() => {
+                                              if (currentCycleData.status === "active") {
+                                                setCurrentStep(step.id as PayrollStep);
+                                              } else if (currentCycleData.status === "completed" && step.id === "track") {
+                                                setCurrentStep(step.id as PayrollStep);
+                                              }
+                                            }}
+                                            disabled={isDisabled}
+                                            className={cn(
+                                              "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
+                                              isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
+                                              isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                                              !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
+                                              isDisabled && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
+                                            )}
+                                          >
+                                      <span className={cn(
+                                        "inline-flex items-center justify-center w-6 h-6 rounded-full",
+                                        isActive && "bg-primary/20",
+                                        isCompleted && "bg-accent-green-fill/30",
+                                        !isActive && !isCompleted && "bg-muted/30"
+                                      )}>
+                                        {isCompleted ? (
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                                        ) : (
+                                          <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
+                                        )}
+                                      </span>
+                                            <span className={cn(
+                                              "text-sm font-medium",
+                                              isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
+                                            )}>
+                                              {step.label}
+                                            </span>
+                                          </button>
+                                        </TooltipTrigger>
+                                        {isDisabled && (
+                                          <TooltipContent side="bottom" className="max-w-xs">
+                                            <p className="text-xs">
+                                              This action is disabled for historical payrolls. Only reconciliation is available.
+                                            </p>
+                                          </TooltipContent>
+                                        )}
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Right: Step Content */}
-                        <motion.div
-                          key={currentStep}
-                          initial={{ x: 20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className="flex-1 min-w-0"
-                        >
-                          <div>
-                            {renderStepContent()}
+                            {/* Right: Step Content */}
+                          <motion.div
+                            key={currentStep}
+                            initial={{ x: 20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className="flex-1 min-w-0"
+                          >
+                            <div>
+                              {renderStepContent()}
+                            </div>
+                          </motion.div>
                           </div>
-                        </motion.div>
-                        </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    )}
                     </div>
 
                       {/* Payment Detail Drawer */}
