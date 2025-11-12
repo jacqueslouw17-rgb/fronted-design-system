@@ -512,6 +512,15 @@ const PayrollBatch: React.FC = () => {
 
   const currentCycleData = payrollCycleData[selectedCycle];
 
+  // Auto-switch to Track & Reconcile for completed payrolls
+  React.useEffect(() => {
+    if (currentCycleData.status === "completed") {
+      setCurrentStep("track");
+    } else if (currentCycleData.status === "active" && currentStep === "track") {
+      setCurrentStep("review-fx");
+    }
+  }, [selectedCycle, currentCycleData.status]);
+
   const groupedByCurrency = allContractors.reduce((acc, contractor) => {
     if (!acc[contractor.currency]) {
       acc[contractor.currency] = [];
@@ -1884,6 +1893,15 @@ const PayrollBatch: React.FC = () => {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Historical Records Note */}
+                {currentCycleData.status === "completed" && (
+                  <div className="mt-4 pt-4 border-t border-border/30">
+                    <p className="text-xs text-muted-foreground text-center">
+                      For historical records only — data is read-only and cannot be modified.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -2327,14 +2345,19 @@ You can ask me about:
                                   <div className="flex items-center gap-2 mb-2">
                                     <Clock className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">
-                                      {currentCycleData.status === "completed" ? "Completed On" : 
+                                      {currentCycleData.status === "completed" ? "Completed Payroll Run" : 
                                        currentCycleData.status === "upcoming" ? "Scheduled For" : "Next Payroll Run"}
                                     </p>
                                   </div>
                                   {currentCycleData.status === "completed" ? (
                                     <>
-                                      <p className="text-lg font-semibold text-foreground">{currentCycleData.completedDate}</p>
-                                      <p className="text-xs text-accent-green-text mt-1">✓ Batch closed</p>
+                                      <p className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                        {currentCycleData.completedDate}
+                                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                      </p>
+                                      <p className="text-xs text-accent-green-text mt-1 flex items-center gap-1">
+                                        ✅ Completed
+                                      </p>
                                     </>
                                   ) : currentCycleData.status === "upcoming" ? (
                                     <>
@@ -2476,7 +2499,7 @@ You can ask me about:
                                         {isDisabled && (
                                           <TooltipContent side="bottom" className="max-w-xs">
                                             <p className="text-xs">
-                                              This action is disabled for historical payrolls. Only reconciliation is available.
+                                              This step is no longer editable for a completed payroll cycle.
                                             </p>
                                           </TooltipContent>
                                         )}
