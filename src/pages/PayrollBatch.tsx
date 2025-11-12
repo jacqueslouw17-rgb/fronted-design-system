@@ -414,7 +414,7 @@ const PayrollBatch: React.FC = () => {
               const symbol = currencySymbols[currency] || currency;
               
               return (
-                <Card key={currency} className="border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+                <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
                   <CardContent className="p-0">
                     <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -1432,7 +1432,7 @@ You can ask me about:
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+                          <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-6">
                                 <div>
@@ -1534,7 +1534,7 @@ You can ask me about:
                           transition={{ delay: 0.1, duration: 0.3 }}
                           className="w-80 flex-shrink-0"
                         >
-                          <Card className="p-6 border border-border/40 bg-card/50 backdrop-blur-sm">
+                          <Card className="p-6 border border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <h3 className="text-sm font-semibold text-foreground mb-4">Batch Steps</h3>
                             <div className="space-y-2">
                               {steps.map((step, index) => {
