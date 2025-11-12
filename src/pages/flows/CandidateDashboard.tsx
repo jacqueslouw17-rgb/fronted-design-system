@@ -82,7 +82,7 @@ const CandidateDashboard = () => {
                 <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
                   {/* Agent Header */}
                   <AgentHeader
-                    title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified — let's get you started.`}
+                    title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`}
                     subtitle="Everything is finalized. Access your documents below."
                     showPulse={false}
                     isActive={false}
