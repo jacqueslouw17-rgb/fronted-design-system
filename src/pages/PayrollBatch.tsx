@@ -287,6 +287,7 @@ const PayrollBatch: React.FC = () => {
   const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
+  const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -616,9 +617,11 @@ const PayrollBatch: React.FC = () => {
     return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
   };
 
-  const filteredContractors = statusFilter === "all" 
-    ? allContractors 
-    : allContractors.filter(c => getPaymentStatus(c.id) === statusFilter);
+  const filteredContractors = allContractors.filter(c => {
+    const matchesStatus = statusFilter === "all" || getPaymentStatus(c.id) === statusFilter;
+    const matchesType = workerTypeFilter === "all" || c.employmentType === workerTypeFilter;
+    return matchesStatus && matchesType;
+  });
 
   const paidCount = allContractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
   const pendingCount = allContractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
@@ -1657,7 +1660,35 @@ const PayrollBatch: React.FC = () => {
             {/* Detailed Reconciliation Table */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
               <CardContent className="p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-4">Payment Reconciliation</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-foreground">Payment Reconciliation</h3>
+                  <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg">
+                    <Button
+                      variant={workerTypeFilter === "all" ? "secondary" : "ghost"}
+                      size="sm"
+                      className="h-7 text-xs px-3"
+                      onClick={() => setWorkerTypeFilter("all")}
+                    >
+                      All
+                    </Button>
+                    <Button
+                      variant={workerTypeFilter === "employee" ? "secondary" : "ghost"}
+                      size="sm"
+                      className="h-7 text-xs px-3"
+                      onClick={() => setWorkerTypeFilter("employee")}
+                    >
+                      Employees
+                    </Button>
+                    <Button
+                      variant={workerTypeFilter === "contractor" ? "secondary" : "ghost"}
+                      size="sm"
+                      className="h-7 text-xs px-3"
+                      onClick={() => setWorkerTypeFilter("contractor")}
+                    >
+                      Contractors
+                    </Button>
+                  </div>
+                </div>
                 
                 <div className="overflow-x-auto">
                   <Table>
