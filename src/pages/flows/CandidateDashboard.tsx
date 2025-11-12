@@ -69,7 +69,7 @@ const CandidateDashboard = () => {
 
           <div className="flex-1">
             <AgentLayout context="Candidate Dashboard">
-              <main className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+              <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
