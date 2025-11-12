@@ -18,9 +18,15 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { addDays, format } from "date-fns";
 
 type PayrollStep = "review-fx" | "exceptions" | "approvals" | "execute" | "track";
 
@@ -46,6 +52,40 @@ interface ContractorPayment {
   employmentType: "employee" | "contractor";
   employerTaxes?: number;
 }
+
+interface PayrollException {
+  id: string;
+  contractorId: string;
+  contractorName: string;
+  type: "missing-bank" | "holiday-rails" | "doc-expiry" | "over-threshold";
+  description: string;
+  severity: "high" | "medium" | "low";
+  resolved: boolean;
+  snoozed: boolean;
+}
+
+const initialExceptions: PayrollException[] = [
+  {
+    id: "exc-1",
+    contractorId: "5",
+    contractorName: "Emma Wilson",
+    type: "missing-bank",
+    description: "Bank account type not specified (Checking/Savings required)",
+    severity: "high",
+    resolved: false,
+    snoozed: false,
+  },
+  {
+    id: "exc-2",
+    contractorId: "7",
+    contractorName: "Luis Hernandez",
+    type: "holiday-rails",
+    description: "Holiday payout adjustment of +$850 needs approval",
+    severity: "medium",
+    resolved: false,
+    snoozed: false,
+  },
+];
 
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
   EUR: [
@@ -73,6 +113,88 @@ const PayrollBatch: React.FC = () => {
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [exceptions, setExceptions] = useState<PayrollException[]>(initialExceptions);
+  const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
+  const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
+  const [bankAccountType, setBankAccountType] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState<"pending" | "requested" | "viewed" | "approved">("pending");
+  const [approvalTimeline, setApprovalTimeline] = useState<Array<{ status: string; timestamp: Date | null }>>([
+    { status: "requested", timestamp: null },
+    { status: "viewed", timestamp: null },
+    { status: "approved", timestamp: null },
+  ]);
+  const [isRequestingApproval, setIsRequestingApproval] = useState(false);
+  const [userRole] = useState<"admin" | "user">("admin");
+  const [autoRetryEnabled, setAutoRetryEnabled] = useState(true);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete">>({});
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [selectedPayeeForReschedule, setSelectedPayeeForReschedule] = useState<any>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(addDays(new Date(), 1));
+  const [rescheduleReason, setRescheduleReason] = useState<string>("bank-delay");
+  const [notifyContractor, setNotifyContractor] = useState(true);
+  const [paymentReceipts, setPaymentReceipts] = useState([
+    {
+      payeeId: "1",
+      payeeName: "David Martinez",
+      amount: 4200,
+      ccy: "EUR",
+      status: "Paid",
+      providerRef: "SEPA-2025-001",
+      paidAt: new Date().toISOString(),
+      rail: "SEPA",
+      fxRate: 0.92,
+      fxSpread: 0.005,
+      fxFee: 21.0,
+      processingFee: 25.0,
+      eta: "1-2 business days"
+    },
+    {
+      payeeId: "2",
+      payeeName: "Sophie Laurent",
+      amount: 5800,
+      ccy: "EUR",
+      status: "Paid",
+      providerRef: "SEPA-2025-002",
+      paidAt: new Date().toISOString(),
+      rail: "SEPA",
+      fxRate: 0.92,
+      fxSpread: 0.005,
+      fxFee: 29.0,
+      processingFee: 35.0,
+      eta: "1-2 business days"
+    },
+    {
+      payeeId: "4",
+      payeeName: "Alex Hansen",
+      amount: 65000,
+      ccy: "NOK",
+      status: "InTransit",
+      providerRef: "LOCAL-2025-001",
+      rail: "Local",
+      fxRate: 10.45,
+      fxSpread: 0.008,
+      fxFee: 520.0,
+      processingFee: 250.0,
+      eta: "Same day"
+    },
+    {
+      payeeId: "6",
+      payeeName: "Maria Santos",
+      amount: 280000,
+      ccy: "PHP",
+      status: "InTransit",
+      providerRef: "SWIFT-2025-001",
+      rail: "SWIFT",
+      fxRate: 56.2,
+      fxSpread: 0.012,
+      fxFee: 3360.0,
+      processingFee: 850.0,
+      eta: "3-5 business days"
+    },
+  ]);
 
   const userData = {
     firstName: "Joe",
@@ -117,6 +239,138 @@ const PayrollBatch: React.FC = () => {
       toast.success("FX quotes refreshed");
     }, 1000);
   };
+
+  const handleOpenFixDrawer = (exception: PayrollException) => {
+    setSelectedException(exception);
+    setFixDrawerOpen(true);
+    setBankAccountType("");
+  };
+
+  const handleResolveException = () => {
+    if (!selectedException) return;
+
+    setExceptions(prev => prev.map(exc =>
+      exc.id === selectedException.id
+        ? { ...exc, resolved: true }
+        : exc
+    ));
+    setFixDrawerOpen(false);
+    toast.success(`Exception resolved for ${selectedException.contractorName}`);
+  };
+
+  const handleSnoozeException = (exceptionId: string) => {
+    setExceptions(prev => prev.map(exc =>
+      exc.id === exceptionId
+        ? { ...exc, snoozed: true }
+        : exc
+    ));
+    toast.info("Exception snoozed to next cycle");
+  };
+
+  const handleRequestApproval = () => {
+    setIsRequestingApproval(true);
+    
+    setTimeout(() => {
+      setApprovalStatus("requested");
+      setApprovalTimeline(prev => prev.map((item, idx) => 
+        idx === 0 ? { ...item, timestamp: new Date() } : item
+      ));
+      setIsRequestingApproval(false);
+      toast.success("Approval request sent to Howard (CFO)");
+      
+      setTimeout(() => {
+        setApprovalStatus("viewed");
+        setApprovalTimeline(prev => prev.map((item, idx) => 
+          idx === 1 ? { ...item, timestamp: new Date() } : item
+        ));
+        toast.info("Howard has viewed the approval request");
+      }, 3000);
+    }, 1500);
+  };
+
+  const handleAdminOverride = () => {
+    setApprovalStatus("approved");
+    setApprovalTimeline(prev => prev.map((item, idx) => 
+      idx === 2 ? { ...item, timestamp: new Date() } : item
+    ));
+    toast.success("Approved via admin override");
+    
+    setTimeout(() => {
+      setCurrentStep("execute");
+    }, 1500);
+  };
+
+  const handleExecutePayroll = async () => {
+    setIsExecuting(true);
+    
+    const initialProgress: Record<string, "pending" | "processing" | "complete"> = {};
+    allContractors.forEach(c => {
+      initialProgress[c.id] = "pending";
+    });
+    setExecutionProgress(initialProgress);
+
+    for (const contractor of allContractors) {
+      setExecutionProgress(prev => ({ ...prev, [contractor.id]: "processing" }));
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+      setExecutionProgress(prev => ({ ...prev, [contractor.id]: "complete" }));
+    }
+
+    setIsExecuting(false);
+    toast.success("Payroll batch executed successfully!");
+    
+    setTimeout(() => {
+      setCurrentStep("track");
+    }, 1500);
+  };
+
+  const handleViewReceipt = (receipt: any) => {
+    setSelectedReceipt(receipt);
+    setReceiptModalOpen(true);
+  };
+
+  const handleOpenReschedule = (receipt: any) => {
+    setSelectedPayeeForReschedule(receipt);
+    setRescheduleDate(addDays(new Date(), 1));
+    setRescheduleReason("bank-delay");
+    setNotifyContractor(true);
+    setRescheduleModalOpen(true);
+  };
+
+  const handleConfirmReschedule = () => {
+    if (!rescheduleDate || !selectedPayeeForReschedule) return;
+
+    setPaymentReceipts(prev => 
+      prev.map(receipt => 
+        receipt.payeeId === selectedPayeeForReschedule.payeeId
+          ? { ...receipt, eta: format(rescheduleDate, "MMM dd, yyyy") }
+          : receipt
+      )
+    );
+
+    setRescheduleModalOpen(false);
+
+    const reasonText = rescheduleReason === "holiday" ? "holiday" : "bank delay";
+    const notifyText = notifyContractor 
+      ? ` ${selectedPayeeForReschedule.payeeName} has been notified.`
+      : "";
+    
+    toast.success(`Payout rescheduled to ${format(rescheduleDate, "MMM dd, yyyy")} due to ${reasonText}.${notifyText}`);
+  };
+
+  const handleExportCSV = () => {
+    toast.success("CSV exported successfully");
+  };
+
+  const handleDownloadAuditPDF = () => {
+    toast.info("Audit PDF generation would be implemented with a PDF library");
+  };
+
+  const handleSyncToAccounting = (system: string) => {
+    toast.info(`Sync to ${system} would be implemented with accounting integration`);
+  };
+
+  const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
+  const allExceptionsResolved = activeExceptions.length === 0;
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -284,6 +538,606 @@ const PayrollBatch: React.FC = () => {
           </div>
         );
 
+      case "exceptions":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
+
+            {allExceptionsResolved && (
+              <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-green-fill/30">
+                      <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">All Clear</p>
+                      <p className="text-xs text-muted-foreground">All issues resolved - you can proceed to approvals.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Exception List */}
+            {exceptions.length > 0 && (
+              <div className="space-y-3">
+              {activeExceptions.map((exception) => {
+                const severityConfig = {
+                  high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600" },
+                  medium: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600" },
+                  low: { color: "border-blue-500/30 bg-blue-500/5", icon: "text-blue-600" },
+                };
+
+                const config = severityConfig[exception.severity];
+
+                return (
+                  <Card key={exception.id} className={cn("border", config.color)}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/50">
+                          <AlertTriangle className={cn("h-4 w-4", config.icon)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-foreground">
+                              {exception.contractorName}
+                            </span>
+                            <Badge variant="outline" className="text-[10px]">
+                              {exception.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {exception.description}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-7 text-xs"
+                              onClick={() => handleOpenFixDrawer(exception)}
+                            >
+                              Fix
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs"
+                              onClick={() => handleSnoozeException(exception.id)}
+                            >
+                              Snooze to Next Cycle
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+            )}
+
+            {/* Summary */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Active</p>
+                    <p className="text-2xl font-bold text-foreground">{activeExceptions.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Resolved</p>
+                    <p className="text-2xl font-bold text-accent-green-text">
+                      {exceptions.filter(exc => exc.resolved).length}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Snoozed</p>
+                    <p className="text-2xl font-bold text-muted-foreground">
+                      {exceptions.filter(exc => exc.snoozed).length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Footer CTA */}
+            <div className="pt-4 border-t border-border">
+              <Button
+                className="w-full h-11 text-sm font-medium"
+                disabled={!allExceptionsResolved}
+                onClick={() => setCurrentStep("approvals")}
+              >
+                {allExceptionsResolved ? "Send for Approval" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} to Continue`}
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "approvals":
+        const employees = allContractors.filter(c => c.employmentType === "employee");
+        const contractors = allContractors.filter(c => c.employmentType === "contractor");
+        
+        const employeesTotalNetPay = employees.reduce((sum, e) => sum + e.netPay, 0);
+        const employeesTotalEmployerTaxes = employees.reduce((sum, e) => sum + (e.employerTaxes || 0), 0);
+        const employeesTotalCost = employeesTotalNetPay + employeesTotalEmployerTaxes;
+        
+        const contractorsTotalNetPay = contractors.reduce((sum, c) => sum + c.netPay, 0);
+        
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Financial Approval</h3>
+
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6 space-y-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">CFO Approval Required</h3>
+                    <p className="text-xs text-muted-foreground">Howard Mitchell • Chief Financial Officer</p>
+                  </div>
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "text-xs",
+                      approvalStatus === "approved" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                      approvalStatus === "requested" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                      approvalStatus === "viewed" && "bg-amber-500/10 text-amber-600 border-amber-500/30",
+                      approvalStatus === "pending" && "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {approvalStatus === "approved" && "Approved"}
+                    {approvalStatus === "requested" && "Pending"}
+                    {approvalStatus === "viewed" && "Under Review"}
+                    {approvalStatus === "pending" && "Not Requested"}
+                  </Badge>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">
+                          Employees
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">({employees.length})</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Net Pay</span>
+                          <span className="text-sm font-medium">${(employeesTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
+                          <span className="text-sm font-medium text-amber-600">+${(employeesTotalEmployerTaxes / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
+                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
+                          <span className="text-base font-bold text-foreground">${(employeesTotalCost / 1000).toFixed(1)}K</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">
+                          Contractors
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">({contractors.length})</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Net Pay</span>
+                          <span className="text-sm font-medium">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-muted-foreground">Employer Taxes</span>
+                          <span className="text-sm font-medium text-muted-foreground">N/A</span>
+                        </div>
+                        <div className="pt-2 border-t border-border flex items-baseline justify-between">
+                          <span className="text-xs font-semibold text-foreground">Total Cost</span>
+                          <span className="text-base font-bold text-foreground">${(contractorsTotalNetPay / 1000).toFixed(1)}K</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs font-medium text-muted-foreground">Approval Timeline</p>
+                  <div className="space-y-2">
+                    {approvalTimeline.map((item, index) => {
+                      const isActive = approvalStatus === item.status || 
+                        (approvalStatus === "approved" && item.status !== "approved") ||
+                        (approvalStatus === "viewed" && item.status === "requested");
+                      
+                      return (
+                        <div key={item.status} className="flex items-center gap-3">
+                          <div className={cn(
+                            "flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors",
+                            isActive || item.timestamp 
+                              ? "bg-accent-green-fill border-accent-green-outline" 
+                              : "bg-muted border-border"
+                          )}>
+                            {item.timestamp ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                            ) : (
+                              <Circle className={cn(
+                                "h-2 w-2",
+                                isActive ? "fill-accent-green-text" : "fill-muted-foreground"
+                              )} />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={cn(
+                              "text-sm font-medium",
+                              item.timestamp ? "text-foreground" : "text-muted-foreground"
+                            )}>
+                              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            </p>
+                            {item.timestamp && (
+                              <p className="text-xs text-muted-foreground">
+                                {item.timestamp.toLocaleTimeString('en-US', { 
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {approvalStatus !== "approved" && (
+                  <div className="flex gap-3 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      disabled={approvalStatus !== "pending" || isRequestingApproval}
+                      onClick={handleRequestApproval}
+                    >
+                      {isRequestingApproval ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Request Approval"
+                      )}
+                    </Button>
+                    {userRole === "admin" && (
+                      <Button
+                        className="flex-1"
+                        onClick={handleAdminOverride}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Approve Now (Admin Override)
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {approvalStatus === "approved" && (
+                  <div className="flex items-center gap-2 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                    <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Approved</p>
+                      <p className="text-xs text-muted-foreground">Ready to execute payroll batch</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case "execute":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
+
+            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-4">Batch Summary</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Payment Rails</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">SEPA (EUR)</span>
+                            <span className="text-xs font-medium">3 payees</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">Local (NOK)</span>
+                            <span className="text-xs font-medium">2 payees</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">SWIFT (PHP)</span>
+                            <span className="text-xs font-medium">3 payees</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
+                        <p className="text-2xl font-bold text-foreground">$747K</p>
+                        <p className="text-xs text-muted-foreground mt-1">across 8 contractors</p>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-2">Processing Time</p>
+                        <p className="text-2xl font-bold text-foreground">~2 min</p>
+                        <p className="text-xs text-muted-foreground mt-1">estimated duration</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {!isExecuting && Object.keys(executionProgress).length === 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">FX rates locked</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">All exceptions resolved</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                      <span className="text-muted-foreground">CFO approval received</span>
+                    </div>
+                  </div>
+                )}
+
+                {(isExecuting || Object.keys(executionProgress).length > 0) && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">Processing Payments</h4>
+                      <Badge variant="outline" className="text-xs">
+                        {Object.values(executionProgress).filter(s => s === "complete").length} / {allContractors.length}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {allContractors.map((contractor) => {
+                        const status = executionProgress[contractor.id] || "pending";
+                        
+                        return (
+                          <motion.div
+                            key={contractor.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+                              status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                              status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
+                              status === "pending" && "bg-muted/20 border-border"
+                            )}
+                          >
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
+                              {status === "complete" && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 200 }}
+                                >
+                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                </motion.div>
+                              )}
+                              {status === "processing" && (
+                                <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+                              )}
+                              {status === "pending" && (
+                                <Circle className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {contractor.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {contractor.currency === "EUR" && `€${contractor.netPay.toLocaleString()}`}
+                                {contractor.currency === "NOK" && `kr${contractor.netPay.toLocaleString()}`}
+                                {contractor.currency === "PHP" && `₱${contractor.netPay.toLocaleString()}`}
+                                {" • " + contractor.country}
+                              </p>
+                            </div>
+
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-[10px]",
+                                status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                                status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                status === "pending" && "bg-muted text-muted-foreground"
+                              )}
+                            >
+                              {status === "complete" && "Sent"}
+                              {status === "processing" && "Processing"}
+                              {status === "pending" && "Queued"}
+                            </Badge>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {!isExecuting && Object.keys(executionProgress).length === 0 && (
+                  <Button 
+                    className="w-full h-11 text-sm font-medium bg-primary hover:bg-primary/90"
+                    onClick={handleExecutePayroll}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Execute Payroll Now
+                  </Button>
+                )}
+
+                {!isExecuting && Object.keys(executionProgress).length > 0 && 
+                 Object.values(executionProgress).every(s => s === "complete") && (
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                    >
+                      <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">Batch Executed Successfully</p>
+                      <p className="text-xs text-muted-foreground">
+                        All {allContractors.length} payments processed • Advancing to tracking...
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case "track":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">Track & Reconcile</h2>
+              <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+                <Activity className="h-3 w-3 mr-1" />
+                Live Tracking
+              </Badge>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm md:col-span-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">Transaction Monitor</h3>
+                </div>
+                <div className="space-y-3">
+                  {paymentReceipts.map((receipt) => (
+                    <div
+                      key={receipt.payeeId}
+                      className="flex items-center justify-between p-4 rounded-lg bg-muted/20 border border-border/40"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <p className="font-medium text-foreground">{receipt.payeeName}</p>
+                          <Badge
+                            variant={receipt.status === "Paid" ? "default" : "outline"}
+                            className={
+                              receipt.status === "Paid"
+                                ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                            }
+                          >
+                            {receipt.status === "Paid" ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <RefreshCw className="h-3 w-3 mr-1 animate-spin" />}
+                            {receipt.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{receipt.amount.toLocaleString()} {receipt.ccy}</span>
+                          <span>•</span>
+                          <span>{receipt.rail}</span>
+                          <span>•</span>
+                          <span>ETA: {receipt.eta}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Ref: {receipt.providerRef}</p>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewReceipt(receipt)}
+                        >
+                          <Receipt className="h-4 w-4 mr-2" />
+                          View Receipt
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">FX Snapshot</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">EUR/USD</span>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                        Locked
+                      </Badge>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">0.9200</p>
+                    <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Spread:</span>
+                        <span>0.50%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fee:</span>
+                        <span>€25.00</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-foreground">Reconciliation</h3>
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleExportCSV}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <Button
+                    onClick={handleDownloadAuditPDF}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Download Audit PDF
+                  </Button>
+                  <Separator className="my-2" />
+                  <p className="text-xs text-muted-foreground mb-2">Sync to Accounting</p>
+                  <Button
+                    onClick={() => handleSyncToAccounting("Xero")}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Sync to Xero
+                  </Button>
+                  <Button
+                    onClick={() => handleSyncToAccounting("QuickBooks")}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Sync to QuickBooks
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          </div>
+        );
+
       default:
         return (
           <div className="text-center py-12 px-6 bg-card/50 backdrop-blur-sm border border-border/40 rounded-lg">
@@ -401,7 +1255,8 @@ You can ask me about:
                     </div>
 
                     {/* Conditional View */}
-                    <div className="pt-6">{viewMode === "tracker" ? (
+                    <div className="pt-6">
+                      {viewMode === "tracker" ? (
                       /* Pipeline Tracking - Full Width */
                       <div className="space-y-4">
                         <div className="mt-3">
@@ -678,7 +1533,155 @@ You can ask me about:
                           </div>
                         </motion.div>
                       </div>
-                    )}</div>
+                      )}
+                    </div>
+
+                    {/* Fix Exception Drawer */}
+                    <Sheet open={fixDrawerOpen} onOpenChange={setFixDrawerOpen}>
+                        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                          <SheetHeader>
+                            <SheetTitle className="text-lg font-semibold">
+                              Fix Exception: {selectedException?.contractorName}
+                            </SheetTitle>
+                          </SheetHeader>
+
+                          {selectedException && (
+                            <div className="mt-6 space-y-6">
+                              <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                <div className="flex items-start gap-2 mb-2">
+                                  <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-foreground mb-1">
+                                      {selectedException.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {selectedException.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {selectedException.type === "missing-bank" && (
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bank-type" className="text-sm font-medium">
+                                      Bank Account Type
+                                    </Label>
+                                    <Select value={bankAccountType} onValueChange={setBankAccountType}>
+                                      <SelectTrigger id="bank-type">
+                                        <SelectValue placeholder="Select account type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="checking">Checking</SelectItem>
+                                        <SelectItem value="savings">Savings</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    This information is required for ACH transfers.
+                                  </p>
+                                </div>
+                              )}
+
+                              {selectedException.type === "holiday-rails" && (
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-sm font-medium">Holiday Adjustment</Label>
+                                    <div className="p-3 rounded-lg bg-muted/30">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs text-muted-foreground">Base Pay</span>
+                                        <span className="text-sm font-medium">$4,650</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Holiday Bonus</span>
+                                        <span className="text-sm font-medium text-accent-green-text">+$850</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Approve the holiday adjustment to include in this batch.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <SheetFooter className="mt-6 flex-row gap-2">
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => setFixDrawerOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              className="flex-1"
+                              onClick={handleResolveException}
+                              disabled={selectedException?.type === "missing-bank" && !bankAccountType}
+                            >
+                              Mark as Resolved
+                            </Button>
+                          </SheetFooter>
+                        </SheetContent>
+                      </Sheet>
+
+                      {/* Receipt Modal */}
+                      <Dialog open={receiptModalOpen} onOpenChange={setReceiptModalOpen}>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                              <Receipt className="h-5 w-5 text-primary" />
+                              Payment Receipt
+                            </DialogTitle>
+                          </DialogHeader>
+                          {selectedReceipt && (
+                            <div className="space-y-6">
+                              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
+                                <div>
+                                  <p className="text-lg font-semibold text-foreground">{selectedReceipt.payeeName}</p>
+                                  <p className="text-sm text-muted-foreground">Reference: {selectedReceipt.providerRef}</p>
+                                </div>
+                                <Badge
+                                  variant={selectedReceipt.status === "Paid" ? "default" : "outline"}
+                                  className={
+                                    selectedReceipt.status === "Paid"
+                                      ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                      : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                                  }
+                                >
+                                  {selectedReceipt.status}
+                                </Badge>
+                              </div>
+
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground">Payment Details</h4>
+                                <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/20">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Amount</p>
+                                    <p className="font-semibold text-foreground">
+                                      {selectedReceipt.amount.toLocaleString()} {selectedReceipt.ccy}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Rail</p>
+                                    <p className="font-semibold text-foreground">{selectedReceipt.rail}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">FX Rate</p>
+                                    <p className="font-semibold text-foreground">{selectedReceipt.fxRate}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-1">Processing Fee</p>
+                                    <p className="font-semibold text-foreground">
+                                      {selectedReceipt.processingFee?.toLocaleString()} {selectedReceipt.ccy}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </DialogContent>
+                      </Dialog>
                   </div>
                 </motion.div>
               </div>
