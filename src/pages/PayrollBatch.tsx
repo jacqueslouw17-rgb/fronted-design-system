@@ -468,13 +468,13 @@ const PayrollBatch: React.FC = () => {
       totalSalaryCost: 118240,
       frontedFees: 3547,
       totalPayrollCost: 121787,
-      nextPayrollRun: "Oct 15",
-      nextPayrollYear: "2025",
+      completedDate: "Oct 15, 2025",
       previousBatch: {
         employeesPaid: 8,
-        amountProcessed: 112340,
+        amountProcessed: 118240,
         skippedSnoozed: 0
-      }
+      },
+      status: "completed" as const
     },
     current: {
       label: "November 2025",
@@ -487,7 +487,8 @@ const PayrollBatch: React.FC = () => {
         employeesPaid: 8,
         amountProcessed: 118240,
         skippedSnoozed: 0
-      }
+      },
+      status: "active" as const
     },
     next: {
       label: "December 2025",
@@ -500,7 +501,8 @@ const PayrollBatch: React.FC = () => {
         employeesPaid: 8,
         amountProcessed: 124850,
         skippedSnoozed: 0
-      }
+      },
+      status: "upcoming" as const
     }
   };
 
@@ -1137,6 +1139,7 @@ const PayrollBatch: React.FC = () => {
               <Button 
                 className="h-9 px-4 text-sm"
                 onClick={() => setCurrentStep("exceptions")}
+                disabled={currentCycleData.status !== "active"}
               >
                 Go to Exceptions
               </Button>
@@ -1325,12 +1328,13 @@ const PayrollBatch: React.FC = () => {
                   variant="outline"
                   className="h-9 px-4 text-sm"
                   onClick={() => setCurrentStep("review-fx")}
+                  disabled={currentCycleData.status !== "active"}
                 >
                   Previous
                 </Button>
                 <Button
                   className="h-9 px-4 text-sm"
-                  disabled={!allExceptionsResolved}
+                  disabled={!allExceptionsResolved || currentCycleData.status !== "active"}
                   onClick={() => setCurrentStep("execute")}
                 >
                   {allExceptionsResolved ? "Proceed to Execute" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
@@ -1507,12 +1511,14 @@ const PayrollBatch: React.FC = () => {
                       variant="outline"
                       className="h-9 px-4 text-sm"
                       onClick={() => setCurrentStep("exceptions")}
+                      disabled={currentCycleData.status !== "active"}
                     >
                       Previous
                     </Button>
                     <Button 
                       className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
                       onClick={handleExecutePayroll}
+                      disabled={currentCycleData.status !== "active"}
                     >
                       <Play className="h-4 w-4 mr-2" />
                       Execute Payroll Now
@@ -2191,16 +2197,23 @@ You can ask me about:
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
-                                    <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="previous">October 2025</SelectItem>
-                                      <SelectItem value="current">November 2025</SelectItem>
-                                      <SelectItem value="next">December 2025</SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                  <div className="flex items-center gap-2">
+                                    <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
+                                      <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="previous">October 2025</SelectItem>
+                                        <SelectItem value="current">November 2025</SelectItem>
+                                        <SelectItem value="next">December 2025</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    {selectedCycle === "current" && (
+                                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 px-2 py-0.5">
+                                        Current
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -2219,11 +2232,43 @@ You can ask me about:
                                 </div>
                               </div>
 
+                              {/* Historical/Future Payroll Banner */}
+                              {currentCycleData.status !== "active" && (
+                                <motion.div
+                                  key={`banner-${selectedCycle}`}
+                                  initial={{ opacity: 0, y: -5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className={cn(
+                                    "p-3 rounded-lg border mb-4 flex items-center gap-2",
+                                    currentCycleData.status === "completed" 
+                                      ? "bg-accent-green-fill/10 border-accent-green-outline/20"
+                                      : "bg-blue-500/10 border-blue-500/20"
+                                  )}
+                                >
+                                  {currentCycleData.status === "completed" ? (
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
+                                      <p className="text-xs text-foreground">
+                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — all actions are disabled for historical runs.
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                                      <p className="text-xs text-foreground">
+                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — actions will be available when this cycle opens.
+                                      </p>
+                                    </>
+                                  )}
+                                </motion.div>
+                              )}
+
                               <motion.div 
                                 key={selectedCycle}
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.2 }}
+                                transition={{ duration: 0.3 }}
                                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4"
                               >
                                 {/* Total Salary Cost */}
@@ -2256,28 +2301,47 @@ You can ask me about:
                                   <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
                                 </div>
 
-                                {/* Next Payroll Run */}
+                                {/* Next Payroll Run or Completion Status */}
                                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
                                   <div className="flex items-center gap-2 mb-2">
                                     <Clock className="h-4 w-4 text-primary" />
-                                    <p className="text-xs text-muted-foreground">Next Payroll Run</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {currentCycleData.status === "completed" ? "Completed On" : 
+                                       currentCycleData.status === "upcoming" ? "Scheduled For" : "Next Payroll Run"}
+                                    </p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">{currentCycleData.nextPayrollRun}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">{currentCycleData.nextPayrollYear} (or prior weekday)</p>
+                                  {currentCycleData.status === "completed" ? (
+                                    <>
+                                      <p className="text-lg font-semibold text-foreground">{currentCycleData.completedDate}</p>
+                                      <p className="text-xs text-accent-green-text mt-1">✓ Batch closed</p>
+                                    </>
+                                  ) : currentCycleData.status === "upcoming" ? (
+                                    <>
+                                      <p className="text-2xl font-semibold text-foreground">{currentCycleData.nextPayrollRun}</p>
+                                      <p className="text-xs text-muted-foreground mt-1">{currentCycleData.nextPayrollYear} (or prior weekday)</p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="text-2xl font-semibold text-foreground">{currentCycleData.nextPayrollRun}</p>
+                                      <p className="text-xs text-muted-foreground mt-1">{currentCycleData.nextPayrollYear} (or prior weekday)</p>
+                                    </>
+                                  )}
                                 </div>
                               </motion.div>
 
-                              {/* Previous Batch Summary */}
+                              {/* Previous Batch Summary or Historical Summary */}
                               <motion.div
                                 key={`summary-${selectedCycle}`}
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.2, delay: 0.1 }}
+                                transition={{ duration: 0.3, delay: 0.1 }}
                                 className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20"
                               >
                                 <div className="flex items-center gap-2 mb-3">
                                   <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                  <p className="text-sm font-medium text-foreground">Previous Batch Summary</p>
+                                  <p className="text-sm font-medium text-foreground">
+                                    {currentCycleData.status === "completed" ? "Batch Summary" : "Previous Batch Summary"}
+                                  </p>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                   <div>
@@ -2310,12 +2374,14 @@ You can ask me about:
                                 return (
                                   <button
                                     key={step.id}
-                                    onClick={() => setCurrentStep(step.id as PayrollStep)}
+                                    onClick={() => currentCycleData.status === "active" && setCurrentStep(step.id as PayrollStep)}
+                                    disabled={currentCycleData.status !== "active"}
                                     className={cn(
                                       "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
-                                      isActive && "bg-primary/10 border-primary/20",
+                                      isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
                                       isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                                      !isActive && !isCompleted && "bg-muted/20 border-border/50 hover:bg-muted/30"
+                                      !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
+                                      currentCycleData.status !== "active" && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
                                     )}
                                   >
                                     <span className={cn(
