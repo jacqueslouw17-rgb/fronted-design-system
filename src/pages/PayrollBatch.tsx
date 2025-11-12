@@ -1920,7 +1920,7 @@ You can ask me about:
                           transition={{ delay: 0.1, duration: 0.3 }}
                           className="w-80 flex-shrink-0"
                         >
-                          <Card className="p-6 border border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+                          <Card className="p-6 border border-border/10 bg-card/20 backdrop-blur-sm">
                             <h3 className="text-sm font-semibold text-foreground mb-4">Batch Steps</h3>
                             <div className="space-y-2">
                               {steps.map((step, index) => {
