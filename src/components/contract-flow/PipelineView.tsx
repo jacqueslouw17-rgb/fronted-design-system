@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -221,6 +221,40 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
+  const notifiedCertifiedIds = React.useRef<Set<string>>(new Set());
+  
+  // Auto-transition onboarding-pending to certified after 5 seconds
+  useEffect(() => {
+    const onboardingContractors = contractors.filter(
+      c => c.status === "onboarding-pending" && !notifiedCertifiedIds.current.has(c.id)
+    );
+    
+    if (onboardingContractors.length === 0) return;
+    
+    const timers = onboardingContractors.map(contractor => {
+      return setTimeout(() => {
+        setContractors(prev => {
+          const updated = prev.map(c => 
+            c.id === contractor.id
+              ? { ...c, status: "CERTIFIED" as const }
+              : c
+          );
+          onContractorUpdate?.(updated);
+          return updated;
+        });
+        
+        // Mark as notified and show toast
+        notifiedCertifiedIds.current.add(contractor.id);
+        toast.success(`${contractor.name} is onboarded and certified`, {
+          description: "Candidate is ready for payroll processing",
+        });
+      }, 5000);
+    });
+    
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, [contractors, onContractorUpdate]);
   
   // Sync payroll metrics with global state whenever contractors change
   React.useEffect(() => {
