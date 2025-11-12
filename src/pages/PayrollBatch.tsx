@@ -288,6 +288,7 @@ const PayrollBatch: React.FC = () => {
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
+  const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -459,6 +460,51 @@ const PayrollBatch: React.FC = () => {
     ...contractorsByCurrency.NOK,
     ...contractorsByCurrency.PHP,
   ];
+
+  // Payroll cycle data for month selector
+  const payrollCycleData = {
+    previous: {
+      label: "October 2025",
+      totalSalaryCost: 118240,
+      frontedFees: 3547,
+      totalPayrollCost: 121787,
+      nextPayrollRun: "Oct 15",
+      nextPayrollYear: "2025",
+      previousBatch: {
+        employeesPaid: 8,
+        amountProcessed: 112340,
+        skippedSnoozed: 0
+      }
+    },
+    current: {
+      label: "November 2025",
+      totalSalaryCost: 124850,
+      frontedFees: 3742,
+      totalPayrollCost: 128592,
+      nextPayrollRun: "Nov 15",
+      nextPayrollYear: "2025",
+      previousBatch: {
+        employeesPaid: 8,
+        amountProcessed: 118240,
+        skippedSnoozed: 0
+      }
+    },
+    next: {
+      label: "December 2025",
+      totalSalaryCost: 126400,
+      frontedFees: 3792,
+      totalPayrollCost: 130192,
+      nextPayrollRun: "Dec 15",
+      nextPayrollYear: "2025",
+      previousBatch: {
+        employeesPaid: 8,
+        amountProcessed: 124850,
+        skippedSnoozed: 0
+      }
+    }
+  };
+
+  const currentCycleData = payrollCycleData[selectedCycle];
 
   const groupedByCurrency = allContractors.reduce((acc, contractor) => {
     if (!acc[contractor.currency]) {
@@ -2138,11 +2184,23 @@ You can ask me about:
                           <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-6">
-                                <div>
-                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    Summary of current payroll cycle and key metrics
-                                  </p>
+                                <div className="flex items-center gap-4">
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                      Summary of payroll cycle and key metrics
+                                    </p>
+                                  </div>
+                                  <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
+                                    <SelectTrigger className="w-[160px] h-9 text-sm border-border/50 bg-background/50">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="previous">October 2025</SelectItem>
+                                      <SelectItem value="current">November 2025</SelectItem>
+                                      <SelectItem value="next">December 2025</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                                 <TooltipProvider>
                                   <Tooltip>
@@ -2161,15 +2219,21 @@ You can ask me about:
                                 </TooltipProvider>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                              <motion.div 
+                                key={selectedCycle}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4"
+                              >
                                 {/* Total Salary Cost */}
                                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
                                   <div className="flex items-center gap-2 mb-2">
                                     <DollarSign className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Total Salary Cost</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">$124,850</p>
-                                  <p className="text-xs text-muted-foreground mt-1">This Month</p>
+                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalSalaryCost.toLocaleString()}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">{currentCycleData.label}</p>
                                 </div>
 
                                 {/* Fronted Fees */}
@@ -2178,7 +2242,7 @@ You can ask me about:
                                     <Building2 className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Fronted Fees (Est.)</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">$3,742</p>
+                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.frontedFees.toLocaleString()}</p>
                                   <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
                                 </div>
 
@@ -2188,7 +2252,7 @@ You can ask me about:
                                     <Activity className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Total Payroll Cost</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">$128,592</p>
+                                  <p className="text-2xl font-semibold text-foreground">${currentCycleData.totalPayrollCost.toLocaleString()}</p>
                                   <p className="text-xs text-muted-foreground mt-1">Salary + Fees</p>
                                 </div>
 
@@ -2198,13 +2262,19 @@ You can ask me about:
                                     <Clock className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Next Payroll Run</p>
                                   </div>
-                                  <p className="text-2xl font-semibold text-foreground">Nov 15</p>
-                                  <p className="text-xs text-muted-foreground mt-1">2025 (or prior weekday)</p>
+                                  <p className="text-2xl font-semibold text-foreground">{currentCycleData.nextPayrollRun}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">{currentCycleData.nextPayrollYear} (or prior weekday)</p>
                                 </div>
-                              </div>
+                              </motion.div>
 
                               {/* Previous Batch Summary */}
-                              <div className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                              <motion.div
+                                key={`summary-${selectedCycle}`}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.2, delay: 0.1 }}
+                                className="p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20"
+                              >
                                 <div className="flex items-center gap-2 mb-3">
                                   <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
                                   <p className="text-sm font-medium text-foreground">Previous Batch Summary</p>
@@ -2212,18 +2282,18 @@ You can ask me about:
                                 <div className="grid grid-cols-3 gap-4">
                                   <div>
                                     <p className="text-xs text-muted-foreground mb-1">Employees Paid</p>
-                                    <p className="text-lg font-semibold text-foreground">8</p>
+                                    <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.employeesPaid}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs text-muted-foreground mb-1">Amount Processed</p>
-                                    <p className="text-lg font-semibold text-foreground">$118,240</p>
+                                    <p className="text-lg font-semibold text-foreground">${currentCycleData.previousBatch.amountProcessed.toLocaleString()}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs text-muted-foreground mb-1">Skipped/Snoozed</p>
-                                    <p className="text-lg font-semibold text-foreground">0</p>
+                                    <p className="text-lg font-semibold text-foreground">{currentCycleData.previousBatch.skippedSnoozed}</p>
                                   </div>
                                 </div>
-                              </div>
+                              </motion.div>
                             </CardContent>
                           </Card>
                         </motion.div>
