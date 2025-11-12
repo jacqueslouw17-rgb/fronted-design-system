@@ -836,14 +836,14 @@ const PayrollBatch: React.FC = () => {
                     
                     {/* Horizontal Scroll Container */}
                     <div 
-                      className="overflow-x-auto" 
+                      className="overflow-x-auto whitespace-nowrap" 
                       onScroll={(e) => handleTableScroll(currency, e)}
                     >
-                      <Table className="relative">
+                      <Table className="relative min-w-max">
                         <TableHeader>
                           <TableRow>
                             <TableHead className={cn(
-                              "text-xs sticky left-0 z-20 bg-card/95 backdrop-blur-sm min-w-[180px] transition-shadow duration-200",
+                              "text-xs sticky left-0 z-20 bg-inherit min-w-[180px] transition-shadow duration-200",
                               scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
                             )}>
                               Name
@@ -879,7 +879,7 @@ const PayrollBatch: React.FC = () => {
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
                               <TableCell className={cn(
-                                "font-medium text-sm sticky left-0 z-20 bg-card/95 backdrop-blur-sm transition-shadow duration-200",
+                                "font-medium text-sm sticky left-0 z-20 bg-inherit min-w-[180px] transition-shadow duration-200",
                                 scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
                               )}>
                                 <div className="flex items-center gap-2">
@@ -915,7 +915,7 @@ const PayrollBatch: React.FC = () => {
                                   )}
                                 </div>
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="min-w-[120px]">
                                 <Badge 
                                   variant="outline" 
                                   className={cn(
@@ -928,11 +928,11 @@ const PayrollBatch: React.FC = () => {
                                   {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
                                 </Badge>
                               </TableCell>
-                              <TableCell className="text-sm">{contractor.country}</TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">
+                              <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
                                 {symbol}{grossPay.toLocaleString()}
                               </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger className="underline decoration-dotted cursor-help">
@@ -948,11 +948,11 @@ const PayrollBatch: React.FC = () => {
                                   </Tooltip>
                                 </TooltipProvider>
                               </TableCell>
-                              <TableCell className="text-right text-sm font-semibold">
+                              <TableCell className="text-right text-sm font-semibold min-w-[110px]">
                                 {symbol}{Math.round(netPay).toLocaleString()}
                               </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
-                              <TableCell className="text-right">
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">{symbol}{contractor.estFees}</TableCell>
+                              <TableCell className="text-right min-w-[150px]">
                                 <div className="flex items-center justify-end gap-2">
                                   <span className="text-sm">{symbol}{additionalFee?.amount || 50}</span>
                                   <Select
@@ -974,10 +974,10 @@ const PayrollBatch: React.FC = () => {
                                   </Select>
                                 </div>
                               </TableCell>
-                              <TableCell className="text-right text-sm font-bold">
+                              <TableCell className="text-right text-sm font-bold min-w-[130px]">
                                 {symbol}{Math.round(totalPayable).toLocaleString()}
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="min-w-[100px]">
                                 <Badge 
                                   variant="outline" 
                                   className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30"
@@ -985,7 +985,7 @@ const PayrollBatch: React.FC = () => {
                                   Ready
                                 </Badge>
                               </TableCell>
-                              <TableCell className="text-sm">{contractor.eta}</TableCell>
+                              <TableCell className="text-sm min-w-[90px]">{contractor.eta}</TableCell>
                             </TableRow>
                           );
                         })}
@@ -993,7 +993,7 @@ const PayrollBatch: React.FC = () => {
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
                           <TableCell colSpan={3} className={cn(
-                            "text-sm sticky left-0 z-20 bg-muted/95 backdrop-blur-sm transition-shadow duration-200",
+                            "text-sm sticky left-0 z-20 bg-inherit transition-shadow duration-200",
                             scrollStates[currency] && "shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)]"
                           )}>
                             Total {currency}
