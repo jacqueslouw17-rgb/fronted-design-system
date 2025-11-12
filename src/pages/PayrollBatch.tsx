@@ -888,7 +888,7 @@ const PayrollBatch: React.FC = () => {
                         <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
                         <Badge variant="outline" className="text-xs">{contractors.length} {contractors.length === 1 ? 'payee' : 'payees'}</Badge>
                       </div>
-                      <TooltipProvider>
+                      <TooltipProvider delayDuration={200}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7">
@@ -896,7 +896,7 @@ const PayrollBatch: React.FC = () => {
                               Why this rate?
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="left" className="max-w-xs">
+                          <TooltipContent side="bottom" align="end" sideOffset={8} className="max-w-xs z-50">
                             <div className="space-y-2">
                               <p className="font-semibold text-xs">Mid-Market Rate</p>
                               <p className="text-xs text-muted-foreground">
