@@ -615,18 +615,6 @@ const PayrollBatch: React.FC = () => {
       case "review-fx":
         return (
               <div className="space-y-3">
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                  Step 1 of 5 – FX Review
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  Updated {getTimeSinceUpdate()}
-                </span>
-              </div>
-            </div>
-
             {/* Status Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
