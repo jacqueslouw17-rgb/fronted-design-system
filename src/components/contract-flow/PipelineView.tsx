@@ -1313,7 +1313,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 variant="outline" 
                                 className="w-full justify-center text-xs bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30"
                               >
-                                📋 Checklist in Progress
+                                Onboarding in progress
                               </Badge>
                             </div>
                           )}
