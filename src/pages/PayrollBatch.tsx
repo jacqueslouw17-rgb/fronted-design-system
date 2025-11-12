@@ -2197,23 +2197,16 @@ You can ask me about:
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
-                                      <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="previous">October 2025</SelectItem>
-                                        <SelectItem value="current">November 2025</SelectItem>
-                                        <SelectItem value="next">December 2025</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    {selectedCycle === "current" && (
-                                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 px-2 py-0.5">
-                                        Current
-                                      </Badge>
-                                    )}
-                                  </div>
+                                  <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
+                                    <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="previous">October 2025</SelectItem>
+                                      <SelectItem value="current">November 2025 (Current)</SelectItem>
+                                      <SelectItem value="next">December 2025</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
