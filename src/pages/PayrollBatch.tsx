@@ -284,6 +284,9 @@ const PayrollBatch: React.FC = () => {
   const [additionalFees, setAdditionalFees] = useState<Record<string, { amount: number; accepted: boolean }>>({});
   const [oneTimeAdjustment, setOneTimeAdjustment] = useState<number>(0);
   const [scrollStates, setScrollStates] = useState<Record<string, boolean>>({});
+  const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
+  const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -596,6 +599,31 @@ const PayrollBatch: React.FC = () => {
   const handleSyncToAccounting = (system: string) => {
     toast.info(`Sync to ${system} would be implemented with accounting integration`);
   };
+
+  const handleOpenPaymentDetail = (contractor: ContractorPayment) => {
+    setSelectedPaymentDetail(contractor);
+    setPaymentDetailDrawerOpen(true);
+  };
+
+  const handleReturnToPayrollOverview = () => {
+    setViewMode("payroll");
+    setCurrentStep("review-fx");
+    toast.success("Returned to Payroll Overview");
+  };
+
+  const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
+    const receipt = paymentReceipts.find(r => r.payeeId === contractorId);
+    return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
+  };
+
+  const filteredContractors = statusFilter === "all" 
+    ? allContractors 
+    : allContractors.filter(c => getPaymentStatus(c.id) === statusFilter);
+
+  const paidCount = allContractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
+  const pendingCount = allContractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
+  const failedCount = allContractors.filter(c => getPaymentStatus(c.id) === "Failed").length;
+  const allPaymentsPaid = paidCount === allContractors.length;
 
   const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
   const snoozedExceptions = exceptions.filter(exc => exc.snoozed);
@@ -1453,143 +1481,303 @@ const PayrollBatch: React.FC = () => {
         );
 
       case "track":
+        const totalGrossPay = filteredContractors.reduce((sum, c) => sum + c.baseSalary, 0);
+        const totalTaxesAndFees = filteredContractors.reduce((sum, c) => {
+          const employerTax = c.employerTaxes || 0;
+          const fees = c.estFees;
+          return sum + employerTax + fees;
+        }, 0);
+        const totalNetPay = filteredContractors.reduce((sum, c) => sum + getPaymentDue(c), 0);
+        const grandTotal = totalGrossPay + totalTaxesAndFees;
+
         return (
           <div className="space-y-6">
-            {/* Step Label */}
-            <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 4 of 4 – Track & Reconcile
-              </Badge>
-              <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
-                <Activity className="h-3 w-3 mr-1" />
-                Live Tracking
-              </Badge>
+            {/* Header Context Bar */}
+            <div className="flex items-center justify-between p-4 rounded-lg border border-border/20 bg-card/30 backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Payroll Cycle: November 2025</p>
+                  <p className="text-xs text-muted-foreground">Status: Processing 15th of November</p>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-1.5 rounded-full hover:bg-muted/50 transition-colors">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs">
+                      <p className="text-xs">
+                        Payouts are executed via Wise on the 15th of each month (or previous weekday).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  className="gap-2"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadAuditPDF}
+                  className="gap-2"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Audit PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="gap-2"
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  Export to Accounting
+                </Button>
+              </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-foreground">Track & Reconcile</h2>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm md:col-span-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <Activity className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">Transaction Monitor</h3>
-                </div>
-                <div className="space-y-3">
-                  {paymentReceipts.map((receipt) => (
-                    <div
-                      key={receipt.payeeId}
-                      className="flex items-center justify-between p-4 rounded-lg bg-muted/20 border border-border/40"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <p className="font-medium text-foreground">{receipt.payeeName}</p>
-                          <Badge
-                            variant={receipt.status === "Paid" ? "default" : "outline"}
-                            className={
-                              receipt.status === "Paid"
-                                ? "bg-green-500/10 text-green-600 border-green-500/20"
-                                : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
-                            }
-                          >
-                            {receipt.status === "Paid" ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <RefreshCw className="h-3 w-3 mr-1 animate-spin" />}
-                            {receipt.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{receipt.amount.toLocaleString()} {receipt.ccy}</span>
-                          <span>•</span>
-                          <span>{receipt.rail}</span>
-                          <span>•</span>
-                          <span>ETA: {receipt.eta}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">Ref: {receipt.providerRef}</p>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewReceipt(receipt)}
-                        >
-                          <Receipt className="h-4 w-4 mr-2" />
-                          View Receipt
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">FX Snapshot</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="p-4 rounded-lg bg-muted/20 border border-border/40">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">EUR/USD</span>
-                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
-                        Locked
-                      </Badge>
-                    </div>
-                    <p className="text-2xl font-bold text-foreground">0.9200</p>
-                    <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                      <div className="flex justify-between">
-                        <span>Spread:</span>
-                        <span>0.50%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Fee:</span>
-                        <span>€25.00</span>
-                      </div>
-                    </div>
+            {/* Progress & Status Summary */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-foreground">Payments Reconciled</span>
+                    <span className="text-muted-foreground">
+                      {paidCount} / {allContractors.length} Completed ({pendingCount} Pending)
+                    </span>
+                  </div>
+                  <div className="relative h-2 bg-muted/30 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(paidCount / allContractors.length) * 100}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="absolute inset-y-0 left-0 bg-accent-green-fill"
+                    />
                   </div>
                 </div>
-              </Card>
 
-              <Card className="p-6 border-border/40 bg-card/50 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">Reconciliation</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                      statusFilter === "all"
+                        ? "bg-primary/10 text-primary border border-primary/20"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    All ({allContractors.length})
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("Paid")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                      statusFilter === "Paid"
+                        ? "bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Paid ({paidCount})
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("InTransit")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                      statusFilter === "InTransit"
+                        ? "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <Clock className="h-3 w-3" />
+                    Pending ({pendingCount})
+                  </button>
+                  {failedCount > 0 && (
+                    <button
+                      onClick={() => setStatusFilter("Failed")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                        statusFilter === "Failed"
+                          ? "bg-red-500/10 text-red-600 border border-red-500/20"
+                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <AlertCircle className="h-3 w-3" />
+                      Failed ({failedCount})
+                    </button>
+                  )}
                 </div>
-                <div className="space-y-3">
+              </CardContent>
+            </Card>
+
+            {/* Completion State Banner */}
+            {allPaymentsPaid && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-3 p-4 rounded-lg border border-accent-green-outline/20 bg-accent-green-fill/10"
+              >
+                <CheckCircle2 className="h-5 w-5 text-accent-green-text flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    All payments for this cycle have been reconciled successfully.
+                  </p>
                   <Button
-                    onClick={handleExportCSV}
+                    onClick={handleReturnToPayrollOverview}
+                    size="sm"
                     variant="outline"
-                    className="w-full justify-start"
+                    className="mt-2"
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export CSV
-                  </Button>
-                  <Button
-                    onClick={handleDownloadAuditPDF}
-                    variant="outline"
-                    className="w-full justify-start"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Download Audit PDF
-                  </Button>
-                  <Separator className="my-2" />
-                  <p className="text-xs text-muted-foreground mb-2">Sync to Accounting</p>
-                  <Button
-                    onClick={() => handleSyncToAccounting("Xero")}
-                    variant="outline"
-                    className="w-full justify-start"
-                  >
-                    <Building2 className="h-4 w-4 mr-2" />
-                    Sync to Xero
-                  </Button>
-                  <Button
-                    onClick={() => handleSyncToAccounting("QuickBooks")}
-                    variant="outline"
-                    className="w-full justify-start"
-                  >
-                    <Building2 className="h-4 w-4 mr-2" />
-                    Sync to QuickBooks
+                    Return to Payroll Overview
                   </Button>
                 </div>
-              </Card>
-            </div>
+              </motion.div>
+            )}
+
+            {!allPaymentsPaid && pendingCount > 0 && (
+              <div className="flex items-start gap-3 p-4 rounded-lg border border-yellow-500/20 bg-yellow-500/10">
+                <Clock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {pendingCount} payment{pendingCount !== 1 ? 's' : ''} still pending confirmation – check again later.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Detailed Reconciliation Table */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <h3 className="text-sm font-semibold text-foreground mb-4">Payment Reconciliation</h3>
+                
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs font-medium">Employee / Contractor</TableHead>
+                        <TableHead className="text-xs font-medium text-right">Gross Pay</TableHead>
+                        <TableHead className="text-xs font-medium text-right">Taxes & Fees</TableHead>
+                        <TableHead className="text-xs font-medium text-right">Net Pay</TableHead>
+                        <TableHead className="text-xs font-medium text-right">FX Rate</TableHead>
+                        <TableHead className="text-xs font-medium text-center">Status</TableHead>
+                        <TableHead className="text-xs font-medium text-center">Receipt</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredContractors.map((contractor) => {
+                        const status = getPaymentStatus(contractor.id);
+                        const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
+                        const taxesAndFees = (contractor.employerTaxes || 0) + contractor.estFees;
+                        const netPay = getPaymentDue(contractor);
+
+                        return (
+                          <TableRow 
+                            key={contractor.id}
+                            className="hover:bg-muted/30 cursor-pointer transition-colors"
+                            onClick={() => handleOpenPaymentDetail(contractor)}
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">{contractor.name}</span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-[10px]",
+                                    contractor.employmentType === "employee" 
+                                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                      : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                  )}
+                                >
+                                  {contractor.employmentType === "employee" ? "EE" : "IC"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{contractor.country}</p>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              {contractor.currency} {contractor.baseSalary.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right text-amber-600 font-medium">
+                              +{contractor.currency} {taxesAndFees.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground">
+                              {contractor.currency} {Math.round(netPay).toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">
+                              {contractor.fxRate.toFixed(2)}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge
+                                variant={status === "Paid" ? "default" : "outline"}
+                                className={cn(
+                                  "text-[10px]",
+                                  status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                                  status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+                                  status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30"
+                                )}
+                              >
+                                {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
+                                {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
+                                {status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {receipt && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewReceipt(receipt);
+                                  }}
+                                >
+                                  View
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      
+                      {/* Totals Row */}
+                      <TableRow className="bg-muted/20 border-t-2 border-border">
+                        <TableCell className="font-bold text-foreground">
+                          Total
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-foreground">
+                          ${(totalGrossPay / 1000).toFixed(1)}K
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-amber-600">
+                          +${(totalTaxesAndFees / 1000).toFixed(1)}K
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-foreground">
+                          ${(totalNetPay / 1000).toFixed(1)}K
+                        </TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                          —
+                        </TableCell>
+                        <TableCell className="text-center font-bold text-foreground">
+                          {paidCount}/{allContractors.length}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          —
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
 
@@ -2076,7 +2264,156 @@ You can ask me about:
                       )}
                     </div>
 
-                    {/* Fix Exception Drawer */}
+                      {/* Payment Detail Drawer */}
+                      <Sheet open={paymentDetailDrawerOpen} onOpenChange={setPaymentDetailDrawerOpen}>
+                        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+                          {selectedPaymentDetail && (
+                            <>
+                              <SheetHeader>
+                                <SheetTitle className="text-xl">
+                                  {selectedPaymentDetail.name} – Payment Details
+                                </SheetTitle>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Badge 
+                                    variant="outline" 
+                                    className={cn(
+                                      "text-xs",
+                                      selectedPaymentDetail.employmentType === "employee" 
+                                        ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                        : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                    )}
+                                  >
+                                    {selectedPaymentDetail.employmentType === "employee" ? "Employee" : "Contractor"}
+                                  </Badge>
+                                  <span className="text-sm text-muted-foreground">•</span>
+                                  <span className="text-sm text-muted-foreground">{selectedPaymentDetail.country}</span>
+                                  <span className="text-sm text-muted-foreground">•</span>
+                                  <span className="text-sm text-muted-foreground">November 2025</span>
+                                </div>
+                              </SheetHeader>
+
+                              <div className="space-y-6 mt-6">
+                                {/* Payment Status */}
+                                {getPaymentStatus(selectedPaymentDetail.id) === "Failed" && (
+                                  <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-foreground mb-2">Payment Failed</p>
+                                      <Button size="sm" disabled variant="outline">
+                                        Reattempt Transfer
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Payment Breakdown */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                    <Receipt className="h-4 w-4" />
+                                    Payment Breakdown
+                                  </h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Gross Pay</span>
+                                        <span className="text-sm font-semibold">
+                                          {selectedPaymentDetail.currency} {selectedPaymentDetail.baseSalary.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Fronted Charge</span>
+                                        <span className="text-sm font-medium text-amber-600">
+                                          +{selectedPaymentDetail.currency} {selectedPaymentDetail.estFees.toLocaleString()}
+                                        </span>
+                                      </div>
+
+                                      {selectedPaymentDetail.employmentType === "employee" && selectedPaymentDetail.employerTaxes && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Employer Tax</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            +{selectedPaymentDetail.currency} {selectedPaymentDetail.employerTaxes.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {leaveRecords[selectedPaymentDetail.id]?.leaveDays > 0 && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Leave Deduction</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            -{selectedPaymentDetail.currency} {Math.round(selectedPaymentDetail.baseSalary - getPaymentDue(selectedPaymentDetail)).toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      <Separator />
+
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-foreground">Net Salary</span>
+                                        <span className="text-lg font-bold text-foreground">
+                                          {selectedPaymentDetail.currency} {Math.round(getPaymentDue(selectedPaymentDetail)).toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                {/* Bank Account */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground">Bank Account</h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4">
+                                      <div className="space-y-2">
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Account Type</p>
+                                          <p className="text-sm font-medium">IBAN / SWIFT</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Account Number</p>
+                                          <p className="text-sm font-mono">******* {selectedPaymentDetail.id.slice(-4)}</p>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                {/* Payment Details */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground">Payment Details</h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Payment Date</span>
+                                        <span className="text-sm font-medium">Nov 15, 2025</span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Reference ID</span>
+                                        <span className="text-sm font-mono">
+                                          {paymentReceipts.find(r => r.payeeId === selectedPaymentDetail.id)?.providerRef || "WISE-2025-XXX"}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">Payment Rail</span>
+                                        <span className="text-sm font-medium">
+                                          {paymentReceipts.find(r => r.payeeId === selectedPaymentDetail.id)?.rail || "SWIFT"}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-muted-foreground">ETA</span>
+                                        <span className="text-sm font-medium">
+                                          {paymentReceipts.find(r => r.payeeId === selectedPaymentDetail.id)?.eta || "3-5 business days"}
+                                        </span>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </SheetContent>
+                      </Sheet>
+
+                      {/* Fix Exception Drawer */}
                     <Sheet open={fixDrawerOpen} onOpenChange={setFixDrawerOpen}>
                         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                           <SheetHeader>
