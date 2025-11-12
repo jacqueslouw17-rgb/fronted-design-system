@@ -1114,7 +1114,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certain columns */}
                         <div className="flex items-start gap-2">
-                          {!["data-pending", "awaiting-signature", "payroll-ready", "CERTIFIED"].includes(status) && 
+                          {!["data-pending", "awaiting-signature", "onboarding-pending", "payroll-ready", "CERTIFIED"].includes(status) &&
                            !(status === "payroll-ready" && contractor.status !== "PAYROLL_PENDING") && (
                             <Checkbox
                               checked={
