@@ -1265,18 +1265,21 @@ const PayrollBatch: React.FC = () => {
 
             {/* Footer CTA */}
             <div className="pt-4 border-t border-border flex items-center justify-between">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentStep("review-fx")}
-              >
-                Back to FX Review
-              </Button>
-              <div className="flex flex-col items-end gap-1">
+              <div className="text-xs text-muted-foreground">
+                Step 2 of 4 – Exceptions
+              </div>
+              <div className="flex items-center gap-3">
                 {snoozedExceptions.length > 0 && !allExceptionsResolved && (
                   <p className="text-xs text-muted-foreground">
                     {snoozedExceptions.length} candidate{snoozedExceptions.length !== 1 ? 's' : ''} will roll over to next month's payroll
                   </p>
                 )}
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep("review-fx")}
+                >
+                  Previous
+                </Button>
                 <Button
                   className="h-11 px-6 text-sm font-medium"
                   disabled={!allExceptionsResolved}
@@ -1451,13 +1454,22 @@ const PayrollBatch: React.FC = () => {
                 )}
 
                 {!isExecuting && Object.keys(executionProgress).length === 0 && (
-                  <Button 
-                    className="w-full h-11 text-sm font-medium bg-primary hover:bg-primary/90"
-                    onClick={handleExecutePayroll}
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Execute Payroll Now
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      variant="outline"
+                      className="h-11 text-sm font-medium"
+                      onClick={() => setCurrentStep("exceptions")}
+                    >
+                      Previous
+                    </Button>
+                    <Button 
+                      className="flex-1 h-11 text-sm font-medium bg-primary hover:bg-primary/90"
+                      onClick={handleExecutePayroll}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Execute Payroll Now
+                    </Button>
+                  </div>
                 )}
 
                 {!isExecuting && Object.keys(executionProgress).length > 0 && 
@@ -1495,6 +1507,13 @@ const PayrollBatch: React.FC = () => {
 
         return (
           <div className="space-y-6">
+            {/* Step Label */}
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                Step 4 of 4 – Track & Reconcile
+              </Badge>
+            </div>
+
             {/* Header Context Bar */}
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/20 bg-card/30 backdrop-blur-sm">
               <div className="flex items-center gap-4">
