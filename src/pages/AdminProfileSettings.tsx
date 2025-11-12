@@ -295,6 +295,16 @@ const AdminProfileSettings = () => {
         dashboardUrl="/dashboard-admin"
       />
       
+      {/* Back Button */}
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard-admin")} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
+      </div>
+      
       <AgentLayout context="admin-profile-settings">
         <div className="min-h-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
           {/* Static background */}
