@@ -836,10 +836,12 @@ const PayrollBatch: React.FC = () => {
                     
                     {/* Horizontal Scroll Container */}
                     <div 
-                      className="overflow-x-auto whitespace-nowrap" 
-                      onScroll={(e) => handleTableScroll(currency, e)}
+                      className="overflow-visible whitespace-nowrap"
                     >
-                      <Table className="relative min-w-max">
+                      <Table 
+                        className="relative min-w-max"
+                        containerProps={{ className: "overflow-x-auto", onScroll: (e) => handleTableScroll(currency, e) }}
+                      >
                         <TableHeader>
                           <TableRow>
                             <TableHead className={cn(
