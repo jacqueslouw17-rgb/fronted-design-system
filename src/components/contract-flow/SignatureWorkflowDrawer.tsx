@@ -317,8 +317,18 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{item.label}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                      <p className={cn(
+                        "font-medium text-sm",
+                        item.status === "complete" && "line-through opacity-60"
+                      )}>
+                        {item.label}
+                      </p>
+                      <p className={cn(
+                        "text-xs text-muted-foreground mt-1",
+                        item.status === "complete" && "line-through opacity-50"
+                      )}>
+                        {item.description}
+                      </p>
                       {item.timestamp && (
                         <p className="text-xs text-muted-foreground mt-1">
                           {item.timestamp}
