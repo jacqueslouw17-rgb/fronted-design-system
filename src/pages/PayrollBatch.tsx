@@ -843,8 +843,8 @@ const PayrollBatch: React.FC = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead className={cn(
-                              "text-xs sticky left-0 z-30 bg-inherit min-w-[180px] transition-all duration-200",
-                              scrollStates[currency] && "bg-background shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
+                              "text-xs sticky left-0 z-30 min-w-[180px] transition-all duration-200",
+                              scrollStates[currency] ? "bg-background shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]" : "bg-transparent"
                             )}>
                               Name
                             </TableHead>
@@ -879,8 +879,8 @@ const PayrollBatch: React.FC = () => {
                               onClick={() => handleOpenContractorDetail(contractor)}
                             >
                               <TableCell className={cn(
-                                "font-medium text-sm sticky left-0 z-30 bg-inherit min-w-[180px] transition-all duration-200",
-                                scrollStates[currency] && "bg-background shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
+                                "font-medium text-sm sticky left-0 z-30 min-w-[180px] transition-all duration-200",
+                                scrollStates[currency] ? "bg-background shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]" : "bg-transparent"
                               )}>
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
