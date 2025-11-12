@@ -18,6 +18,7 @@ interface ContractDraftWorkspaceProps {
   index: number;
   total: number;
   onNext: () => void;
+  onPrevious: () => void;
 }
 const getContractContent = (candidate: Candidate, documentType: DocumentType) => {
   switch (documentType) {
@@ -159,7 +160,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   candidate,
   index,
   total,
-  onNext
+  onNext,
+  onPrevious
 }) => {
   // Determine employment type (default to contractor if not specified)
   const employmentType = candidate.employmentType || "contractor";
@@ -635,15 +637,32 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               <ContractCarousel pages={carouselPages} />
             </motion.div>
 
-            <Button onClick={() => {
-              window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-              });
-              onNext();
-            }} className="w-full">
-              {index === total - 1 ? "Review All Drafts" : "Next Draft"}
-            </Button>
+            <div className={index === 0 ? "" : "flex gap-3"}>
+              {index > 0 && (
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    window.scrollTo({
+                      top: 0,
+                      behavior: 'smooth'
+                    });
+                    onPrevious();
+                  }} 
+                  className="flex-1"
+                >
+                  Previous
+                </Button>
+              )}
+              <Button onClick={() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+                });
+                onNext();
+              }} className={index === 0 ? "w-full" : "flex-1"}>
+                {index === total - 1 ? "Review All Drafts" : "Next Draft"}
+              </Button>
+            </div>
           </div>
         </ScrollArea>
       </motion.div>

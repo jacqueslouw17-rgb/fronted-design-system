@@ -163,6 +163,12 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     }
   }, [currentDraftIndex, selectedCandidates.length, version]);
 
+  const previousDraft = useCallback(() => {
+    if (currentDraftIndex > 0) {
+      setCurrentDraftIndex(prev => prev - 1);
+    }
+  }, [currentDraftIndex]);
+
   const addReviewComment = useCallback((candidateId: string, comment: string) => {
     setReviewComments(prev => ({ ...prev, [candidateId]: comment }));
   }, []);
@@ -211,6 +217,7 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     proceedFromBundle,
     goToBundleCreation,
     nextDraft,
+    previousDraft,
     addReviewComment,
     proceedToDocumentBundle,
     startSigning,

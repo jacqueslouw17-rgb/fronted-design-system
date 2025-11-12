@@ -854,6 +854,9 @@ const ContractFlowDemo = () => {
                         onNext={() => { 
                           contractFlow.nextDraft(); 
                         }}
+                        onPrevious={() => {
+                          contractFlow.previousDraft();
+                        }}
                       />
                     </div>
                   </div>
