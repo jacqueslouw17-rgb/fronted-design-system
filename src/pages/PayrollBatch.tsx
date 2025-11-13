@@ -2655,6 +2655,42 @@ You can ask me about:
                                     </CardContent>
                                   </Card>
                                 </div>
+
+                                {/* Actions - Only for current/active month */}
+                                {selectedCycle === "current" && (
+                                  <div className="space-y-3">
+                                    <h4 className="font-semibold text-foreground">Actions</h4>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="secondary"
+                                        className="flex-1"
+                                        onClick={() => {
+                                          setSelectedPayeeForReschedule(selectedPaymentDetail);
+                                          setRescheduleModalOpen(true);
+                                          setPaymentDetailDrawerOpen(false);
+                                        }}
+                                      >
+                                        Reschedule
+                                      </Button>
+                                      <Button
+                                        variant="secondary"
+                                        className="flex-1"
+                                        onClick={() => {
+                                          const receipt = paymentReceipts.find(r => r.payeeId === selectedPaymentDetail.id);
+                                          if (receipt) {
+                                            setSelectedReceipt(receipt);
+                                            setReceiptModalOpen(true);
+                                            setPaymentDetailDrawerOpen(false);
+                                          } else {
+                                            toast.info("Receipt not yet available for this payment");
+                                          }
+                                        }}
+                                      >
+                                        View Receipt
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </>
                           )}
