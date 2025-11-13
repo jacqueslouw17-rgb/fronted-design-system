@@ -2673,7 +2673,7 @@ You can ask me about:
                                         Reschedule
                                       </Button>
                                       <Button
-                                        variant="secondary"
+                                        variant="default"
                                         className="flex-1"
                                         onClick={() => {
                                           const receipt = paymentReceipts.find(r => r.payeeId === selectedPaymentDetail.id);
@@ -2835,52 +2835,103 @@ You can ask me about:
                               Payment Receipt
                             </DialogTitle>
                           </DialogHeader>
-                          {selectedReceipt && (
-                            <div className="space-y-6">
-                              <div className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
-                                <div>
-                                  <p className="text-lg font-semibold text-foreground">{selectedReceipt.payeeName}</p>
-                                  <p className="text-sm text-muted-foreground">Reference: {selectedReceipt.providerRef}</p>
+                          {selectedReceipt && (() => {
+                            const contractor = allContractors.find(c => c.id === selectedReceipt.payeeId);
+                            return contractor ? (
+                              <div className="space-y-6">
+                                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
+                                  <div>
+                                    <p className="text-lg font-semibold text-foreground">{selectedReceipt.payeeName}</p>
+                                    <p className="text-sm text-muted-foreground">Reference: {selectedReceipt.providerRef}</p>
+                                  </div>
+                                  <Badge
+                                    variant={selectedReceipt.status === "Paid" ? "default" : "outline"}
+                                    className={
+                                      selectedReceipt.status === "Paid"
+                                        ? "bg-green-500/10 text-green-600 border-green-500/20"
+                                        : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                                    }
+                                  >
+                                    {selectedReceipt.status}
+                                  </Badge>
                                 </div>
-                                <Badge
-                                  variant={selectedReceipt.status === "Paid" ? "default" : "outline"}
-                                  className={
-                                    selectedReceipt.status === "Paid"
-                                      ? "bg-green-500/10 text-green-600 border-green-500/20"
-                                      : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
-                                  }
-                                >
-                                  {selectedReceipt.status}
-                                </Badge>
-                              </div>
 
-                              <div className="space-y-3">
-                                <h4 className="font-semibold text-foreground">Payment Details</h4>
-                                <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/20">
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Amount</p>
-                                    <p className="font-semibold text-foreground">
-                                      {selectedReceipt.amount.toLocaleString()} {selectedReceipt.ccy}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Rail</p>
-                                    <p className="font-semibold text-foreground">{selectedReceipt.rail}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">FX Rate</p>
-                                    <p className="font-semibold text-foreground">{selectedReceipt.fxRate}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-muted-foreground mb-1">Processing Fee</p>
-                                    <p className="font-semibold text-foreground">
-                                      {selectedReceipt.processingFee?.toLocaleString()} {selectedReceipt.ccy}
-                                    </p>
+                                {/* Payment Breakdown */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground">Payment Breakdown</h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Gross Pay</span>
+                                        <span className="text-sm font-semibold">
+                                          {contractor.currency} {contractor.baseSalary.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Fronted Charge</span>
+                                        <span className="text-sm font-medium text-amber-600">
+                                          +{contractor.currency} {contractor.estFees.toLocaleString()}
+                                        </span>
+                                      </div>
+
+                                      {contractor.employmentType === "employee" && contractor.employerTaxes && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Employer Tax</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            +{contractor.currency} {contractor.employerTaxes.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {leaveRecords[contractor.id]?.leaveDays > 0 && (
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-muted-foreground">Leave Deduction</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            -{contractor.currency} {Math.round(contractor.baseSalary - getPaymentDue(contractor)).toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      <Separator />
+
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-foreground">Net Salary</span>
+                                        <span className="text-lg font-bold text-foreground">
+                                          {contractor.currency} {Math.round(getPaymentDue(contractor)).toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                {/* Transaction Details */}
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold text-foreground">Transaction Details</h4>
+                                  <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/20">
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">Payment Rail</p>
+                                      <p className="font-semibold text-foreground">{selectedReceipt.rail}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">FX Rate</p>
+                                      <p className="font-semibold text-foreground">{selectedReceipt.fxRate}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">FX Fee</p>
+                                      <p className="font-semibold text-foreground">
+                                        {selectedReceipt.fxFee?.toLocaleString()} {selectedReceipt.ccy}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-muted-foreground mb-1">ETA</p>
+                                      <p className="font-semibold text-foreground">{selectedReceipt.eta}</p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            ) : null;
+                          })()}
                         </DialogContent>
                       </Dialog>
 
