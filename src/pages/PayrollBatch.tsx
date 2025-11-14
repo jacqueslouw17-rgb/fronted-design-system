@@ -1202,21 +1202,28 @@ const PayrollBatch: React.FC = () => {
                                     {/* Bi-Monthly Toggle with Info Icons */}
                                     <div className="flex items-center gap-3">
                                       <span className="text-xs font-medium text-muted-foreground">Select Payout Half:</span>
-                                      <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1">
-                                        <button
-                                          onClick={() => setPhPayrollHalf("1st")}
-                                          className={cn(
-                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5",
-                                            phPayrollHalf === "1st"
-                                              ? "bg-background text-foreground shadow-sm"
-                                              : "text-muted-foreground hover:text-foreground"
-                                          )}
-                                        >
-                                          1st Half Payout
+                                      <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 gap-1">
+                                        <div className="flex items-center gap-1">
+                                          <button
+                                            onClick={() => setPhPayrollHalf("1st")}
+                                            className={cn(
+                                              "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                              phPayrollHalf === "1st"
+                                                ? "bg-background text-foreground shadow-sm"
+                                                : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                          >
+                                            1st Half Payout
+                                          </button>
                                           <TooltipProvider>
                                             <Tooltip>
                                               <TooltipTrigger asChild>
-                                                <Info className="h-3 w-3 text-blue-600" />
+                                                <button
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  className="p-0.5 hover:bg-background/50 rounded transition-colors"
+                                                >
+                                                  <Info className="h-3 w-3 text-blue-600" />
+                                                </button>
                                               </TooltipTrigger>
                                               <TooltipContent side="top" className="max-w-xs">
                                                 <p className="text-xs font-semibold mb-1">1st Half (1–15)</p>
@@ -1226,21 +1233,28 @@ const PayrollBatch: React.FC = () => {
                                               </TooltipContent>
                                             </Tooltip>
                                           </TooltipProvider>
-                                        </button>
-                                        <button
-                                          onClick={() => setPhPayrollHalf("2nd")}
-                                          className={cn(
-                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5",
-                                            phPayrollHalf === "2nd"
-                                              ? "bg-background text-foreground shadow-sm"
-                                              : "text-muted-foreground hover:text-foreground"
-                                          )}
-                                        >
-                                          2nd Half Payout
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <button
+                                            onClick={() => setPhPayrollHalf("2nd")}
+                                            className={cn(
+                                              "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                              phPayrollHalf === "2nd"
+                                                ? "bg-background text-foreground shadow-sm"
+                                                : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                          >
+                                            2nd Half Payout
+                                          </button>
                                           <TooltipProvider>
                                             <Tooltip>
                                               <TooltipTrigger asChild>
-                                                <Info className="h-3 w-3 text-blue-600" />
+                                                <button
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  className="p-0.5 hover:bg-background/50 rounded transition-colors"
+                                                >
+                                                  <Info className="h-3 w-3 text-blue-600" />
+                                                </button>
                                               </TooltipTrigger>
                                               <TooltipContent side="top" className="max-w-xs">
                                                 <p className="text-xs font-semibold mb-1">2nd Half (16–End)</p>
@@ -1250,7 +1264,7 @@ const PayrollBatch: React.FC = () => {
                                               </TooltipContent>
                                             </Tooltip>
                                           </TooltipProvider>
-                                        </button>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
