@@ -13,6 +13,13 @@ import {
   CollapsibleContent, 
   CollapsibleTrigger 
 } from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronDown, ChevronUp, Plus, X, Info } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +30,14 @@ interface LineItem {
   taxable: boolean;
   cap?: number;
   origin?: string;
+}
+
+interface Adjustment {
+  id: string;
+  name: string;
+  amount: number;
+  taxable: boolean;
+  applyTo: "1st_half" | "2nd_half" | "both_halves" | "full_month";
 }
 
 interface ContractorPayment {
@@ -36,6 +51,7 @@ interface ContractorPayment {
   baseSalary?: number;
   netPay?: number;
   lineItems?: LineItem[];
+  adjustments?: Adjustment[];
   startDate?: string;
   nationalId?: string;
   taxEmployee?: number;
@@ -84,6 +100,7 @@ export default function EmployeePayrollDrawer({
       setFormData({
         ...employee,
         lineItems: employee.lineItems || [],
+        adjustments: employee.adjustments || [],
         allowOverride: employee.allowOverride || false,
       });
     }
@@ -132,6 +149,36 @@ export default function EmployeePayrollDrawer({
       ...prev,
       lineItems: (prev.lineItems || []).map(item =>
         item.id === id ? { ...item, [field]: value } : item
+      )
+    }) : null);
+  };
+
+  const handleAddAdjustment = () => {
+    const newAdjustment: Adjustment = {
+      id: `adj-${Date.now()}`,
+      name: "New Adjustment",
+      amount: 0,
+      taxable: true,
+      applyTo: isPH ? "both_halves" : "full_month"
+    };
+    setFormData(prev => prev ? ({
+      ...prev,
+      adjustments: [...(prev.adjustments || []), newAdjustment]
+    }) : null);
+  };
+
+  const handleRemoveAdjustment = (id: string) => {
+    setFormData(prev => prev ? ({
+      ...prev,
+      adjustments: (prev.adjustments || []).filter(adj => adj.id !== id)
+    }) : null);
+  };
+
+  const handleAdjustmentChange = (id: string, field: keyof Adjustment, value: any) => {
+    setFormData(prev => prev ? ({
+      ...prev,
+      adjustments: (prev.adjustments || []).map(adj =>
+        adj.id === id ? { ...adj, [field]: value } : adj
       )
     }) : null);
   };
@@ -308,6 +355,107 @@ export default function EmployeePayrollDrawer({
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleRemoveLineItem(item.id)}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Salary Adjustments</Label>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleAddAdjustment}
+                          disabled={!formData.allowOverride}
+                          className="h-7 text-xs"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Adjustment
+                        </Button>
+                      </div>
+
+                      {(formData.adjustments || []).length === 0 ? (
+                        <p className="text-xs text-muted-foreground">No adjustments configured</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {(formData.adjustments || []).map((adj) => (
+                            <Card key={adj.id} className="p-3 bg-muted/50">
+                              <div className="flex items-start gap-2">
+                                <div className="flex-1 space-y-2">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <Label className="text-xs">Name</Label>
+                                      <Input
+                                        value={adj.name}
+                                        onChange={(e) => handleAdjustmentChange(adj.id, "name", e.target.value)}
+                                        disabled={!formData.allowOverride}
+                                        className="mt-1 h-7 text-xs"
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs">Amount</Label>
+                                      <Input
+                                        type="number"
+                                        value={adj.amount}
+                                        onChange={(e) => handleAdjustmentChange(adj.id, "amount", Number(e.target.value))}
+                                        disabled={!formData.allowOverride}
+                                        className="mt-1 h-7 text-xs"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <Label className="text-xs">Taxable</Label>
+                                      <div className="flex items-center gap-2 mt-1.5">
+                                        <Switch
+                                          checked={adj.taxable}
+                                          onCheckedChange={(checked) => handleAdjustmentChange(adj.id, "taxable", checked)}
+                                          disabled={!formData.allowOverride}
+                                          className="scale-75"
+                                        />
+                                        <span className="text-xs">{adj.taxable ? "Yes" : "No"}</span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs">Apply to</Label>
+                                      <Select
+                                        value={adj.applyTo}
+                                        onValueChange={(value) => handleAdjustmentChange(adj.id, "applyTo", value)}
+                                        disabled={!formData.allowOverride}
+                                      >
+                                        <SelectTrigger className="h-7 text-xs mt-1">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {isPH ? (
+                                            <>
+                                              <SelectItem value="1st_half" className="text-xs">1st Half only (PH)</SelectItem>
+                                              <SelectItem value="2nd_half" className="text-xs">2nd Half only (PH)</SelectItem>
+                                              <SelectItem value="both_halves" className="text-xs">Both Halves (PH)</SelectItem>
+                                            </>
+                                          ) : (
+                                            <SelectItem value="full_month" className="text-xs">Full Month</SelectItem>
+                                          )}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                </div>
+                                {formData.allowOverride && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveAdjustment(adj.id)}
                                     className="h-6 w-6 p-0"
                                   >
                                     <X className="h-3 w-3" />
