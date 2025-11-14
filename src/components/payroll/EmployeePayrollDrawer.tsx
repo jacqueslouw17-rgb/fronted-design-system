@@ -220,23 +220,23 @@ export default function EmployeePayrollDrawer({
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             <SheetHeader>
-              <div className="flex items-start gap-4">
-                <div className="flex-1">
-                  <SheetTitle className="text-xl">Employee Payroll Details</SheetTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Configure salary, benefits, and deductions
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleOpenSettings} className="shrink-0">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
+              <div>
+                <SheetTitle className="text-xl">Employee Payroll Details</SheetTitle>
+                <p className="text-sm text-muted-foreground">
+                  Configure salary, benefits, and deductions
+                </p>
               </div>
             </SheetHeader>
 
             {/* Employee Overview */}
             <Card className="p-4">
-              <h3 className="font-semibold mb-4">Employee Overview</h3>
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="font-semibold">Employee Overview</h3>
+                <Button variant="outline" size="sm" onClick={handleOpenSettings}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
