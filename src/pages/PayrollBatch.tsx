@@ -1738,7 +1738,7 @@ const PayrollBatch: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-sm font-medium text-foreground">Payroll Cycle: November 2025</p>
-                  <p className="text-xs text-muted-foreground">Status: Processing 15th of November</p>
+                  <p className="text-xs text-muted-foreground">Monitor payouts, post employee payroll, view receipts, and reconcile completed payments.</p>
                 </div>
                 <TooltipProvider>
                   <Tooltip>
@@ -1785,6 +1785,49 @@ const PayrollBatch: React.FC = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Batch Summary - November 2025 */}
+            {selectedCycle === "previous" && (
+              <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/10">
+                <Info className="h-4 w-4 text-amber-600" />
+                <p className="text-sm text-amber-900 dark:text-amber-200">
+                  This is a completed payroll cycle. Actions are disabled.
+                </p>
+              </div>
+            )}
+
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Batch Summary – November 2025</h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Contractors Paid</p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {allContractors.filter(c => c.employmentType === "contractor").length}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Employees Posted</p>
+                    <p className="text-lg font-semibold text-blue-600">
+                      {allContractors.filter(c => c.employmentType === "employee").length}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Total Outflow (Contractors)</p>
+                    <p className="text-lg font-semibold text-foreground">
+                      ${(allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Payroll Posted (Employees)</p>
+                    <p className="text-lg font-semibold text-blue-600">
+                      ${(allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.netPay, 0) / 1000).toFixed(1)}K
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Progress & Status Summary */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
@@ -1988,23 +2031,42 @@ const PayrollBatch: React.FC = () => {
                               {contractor.fxRate.toFixed(2)}
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge
-                                variant={status === "Paid" ? "default" : "outline"}
-                                className={cn(
-                                  "text-[10px]",
-                                  status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-                                  status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
-                                  status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30"
-                                )}
-                              >
-                                {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
-                                {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
-                                {status}
-                              </Badge>
+                              {contractor.employmentType === "employee" ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Badge 
+                                        variant="outline"
+                                        className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30"
+                                      >
+                                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                                        Posted
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Payroll posted for accounting. No funds transferred from Fronted.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                <Badge
+                                  variant={status === "Paid" ? "default" : "outline"}
+                                  className={cn(
+                                    "text-[10px]",
+                                    status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                                    status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+                                    status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30"
+                                  )}
+                                >
+                                  {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                  {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
+                                  {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
+                                  {status}
+                                </Badge>
+                              )}
                             </TableCell>
                             <TableCell className="text-center">
-                              {receipt && (
+                              {contractor.employmentType === "contractor" && receipt && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -2016,6 +2078,9 @@ const PayrollBatch: React.FC = () => {
                                 >
                                   View
                                 </Button>
+                              )}
+                              {contractor.employmentType === "employee" && (
+                                <span className="text-xs text-muted-foreground">—</span>
                               )}
                             </TableCell>
                           </TableRow>
@@ -2060,6 +2125,24 @@ const PayrollBatch: React.FC = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Navigation */}
+            <div className="flex items-center justify-between pt-4">
+              <Button 
+                variant="outline"
+                className="h-9 px-4 text-sm"
+                onClick={() => setCurrentStep("execute")}
+              >
+                ← Previous: Execute
+              </Button>
+              
+              <Button 
+                className="h-9 px-4 text-sm"
+                onClick={() => navigate("/payroll-batch")}
+              >
+                Back to Payroll Overview
+              </Button>
+            </div>
           </div>
         );
 
