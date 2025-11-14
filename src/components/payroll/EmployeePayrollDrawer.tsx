@@ -150,8 +150,8 @@ export default function EmployeePayrollDrawer({
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             <SheetHeader className="space-y-1">
-              <SheetTitle className="text-base font-semibold">Employee Payroll</SheetTitle>
-              <p className="text-xs text-muted-foreground">
+              <SheetTitle className="text-lg font-semibold">Employee Payroll</SheetTitle>
+              <p className="text-sm text-muted-foreground">
                 Configure salary, benefits, deductions, and settings
               </p>
             </SheetHeader>
