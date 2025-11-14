@@ -20,6 +20,39 @@ interface LineItem {
   cap?: number;
 }
 
+interface ContractorPayment {
+  id: string;
+  name: string;
+  country: string;
+  countryCode: string;
+  currency: string;
+  employmentType: "contractor" | "employee";
+  amount?: number;
+  baseSalary?: number;
+  netPay?: number;
+  lineItems?: LineItem[];
+  startDate?: string;
+  nationalId?: string;
+  taxEmployee?: number;
+  sssEmployee?: number;
+  sssEmployer?: number;
+  philHealthEmployee?: number;
+  philHealthEmployer?: number;
+  pagIbigEmployee?: number;
+  pagIbigEmployer?: number;
+  withholdingTax?: number;
+  otherDeductions?: number;
+  holidayPay?: number;
+  employerTax?: number;
+  pension?: number;
+  status?: string;
+  estFees?: number;
+  fxRate?: number;
+  recvLocal?: number;
+  eta?: string;
+  allowOverride?: boolean;
+}
+
 interface EmployeePayrollData {
   id: string;
   name: string;
@@ -52,8 +85,8 @@ interface EmployeePayrollData {
 interface EmployeePayrollDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  employee: EmployeePayrollData | null;
-  onSave: (data: EmployeePayrollData) => void;
+  employee: ContractorPayment | null;
+  onSave: (data: ContractorPayment) => void;
 }
 
 export default function EmployeePayrollDrawer({ 
@@ -62,7 +95,7 @@ export default function EmployeePayrollDrawer({
   employee,
   onSave 
 }: EmployeePayrollDrawerProps) {
-  const [formData, setFormData] = useState<EmployeePayrollData | null>(null);
+  const [formData, setFormData] = useState<ContractorPayment | null>(null);
 
   useEffect(() => {
     if (employee) {
