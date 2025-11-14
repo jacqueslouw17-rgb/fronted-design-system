@@ -708,6 +708,11 @@ const PayrollBatch: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h3 className="text-lg font-semibold text-foreground">FX Review</h3>
+                {selectedCycle === "previous" && (
+                  <Badge variant="outline" className="text-xs bg-muted/30">
+                    Read-Only Mode
+                  </Badge>
+                )}
                 {fxRatesLocked && lockedAt && (
                   <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 gap-1.5">
                     <Lock className="h-3 w-3" />
@@ -880,6 +885,13 @@ const PayrollBatch: React.FC = () => {
               };
               const symbol = currencySymbols[currency] || currency;
               
+              // Sort contractors: Employees first, then Contractors
+              const sortedContractors = [...contractors].sort((a, b) => {
+                if (a.employmentType === "employee" && b.employmentType === "contractor") return -1;
+                if (a.employmentType === "contractor" && b.employmentType === "employee") return 1;
+                return 0;
+              });
+              
               return (
                 <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
                   <CardContent className="p-0">
@@ -919,7 +931,7 @@ const PayrollBatch: React.FC = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {contractors.map((contractor) => {
+                        {sortedContractors.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
                           const hasLeave = leaveData && leaveData.leaveDays > 0;
                           const paymentDue = getPaymentDue(contractor);
@@ -933,8 +945,11 @@ const PayrollBatch: React.FC = () => {
                           return (
                             <TableRow 
                               key={contractor.id}
-                              className="cursor-pointer hover:bg-muted/30 transition-colors"
-                              onClick={() => handleOpenContractorDetail(contractor)}
+                              className={cn(
+                                "hover:bg-muted/30 transition-colors",
+                                selectedCycle !== "previous" && "cursor-pointer"
+                              )}
+                              onClick={() => selectedCycle !== "previous" && handleOpenContractorDetail(contractor)}
                             >
                               <TableCell className={cn(
                                 "font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200",
@@ -1018,6 +1033,7 @@ const PayrollBatch: React.FC = () => {
                                     onValueChange={(value) => {
                                       handleToggleAdditionalFee(contractor.id, value === "accept");
                                     }}
+                                    disabled={selectedCycle === "previous"}
                                   >
                                     <SelectTrigger 
                                       className="w-24 h-7 text-xs"
@@ -1098,13 +1114,16 @@ const PayrollBatch: React.FC = () => {
             {/* Summary Card */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-4 gap-6">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Payees</p>
-                    <p className="text-2xl font-bold text-foreground">{allContractors.length}</p>
+                    <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${(allContractors.reduce((sum, c) => sum + c.baseSalary, 0) / 1000).toFixed(1)}K
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Total gross salaries</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Payment Due</p>
+                    <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
@@ -1115,26 +1134,50 @@ const PayrollBatch: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Est. Fees</p>
+                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
                     <p className="text-2xl font-bold text-foreground">
-                      ${allContractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
+                      ${allContractors.reduce((sum, c) => {
+                        const additionalFee = additionalFees[c.id];
+                        return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                      }, 0).toLocaleString()}
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${(allContractors.reduce((sum, c) => {
+                        const additionalFee = additionalFees[c.id];
+                        return sum + c.baseSalary + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                      }, 0) / 1000).toFixed(1)}K
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Gross + Fees</p>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground/70 mt-4 text-center">
+                  Includes pro-rated adjustments and currency conversions
+                </p>
               </CardContent>
             </Card>
 
-            {/* Footer CTA */}
+            {/* Footer Navigation */}
             <div className="pt-4 border-t border-border flex items-center justify-between">
+              <Button 
+                variant="outline"
+                className="h-9 px-4 text-sm"
+                onClick={handleReturnToPayrollOverview}
+              >
+                ← Previous
+              </Button>
               <div className="text-xs text-muted-foreground">
-                Step 1 of 5 – FX Review
+                Step 1 of 4 – FX Review
               </div>
               <Button 
                 className="h-9 px-4 text-sm"
                 onClick={() => setCurrentStep("exceptions")}
-                disabled={currentCycleData.status !== "active"}
+                disabled={selectedCycle === "previous"}
               >
-                Go to Exceptions
+                Next: Exceptions →
               </Button>
             </div>
           </div>
@@ -3048,7 +3091,11 @@ You can ask me about:
                       </Dialog>
 
                       {/* Contractor Detail Drawer */}
-                      <Sheet open={contractorDrawerOpen} onOpenChange={setContractorDrawerOpen}>
+                      <Sheet open={contractorDrawerOpen} onOpenChange={(open) => {
+                        if (!open || selectedCycle !== "previous") {
+                          setContractorDrawerOpen(open);
+                        }
+                      }}>
                         <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
                           {selectedContractor && (
                             <>
@@ -3066,15 +3113,21 @@ You can ask me about:
                                         : "bg-purple-500/10 text-purple-600 border-purple-500/30"
                                     )}
                                   >
-                                    {selectedContractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                                    {selectedContractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
                                   </Badge>
                                   <span className="text-sm text-muted-foreground">•</span>
                                   <span className="text-sm text-muted-foreground">{selectedContractor.country}</span>
+                                  {selectedCycle === "previous" && (
+                                    <>
+                                      <span className="text-sm text-muted-foreground">•</span>
+                                      <Badge variant="outline" className="text-xs">Read Only</Badge>
+                                    </>
+                                  )}
                                 </div>
                               </SheetHeader>
 
                               <div className="space-y-6 mt-6">
-                                {/* Payment Breakdown */}
+                                {/* Detailed Payment Breakdown */}
                                 <div className="space-y-3">
                                   <h4 className="font-semibold text-foreground flex items-center gap-2">
                                     <Receipt className="h-4 w-4" />
@@ -3082,33 +3135,75 @@ You can ask me about:
                                   </h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4 space-y-3">
+                                      {/* Base Salary / Consultancy Fee */}
                                       <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Base Salary</span>
+                                        <span className="text-sm text-muted-foreground">
+                                          {selectedContractor.employmentType === "employee" ? "Base Salary" : "Consultancy Fee"}
+                                        </span>
                                         <span className="text-sm font-semibold">
                                           {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
                                         </span>
                                       </div>
                                       
+                                      {/* Benefits or Line Items */}
                                       {selectedContractor.employmentType === "employee" && selectedContractor.employerTaxes && (
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-sm text-muted-foreground">Benefits (included)</span>
-                                          <span className="text-sm font-medium text-blue-600">
-                                            +{selectedContractor.currency} {selectedContractor.employerTaxes.toLocaleString()}
-                                          </span>
-                                        </div>
-                                      )}
-
-                                      {leaveRecords[selectedContractor.id]?.leaveDays > 0 && (
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-sm text-muted-foreground">Leave Deduction</span>
-                                          <span className="text-sm font-medium text-amber-600">
-                                            -{selectedContractor.currency} {Math.round(selectedContractor.baseSalary - getPaymentDue(selectedContractor)).toLocaleString()}
-                                          </span>
+                                        <div className="space-y-2">
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-sm text-muted-foreground">Benefits & Line Items</span>
+                                          </div>
+                                          <div className="pl-4 space-y-1.5">
+                                            <div className="flex items-center justify-between text-xs">
+                                              <span className="text-muted-foreground">• Health Insurance</span>
+                                              <span className="font-medium">Taxable</span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs">
+                                              <span className="text-muted-foreground">• Pension Contribution</span>
+                                              <span className="font-medium">Non-Taxable (Cap: {selectedContractor.currency} 5,000)</span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs">
+                                              <span className="text-muted-foreground">• Total Benefits</span>
+                                              <span className="font-medium text-blue-600">
+                                                +{selectedContractor.currency} {selectedContractor.employerTaxes.toLocaleString()}
+                                              </span>
+                                            </div>
+                                          </div>
                                         </div>
                                       )}
 
                                       <Separator />
 
+                                      {/* Gross Pay */}
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-foreground">Gross Pay</span>
+                                        <span className="text-sm font-bold text-foreground">
+                                          {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
+                                        </span>
+                                      </div>
+
+                                      <Separator />
+
+                                      {/* Deductions */}
+                                      <div className="space-y-2">
+                                        <span className="text-sm text-muted-foreground">Deductions</span>
+                                        {leaveRecords[selectedContractor.id]?.leaveDays > 0 && (
+                                          <div className="pl-4 flex items-center justify-between text-xs">
+                                            <span className="text-muted-foreground">• Leave Proration ({leaveRecords[selectedContractor.id].leaveDays}d)</span>
+                                            <span className="font-medium text-amber-600">
+                                              -{selectedContractor.currency} {Math.round(selectedContractor.baseSalary - getPaymentDue(selectedContractor)).toLocaleString()}
+                                            </span>
+                                          </div>
+                                        )}
+                                        {selectedContractor.employmentType === "employee" && (
+                                          <div className="pl-4 flex items-center justify-between text-xs">
+                                            <span className="text-muted-foreground">• Income Tax & Social Contributions</span>
+                                            <span className="font-medium">Included in employer cost</span>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      <Separator />
+
+                                      {/* Net Pay */}
                                       <div className="flex items-center justify-between">
                                         <span className="text-sm font-semibold text-foreground">Net Pay</span>
                                         <span className="text-lg font-bold text-foreground">
@@ -3116,6 +3211,7 @@ You can ask me about:
                                         </span>
                                       </div>
 
+                                      {/* Fees */}
                                       <div className="flex items-center justify-between text-muted-foreground">
                                         <span className="text-sm">Est. Fees</span>
                                         <span className="text-sm">
@@ -3132,6 +3228,7 @@ You can ask me about:
 
                                       <Separator />
 
+                                      {/* Total Payable */}
                                       <div className="flex items-center justify-between">
                                         <span className="text-base font-bold text-foreground">Total Payable</span>
                                         <span className="text-xl font-bold text-primary">
@@ -3150,7 +3247,7 @@ You can ask me about:
                                 <div className="space-y-3">
                                   <h4 className="font-semibold text-foreground flex items-center gap-2">
                                     <DollarSign className="h-4 w-4" />
-                                    FX Details
+                                    Currency & FX Details
                                   </h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4 space-y-3">
@@ -3170,31 +3267,67 @@ You can ask me about:
                                   </Card>
                                 </div>
 
-                                {/* One-time Adjustment */}
-                                <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground">Adjustments</h4>
+                                {/* Admin Override Section */}
+                                {selectedCycle !== "previous" && (
                                   <div className="space-y-3">
-                                    <div>
-                                      <Label htmlFor="adjustment" className="text-sm font-medium mb-2 block">
-                                        One-time Adjustment
-                                      </Label>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
-                                        <input
-                                          id="adjustment"
-                                          type="number"
-                                          value={oneTimeAdjustment}
-                                          onChange={(e) => setOneTimeAdjustment(parseFloat(e.target.value) || 0)}
-                                          className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
-                                          placeholder="0"
-                                        />
+                                    <h4 className="font-semibold text-foreground">Admin Override</h4>
+                                    <div className="space-y-4">
+                                      {/* Base Salary Override */}
+                                      <div>
+                                        <Label htmlFor="salary-override" className="text-sm font-medium mb-2 block">
+                                          Base Salary Override
+                                        </Label>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
+                                          <input
+                                            id="salary-override"
+                                            type="number"
+                                            defaultValue={selectedContractor.baseSalary}
+                                            className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                                            placeholder={selectedContractor.baseSalary.toString()}
+                                          />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Override base salary for this payroll cycle
+                                        </p>
                                       </div>
-                                      <p className="text-xs text-muted-foreground mt-1">
-                                        Enter positive for bonus, negative for deduction
-                                      </p>
+
+                                      {/* One-time Adjustment */}
+                                      <div>
+                                        <Label htmlFor="adjustment" className="text-sm font-medium mb-2 block">
+                                          One-time Adjustment
+                                        </Label>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
+                                          <input
+                                            id="adjustment"
+                                            type="number"
+                                            value={oneTimeAdjustment}
+                                            onChange={(e) => setOneTimeAdjustment(parseFloat(e.target.value) || 0)}
+                                            className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                                            placeholder="0"
+                                          />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Enter positive for bonus, negative for deduction
+                                        </p>
+                                      </div>
+
+                                      {/* Line Items */}
+                                      <div>
+                                        <Label className="text-sm font-medium mb-2 block">
+                                          Line Items
+                                        </Label>
+                                        <Button variant="outline" size="sm" className="w-full" disabled>
+                                          + Add Line Item
+                                        </Button>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Add custom taxable/non-taxable line items
+                                        </p>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
+                                )}
 
                                 {oneTimeAdjustment !== 0 && (
                                   <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
@@ -3220,14 +3353,16 @@ You can ask me about:
                                   variant="outline"
                                   onClick={() => setContractorDrawerOpen(false)}
                                 >
-                                  Cancel
+                                  {selectedCycle === "previous" ? "Close" : "Cancel"}
                                 </Button>
-                                <Button
-                                  onClick={handleSaveContractorAdjustment}
-                                  disabled={oneTimeAdjustment === 0}
-                                >
-                                  Save & Recalculate
-                                </Button>
+                                {selectedCycle !== "previous" && (
+                                  <Button
+                                    onClick={handleSaveContractorAdjustment}
+                                    disabled={oneTimeAdjustment === 0}
+                                  >
+                                    Save & Recalculate
+                                  </Button>
+                                )}
                               </SheetFooter>
                             </>
                           )}
