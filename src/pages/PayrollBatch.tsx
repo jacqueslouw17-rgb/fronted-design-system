@@ -289,6 +289,102 @@ const PayrollBatch: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
+  const [payrollCycleData, setPayrollCycleData] = useState<{
+    previous: {
+      label: string;
+      totalSalaryCost: number;
+      frontedFees: number;
+      totalPayrollCost: number;
+      completedDate?: string;
+      nextPayrollRun?: string;
+      nextPayrollYear?: string;
+      previousBatch: {
+        employeesPaid: number;
+        amountProcessed: number;
+        skippedSnoozed: number;
+      };
+      status: "completed" | "active" | "upcoming";
+      hasData: boolean;
+    };
+    current: {
+      label: string;
+      totalSalaryCost: number;
+      frontedFees: number;
+      totalPayrollCost: number;
+      nextPayrollRun?: string;
+      nextPayrollYear?: string;
+      completedDate?: string;
+      previousBatch: {
+        employeesPaid: number;
+        amountProcessed: number;
+        skippedSnoozed: number;
+      };
+      status: "completed" | "active" | "upcoming";
+      hasData: boolean;
+    };
+    next: {
+      label: string;
+      totalSalaryCost: number | null;
+      frontedFees: number | null;
+      totalPayrollCost: number | null;
+      nextPayrollRun?: string;
+      nextPayrollYear?: string;
+      opensOn?: string;
+      previousBatch: {
+        employeesPaid: number;
+        amountProcessed: number;
+        skippedSnoozed: number;
+      };
+      status: "completed" | "active" | "upcoming";
+      hasData: boolean;
+    };
+  }>({
+    previous: {
+      label: "October 2025",
+      totalSalaryCost: 118240,
+      frontedFees: 3547,
+      totalPayrollCost: 121787,
+      completedDate: "Oct 15, 2025",
+      previousBatch: {
+        employeesPaid: 8,
+        amountProcessed: 118240,
+        skippedSnoozed: 0
+      },
+      status: "completed",
+      hasData: true
+    },
+    current: {
+      label: "November 2025",
+      totalSalaryCost: 124850,
+      frontedFees: 3742,
+      totalPayrollCost: 128592,
+      nextPayrollRun: "Nov 15",
+      nextPayrollYear: "2025",
+      previousBatch: {
+        employeesPaid: 8,
+        amountProcessed: 118240,
+        skippedSnoozed: 0
+      },
+      status: "active",
+      hasData: true
+    },
+    next: {
+      label: "December 2025",
+      totalSalaryCost: null,
+      frontedFees: null,
+      totalPayrollCost: null,
+      nextPayrollRun: "Dec 15",
+      nextPayrollYear: "2025",
+      opensOn: "Dec 12, 2025",
+      previousBatch: {
+        employeesPaid: 0,
+        amountProcessed: 0,
+        skippedSnoozed: 0
+      },
+      status: "upcoming",
+      hasData: false
+    }
+  });
 
   // Initialize leave records from contractor data
   React.useEffect(() => {
@@ -461,55 +557,6 @@ const PayrollBatch: React.FC = () => {
     ...contractorsByCurrency.PHP,
   ];
 
-  // Payroll cycle data for month selector
-  const payrollCycleData = {
-    previous: {
-      label: "October 2025",
-      totalSalaryCost: 118240,
-      frontedFees: 3547,
-      totalPayrollCost: 121787,
-      completedDate: "Oct 15, 2025",
-      previousBatch: {
-        employeesPaid: 8,
-        amountProcessed: 118240,
-        skippedSnoozed: 0
-      },
-      status: "completed" as const,
-      hasData: true
-    },
-    current: {
-      label: "November 2025",
-      totalSalaryCost: 124850,
-      frontedFees: 3742,
-      totalPayrollCost: 128592,
-      nextPayrollRun: "Nov 15",
-      nextPayrollYear: "2025",
-      previousBatch: {
-        employeesPaid: 8,
-        amountProcessed: 118240,
-        skippedSnoozed: 0
-      },
-      status: "active" as const,
-      hasData: true
-    },
-    next: {
-      label: "December 2025",
-      totalSalaryCost: null, // No data yet for upcoming cycle
-      frontedFees: null,
-      totalPayrollCost: null,
-      nextPayrollRun: "Dec 15",
-      nextPayrollYear: "2025",
-      opensOn: "Dec 12, 2025",
-      previousBatch: {
-        employeesPaid: 0,
-        amountProcessed: 0,
-        skippedSnoozed: 0
-      },
-      status: "upcoming" as const,
-      hasData: false // Set to true if preloaded
-    }
-  };
-
   const currentCycleData = payrollCycleData[selectedCycle];
 
   // Auto-switch to Track & Reconcile for completed payrolls
@@ -667,6 +714,24 @@ const PayrollBatch: React.FC = () => {
     setViewMode("payroll");
     setCurrentStep("review-fx");
     toast.success("Returned to Payroll Overview");
+  };
+
+  const handleCompleteAndReturnToOverview = () => {
+    // Mark November as completed
+    setPayrollCycleData(prev => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        status: "completed",
+        completedDate: "Nov 15, 2025"
+      }
+    }));
+    
+    // Navigate back to overview and scroll to top
+    navigate("/payroll-batch");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    toast.success("November payroll cycle completed");
   };
 
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
@@ -2138,7 +2203,7 @@ const PayrollBatch: React.FC = () => {
               
               <Button 
                 className="h-9 px-4 text-sm"
-                onClick={() => navigate("/payroll-batch")}
+                onClick={handleCompleteAndReturnToOverview}
               >
                 Back to Payroll Overview
               </Button>
