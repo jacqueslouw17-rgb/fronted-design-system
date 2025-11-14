@@ -1205,27 +1205,50 @@ const PayrollBatch: React.FC = () => {
             {/* Exception Summary Counter */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-4 flex-wrap">
                   <span className="text-sm font-medium text-foreground">Exceptions Summary:</span>
-                  {activeExceptions.length > 0 && (
+                  
+                  {/* Missing Bank Details Count */}
+                  {exceptions.filter(e => e.type === "missing-bank" && !e.resolved && !e.snoozed).length > 0 && (
                     <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
                       <AlertTriangle className="h-3 w-3" />
-                      {activeExceptions.length} unresolved
+                      {exceptions.filter(e => e.type === "missing-bank" && !e.resolved && !e.snoozed).length} Missing Bank Details
                     </Badge>
                   )}
-                  {snoozedExceptions.length > 0 && (
-                    <Badge variant="outline" className="bg-muted text-muted-foreground gap-1">
-                      <Circle className="h-3 w-3" />
-                      {snoozedExceptions.length} snoozed
-                    </Badge>
-                  )}
+                  
+                  {/* Completed Count */}
                   {resolvedExceptions.length > 0 && (
                     <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30 gap-1">
                       <CheckCircle2 className="h-3 w-3" />
-                      {resolvedExceptions.length} cleared successfully
+                      {resolvedExceptions.length} Completed
                     </Badge>
                   )}
-                  {allExceptionsResolved && (
+                  
+                  {/* Skipped to Next Cycle Count */}
+                  {snoozedExceptions.length > 0 && (
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+                      <Circle className="h-3 w-3" />
+                      {snoozedExceptions.length} Skipped to Next Cycle
+                    </Badge>
+                  )}
+                  
+            {activeExceptions.length > 0 && (
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20">
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">Warnings detected – review before continuing</p>
+                      <p className="text-xs text-muted-foreground">These won't block payroll but should be addressed when possible.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {allExceptionsResolved && (
                     <span className="text-xs text-accent-green-text ml-2">✓ All clear!</span>
                   )}
                 </div>
@@ -1253,7 +1276,7 @@ const PayrollBatch: React.FC = () => {
               <div className="space-y-3">
               {activeExceptions.map((exception) => {
                 const severityConfig = {
-                  high: { color: "border-red-500/30 bg-red-500/5", icon: "text-red-600", warningIcon: true },
+                  high: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600", warningIcon: true },
                   medium: { color: "border-amber-500/30 bg-amber-500/5", icon: "text-amber-600", warningIcon: true },
                   low: { color: "border-blue-500/30 bg-blue-500/5", icon: "text-blue-600", warningIcon: false },
                 };
@@ -1290,7 +1313,7 @@ const PayrollBatch: React.FC = () => {
                                 className="h-7 text-xs"
                                 onClick={() => handleSendFormToCandidate(exception)}
                               >
-                                Send Form to Candidate
+                                Send Bank Details Form
                               </Button>
                             )}
                             {exception.formSent && (
@@ -1314,7 +1337,7 @@ const PayrollBatch: React.FC = () => {
                               className="h-7 text-xs"
                               onClick={() => handleSnoozeException(exception.id)}
                             >
-                              Snooze to Next Cycle
+                              Skip to Next Cycle
                             </Button>
                           </div>
                         </div>
@@ -1326,22 +1349,22 @@ const PayrollBatch: React.FC = () => {
             </div>
             )}
 
-            {/* Snoozed Exceptions (if any) */}
+            {/* Skipped to Next Cycle (if any) */}
             {snoozedExceptions.length > 0 && (
               <Card className="border-border/20 bg-muted/10">
                 <CardContent className="p-4">
                   <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
                     <Circle className="h-3.5 w-3.5" />
-                    Snoozed ({snoozedExceptions.length})
+                    Skipped to Next Cycle ({snoozedExceptions.length})
                   </h4>
                   <div className="space-y-2">
                     {snoozedExceptions.map((exception) => (
-                      <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50 opacity-60">
+                      <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground line-through">{exception.contractorName}</span>
-                          <Badge variant="outline" className="text-[10px]">Skipped</Badge>
+                          <span className="text-xs text-muted-foreground">{exception.contractorName}</span>
+                          <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30">Skipped</Badge>
                         </div>
-                        <span className="text-xs text-muted-foreground">Will roll over to next cycle</span>
+                        <span className="text-xs text-muted-foreground">Excluded from this payroll</span>
                       </div>
                     ))}
                   </div>
@@ -1349,33 +1372,26 @@ const PayrollBatch: React.FC = () => {
               </Card>
             )}
 
-            {/* Footer CTA */}
+            {/* Footer Navigation */}
             <div className="pt-4 border-t border-border flex items-center justify-between">
+              <Button
+                variant="outline"
+                className="h-9 px-4 text-sm"
+                onClick={() => setCurrentStep("review-fx")}
+                disabled={selectedCycle === "previous"}
+              >
+                ← Previous: Review
+              </Button>
               <div className="text-xs text-muted-foreground">
                 Step 2 of 4 – Exceptions
               </div>
-              <div className="flex items-center gap-3">
-                {snoozedExceptions.length > 0 && !allExceptionsResolved && (
-                  <p className="text-xs text-muted-foreground">
-                    {snoozedExceptions.length} candidate{snoozedExceptions.length !== 1 ? 's' : ''} will roll over to next month's payroll
-                  </p>
-                )}
-                <Button
-                  variant="outline"
-                  className="h-9 px-4 text-sm"
-                  onClick={() => setCurrentStep("review-fx")}
-                  disabled={currentCycleData.status !== "active"}
-                >
-                  Previous
-                </Button>
-                <Button
-                  className="h-9 px-4 text-sm"
-                  disabled={!allExceptionsResolved || currentCycleData.status !== "active"}
-                  onClick={() => setCurrentStep("execute")}
-                >
-                  {allExceptionsResolved ? "Proceed to Execute" : `Resolve ${activeExceptions.length} Exception${activeExceptions.length !== 1 ? 's' : ''} First`}
-                </Button>
-              </div>
+              <Button
+                className="h-9 px-4 text-sm"
+                disabled={selectedCycle === "previous"}
+                onClick={() => setCurrentStep("execute")}
+              >
+                Next: Execute →
+              </Button>
             </div>
           </div>
         );
