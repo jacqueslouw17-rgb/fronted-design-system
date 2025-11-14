@@ -1413,6 +1413,21 @@ const PayrollBatch: React.FC = () => {
 
             <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
 
+            {/* Warning if exceptions exist */}
+            {activeExceptions.length > 0 && (
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Resolve exceptions before executing payroll</p>
+                      <p className="text-xs text-muted-foreground">{activeExceptions.length} unresolved exception{activeExceptions.length !== 1 ? 's' : ''} must be cleared first</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
               <CardContent className="p-6 space-y-6">
                 <div>
@@ -1439,9 +1454,17 @@ const PayrollBatch: React.FC = () => {
                       </div>
 
                       <div className="p-4 rounded-lg bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
-                        <p className="text-2xl font-bold text-foreground">$747K</p>
-                        <p className="text-xs text-muted-foreground mt-1">across 8 contractors</p>
+                        <p className="text-xs text-muted-foreground mb-2">Payee Breakdown</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">Contractors (COR)</span>
+                            <span className="text-xs font-medium">{allContractors.filter(c => c.employmentType === "contractor").length}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">Employees (EOR)</span>
+                            <span className="text-xs font-medium">{allContractors.filter(c => c.employmentType === "employee").length}</span>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="p-4 rounded-lg bg-muted/30">
@@ -1467,116 +1490,240 @@ const PayrollBatch: React.FC = () => {
                 )}
 
                 {(isExecuting || Object.keys(executionProgress).length > 0) && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-foreground">Processing Payments</h4>
+                      <h4 className="text-sm font-semibold text-foreground">Processing Batch</h4>
                       <Badge variant="outline" className="text-xs">
                         {Object.values(executionProgress).filter(s => s === "complete").length} / {allContractors.length}
                       </Badge>
                     </div>
                     
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {allContractors.map((contractor) => {
-                        const status = executionProgress[contractor.id] || "pending";
-                        
-                        return (
-                          <motion.div
-                            key={contractor.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg border transition-colors",
-                              status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                              status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
-                              status === "pending" && "bg-muted/20 border-border"
-                            )}
-                          >
-                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
-                              {status === "complete" && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ type: "spring", stiffness: 200 }}
-                                >
-                                  <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                                </motion.div>
-                              )}
-                              {status === "processing" && (
-                                <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
-                              )}
-                              {status === "pending" && (
-                                <Circle className="h-3 w-3 text-muted-foreground" />
-                              )}
-                            </div>
+                    {/* Group by employment type */}
+                    {allContractors.filter(c => c.employmentType === "contractor").length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Contractor Payments ({allContractors.filter(c => c.employmentType === "contractor").length})</h5>
+                        </div>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {allContractors.filter(c => c.employmentType === "contractor").map((contractor) => {
+                            const status = executionProgress[contractor.id] || "pending";
                             
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {contractor.name}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {contractor.currency === "EUR" && `€${contractor.netPay.toLocaleString()}`}
-                                {contractor.currency === "NOK" && `kr${contractor.netPay.toLocaleString()}`}
-                                {contractor.currency === "PHP" && `₱${contractor.netPay.toLocaleString()}`}
-                                {" • " + contractor.country}
-                              </p>
-                            </div>
+                            return (
+                              <motion.div
+                                key={contractor.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className={cn(
+                                  "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+                                  status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                                  status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
+                                  status === "pending" && "bg-muted/20 border-border"
+                                )}
+                              >
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
+                                  {status === "complete" && (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: "spring", stiffness: 200 }}
+                                    >
+                                      <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                    </motion.div>
+                                  )}
+                                  {status === "processing" && (
+                                    <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+                                  )}
+                                  {status === "pending" && (
+                                    <Circle className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </div>
+                                
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-foreground truncate">
+                                    {contractor.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {contractor.currency === "EUR" && `€${contractor.netPay.toLocaleString()}`}
+                                    {contractor.currency === "NOK" && `kr${contractor.netPay.toLocaleString()}`}
+                                    {contractor.currency === "PHP" && `₱${contractor.netPay.toLocaleString()}`}
+                                    {" • " + contractor.country}
+                                  </p>
+                                </div>
 
-                            <Badge 
-                              variant="outline" 
-                              className={cn(
-                                "text-[10px]",
-                                status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-                                status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
-                                status === "pending" && "bg-muted text-muted-foreground"
-                              )}
-                            >
-                              {status === "complete" && "Sent"}
-                              {status === "processing" && "Processing"}
-                              {status === "pending" && "Queued"}
-                            </Badge>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-[10px]",
+                                    status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
+                                    status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                    status === "pending" && "bg-muted text-muted-foreground"
+                                  )}
+                                >
+                                  {status === "complete" && "Paid"}
+                                  {status === "processing" && "Processing"}
+                                  {status === "pending" && "Queued"}
+                                </Badge>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Employee Payroll Group */}
+                    {allContractors.filter(c => c.employmentType === "employee").length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Employee Payroll ({allContractors.filter(c => c.employmentType === "employee").length})</h5>
+                        </div>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {allContractors.filter(c => c.employmentType === "employee").map((employee) => {
+                            const status = executionProgress[employee.id] || "pending";
+                            
+                            return (
+                              <motion.div
+                                key={employee.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className={cn(
+                                  "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+                                  status === "complete" && "bg-blue-500/10 border-blue-500/20",
+                                  status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
+                                  status === "pending" && "bg-muted/20 border-border"
+                                )}
+                              >
+                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
+                                  {status === "complete" && (
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: "spring", stiffness: 200 }}
+                                    >
+                                      <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                                    </motion.div>
+                                  )}
+                                  {status === "processing" && (
+                                    <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+                                  )}
+                                  {status === "pending" && (
+                                    <Circle className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </div>
+                                
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-foreground truncate">
+                                    {employee.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {employee.currency === "EUR" && `€${employee.netPay.toLocaleString()}`}
+                                    {employee.currency === "NOK" && `kr${employee.netPay.toLocaleString()}`}
+                                    {employee.currency === "PHP" && `₱${employee.netPay.toLocaleString()}`}
+                                    {" • " + employee.country}
+                                  </p>
+                                </div>
+
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Badge 
+                                        variant="outline" 
+                                        className={cn(
+                                          "text-[10px]",
+                                          status === "complete" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                          status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                          status === "pending" && "bg-muted text-muted-foreground"
+                                        )}
+                                      >
+                                        {status === "complete" && "Posted"}
+                                        {status === "processing" && "Posting"}
+                                        {status === "pending" && "Queued"}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    {status === "complete" && (
+                                      <TooltipContent>
+                                        <p className="text-xs">Payroll posted for accounting. No funds transferred from Fronted.</p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {!isExecuting && Object.keys(executionProgress).length === 0 && (
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      variant="outline"
-                      className="h-9 px-4 text-sm"
-                      onClick={() => setCurrentStep("exceptions")}
-                      disabled={currentCycleData.status !== "active"}
-                    >
-                      Previous
-                    </Button>
-                    <Button 
-                      className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
-                      onClick={handleExecutePayroll}
-                      disabled={currentCycleData.status !== "active"}
-                    >
-                      <Play className="h-4 w-4 mr-2" />
-                      Execute Payroll Now
-                    </Button>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Button 
+                        variant="outline"
+                        className="h-9 px-4 text-sm"
+                        onClick={() => setCurrentStep("exceptions")}
+                        disabled={selectedCycle === "previous"}
+                      >
+                        ← Previous: Exceptions
+                      </Button>
+                      
+                      {/* Batch-level controls based on payee types */}
+                      {allContractors.filter(c => c.employmentType === "contractor").length > 0 && (
+                        <Button 
+                          className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
+                          onClick={handleExecutePayroll}
+                          disabled={activeExceptions.length > 0 || selectedCycle === "previous"}
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Execute Contractor Payments
+                        </Button>
+                      )}
+                      
+                      {allContractors.filter(c => c.employmentType === "employee").length > 0 && (
+                        <Button 
+                          className="h-9 px-4 text-sm"
+                          onClick={handleExecutePayroll}
+                          disabled={activeExceptions.length > 0 || selectedCycle === "previous"}
+                        >
+                          <CheckSquare className="h-4 w-4 mr-2" />
+                          Post Employee Payroll
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 {!isExecuting && Object.keys(executionProgress).length > 0 && 
                  Object.values(executionProgress).every(s => s === "complete") && (
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                    >
-                      <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">Batch Executed Successfully</p>
-                      <p className="text-xs text-muted-foreground">
-                        All {allContractors.length} payments processed • Advancing to tracking...
-                      </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                      >
+                        <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
+                      </motion.div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">Batch Processed Successfully</p>
+                        <p className="text-xs text-muted-foreground">
+                          {allContractors.filter(c => c.employmentType === "contractor").length > 0 && 
+                            `${allContractors.filter(c => c.employmentType === "contractor").length} contractor payment${allContractors.filter(c => c.employmentType === "contractor").length !== 1 ? 's' : ''} executed`}
+                          {allContractors.filter(c => c.employmentType === "contractor").length > 0 && 
+                           allContractors.filter(c => c.employmentType === "employee").length > 0 && " • "}
+                          {allContractors.filter(c => c.employmentType === "employee").length > 0 && 
+                            `${allContractors.filter(c => c.employmentType === "employee").length} employee payroll${allContractors.filter(c => c.employmentType === "employee").length !== 1 ? 's' : ''} posted`}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-end">
+                      <Button 
+                        className="h-9 px-4 text-sm"
+                        onClick={() => setCurrentStep("track")}
+                      >
+                        Next: Track & Reconcile →
+                      </Button>
                     </div>
                   </div>
                 )}
