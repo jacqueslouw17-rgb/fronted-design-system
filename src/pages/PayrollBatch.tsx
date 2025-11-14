@@ -609,11 +609,7 @@ const PayrollBatch: React.FC = () => {
     }
 
     setIsExecuting(false);
-    toast.success("Payroll batch executed successfully!");
-    
-    setTimeout(() => {
-      setCurrentStep("track");
-    }, 1500);
+    toast.success("Payroll batch processed successfully!");
   };
 
   const handleViewReceipt = (receipt: any) => {
@@ -1667,28 +1663,14 @@ const PayrollBatch: React.FC = () => {
                         ← Previous: Exceptions
                       </Button>
                       
-                      {/* Batch-level controls based on payee types */}
-                      {allContractors.filter(c => c.employmentType === "contractor").length > 0 && (
-                        <Button 
-                          className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
-                          onClick={handleExecutePayroll}
-                          disabled={activeExceptions.length > 0 || selectedCycle === "previous"}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Execute Contractor Payments
-                        </Button>
-                      )}
-                      
-                      {allContractors.filter(c => c.employmentType === "employee").length > 0 && (
-                        <Button 
-                          className="h-9 px-4 text-sm"
-                          onClick={handleExecutePayroll}
-                          disabled={activeExceptions.length > 0 || selectedCycle === "previous"}
-                        >
-                          <CheckSquare className="h-4 w-4 mr-2" />
-                          Post Employee Payroll
-                        </Button>
-                      )}
+                      <Button 
+                        className="h-9 px-4 text-sm bg-primary hover:bg-primary/90"
+                        onClick={handleExecutePayroll}
+                        disabled={activeExceptions.length > 0 || selectedCycle === "previous"}
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Execute Payroll
+                      </Button>
                     </div>
                   </div>
                 )}
