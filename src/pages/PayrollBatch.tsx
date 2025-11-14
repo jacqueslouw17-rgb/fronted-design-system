@@ -1032,13 +1032,17 @@ const PayrollBatch: React.FC = () => {
                         {contractorsList.length > 0 && (
                           <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              <TableCell colSpan={11} className="py-2 sticky left-0 z-30 bg-muted/20">
+                              <TableCell className={cn(
+                                "py-2 sticky left-0 z-30 bg-muted/20",
+                                scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
+                              )}>
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Contractors ({contractorsList.length})
                                   </span>
                                 </div>
                               </TableCell>
+                              <TableCell colSpan={10} className="py-2 bg-muted/20"></TableCell>
                             </TableRow>
                             {contractorsList.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
@@ -1186,13 +1190,17 @@ const PayrollBatch: React.FC = () => {
                         {employeesList.length > 0 && (
                           <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              <TableCell colSpan={11} className="py-2 sticky left-0 z-30 bg-muted/20">
+                              <TableCell className={cn(
+                                "py-2 sticky left-0 z-30 bg-muted/20",
+                                scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
+                              )}>
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Employees ({employeesList.length})
                                   </span>
                                 </div>
                               </TableCell>
+                              <TableCell colSpan={10} className="py-2 bg-muted/20"></TableCell>
                             </TableRow>
                             {employeesList.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
