@@ -1194,49 +1194,62 @@ const PayrollBatch: React.FC = () => {
                         {/* Employees Sub-Group */}
                         {employeesList.length > 0 && (
                           <>
-                            {/* PH Bi-Monthly Banner & Toggle (only for PHP currency) */}
+                            {/* PH Bi-Monthly Toggle (only for PHP currency) */}
                             {currency === "PHP" && (
                               <TableRow>
                                 <TableCell colSpan={11} className="p-0">
-                                  <div className="p-4 space-y-3">
-                                    {/* Info Banner */}
-                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                      <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                                      <div className="flex-1 text-xs text-foreground">
-                                        <p className="font-semibold mb-1">PH Payroll is bi-monthly</p>
-                                        <p className="text-muted-foreground">
-                                          <span className="font-medium">1st Half (1–15):</span> 50% of Base Salary + 50% of Allowances (no deductions).
-                                          <br />
-                                          <span className="font-medium">2nd Half (16–End):</span> 50% of Base Salary + 50% of Allowances + all mandatory deductions (SSS, PhilHealth, Pag-IBIG, Tax).
-                                        </p>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Bi-Monthly Toggle */}
+                                  <div className="p-4">
+                                    {/* Bi-Monthly Toggle with Info Icons */}
                                     <div className="flex items-center gap-3">
                                       <span className="text-xs font-medium text-muted-foreground">Select Payout Half:</span>
                                       <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1">
                                         <button
                                           onClick={() => setPhPayrollHalf("1st")}
                                           className={cn(
-                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5",
                                             phPayrollHalf === "1st"
                                               ? "bg-background text-foreground shadow-sm"
                                               : "text-muted-foreground hover:text-foreground"
                                           )}
                                         >
                                           1st Half Payout
+                                          <TooltipProvider>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Info className="h-3 w-3 text-blue-600" />
+                                              </TooltipTrigger>
+                                              <TooltipContent side="top" className="max-w-xs">
+                                                <p className="text-xs font-semibold mb-1">1st Half (1–15)</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                  50% of Base Salary + 50% of Allowances (no deductions)
+                                                </p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         </button>
                                         <button
                                           onClick={() => setPhPayrollHalf("2nd")}
                                           className={cn(
-                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5",
                                             phPayrollHalf === "2nd"
                                               ? "bg-background text-foreground shadow-sm"
                                               : "text-muted-foreground hover:text-foreground"
                                           )}
                                         >
                                           2nd Half Payout
+                                          <TooltipProvider>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Info className="h-3 w-3 text-blue-600" />
+                                              </TooltipTrigger>
+                                              <TooltipContent side="top" className="max-w-xs">
+                                                <p className="text-xs font-semibold mb-1">2nd Half (16–End)</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                  50% of Base Salary + 50% of Allowances + all mandatory deductions (SSS, PhilHealth, Pag-IBIG, Tax)
+                                                </p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         </button>
                                       </div>
                                     </div>
