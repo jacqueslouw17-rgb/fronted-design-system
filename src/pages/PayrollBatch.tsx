@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -2523,6 +2523,15 @@ You can ask me about:
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => navigate("/payroll-country-rules")}
+                                    className="h-8 px-3 gap-2"
+                                  >
+                                    <Settings className="h-4 w-4" />
+                                    <span className="text-xs">Country Rules</span>
+                                  </Button>
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
                                     <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
                                       <SelectValue />

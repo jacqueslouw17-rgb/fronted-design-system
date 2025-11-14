@@ -67,6 +67,7 @@ import OnboardingFlowPattern from "./pages/OnboardingFlowPattern";
 import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
 import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
+import PayrollCountryRules from "./pages/PayrollCountryRules";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
 
 import NotFound from "./pages/NotFound";
@@ -149,6 +150,7 @@ const App = () => (
         <Route path="/payroll/batch" element={<PayrollBatch />} />
         <Route path="/payroll-batch" element={<PayrollBatch />} />
         <Route path="/payroll/batch/current" element={<PayrollBatchCurrent />} />
+        <Route path="/payroll-country-rules" element={<PayrollCountryRules />} />
         <Route path="/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
         
