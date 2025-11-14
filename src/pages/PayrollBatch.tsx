@@ -1232,22 +1232,6 @@ const PayrollBatch: React.FC = () => {
                     </Badge>
                   )}
                   
-            {activeExceptions.length > 0 && (
-              <Card className="border-amber-500/30 bg-amber-500/5">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20">
-                      <AlertTriangle className="h-5 w-5 text-amber-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">Warnings detected – review before continuing</p>
-                      <p className="text-xs text-muted-foreground">These won't block payroll but should be addressed when possible.</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {allExceptionsResolved && (
                     <span className="text-xs text-accent-green-text ml-2">✓ All clear!</span>
                   )}
