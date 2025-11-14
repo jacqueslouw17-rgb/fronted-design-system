@@ -2920,7 +2920,7 @@ You can ask me about:
 
                                 {/* Payment Breakdown */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                     <Receipt className="h-4 w-4" />
                                     Payment Breakdown
                                   </h4>
@@ -2972,7 +2972,7 @@ You can ask me about:
 
                                 {/* Bank Account */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground">Bank Account</h4>
+                                  <h4 className="text-sm font-semibold text-foreground">Bank Account</h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4">
                                       <div className="space-y-2">
@@ -2991,7 +2991,7 @@ You can ask me about:
 
                                 {/* Payment Details */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground">Payment Details</h4>
+                                  <h4 className="text-sm font-semibold text-foreground">Payment Details</h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4 space-y-3">
                                       <div className="flex items-center justify-between">
@@ -3023,7 +3023,7 @@ You can ask me about:
                                 {/* Actions - Only for current/active month */}
                                 {selectedCycle === "current" && (
                                   <div className="space-y-3">
-                                    <h4 className="font-semibold text-foreground">Actions</h4>
+                                    <h4 className="text-sm font-semibold text-foreground">Actions</h4>
                                     <div className="flex gap-2">
                                       <Button
                                         variant="secondary"
@@ -3222,7 +3222,7 @@ You can ask me about:
 
                                 {/* Payment Breakdown */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground">Payment Breakdown</h4>
+                                  <h4 className="text-sm font-semibold text-foreground">Payment Breakdown</h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4 space-y-3">
                                       <div className="flex items-center justify-between">
@@ -3271,7 +3271,7 @@ You can ask me about:
 
                                 {/* Transaction Details */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground">Transaction Details</h4>
+                                  <h4 className="text-sm font-semibold text-foreground">Transaction Details</h4>
                                   <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/20">
                                     <div>
                                       <p className="text-xs text-muted-foreground mb-1">Payment Rail</p>
@@ -3324,7 +3324,7 @@ You can ask me about:
                               </div>
 
                               <div className="space-y-3">
-                                <h4 className="font-semibold text-foreground">Leave Information</h4>
+                                <h4 className="text-sm font-semibold text-foreground">Leave Information</h4>
                                 <div className="space-y-3 p-4 rounded-lg bg-muted/20">
                                   {leaveRecords[selectedLeaveContractor.id].leaveDate && (
                                     <div>
@@ -3354,7 +3354,7 @@ You can ask me about:
                               </div>
 
                               <div className="space-y-3">
-                                <h4 className="font-semibold text-foreground">Payment Calculation</h4>
+                                <h4 className="text-sm font-semibold text-foreground">Payment Calculation</h4>
                                 <div className="space-y-2 p-4 rounded-lg bg-muted/20">
                                   <div className="flex items-center justify-between">
                                     <span className="text-xs text-muted-foreground">Base Salary</span>
@@ -3446,7 +3446,7 @@ You can ask me about:
                               <div className="space-y-6 mt-6">
                                 {/* Detailed Payment Breakdown */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                     <Receipt className="h-4 w-4" />
                                     Payment Breakdown
                                   </h4>
@@ -3562,7 +3562,7 @@ You can ask me about:
 
                                 {/* FX Information */}
                                 <div className="space-y-3">
-                                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                     <DollarSign className="h-4 w-4" />
                                     Currency & FX Details
                                   </h4>
@@ -3587,7 +3587,7 @@ You can ask me about:
                                 {/* Admin Override Section */}
                                 {selectedCycle !== "previous" && (
                                   <div className="space-y-3">
-                                    <h4 className="font-semibold text-foreground">Admin Override</h4>
+                                    <h4 className="text-sm font-semibold text-foreground">Admin Override</h4>
                                     <div className="space-y-4">
                                       {/* Base Salary Override */}
                                       <div>
