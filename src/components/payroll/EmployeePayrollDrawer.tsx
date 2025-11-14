@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,7 @@ import { Plus, Trash2, Calendar, MapPin, CreditCard, Settings } from "lucide-rea
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import EmployeeSettingsDrawer from "./EmployeeSettingsDrawer";
 
 interface LineItem {
   id: string;
@@ -96,12 +96,20 @@ export default function EmployeePayrollDrawer({
   employee,
   onSave 
 }: EmployeePayrollDrawerProps) {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<ContractorPayment | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleOpenSettings = () => {
-    onOpenChange(false);
-    navigate("/employee-payroll-settings", { state: { employee: formData } });
+    setSettingsOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setSettingsOpen(false);
+  };
+
+  const handleSaveSettings = (data: ContractorPayment) => {
+    setFormData(data);
+    onSave(data);
   };
 
   useEffect(() => {
@@ -215,10 +223,11 @@ export default function EmployeePayrollDrawer({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[600px] sm:max-w-[600px] p-0">
-        <ScrollArea className="h-full">
-          <div className="p-6 space-y-6">
+    <>
+      <Sheet open={open && !settingsOpen} onOpenChange={onOpenChange}>
+        <SheetContent side="right" className="w-[600px] sm:max-w-[600px] p-0">
+          <ScrollArea className="h-full">
+            <div className="p-6 space-y-6">
             <SheetHeader>
               <div>
                 <SheetTitle className="text-xl">Employee Payroll Details</SheetTitle>
@@ -537,5 +546,14 @@ export default function EmployeePayrollDrawer({
         </ScrollArea>
       </SheetContent>
     </Sheet>
-  );
+
+    <EmployeeSettingsDrawer
+      open={settingsOpen}
+      onOpenChange={setSettingsOpen}
+      employee={formData}
+      onSave={handleSaveSettings}
+      onBack={handleCloseSettings}
+    />
+  </>
+);
 }
