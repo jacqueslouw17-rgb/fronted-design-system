@@ -72,6 +72,7 @@ interface ContractorPayment {
     name: string;
     amount: number;
     taxable: boolean;
+    applyTo: "1st_half" | "2nd_half" | "both_halves" | "full_month";
     cap?: number;
   }>;
   startDate?: string;
