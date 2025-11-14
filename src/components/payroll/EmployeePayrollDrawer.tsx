@@ -162,7 +162,7 @@ export default function EmployeePayrollDrawer({
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-semibold">Employee Profile</h3>
+                      <h3 className="text-sm font-semibold">Employee Profile</h3>
                       <Badge variant="secondary" className="text-xs">Read-Only</Badge>
                     </div>
                     {profileOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -204,7 +204,7 @@ export default function EmployeePayrollDrawer({
               <Collapsible open={compensationOpen} onOpenChange={setCompensationOpen}>
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between p-4">
-                    <h3 className="font-semibold">Compensation Defaults</h3>
+                    <h3 className="text-sm font-semibold">Compensation Defaults</h3>
                     {compensationOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   </div>
                 </CollapsibleTrigger>
@@ -329,7 +329,7 @@ export default function EmployeePayrollDrawer({
               <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between p-4">
-                    <h3 className="font-semibold">Employee Overrides</h3>
+                    <h3 className="text-sm font-semibold">Employee Overrides</h3>
                     {overridesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   </div>
                 </CollapsibleTrigger>
@@ -368,7 +368,7 @@ export default function EmployeePayrollDrawer({
                   <CollapsibleTrigger className="w-full">
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">Deductions</h3>
+                        <h3 className="text-sm font-semibold">Deductions</h3>
                         <Badge className="text-xs">Philippines Only</Badge>
                       </div>
                       {deductionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -438,7 +438,7 @@ export default function EmployeePayrollDrawer({
                   <CollapsibleTrigger className="w-full">
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">Employer Contributions</h3>
+                        <h3 className="text-sm font-semibold">Employer Contributions</h3>
                         <Badge className="text-xs">Norway Only</Badge>
                       </div>
                       {contributionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -497,7 +497,7 @@ export default function EmployeePayrollDrawer({
                 <CollapsibleTrigger className="w-full">
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">Preview</h3>
+                      <h3 className="text-sm font-semibold">Preview</h3>
                       <Badge variant="secondary" className="text-xs">Read-Only Summary</Badge>
                     </div>
                     {previewOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
