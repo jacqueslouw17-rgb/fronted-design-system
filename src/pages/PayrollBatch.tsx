@@ -1032,7 +1032,7 @@ const PayrollBatch: React.FC = () => {
                         {contractorsList.length > 0 && (
                           <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              <TableCell colSpan={11} className="py-2 sticky left-0 z-20">
+                              <TableCell colSpan={11} className="py-2 sticky left-0 z-30 bg-muted/20">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Contractors ({contractorsList.length})
@@ -1186,7 +1186,7 @@ const PayrollBatch: React.FC = () => {
                         {employeesList.length > 0 && (
                           <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              <TableCell colSpan={11} className="py-2 sticky left-0 z-20">
+                              <TableCell colSpan={11} className="py-2 sticky left-0 z-30 bg-muted/20">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Employees ({employeesList.length})
