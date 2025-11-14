@@ -874,7 +874,7 @@ const PayrollBatch: React.FC = () => {
                   >
                     <div className="space-y-2">
                       <div className="text-xs text-muted-foreground mb-3">
-                        Pro-rated salaries calculated using: Base Salary ÷ 21.67 × (Working Days - Leave Days)
+                        Pro-rated salaries calculated using: Base Pay ÷ 21.67 × (Working Days - Leave Days)
                       </div>
                       <Table>
                         <TableHeader>
@@ -883,7 +883,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right">Leave Days</TableHead>
                             <TableHead className="text-xs text-right">Working Days</TableHead>
                             <TableHead className="text-xs text-right">Pay Days</TableHead>
-                            <TableHead className="text-xs text-right">Base Salary</TableHead>
+                            <TableHead className="text-xs text-right">Base Pay</TableHead>
                             <TableHead className="text-xs text-right">Payment Due</TableHead>
                             <TableHead className="text-xs text-center">Status</TableHead>
                           </TableRow>
@@ -985,12 +985,9 @@ const PayrollBatch: React.FC = () => {
               };
               const symbol = currencySymbols[currency] || currency;
               
-              // Sort contractors: Employees first, then Contractors
-              const sortedContractors = [...contractors].sort((a, b) => {
-                if (a.employmentType === "employee" && b.employmentType === "contractor") return -1;
-                if (a.employmentType === "contractor" && b.employmentType === "employee") return 1;
-                return 0;
-              });
+              // Group by employment type
+              const contractorsList = contractors.filter(c => c.employmentType === "contractor");
+              const employeesList = contractors.filter(c => c.employmentType === "employee");
               
               return (
                 <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
@@ -1031,7 +1028,19 @@ const PayrollBatch: React.FC = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {sortedContractors.map((contractor) => {
+                        {/* Contractors Sub-Group */}
+                        {contractorsList.length > 0 && (
+                          <>
+                            <TableRow className="bg-muted/20 hover:bg-muted/20">
+                              <TableCell colSpan={11} className="py-2 sticky left-0 z-20">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Contractors ({contractorsList.length})
+                                  </span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                            {contractorsList.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
                           const hasLeave = leaveData && leaveData.leaveDays > 0;
                           const paymentDue = getPaymentDue(contractor);
@@ -1170,6 +1179,165 @@ const PayrollBatch: React.FC = () => {
                             </TableRow>
                           );
                         })}
+                          </>
+                        )}
+                        
+                        {/* Employees Sub-Group */}
+                        {employeesList.length > 0 && (
+                          <>
+                            <TableRow className="bg-muted/20 hover:bg-muted/20">
+                              <TableCell colSpan={11} className="py-2 sticky left-0 z-20">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Employees ({employeesList.length})
+                                  </span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                            {employeesList.map((contractor) => {
+                          const leaveData = leaveRecords[contractor.id];
+                          const hasLeave = leaveData && leaveData.leaveDays > 0;
+                          const paymentDue = getPaymentDue(contractor);
+                          const difference = contractor.baseSalary - paymentDue;
+                          const grossPay = contractor.baseSalary;
+                          const deductions = 0; // Placeholder - would be calculated based on taxes
+                          const netPay = paymentDue;
+                          const additionalFee = additionalFees[contractor.id];
+                          const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                          
+                          return (
+                             <TableRow 
+                              key={contractor.id}
+                              className={cn(
+                                "hover:bg-muted/30 transition-colors",
+                                selectedCycle !== "previous" && "cursor-pointer"
+                              )}
+                              onClick={() => {
+                                if (selectedCycle === "previous") return;
+                                if (contractor.employmentType === "employee") {
+                                  handleOpenEmployeePayroll(contractor);
+                                } else {
+                                  handleOpenContractorDetail(contractor);
+                                }
+                              }}
+                            >
+                              <TableCell className={cn(
+                                "font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200",
+                                scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]"
+                              )}>
+                                <div className="flex items-center gap-2">
+                                  {contractor.name}
+                                  {hasLeave && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleViewLeaveDetails(contractor);
+                                            }}
+                                            className="inline-flex"
+                                          >
+                                            <Badge 
+                                              variant="outline" 
+                                              className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1 cursor-pointer hover:bg-amber-500/20"
+                                            >
+                                              -{leaveData.leaveDays}d Leave
+                                            </Badge>
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="right">
+                                          <p className="text-xs max-w-[200px]">
+                                            {leaveData.clientConfirmed && leaveData.contractorReported
+                                              ? "Leave confirmed by both parties"
+                                              : leaveData.contractorReported
+                                              ? "Awaiting client confirmation"
+                                              : "Client-reported leave"}
+                                          </p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-xs",
+                                    contractor.employmentType === "employee" 
+                                      ? "bg-blue-500/10 text-blue-600 border-blue-500/30" 
+                                      : "bg-purple-500/10 text-purple-600 border-purple-500/30"
+                                  )}
+                                >
+                                  {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
+                                {symbol}{grossPay.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger className="underline decoration-dotted cursor-help">
+                                      {symbol}{hasLeave ? Math.round(difference).toLocaleString() : deductions}
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="text-xs space-y-1">
+                                        <p className="font-semibold">Deductions</p>
+                                        {hasLeave && <p>Leave proration: {symbol}{Math.round(difference).toLocaleString()}</p>}
+                                        {contractor.employmentType === "employee" && <p>Taxes: Included in employer cost</p>}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="text-right text-sm font-semibold min-w-[110px]">
+                                {symbol}{Math.round(netPay).toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">{symbol}{contractor.estFees}</TableCell>
+                              <TableCell className="text-right min-w-[150px]">
+                                <div className="flex items-center justify-end gap-2">
+                                  <span className="text-sm">{symbol}{additionalFee?.amount || 50}</span>
+                                  <Select
+                                    value={additionalFee?.accepted ? "accept" : "decline"}
+                                    onValueChange={(value) => {
+                                      handleToggleAdditionalFee(contractor.id, value === "accept");
+                                    }}
+                                    disabled={selectedCycle === "previous"}
+                                  >
+                                    <SelectTrigger 
+                                      className="w-24 h-7 text-xs"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="accept" className="text-xs">Accept</SelectItem>
+                                      <SelectItem value="decline" className="text-xs">Decline</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right text-sm font-bold min-w-[130px]">
+                                {symbol}{Math.round(totalPayable).toLocaleString()}
+                              </TableCell>
+                              <TableCell className="min-w-[100px]">
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30"
+                                >
+                                  Ready
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground min-w-[90px]">{contractor.eta}</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                          </>
+                        )}
+                        
                         
                         {/* Total Summary Row */}
                         <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
@@ -3357,7 +3525,7 @@ You can ask me about:
                                 <h4 className="text-sm font-semibold text-foreground">Payment Calculation</h4>
                                 <div className="space-y-2 p-4 rounded-lg bg-muted/20">
                                   <div className="flex items-center justify-between">
-                                    <span className="text-xs text-muted-foreground">Base Salary</span>
+                                    <span className="text-xs text-muted-foreground">Base Pay</span>
                                     <span className="text-sm font-medium">
                                       {selectedLeaveContractor.currency} {selectedLeaveContractor.baseSalary.toLocaleString()}
                                     </span>
@@ -3399,7 +3567,7 @@ You can ask me about:
                               <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                 <Info className="h-4 w-4 text-blue-600" />
                                 <p className="text-xs text-blue-600">
-                                  Formula: Base Salary ÷ 21.67 × Pay Days
+                                  Formula: Base Pay ÷ 21.67 × Pay Days
                                 </p>
                               </div>
                             </div>
@@ -3452,10 +3620,10 @@ You can ask me about:
                                   </h4>
                                   <Card className="border-border/20 bg-card/30">
                                     <CardContent className="p-4 space-y-3">
-                                      {/* Base Salary / Consultancy Fee */}
+                                       {/* Base Salary / Consultancy Fee */}
                                       <div className="flex items-center justify-between">
                                         <span className="text-sm text-muted-foreground">
-                                          {selectedContractor.employmentType === "employee" ? "Base Salary" : "Consultancy Fee"}
+                                          {selectedContractor.employmentType === "employee" ? "Base Salary" : "Base Consultancy Fee"}
                                         </span>
                                         <span className="text-sm font-semibold">
                                           {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
@@ -3592,7 +3760,7 @@ You can ask me about:
                                       {/* Base Salary Override */}
                                       <div>
                                         <Label htmlFor="salary-override" className="text-sm font-medium mb-2 block">
-                                          Base Salary Override
+                                          {selectedContractor.employmentType === "employee" ? "Base Salary Override" : "Base Consultancy Fee Override"}
                                         </Label>
                                         <div className="flex items-center gap-2">
                                           <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
@@ -3605,7 +3773,7 @@ You can ask me about:
                                           />
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-1">
-                                          Override base salary for this payroll cycle
+                                          Override {selectedContractor.employmentType === "employee" ? "base salary" : "base consultancy fee"} for this payroll cycle
                                         </p>
                                       </div>
 

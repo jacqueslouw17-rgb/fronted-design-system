@@ -231,7 +231,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
               <div className="flex items-center gap-2">
                 <BanknoteIcon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Salary</span>
+                <span className="text-sm font-medium text-foreground">Consultancy Fee</span>
               </div>
               <div className="text-right">
                 <p className="text-sm font-semibold text-foreground">
@@ -301,7 +301,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="text-sm">Gross Salary</TableCell>
+                  <TableCell className="text-sm">Gross Consultancy Fee</TableCell>
                   <TableCell className="text-sm text-right font-medium">
                     {totalGross.toLocaleString()}
                   </TableCell>
@@ -328,7 +328,7 @@ export const PayrollPreviewDrawer: React.FC<PayrollPreviewDrawerProps> = ({
                   </TableCell>
                 </TableRow>
                 <TableRow className="bg-muted/30 font-semibold">
-                  <TableCell className="text-sm">Total Cost to Employer</TableCell>
+                  <TableCell className="text-sm">Total Contractor Payout Cost</TableCell>
                   <TableCell className="text-sm text-right">
                     {totalCostToEmployer.toLocaleString()}
                   </TableCell>
