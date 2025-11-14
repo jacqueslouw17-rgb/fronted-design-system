@@ -2528,7 +2528,7 @@ const PayrollBatch: React.FC = () => {
                 className="h-9 px-4 text-sm"
                 onClick={handleCompleteAndReturnToOverview}
               >
-                Back to Payroll Overview
+                Mark as complete
               </Button>
             </div>
           </div>
