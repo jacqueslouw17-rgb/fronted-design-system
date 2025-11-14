@@ -2523,15 +2523,6 @@ You can ask me about:
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => navigate("/payroll-country-rules")}
-                                    className="h-8 px-3 gap-2"
-                                  >
-                                    <Settings className="h-4 w-4" />
-                                    <span className="text-xs">Country Rules</span>
-                                  </Button>
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
                                     <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
                                       <SelectValue />
@@ -2542,21 +2533,15 @@ You can ask me about:
                                       <SelectItem value="next">December 2025</SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                                          <Clock className="h-3.5 w-3.5 text-primary" />
-                                          <span className="text-xs font-medium text-primary">Monthly Runs Only</span>
-                                        </div>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="left" className="max-w-xs">
-                                        <p className="text-xs">
-                                          Payroll runs are scheduled monthly — next run available on the 15th or prior weekday.
-                                        </p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => navigate("/payroll-country-rules")}
+                                    className="h-8 px-3 gap-2"
+                                  >
+                                    <Settings className="h-4 w-4" />
+                                    <span className="text-xs">Country Rules</span>
+                                  </Button>
                                 </div>
                               </div>
 
