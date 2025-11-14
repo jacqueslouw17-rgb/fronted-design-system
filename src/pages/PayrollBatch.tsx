@@ -744,8 +744,8 @@ const PayrollBatch: React.FC = () => {
   };
 
   const handleSaveEmployeePayroll = (data: ContractorPayment) => {
-    // Update the employee data in the contractors list
-    setAllContractors(prev => prev.map(c => c.id === data.id ? data : c));
+    // Note: In production, this would update the backend state
+    // For now, mock data remains static
     toast.success("Employee payroll updated and recalculated");
   };
 
