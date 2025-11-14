@@ -2329,18 +2329,18 @@ You can ask me about:
                                   <div className="flex items-center gap-2 mb-2">
                                     <Clock className="h-4 w-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">
-                                      {currentCycleData.status === "completed" ? "Completed Payroll Run" : 
+                                      {currentCycleData.status === "completed" ? "Payroll Run" : 
                                        currentCycleData.status === "upcoming" ? "Scheduled For" : "Next Payroll Run"}
                                     </p>
                                   </div>
                                   {currentCycleData.status === "completed" ? (
                                     <>
-                                      <p className="text-lg font-semibold text-foreground flex items-center gap-2">
-                                        {currentCycleData.completedDate}
-                                        <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                      <p className="text-lg font-semibold text-foreground">
+                                        October 2025
                                       </p>
                                       <p className="text-xs text-accent-green-text mt-1 flex items-center gap-1">
-                                        ✅ Completed
+                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                        Completed
                                       </p>
                                     </>
                                   ) : currentCycleData.status === "upcoming" ? (
@@ -2368,10 +2368,10 @@ You can ask me about:
                                 >
                                   <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                                   <p className="text-sm font-medium text-foreground mb-2">
-                                    Payroll preparation for {currentCycleData.label} will open soon.
+                                    Your December payroll hasn't started yet.
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    No salary data available yet for this cycle.
+                                    Data will appear once time or compensation details are submitted.
                                   </p>
                                   <Button disabled className="mt-4" size="sm" variant="outline">
                                     <Clock className="h-3.5 w-3.5 mr-2" />
@@ -2433,11 +2433,15 @@ You can ask me about:
                             {/* Horizontal Steps - Clean sticky */}
                             <div className="sticky top-16 z-30 py-4">
                               <div className="flex items-center gap-3 overflow-x-auto">
-                                {steps.map((step, index) => {
+                              {steps.map((step, index) => {
                                   const isActive = currentStep === step.id;
                                   const isCompleted = getCurrentStepIndex() > index;
                                   const Icon = step.icon;
-                                  const isDisabled = currentCycleData.status === "completed" && step.id !== "track";
+                                  
+                                  // Disable steps based on cycle
+                                  const isDisabled = 
+                                    (selectedCycle === "previous" && step.id !== "track") || // October: only Track enabled
+                                    (selectedCycle === "next" && !currentCycleData.hasData); // December: disable all if no data
                                   
                                   return (
                                     <TooltipProvider key={step.id}>
