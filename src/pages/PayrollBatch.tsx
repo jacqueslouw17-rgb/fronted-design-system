@@ -11,6 +11,7 @@ import { useAgentState } from "@/hooks/useAgentState";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -286,6 +287,7 @@ const PayrollBatch: React.FC = () => {
   const [scrollStates, setScrollStates] = useState<Record<string, boolean>>({});
   const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
+  const [countryRulesDrawerOpen, setCountryRulesDrawerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
@@ -2536,7 +2538,7 @@ You can ask me about:
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => navigate("/payroll-country-rules")}
+                                    onClick={() => setCountryRulesDrawerOpen(true)}
                                     className="h-8 px-3 gap-2"
                                   >
                                     <Settings className="h-4 w-4" />
@@ -3644,6 +3646,10 @@ You can ask me about:
               </div>
             </div>
             <FloatingKurtButton />
+            <CountryRulesDrawer 
+              open={countryRulesDrawerOpen} 
+              onOpenChange={setCountryRulesDrawerOpen} 
+            />
           </AgentLayout>
         </main>
       </div>
