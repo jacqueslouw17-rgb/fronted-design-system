@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Calendar, MapPin, CreditCard } from "lucide-react";
+import { Plus, Trash2, Calendar, MapPin, CreditCard, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -95,7 +96,13 @@ export default function EmployeePayrollDrawer({
   employee,
   onSave 
 }: EmployeePayrollDrawerProps) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<ContractorPayment | null>(null);
+
+  const handleOpenSettings = () => {
+    onOpenChange(false);
+    navigate("/employee-payroll-settings", { state: { employee: formData } });
+  };
 
   useEffect(() => {
     if (employee) {
@@ -213,10 +220,18 @@ export default function EmployeePayrollDrawer({
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             <SheetHeader>
-              <SheetTitle className="text-xl">Employee Payroll Details</SheetTitle>
-              <p className="text-sm text-muted-foreground">
-                Configure salary, benefits, and deductions
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <SheetTitle className="text-xl">Employee Payroll Details</SheetTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Configure salary, benefits, and deductions
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleOpenSettings}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </div>
             </SheetHeader>
 
             {/* Employee Overview */}
