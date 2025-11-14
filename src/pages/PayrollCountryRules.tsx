@@ -1,0 +1,815 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus, Trash2, Eye, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+type Country = "PH" | "NO";
+
+interface TaxTableRow {
+  id: string;
+  rangeFrom: string;
+  rangeTo: string;
+  fixedTax: string;
+  percentageOver: string;
+  effectiveYear: string;
+}
+
+interface ContributionRule {
+  employeeShare: string;
+  employerShare: string;
+  cap: string;
+}
+
+interface NonTaxableBenefit {
+  id: string;
+  name: string;
+  cap: string;
+  exceedsTaxable: boolean;
+}
+
+interface LineItem {
+  id: string;
+  name: string;
+  type: "Allowances" | "Bonus" | "Reimbursement" | "Deduction";
+  taxable: boolean;
+  cap: string;
+  enabledFor: "PH" | "NO" | "All";
+}
+
+export default function PayrollCountryRules() {
+  const navigate = useNavigate();
+  const [selectedCountry, setSelectedCountry] = useState<Country>("PH");
+  const [allowEmployeeOverride, setAllowEmployeeOverride] = useState(false);
+  
+  // PH Tax Table
+  const [taxTable, setTaxTable] = useState<TaxTableRow[]>([
+    { id: "1", rangeFrom: "0", rangeTo: "20833", fixedTax: "0", percentageOver: "0", effectiveYear: "2025" },
+    { id: "2", rangeFrom: "20833", rangeTo: "33332", fixedTax: "0", percentageOver: "15", effectiveYear: "2025" },
+    { id: "3", rangeFrom: "33332", rangeTo: "66666", fixedTax: "1875", percentageOver: "20", effectiveYear: "2025" },
+    { id: "4", rangeFrom: "66666", rangeTo: "166666", fixedTax: "8541.80", percentageOver: "25", effectiveYear: "2025" },
+    { id: "5", rangeFrom: "166666", rangeTo: "666666", fixedTax: "33541.80", percentageOver: "30", effectiveYear: "2025" },
+    { id: "6", rangeFrom: "666666", rangeTo: "999999999", fixedTax: "183541.80", percentageOver: "35", effectiveYear: "2025" },
+  ]);
+
+  // PH Contributions
+  const [sssContribution, setSssContribution] = useState<ContributionRule>({
+    employeeShare: "4.5",
+    employerShare: "9.5",
+    cap: "30000"
+  });
+  const [philHealthContribution, setPhilHealthContribution] = useState<ContributionRule>({
+    employeeShare: "2",
+    employerShare: "2",
+    cap: "100000"
+  });
+  const [pagIbigContribution, setPagIbigContribution] = useState<ContributionRule>({
+    employeeShare: "2",
+    employerShare: "2",
+    cap: "5000"
+  });
+
+  // PH Non-Taxable Benefits
+  const [nonTaxableBenefits, setNonTaxableBenefits] = useState<NonTaxableBenefit[]>([
+    { id: "1", name: "De Minimis Benefits", cap: "10000", exceedsTaxable: true },
+    { id: "2", name: "13th Month Pay", cap: "90000", exceedsTaxable: true },
+  ]);
+
+  // PH Bi-Monthly Logic
+  const [biMonthlyFirstHalf, setBiMonthlyFirstHalf] = useState("50% Base + 50% Allowances (no deductions)");
+  const [biMonthlySecondHalf, setBiMonthlySecondHalf] = useState("50% Base + 50% Allowances + all deductions");
+
+  // Norway Defaults
+  const [holidayPayPercent, setHolidayPayPercent] = useState("12");
+  const [employerTaxPercent, setEmployerTaxPercent] = useState("14.1");
+  const [pensionPercent, setPensionPercent] = useState("2");
+  const [allowNorwayOverride, setAllowNorwayOverride] = useState(false);
+
+  // Global Line Items
+  const [lineItems, setLineItems] = useState<LineItem[]>([
+    { id: "1", name: "Transportation Allowance", type: "Allowances", taxable: false, cap: "5000", enabledFor: "PH" },
+    { id: "2", name: "Meal Allowance", type: "Allowances", taxable: false, cap: "3000", enabledFor: "PH" },
+    { id: "3", name: "Performance Bonus", type: "Bonus", taxable: true, cap: "", enabledFor: "All" },
+  ]);
+
+  // Payout frequency
+  const [payoutFrequency, setPayoutFrequency] = useState("bi-monthly");
+
+  const addTaxTableRow = () => {
+    const newRow: TaxTableRow = {
+      id: Date.now().toString(),
+      rangeFrom: "",
+      rangeTo: "",
+      fixedTax: "",
+      percentageOver: "",
+      effectiveYear: new Date().getFullYear().toString(),
+    };
+    setTaxTable([...taxTable, newRow]);
+  };
+
+  const removeTaxTableRow = (id: string) => {
+    setTaxTable(taxTable.filter(row => row.id !== id));
+  };
+
+  const updateTaxTableRow = (id: string, field: keyof TaxTableRow, value: string) => {
+    setTaxTable(taxTable.map(row => row.id === id ? { ...row, [field]: value } : row));
+  };
+
+  const addNonTaxableBenefit = () => {
+    const newBenefit: NonTaxableBenefit = {
+      id: Date.now().toString(),
+      name: "",
+      cap: "",
+      exceedsTaxable: true,
+    };
+    setNonTaxableBenefits([...nonTaxableBenefits, newBenefit]);
+  };
+
+  const removeNonTaxableBenefit = (id: string) => {
+    setNonTaxableBenefits(nonTaxableBenefits.filter(benefit => benefit.id !== id));
+  };
+
+  const updateNonTaxableBenefit = (id: string, field: keyof NonTaxableBenefit, value: string | boolean) => {
+    setNonTaxableBenefits(nonTaxableBenefits.map(benefit => 
+      benefit.id === id ? { ...benefit, [field]: value } : benefit
+    ));
+  };
+
+  const addLineItem = () => {
+    const newItem: LineItem = {
+      id: Date.now().toString(),
+      name: "",
+      type: "Allowances",
+      taxable: true,
+      cap: "",
+      enabledFor: "All",
+    };
+    setLineItems([...lineItems, newItem]);
+  };
+
+  const removeLineItem = (id: string) => {
+    setLineItems(lineItems.filter(item => item.id !== id));
+  };
+
+  const updateLineItem = (id: string, field: keyof LineItem, value: any) => {
+    setLineItems(lineItems.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleSaveCountryRules = () => {
+    const countryRules = {
+      PH: {
+        tax_table: taxTable,
+        contributions: {
+          sss: sssContribution,
+          philHealth: philHealthContribution,
+          pagIbig: pagIbigContribution,
+        },
+        non_taxable_caps: nonTaxableBenefits,
+        bi_monthly_logic: {
+          firstHalf: biMonthlyFirstHalf,
+          secondHalf: biMonthlySecondHalf,
+        },
+        line_items: lineItems.filter(item => item.enabledFor === "PH" || item.enabledFor === "All"),
+        payout_frequency: "bi-monthly",
+        allow_employee_override: allowEmployeeOverride,
+      },
+      NO: {
+        employer_contributions: {
+          holidayPay: holidayPayPercent,
+          employerTax: employerTaxPercent,
+          pension: pensionPercent,
+        },
+        line_items: lineItems.filter(item => item.enabledFor === "NO" || item.enabledFor === "All"),
+        payout_frequency: "monthly",
+        allow_employee_override: allowNorwayOverride,
+      },
+    };
+
+    console.log("Country Rules Saved:", countryRules);
+    toast.success("Country rules saved successfully");
+  };
+
+  const PreviewModal = () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <Eye className="h-4 w-4 mr-2" />
+          Preview Computation Logic
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{selectedCountry === "PH" ? "Philippines" : "Norway"} Computation Preview</DialogTitle>
+          <DialogDescription>
+            Example calculation using stored rules
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          {selectedCountry === "PH" ? (
+            <>
+              <div className="space-y-2">
+                <h4 className="font-medium">Sample Employee (₱45,000 monthly)</h4>
+                <div className="bg-muted/30 p-4 rounded-lg space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Base Salary:</span>
+                    <span className="font-medium">₱45,000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Daily Rate (÷21.67):</span>
+                    <span className="font-medium">₱2,076.87</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span>SSS (Employee {sssContribution.employeeShare}%):</span>
+                    <span className="font-medium">-₱2,025</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>PhilHealth (Employee {philHealthContribution.employeeShare}%):</span>
+                    <span className="font-medium">-₱900</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pag-IBIG (Employee {pagIbigContribution.employeeShare}%):</span>
+                    <span className="font-medium">-₱900</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Withholding Tax:</span>
+                    <span className="font-medium">-₱4,541.80</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-semibold">
+                    <span>Net Pay:</span>
+                    <span>₱36,633.20</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-medium">Bi-Monthly Split</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-muted/30 p-3 rounded-lg">
+                    <div className="font-medium mb-2">1st Half (15th)</div>
+                    <div>{biMonthlyFirstHalf}</div>
+                    <div className="mt-2 font-semibold">₱22,500</div>
+                  </div>
+                  <div className="bg-muted/30 p-3 rounded-lg">
+                    <div className="font-medium mb-2">2nd Half (30th)</div>
+                    <div>{biMonthlySecondHalf}</div>
+                    <div className="mt-2 font-semibold">₱14,133.20</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <h4 className="font-medium">Sample Employee (NOK 500,000 annually)</h4>
+                <div className="bg-muted/30 p-4 rounded-lg space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Annual Salary:</span>
+                    <span className="font-medium">NOK 500,000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Monthly Salary:</span>
+                    <span className="font-medium">NOK 41,667</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <span>Holiday Pay ({holidayPayPercent}%):</span>
+                    <span className="font-medium">NOK 5,000</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Employer Tax ({employerTaxPercent}%):</span>
+                    <span className="font-medium">NOK 5,875</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pension ({pensionPercent}%):</span>
+                    <span className="font-medium">NOK 833</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-semibold">
+                    <span>Total Employer Cost:</span>
+                    <span>NOK 53,375</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 px-4 max-w-6xl">
+        {/* Header */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/payroll-batch")}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Payroll
+          </Button>
+          <h1 className="text-3xl font-bold">Country Rules Configuration</h1>
+          <p className="text-muted-foreground mt-2">
+            Configure country-specific payroll rules, tax tables, and defaults
+          </p>
+        </div>
+
+        {/* Country Selector */}
+        <Card className="p-6 mb-6">
+          <Label className="text-base font-semibold mb-3 block">Select Country</Label>
+          <Select value={selectedCountry} onValueChange={(value) => setSelectedCountry(value as Country)}>
+            <SelectTrigger className="w-[300px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
+              <SelectItem value="NO">🇳🇴 Norway</SelectItem>
+            </SelectContent>
+          </Select>
+        </Card>
+
+        {/* General Compensation Defaults */}
+        <Card className="p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">General Compensation Defaults</h2>
+          <div className="space-y-4">
+            <div>
+              <Label>Base Monthly Salary</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Set per employee. Not editable here.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Daily Rate Formula</Label>
+                <Input 
+                  value={selectedCountry === "PH" ? "Base Salary ÷ 21.67" : "Base Salary ÷ 21.7"}
+                  disabled
+                  className="bg-muted/30"
+                />
+              </div>
+              <div>
+                <Label>Hourly Rate Formula</Label>
+                <Input 
+                  value="Daily Rate ÷ 8"
+                  disabled
+                  className="bg-muted/30"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Payout Frequency</Label>
+              <Select value={payoutFrequency} onValueChange={setPayoutFrequency}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bi-monthly">Bi-monthly (PH default)</SelectItem>
+                  <SelectItem value="monthly">Monthly (NO default)</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="allow-override"
+                checked={selectedCountry === "PH" ? allowEmployeeOverride : allowNorwayOverride}
+                onCheckedChange={(checked) => 
+                  selectedCountry === "PH" 
+                    ? setAllowEmployeeOverride(checked as boolean)
+                    : setAllowNorwayOverride(checked as boolean)
+                }
+              />
+              <Label htmlFor="allow-override" className="font-normal cursor-pointer">
+                Allow overrides per employee
+              </Label>
+            </div>
+          </div>
+        </Card>
+
+        {/* Country-Specific Rules */}
+        {selectedCountry === "PH" ? (
+          <>
+            {/* PH Tax Table */}
+            <Card className="p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Philippine Tax Table</h2>
+                <Button onClick={addTaxTableRow} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Row
+                </Button>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Range From (₱)</TableHead>
+                      <TableHead>Range To (₱)</TableHead>
+                      <TableHead>Fixed Tax (₱)</TableHead>
+                      <TableHead>% Over</TableHead>
+                      <TableHead>Effective Year</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {taxTable.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <Input
+                            value={row.rangeFrom}
+                            onChange={(e) => updateTaxTableRow(row.id, "rangeFrom", e.target.value)}
+                            className="w-[120px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.rangeTo}
+                            onChange={(e) => updateTaxTableRow(row.id, "rangeTo", e.target.value)}
+                            className="w-[120px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.fixedTax}
+                            onChange={(e) => updateTaxTableRow(row.id, "fixedTax", e.target.value)}
+                            className="w-[120px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.percentageOver}
+                            onChange={(e) => updateTaxTableRow(row.id, "percentageOver", e.target.value)}
+                            className="w-[100px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.effectiveYear}
+                            onChange={(e) => updateTaxTableRow(row.id, "effectiveYear", e.target.value)}
+                            className="w-[100px]"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeTaxTableRow(row.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+
+            {/* Government Contributions */}
+            <Card className="p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Government Contributions</h2>
+              <div className="space-y-6">
+                {/* SSS */}
+                <div>
+                  <h3 className="font-medium mb-3">SSS (Social Security System)</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    See contribution table reference for complete details
+                  </p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Employee Share (%)</Label>
+                      <Input
+                        value={sssContribution.employeeShare}
+                        onChange={(e) => setSssContribution({...sssContribution, employeeShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Employer Share (%)</Label>
+                      <Input
+                        value={sssContribution.employerShare}
+                        onChange={(e) => setSssContribution({...sssContribution, employerShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Cap (₱)</Label>
+                      <Input
+                        value={sssContribution.cap}
+                        onChange={(e) => setSssContribution({...sssContribution, cap: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* PhilHealth */}
+                <div>
+                  <h3 className="font-medium mb-3">PhilHealth</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Employee Share (%)</Label>
+                      <Input
+                        value={philHealthContribution.employeeShare}
+                        onChange={(e) => setPhilHealthContribution({...philHealthContribution, employeeShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Employer Share (%)</Label>
+                      <Input
+                        value={philHealthContribution.employerShare}
+                        onChange={(e) => setPhilHealthContribution({...philHealthContribution, employerShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Cap (₱)</Label>
+                      <Input
+                        value={philHealthContribution.cap}
+                        onChange={(e) => setPhilHealthContribution({...philHealthContribution, cap: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Pag-IBIG */}
+                <div>
+                  <h3 className="font-medium mb-3">Pag-IBIG</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Employee Share (%)</Label>
+                      <Input
+                        value={pagIbigContribution.employeeShare}
+                        onChange={(e) => setPagIbigContribution({...pagIbigContribution, employeeShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Employer Share (%)</Label>
+                      <Input
+                        value={pagIbigContribution.employerShare}
+                        onChange={(e) => setPagIbigContribution({...pagIbigContribution, employerShare: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Cap (₱)</Label>
+                      <Input
+                        value={pagIbigContribution.cap}
+                        onChange={(e) => setPagIbigContribution({...pagIbigContribution, cap: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 pt-4">
+                  <Checkbox
+                    id="contribution-override"
+                    checked={allowEmployeeOverride}
+                    onCheckedChange={(checked) => setAllowEmployeeOverride(checked as boolean)}
+                  />
+                  <Label htmlFor="contribution-override" className="font-normal cursor-pointer">
+                    Allow employee-level override
+                  </Label>
+                </div>
+              </div>
+            </Card>
+
+            {/* Non-Taxable Benefits */}
+            <Card className="p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Non-Taxable Benefits Rules</h2>
+                <Button onClick={addNonTaxableBenefit} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Benefit
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {nonTaxableBenefits.map((benefit) => (
+                  <div key={benefit.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                    <Input
+                      placeholder="Benefit name"
+                      value={benefit.name}
+                      onChange={(e) => updateNonTaxableBenefit(benefit.id, "name", e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Cap (₱)"
+                      value={benefit.cap}
+                      onChange={(e) => updateNonTaxableBenefit(benefit.id, "cap", e.target.value)}
+                      className="w-[150px]"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`taxable-${benefit.id}`}
+                        checked={benefit.exceedsTaxable}
+                        onCheckedChange={(checked) => updateNonTaxableBenefit(benefit.id, "exceedsTaxable", checked)}
+                      />
+                      <Label htmlFor={`taxable-${benefit.id}`} className="text-sm whitespace-nowrap cursor-pointer">
+                        Excess taxable
+                      </Label>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeNonTaxableBenefit(benefit.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Bi-Monthly Logic */}
+            <Card className="p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Bi-Monthly Computation Logic</h2>
+              <div className="space-y-4">
+                <div>
+                  <Label>1st Half (15th)</Label>
+                  <Input
+                    value={biMonthlyFirstHalf}
+                    onChange={(e) => setBiMonthlyFirstHalf(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>2nd Half (30th)</Label>
+                  <Input
+                    value={biMonthlySecondHalf}
+                    onChange={(e) => setBiMonthlySecondHalf(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <>
+            {/* Norway Employer Defaults */}
+            <Card className="p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Norway Employer Defaults</h2>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Holiday Pay (%)</Label>
+                    <Input
+                      value={holidayPayPercent}
+                      onChange={(e) => setHolidayPayPercent(e.target.value)}
+                      placeholder="12"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Default: 12%</p>
+                  </div>
+                  <div>
+                    <Label>Employer Tax (%)</Label>
+                    <Input
+                      value={employerTaxPercent}
+                      onChange={(e) => setEmployerTaxPercent(e.target.value)}
+                      placeholder="14.1"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Default: 14.1%</p>
+                  </div>
+                  <div>
+                    <Label>Pension (%)</Label>
+                    <Input
+                      value={pensionPercent}
+                      onChange={(e) => setPensionPercent(e.target.value)}
+                      placeholder="2"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Default: 2%</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 pt-4">
+                  <Checkbox
+                    id="norway-override"
+                    checked={allowNorwayOverride}
+                    onCheckedChange={(checked) => setAllowNorwayOverride(checked as boolean)}
+                  />
+                  <Label htmlFor="norway-override" className="font-normal cursor-pointer">
+                    Allow employee-level override
+                  </Label>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+
+        {/* Global Line Items */}
+        <Card className="p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Compensation Line Items (Global)</h2>
+            <Button onClick={addLineItem} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Line Item
+            </Button>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Line Item Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Taxable</TableHead>
+                  <TableHead>Cap (if non-taxable)</TableHead>
+                  <TableHead>Enable For</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lineItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Input
+                        value={item.name}
+                        onChange={(e) => updateLineItem(item.id, "name", e.target.value)}
+                        placeholder="e.g., Transportation"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={item.type}
+                        onValueChange={(value) => updateLineItem(item.id, "type", value)}
+                      >
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Allowances">Allowances</SelectItem>
+                          <SelectItem value="Bonus">Bonus</SelectItem>
+                          <SelectItem value="Reimbursement">Reimbursement</SelectItem>
+                          <SelectItem value="Deduction">Deduction</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={item.taxable}
+                        onCheckedChange={(checked) => updateLineItem(item.id, "taxable", checked)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={item.cap}
+                        onChange={(e) => updateLineItem(item.id, "cap", e.target.value)}
+                        disabled={item.taxable}
+                        placeholder="Amount"
+                        className="w-[120px]"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={item.enabledFor}
+                        onValueChange={(value) => updateLineItem(item.id, "enabledFor", value)}
+                      >
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PH">PH</SelectItem>
+                          <SelectItem value="NO">NO</SelectItem>
+                          <SelectItem value="All">All</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeLineItem(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+
+        {/* Save & Preview */}
+        <div className="flex justify-between items-center">
+          <PreviewModal />
+          <Button onClick={handleSaveCountryRules} size="lg">
+            Save Country Rules
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
