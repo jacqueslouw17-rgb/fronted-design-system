@@ -12,6 +12,7 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
+import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,29 @@ interface ContractorPayment {
   employmentType: "employee" | "contractor";
   employerTaxes?: number;
   leaveData?: LeaveRecord;
+  // Employee-specific fields
+  lineItems?: Array<{
+    id: string;
+    name: string;
+    amount: number;
+    taxable: boolean;
+    cap?: number;
+  }>;
+  startDate?: string;
+  nationalId?: string;
+  // PH specific
+  sssEmployee?: number;
+  sssEmployer?: number;
+  philHealthEmployee?: number;
+  philHealthEmployer?: number;
+  pagIbigEmployee?: number;
+  pagIbigEmployer?: number;
+  withholdingTax?: number;
+  // NO specific
+  holidayPay?: number;
+  employerTax?: number;
+  pension?: number;
+  allowOverride?: boolean;
 }
 
 interface PayrollException {
@@ -288,6 +312,8 @@ const PayrollBatch: React.FC = () => {
   const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
   const [countryRulesDrawerOpen, setCountryRulesDrawerOpen] = useState(false);
+  const [employeePayrollDrawerOpen, setEmployeePayrollDrawerOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
@@ -712,6 +738,17 @@ const PayrollBatch: React.FC = () => {
     setPaymentDetailDrawerOpen(true);
   };
 
+  const handleOpenEmployeePayroll = (employee: ContractorPayment) => {
+    setSelectedEmployee(employee);
+    setEmployeePayrollDrawerOpen(true);
+  };
+
+  const handleSaveEmployeePayroll = (data: ContractorPayment) => {
+    // Update the employee data in the contractors list
+    setAllContractors(prev => prev.map(c => c.id === data.id ? data : c));
+    toast.success("Employee payroll updated and recalculated");
+  };
+
   const handleReturnToPayrollOverview = () => {
     setViewMode("payroll");
     setCurrentStep("review-fx");
@@ -1006,13 +1043,20 @@ const PayrollBatch: React.FC = () => {
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                           
                           return (
-                            <TableRow 
+                             <TableRow 
                               key={contractor.id}
                               className={cn(
                                 "hover:bg-muted/30 transition-colors",
                                 selectedCycle !== "previous" && "cursor-pointer"
                               )}
-                              onClick={() => selectedCycle !== "previous" && handleOpenContractorDetail(contractor)}
+                              onClick={() => {
+                                if (selectedCycle === "previous") return;
+                                if (contractor.employmentType === "employee") {
+                                  handleOpenEmployeePayroll(contractor);
+                                } else {
+                                  handleOpenContractorDetail(contractor);
+                                }
+                              }}
                             >
                               <TableCell className={cn(
                                 "font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200",
@@ -3649,6 +3693,12 @@ You can ask me about:
             <CountryRulesDrawer 
               open={countryRulesDrawerOpen} 
               onOpenChange={setCountryRulesDrawerOpen} 
+            />
+            <EmployeePayrollDrawer
+              open={employeePayrollDrawerOpen}
+              onOpenChange={setEmployeePayrollDrawerOpen}
+              employee={selectedEmployee}
+              onSave={handleSaveEmployeePayroll}
             />
           </AgentLayout>
         </main>
