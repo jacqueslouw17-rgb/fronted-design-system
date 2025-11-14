@@ -1225,7 +1225,7 @@ const PayrollBatch: React.FC = () => {
                                                   <Info className="h-3 w-3 text-blue-600" />
                                                 </button>
                                               </TooltipTrigger>
-                                              <TooltipContent side="top" className="max-w-xs">
+                                              <TooltipContent side="top" align="center" sideOffset={8} collisionPadding={8} className="max-w-xs z-50">
                                                 <p className="text-xs font-semibold mb-1">1st Half (1–15)</p>
                                                 <p className="text-xs text-muted-foreground">
                                                   50% of Base Salary + 50% of Allowances (no deductions)
@@ -1256,7 +1256,7 @@ const PayrollBatch: React.FC = () => {
                                                   <Info className="h-3 w-3 text-blue-600" />
                                                 </button>
                                               </TooltipTrigger>
-                                              <TooltipContent side="top" className="max-w-xs">
+                                              <TooltipContent side="top" align="center" sideOffset={8} collisionPadding={8} className="max-w-xs z-50">
                                                 <p className="text-xs font-semibold mb-1">2nd Half (16–End)</p>
                                                 <p className="text-xs text-muted-foreground">
                                                   50% of Base Salary + 50% of Allowances + all mandatory deductions (SSS, PhilHealth, Pag-IBIG, Tax)
