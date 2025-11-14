@@ -285,6 +285,11 @@ const PayrollBatch: React.FC = () => {
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
   const [bankAccountType, setBankAccountType] = useState("");
+  // PH bi-monthly payroll toggle (1st-half / 2nd-half)
+  const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
+    const currentDay = new Date().getDate();
+    return currentDay < 15 ? "1st" : "2nd";
+  });
   // Approval logic temporarily disabled - auto-approved for MVP
   // TODO: reinstate dual-approval flow later
   const approvalStatus = "auto-approved";
@@ -1189,6 +1194,57 @@ const PayrollBatch: React.FC = () => {
                         {/* Employees Sub-Group */}
                         {employeesList.length > 0 && (
                           <>
+                            {/* PH Bi-Monthly Banner & Toggle (only for PHP currency) */}
+                            {currency === "PHP" && (
+                              <TableRow>
+                                <TableCell colSpan={11} className="p-0">
+                                  <div className="p-4 space-y-3">
+                                    {/* Info Banner */}
+                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                      <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                                      <div className="flex-1 text-xs text-foreground">
+                                        <p className="font-semibold mb-1">PH Payroll is bi-monthly</p>
+                                        <p className="text-muted-foreground">
+                                          <span className="font-medium">1st Half (1–15):</span> 50% of Base Salary + 50% of Allowances (no deductions).
+                                          <br />
+                                          <span className="font-medium">2nd Half (16–End):</span> 50% of Base Salary + 50% of Allowances + all mandatory deductions (SSS, PhilHealth, Pag-IBIG, Tax).
+                                        </p>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Bi-Monthly Toggle */}
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs font-medium text-muted-foreground">Select Payout Half:</span>
+                                      <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1">
+                                        <button
+                                          onClick={() => setPhPayrollHalf("1st")}
+                                          className={cn(
+                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                            phPayrollHalf === "1st"
+                                              ? "bg-background text-foreground shadow-sm"
+                                              : "text-muted-foreground hover:text-foreground"
+                                          )}
+                                        >
+                                          1st Half Payout
+                                        </button>
+                                        <button
+                                          onClick={() => setPhPayrollHalf("2nd")}
+                                          className={cn(
+                                            "px-4 py-1.5 text-xs font-medium rounded-md transition-all",
+                                            phPayrollHalf === "2nd"
+                                              ? "bg-background text-foreground shadow-sm"
+                                              : "text-muted-foreground hover:text-foreground"
+                                          )}
+                                        >
+                                          2nd Half Payout
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                            
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
                               <TableCell className={cn(
                                 "py-2 sticky left-0 z-30 bg-muted/20",
@@ -1198,6 +1254,11 @@ const PayrollBatch: React.FC = () => {
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Employees ({employeesList.length})
                                   </span>
+                                  {currency === "PHP" && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {phPayrollHalf === "1st" ? "1st Half" : "2nd Half"}
+                                    </Badge>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell colSpan={10} className="py-2 bg-muted/20"></TableCell>
@@ -1206,10 +1267,16 @@ const PayrollBatch: React.FC = () => {
                           const leaveData = leaveRecords[contractor.id];
                           const hasLeave = leaveData && leaveData.leaveDays > 0;
                           const paymentDue = getPaymentDue(contractor);
+                          
+                          // PH Bi-Monthly Logic
+                          const isPHEmployee = contractor.countryCode === "PH" && contractor.employmentType === "employee";
+                          const phMultiplier = isPHEmployee ? 0.5 : 1;
+                          const showPHDeductions = isPHEmployee && phPayrollHalf === "2nd";
+                          
                           const difference = contractor.baseSalary - paymentDue;
-                          const grossPay = contractor.baseSalary;
-                          const deductions = 0; // Placeholder - would be calculated based on taxes
-                          const netPay = paymentDue;
+                          const grossPay = contractor.baseSalary * phMultiplier;
+                          const deductions = isPHEmployee && phPayrollHalf === "1st" ? 0 : 0; // Placeholder - would be calculated based on taxes
+                          const netPay = isPHEmployee ? grossPay - deductions : paymentDue;
                           const additionalFee = additionalFees[contractor.id];
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                           
@@ -1289,13 +1356,19 @@ const PayrollBatch: React.FC = () => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger className="underline decoration-dotted cursor-help">
-                                      {symbol}{hasLeave ? Math.round(difference).toLocaleString() : deductions}
+                                      {isPHEmployee && phPayrollHalf === "1st" 
+                                        ? "₱0" 
+                                        : `${symbol}${hasLeave ? Math.round(difference).toLocaleString() : deductions}`
+                                      }
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <div className="text-xs space-y-1">
                                         <p className="font-semibold">Deductions</p>
+                                        {isPHEmployee && phPayrollHalf === "1st" && (
+                                          <p>Deductions applied only on 2nd half</p>
+                                        )}
                                         {hasLeave && <p>Leave proration: {symbol}{Math.round(difference).toLocaleString()}</p>}
-                                        {contractor.employmentType === "employee" && <p>Taxes: Included in employer cost</p>}
+                                        {contractor.employmentType === "employee" && !isPHEmployee && <p>Taxes: Included in employer cost</p>}
                                       </div>
                                     </TooltipContent>
                                   </Tooltip>
