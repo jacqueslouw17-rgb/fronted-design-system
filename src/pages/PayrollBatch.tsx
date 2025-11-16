@@ -2527,8 +2527,9 @@ const PayrollBatch: React.FC = () => {
               <Button 
                 className="h-9 px-4 text-sm"
                 onClick={handleCompleteAndReturnToOverview}
+                disabled={currentCycleData.status === "completed"}
               >
-                Mark as complete
+                {currentCycleData.status === "completed" ? "Already Completed" : "Mark as complete"}
               </Button>
             </div>
           </div>
