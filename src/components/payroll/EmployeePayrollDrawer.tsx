@@ -254,7 +254,7 @@ export default function EmployeePayrollDrawer({
 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium">Compensation Adjustments</Label>
+                        <Label className="text-sm font-medium">Adjustment Lines</Label>
                         <Button 
                           size="sm" 
                           variant="outline" 

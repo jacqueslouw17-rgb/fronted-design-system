@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -313,7 +313,6 @@ const PayrollBatch: React.FC = () => {
   const [selectedContractor, setSelectedContractor] = useState<ContractorPayment | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [additionalFees, setAdditionalFees] = useState<Record<string, { amount: number; accepted: boolean }>>({});
-  const [oneTimeAdjustment, setOneTimeAdjustment] = useState<number>(0);
   const [scrollStates, setScrollStates] = useState<Record<string, boolean>>({});
   const [paymentDetailDrawerOpen, setPaymentDetailDrawerOpen] = useState(false);
   const [selectedPaymentDetail, setSelectedPaymentDetail] = useState<ContractorPayment | null>(null);
@@ -476,14 +475,13 @@ const PayrollBatch: React.FC = () => {
 
   const handleOpenContractorDetail = (contractor: ContractorPayment) => {
     setSelectedContractor(contractor);
-    setOneTimeAdjustment(0);
     setContractorDrawerOpen(true);
   };
 
   const handleSaveContractorAdjustment = () => {
-    if (selectedContractor && oneTimeAdjustment !== 0) {
+    if (selectedContractor) {
       // In real implementation, update contractor payment data
-      toast.success(`Adjustment saved for ${selectedContractor.name}. Totals recalculated.`);
+      toast.success(`Changes saved for ${selectedContractor.name}. Totals recalculated.`);
       setLastUpdated(new Date());
       setContractorDrawerOpen(false);
     }
@@ -852,7 +850,7 @@ const PayrollBatch: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
                     <Badge variant="outline" className="text-xs">
-                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} with leave
+                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
@@ -878,104 +876,127 @@ const PayrollBatch: React.FC = () => {
                     transition={{ duration: 0.2 }}
                     className="mt-4"
                   >
-                    <div className="space-y-2">
-                      <div className="text-xs text-muted-foreground mb-3">
-                        Pro-rated salaries calculated using: Base Pay ÷ 21.67 × (Working Days - Leave Days)
+                    {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground mb-1">No leave records yet</p>
+                          <p className="text-xs text-muted-foreground">Add employees or contractors who took leave this cycle</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const firstContractor = allContractors[0];
+                            if (firstContractor) {
+                              handleUpdateLeave(firstContractor.id, { leaveDays: 0, workingDays: 21.67 });
+                            }
+                          }}
+                          className="gap-2"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Add Leave Record
+                        </Button>
                       </div>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="text-xs">Name</TableHead>
-                            <TableHead className="text-xs text-right">Leave Days</TableHead>
-                            <TableHead className="text-xs text-right">Working Days</TableHead>
-                            <TableHead className="text-xs text-right">Pay Days</TableHead>
-                            <TableHead className="text-xs text-right">Base Pay</TableHead>
-                            <TableHead className="text-xs text-right">Payment Due</TableHead>
-                            <TableHead className="text-xs text-center">Status</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {allContractors.map((contractor) => {
-                            const leaveData = leaveRecords[contractor.id];
-                            const hasLeave = leaveData && leaveData.leaveDays > 0;
-                            const workingDays = leaveData?.workingDays || 21.67;
-                            const leaveDays = leaveData?.leaveDays || 0;
-                            const payDays = workingDays - leaveDays;
-                            const paymentDue = getPaymentDue(contractor);
-                            
-                            return (
-                              <TableRow key={contractor.id} className={cn(
-                                hasLeave && "bg-amber-500/5"
-                              )}>
-                                <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
-                                <TableCell className="text-right">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="31"
-                                    step="0.5"
-                                    value={leaveDays}
-                                    onChange={(e) => handleUpdateLeave(contractor.id, { 
-                                      leaveDays: parseFloat(e.target.value) || 0 
-                                    })}
-                                    className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
-                                  />
-                                </TableCell>
-                                <TableCell className="text-right text-xs text-muted-foreground">
-                                  {workingDays.toFixed(2)}
-                                </TableCell>
-                                <TableCell className="text-right text-xs font-medium">
-                                  {payDays.toFixed(2)}
-                                </TableCell>
-                                <TableCell className="text-right text-sm">
-                                  {contractor.currency} {contractor.baseSalary.toLocaleString()}
-                                </TableCell>
-                                <TableCell className="text-right text-sm font-semibold">
-                                  {contractor.currency} {Math.round(paymentDue).toLocaleString()}
-                                  {hasLeave && (
-                                    <div className="text-xs text-amber-600 mt-0.5">
-                                      -{contractor.currency} {Math.round(contractor.baseSalary - paymentDue).toLocaleString()}
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="text-xs text-muted-foreground">
+                            Pro-rated: Base Pay ÷ 21.67 × (Working Days - Leave Days)
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const nextContractor = allContractors.find(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0);
+                              if (nextContractor) {
+                                handleUpdateLeave(nextContractor.id, { leaveDays: 0, workingDays: 21.67 });
+                              }
+                            }}
+                            className="h-7 text-xs gap-1"
+                          >
+                            <Plus className="h-3 w-3" />
+                            Add
+                          </Button>
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="text-xs">Name</TableHead>
+                              <TableHead className="text-xs text-right">Leave Days</TableHead>
+                              <TableHead className="text-xs text-right">Working Days</TableHead>
+                              <TableHead className="text-xs text-right">Unpaid Leave Amount</TableHead>
+                              <TableHead className="text-xs text-right">Payment Due</TableHead>
+                              <TableHead className="text-xs text-center">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {allContractors.filter(c => leaveRecords[c.id]?.leaveDays > 0).map((contractor) => {
+                              const leaveData = leaveRecords[contractor.id];
+                              const hasLeave = leaveData && leaveData.leaveDays > 0;
+                              const workingDays = leaveData?.workingDays || 21.67;
+                              const leaveDays = leaveData?.leaveDays || 0;
+                              const dailyRate = contractor.baseSalary / 21.67;
+                              const unpaidLeaveAmount = dailyRate * leaveDays;
+                              const paymentDue = getPaymentDue(contractor);
+                              
+                              return (
+                                <TableRow key={contractor.id} className="bg-amber-500/5">
+                                  <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
+                                  <TableCell className="text-right">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="31"
+                                      step="0.5"
+                                      value={leaveDays}
+                                      onChange={(e) => handleUpdateLeave(contractor.id, { 
+                                        leaveDays: parseFloat(e.target.value) || 0 
+                                      })}
+                                      className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
+                                    />
+                                  </TableCell>
+                                  <TableCell className="text-right text-xs text-muted-foreground">
+                                    {workingDays.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm text-amber-600 font-medium">
+                                    -{contractor.currency} {Math.round(unpaidLeaveAmount).toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm font-semibold">
+                                    {contractor.currency} {Math.round(paymentDue).toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <div className="flex items-center justify-center gap-1">
+                                      {leaveData?.clientConfirmed && (
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <div className="w-5 h-5 rounded-full bg-accent-green-fill flex items-center justify-center">
+                                                <Check className="h-3 w-3 text-accent-green-text" />
+                                              </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p className="text-xs">Confirmed by client</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      )}
+                                      <button
+                                        onClick={() => handleUpdateLeave(contractor.id, { 
+                                          clientConfirmed: !leaveData?.clientConfirmed 
+                                        })}
+                                        className="text-xs text-primary hover:underline"
+                                      >
+                                        {leaveData?.clientConfirmed ? "Confirmed" : "Confirm"}
+                                      </button>
                                     </div>
-                                  )}
-                                </TableCell>
-                                <TableCell className="text-center">
-                                  <div className="flex items-center justify-center gap-1">
-                                    {leaveData?.clientConfirmed && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">
-                                              ✓
-                                            </Badge>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Client confirmed</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {hasLeave && !leaveData?.clientConfirmed && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
-                                              ⏳
-                                            </Badge>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Awaiting confirmation</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </CardContent>
@@ -3886,58 +3907,6 @@ You can ask me about:
                                           Override {selectedContractor.employmentType === "employee" ? "base salary" : "base consultancy fee"} for this payroll cycle
                                         </p>
                                       </div>
-
-                                      {/* One-time Adjustment */}
-                                      <div>
-                                        <Label htmlFor="adjustment" className="text-sm font-medium mb-2 block">
-                                          One-time Adjustment
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-muted-foreground">{selectedContractor.currency}</span>
-                                          <input
-                                            id="adjustment"
-                                            type="number"
-                                            value={oneTimeAdjustment}
-                                            onChange={(e) => setOneTimeAdjustment(parseFloat(e.target.value) || 0)}
-                                            className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background"
-                                            placeholder="0"
-                                          />
-                                        </div>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                          Enter positive for bonus, negative for deduction
-                                        </p>
-                                      </div>
-
-                                      {/* Line Items */}
-                                      <div>
-                                        <Label className="text-sm font-medium mb-2 block">
-                                          Line Items
-                                        </Label>
-                                        <Button variant="outline" size="sm" className="w-full" disabled>
-                                          + Add Line Item
-                                        </Button>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                          Add custom taxable/non-taxable line items
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {oneTimeAdjustment !== 0 && (
-                                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm font-medium text-blue-600">
-                                        Adjusted Total Payable
-                                      </span>
-                                      <span className="text-lg font-bold text-blue-600">
-                                        {selectedContractor.currency} {Math.round(
-                                          getPaymentDue(selectedContractor) + 
-                                          selectedContractor.estFees + 
-                                          (additionalFees[selectedContractor.id]?.accepted ? (additionalFees[selectedContractor.id]?.amount || 50) : 0) +
-                                          oneTimeAdjustment
-                                        ).toLocaleString()}
-                                      </span>
                                     </div>
                                   </div>
                                 )}
@@ -3953,7 +3922,6 @@ You can ask me about:
                                 {selectedCycle !== "previous" && (
                                   <Button
                                     onClick={handleSaveContractorAdjustment}
-                                    disabled={oneTimeAdjustment === 0}
                                   >
                                     Save & Recalculate
                                   </Button>
