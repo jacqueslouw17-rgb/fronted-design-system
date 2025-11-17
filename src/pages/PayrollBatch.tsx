@@ -307,6 +307,11 @@ const PayrollBatch: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
+  const [contractorAdjustments, setContractorAdjustments] = useState<Record<string, Array<{
+    id: string;
+    name: string;
+    amount: number;
+  }>>>({});
   const [payrollCycleData, setPayrollCycleData] = useState<{
     previous: {
       label: string;
@@ -419,11 +424,16 @@ const PayrollBatch: React.FC = () => {
 
   const getPaymentDue = (contractor: ContractorPayment): number => {
     const leaveData = leaveRecords[contractor.id];
-    if (!leaveData || leaveData.leaveDays === 0) {
-      return contractor.baseSalary;
+    let payment = contractor.baseSalary;
+    
+    if (leaveData && leaveData.leaveDays > 0) {
+      const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
+      payment = proratedPay;
     }
-    const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
-    return proratedPay;
+    
+    // Add adjustments
+    const adjustments = getTotalAdjustments(contractor.id);
+    return payment + adjustments;
   };
 
   const handleUpdateLeave = (contractorId: string, updates: Partial<LeaveRecord>) => {
@@ -459,6 +469,50 @@ const PayrollBatch: React.FC = () => {
       setLastUpdated(new Date());
       setContractorDrawerOpen(false);
     }
+  };
+
+  const addContractorAdjustment = (contractorId: string) => {
+    setContractorAdjustments(prev => ({
+      ...prev,
+      [contractorId]: [
+        ...(prev[contractorId] || []),
+        {
+          id: Date.now().toString(),
+          name: "",
+          amount: 0
+        }
+      ]
+    }));
+  };
+
+  const updateContractorAdjustment = (contractorId: string, adjustmentId: string, field: "name" | "amount", value: string | number) => {
+    setContractorAdjustments(prev => ({
+      ...prev,
+      [contractorId]: (prev[contractorId] || []).map(adj =>
+        adj.id === adjustmentId ? { ...adj, [field]: value } : adj
+      )
+    }));
+  };
+
+  const removeContractorAdjustment = (contractorId: string, adjustmentId: string) => {
+    setContractorAdjustments(prev => ({
+      ...prev,
+      [contractorId]: (prev[contractorId] || []).filter(adj => adj.id !== adjustmentId)
+    }));
+  };
+
+  const getTotalAdjustments = (contractorId: string) => {
+    const adjustments = contractorAdjustments[contractorId] || [];
+    return adjustments.reduce((sum, adj) => sum + (Number(adj.amount) || 0), 0);
+  };
+
+  const getLeaveDeduction = (contractor: ContractorPayment): number => {
+    const leaveData = leaveRecords[contractor.id];
+    if (!leaveData || leaveData.leaveDays === 0) {
+      return 0;
+    }
+    const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
+    return contractor.baseSalary - proratedPay;
   };
 
   const handleToggleAdditionalFee = (contractorId: string, accept: boolean) => {
@@ -1455,8 +1509,7 @@ const PayrollBatch: React.FC = () => {
                           </TableCell>
                           <TableCell className="text-right text-sm">
                             {symbol}{contractors.reduce((sum, c) => {
-                              const leaveData = leaveRecords[c.id];
-                              return sum + (leaveData?.leaveDays > 0 ? c.baseSalary - getPaymentDue(c) : 0);
+                              return sum + getLeaveDeduction(c);
                             }, 0).toLocaleString()}
                           </TableCell>
                           <TableCell className="text-right text-sm">
@@ -3223,7 +3276,7 @@ You can ask me about:
                                         <div className="flex items-center justify-between">
                                           <span className="text-sm text-muted-foreground">Leave Deduction</span>
                                           <span className="text-sm font-medium text-amber-600">
-                                            -{selectedPaymentDetail.currency} {Math.round(selectedPaymentDetail.baseSalary - getPaymentDue(selectedPaymentDetail)).toLocaleString()}
+                                            -{selectedPaymentDetail.currency} {Math.round(getLeaveDeduction(selectedPaymentDetail)).toLocaleString()}
                                           </span>
                                         </div>
                                       )}
@@ -3522,7 +3575,7 @@ You can ask me about:
                                         <div className="flex items-center justify-between">
                                           <span className="text-sm text-muted-foreground">Leave Deduction</span>
                                           <span className="text-sm font-medium text-amber-600">
-                                            -{contractor.currency} {Math.round(contractor.baseSalary - getPaymentDue(contractor)).toLocaleString()}
+                                            -{contractor.currency} {Math.round(getLeaveDeduction(contractor)).toLocaleString()}
                                           </span>
                                         </div>
                                       )}
@@ -3660,7 +3713,7 @@ You can ask me about:
                                   <div className="flex items-center justify-between text-amber-600">
                                     <span className="text-xs">Leave Adjustment</span>
                                     <span className="text-sm font-semibold">
-                                      -{selectedLeaveContractor.currency} {Math.round(selectedLeaveContractor.baseSalary - getPaymentDue(selectedLeaveContractor)).toLocaleString()}
+                                      -{selectedLeaveContractor.currency} {Math.round(getLeaveDeduction(selectedLeaveContractor)).toLocaleString()}
                                     </span>
                                   </div>
                                 </div>
@@ -3776,7 +3829,7 @@ You can ask me about:
                                           <div className="pl-4 flex items-center justify-between text-xs">
                                             <span className="text-muted-foreground">• Leave Proration ({leaveRecords[selectedContractor.id].leaveDays}d)</span>
                                             <span className="font-medium text-amber-600">
-                                              -{selectedContractor.currency} {Math.round(selectedContractor.baseSalary - getPaymentDue(selectedContractor)).toLocaleString()}
+                                              -{selectedContractor.currency} {Math.round(getLeaveDeduction(selectedContractor)).toLocaleString()}
                                             </span>
                                           </div>
                                         )}
@@ -3787,6 +3840,65 @@ You can ask me about:
                                           </div>
                                         )}
                                       </div>
+
+                                      {/* Adjustment Lines */}
+                                      {selectedCycle !== "previous" && (
+                                        <div className="space-y-2">
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-sm text-muted-foreground">Adjustment Lines</span>
+                                            <Button
+                                              size="sm"
+                                              variant="ghost"
+                                              onClick={() => addContractorAdjustment(selectedContractor.id)}
+                                              className="h-6 text-xs"
+                                            >
+                                              <Plus className="h-3 w-3 mr-1" />
+                                              Add
+                                            </Button>
+                                          </div>
+                                          {contractorAdjustments[selectedContractor.id]?.length > 0 && (
+                                            <div className="pl-4 space-y-2">
+                                              {contractorAdjustments[selectedContractor.id].map((adjustment) => (
+                                                <div key={adjustment.id} className="flex items-center gap-2">
+                                                  <Input
+                                                    placeholder="Description"
+                                                    value={adjustment.name}
+                                                    onChange={(e) => updateContractorAdjustment(selectedContractor.id, adjustment.id, "name", e.target.value)}
+                                                    className="h-7 text-xs flex-1"
+                                                  />
+                                                  <Input
+                                                    type="number"
+                                                    placeholder="Amount"
+                                                    value={adjustment.amount || ""}
+                                                    onChange={(e) => updateContractorAdjustment(selectedContractor.id, adjustment.id, "amount", Number(e.target.value))}
+                                                    className="h-7 text-xs w-24"
+                                                  />
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() => removeContractorAdjustment(selectedContractor.id, adjustment.id)}
+                                                    className="h-7 w-7 p-0"
+                                                  >
+                                                    <X className="h-3 w-3" />
+                                                  </Button>
+                                                </div>
+                                              ))}
+                                              {contractorAdjustments[selectedContractor.id].length > 0 && (
+                                                <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
+                                                  <span className="text-muted-foreground">• Total Adjustments</span>
+                                                  <span className={cn(
+                                                    "font-medium",
+                                                    getTotalAdjustments(selectedContractor.id) >= 0 ? "text-green-600" : "text-amber-600"
+                                                  )}>
+                                                    {getTotalAdjustments(selectedContractor.id) >= 0 ? "+" : ""}
+                                                    {selectedContractor.currency} {getTotalAdjustments(selectedContractor.id).toLocaleString()}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
 
                                       <Separator />
 
