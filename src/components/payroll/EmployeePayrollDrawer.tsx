@@ -163,6 +163,38 @@ export default function EmployeePayrollDrawer({
     }
   }, [employee]);
 
+  useEffect(() => {
+    if (!formData) return;
+    const isPH = formData.countryCode === "PH";
+    const currentTotalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
+    const currentGrossCompensation = (formData.baseSalary || 0) + currentTotalAllowances;
+
+    let needsUpdate = false;
+    const updates: Partial<ContractorPayment> = {};
+
+    if (isPH && !formData.allowOverride) {
+      const autoSSS = lookupSSSContribution(currentGrossCompensation);
+      const autoPhilHealth = calculatePhilHealth(formData.baseSalary || 0);
+      const autoPagIbig = 100; // Fixed monthly contribution
+
+      if (formData.sssEmployee !== autoSSS) { updates.sssEmployee = autoSSS; needsUpdate = true; }
+      if (formData.philHealthEmployee !== autoPhilHealth) { updates.philHealthEmployee = autoPhilHealth; needsUpdate = true; }
+      if (formData.pagIbigEmployee !== autoPagIbig) { updates.pagIbigEmployee = autoPagIbig; needsUpdate = true; }
+    }
+
+    if (!formData.allowOverride && formData.withholdingTaxRate) {
+      const autoWithholdingTax = (currentGrossCompensation * (formData.withholdingTaxRate || 0)) / 100;
+      if (Math.abs((formData.withholdingTax || 0) - autoWithholdingTax) > 0.01) {
+        updates.withholdingTax = autoWithholdingTax;
+        needsUpdate = true;
+      }
+    }
+
+    if (needsUpdate) {
+      setFormData(prev => prev ? ({ ...prev, ...updates }) : null);
+    }
+  }, [formData?.baseSalary, formData?.lineItems?.length, formData?.allowOverride, formData?.withholdingTaxRate, formData?.countryCode]);
+
   if (!formData) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -187,49 +219,6 @@ export default function EmployeePayrollDrawer({
   const hourlyRate = dailyRate / 8;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
   const grossCompensation = (formData.baseSalary || 0) + totalAllowances;
-  
-  // Auto-update SSS, PhilHealth, Pag-IBIG, and Withholding Tax when base salary or line items change (only if override is disabled)
-  useEffect(() => {
-    if (!formData) return;
-    
-    const currentTotalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
-    const currentGrossCompensation = (formData.baseSalary || 0) + currentTotalAllowances;
-    
-    let needsUpdate = false;
-    const updates: Partial<ContractorPayment> = {};
-    
-    if (isPH && !formData.allowOverride) {
-      const autoSSS = lookupSSSContribution(currentGrossCompensation);
-      const autoPhilHealth = calculatePhilHealth(formData.baseSalary || 0);
-      const autoPagIbig = 100; // Fixed monthly contribution
-      
-      if (formData.sssEmployee !== autoSSS) {
-        updates.sssEmployee = autoSSS;
-        needsUpdate = true;
-      }
-      if (formData.philHealthEmployee !== autoPhilHealth) {
-        updates.philHealthEmployee = autoPhilHealth;
-        needsUpdate = true;
-      }
-      if (formData.pagIbigEmployee !== autoPagIbig) {
-        updates.pagIbigEmployee = autoPagIbig;
-        needsUpdate = true;
-      }
-    }
-    
-    // Auto-calculate withholding tax based on rate and gross compensation
-    if (!formData.allowOverride && formData.withholdingTaxRate) {
-      const autoWithholdingTax = (currentGrossCompensation * (formData.withholdingTaxRate || 0)) / 100;
-      if (Math.abs((formData.withholdingTax || 0) - autoWithholdingTax) > 0.01) {
-        updates.withholdingTax = autoWithholdingTax;
-        needsUpdate = true;
-      }
-    }
-    
-    if (needsUpdate) {
-      setFormData(prev => prev ? ({ ...prev, ...updates }) : null);
-    }
-  }, [formData?.baseSalary, formData?.lineItems?.length, formData?.allowOverride, formData?.withholdingTaxRate, isPH]);
 
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
