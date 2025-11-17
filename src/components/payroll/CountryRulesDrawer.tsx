@@ -760,8 +760,8 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                         <TableRow>
                           <TableHead className="w-[140px]">Range From (₱)</TableHead>
                           <TableHead className="w-[140px]">Range To (₱)</TableHead>
-                          <TableHead className="w-[180px]">Employee Contribution (₱)</TableHead>
-                          <TableHead className="w-[180px]">Employer Contribution (₱)</TableHead>
+                          <TableHead className="w-[150px]">Employee (₱)</TableHead>
+                          <TableHead className="w-[150px]">Employer (₱)</TableHead>
                           <TableHead className="w-[120px]">Effective Year</TableHead>
                           <TableHead className="w-[80px]">Actions</TableHead>
                         </TableRow>
