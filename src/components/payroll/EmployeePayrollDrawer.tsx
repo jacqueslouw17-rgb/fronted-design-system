@@ -89,6 +89,12 @@ interface LineItem {
   origin?: string;
 }
 
+interface RecurringAdjustment {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 interface ContractorPayment {
   id: string;
   name: string;
@@ -121,6 +127,7 @@ interface ContractorPayment {
   eta?: string;
   allowOverride?: boolean;
   withholdingTaxRate?: number;
+  recurringAdjustments?: RecurringAdjustment[];
 }
 
 interface EmployeePayrollDrawerProps {
@@ -139,6 +146,7 @@ export default function EmployeePayrollDrawer({
   const [formData, setFormData] = useState<ContractorPayment | null>(null);
   const [profileOpen, setProfileOpen] = useState(true);
   const [compensationOpen, setCompensationOpen] = useState(true);
+  const [recurringAdjustmentsOpen, setRecurringAdjustmentsOpen] = useState(true);
   const [overridesOpen, setOverridesOpen] = useState(true);
   const [deductionsOpen, setDeductionsOpen] = useState(false);
   const [contributionsOpen, setContributionsOpen] = useState(false);
@@ -149,6 +157,7 @@ export default function EmployeePayrollDrawer({
       setFormData({
         ...employee,
         lineItems: employee.lineItems || [],
+        recurringAdjustments: employee.recurringAdjustments || [],
         allowOverride: employee.allowOverride || false,
       });
     }
@@ -230,6 +239,34 @@ export default function EmployeePayrollDrawer({
       ...prev,
       lineItems: (prev.lineItems || []).map(item =>
         item.id === id ? { ...item, [field]: value } : item
+      )
+    }) : null);
+  };
+
+  const handleAddRecurringAdjustment = () => {
+    const newAdjustment: RecurringAdjustment = {
+      id: `recurring-${Date.now()}`,
+      name: "New Adjustment",
+      amount: 0,
+    };
+    setFormData(prev => prev ? ({
+      ...prev,
+      recurringAdjustments: [...(prev.recurringAdjustments || []), newAdjustment]
+    }) : null);
+  };
+
+  const handleRemoveRecurringAdjustment = (id: string) => {
+    setFormData(prev => prev ? ({
+      ...prev,
+      recurringAdjustments: (prev.recurringAdjustments || []).filter(adj => adj.id !== id)
+    }) : null);
+  };
+
+  const handleRecurringAdjustmentChange = (id: string, field: keyof RecurringAdjustment, value: any) => {
+    setFormData(prev => prev ? ({
+      ...prev,
+      recurringAdjustments: (prev.recurringAdjustments || []).map(adj =>
+        adj.id === id ? { ...adj, [field]: value } : adj
       )
     }) : null);
   };
@@ -462,7 +499,81 @@ export default function EmployeePayrollDrawer({
               </Collapsible>
             </Card>
 
-            {/* C. Employee Overrides */}
+            {/* C. Recurring Adjustment Lines */}
+            <Card className="border-border">
+              <Collapsible open={recurringAdjustmentsOpen} onOpenChange={setRecurringAdjustmentsOpen}>
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between p-4">
+                    <h3 className="text-sm font-semibold">Recurring Adjustment Lines</h3>
+                    {recurringAdjustmentsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          These adjustments are automatically applied to each monthly pay run
+                        </p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleAddRecurringAdjustment}
+                          className="h-7 text-xs"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Adjustment
+                        </Button>
+                      </div>
+
+                      {(formData.recurringAdjustments || []).length === 0 ? (
+                        <p className="text-xs text-muted-foreground">No recurring adjustments configured</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {(formData.recurringAdjustments || []).map((adjustment) => (
+                            <Card key={adjustment.id} className="p-3 bg-muted/50">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 grid grid-cols-2 gap-2">
+                                  <div>
+                                    <Label className="text-xs">Name</Label>
+                                    <Input
+                                      value={adjustment.name}
+                                      onChange={(e) => handleRecurringAdjustmentChange(adjustment.id, "name", e.target.value)}
+                                      className="mt-1 h-7 text-xs"
+                                      placeholder="e.g., Housing Allowance"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">Amount ({formData.currency})</Label>
+                                    <Input
+                                      type="number"
+                                      value={adjustment.amount}
+                                      onChange={(e) => handleRecurringAdjustmentChange(adjustment.id, "amount", Number(e.target.value))}
+                                      className="mt-1 h-7 text-xs"
+                                      placeholder="Positive or negative"
+                                    />
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveRecurringAdjustment(adjustment.id)}
+                                  className="h-6 w-6 p-0 mt-4"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
+
+            {/* D. Employee Overrides */}
             <Card className="border-border">
               <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
                 <CollapsibleTrigger className="w-full">
@@ -499,7 +610,7 @@ export default function EmployeePayrollDrawer({
               </Collapsible>
             </Card>
 
-            {/* D. Deductions (PH Only) */}
+            {/* E. Deductions (PH Only) */}
             {isPH && (
               <Card className="border-border">
                 <Collapsible open={deductionsOpen} onOpenChange={setDeductionsOpen}>
@@ -607,7 +718,7 @@ export default function EmployeePayrollDrawer({
               </Card>
             )}
 
-            {/* E. Employer Contributions (NO Only) */}
+            {/* F. Employer Contributions (NO Only) */}
             {isNO && (
               <Card className="border-border">
                 <Collapsible open={contributionsOpen} onOpenChange={setContributionsOpen}>
@@ -667,7 +778,7 @@ export default function EmployeePayrollDrawer({
               </Card>
             )}
 
-            {/* F. Preview */}
+            {/* G. Preview */}
             <Card className="border-border">
               <Collapsible open={previewOpen} onOpenChange={setPreviewOpen}>
                 <CollapsibleTrigger className="w-full">
