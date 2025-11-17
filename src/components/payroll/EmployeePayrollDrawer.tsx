@@ -149,6 +149,7 @@ export default function EmployeePayrollDrawer({
   const [recurringAdjustmentsOpen, setRecurringAdjustmentsOpen] = useState(true);
   const [overridesOpen, setOverridesOpen] = useState(true);
   const [deductionsOpen, setDeductionsOpen] = useState(false);
+  const [universalDeductionsOpen, setUniversalDeductionsOpen] = useState(true);
   const [contributionsOpen, setContributionsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -628,14 +629,15 @@ export default function EmployeePayrollDrawer({
               </Collapsible>
             </Card>
 
-            {/* E. Deductions (PH Only) */}
+
+            {/* E. Government Contributions (PH Only) */}
             {isPH && (
               <Card className="border-border">
                 <Collapsible open={deductionsOpen} onOpenChange={setDeductionsOpen}>
                   <CollapsibleTrigger className="w-full">
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold">Deductions</h3>
+                        <h3 className="text-sm font-semibold">Government Contributions</h3>
                         <Badge className="text-xs">Philippines Only</Badge>
                       </div>
                       {deductionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -704,37 +706,74 @@ export default function EmployeePayrollDrawer({
                             </p>
                           )}
                         </div>
-                        <div>
-                          <Label className="text-xs">Withholding Tax</Label>
-                          <Input
-                            type="number"
-                            value={formData.withholdingTax}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTax: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                          {!formData.allowOverride && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Auto-calculated: {formData.withholdingTaxRate || 0}% of gross compensation
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <Label className="text-xs">Other Deductions</Label>
-                          <Input
-                            type="number"
-                            value={formData.otherDeductions}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, otherDeductions: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                        </div>
                       </div>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
               </Card>
             )}
+
+            {/* E2. Deductions (All Countries) */}
+            <Card className="border-border">
+              <Collapsible open={universalDeductionsOpen} onOpenChange={setUniversalDeductionsOpen}>
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold">Deductions</h3>
+                      <Badge variant="secondary" className="text-xs">All Countries</Badge>
+                    </div>
+                    {universalDeductionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Withholding Tax (%)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.withholdingTaxRate || 0}
+                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTaxRate: Number(e.target.value) }) : null)}
+                          className="mt-1 h-8"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Applied to gross compensation
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Withholding Tax (Amount)</Label>
+                        <Input
+                          type="number"
+                          value={formData.withholdingTax || 0}
+                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTax: Number(e.target.value) }) : null)}
+                          disabled={!formData.allowOverride && !!formData.withholdingTaxRate}
+                          className="mt-1 h-8"
+                        />
+                        {!formData.allowOverride && formData.withholdingTaxRate && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Auto: {formData.withholdingTaxRate}% of {formData.currency} {grossCompensation.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-xs">Other Deductions</Label>
+                        <Input
+                          type="number"
+                          value={formData.otherDeductions || 0}
+                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, otherDeductions: Number(e.target.value) }) : null)}
+                          disabled={!formData.allowOverride}
+                          className="mt-1 h-8"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Additional manual deductions
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
 
             {/* F. Employer Contributions (NO Only) */}
             {isNO && (
