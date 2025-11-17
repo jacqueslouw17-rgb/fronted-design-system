@@ -771,6 +771,7 @@ const PayrollBatch: React.FC = () => {
   };
 
   const handleOpenEmployeePayroll = (employee: ContractorPayment) => {
+    console.log('[PayrollBatch] Opening EmployeePayrollDrawer with', employee);
     setSelectedEmployee(employee);
     setEmployeePayrollDrawerOpen(true);
   };
