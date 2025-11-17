@@ -20,14 +20,16 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { addDays, format } from "date-fns";
 
 type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
@@ -310,6 +312,8 @@ const PayrollBatch: React.FC = () => {
   const [selectedLeaveContractor, setSelectedLeaveContractor] = useState<ContractorPayment | null>(null);
   const [leaveRecords, setLeaveRecords] = useState<Record<string, LeaveRecord>>({});
   const [leaveSelectorOpen, setLeaveSelectorOpen] = useState(false);
+  const [leaveSearchQuery, setLeaveSearchQuery] = useState("");
+  const [selectedLeaveWorkers, setSelectedLeaveWorkers] = useState<string[]>([]);
   const [contractorDrawerOpen, setContractorDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<ContractorPayment | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -3939,50 +3943,146 @@ You can ask me about:
             />
 
             {/* Leave Record Selector Dialog */}
-            <Dialog open={leaveSelectorOpen} onOpenChange={setLeaveSelectorOpen}>
-              <DialogContent className="max-w-md">
+            <Dialog open={leaveSelectorOpen} onOpenChange={(open) => {
+              setLeaveSelectorOpen(open);
+              if (!open) {
+                setLeaveSearchQuery("");
+                setSelectedLeaveWorkers([]);
+              }
+            }}>
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Add Leave Record</DialogTitle>
+                  <DialogTitle>Add Leave Records</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Select an employee or contractor to track their leave for this cycle
-                  </p>
-                  <ScrollArea className="max-h-[400px]">
-                    <div className="space-y-2">
-                      {allContractors
-                        .filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0)
-                        .map((contractor) => (
-                          <Button
-                            key={contractor.id}
-                            variant="outline"
-                            className="w-full justify-start"
-                            onClick={() => {
-                              handleUpdateLeave(contractor.id, { 
-                                leaveDays: 1, 
-                                workingDays: 21.67,
-                                clientConfirmed: false 
-                              });
-                              setLeaveSelectorOpen(false);
-                              toast.success(`${contractor.name} added to leave tracking`);
-                            }}
-                          >
-                            <div className="flex flex-col items-start">
-                              <span className="font-medium">{contractor.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {contractor.employmentType === "employee" ? "Employee" : "Contractor"} • {contractor.country}
-                              </span>
+                <div className="space-y-4">
+                  {/* Search Input */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name or country..."
+                      value={leaveSearchQuery}
+                      onChange={(e) => setLeaveSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+
+                  {/* Worker List */}
+                  <ScrollArea className="h-[400px] rounded-md border border-border bg-card/30">
+                    <div className="p-4 space-y-2">
+                      {(() => {
+                        const availableWorkers = allContractors.filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0);
+                        const filteredWorkers = availableWorkers.filter(contractor => 
+                          contractor.name.toLowerCase().includes(leaveSearchQuery.toLowerCase()) ||
+                          contractor.country.toLowerCase().includes(leaveSearchQuery.toLowerCase())
+                        );
+
+                        if (filteredWorkers.length === 0) {
+                          return (
+                            <div className="text-center py-12">
+                              <p className="text-sm text-muted-foreground">
+                                {leaveSearchQuery 
+                                  ? "No workers found matching your search" 
+                                  : "All workers are already tracked for leave"}
+                              </p>
                             </div>
-                          </Button>
-                        ))}
-                      {allContractors.filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0).length === 0 && (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          All workers are already tracked for leave
-                        </p>
-                      )}
+                          );
+                        }
+
+                        return filteredWorkers.map((contractor) => {
+                          const isSelected = selectedLeaveWorkers.includes(contractor.id);
+                          return (
+                            <div
+                              key={contractor.id}
+                              onClick={() => {
+                                setSelectedLeaveWorkers(prev => 
+                                  isSelected 
+                                    ? prev.filter(id => id !== contractor.id)
+                                    : [...prev, contractor.id]
+                                );
+                              }}
+                              className={cn(
+                                "flex items-center gap-3 p-4 rounded-lg border transition-colors cursor-pointer",
+                                isSelected 
+                                  ? "border-primary bg-primary/5" 
+                                  : "border-border hover:border-primary/50 hover:bg-muted/50"
+                              )}
+                            >
+                              <Checkbox 
+                                checked={isSelected}
+                                onCheckedChange={() => {
+                                  setSelectedLeaveWorkers(prev => 
+                                    isSelected 
+                                      ? prev.filter(id => id !== contractor.id)
+                                      : [...prev, contractor.id]
+                                  );
+                                }}
+                              />
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{contractor.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {contractor.employmentType === "employee" ? "Employee" : "Contractor"} • {contractor.country}
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                {contractor.currency} {contractor.baseSalary.toLocaleString()}
+                              </Badge>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </ScrollArea>
+
+                  {/* Selection Summary */}
+                  {selectedLeaveWorkers.length > 0 && (
+                    <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 border border-primary/20">
+                      <Info className="h-4 w-4 text-primary" />
+                      <p className="text-sm text-foreground">
+                        <span className="font-semibold">{selectedLeaveWorkers.length}</span> worker{selectedLeaveWorkers.length !== 1 ? 's' : ''} selected
+                      </p>
+                    </div>
+                  )}
                 </div>
+
+                <DialogFooter className="gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setLeaveSelectorOpen(false);
+                      setLeaveSearchQuery("");
+                      setSelectedLeaveWorkers([]);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (selectedLeaveWorkers.length === 0) {
+                        toast.error("Please select at least one worker");
+                        return;
+                      }
+                      
+                      selectedLeaveWorkers.forEach(workerId => {
+                        handleUpdateLeave(workerId, { 
+                          leaveDays: 1, 
+                          workingDays: 21.67,
+                          clientConfirmed: false 
+                        });
+                      });
+                      
+                      toast.success(
+                        `${selectedLeaveWorkers.length} worker${selectedLeaveWorkers.length !== 1 ? 's' : ''} added to leave tracking`
+                      );
+                      
+                      setLeaveSelectorOpen(false);
+                      setLeaveSearchQuery("");
+                      setSelectedLeaveWorkers([]);
+                    }}
+                    disabled={selectedLeaveWorkers.length === 0}
+                  >
+                    Add Selected ({selectedLeaveWorkers.length})
+                  </Button>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </AgentLayout>
