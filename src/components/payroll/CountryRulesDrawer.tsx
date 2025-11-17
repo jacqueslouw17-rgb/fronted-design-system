@@ -111,6 +111,12 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   const [biMonthlyFirstHalf, setBiMonthlyFirstHalf] = useState("50% Base + 50% Allowances (no deductions)");
   const [biMonthlySecondHalf, setBiMonthlySecondHalf] = useState("50% Base + 50% Allowances + all deductions");
 
+  // PH Overtime & Holiday Pay Rates
+  const [overtimePayRate, setOvertimePayRate] = useState("125");
+  const [restDayHolidayRate, setRestDayHolidayRate] = useState("130");
+  const [specialNonWorkingHolidayRate, setSpecialNonWorkingHolidayRate] = useState("130");
+  const [doubleHolidayRate, setDoubleHolidayRate] = useState("200");
+
   // Norway Defaults
   const [holidayPayPercent, setHolidayPayPercent] = useState("12");
   const [employerTaxPercent, setEmployerTaxPercent] = useState("14.1");
@@ -297,6 +303,12 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
           pagIbig: { fixedMonthlyContribution: pagIbigFixedContribution },
         },
         non_taxable_caps: nonTaxableBenefits,
+        overtime_holiday_rates: {
+          overtimePayRate: overtimePayRate,
+          restDayHolidayRate: restDayHolidayRate,
+          specialNonWorkingHolidayRate: specialNonWorkingHolidayRate,
+          doubleHolidayRate: doubleHolidayRate,
+        },
         bi_monthly_logic: {
           firstHalf: biMonthlyFirstHalf,
           secondHalf: biMonthlySecondHalf,
@@ -879,6 +891,64 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                         </Button>
                       </div>
                     ))}
+                  </div>
+                </Card>
+
+                {/* Overtime & Holiday Pay Rates */}
+                <Card className="p-4">
+                  <h2 className="text-lg font-semibold mb-4">Overtime & Holiday Pay Rates</h2>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Define rate multipliers for overtime and holiday work (percentage of regular hourly rate)
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Overtime Pay Rate (%)</Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={overtimePayRate}
+                        onChange={(e) => setOvertimePayRate(e.target.value)}
+                        placeholder="125"
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Standard overtime multiplier</p>
+                    </div>
+                    <div>
+                      <Label>Rest Day / Holiday Pay Rate (%)</Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={restDayHolidayRate}
+                        onChange={(e) => setRestDayHolidayRate(e.target.value)}
+                        placeholder="130"
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Rest day work rate</p>
+                    </div>
+                    <div>
+                      <Label>Special Non-Working Holiday Rate (%)</Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={specialNonWorkingHolidayRate}
+                        onChange={(e) => setSpecialNonWorkingHolidayRate(e.target.value)}
+                        placeholder="130"
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Special holiday work rate</p>
+                    </div>
+                    <div>
+                      <Label>Double Holiday Rate (%)</Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={doubleHolidayRate}
+                        onChange={(e) => setDoubleHolidayRate(e.target.value)}
+                        placeholder="200"
+                        className="mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Regular + special holiday combined</p>
+                    </div>
                   </div>
                 </Card>
 
