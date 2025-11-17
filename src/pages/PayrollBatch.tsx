@@ -160,17 +160,7 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       recvLocal: 5800, 
       eta: "Oct 30", 
       employmentType: "employee", 
-      employerTaxes: 1740,
-      leaveData: {
-        contractorId: "2",
-        leaveDays: 2,
-        workingDays: 21.67,
-        leaveReason: "Personal leave",
-        leaveDate: "Nov 10-11, 2025",
-        approvedBy: "HR Manager",
-        clientConfirmed: true,
-        contractorReported: true
-      }
+      employerTaxes: 1740
     },
     { 
       id: "3", 
@@ -215,17 +205,7 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 10.45, 
       recvLocal: 72000, 
       eta: "Oct 31", 
-      employmentType: "contractor",
-      leaveData: {
-        contractorId: "5",
-        leaveDays: 1,
-        workingDays: 21.67,
-        leaveReason: "Sick leave",
-        leaveDate: "Nov 8, 2025",
-        approvedBy: "Manager",
-        clientConfirmed: true,
-        contractorReported: true
-      }
+      employmentType: "contractor"
     },
   ],
   PHP: [
@@ -423,17 +403,6 @@ const PayrollBatch: React.FC = () => {
       hasData: false
     }
   });
-
-  // Initialize leave records from contractor data
-  React.useEffect(() => {
-    const initialLeaveRecords: Record<string, LeaveRecord> = {};
-    allContractors.forEach(contractor => {
-      if (contractor.leaveData) {
-        initialLeaveRecords[contractor.id] = contractor.leaveData;
-      }
-    });
-    setLeaveRecords(initialLeaveRecords);
-  }, []);
 
   // Pro-rating calculation helpers
   const calculateProratedPay = (baseSalary: number, leaveDays: number, workingDays: number = 21.67) => {
