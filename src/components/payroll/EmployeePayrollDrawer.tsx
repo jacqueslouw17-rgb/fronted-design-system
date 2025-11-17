@@ -163,7 +163,22 @@ export default function EmployeePayrollDrawer({
     }
   }, [employee]);
 
-  if (!formData) return null;
+  if (!formData) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="right" className="w-[600px] sm:max-w-[600px] p-0">
+          <ScrollArea className="h-full">
+            <div className="p-6 space-y-6">
+              <SheetHeader className="space-y-1">
+                <SheetTitle className="text-lg font-semibold">Employee Payroll</SheetTitle>
+                <p className="text-sm text-muted-foreground">Loading employee data…</p>
+              </SheetHeader>
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   const isPH = formData.countryCode === "PH";
   const isNO = formData.countryCode === "NO";
