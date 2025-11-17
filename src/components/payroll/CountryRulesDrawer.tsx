@@ -64,6 +64,7 @@ interface SSSTableRow {
   rangeFrom: string;
   rangeTo: string;
   employeeContribution: string;
+  employerContribution: string;
   effectiveYear: string;
 }
 
@@ -133,40 +134,40 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
 
   // PH SSS Contribution Table (2025)
   const [sssTable, setSssTable] = useState<SSSTableRow[]>([
-    { id: "1", rangeFrom: "0", rangeTo: "4250", employeeContribution: "180", effectiveYear: "2025" },
-    { id: "2", rangeFrom: "4250", rangeTo: "4750", employeeContribution: "202.50", effectiveYear: "2025" },
-    { id: "3", rangeFrom: "4750", rangeTo: "5250", employeeContribution: "225", effectiveYear: "2025" },
-    { id: "4", rangeFrom: "5250", rangeTo: "5750", employeeContribution: "247.50", effectiveYear: "2025" },
-    { id: "5", rangeFrom: "5750", rangeTo: "6250", employeeContribution: "270", effectiveYear: "2025" },
-    { id: "6", rangeFrom: "6250", rangeTo: "6750", employeeContribution: "292.50", effectiveYear: "2025" },
-    { id: "7", rangeFrom: "6750", rangeTo: "7250", employeeContribution: "315", effectiveYear: "2025" },
-    { id: "8", rangeFrom: "7250", rangeTo: "7750", employeeContribution: "337.50", effectiveYear: "2025" },
-    { id: "9", rangeFrom: "7750", rangeTo: "8250", employeeContribution: "360", effectiveYear: "2025" },
-    { id: "10", rangeFrom: "8250", rangeTo: "8750", employeeContribution: "382.50", effectiveYear: "2025" },
-    { id: "11", rangeFrom: "8750", rangeTo: "9250", employeeContribution: "405", effectiveYear: "2025" },
-    { id: "12", rangeFrom: "9250", rangeTo: "9750", employeeContribution: "427.50", effectiveYear: "2025" },
-    { id: "13", rangeFrom: "9750", rangeTo: "10250", employeeContribution: "450", effectiveYear: "2025" },
-    { id: "14", rangeFrom: "10250", rangeTo: "10750", employeeContribution: "472.50", effectiveYear: "2025" },
-    { id: "15", rangeFrom: "10750", rangeTo: "11250", employeeContribution: "495", effectiveYear: "2025" },
-    { id: "16", rangeFrom: "11250", rangeTo: "11750", employeeContribution: "517.50", effectiveYear: "2025" },
-    { id: "17", rangeFrom: "11750", rangeTo: "12250", employeeContribution: "540", effectiveYear: "2025" },
-    { id: "18", rangeFrom: "12250", rangeTo: "12750", employeeContribution: "562.50", effectiveYear: "2025" },
-    { id: "19", rangeFrom: "12750", rangeTo: "13250", employeeContribution: "585", effectiveYear: "2025" },
-    { id: "20", rangeFrom: "13250", rangeTo: "13750", employeeContribution: "607.50", effectiveYear: "2025" },
-    { id: "21", rangeFrom: "13750", rangeTo: "14250", employeeContribution: "630", effectiveYear: "2025" },
-    { id: "22", rangeFrom: "14250", rangeTo: "14750", employeeContribution: "652.50", effectiveYear: "2025" },
-    { id: "23", rangeFrom: "14750", rangeTo: "15250", employeeContribution: "675", effectiveYear: "2025" },
-    { id: "24", rangeFrom: "15250", rangeTo: "15750", employeeContribution: "697.50", effectiveYear: "2025" },
-    { id: "25", rangeFrom: "15750", rangeTo: "16250", employeeContribution: "720", effectiveYear: "2025" },
-    { id: "26", rangeFrom: "16250", rangeTo: "16750", employeeContribution: "742.50", effectiveYear: "2025" },
-    { id: "27", rangeFrom: "16750", rangeTo: "17250", employeeContribution: "765", effectiveYear: "2025" },
-    { id: "28", rangeFrom: "17250", rangeTo: "17750", employeeContribution: "787.50", effectiveYear: "2025" },
-    { id: "29", rangeFrom: "17750", rangeTo: "18250", employeeContribution: "810", effectiveYear: "2025" },
-    { id: "30", rangeFrom: "18250", rangeTo: "18750", employeeContribution: "832.50", effectiveYear: "2025" },
-    { id: "31", rangeFrom: "18750", rangeTo: "19250", employeeContribution: "855", effectiveYear: "2025" },
-    { id: "32", rangeFrom: "19250", rangeTo: "19750", employeeContribution: "877.50", effectiveYear: "2025" },
-    { id: "33", rangeFrom: "19750", rangeTo: "20250", employeeContribution: "900", effectiveYear: "2025" },
-    { id: "34", rangeFrom: "20250", rangeTo: "999999999", employeeContribution: "900", effectiveYear: "2025" },
+    { id: "1", rangeFrom: "0", rangeTo: "4250", employeeContribution: "180", employerContribution: "380", effectiveYear: "2025" },
+    { id: "2", rangeFrom: "4250", rangeTo: "4750", employeeContribution: "202.50", employerContribution: "427.50", effectiveYear: "2025" },
+    { id: "3", rangeFrom: "4750", rangeTo: "5250", employeeContribution: "225", employerContribution: "475", effectiveYear: "2025" },
+    { id: "4", rangeFrom: "5250", rangeTo: "5750", employeeContribution: "247.50", employerContribution: "522.50", effectiveYear: "2025" },
+    { id: "5", rangeFrom: "5750", rangeTo: "6250", employeeContribution: "270", employerContribution: "570", effectiveYear: "2025" },
+    { id: "6", rangeFrom: "6250", rangeTo: "6750", employeeContribution: "292.50", employerContribution: "617.50", effectiveYear: "2025" },
+    { id: "7", rangeFrom: "6750", rangeTo: "7250", employeeContribution: "315", employerContribution: "665", effectiveYear: "2025" },
+    { id: "8", rangeFrom: "7250", rangeTo: "7750", employeeContribution: "337.50", employerContribution: "712.50", effectiveYear: "2025" },
+    { id: "9", rangeFrom: "7750", rangeTo: "8250", employeeContribution: "360", employerContribution: "760", effectiveYear: "2025" },
+    { id: "10", rangeFrom: "8250", rangeTo: "8750", employeeContribution: "382.50", employerContribution: "807.50", effectiveYear: "2025" },
+    { id: "11", rangeFrom: "8750", rangeTo: "9250", employeeContribution: "405", employerContribution: "855", effectiveYear: "2025" },
+    { id: "12", rangeFrom: "9250", rangeTo: "9750", employeeContribution: "427.50", employerContribution: "902.50", effectiveYear: "2025" },
+    { id: "13", rangeFrom: "9750", rangeTo: "10250", employeeContribution: "450", employerContribution: "950", effectiveYear: "2025" },
+    { id: "14", rangeFrom: "10250", rangeTo: "10750", employeeContribution: "472.50", employerContribution: "997.50", effectiveYear: "2025" },
+    { id: "15", rangeFrom: "10750", rangeTo: "11250", employeeContribution: "495", employerContribution: "1045", effectiveYear: "2025" },
+    { id: "16", rangeFrom: "11250", rangeTo: "11750", employeeContribution: "517.50", employerContribution: "1092.50", effectiveYear: "2025" },
+    { id: "17", rangeFrom: "11750", rangeTo: "12250", employeeContribution: "540", employerContribution: "1140", effectiveYear: "2025" },
+    { id: "18", rangeFrom: "12250", rangeTo: "12750", employeeContribution: "562.50", employerContribution: "1187.50", effectiveYear: "2025" },
+    { id: "19", rangeFrom: "12750", rangeTo: "13250", employeeContribution: "585", employerContribution: "1235", effectiveYear: "2025" },
+    { id: "20", rangeFrom: "13250", rangeTo: "13750", employeeContribution: "607.50", employerContribution: "1282.50", effectiveYear: "2025" },
+    { id: "21", rangeFrom: "13750", rangeTo: "14250", employeeContribution: "630", employerContribution: "1330", effectiveYear: "2025" },
+    { id: "22", rangeFrom: "14250", rangeTo: "14750", employeeContribution: "652.50", employerContribution: "1377.50", effectiveYear: "2025" },
+    { id: "23", rangeFrom: "14750", rangeTo: "15250", employeeContribution: "675", employerContribution: "1425", effectiveYear: "2025" },
+    { id: "24", rangeFrom: "15250", rangeTo: "15750", employeeContribution: "697.50", employerContribution: "1472.50", effectiveYear: "2025" },
+    { id: "25", rangeFrom: "15750", rangeTo: "16250", employeeContribution: "720", employerContribution: "1520", effectiveYear: "2025" },
+    { id: "26", rangeFrom: "16250", rangeTo: "16750", employeeContribution: "742.50", employerContribution: "1567.50", effectiveYear: "2025" },
+    { id: "27", rangeFrom: "16750", rangeTo: "17250", employeeContribution: "765", employerContribution: "1615", effectiveYear: "2025" },
+    { id: "28", rangeFrom: "17250", rangeTo: "17750", employeeContribution: "787.50", employerContribution: "1662.50", effectiveYear: "2025" },
+    { id: "29", rangeFrom: "17750", rangeTo: "18250", employeeContribution: "810", employerContribution: "1710", effectiveYear: "2025" },
+    { id: "30", rangeFrom: "18250", rangeTo: "18750", employeeContribution: "832.50", employerContribution: "1757.50", effectiveYear: "2025" },
+    { id: "31", rangeFrom: "18750", rangeTo: "19250", employeeContribution: "855", employerContribution: "1805", effectiveYear: "2025" },
+    { id: "32", rangeFrom: "19250", rangeTo: "19750", employeeContribution: "877.50", employerContribution: "1852.50", effectiveYear: "2025" },
+    { id: "33", rangeFrom: "19750", rangeTo: "20250", employeeContribution: "900", employerContribution: "1900", effectiveYear: "2025" },
+    { id: "34", rangeFrom: "20250", rangeTo: "999999999", employeeContribution: "900", employerContribution: "1900", effectiveYear: "2025" },
   ]);
 
   const addTaxTableRow = () => {
@@ -271,6 +272,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
       rangeFrom: "",
       rangeTo: "",
       employeeContribution: "",
+      employerContribution: "",
       effectiveYear: new Date().getFullYear().toString(),
     };
     setSssTable([...sssTable, newRow]);
@@ -759,6 +761,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                           <TableHead className="w-[140px]">Range From (₱)</TableHead>
                           <TableHead className="w-[140px]">Range To (₱)</TableHead>
                           <TableHead className="w-[180px]">Employee Contribution (₱)</TableHead>
+                          <TableHead className="w-[180px]">Employer Contribution (₱)</TableHead>
                           <TableHead className="w-[120px]">Effective Year</TableHead>
                           <TableHead className="w-[80px]">Actions</TableHead>
                         </TableRow>
@@ -791,6 +794,16 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                                 value={row.employeeContribution}
                                 onChange={(e) => updateSSSTableRow(row.id, "employeeContribution", e.target.value)}
                                 placeholder="180"
+                                className="h-8"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={row.employerContribution}
+                                onChange={(e) => updateSSSTableRow(row.id, "employerContribution", e.target.value)}
+                                placeholder="380"
                                 className="h-8"
                               />
                             </TableCell>
