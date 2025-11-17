@@ -193,8 +193,19 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
         return;
       }
       
+      // Create a starter row for the new year
+      const starterRow: TaxTableRow = {
+        id: Date.now().toString(),
+        rangeFrom: "0",
+        rangeTo: "",
+        fixedTax: "0",
+        percentageOver: "0",
+        effectiveYear: newYear,
+      };
+      
+      setTaxTable([...taxTable, starterRow]);
       setSelectedTaxYear(newYear);
-      toast.success(`Created new tax year: ${newYear}`);
+      toast.success(`Created new tax year: ${newYear} - Add your tax brackets`);
     } else {
       setSelectedTaxYear(value);
     }
@@ -570,7 +581,14 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredTaxTable.map((row) => (
+                        {filteredTaxTable.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                              No tax brackets for {selectedTaxYear}. Click "Add Row" to create one.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredTaxTable.map((row) => (
                           <TableRow key={row.id}>
                             <TableCell>
                               <Input
@@ -610,7 +628,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                               </Button>
                             </TableCell>
                           </TableRow>
-                        ))}
+                        )))}
                       </TableBody>
                     </Table>
                   </div>
