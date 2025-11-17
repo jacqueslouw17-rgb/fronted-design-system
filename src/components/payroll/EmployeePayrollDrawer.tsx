@@ -120,6 +120,7 @@ interface ContractorPayment {
   recvLocal?: number;
   eta?: string;
   allowOverride?: boolean;
+  withholdingTaxRate?: number;
 }
 
 interface EmployeePayrollDrawerProps {
@@ -163,7 +164,7 @@ export default function EmployeePayrollDrawer({
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
   const grossCompensation = (formData.baseSalary || 0) + totalAllowances;
   
-  // Auto-update SSS, PhilHealth, and Pag-IBIG when base salary or line items change (only if override is disabled)
+  // Auto-update SSS, PhilHealth, Pag-IBIG, and Withholding Tax when base salary or line items change (only if override is disabled)
   useEffect(() => {
     if (isPH && !formData.allowOverride) {
       const autoSSS = lookupSSSContribution(grossCompensation);
@@ -179,11 +180,23 @@ export default function EmployeePayrollDrawer({
         }) : null);
       }
     }
-  }, [formData.baseSalary, totalAllowances, formData.allowOverride]);
+    
+    // Auto-calculate withholding tax based on rate and gross compensation
+    if (!formData.allowOverride && formData.withholdingTaxRate) {
+      const autoWithholdingTax = (grossCompensation * (formData.withholdingTaxRate || 0)) / 100;
+      if (formData.withholdingTax !== autoWithholdingTax) {
+        setFormData(prev => prev ? ({ 
+          ...prev, 
+          withholdingTax: autoWithholdingTax
+        }) : null);
+      }
+    }
+  }, [formData.baseSalary, totalAllowances, formData.allowOverride, formData.withholdingTaxRate]);
 
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
                           (formData.pagIbigEmployee || 0) + 
+                          (formData.withholdingTax || 0) + 
                           (formData.otherDeductions || 0);
   const totalEmployerContributions = (((formData.baseSalary || 0) * (formData.holidayPay || 0)) / 100) +
                                     (((formData.baseSalary || 0) * (formData.employerTax || 0)) / 100) +
@@ -278,6 +291,19 @@ export default function EmployeePayrollDrawer({
                           <p className="font-medium mt-1">{formData.nationalId}</p>
                         </div>
                       )}
+                      <div>
+                        <Label className="text-xs">Withholding Tax Rate (%)</Label>
+                        <Input
+                          type="number"
+                          value={formData.withholdingTaxRate || 0}
+                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTaxRate: Number(e.target.value) }) : null)}
+                          className="mt-1 h-8"
+                          placeholder="0"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Applied to gross compensation
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CollapsibleContent>
@@ -546,6 +572,21 @@ export default function EmployeePayrollDrawer({
                           {!formData.allowOverride && (
                             <p className="text-xs text-muted-foreground mt-1">
                               Fixed contribution (₱100 per month)
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <Label className="text-xs">Withholding Tax</Label>
+                          <Input
+                            type="number"
+                            value={formData.withholdingTax}
+                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTax: Number(e.target.value) }) : null)}
+                            disabled={!formData.allowOverride}
+                            className="mt-1 h-8"
+                          />
+                          {!formData.allowOverride && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Auto-calculated: {formData.withholdingTaxRate || 0}% of gross compensation
                             </p>
                           )}
                         </div>
