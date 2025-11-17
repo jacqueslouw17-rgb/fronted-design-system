@@ -136,6 +136,12 @@ interface ContractorPayment {
   allowOverride?: boolean;
   withholdingTaxRate?: number;
   recurringAdjustments?: RecurringAdjustment[];
+  
+  // PH Work Type/Condition Hours
+  overtimeHours?: number;
+  restDayHolidayDays?: number;
+  specialHolidayDays?: number;
+  doubleHolidayDays?: number;
 }
 
 interface EmployeePayrollDrawerProps {
@@ -154,6 +160,7 @@ export default function EmployeePayrollDrawer({
   const [formData, setFormData] = useState<ContractorPayment | null>(null);
   const [profileOpen, setProfileOpen] = useState(true);
   const [compensationOpen, setCompensationOpen] = useState(true);
+  const [workConditionsOpen, setWorkConditionsOpen] = useState(false);
   const [recurringAdjustmentsOpen, setRecurringAdjustmentsOpen] = useState(true);
   const [overridesOpen, setOverridesOpen] = useState(true);
   const [deductionsOpen, setDeductionsOpen] = useState(false);
@@ -249,7 +256,20 @@ export default function EmployeePayrollDrawer({
   const dailyRate = (formData.baseSalary || 0) / 22;
   const hourlyRate = dailyRate / 8;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
-  const grossCompensation = (formData.baseSalary || 0) + totalAllowances;
+  
+  // PH Work Condition Pay (using rates from Country Settings - default to standard PH rates)
+  const overtimePayRate = 125; // % from Country Settings
+  const restDayHolidayRate = 130; // % from Country Settings
+  const specialHolidayRate = 130; // % from Country Settings
+  const doubleHolidayRate = 200; // % from Country Settings
+  
+  const overtimePay = isPH ? (hourlyRate * (formData.overtimeHours || 0) * overtimePayRate / 100) : 0;
+  const restDayHolidayPay = isPH ? (dailyRate * (formData.restDayHolidayDays || 0) * restDayHolidayRate / 100) : 0;
+  const specialHolidayPay = isPH ? (dailyRate * (formData.specialHolidayDays || 0) * specialHolidayRate / 100) : 0;
+  const doubleHolidayPay = isPH ? (dailyRate * (formData.doubleHolidayDays || 0) * doubleHolidayRate / 100) : 0;
+  const totalWorkConditionPay = overtimePay + restDayHolidayPay + specialHolidayPay + doubleHolidayPay;
+  
+  const grossCompensation = (formData.baseSalary || 0) + totalAllowances + totalWorkConditionPay;
 
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
@@ -599,6 +619,129 @@ export default function EmployeePayrollDrawer({
                 </CollapsibleContent>
               </Collapsible>
             </Card>
+
+            {/* B2. Work Type / Condition Hours or Days (PH Only) */}
+            {isPH && (
+              <Card className="border-border">
+                <Collapsible open={workConditionsOpen} onOpenChange={setWorkConditionsOpen}>
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold">Work Type / Condition Hours or Days</h3>
+                        <Badge className="text-xs">Philippines Only</Badge>
+                      </div>
+                      {workConditionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="px-4 pb-4 space-y-3">
+                      <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+                        <p className="text-xs text-foreground">
+                          Additional work hours and days are multiplied by rates defined in Country Settings. Pay calculations are automatically added to gross compensation.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Overtime Hours</Label>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            value={formData.overtimeHours || 0}
+                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, overtimeHours: Number(e.target.value) }) : null)}
+                            disabled={!formData.allowOverride}
+                            className="mt-1 h-8"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Rate: {overtimePayRate}% × Hourly rate ({formData.currency} {hourlyRate.toFixed(2)})
+                          </p>
+                          {(formData.overtimeHours || 0) > 0 && (
+                            <p className="text-xs font-medium text-primary mt-1">
+                              + {formData.currency} {overtimePay.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs">Rest Day / Holiday Work Days</Label>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            value={formData.restDayHolidayDays || 0}
+                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, restDayHolidayDays: Number(e.target.value) }) : null)}
+                            disabled={!formData.allowOverride}
+                            className="mt-1 h-8"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Rate: {restDayHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
+                          </p>
+                          {(formData.restDayHolidayDays || 0) > 0 && (
+                            <p className="text-xs font-medium text-primary mt-1">
+                              + {formData.currency} {restDayHolidayPay.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs">Special Non-Working Holiday Days</Label>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            value={formData.specialHolidayDays || 0}
+                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, specialHolidayDays: Number(e.target.value) }) : null)}
+                            disabled={!formData.allowOverride}
+                            className="mt-1 h-8"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Rate: {specialHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
+                          </p>
+                          {(formData.specialHolidayDays || 0) > 0 && (
+                            <p className="text-xs font-medium text-primary mt-1">
+                              + {formData.currency} {specialHolidayPay.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs">Double Holiday Days</Label>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            value={formData.doubleHolidayDays || 0}
+                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, doubleHolidayDays: Number(e.target.value) }) : null)}
+                            disabled={!formData.allowOverride}
+                            className="mt-1 h-8"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Rate: {doubleHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
+                          </p>
+                          {(formData.doubleHolidayDays || 0) > 0 && (
+                            <p className="text-xs font-medium text-primary mt-1">
+                              + {formData.currency} {doubleHolidayPay.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {totalWorkConditionPay > 0 && (
+                        <div className="pt-3 border-t">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-sm font-medium">Total Work Condition Pay</Label>
+                            <p className="text-sm font-semibold text-primary">
+                              + {formData.currency} {totalWorkConditionPay.toFixed(2)}
+                            </p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Added to gross compensation automatically
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </Card>
+            )}
 
             {/* C. Recurring Adjustment Lines */}
             <Card className="border-border">
