@@ -163,17 +163,19 @@ export default function EmployeePayrollDrawer({
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
   const grossCompensation = (formData.baseSalary || 0) + totalAllowances;
   
-  // Auto-update SSS when base salary or line items change (only if override is disabled)
+  // Auto-update SSS, PhilHealth, and Pag-IBIG when base salary or line items change (only if override is disabled)
   useEffect(() => {
     if (isPH && !formData.allowOverride) {
       const autoSSS = lookupSSSContribution(grossCompensation);
       const autoPhilHealth = calculatePhilHealth(formData.baseSalary || 0);
+      const autoPagIbig = 100; // Fixed monthly contribution
       
-      if (formData.sssEmployee !== autoSSS || formData.philHealthEmployee !== autoPhilHealth) {
+      if (formData.sssEmployee !== autoSSS || formData.philHealthEmployee !== autoPhilHealth || formData.pagIbigEmployee !== autoPagIbig) {
         setFormData(prev => prev ? ({ 
           ...prev, 
           sssEmployee: autoSSS,
-          philHealthEmployee: autoPhilHealth
+          philHealthEmployee: autoPhilHealth,
+          pagIbigEmployee: autoPagIbig
         }) : null);
       }
     }
@@ -533,7 +535,7 @@ export default function EmployeePayrollDrawer({
                           )}
                         </div>
                         <div>
-                          <Label className="text-xs">Pag-IBIG (Employee Share)</Label>
+                          <Label className="text-xs">Pag-IBIG (Fixed Monthly)</Label>
                           <Input
                             type="number"
                             value={formData.pagIbigEmployee}
@@ -541,6 +543,11 @@ export default function EmployeePayrollDrawer({
                             disabled={!formData.allowOverride}
                             className="mt-1 h-8"
                           />
+                          {!formData.allowOverride && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Fixed contribution (₱100 per month)
+                            </p>
+                          )}
                         </div>
                         <div>
                           <Label className="text-xs">Other Deductions</Label>
