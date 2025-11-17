@@ -309,6 +309,7 @@ const PayrollBatch: React.FC = () => {
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [selectedLeaveContractor, setSelectedLeaveContractor] = useState<ContractorPayment | null>(null);
   const [leaveRecords, setLeaveRecords] = useState<Record<string, LeaveRecord>>({});
+  const [leaveSelectorOpen, setLeaveSelectorOpen] = useState(false);
   const [contractorDrawerOpen, setContractorDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<ContractorPayment | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -885,12 +886,7 @@ const PayrollBatch: React.FC = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            const firstContractor = allContractors[0];
-                            if (firstContractor) {
-                              handleUpdateLeave(firstContractor.id, { leaveDays: 0, workingDays: 21.67 });
-                            }
-                          }}
+                          onClick={() => setLeaveSelectorOpen(true)}
                           className="gap-2"
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -906,12 +902,7 @@ const PayrollBatch: React.FC = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => {
-                              const nextContractor = allContractors.find(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0);
-                              if (nextContractor) {
-                                handleUpdateLeave(nextContractor.id, { leaveDays: 0, workingDays: 21.67 });
-                              }
-                            }}
+                            onClick={() => setLeaveSelectorOpen(true)}
                             className="h-7 text-xs gap-1"
                           >
                             <Plus className="h-3 w-3" />
@@ -3946,6 +3937,54 @@ You can ask me about:
               employee={selectedEmployee}
               onSave={handleSaveEmployeePayroll}
             />
+
+            {/* Leave Record Selector Dialog */}
+            <Dialog open={leaveSelectorOpen} onOpenChange={setLeaveSelectorOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add Leave Record</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Select an employee or contractor to track their leave for this cycle
+                  </p>
+                  <ScrollArea className="max-h-[400px]">
+                    <div className="space-y-2">
+                      {allContractors
+                        .filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0)
+                        .map((contractor) => (
+                          <Button
+                            key={contractor.id}
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              handleUpdateLeave(contractor.id, { 
+                                leaveDays: 1, 
+                                workingDays: 21.67,
+                                clientConfirmed: false 
+                              });
+                              setLeaveSelectorOpen(false);
+                              toast.success(`${contractor.name} added to leave tracking`);
+                            }}
+                          >
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{contractor.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {contractor.employmentType === "employee" ? "Employee" : "Contractor"} • {contractor.country}
+                              </span>
+                            </div>
+                          </Button>
+                        ))}
+                      {allContractors.filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0).length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          All workers are already tracked for leave
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </DialogContent>
+            </Dialog>
           </AgentLayout>
         </main>
       </div>
