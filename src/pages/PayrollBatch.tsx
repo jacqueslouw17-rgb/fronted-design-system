@@ -905,7 +905,13 @@ const PayrollBatch: React.FC = () => {
                               const paymentDue = getPaymentDue(contractor);
                               
                               return (
-                                <TableRow key={contractor.id} className="bg-amber-500/5">
+                                <TableRow 
+                                  key={contractor.id} 
+                                  className={cn(
+                                    "transition-colors",
+                                    leaveData?.clientConfirmed ? "bg-background" : "bg-amber-500/5"
+                                  )}
+                                >
                                   <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
                                   <TableCell className="text-right">
                                     <input
