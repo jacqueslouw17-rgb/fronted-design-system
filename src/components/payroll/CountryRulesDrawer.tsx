@@ -545,7 +545,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                       <div className="flex items-center gap-2">
                         <Label className="text-sm font-normal">Year:</Label>
                         <Select value={selectedTaxYear} onValueChange={handleTaxYearChange}>
-                          <SelectTrigger className="w-[140px]">
+                          <SelectTrigger className="w-[140px] h-9">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
