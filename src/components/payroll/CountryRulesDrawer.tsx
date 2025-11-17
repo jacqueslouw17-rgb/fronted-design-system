@@ -76,7 +76,8 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   const [selectedCountry, setSelectedCountry] = useState<Country>("PH");
   const [allowEmployeeOverride, setAllowEmployeeOverride] = useState(false);
   
-  // PH Tax Table
+  // PH Tax Table with year selector
+  const [selectedTaxYear, setSelectedTaxYear] = useState("2025");
   const [taxTable, setTaxTable] = useState<TaxTableRow[]>([
     { id: "1", rangeFrom: "0", rangeTo: "20833", fixedTax: "0", percentageOver: "0", effectiveYear: "2025" },
     { id: "2", rangeFrom: "20833", rangeTo: "33332", fixedTax: "0", percentageOver: "15", effectiveYear: "2025" },
@@ -175,10 +176,35 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
       rangeTo: "",
       fixedTax: "",
       percentageOver: "",
-      effectiveYear: new Date().getFullYear().toString(),
+      effectiveYear: selectedTaxYear,
     };
     setTaxTable([...taxTable, newRow]);
   };
+
+  const handleTaxYearChange = (value: string) => {
+    if (value === "add-new-year") {
+      const currentYear = new Date().getFullYear();
+      const newYear = (currentYear + 1).toString();
+      
+      // Check if year already exists
+      const yearExists = taxTable.some(row => row.effectiveYear === newYear);
+      if (yearExists) {
+        toast.error(`Tax table for year ${newYear} already exists`);
+        return;
+      }
+      
+      setSelectedTaxYear(newYear);
+      toast.success(`Created new tax year: ${newYear}`);
+    } else {
+      setSelectedTaxYear(value);
+    }
+  };
+
+  // Get unique years from tax table
+  const availableYears = Array.from(new Set(taxTable.map(row => row.effectiveYear))).sort((a, b) => b.localeCompare(a));
+  
+  // Filter tax table by selected year
+  const filteredTaxTable = taxTable.filter(row => row.effectiveYear === selectedTaxYear);
 
   const removeTaxTableRow = (id: string) => {
     setTaxTable(taxTable.filter(row => row.id !== id));
@@ -504,10 +530,33 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                 <Card className="p-4">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold">Philippine Tax Table</h2>
-                    <Button onClick={addTaxTableRow} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Row
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm font-normal">Year:</Label>
+                        <Select value={selectedTaxYear} onValueChange={handleTaxYearChange}>
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableYears.map(year => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="add-new-year">
+                              <span className="flex items-center gap-2">
+                                <Plus className="h-3 w-3" />
+                                Add New Year
+                              </span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={addTaxTableRow} size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Row
+                      </Button>
+                    </div>
                   </div>
                   <div className="overflow-x-auto">
                     <Table>
@@ -517,12 +566,11 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                           <TableHead>Range To (₱)</TableHead>
                           <TableHead>Fixed Tax (₱)</TableHead>
                           <TableHead>% Over</TableHead>
-                          <TableHead>Year</TableHead>
                           <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {taxTable.map((row) => (
+                        {filteredTaxTable.map((row) => (
                           <TableRow key={row.id}>
                             <TableCell>
                               <Input
@@ -549,13 +597,6 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                               <Input
                                 value={row.percentageOver}
                                 onChange={(e) => updateTaxTableRow(row.id, "percentageOver", e.target.value)}
-                                className="w-[80px]"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                value={row.effectiveYear}
-                                onChange={(e) => updateTaxTableRow(row.id, "effectiveYear", e.target.value)}
                                 className="w-[80px]"
                               />
                             </TableCell>
