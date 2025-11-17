@@ -20,6 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ChevronDown, ChevronUp, Plus, X, Info } from "lucide-react";
 import { toast } from "sonner";
 
@@ -152,6 +160,28 @@ export default function EmployeePayrollDrawer({
   const [universalDeductionsOpen, setUniversalDeductionsOpen] = useState(true);
   const [contributionsOpen, setContributionsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  
+  // Predefined adjustment types
+  const [adjustmentTypes, setAdjustmentTypes] = useState<string[]>([
+    "Transportation Allowance",
+    "Meal Allowance",
+    "Housing Allowance",
+    "Performance Bonus",
+    "Overtime Pay",
+    "Holiday Pay",
+    "Night Differential",
+    "Communication Allowance",
+    "Uniform Allowance",
+    "Medical Allowance",
+    "13th Month Pay",
+    "Commission",
+    "Late Deduction",
+    "Absence Deduction",
+    "Loan Deduction",
+  ]);
+  const [showCustomAdjustmentDialog, setShowCustomAdjustmentDialog] = useState(false);
+  const [customAdjustmentName, setCustomAdjustmentName] = useState("");
+  const [pendingAdjustmentId, setPendingAdjustmentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (employee) {
@@ -265,7 +295,7 @@ export default function EmployeePayrollDrawer({
   const handleAddRecurringAdjustment = () => {
     const newAdjustment: RecurringAdjustment = {
       id: `recurring-${Date.now()}`,
-      name: "New Adjustment",
+      name: "",
       amount: 0,
     };
     setFormData(prev => prev ? ({
@@ -288,6 +318,45 @@ export default function EmployeePayrollDrawer({
         adj.id === id ? { ...adj, [field]: value } : adj
       )
     }) : null);
+  };
+
+  const handleAdjustmentTypeSelect = (id: string, value: string, isRecurring: boolean = false) => {
+    if (value === "__create_custom__") {
+      setPendingAdjustmentId(id);
+      setShowCustomAdjustmentDialog(true);
+    } else {
+      if (isRecurring) {
+        handleRecurringAdjustmentChange(id, "name", value);
+      } else {
+        handleLineItemChange(id, "name", value);
+      }
+    }
+  };
+
+  const handleCreateCustomAdjustmentType = () => {
+    if (!customAdjustmentName.trim()) {
+      toast.error("Please enter an adjustment type name");
+      return;
+    }
+    
+    // Add to adjustment types list
+    setAdjustmentTypes(prev => [...prev, customAdjustmentName.trim()]);
+    
+    // Apply to pending adjustment
+    if (pendingAdjustmentId) {
+      const isRecurring = pendingAdjustmentId.startsWith("recurring-");
+      if (isRecurring) {
+        handleRecurringAdjustmentChange(pendingAdjustmentId, "name", customAdjustmentName.trim());
+      } else {
+        handleLineItemChange(pendingAdjustmentId, "name", customAdjustmentName.trim());
+      }
+    }
+    
+    // Reset state
+    setCustomAdjustmentName("");
+    setPendingAdjustmentId(null);
+    setShowCustomAdjustmentDialog(false);
+    toast.success("Custom adjustment type created");
   };
 
   const handleSave = () => {
@@ -436,12 +505,25 @@ export default function EmployeePayrollDrawer({
                                   <div className="grid grid-cols-2 gap-2">
                                     <div>
                                       <Label className="text-xs">Name</Label>
-                                      <Input
-                                        value={item.name}
-                                        onChange={(e) => handleLineItemChange(item.id, "name", e.target.value)}
+                                      <Select
+                                        value={item.name || ""}
+                                        onValueChange={(value) => handleAdjustmentTypeSelect(item.id, value, false)}
                                         disabled={!formData.allowOverride}
-                                        className="mt-1 h-7 text-xs"
-                                      />
+                                      >
+                                        <SelectTrigger className="h-7 text-xs mt-1">
+                                          <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {adjustmentTypes.map((type) => (
+                                            <SelectItem key={type} value={type} className="text-xs">
+                                              {type}
+                                            </SelectItem>
+                                          ))}
+                                          <SelectItem value="__create_custom__" className="text-xs font-medium text-primary">
+                                            + Create custom adjustment type
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
                                     </div>
                                     <div>
                                       <Label className="text-xs">Amount</Label>
@@ -555,12 +637,24 @@ export default function EmployeePayrollDrawer({
                                 <div className="flex-1 grid grid-cols-2 gap-2">
                                   <div>
                                     <Label className="text-xs">Name</Label>
-                                    <Input
-                                      value={adjustment.name}
-                                      onChange={(e) => handleRecurringAdjustmentChange(adjustment.id, "name", e.target.value)}
-                                      className="mt-1 h-7 text-xs"
-                                      placeholder="e.g., Housing Allowance"
-                                    />
+                                    <Select
+                                      value={adjustment.name || ""}
+                                      onValueChange={(value) => handleAdjustmentTypeSelect(adjustment.id, value, true)}
+                                    >
+                                      <SelectTrigger className="h-7 text-xs mt-1">
+                                        <SelectValue placeholder="Select type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {adjustmentTypes.map((type) => (
+                                          <SelectItem key={type} value={type} className="text-xs">
+                                            {type}
+                                          </SelectItem>
+                                        ))}
+                                        <SelectItem value="__create_custom__" className="text-xs font-medium text-primary">
+                                          + Create custom adjustment type
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                   </div>
                                   <div>
                                     <Label className="text-xs">Amount ({formData.currency})</Label>
@@ -903,6 +997,49 @@ export default function EmployeePayrollDrawer({
           </div>
         </ScrollArea>
       </SheetContent>
+
+      {/* Custom Adjustment Type Dialog */}
+      <Dialog open={showCustomAdjustmentDialog} onOpenChange={setShowCustomAdjustmentDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create Custom Adjustment Type</DialogTitle>
+            <DialogDescription>
+              Add a new adjustment type to use across all employees
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label>Adjustment Type Name</Label>
+              <Input
+                value={customAdjustmentName}
+                onChange={(e) => setCustomAdjustmentName(e.target.value)}
+                placeholder="e.g., Car Allowance"
+                className="mt-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleCreateCustomAdjustmentType();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCustomAdjustmentDialog(false);
+                setCustomAdjustmentName("");
+                setPendingAdjustmentId(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleCreateCustomAdjustmentType}>
+              Create Type
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }
