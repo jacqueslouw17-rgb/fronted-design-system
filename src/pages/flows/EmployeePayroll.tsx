@@ -93,27 +93,8 @@ const EmployeePayroll = () => {
 
                   {/* Main Content */}
                   <div className="space-y-6">
-                    {/* Success Message */}
-                    <Card className="border border-accent-green-border bg-gradient-to-br from-accent-green-bg via-background to-background shadow-lg">
-                      <CardContent className="pt-6">
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0 p-3 rounded-full bg-accent-green-bg border border-accent-green-border">
-                            <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-foreground mb-1.5">
-                              Onboarding Complete
-                            </h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              Your onboarding has been finalized and certified by Fronted. You can now access your signed contract bundle and certificate below. If you have questions, reach out to your HR contact.
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Documents Card */}
-                    <Card className="shadow-lg border-border/60">
+                    {/* Documents & Certificate Section */}
+                    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
                         <CardTitle className="text-lg">Documents & Certificate</CardTitle>
                         <CardDescription>Your signed documents are ready to download or view.</CardDescription>

@@ -226,6 +226,15 @@ const Flows = () => {
       locked: true
     },
     {
+      id: "f2-1-admin-payroll",
+      title: "Flow 2.1 — Admin Payroll",
+      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
+      steps: 7,
+      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
+      path: "/flows/contract-flow",
+      comingSoon: false
+    },
+    {
       id: "f5-1-employee-payroll",
       title: "Flow 5.1 — Employee Payroll",
       description: "Duplicate of Flow 5 for employee payroll cycle. Will later be updated to support the employee payroll cycle (after payroll posting & payslips). Currently a clean clone — no modifications yet.",
@@ -244,15 +253,6 @@ const Flows = () => {
       path: "/flows/contractor-payroll",
       comingSoon: false,
       locked: false
-    },
-    {
-      id: "f2-1-admin-payroll",
-      title: "Flow 2.1 — Admin Payroll",
-      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
-      steps: 7,
-      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
-      path: "/flows/contract-flow",
-      comingSoon: false
     }
   ];
 
