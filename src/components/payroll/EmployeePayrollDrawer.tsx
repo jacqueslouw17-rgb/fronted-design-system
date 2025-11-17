@@ -69,6 +69,16 @@ const lookupSSSContribution = (grossCompensation: number): number => {
   return bracket ? bracket.employeeContribution : 900; // Default to max if not found
 };
 
+// Calculate PhilHealth contribution based on base salary
+// If Base Salary <= Cap: PhilHealth = Base Salary × Percentage
+// Else: PhilHealth = Fixed Deduction
+const calculatePhilHealth = (baseSalary: number, percentage: number = 5, cap: number = 100000, fixedDeduction: number = 5000): number => {
+  if (baseSalary <= cap) {
+    return (baseSalary * percentage) / 100;
+  }
+  return fixedDeduction;
+};
+
 interface LineItem {
   id: string;
   name: string;
@@ -157,9 +167,14 @@ export default function EmployeePayrollDrawer({
   useEffect(() => {
     if (isPH && !formData.allowOverride) {
       const autoSSS = lookupSSSContribution(grossCompensation);
+      const autoPhilHealth = calculatePhilHealth(formData.baseSalary || 0);
       
-      if (formData.sssEmployee !== autoSSS) {
-        setFormData(prev => prev ? ({ ...prev, sssEmployee: autoSSS }) : null);
+      if (formData.sssEmployee !== autoSSS || formData.philHealthEmployee !== autoPhilHealth) {
+        setFormData(prev => prev ? ({ 
+          ...prev, 
+          sssEmployee: autoSSS,
+          philHealthEmployee: autoPhilHealth
+        }) : null);
       }
     }
   }, [formData.baseSalary, totalAllowances, formData.allowOverride]);
@@ -508,6 +523,14 @@ export default function EmployeePayrollDrawer({
                             disabled={!formData.allowOverride}
                             className="mt-1 h-8"
                           />
+                          {!formData.allowOverride && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Auto-calculated: {(formData.baseSalary || 0) <= 100000 
+                                ? `5% of base salary`
+                                : `Fixed ₱5,000`
+                              }
+                            </p>
+                          )}
                         </div>
                         <div>
                           <Label className="text-xs">Pag-IBIG (Employee Share)</Label>

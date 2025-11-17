@@ -37,6 +37,12 @@ interface ContributionRule {
   cap: string;
 }
 
+interface PhilHealthRule {
+  percentage: string;
+  cap: string;
+  fixedDeduction: string;
+}
+
 interface NonTaxableBenefit {
   id: string;
   name: string;
@@ -86,10 +92,10 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
     employerShare: "9.5",
     cap: "30000"
   });
-  const [philHealthContribution, setPhilHealthContribution] = useState<ContributionRule>({
-    employeeShare: "2",
-    employerShare: "2",
-    cap: "100000"
+  const [philHealthContribution, setPhilHealthContribution] = useState<PhilHealthRule>({
+    percentage: "5",
+    cap: "100000",
+    fixedDeduction: "5000"
   });
   const [pagIbigContribution, setPagIbigContribution] = useState<ContributionRule>({
     employeeShare: "2",
@@ -324,7 +330,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                     <span className="font-medium">-₱2,025</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>PhilHealth (Employee {philHealthContribution.employeeShare}%):</span>
+                    <span>PhilHealth ({philHealthContribution.percentage}%):</span>
                     <span className="font-medium">-₱900</span>
                   </div>
                   <div className="flex justify-between">
@@ -610,28 +616,47 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                     {/* PhilHealth */}
                     <div>
                       <h3 className="font-medium mb-3">PhilHealth</h3>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Formula: If Base Salary ≤ Cap → PhilHealth = Base Salary × %, else → Fixed Deduction
+                      </p>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <Label>Employee %</Label>
+                          <Label>Percentage (%)</Label>
                           <Input
-                            value={philHealthContribution.employeeShare}
-                            onChange={(e) => setPhilHealthContribution({...philHealthContribution, employeeShare: e.target.value})}
+                            type="number"
+                            step="0.1"
+                            value={philHealthContribution.percentage}
+                            onChange={(e) => setPhilHealthContribution({...philHealthContribution, percentage: e.target.value})}
                           />
+                          <p className="text-xs text-muted-foreground mt-1">Applied when under cap</p>
                         </div>
                         <div>
-                          <Label>Employer %</Label>
+                          <Label>Cap Amount (₱)</Label>
                           <Input
-                            value={philHealthContribution.employerShare}
-                            onChange={(e) => setPhilHealthContribution({...philHealthContribution, employerShare: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label>Cap (₱)</Label>
-                          <Input
+                            type="number"
                             value={philHealthContribution.cap}
                             onChange={(e) => setPhilHealthContribution({...philHealthContribution, cap: e.target.value})}
                           />
+                          <p className="text-xs text-muted-foreground mt-1">Salary threshold</p>
                         </div>
+                        <div>
+                          <Label>Fixed Deduction (₱)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={philHealthContribution.fixedDeduction}
+                            onChange={(e) => setPhilHealthContribution({...philHealthContribution, fixedDeduction: e.target.value})}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">Applied when over cap</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-xs text-foreground">
+                          <strong>Example:</strong> Salary ₱{Number(philHealthContribution.cap).toLocaleString()} or less → 
+                          {' '}{philHealthContribution.percentage}% contribution. 
+                          Over ₱{Number(philHealthContribution.cap).toLocaleString()} → 
+                          {' '}₱{Number(philHealthContribution.fixedDeduction).toLocaleString()} fixed.
+                        </p>
                       </div>
                     </div>
 
