@@ -23,6 +23,52 @@ import {
 import { ChevronDown, ChevronUp, Plus, X, Info } from "lucide-react";
 import { toast } from "sonner";
 
+// SSS Contribution Lookup Table (2025) - Column L from official SSS table
+const sssContributionTable = [
+  { rangeFrom: 0, rangeTo: 4250, employeeContribution: 180 },
+  { rangeFrom: 4250, rangeTo: 4750, employeeContribution: 202.50 },
+  { rangeFrom: 4750, rangeTo: 5250, employeeContribution: 225 },
+  { rangeFrom: 5250, rangeTo: 5750, employeeContribution: 247.50 },
+  { rangeFrom: 5750, rangeTo: 6250, employeeContribution: 270 },
+  { rangeFrom: 6250, rangeTo: 6750, employeeContribution: 292.50 },
+  { rangeFrom: 6750, rangeTo: 7250, employeeContribution: 315 },
+  { rangeFrom: 7250, rangeTo: 7750, employeeContribution: 337.50 },
+  { rangeFrom: 7750, rangeTo: 8250, employeeContribution: 360 },
+  { rangeFrom: 8250, rangeTo: 8750, employeeContribution: 382.50 },
+  { rangeFrom: 8750, rangeTo: 9250, employeeContribution: 405 },
+  { rangeFrom: 9250, rangeTo: 9750, employeeContribution: 427.50 },
+  { rangeFrom: 9750, rangeTo: 10250, employeeContribution: 450 },
+  { rangeFrom: 10250, rangeTo: 10750, employeeContribution: 472.50 },
+  { rangeFrom: 10750, rangeTo: 11250, employeeContribution: 495 },
+  { rangeFrom: 11250, rangeTo: 11750, employeeContribution: 517.50 },
+  { rangeFrom: 11750, rangeTo: 12250, employeeContribution: 540 },
+  { rangeFrom: 12250, rangeTo: 12750, employeeContribution: 562.50 },
+  { rangeFrom: 12750, rangeTo: 13250, employeeContribution: 585 },
+  { rangeFrom: 13250, rangeTo: 13750, employeeContribution: 607.50 },
+  { rangeFrom: 13750, rangeTo: 14250, employeeContribution: 630 },
+  { rangeFrom: 14250, rangeTo: 14750, employeeContribution: 652.50 },
+  { rangeFrom: 14750, rangeTo: 15250, employeeContribution: 675 },
+  { rangeFrom: 15250, rangeTo: 15750, employeeContribution: 697.50 },
+  { rangeFrom: 15750, rangeTo: 16250, employeeContribution: 720 },
+  { rangeFrom: 16250, rangeTo: 16750, employeeContribution: 742.50 },
+  { rangeFrom: 16750, rangeTo: 17250, employeeContribution: 765 },
+  { rangeFrom: 17250, rangeTo: 17750, employeeContribution: 787.50 },
+  { rangeFrom: 17750, rangeTo: 18250, employeeContribution: 810 },
+  { rangeFrom: 18250, rangeTo: 18750, employeeContribution: 832.50 },
+  { rangeFrom: 18750, rangeTo: 19250, employeeContribution: 855 },
+  { rangeFrom: 19250, rangeTo: 19750, employeeContribution: 877.50 },
+  { rangeFrom: 19750, rangeTo: 20250, employeeContribution: 900 },
+  { rangeFrom: 20250, rangeTo: Infinity, employeeContribution: 900 },
+];
+
+// Lookup SSS contribution based on gross compensation
+const lookupSSSContribution = (grossCompensation: number): number => {
+  const bracket = sssContributionTable.find(
+    (row) => grossCompensation >= row.rangeFrom && grossCompensation < row.rangeTo
+  );
+  return bracket ? bracket.employeeContribution : 900; // Default to max if not found
+};
+
 interface LineItem {
   id: string;
   name: string;
@@ -105,6 +151,19 @@ export default function EmployeePayrollDrawer({
   const dailyRate = (formData.baseSalary || 0) / 22;
   const hourlyRate = dailyRate / 8;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
+  const grossCompensation = (formData.baseSalary || 0) + totalAllowances;
+  
+  // Auto-update SSS when base salary or line items change (only if override is disabled)
+  useEffect(() => {
+    if (isPH && !formData.allowOverride) {
+      const autoSSS = lookupSSSContribution(grossCompensation);
+      
+      if (formData.sssEmployee !== autoSSS) {
+        setFormData(prev => prev ? ({ ...prev, sssEmployee: autoSSS }) : null);
+      }
+    }
+  }, [formData.baseSalary, totalAllowances, formData.allowOverride]);
+
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
                           (formData.pagIbigEmployee || 0) + 
@@ -112,7 +171,7 @@ export default function EmployeePayrollDrawer({
   const totalEmployerContributions = (((formData.baseSalary || 0) * (formData.holidayPay || 0)) / 100) +
                                     (((formData.baseSalary || 0) * (formData.employerTax || 0)) / 100) +
                                     (((formData.baseSalary || 0) * (formData.pension || 0)) / 100);
-  const netPay = (formData.baseSalary || 0) + totalAllowances - totalDeductions;
+  const netPay = grossCompensation - totalDeductions;
 
   const handleAddLineItem = () => {
     const newItem: LineItem = {
@@ -414,9 +473,14 @@ export default function EmployeePayrollDrawer({
                     <div className="px-4 pb-4 space-y-3">
                       <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                         <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
-                        <p className="text-xs text-foreground">
-                          Default government deduction values follow PH compliance. Overrides should only be used if the employee has a special arrangement.
-                        </p>
+                        <div className="space-y-1">
+                          <p className="text-xs text-foreground">
+                            Default government deduction values follow PH compliance. Overrides should only be used if the employee has a special arrangement.
+                          </p>
+                          <p className="text-xs text-muted-foreground font-medium">
+                            💡 SSS contribution auto-applies based on Gross Compensation bracket (₱{grossCompensation.toLocaleString()}).
+                          </p>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
@@ -429,6 +493,11 @@ export default function EmployeePayrollDrawer({
                             disabled={!formData.allowOverride}
                             className="mt-1 h-8"
                           />
+                          {!formData.allowOverride && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Auto-calculated from SSS table
+                            </p>
+                          )}
                         </div>
                         <div>
                           <Label className="text-xs">PhilHealth (Employee Share)</Label>
