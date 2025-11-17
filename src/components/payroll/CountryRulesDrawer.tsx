@@ -115,6 +115,11 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   // Payout frequency
   const [payoutFrequency, setPayoutFrequency] = useState("bi-monthly");
 
+  // Rate Formula Configuration
+  const [hoursPerDay, setHoursPerDay] = useState("8");
+  const [phDaysPerMonth, setPhDaysPerMonth] = useState("21.67");
+  const [noDaysPerMonth, setNoDaysPerMonth] = useState("21.7");
+
   const addTaxTableRow = () => {
     const newRow: TaxTableRow = {
       id: Date.now().toString(),
@@ -189,6 +194,10 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
           firstHalf: biMonthlyFirstHalf,
           secondHalf: biMonthlySecondHalf,
         },
+        rate_formulas: {
+          hoursPerDay: hoursPerDay,
+          daysPerMonth: phDaysPerMonth,
+        },
         line_items: lineItems.filter(item => item.enabledFor === "PH" || item.enabledFor === "All"),
         payout_frequency: "bi-monthly",
         allow_employee_override: allowEmployeeOverride,
@@ -198,6 +207,10 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
           holidayPay: holidayPayPercent,
           employerTax: employerTaxPercent,
           pension: pensionPercent,
+        },
+        rate_formulas: {
+          hoursPerDay: hoursPerDay,
+          daysPerMonth: noDaysPerMonth,
         },
         line_items: lineItems.filter(item => item.enabledFor === "NO" || item.enabledFor === "All"),
         payout_frequency: "monthly",
@@ -357,19 +370,32 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Daily Rate Formula</Label>
+                    <Label>Days Per Payroll Month (Divisor)</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Used to calculate daily rate: Base Salary ÷ Days Per Month
+                    </p>
                     <Input 
-                      value={selectedCountry === "PH" ? "Base Salary ÷ 21.67" : "Base Salary ÷ 21.7"}
-                      disabled
-                      className="bg-muted/30"
+                      type="number"
+                      step="0.01"
+                      value={selectedCountry === "PH" ? phDaysPerMonth : noDaysPerMonth}
+                      onChange={(e) => selectedCountry === "PH" 
+                        ? setPhDaysPerMonth(e.target.value)
+                        : setNoDaysPerMonth(e.target.value)
+                      }
+                      placeholder="e.g., 26 or 21.67"
                     />
                   </div>
                   <div>
-                    <Label>Hourly Rate Formula</Label>
+                    <Label>Hours Per Regular Working Day</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Used to calculate hourly rate: Daily Rate ÷ Hours Per Day
+                    </p>
                     <Input 
-                      value="Daily Rate ÷ 8"
-                      disabled
-                      className="bg-muted/30"
+                      type="number"
+                      step="0.5"
+                      value={hoursPerDay}
+                      onChange={(e) => setHoursPerDay(e.target.value)}
+                      placeholder="e.g., 8"
                     />
                   </div>
                 </div>
