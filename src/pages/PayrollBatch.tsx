@@ -891,11 +891,16 @@ const PayrollBatch: React.FC = () => {
                   onClick={() => setShowLeaveSection(!showLeaveSection)}
                   className="w-full flex items-center justify-between group"
                 >
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
-                    <Badge variant="outline" className="text-xs">
-                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
-                    </Badge>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
+                      <Badge variant="outline" className="text-xs">
+                        {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      For payroll month: {payrollCycleData[selectedCycle].label}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">
