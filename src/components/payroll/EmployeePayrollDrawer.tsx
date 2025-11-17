@@ -253,8 +253,14 @@ export default function EmployeePayrollDrawer({
   const isPH = formData.countryCode === "PH";
   const isNO = formData.countryCode === "NO";
 
-  const dailyRate = (formData.baseSalary || 0) / 22;
-  const hourlyRate = dailyRate / 8;
+  // Country-specific rate formulas (from Country Settings)
+  const phDaysPerMonth = 21.67; // PH: Configurable divisor from Country Settings (default 21.67)
+  const noDaysPerMonth = 21.7; // NO: Configurable divisor from Country Settings (default 21.7)
+  const hoursPerDay = 8; // Configurable from Country Settings (default 8)
+  
+  const daysPerMonth = isPH ? phDaysPerMonth : isNO ? noDaysPerMonth : 22;
+  const dailyRate = (formData.baseSalary || 0) / daysPerMonth;
+  const hourlyRate = dailyRate / hoursPerDay;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
   
   // PH Work Condition Pay (using rates from Country Settings - default to standard PH rates)

@@ -410,9 +410,14 @@ const PayrollBatch: React.FC = () => {
   });
 
   // Pro-rating calculation helpers
-  const calculateProratedPay = (baseSalary: number, leaveDays: number, workingDays: number = 21.67) => {
-    const dailyRate = baseSalary / workingDays;
-    const payDays = workingDays - leaveDays;
+  const calculateProratedPay = (baseSalary: number, leaveDays: number, workingDays: number = 21.67, countryCode?: string) => {
+    // Use country-specific divisor from Country Settings if countryCode is provided
+    const isPH = countryCode === "PH";
+    const isNO = countryCode === "NO";
+    const daysPerMonth = isPH ? 21.67 : isNO ? 21.7 : workingDays;
+    
+    const dailyRate = baseSalary / daysPerMonth;
+    const payDays = daysPerMonth - leaveDays;
     const proratedPay = dailyRate * payDays;
     return {
       dailyRate,
@@ -427,7 +432,12 @@ const PayrollBatch: React.FC = () => {
     let payment = contractor.baseSalary;
     
     if (leaveData && leaveData.leaveDays > 0) {
-      const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
+      const { proratedPay } = calculateProratedPay(
+        contractor.baseSalary, 
+        leaveData.leaveDays, 
+        leaveData.workingDays,
+        contractor.countryCode // Pass country code for correct divisor
+      );
       payment = proratedPay;
     }
     
@@ -511,7 +521,12 @@ const PayrollBatch: React.FC = () => {
     if (!leaveData || leaveData.leaveDays === 0) {
       return 0;
     }
-    const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays);
+    const { proratedPay } = calculateProratedPay(
+      contractor.baseSalary, 
+      leaveData.leaveDays, 
+      leaveData.workingDays,
+      contractor.countryCode // Pass country code for correct divisor
+    );
     return contractor.baseSalary - proratedPay;
   };
 
@@ -955,7 +970,13 @@ const PayrollBatch: React.FC = () => {
                               const hasLeave = leaveData && leaveData.leaveDays > 0;
                               const workingDays = leaveData?.workingDays || 21.67;
                               const leaveDays = leaveData?.leaveDays || 0;
-                              const dailyRate = contractor.baseSalary / 21.67;
+                              
+                              // Use country-specific divisor from Country Settings
+                              const isPHContractor = contractor.countryCode === "PH";
+                              const isNOContractor = contractor.countryCode === "NO";
+                              const daysPerMonth = isPHContractor ? 21.67 : isNOContractor ? 21.7 : 22;
+                              
+                              const dailyRate = contractor.baseSalary / daysPerMonth;
                               const unpaidLeaveAmount = dailyRate * leaveDays;
                               const paymentDue = getPaymentDue(contractor);
                               
