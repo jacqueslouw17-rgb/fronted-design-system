@@ -882,24 +882,25 @@ const PayrollBatch: React.FC = () => {
                     className="mt-4"
                   >
                     {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-8 space-y-3">
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground mb-1">No leave records yet</p>
-                          <p className="text-xs text-muted-foreground">Add employees or contractors who took leave this cycle</p>
+                      <div className="flex flex-col items-center justify-center py-16 px-6">
+                        <div className="text-center space-y-2 mb-6">
+                          <h4 className="text-base font-medium text-foreground">Track Leave & Absences</h4>
+                          <p className="text-sm text-muted-foreground max-w-md">
+                            Add employees or contractors who took leave this cycle. Their salaries will be automatically pro-rated based on working days.
+                          </p>
                         </div>
                         <Button
-                          size="sm"
-                          variant="outline"
+                          size="default"
                           onClick={() => setLeaveSelectorOpen(true)}
                           className="gap-2"
                         >
-                          <Plus className="h-3.5 w-3.5" />
-                          Add Leave Record
+                          <Plus className="h-4 w-4" />
+                          Add Workers with Leave
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between mb-3">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
                           <div className="text-xs text-muted-foreground">
                             Pro-rated: Base Pay ÷ 21.67 × (Working Days - Leave Days)
                           </div>
@@ -907,10 +908,10 @@ const PayrollBatch: React.FC = () => {
                             size="sm"
                             variant="ghost"
                             onClick={() => setLeaveSelectorOpen(true)}
-                            className="h-7 text-xs gap-1"
+                            className="h-8 text-xs gap-1.5 hover:bg-primary/10"
                           >
-                            <Plus className="h-3 w-3" />
-                            Add
+                            <Plus className="h-3.5 w-3.5" />
+                            Add More
                           </Button>
                         </div>
                         <Table>
