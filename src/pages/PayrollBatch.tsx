@@ -908,8 +908,8 @@ const PayrollBatch: React.FC = () => {
                                 <TableRow 
                                   key={contractor.id} 
                                   className={cn(
-                                    "transition-colors",
-                                    leaveData?.clientConfirmed ? "bg-background" : "bg-amber-500/5"
+                                    "transition-colors hover:bg-muted/30",
+                                    !leaveData?.clientConfirmed && "bg-amber-500/5"
                                   )}
                                 >
                                   <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
