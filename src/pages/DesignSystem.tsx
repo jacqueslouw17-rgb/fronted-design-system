@@ -671,6 +671,106 @@ const DesignSystem = () => {
                 </Card>
               </Link>
 
+              <Link to="/flows/employee-payroll">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
+                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg flex-1">Flow 5.1 — Employee Payroll</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      Duplicate of Flow 5 for employee payroll cycle. Will later be updated to support the employee payroll cycle (after payroll posting & payslips). Currently a clean clone — no modifications yet.
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">2 steps</span>
+                      <span>•</span>
+                      <span>3 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/data-summary');
+                    }}>
+                        Data Summary Cards
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/compliance-checklist');
+                    }}>
+                        Compliance Checklist
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/onboarding');
+                    }}>
+                        Genie-Led Conversational
+                      </Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/flows/contractor-payroll">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
+                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg flex-1">Flow 5.2 — Contractor Payroll</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      Duplicate of Flow 5 for contractor-specific payout views. Will later be updated to support contractor-specific payout views. Currently a clean clone — no modifications yet.
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">2 steps</span>
+                      <span>•</span>
+                      <span>3 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/data-summary');
+                    }}>
+                        Data Summary Cards
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/compliance-checklist');
+                    }}>
+                        Compliance Checklist
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/onboarding');
+                    }}>
+                        Genie-Led Conversational
+                      </Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
               <Link to="/payroll-batch">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
