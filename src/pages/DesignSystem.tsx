@@ -671,6 +671,57 @@ const DesignSystem = () => {
                 </Card>
               </Link>
 
+              <Link to="/payroll-batch">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
+                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg">Flow 2.1 — Admin Payroll</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">6 steps</span>
+                      <span>•</span>
+                      <span>5 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/onboarding');
+                    }}>
+                        Genie-Led Conversational Onboarding
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/fx-breakdown');
+                    }}>
+                        FX Breakdown Popover
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/confirmation-modal');
+                    }}>
+                        Confirmation Prompt + Smart Approval Modal
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">+2</Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
               <Link to="/flows/employee-payroll">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
@@ -762,57 +813,6 @@ const DesignSystem = () => {
                     }}>
                         Genie-Led Conversational
                       </Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/payroll-batch">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 2.1 — Admin Payroll</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">6 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational Onboarding
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/fx-breakdown');
-                    }}>
-                        FX Breakdown Popover
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/confirmation-modal');
-                    }}>
-                        Confirmation Prompt + Smart Approval Modal
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">+2</Badge>
                     </div>
                     <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
                       View flow
