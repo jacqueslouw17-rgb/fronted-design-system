@@ -97,11 +97,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
     cap: "100000",
     fixedDeduction: "5000"
   });
-  const [pagIbigContribution, setPagIbigContribution] = useState<ContributionRule>({
-    employeeShare: "2",
-    employerShare: "2",
-    cap: "5000"
-  });
+  const [pagIbigFixedContribution, setPagIbigFixedContribution] = useState("100");
 
   // PH Non-Taxable Benefits
   const [nonTaxableBenefits, setNonTaxableBenefits] = useState<NonTaxableBenefit[]>([
@@ -259,7 +255,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
         contributions: {
           sss: sssContribution,
           philHealth: philHealthContribution,
-          pagIbig: pagIbigContribution,
+          pagIbig: { fixedMonthlyContribution: pagIbigFixedContribution },
         },
         non_taxable_caps: nonTaxableBenefits,
         bi_monthly_logic: {
@@ -334,8 +330,8 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                     <span className="font-medium">-₱900</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Pag-IBIG (Employee {pagIbigContribution.employeeShare}%):</span>
-                    <span className="font-medium">-₱900</span>
+                    <span>Pag-IBIG (Fixed):</span>
+                    <span className="font-medium">-₱{pagIbigFixedContribution}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Withholding Tax:</span>
@@ -665,27 +661,18 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                     {/* Pag-IBIG */}
                     <div>
                       <h3 className="font-medium mb-3">Pag-IBIG</h3>
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
                         <div>
-                          <Label>Employee %</Label>
+                          <Label>Fixed Monthly Contribution (₱)</Label>
                           <Input
-                            value={pagIbigContribution.employeeShare}
-                            onChange={(e) => setPagIbigContribution({...pagIbigContribution, employeeShare: e.target.value})}
+                            type="number"
+                            value={pagIbigFixedContribution}
+                            onChange={(e) => setPagIbigFixedContribution(e.target.value)}
+                            placeholder="100"
                           />
-                        </div>
-                        <div>
-                          <Label>Employer %</Label>
-                          <Input
-                            value={pagIbigContribution.employerShare}
-                            onChange={(e) => setPagIbigContribution({...pagIbigContribution, employerShare: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label>Cap (₱)</Label>
-                          <Input
-                            value={pagIbigContribution.cap}
-                            onChange={(e) => setPagIbigContribution({...pagIbigContribution, cap: e.target.value})}
-                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Applied as a fixed amount during each pay run
+                          </p>
                         </div>
                       </div>
                     </div>
