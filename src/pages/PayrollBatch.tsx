@@ -1444,7 +1444,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right min-w-[100px]">Est. Fees</TableHead>
                             <TableHead className="text-xs text-right min-w-[150px]">Additional Fees</TableHead>
                             <TableHead className="text-xs text-right min-w-[130px]">Total Payable</TableHead>
-                            <TableHead className="text-xs min-w-[100px]">Status</TableHead>
+                            <TableHead className="text-xs min-w-[100px]">Payment Status</TableHead>
                             <TableHead className="text-xs min-w-[90px]">ETA</TableHead>
                           </TableRow>
                         </TableHeader>
