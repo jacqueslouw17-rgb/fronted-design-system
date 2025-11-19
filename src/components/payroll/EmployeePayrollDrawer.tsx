@@ -502,7 +502,9 @@ export default function EmployeePayrollDrawer({
                               )}
                             >
                               <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                              {formData.startDate ? format(new Date(formData.startDate), "PPP") : "Select date"}
+                              {formData.startDate && typeof formData.startDate === 'string' 
+                                ? format(new Date(formData.startDate), "PPP") 
+                                : "Select date"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -528,7 +530,9 @@ export default function EmployeePayrollDrawer({
                               )}
                             >
                               <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                              {formData.endDate ? format(new Date(formData.endDate), "PPP") : "Optional"}
+                              {formData.endDate && typeof formData.endDate === 'string'
+                                ? format(new Date(formData.endDate), "PPP") 
+                                : "Optional"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">

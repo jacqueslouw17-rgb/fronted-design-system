@@ -3568,18 +3568,26 @@ You can ask me about:
                                           <p className="text-xs text-muted-foreground">Currency</p>
                                           <p className="font-medium">{selectedPaymentDetail.currency}</p>
                                         </div>
-                                        {selectedPaymentDetail.startDate && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground">Start Date</p>
-                                            <p className="font-medium">{format(new Date(selectedPaymentDetail.startDate), "PPP")}</p>
-                                          </div>
-                                        )}
-                                        {selectedPaymentDetail.endDate && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground">End Date / Last Working Day</p>
-                                            <p className="font-medium">{format(new Date(selectedPaymentDetail.endDate), "PPP")}</p>
-                                          </div>
-                                        )}
+                        {selectedPaymentDetail.startDate && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Start Date</p>
+                            <p className="font-medium">
+                              {typeof selectedPaymentDetail.startDate === 'string' 
+                                ? format(new Date(selectedPaymentDetail.startDate), "PPP")
+                                : 'Invalid date'}
+                            </p>
+                          </div>
+                        )}
+                        {selectedPaymentDetail.endDate && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">End Date / Last Working Day</p>
+                            <p className="font-medium">
+                              {typeof selectedPaymentDetail.endDate === 'string'
+                                ? format(new Date(selectedPaymentDetail.endDate), "PPP")
+                                : 'Invalid date'}
+                            </p>
+                          </div>
+                        )}
                                       </div>
                                     </CardContent>
                                   </Card>
