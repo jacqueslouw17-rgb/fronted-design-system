@@ -1431,7 +1431,7 @@ const PayrollBatch: React.FC = () => {
                             )}>
                               Name
                             </TableHead>
-                            <TableHead className="text-xs min-w-[120px]">Role</TableHead>
+                            <TableHead className="text-xs min-w-[120px]">Employment Type</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
                             <TableHead className="text-xs min-w-[100px]">Status</TableHead>
                             <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
