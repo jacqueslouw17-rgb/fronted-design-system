@@ -4862,20 +4862,19 @@ You can ask me about:
 
                                       <Separator />
 
-                                      {/* Deductions */}
+                                      {/* Deductions section - label removed, only showing items */}
                                       <div className="space-y-2">
-                                        <span className="text-sm text-muted-foreground">Deductions</span>
                                         {leaveRecords[selectedContractor.id]?.leaveDays > 0 && (
-                                          <div className="pl-4 flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">• Leave Proration ({leaveRecords[selectedContractor.id].leaveDays}d)</span>
+                                          <div className="flex items-center justify-between text-xs">
+                                            <span className="text-muted-foreground">Leave Proration ({leaveRecords[selectedContractor.id].leaveDays}d)</span>
                                             <span className="font-medium text-amber-600">
                                               -{selectedContractor.currency} {Math.round(getLeaveDeduction(selectedContractor)).toLocaleString()}
                                             </span>
                                           </div>
                                         )}
                                         {selectedContractor.employmentType === "employee" && (
-                                          <div className="pl-4 flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">• Income Tax & Social Contributions</span>
+                                          <div className="flex items-center justify-between text-xs">
+                                            <span className="text-muted-foreground">Income Tax & Social Contributions</span>
                                             <span className="font-medium">Included in employer cost</span>
                                           </div>
                                         )}
