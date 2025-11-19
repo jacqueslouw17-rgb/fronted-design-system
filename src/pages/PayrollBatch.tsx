@@ -1103,16 +1103,25 @@ const PayrollBatch: React.FC = () => {
     setBankAccountType("");
   };
 
-  const handleResolveException = () => {
-    if (!selectedException) return;
+  const handleResolveException = (exceptionId?: string) => {
+    const exception = exceptionId 
+      ? exceptions.find(exc => exc.id === exceptionId)
+      : selectedException;
+    
+    if (!exception) return;
 
     setExceptions(prev => prev.map(exc =>
-      exc.id === selectedException.id
+      exc.id === exception.id
         ? { ...exc, resolved: true }
         : exc
     ));
-    setFixDrawerOpen(false);
-    toast.success(`Exception resolved for ${selectedException.contractorName}`);
+    
+    if (exceptionId) {
+      toast.success(`Exception acknowledged for ${exception.contractorName}`);
+    } else {
+      setFixDrawerOpen(false);
+      toast.success(`Exception resolved for ${exception.contractorName}`);
+    }
   };
 
   const handleSnoozeException = (exceptionId: string) => {
@@ -2372,7 +2381,7 @@ const PayrollBatch: React.FC = () => {
                                 size="sm"
                                 variant="outline"
                                 className="h-7 text-xs border-green-500/30 text-green-600 hover:bg-green-500/10"
-                                onClick={() => handleResolveException()}
+                                onClick={() => handleResolveException(exception.id)}
                               >
                                 Validate Again
                               </Button>
@@ -2423,7 +2432,7 @@ const PayrollBatch: React.FC = () => {
                               size="sm"
                               variant="outline"
                               className="h-7 text-xs"
-                              onClick={() => handleResolveException()}
+                              onClick={() => handleResolveException(exception.id)}
                             >
                               Acknowledge & Proceed
                             </Button>
@@ -4258,7 +4267,7 @@ You can ask me about:
                             </Button>
                             <Button
                               className="flex-1"
-                              onClick={handleResolveException}
+                              onClick={() => handleResolveException()}
                               disabled={selectedException?.type === "missing-bank" && !bankAccountType}
                             >
                               Mark as Resolved
