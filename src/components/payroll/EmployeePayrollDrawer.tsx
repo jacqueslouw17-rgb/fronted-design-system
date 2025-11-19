@@ -203,6 +203,9 @@ export default function EmployeePayrollDrawer({
   const [customAdjustmentName, setCustomAdjustmentName] = useState("");
   const [pendingAdjustmentId, setPendingAdjustmentId] = useState<string | null>(null);
 
+  // IMPORTANT: All hooks must be called before any early returns
+  const { getSettings } = useCountrySettings();
+
   useEffect(() => {
     if (employee) {
       setFormData({
@@ -267,7 +270,6 @@ export default function EmployeePayrollDrawer({
   const isNO = formData.countryCode === "NO";
 
   // Country-specific rate formulas (from Country Settings)
-  const { getSettings } = useCountrySettings();
   const countrySettings = getSettings(isPH ? "PH" : "NO");
   const daysPerMonth = countrySettings.daysPerMonth;
   const hoursPerDay = countrySettings.hoursPerDay;
