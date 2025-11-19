@@ -652,7 +652,7 @@ const PayrollBatch: React.FC = () => {
     }
   }, [selectedCycle, currentCycleData.status]);
 
-  // Validate and generate exceptions based on contractor data
+  // Validate and generate exceptions based on contractor data (only on initial load)
   React.useEffect(() => {
     const validatePayrollExceptions = (contractors: ContractorPayment[]): PayrollException[] => {
       const detectedExceptions: PayrollException[] = [...initialExceptions];
@@ -813,9 +813,15 @@ const PayrollBatch: React.FC = () => {
       return detectedExceptions;
     };
 
-    const validatedExceptions = validatePayrollExceptions(allContractors);
-    setExceptions(validatedExceptions);
-  }, [allContractors]);
+    // Only validate once on mount, preserve existing exception states
+    setExceptions(prev => {
+      // If we already have exceptions beyond the initial ones, preserve them
+      if (prev.length > initialExceptions.length) {
+        return prev;
+      }
+      return validatePayrollExceptions(allContractors);
+    });
+  }, []); // Empty dependency array - only run once on mount
 
   const groupedByCurrency = allContractors.reduce((acc, contractor) => {
     if (!acc[contractor.currency]) {
