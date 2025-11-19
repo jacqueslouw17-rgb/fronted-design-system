@@ -103,6 +103,15 @@ interface RecurringAdjustment {
   amount: number;
 }
 
+interface OvertimeHolidayEntry {
+  id: string;
+  ruleId: string;
+  workType: string;
+  rateMultiplier: number;
+  appliesTo: "Hourly" | "Daily";
+  quantity: number; // hours or days
+}
+
 interface ContractorPayment {
   id: string;
   name: string;
@@ -137,11 +146,8 @@ interface ContractorPayment {
   withholdingTaxRate?: number;
   recurringAdjustments?: RecurringAdjustment[];
   
-  // PH Work Type/Condition Hours
-  overtimeHours?: number;
-  restDayHolidayDays?: number;
-  specialHolidayDays?: number;
-  doubleHolidayDays?: number;
+  // PH Overtime & Holiday Pay (dynamic table)
+  overtimeHolidayEntries?: OvertimeHolidayEntry[];
 }
 
 interface EmployeePayrollDrawerProps {
@@ -263,19 +269,23 @@ export default function EmployeePayrollDrawer({
   const hourlyRate = dailyRate / hoursPerDay;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
   
-  // PH Work Condition Pay (using rates from Country Settings - default to standard PH rates)
-  const overtimePayRate = 125; // % from Country Settings
-  const restDayHolidayRate = 130; // % from Country Settings
-  const specialHolidayRate = 130; // % from Country Settings
-  const doubleHolidayRate = 200; // % from Country Settings
+  // Available Overtime & Holiday Rules from Country Settings (PH)
+  const availableOvertimeRules = [
+    { id: "1", workType: "Overtime (Regular Day)", rateMultiplier: 125, appliesTo: "Hourly" as const },
+    { id: "2", workType: "Rest Day / Holiday Work", rateMultiplier: 130, appliesTo: "Daily" as const },
+    { id: "3", workType: "Special Non-Working Holiday", rateMultiplier: 130, appliesTo: "Daily" as const },
+    { id: "4", workType: "Double Holiday", rateMultiplier: 200, appliesTo: "Daily" as const },
+    { id: "5", workType: "Night Shift Differential", rateMultiplier: 110, appliesTo: "Hourly" as const },
+  ];
   
-  const overtimePay = isPH ? (hourlyRate * (formData.overtimeHours || 0) * overtimePayRate / 100) : 0;
-  const restDayHolidayPay = isPH ? (dailyRate * (formData.restDayHolidayDays || 0) * restDayHolidayRate / 100) : 0;
-  const specialHolidayPay = isPH ? (dailyRate * (formData.specialHolidayDays || 0) * specialHolidayRate / 100) : 0;
-  const doubleHolidayPay = isPH ? (dailyRate * (formData.doubleHolidayDays || 0) * doubleHolidayRate / 100) : 0;
-  const totalWorkConditionPay = overtimePay + restDayHolidayPay + specialHolidayPay + doubleHolidayPay;
+  // Calculate overtime & holiday pay from dynamic entries
+  const totalOvertimeHolidayPay = (formData.overtimeHolidayEntries || []).reduce((sum, entry) => {
+    const baseRate = entry.appliesTo === "Hourly" ? hourlyRate : dailyRate;
+    const amount = baseRate * entry.quantity * (entry.rateMultiplier / 100);
+    return sum + amount;
+  }, 0);
   
-  const grossCompensation = (formData.baseSalary || 0) + totalAllowances + totalWorkConditionPay;
+  const grossCompensation = (formData.baseSalary || 0) + totalAllowances + totalOvertimeHolidayPay;
 
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
@@ -626,14 +636,14 @@ export default function EmployeePayrollDrawer({
               </Collapsible>
             </Card>
 
-            {/* B2. Work Type / Condition Hours or Days (PH Only) */}
+            {/* B2. Overtime & Holiday Pay (PH Only) */}
             {isPH && (
               <Card className="border-border">
                 <Collapsible open={workConditionsOpen} onOpenChange={setWorkConditionsOpen}>
                   <CollapsibleTrigger className="w-full">
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold">Work Type / Condition Hours or Days</h3>
+                        <h3 className="text-sm font-semibold">Overtime & Holiday Pay</h3>
                         <Badge className="text-xs">Philippines Only</Badge>
                       </div>
                       {workConditionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -644,103 +654,149 @@ export default function EmployeePayrollDrawer({
                       <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                         <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                         <p className="text-xs text-foreground">
-                          Additional work hours and days are multiplied by rates defined in Country Settings. Pay calculations are automatically added to gross compensation.
+                          Select work types from configured rules. Rates and calculations are automatically applied from Country Settings.
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label className="text-xs">Overtime Hours</Label>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            value={formData.overtimeHours || 0}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, overtimeHours: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Rate: {overtimePayRate}% × Hourly rate ({formData.currency} {hourlyRate.toFixed(2)})
-                          </p>
-                          {(formData.overtimeHours || 0) > 0 && (
-                            <p className="text-xs font-medium text-primary mt-1">
-                              + {formData.currency} {overtimePay.toFixed(2)}
-                            </p>
-                          )}
+                      {/* Overtime & Holiday Pay Table */}
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead className="bg-muted/50">
+                              <tr>
+                                <th className="text-left px-3 py-2 font-medium text-xs">Work Type</th>
+                                <th className="text-left px-3 py-2 font-medium text-xs">Quantity</th>
+                                <th className="text-right px-3 py-2 font-medium text-xs">Rate</th>
+                                <th className="text-right px-3 py-2 font-medium text-xs">Amount</th>
+                                <th className="w-10"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(formData.overtimeHolidayEntries || []).map((entry) => {
+                                const baseRate = entry.appliesTo === "Hourly" ? hourlyRate : dailyRate;
+                                const amount = baseRate * entry.quantity * (entry.rateMultiplier / 100);
+                                
+                                return (
+                                  <tr key={entry.id} className="border-t">
+                                    <td className="px-3 py-2">
+                                      <Select
+                                        value={entry.ruleId}
+                                        onValueChange={(value) => {
+                                          const selectedRule = availableOvertimeRules.find(r => r.id === value);
+                                          if (selectedRule) {
+                                            setFormData(prev => prev ? ({
+                                              ...prev,
+                                              overtimeHolidayEntries: (prev.overtimeHolidayEntries || []).map(e =>
+                                                e.id === entry.id ? {
+                                                  ...e,
+                                                  ruleId: selectedRule.id,
+                                                  workType: selectedRule.workType,
+                                                  rateMultiplier: selectedRule.rateMultiplier,
+                                                  appliesTo: selectedRule.appliesTo
+                                                } : e
+                                              )
+                                            }) : null);
+                                          }
+                                        }}
+                                        disabled={!formData.allowOverride}
+                                      >
+                                        <SelectTrigger className="h-8 text-xs">
+                                          <SelectValue placeholder="Select work type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {availableOvertimeRules.map(rule => (
+                                            <SelectItem key={rule.id} value={rule.id}>
+                                              {rule.workType}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <div className="flex items-center gap-2">
+                                        <Input
+                                          type="number"
+                                          step="0.5"
+                                          value={entry.quantity}
+                                          onChange={(e) => setFormData(prev => prev ? ({
+                                            ...prev,
+                                            overtimeHolidayEntries: (prev.overtimeHolidayEntries || []).map(item =>
+                                              item.id === entry.id ? { ...item, quantity: Number(e.target.value) } : item
+                                            )
+                                          }) : null)}
+                                          disabled={!formData.allowOverride}
+                                          className="h-8 text-xs w-20"
+                                          placeholder="0"
+                                        />
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                          {entry.appliesTo === "Hourly" ? "hrs" : "days"}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-2 text-right text-xs text-muted-foreground">
+                                      {entry.rateMultiplier}%
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-medium text-xs">
+                                      {formData.currency} {amount.toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={() => setFormData(prev => prev ? ({
+                                          ...prev,
+                                          overtimeHolidayEntries: (prev.overtimeHolidayEntries || []).filter(e => e.id !== entry.id)
+                                        }) : null)}
+                                        disabled={!formData.allowOverride}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         </div>
                         
-                        <div>
-                          <Label className="text-xs">Rest Day / Holiday Work Days</Label>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            value={formData.restDayHolidayDays || 0}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, restDayHolidayDays: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Rate: {restDayHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
-                          </p>
-                          {(formData.restDayHolidayDays || 0) > 0 && (
-                            <p className="text-xs font-medium text-primary mt-1">
-                              + {formData.currency} {restDayHolidayPay.toFixed(2)}
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div>
-                          <Label className="text-xs">Special Non-Working Holiday Days</Label>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            value={formData.specialHolidayDays || 0}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, specialHolidayDays: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Rate: {specialHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
-                          </p>
-                          {(formData.specialHolidayDays || 0) > 0 && (
-                            <p className="text-xs font-medium text-primary mt-1">
-                              + {formData.currency} {specialHolidayPay.toFixed(2)}
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div>
-                          <Label className="text-xs">Double Holiday Days</Label>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            value={formData.doubleHolidayDays || 0}
-                            onChange={(e) => setFormData(prev => prev ? ({ ...prev, doubleHolidayDays: Number(e.target.value) }) : null)}
-                            disabled={!formData.allowOverride}
-                            className="mt-1 h-8"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Rate: {doubleHolidayRate}% × Daily rate ({formData.currency} {dailyRate.toFixed(2)})
-                          </p>
-                          {(formData.doubleHolidayDays || 0) > 0 && (
-                            <p className="text-xs font-medium text-primary mt-1">
-                              + {formData.currency} {doubleHolidayPay.toFixed(2)}
-                            </p>
-                          )}
-                        </div>
+                        {(formData.overtimeHolidayEntries || []).length === 0 && (
+                          <div className="px-3 py-6 text-center text-xs text-muted-foreground">
+                            No overtime or holiday pay entries yet
+                          </div>
+                        )}
                       </div>
 
-                      {totalWorkConditionPay > 0 && (
-                        <div className="pt-3 border-t">
-                          <div className="flex justify-between items-center">
-                            <Label className="text-sm font-medium">Total Work Condition Pay</Label>
-                            <p className="text-sm font-semibold text-primary">
-                              + {formData.currency} {totalWorkConditionPay.toFixed(2)}
-                            </p>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Added to gross compensation automatically
-                          </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newEntry: OvertimeHolidayEntry = {
+                            id: `ot-${Date.now()}`,
+                            ruleId: availableOvertimeRules[0].id,
+                            workType: availableOvertimeRules[0].workType,
+                            rateMultiplier: availableOvertimeRules[0].rateMultiplier,
+                            appliesTo: availableOvertimeRules[0].appliesTo,
+                            quantity: 0
+                          };
+                          setFormData(prev => prev ? ({
+                            ...prev,
+                            overtimeHolidayEntries: [...(prev.overtimeHolidayEntries || []), newEntry]
+                          }) : null);
+                        }}
+                        disabled={!formData.allowOverride}
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Overtime / Holiday Entry
+                      </Button>
+
+                      {totalOvertimeHolidayPay > 0 && (
+                        <div className="flex justify-between items-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                          <span className="text-xs font-medium">Total Overtime & Holiday Pay:</span>
+                          <span className="text-sm font-semibold text-green-600">
+                            + {formData.currency} {totalOvertimeHolidayPay.toFixed(2)}
+                          </span>
                         </div>
                       )}
                     </div>
