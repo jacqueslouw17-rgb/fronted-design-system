@@ -462,6 +462,10 @@ export default function EmployeePayrollDrawer({
                         <Label className="text-xs text-muted-foreground">Compensation Type</Label>
                         <p className="font-medium mt-1">{formData.compensationType || "Monthly"}</p>
                       </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Employment Status</Label>
+                        <p className="font-medium mt-1">{formData.status || "Active"}</p>
+                      </div>
                       {isNO && formData.nationalId && (
                         <div>
                           <Label className="text-xs text-muted-foreground">National ID</Label>
