@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronDown, ChevronUp, Plus, X, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useCountrySettings } from "@/hooks/useCountrySettings";
 
 // SSS Contribution Lookup Table (2025) - Column L from official SSS table
 const sssContributionTable = [
@@ -260,11 +261,11 @@ export default function EmployeePayrollDrawer({
   const isNO = formData.countryCode === "NO";
 
   // Country-specific rate formulas (from Country Settings)
-  const phDaysPerMonth = 21.67; // PH: Configurable divisor from Country Settings (default 21.67)
-  const noDaysPerMonth = 21.7; // NO: Configurable divisor from Country Settings (default 21.7)
-  const hoursPerDay = 8; // Configurable from Country Settings (default 8)
+  const { getSettings } = useCountrySettings();
+  const countrySettings = getSettings(isPH ? "PH" : "NO");
+  const daysPerMonth = countrySettings.daysPerMonth;
+  const hoursPerDay = countrySettings.hoursPerDay;
   
-  const daysPerMonth = isPH ? phDaysPerMonth : isNO ? noDaysPerMonth : 22;
   const dailyRate = (formData.baseSalary || 0) / daysPerMonth;
   const hourlyRate = dailyRate / hoursPerDay;
   const totalAllowances = (formData.lineItems || []).reduce((sum, item) => sum + item.amount, 0);
