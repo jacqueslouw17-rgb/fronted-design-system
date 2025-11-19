@@ -2233,6 +2233,7 @@ const PayrollBatch: React.FC = () => {
                             {exception.description}
                           </p>
                           <div className="flex gap-2 flex-wrap">
+                            {/* Fix Now / Validate Again / Fixed - Dynamic label based on exception type */}
                             {exception.type === "missing-bank" && !exception.formSent && (
                               <Button
                                 size="sm"
@@ -2240,13 +2241,18 @@ const PayrollBatch: React.FC = () => {
                                 className="h-7 text-xs"
                                 onClick={() => handleSendFormToCandidate(exception)}
                               >
-                                Send Bank Details Form
+                                Fix Now
                               </Button>
                             )}
                             {exception.formSent && (
-                              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30 h-7 px-3 text-xs">
-                                Form Sent
-                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs border-green-500/30 text-green-600 hover:bg-green-500/10"
+                                onClick={() => handleResolveException()}
+                              >
+                                Validate Again
+                              </Button>
                             )}
                             {(exception.type === "fx-mismatch" || exception.type === "pending-leave" || exception.type === "unverified-identity") && (
                               <Button
@@ -2255,17 +2261,75 @@ const PayrollBatch: React.FC = () => {
                                 className="h-7 text-xs"
                                 onClick={() => handleOpenFixDrawer(exception)}
                               >
-                                Resolve
+                                Fix Now
                               </Button>
                             )}
+                            {(exception.type === "below-minimum-wage" || exception.type === "allowance-exceeds-cap" || 
+                              exception.type === "missing-govt-id" || exception.type === "incorrect-contribution-tier" ||
+                              exception.type === "missing-13th-month" || exception.type === "ot-holiday-type-not-selected" ||
+                              exception.type === "invalid-work-type-combination" || exception.type === "night-differential-invalid-hours" ||
+                              exception.type === "missing-employer-sss" || exception.type === "missing-withholding-tax" ||
+                              exception.type === "missing-hours" || exception.type === "status-mismatch" || 
+                              exception.type === "employment-ending-this-period" || exception.type === "end-date-before-period" ||
+                              exception.type === "upcoming-contract-end") && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-7 text-xs"
+                                onClick={() => {
+                                  // Open contractor detail to fix the issue
+                                  const contractor = allContractors.find(c => c.id === exception.contractorId);
+                                  if (contractor) {
+                                    if (contractor.employmentType === "employee") {
+                                      handleOpenEmployeePayroll(contractor);
+                                    } else {
+                                      handleOpenContractorDetail(contractor);
+                                    }
+                                  }
+                                }}
+                              >
+                                Fix Now
+                              </Button>
+                            )}
+                            
+                            {/* Acknowledge & Proceed */}
                             <Button
                               size="sm"
                               variant="outline"
                               className="h-7 text-xs"
+                              onClick={() => handleResolveException()}
+                            >
+                              Acknowledge & Proceed
+                            </Button>
+                            
+                            {/* Remove From This Cycle */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                               onClick={() => handleSnoozeException(exception.id)}
                             >
-                              Skip to Next Cycle
+                              Remove From This Cycle
                             </Button>
+                            
+                            {/* Ignore for This Cycle - Only for minor warnings (medium/low severity) */}
+                            {(exception.severity === "medium" || exception.severity === "low") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-xs text-muted-foreground"
+                                onClick={() => {
+                                  setExceptions(prev => prev.map(exc =>
+                                    exc.id === exception.id
+                                      ? { ...exc, resolved: true }
+                                      : exc
+                                  ));
+                                  toast.info(`Exception ignored for ${exception.contractorName}`);
+                                }}
+                              >
+                                Ignore for This Cycle
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
