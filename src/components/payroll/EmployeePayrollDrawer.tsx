@@ -28,9 +28,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronDown, ChevronUp, Plus, X, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, X, Info, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useCountrySettings } from "@/hooks/useCountrySettings";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // SSS Contribution Lookup Table (2025) - Column L from official SSS table
 const sssContributionTable = [
@@ -125,6 +129,7 @@ interface ContractorPayment {
   netPay?: number;
   lineItems?: LineItem[];
   startDate?: string;
+  endDate?: string;
   nationalId?: string;
   taxEmployee?: number;
   sssEmployee?: number;
@@ -166,6 +171,7 @@ export default function EmployeePayrollDrawer({
 }: EmployeePayrollDrawerProps) {
   const [formData, setFormData] = useState<ContractorPayment | null>(null);
   const [profileOpen, setProfileOpen] = useState(true);
+  const [payrollDetailsOpen, setPayrollDetailsOpen] = useState(true);
   const [compensationOpen, setCompensationOpen] = useState(true);
   const [workConditionsOpen, setWorkConditionsOpen] = useState(false);
   const [recurringAdjustmentsOpen, setRecurringAdjustmentsOpen] = useState(true);
@@ -472,7 +478,77 @@ export default function EmployeePayrollDrawer({
               </Collapsible>
             </Card>
 
-            {/* B. Compensation Defaults */}
+            {/* B. Payroll Details */}
+            <Card className="border-border">
+              <Collapsible open={payrollDetailsOpen} onOpenChange={setPayrollDetailsOpen}>
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center justify-between p-4">
+                    <h3 className="text-sm font-semibold">Payroll Details</h3>
+                    {payrollDetailsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Start Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal h-8 mt-1",
+                                !formData.startDate && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                              {formData.startDate ? format(new Date(formData.startDate), "PPP") : "Select date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={formData.startDate ? new Date(formData.startDate) : undefined}
+                              onSelect={(date) => setFormData(prev => prev ? ({ ...prev, startDate: date?.toISOString() }) : null)}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div>
+                        <Label className="text-xs">End Date / Last Working Day</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal h-8 mt-1",
+                                !formData.endDate && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                              {formData.endDate ? format(new Date(formData.endDate), "PPP") : "Optional"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={formData.endDate ? new Date(formData.endDate) : undefined}
+                              onSelect={(date) => setFormData(prev => prev ? ({ ...prev, endDate: date?.toISOString() }) : null)}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
+
+            {/* C. Compensation Defaults */}
             <Card className="border-border">
               <Collapsible open={compensationOpen} onOpenChange={setCompensationOpen}>
                 <CollapsibleTrigger className="w-full">
