@@ -239,8 +239,18 @@ export default function EmployeePayrollDrawer({
       if (formData.pagIbigEmployee !== autoPagIbig) { updates.pagIbigEmployee = autoPagIbig; needsUpdate = true; }
     }
 
-    if (!formData.allowOverride && formData.withholdingTaxRate) {
-      const autoWithholdingTax = (currentGrossCompensation * (formData.withholdingTaxRate || 0)) / 100;
+    // Calculate withholding tax using country settings
+    if (!formData.allowOverride) {
+      const countrySettings = getSettings(formData.countryCode === "PH" ? "PH" : "NO");
+      let autoWithholdingTax = 0;
+      
+      if (countrySettings.withholdingTax.method === "flat_rate" && countrySettings.withholdingTax.flatRate) {
+        autoWithholdingTax = (currentGrossCompensation * countrySettings.withholdingTax.flatRate) / 100;
+      } else if (countrySettings.withholdingTax.method === "bracket_table") {
+        // Placeholder: Use bracket table logic (would reference Tax Table)
+        autoWithholdingTax = (currentGrossCompensation * 0) / 100; // Default to 0 for now
+      }
+      
       if (Math.abs((formData.withholdingTax || 0) - autoWithholdingTax) > 0.01) {
         updates.withholdingTax = autoWithholdingTax;
         needsUpdate = true;
@@ -250,7 +260,7 @@ export default function EmployeePayrollDrawer({
     if (needsUpdate) {
       setFormData(prev => prev ? ({ ...prev, ...updates }) : null);
     }
-  }, [formData?.baseSalary, formData?.lineItems?.length, formData?.allowOverride, formData?.withholdingTaxRate, formData?.countryCode]);
+  }, [formData?.baseSalary, formData?.lineItems?.length, formData?.allowOverride, formData?.countryCode, getSettings]);
 
   if (!formData) {
     return (
@@ -302,8 +312,7 @@ export default function EmployeePayrollDrawer({
   const totalDeductions = (formData.sssEmployee || 0) + 
                           (formData.philHealthEmployee || 0) + 
                           (formData.pagIbigEmployee || 0) + 
-                          (formData.withholdingTax || 0) + 
-                          (formData.otherDeductions || 0);
+                          (formData.withholdingTax || 0);
   const totalEmployerContributions = (((formData.baseSalary || 0) * (formData.holidayPay || 0)) / 100) +
                                     (((formData.baseSalary || 0) * (formData.employerTax || 0)) / 100) +
                                     (((formData.baseSalary || 0) * (formData.pension || 0)) / 100);
@@ -472,19 +481,6 @@ export default function EmployeePayrollDrawer({
                           <p className="font-medium mt-1">{formData.nationalId}</p>
                         </div>
                       )}
-                      <div>
-                        <Label className="text-xs">Withholding Tax Rate (%)</Label>
-                        <Input
-                          type="number"
-                          value={formData.withholdingTaxRate || 0}
-                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTaxRate: Number(e.target.value) }) : null)}
-                          className="mt-1 h-8"
-                          placeholder="0"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Applied to gross compensation
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </CollapsibleContent>
@@ -1160,48 +1156,17 @@ export default function EmployeePayrollDrawer({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="px-4 pb-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Withholding Tax (%)</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={formData.withholdingTaxRate || 0}
-                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTaxRate: Number(e.target.value) }) : null)}
-                          className="mt-1 h-8"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Applied to gross compensation
-                        </p>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Withholding Tax (Amount)</Label>
-                        <Input
-                          type="number"
-                          value={formData.withholdingTax || 0}
-                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTax: Number(e.target.value) }) : null)}
-                          disabled={!formData.allowOverride && !!formData.withholdingTaxRate}
-                          className="mt-1 h-8"
-                        />
-                        {!formData.allowOverride && formData.withholdingTaxRate && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Auto: {formData.withholdingTaxRate}% of {formData.currency} {grossCompensation.toLocaleString()}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label className="text-xs">Other Deductions</Label>
-                        <Input
-                          type="number"
-                          value={formData.otherDeductions || 0}
-                          onChange={(e) => setFormData(prev => prev ? ({ ...prev, otherDeductions: Number(e.target.value) }) : null)}
-                          disabled={!formData.allowOverride}
-                          className="mt-1 h-8"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Additional manual deductions
-                        </p>
-                      </div>
+                    <div>
+                      <Label className="text-xs">Withholding Tax</Label>
+                      <Input
+                        type="number"
+                        value={formData.withholdingTax || 0}
+                        disabled
+                        className="mt-1 h-8 bg-muted/50"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Calculated using country-level tax configuration
+                      </p>
                     </div>
                   </div>
                 </CollapsibleContent>

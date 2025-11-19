@@ -88,7 +88,15 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   const [allowEmployeeOverride, setAllowEmployeeOverride] = useState(false);
   
   // Country settings hook
-  const { updateSettings, getSettings } = useCountrySettings();
+  const { updateSettings, updateWithholdingTax, getSettings } = useCountrySettings();
+  
+  // Withholding Tax Configuration
+  const phSettings = getSettings("PH");
+  const noSettings = getSettings("NO");
+  const [phWithholdingTaxMethod, setPhWithholdingTaxMethod] = useState<"bracket_table" | "flat_rate" | "external_formula">(phSettings.withholdingTax.method);
+  const [phWithholdingTaxFlatRate, setPhWithholdingTaxFlatRate] = useState(phSettings.withholdingTax.flatRate?.toString() || "0");
+  const [noWithholdingTaxMethod, setNoWithholdingTaxMethod] = useState<"bracket_table" | "flat_rate" | "external_formula">(noSettings.withholdingTax.method);
+  const [noWithholdingTaxFlatRate, setNoWithholdingTaxFlatRate] = useState(noSettings.withholdingTax.flatRate?.toString() || "0");
   
   // PH Tax Table with year selector
   const [selectedTaxYear, setSelectedTaxYear] = useState("2025");
@@ -185,8 +193,6 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   const [payoutFrequency, setPayoutFrequency] = useState("bi-monthly");
 
   // Rate Formula Configuration - Initialize from stored settings
-  const phSettings = getSettings("PH");
-  const noSettings = getSettings("NO");
   const [hoursPerDay, setHoursPerDay] = useState(phSettings.hoursPerDay.toString());
   const [phDaysPerMonth, setPhDaysPerMonth] = useState(phSettings.daysPerMonth.toString());
   const [noDaysPerMonth, setNoDaysPerMonth] = useState(noSettings.daysPerMonth.toString());
@@ -372,6 +378,10 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
     // Update country settings in the shared store
     updateSettings("PH", parseFloat(hoursPerDay), parseFloat(phDaysPerMonth));
     updateSettings("NO", parseFloat(hoursPerDay), parseFloat(noDaysPerMonth));
+    
+    // Update withholding tax settings
+    updateWithholdingTax("PH", phWithholdingTaxMethod, parseFloat(phWithholdingTaxFlatRate));
+    updateWithholdingTax("NO", noWithholdingTaxMethod, parseFloat(noWithholdingTaxFlatRate));
     
     const countryRules = {
       PH: {
@@ -720,6 +730,51 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                         )))}
                       </TableBody>
                     </Table>
+                  </div>
+                </Card>
+
+                {/* Withholding Tax Configuration */}
+                <Card className="p-4">
+                  <h2 className="text-lg font-semibold mb-4">Withholding Tax Configuration</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium">Tax Calculation Method</Label>
+                      <Select 
+                        value={phWithholdingTaxMethod} 
+                        onValueChange={(value: "bracket_table" | "flat_rate" | "external_formula") => setPhWithholdingTaxMethod(value)}
+                      >
+                        <SelectTrigger className="mt-1.5">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bracket_table">Bracket Table (uses Tax Table above)</SelectItem>
+                          <SelectItem value="flat_rate">Flat % Rate</SelectItem>
+                          <SelectItem value="external_formula">External Formula</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        {phWithholdingTaxMethod === "bracket_table" && "Withholding tax will be calculated using the Tax Table brackets above"}
+                        {phWithholdingTaxMethod === "flat_rate" && "Withholding tax will be calculated as a flat percentage of gross compensation"}
+                        {phWithholdingTaxMethod === "external_formula" && "Withholding tax will be provided by external system integration"}
+                      </p>
+                    </div>
+                    
+                    {phWithholdingTaxMethod === "flat_rate" && (
+                      <div>
+                        <Label className="text-sm font-medium">Flat Tax Rate (%)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={phWithholdingTaxFlatRate}
+                          onChange={(e) => setPhWithholdingTaxFlatRate(e.target.value)}
+                          className="mt-1.5"
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1.5">
+                          This percentage will be applied to gross compensation
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </Card>
 
@@ -1129,6 +1184,51 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                         Allow employee-level override
                       </Label>
                     </div>
+                  </div>
+                </Card>
+
+                {/* Withholding Tax Configuration for Norway */}
+                <Card className="p-4">
+                  <h2 className="text-lg font-semibold mb-4">Withholding Tax Configuration</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium">Tax Calculation Method</Label>
+                      <Select 
+                        value={noWithholdingTaxMethod} 
+                        onValueChange={(value: "bracket_table" | "flat_rate" | "external_formula") => setNoWithholdingTaxMethod(value)}
+                      >
+                        <SelectTrigger className="mt-1.5">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bracket_table">Bracket Table</SelectItem>
+                          <SelectItem value="flat_rate">Flat % Rate</SelectItem>
+                          <SelectItem value="external_formula">External Formula</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        {noWithholdingTaxMethod === "bracket_table" && "Withholding tax will be calculated using configured tax brackets"}
+                        {noWithholdingTaxMethod === "flat_rate" && "Withholding tax will be calculated as a flat percentage of gross compensation"}
+                        {noWithholdingTaxMethod === "external_formula" && "Withholding tax will be provided by external system integration"}
+                      </p>
+                    </div>
+                    
+                    {noWithholdingTaxMethod === "flat_rate" && (
+                      <div>
+                        <Label className="text-sm font-medium">Flat Tax Rate (%)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={noWithholdingTaxFlatRate}
+                          onChange={(e) => setNoWithholdingTaxFlatRate(e.target.value)}
+                          className="mt-1.5"
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1.5">
+                          This percentage will be applied to gross compensation
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </Card>
               </>
