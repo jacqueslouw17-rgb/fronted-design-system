@@ -3543,6 +3543,48 @@ You can ask me about:
                                   </div>
                                 )}
 
+                                {/* Worker Profile */}
+                                <div className="space-y-3">
+                                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                    <Building2 className="h-4 w-4" />
+                                    Worker Profile
+                                  </h4>
+                                  <Card className="border-border/20 bg-card/30">
+                                    <CardContent className="p-4 space-y-3">
+                                      <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Name</p>
+                                          <p className="font-medium">{selectedPaymentDetail.name}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Country</p>
+                                          <p className="font-medium">{selectedPaymentDetail.country}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Employment Type</p>
+                                          <p className="font-medium capitalize">{selectedPaymentDetail.employmentType}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Currency</p>
+                                          <p className="font-medium">{selectedPaymentDetail.currency}</p>
+                                        </div>
+                                        {selectedPaymentDetail.startDate && (
+                                          <div>
+                                            <p className="text-xs text-muted-foreground">Start Date</p>
+                                            <p className="font-medium">{format(new Date(selectedPaymentDetail.startDate), "PPP")}</p>
+                                          </div>
+                                        )}
+                                        {selectedPaymentDetail.endDate && (
+                                          <div>
+                                            <p className="text-xs text-muted-foreground">End Date / Last Working Day</p>
+                                            <p className="font-medium">{format(new Date(selectedPaymentDetail.endDate), "PPP")}</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
                                 {/* Payment Breakdown */}
                                 <div className="space-y-3">
                                   <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
