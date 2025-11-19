@@ -118,6 +118,7 @@ interface PayrollException {
   severity: "high" | "medium" | "low";
   resolved: boolean;
   snoozed: boolean;
+  ignored: boolean;
   formSent?: boolean;
 }
 
@@ -131,6 +132,7 @@ const initialExceptions: PayrollException[] = [
     severity: "high",
     resolved: false,
     snoozed: false,
+    ignored: false,
     formSent: false,
   },
   {
@@ -142,6 +144,7 @@ const initialExceptions: PayrollException[] = [
     severity: "medium",
     resolved: false,
     snoozed: false,
+    ignored: false,
     formSent: false,
   },
 ];
@@ -726,6 +729,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -746,6 +750,7 @@ const PayrollBatch: React.FC = () => {
               severity: "medium",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -768,6 +773,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -796,6 +802,7 @@ const PayrollBatch: React.FC = () => {
               severity: "medium",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -816,6 +823,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -840,6 +848,7 @@ const PayrollBatch: React.FC = () => {
             severity: "high",
             resolved: false,
             snoozed: false,
+            ignored: false,
           });
         }
 
@@ -854,6 +863,7 @@ const PayrollBatch: React.FC = () => {
             severity: "medium",
             resolved: false,
             snoozed: false,
+            ignored: false,
           });
         }
 
@@ -869,6 +879,7 @@ const PayrollBatch: React.FC = () => {
             severity: "high",
             resolved: false,
             snoozed: false,
+            ignored: false,
           });
         }
 
@@ -892,6 +903,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
           // Check if end date is before current period
@@ -905,6 +917,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
           // Check if end date is within 30 days after period (non-blocking info)
@@ -918,6 +931,7 @@ const PayrollBatch: React.FC = () => {
               severity: "low",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -934,6 +948,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -949,6 +964,7 @@ const PayrollBatch: React.FC = () => {
             severity: "high",
             resolved: false,
             snoozed: false,
+            ignored: false,
           });
         }
 
@@ -966,6 +982,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -989,6 +1006,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -1012,6 +1030,7 @@ const PayrollBatch: React.FC = () => {
               severity: "high",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -1029,6 +1048,7 @@ const PayrollBatch: React.FC = () => {
                 severity: "medium",
                 resolved: false,
                 snoozed: false,
+                ignored: false,
               });
             }
           });
@@ -1049,6 +1069,7 @@ const PayrollBatch: React.FC = () => {
               severity: "medium",
               resolved: false,
               snoozed: false,
+              ignored: false,
             });
           }
         }
@@ -1275,9 +1296,10 @@ const PayrollBatch: React.FC = () => {
   const failedCount = allContractors.filter(c => getPaymentStatus(c.id) === "Failed").length;
   const allPaymentsPaid = paidCount === allContractors.length;
 
-  const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed);
+  const activeExceptions = exceptions.filter(exc => !exc.resolved && !exc.snoozed && !exc.ignored);
   const snoozedExceptions = exceptions.filter(exc => exc.snoozed);
-  const resolvedExceptions = exceptions.filter(exc => exc.resolved);
+  const acknowledgedExceptions = exceptions.filter(exc => exc.resolved && !exc.ignored);
+  const ignoredExceptions = exceptions.filter(exc => exc.ignored);
   const allExceptionsResolved = activeExceptions.length === 0;
 
   const renderStepContent = () => {
@@ -2291,11 +2313,19 @@ const PayrollBatch: React.FC = () => {
                     </Badge>
                   )}
                   
-                  {/* Completed Count */}
-                  {resolvedExceptions.length > 0 && (
+                  {/* Acknowledged Count */}
+                  {acknowledgedExceptions.length > 0 && (
                     <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30 gap-1">
                       <CheckCircle2 className="h-3 w-3" />
-                      {resolvedExceptions.length} Completed
+                      {acknowledgedExceptions.length} Acknowledged
+                    </Badge>
+                  )}
+                  
+                  {/* Ignored Count */}
+                  {ignoredExceptions.length > 0 && (
+                    <Badge variant="outline" className="bg-muted/20 text-muted-foreground border-border/30 gap-1">
+                      <Circle className="h-3 w-3" />
+                      {ignoredExceptions.length} Ignored
                     </Badge>
                   )}
                   
@@ -2456,7 +2486,7 @@ const PayrollBatch: React.FC = () => {
                                 onClick={() => {
                                   setExceptions(prev => prev.map(exc =>
                                     exc.id === exception.id
-                                      ? { ...exc, resolved: true }
+                                      ? { ...exc, ignored: true }
                                       : exc
                                   ));
                                   toast.info(`Exception ignored for ${exception.contractorName}`);
@@ -2491,6 +2521,52 @@ const PayrollBatch: React.FC = () => {
                           <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30">Skipped</Badge>
                         </div>
                         <span className="text-xs text-muted-foreground">Excluded from this payroll</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Acknowledged Exceptions (if any) */}
+            {acknowledgedExceptions.length > 0 && (
+              <Card className="border-border/20 bg-accent-green-fill/5">
+                <CardContent className="p-4">
+                  <h4 className="text-sm font-semibold text-accent-green-text mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Acknowledged & Proceeding ({acknowledgedExceptions.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {acknowledgedExceptions.map((exception) => (
+                      <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">{exception.contractorName}</span>
+                          <Badge variant="outline" className="text-[10px] bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">Acknowledged</Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground">Reviewed and approved</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Ignored Exceptions (if any) */}
+            {ignoredExceptions.length > 0 && (
+              <Card className="border-border/20 bg-muted/5">
+                <CardContent className="p-4">
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                    <Circle className="h-3.5 w-3.5" />
+                    Ignored for This Cycle ({ignoredExceptions.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {ignoredExceptions.map((exception) => (
+                      <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">{exception.contractorName}</span>
+                          <Badge variant="outline" className="text-[10px] bg-muted/20 text-muted-foreground border-border/30">Ignored</Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground">Non-blocking, proceeding anyway</span>
                       </div>
                     ))}
                   </div>
