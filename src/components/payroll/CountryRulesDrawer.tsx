@@ -59,6 +59,15 @@ interface LineItem {
   enabledFor: "PH" | "NO" | "All";
 }
 
+interface OvertimeHolidayRule {
+  id: string;
+  workType: string;
+  description: string;
+  rateMultiplier: string;
+  appliesTo: "Hourly" | "Daily";
+  notes: string;
+}
+
 interface SSSTableRow {
   id: string;
   rangeFrom: string;
@@ -111,11 +120,49 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   const [biMonthlyFirstHalf, setBiMonthlyFirstHalf] = useState("50% Base + 50% Allowances (no deductions)");
   const [biMonthlySecondHalf, setBiMonthlySecondHalf] = useState("50% Base + 50% Allowances + all deductions");
 
-  // PH Overtime & Holiday Pay Rates
-  const [overtimePayRate, setOvertimePayRate] = useState("125");
-  const [restDayHolidayRate, setRestDayHolidayRate] = useState("130");
-  const [specialNonWorkingHolidayRate, setSpecialNonWorkingHolidayRate] = useState("130");
-  const [doubleHolidayRate, setDoubleHolidayRate] = useState("200");
+  // PH Overtime & Holiday Pay Rules (Dynamic Table)
+  const [overtimeHolidayRules, setOvertimeHolidayRules] = useState<OvertimeHolidayRule[]>([
+    { 
+      id: "1", 
+      workType: "Overtime (Regular Day)", 
+      description: "Work beyond 8 hours on regular working day", 
+      rateMultiplier: "125", 
+      appliesTo: "Hourly",
+      notes: "First 2 hours: 125%, thereafter: 130%"
+    },
+    { 
+      id: "2", 
+      workType: "Rest Day / Holiday Work", 
+      description: "Work performed on weekly rest day or regular holiday", 
+      rateMultiplier: "130", 
+      appliesTo: "Daily",
+      notes: "If with overtime: additional +30% per hour"
+    },
+    { 
+      id: "3", 
+      workType: "Special Non-Working Holiday", 
+      description: "Work on special non-working holiday", 
+      rateMultiplier: "130", 
+      appliesTo: "Daily",
+      notes: "As per PH Labor Code"
+    },
+    { 
+      id: "4", 
+      workType: "Double Holiday", 
+      description: "Regular holiday falling on rest day", 
+      rateMultiplier: "200", 
+      appliesTo: "Daily",
+      notes: "Double holiday premium rate"
+    },
+    { 
+      id: "5", 
+      workType: "Night Shift Differential", 
+      description: "Work between 10 PM and 6 AM", 
+      rateMultiplier: "110", 
+      appliesTo: "Hourly",
+      notes: "Additional 10% of regular hourly rate"
+    },
+  ]);
 
   // Norway Defaults
   const [holidayPayPercent, setHolidayPayPercent] = useState("12");
@@ -292,6 +339,29 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
     setSssTable(sssTable.map(row => row.id === id ? { ...row, [field]: value } : row));
   };
 
+  // Overtime & Holiday Rules CRUD
+  const addOvertimeHolidayRule = () => {
+    const newRule: OvertimeHolidayRule = {
+      id: `rule-${Date.now()}`,
+      workType: "",
+      description: "",
+      rateMultiplier: "100",
+      appliesTo: "Hourly",
+      notes: ""
+    };
+    setOvertimeHolidayRules([...overtimeHolidayRules, newRule]);
+  };
+
+  const removeOvertimeHolidayRule = (id: string) => {
+    setOvertimeHolidayRules(rules => rules.filter(rule => rule.id !== id));
+  };
+
+  const updateOvertimeHolidayRule = (id: string, field: keyof OvertimeHolidayRule, value: any) => {
+    setOvertimeHolidayRules(rules =>
+      rules.map(rule => rule.id === id ? { ...rule, [field]: value } : rule)
+    );
+  };
+
   const handleSaveCountryRules = () => {
     const countryRules = {
       PH: {
@@ -303,12 +373,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
           pagIbig: { fixedMonthlyContribution: pagIbigFixedContribution },
         },
         non_taxable_caps: nonTaxableBenefits,
-        overtime_holiday_rates: {
-          overtimePayRate: overtimePayRate,
-          restDayHolidayRate: restDayHolidayRate,
-          specialNonWorkingHolidayRate: specialNonWorkingHolidayRate,
-          doubleHolidayRate: doubleHolidayRate,
-        },
+        overtime_holiday_rules: overtimeHolidayRules,
         bi_monthly_logic: {
           firstHalf: biMonthlyFirstHalf,
           secondHalf: biMonthlySecondHalf,
@@ -894,62 +959,96 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
                   </div>
                 </Card>
 
-                {/* Overtime & Holiday Pay Rates */}
+                {/* Overtime & Holiday Pay Rate Rules */}
                 <Card className="p-4">
-                  <h2 className="text-lg font-semibold mb-4">Overtime & Holiday Pay Rates</h2>
-                  <p className="text-xs text-muted-foreground mb-4">
-                    Define rate multipliers for overtime and holiday work (percentage of regular hourly rate)
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
-                      <Label>Overtime Pay Rate (%)</Label>
-                      <Input
-                        type="number"
-                        step="1"
-                        value={overtimePayRate}
-                        onChange={(e) => setOvertimePayRate(e.target.value)}
-                        placeholder="125"
-                        className="mt-2"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Standard overtime multiplier</p>
+                      <h2 className="text-lg font-semibold">Overtime & Holiday Pay Rate Rules</h2>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Configure rate multipliers for different work types and conditions
+                      </p>
                     </div>
-                    <div>
-                      <Label>Rest Day / Holiday Pay Rate (%)</Label>
-                      <Input
-                        type="number"
-                        step="1"
-                        value={restDayHolidayRate}
-                        onChange={(e) => setRestDayHolidayRate(e.target.value)}
-                        placeholder="130"
-                        className="mt-2"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Rest day work rate</p>
-                    </div>
-                    <div>
-                      <Label>Special Non-Working Holiday Rate (%)</Label>
-                      <Input
-                        type="number"
-                        step="1"
-                        value={specialNonWorkingHolidayRate}
-                        onChange={(e) => setSpecialNonWorkingHolidayRate(e.target.value)}
-                        placeholder="130"
-                        className="mt-2"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Special holiday work rate</p>
-                    </div>
-                    <div>
-                      <Label>Double Holiday Rate (%)</Label>
-                      <Input
-                        type="number"
-                        step="1"
-                        value={doubleHolidayRate}
-                        onChange={(e) => setDoubleHolidayRate(e.target.value)}
-                        placeholder="200"
-                        className="mt-2"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Regular + special holiday combined</p>
-                    </div>
+                    <Button onClick={addOvertimeHolidayRule} size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Rule
+                    </Button>
                   </div>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[180px]">Type of Work / Condition</TableHead>
+                          <TableHead className="w-[220px]">Description</TableHead>
+                          <TableHead className="w-[120px]">Rate Multiplier (%)</TableHead>
+                          <TableHead className="w-[100px]">Applies To</TableHead>
+                          <TableHead className="w-[180px]">Notes / Formula</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {overtimeHolidayRules.map((rule) => (
+                          <TableRow key={rule.id}>
+                            <TableCell>
+                              <Input
+                                value={rule.workType}
+                                onChange={(e) => updateOvertimeHolidayRule(rule.id, "workType", e.target.value)}
+                                placeholder="e.g., Overtime"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                value={rule.description}
+                                onChange={(e) => updateOvertimeHolidayRule(rule.id, "description", e.target.value)}
+                                placeholder="Brief description"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                step="1"
+                                value={rule.rateMultiplier}
+                                onChange={(e) => updateOvertimeHolidayRule(rule.id, "rateMultiplier", e.target.value)}
+                                placeholder="125"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                value={rule.appliesTo}
+                                onValueChange={(value) => updateOvertimeHolidayRule(rule.id, "appliesTo", value as "Hourly" | "Daily")}
+                              >
+                                <SelectTrigger className="w-[90px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Hourly">Hourly</SelectItem>
+                                  <SelectItem value="Daily">Daily</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                value={rule.notes}
+                                onChange={(e) => updateOvertimeHolidayRule(rule.id, "notes", e.target.value)}
+                                placeholder="Optional notes"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeOvertimeHolidayRule(rule.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    These rules are automatically referenced in all PH employee payroll calculations.
+                  </p>
                 </Card>
 
                 {/* Bi-Monthly Logic */}
