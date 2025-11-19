@@ -72,7 +72,7 @@ interface ContractorPayment {
   status?: "Active" | "Terminated" | "Contract Ended" | "On Hold";
   endDate?: string; // ISO date string for last working day
   // Contractor compensation type fields
-  compensationType?: "Monthly" | "Daily" | "Hourly";
+  compensationType?: "Monthly" | "Daily" | "Hourly" | "Project-Based";
   hourlyRate?: number;
   hoursWorked?: number;
   expectedMonthlyHours?: number;
@@ -1437,7 +1437,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
                             <TableHead className="text-xs min-w-[110px]">End Date</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
-                            <TableHead className="text-xs text-right min-w-[110px]">Hourly Rate</TableHead>
+                            <TableHead className="text-xs min-w-[130px]">Compensation Type</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Deductions</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Net Pay</TableHead>
@@ -1593,12 +1593,18 @@ const PayrollBatch: React.FC = () => {
                                   "—"
                                 )}
                               </TableCell>
-                              {/* Hourly Rate - for hourly contractors */}
-                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
-                                {contractor.compensationType === "Hourly" && contractor.hourlyRate
-                                  ? `${symbol}${contractor.hourlyRate.toLocaleString()}`
-                                  : "—"
-                                }
+                              {/* Compensation Type - shows type and rate if hourly */}
+                              <TableCell className="text-sm min-w-[130px]">
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-foreground font-medium">
+                                    {contractor.compensationType || "Monthly"}
+                                  </span>
+                                  {contractor.compensationType === "Hourly" && contractor.hourlyRate && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {symbol}{contractor.hourlyRate.toLocaleString()}/hr
+                                    </span>
+                                  )}
+                                </div>
                               </TableCell>
                               {/* Gross Pay */}
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
@@ -1900,12 +1906,21 @@ const PayrollBatch: React.FC = () => {
                                   <span className="text-muted-foreground">—</span>
                                 )}
                               </TableCell>
-                              {/* Hourly Rate - Only for Hourly Contractors */}
-                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
-                                {contractor.employmentType === "contractor" && contractor.compensationType === "Hourly" ? (
-                                  `${symbol}${(contractor.hourlyRate || 0).toLocaleString()}`
+                              {/* Compensation Type - shows type and rate if hourly */}
+                              <TableCell className="text-sm min-w-[130px]">
+                                {contractor.employmentType === "contractor" ? (
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="text-foreground font-medium">
+                                      {contractor.compensationType || "Monthly"}
+                                    </span>
+                                    {contractor.compensationType === "Hourly" && contractor.hourlyRate && (
+                                      <span className="text-xs text-muted-foreground">
+                                        {symbol}{contractor.hourlyRate.toLocaleString()}/hr
+                                      </span>
+                                    )}
+                                  </div>
                                 ) : (
-                                  "—"
+                                  <span className="text-muted-foreground text-sm">—</span>
                                 )}
                               </TableCell>
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
@@ -4395,7 +4410,7 @@ You can ask me about:
                                           <Label className="text-sm text-muted-foreground">Compensation Type</Label>
                                           <Select
                                             value={selectedContractor.compensationType || "Monthly"}
-                                            onValueChange={(value: "Monthly" | "Daily" | "Hourly") => {
+                                            onValueChange={(value: "Monthly" | "Daily" | "Hourly" | "Project-Based") => {
                                               setContractors(prev => prev.map(c => 
                                                 c.id === selectedContractor.id 
                                                   ? { 
@@ -4420,9 +4435,10 @@ You can ask me about:
                                               <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                              <SelectItem value="Monthly">Monthly</SelectItem>
-                                              <SelectItem value="Daily">Daily</SelectItem>
-                                              <SelectItem value="Hourly">Hourly</SelectItem>
+                                              <SelectItem value="Monthly">Fixed Monthly</SelectItem>
+                                              <SelectItem value="Daily">Daily Rate</SelectItem>
+                                              <SelectItem value="Hourly">Hourly Rate</SelectItem>
+                                              <SelectItem value="Project-Based">Project-Based</SelectItem>
                                             </SelectContent>
                                           </Select>
                                         </div>
