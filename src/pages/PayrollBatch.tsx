@@ -1254,7 +1254,10 @@ const PayrollBatch: React.FC = () => {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-muted-foreground">
-                            Pro-rated: Base Pay ÷ Days Per Month × (Working Days - Leave Days)
+                            For payroll month: {selectedCycle === "current" ? "November 2025" : selectedCycle === "previous" ? "October 2025" : "December 2025"}
+                            <span className="ml-2">•</span>
+                            <span className="ml-2">Pro-rated: Base Pay ÷ Days Per Month × (Working Days - Leave Days)</span>
+                            <span className="ml-2 text-amber-600">*For hourly contractors, enter unpaid hours instead of days</span>
                           </div>
                           <Button
                             size="sm"
@@ -1270,7 +1273,7 @@ const PayrollBatch: React.FC = () => {
                           <TableHeader>
                             <TableRow>
                               <TableHead className="text-xs">Name</TableHead>
-                              <TableHead className="text-xs text-right">Leave Days</TableHead>
+                              <TableHead className="text-xs text-right">Leave Days / Unpaid Hours</TableHead>
                               <TableHead className="text-xs text-right">Working Days</TableHead>
                               <TableHead className="text-xs text-right">Unpaid Leave Amount</TableHead>
                               <TableHead className="text-xs text-right">Payment Due</TableHead>
@@ -1291,8 +1294,17 @@ const PayrollBatch: React.FC = () => {
                               const daysPerMonth = isPHContractor ? phSettings.daysPerMonth : isNOContractor ? noSettings.daysPerMonth : 22;
                               const workingDays = leaveData?.workingDays || daysPerMonth;
                               
-                              const dailyRate = contractor.baseSalary / daysPerMonth;
-                              const unpaidLeaveAmount = dailyRate * leaveDays;
+                              // Calculate unpaid leave amount based on contractor type
+                              const isHourly = contractor.employmentType === "contractor" && contractor.compensationType === "Hourly";
+                              let unpaidLeaveAmount = 0;
+                              if (isHourly && contractor.hourlyRate) {
+                                // For hourly contractors: hourlyRate × unpaidHours (stored in leaveDays)
+                                unpaidLeaveAmount = contractor.hourlyRate * leaveDays;
+                              } else {
+                                // For monthly/daily contractors: baseSalary / daysPerMonth × leaveDays
+                                const dailyRate = contractor.baseSalary / daysPerMonth;
+                                unpaidLeaveAmount = dailyRate * leaveDays;
+                              }
                               const paymentDue = getPaymentDue(contractor);
                               
                               return (
@@ -1305,17 +1317,32 @@ const PayrollBatch: React.FC = () => {
                                 >
                                   <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
                                   <TableCell className="text-right">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      max="31"
-                                      step="0.5"
-                                      value={leaveDays}
-                                      onChange={(e) => handleUpdateLeave(contractor.id, { 
-                                        leaveDays: parseFloat(e.target.value) || 0 
-                                      })}
-                                      className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
-                                    />
+                                    <div className="flex items-center justify-end gap-2">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        max={isHourly ? "999" : "31"}
+                                        step={isHourly ? "1" : "0.5"}
+                                        value={leaveDays}
+                                        onChange={(e) => handleUpdateLeave(contractor.id, { 
+                                          leaveDays: parseFloat(e.target.value) || 0 
+                                        })}
+                                        className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
+                                        placeholder={isHourly ? "hrs" : "days"}
+                                      />
+                                      {isHourly && (
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p className="text-xs max-w-[200px]">For hourly contractors, enter unpaid hours that should not be billed</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      )}
+                                    </div>
                                   </TableCell>
                                   <TableCell className="text-right text-xs text-muted-foreground">
                                     {workingDays.toFixed(2)}
@@ -1406,6 +1433,8 @@ const PayrollBatch: React.FC = () => {
                             </TableHead>
                             <TableHead className="text-xs min-w-[120px]">Role</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Hourly Rate</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Deductions</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Net Pay</TableHead>
@@ -1760,6 +1789,41 @@ const PayrollBatch: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
+                              {/* Hours Worked - Only for Hourly Contractors */}
+                              <TableCell className="text-right text-sm min-w-[110px]">
+                                {contractor.employmentType === "contractor" && contractor.compensationType === "Hourly" ? (
+                                  selectedCycle !== "previous" ? (
+                                    <Input
+                                      type="number"
+                                      value={contractor.hoursWorked || ""}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        const hours = Number(e.target.value);
+                                        setContractors(prev => prev.map(c => 
+                                          c.id === contractor.id 
+                                            ? { ...c, hoursWorked: hours, baseSalary: (c.hourlyRate || 0) * hours, netPay: (c.hourlyRate || 0) * hours }
+                                            : c
+                                        ));
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="w-20 h-7 text-xs text-right"
+                                      placeholder="0"
+                                    />
+                                  ) : (
+                                    <span className="text-muted-foreground">{contractor.hoursWorked || 0}</span>
+                                  )
+                                ) : (
+                                  <span className="text-muted-foreground">—</span>
+                                )}
+                              </TableCell>
+                              {/* Hourly Rate - Only for Hourly Contractors */}
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.employmentType === "contractor" && contractor.compensationType === "Hourly" ? (
+                                  `${symbol}${(contractor.hourlyRate || 0).toLocaleString()}`
+                                ) : (
+                                  "—"
+                                )}
+                              </TableCell>
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
                                 {symbol}{grossPay.toLocaleString()}
                               </TableCell>
