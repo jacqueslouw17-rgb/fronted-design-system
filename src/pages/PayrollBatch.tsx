@@ -69,6 +69,8 @@ interface ContractorPayment {
   employmentType: "employee" | "contractor";
   employerTaxes?: number;
   leaveData?: LeaveRecord;
+  status?: "Active" | "Terminated" | "Contract Ended" | "On Hold";
+  endDate?: string; // ISO date string for last working day
   // Employee-specific fields
   lineItems?: Array<{
     id: string;
@@ -103,7 +105,8 @@ interface PayrollException {
         "below-minimum-wage" | "allowance-exceeds-cap" | "missing-govt-id" | 
         "incorrect-contribution-tier" | "missing-13th-month" | "ot-holiday-type-not-selected" | 
         "invalid-work-type-combination" | "night-differential-invalid-hours" | 
-        "missing-employer-sss" | "missing-withholding-tax";
+        "missing-employer-sss" | "missing-withholding-tax" |
+        "status-mismatch" | "employment-ending-this-period" | "end-date-before-period" | "upcoming-contract-end";
   description: string;
   severity: "high" | "medium" | "low";
   resolved: boolean;
@@ -150,7 +153,8 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 0.92, 
       recvLocal: 4200, 
       eta: "Oct 30", 
-      employmentType: "contractor" 
+      employmentType: "contractor",
+      status: "Active"
     },
     { 
       id: "2", 
@@ -165,7 +169,9 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       recvLocal: 5800, 
       eta: "Oct 30", 
       employmentType: "employee", 
-      employerTaxes: 1740
+      employerTaxes: 1740,
+      status: "Active",
+      endDate: "2025-12-15" // Upcoming contract end example
     },
     { 
       id: "3", 
@@ -179,7 +185,8 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 0.92, 
       recvLocal: 4500, 
       eta: "Oct 30", 
-      employmentType: "contractor" 
+      employmentType: "contractor",
+      status: "Terminated" // Example of status mismatch
     },
   ],
   NOK: [
@@ -196,7 +203,9 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       recvLocal: 65000, 
       eta: "Oct 31", 
       employmentType: "employee", 
-      employerTaxes: 9750 
+      employerTaxes: 9750,
+      status: "Active",
+      endDate: "2025-11-12" // Employment ending this period (Nov 1-15)
     },
     { 
       id: "5", 
@@ -210,7 +219,8 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 10.45, 
       recvLocal: 72000, 
       eta: "Oct 31", 
-      employmentType: "contractor"
+      employmentType: "contractor",
+      status: "Active"
     },
   ],
   PHP: [
@@ -227,7 +237,8 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       recvLocal: 280000, 
       eta: "Oct 30", 
       employmentType: "employee", 
-      employerTaxes: 42000 
+      employerTaxes: 42000,
+      status: "Active"
     },
     { 
       id: "7", 
@@ -241,7 +252,8 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 56.2, 
       recvLocal: 245000, 
       eta: "Oct 30", 
-      employmentType: "contractor" 
+      employmentType: "contractor",
+      status: "Active"
     },
     { 
       id: "8", 
@@ -255,7 +267,9 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       fxRate: 56.2, 
       recvLocal: 260000, 
       eta: "Oct 30", 
-      employmentType: "contractor" 
+      employmentType: "contractor",
+      status: "Active",
+      endDate: "2025-10-28" // End date before current period (Nov 1-15)
     },
   ],
 };
@@ -807,6 +821,71 @@ const PayrollBatch: React.FC = () => {
             resolved: false,
             snoozed: false,
           });
+        }
+
+        // Status Check: Inactive workers in batch
+        const workerStatus = contractor.status || "Active";
+        if (workerStatus !== "Active") {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "status-mismatch",
+            description: `This worker is not marked as Active (current status: ${workerStatus}). Review if they should be included in this pay run.`,
+            severity: "high",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+
+        // End-date checks (only for Active workers)
+        if (workerStatus === "Active" && contractor.endDate) {
+          const endDate = new Date(contractor.endDate);
+          // Current payroll period: November 1-15, 2025
+          const periodStart = new Date("2025-11-01");
+          const periodEnd = new Date("2025-11-15");
+          const periodEndPlus30 = new Date(periodEnd);
+          periodEndPlus30.setDate(periodEndPlus30.getDate() + 30);
+
+          // Check if end date falls inside current payroll period
+          if (endDate >= periodStart && endDate <= periodEnd) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "employment-ending-this-period",
+              description: `This worker's last working day is ${format(endDate, "MMM d, yyyy")}, within the current pay period. Confirm prorated salary and final pay.`,
+              severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+          // Check if end date is before current period
+          else if (endDate < periodStart) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "end-date-before-period",
+              description: `This worker's end date (${format(endDate, "MMM d, yyyy")}) is before this pay period. Confirm if they should be removed from this run.`,
+              severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+          // Check if end date is within 30 days after period (non-blocking info)
+          else if (endDate > periodEnd && endDate <= periodEndPlus30) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "upcoming-contract-end",
+              description: `This worker's contract ends on ${format(endDate, "MMM d, yyyy")}. Check if any final pay or adjustments are needed next cycle.`,
+              severity: "low",
+              resolved: false,
+              snoozed: false,
+            });
+          }
         }
       });
 
@@ -1837,6 +1916,10 @@ const PayrollBatch: React.FC = () => {
           "night-differential-invalid-hours": "Night Differential",
           "missing-employer-sss": "Employer SSS",
           "missing-withholding-tax": "Withholding Tax",
+          "status-mismatch": "Status Mismatch",
+          "employment-ending-this-period": "Employment Ending This Period",
+          "end-date-before-period": "End Date Before Current Period",
+          "upcoming-contract-end": "Upcoming Contract End",
         };
 
         return (
