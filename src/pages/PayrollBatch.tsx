@@ -97,6 +97,7 @@ interface ContractorPayment {
   pagIbigEmployee?: number;
   pagIbigEmployer?: number;
   withholdingTax?: number;
+  withholdingTaxOverride?: boolean;
   // NO specific
   holidayPay?: number;
   employerTax?: number;
@@ -1588,7 +1589,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
                             <TableHead className="text-xs min-w-[130px]">Compensation Type</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
-                            <TableHead className="text-xs text-right min-w-[110px]">Deductions</TableHead>
+                            <TableHead className="text-xs text-right min-w-[110px]">Adjustments</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Net Pay</TableHead>
                             <TableHead className="text-xs text-right min-w-[100px]">Est. Fees</TableHead>
                             <TableHead className="text-xs text-right min-w-[150px]">Additional Fees</TableHead>
@@ -1767,7 +1768,7 @@ const PayrollBatch: React.FC = () => {
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <div className="text-xs space-y-1">
-                                        <p className="font-semibold">Deductions</p>
+                                        <p className="font-semibold">Adjustments</p>
                                         {hasLeave && <p>Leave proration: {symbol}{Math.round(difference).toLocaleString()}</p>}
                                         {contractor.employmentType === "employee" && <p>Taxes: Included in employer cost</p>}
                                       </div>
@@ -2086,9 +2087,9 @@ const PayrollBatch: React.FC = () => {
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <div className="text-xs space-y-1">
-                                        <p className="font-semibold">Deductions</p>
+                                        <p className="font-semibold">Adjustments</p>
                                         {isPHEmployee && phPayrollHalf === "1st" && (
-                                          <p>Deductions applied only on 2nd half</p>
+                                          <p>Adjustments applied only on 2nd half</p>
                                         )}
                                         {hasLeave && <p>Leave proration: {symbol}{Math.round(difference).toLocaleString()}</p>}
                                         {contractor.employmentType === "employee" && !isPHEmployee && <p>Taxes: Included in employer cost</p>}

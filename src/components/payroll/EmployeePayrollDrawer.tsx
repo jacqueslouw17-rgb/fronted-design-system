@@ -152,6 +152,7 @@ interface ContractorPayment {
   allowOverride?: boolean;
   allowEmploymentOverride?: boolean;
   withholdingTaxRate?: number;
+  withholdingTaxOverride?: boolean;
   recurringAdjustments?: RecurringAdjustment[];
   
   // PH Overtime & Holiday Pay (dynamic table)
@@ -1157,15 +1158,53 @@ export default function EmployeePayrollDrawer({
                 <CollapsibleContent>
                   <div className="px-4 pb-4 space-y-3">
                     <div>
-                      <Label className="text-xs">Withholding Tax</Label>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label className="text-xs">Withholding Tax</Label>
+                        <div className="flex items-center gap-2">
+                          {formData.withholdingTaxOverride && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                              Overridden this cycle
+                            </Badge>
+                          )}
+                          <Switch
+                            checked={formData.withholdingTaxOverride || false}
+                            onCheckedChange={(checked) => {
+                              setFormData(prev => prev ? ({ ...prev, withholdingTaxOverride: checked }) : null);
+                              if (!checked) {
+                                // Reset to calculated value when override is disabled
+                                const countrySettings = getSettings(formData.countryCode === "PH" ? "PH" : "NO");
+                                const currentGrossCompensation = (formData.baseSalary || 0) + totalAllowances + totalOvertimeHolidayPay;
+                                let autoWithholdingTax = 0;
+                                
+                                if (countrySettings.withholdingTax.method === "flat_rate" && countrySettings.withholdingTax.flatRate) {
+                                  autoWithholdingTax = (currentGrossCompensation * countrySettings.withholdingTax.flatRate) / 100;
+                                } else if (countrySettings.withholdingTax.method === "bracket_table") {
+                                  autoWithholdingTax = (currentGrossCompensation * 0) / 100;
+                                }
+                                
+                                setFormData(prev => prev ? ({ ...prev, withholdingTax: autoWithholdingTax }) : null);
+                              }
+                            }}
+                            className="scale-75"
+                          />
+                          <span className="text-[10px] text-muted-foreground">Override</span>
+                        </div>
+                      </div>
                       <Input
                         type="number"
                         value={formData.withholdingTax || 0}
-                        disabled
-                        className="mt-1 h-8 bg-muted/50"
+                        onChange={(e) => setFormData(prev => prev ? ({ ...prev, withholdingTax: parseFloat(e.target.value) || 0 }) : null)}
+                        disabled={!formData.withholdingTaxOverride}
+                        className={cn(
+                          "mt-1 h-8",
+                          !formData.withholdingTaxOverride && "bg-muted/50"
+                        )}
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Calculated using country-level tax configuration
+                        {formData.withholdingTaxOverride 
+                          ? "Manual override active for this cycle only"
+                          : "Calculated from company tax rules. You can override for this cycle if needed."
+                        }
                       </p>
                     </div>
                   </div>
