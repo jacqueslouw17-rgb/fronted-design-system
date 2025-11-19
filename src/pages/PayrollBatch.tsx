@@ -71,6 +71,11 @@ interface ContractorPayment {
   leaveData?: LeaveRecord;
   status?: "Active" | "Terminated" | "Contract Ended" | "On Hold";
   endDate?: string; // ISO date string for last working day
+  // Contractor compensation type fields
+  compensationType?: "Monthly" | "Daily" | "Hourly";
+  hourlyRate?: number;
+  hoursWorked?: number;
+  expectedMonthlyHours?: number;
   // Employee-specific fields
   lineItems?: Array<{
     id: string;
@@ -106,7 +111,8 @@ interface PayrollException {
         "incorrect-contribution-tier" | "missing-13th-month" | "ot-holiday-type-not-selected" | 
         "invalid-work-type-combination" | "night-differential-invalid-hours" | 
         "missing-employer-sss" | "missing-withholding-tax" |
-        "status-mismatch" | "employment-ending-this-period" | "end-date-before-period" | "upcoming-contract-end";
+        "status-mismatch" | "employment-ending-this-period" | "end-date-before-period" | "upcoming-contract-end" |
+        "missing-hours";
   description: string;
   severity: "high" | "medium" | "low";
   resolved: boolean;
@@ -271,6 +277,25 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
       status: "Active",
       endDate: "2025-10-28" // End date before current period (Nov 1-15)
     },
+    { 
+      id: "9", 
+      name: "Carlos Diaz", 
+      country: "Philippines", 
+      countryCode: "PH", 
+      baseSalary: 0, // Not used for hourly
+      netPay: 0, // Will be calculated
+      currency: "PHP", 
+      estFees: 450, 
+      fxRate: 56.2, 
+      recvLocal: 0, 
+      eta: "Oct 30", 
+      employmentType: "contractor",
+      status: "Active",
+      compensationType: "Hourly",
+      hourlyRate: 850,
+      hoursWorked: 160,
+      expectedMonthlyHours: 160
+    },
   ],
 };
 
@@ -333,6 +358,11 @@ const PayrollBatch: React.FC = () => {
     name: string;
     amount: number;
   }>>>({});
+  const [contractors, setContractors] = useState<ContractorPayment[]>(() => [
+    ...contractorsByCurrency.EUR,
+    ...contractorsByCurrency.NOK,
+    ...contractorsByCurrency.PHP,
+  ]);
   const [payrollCycleData, setPayrollCycleData] = useState<{
     previous: {
       label: string;
@@ -451,6 +481,13 @@ const PayrollBatch: React.FC = () => {
   };
 
   const getPaymentDue = (contractor: ContractorPayment): number => {
+    // For hourly contractors, calculate based on hours worked
+    if (contractor.compensationType === "Hourly" && contractor.hourlyRate && contractor.hoursWorked) {
+      const basePayment = contractor.hourlyRate * contractor.hoursWorked;
+      const adjustments = getTotalAdjustments(contractor.id);
+      return basePayment + adjustments;
+    }
+    
     const leaveData = leaveRecords[contractor.id];
     let payment = contractor.baseSalary;
     
@@ -649,11 +686,7 @@ const PayrollBatch: React.FC = () => {
     role: "admin"
   };
 
-  const allContractors = [
-    ...contractorsByCurrency.EUR,
-    ...contractorsByCurrency.NOK,
-    ...contractorsByCurrency.PHP,
-  ];
+  const allContractors = contractors;
 
   const currentCycleData = payrollCycleData[selectedCycle];
 
@@ -882,6 +915,22 @@ const PayrollBatch: React.FC = () => {
               type: "upcoming-contract-end",
               description: `This worker's contract ends on ${format(endDate, "MMM d, yyyy")}. Check if any final pay or adjustments are needed next cycle.`,
               severity: "low",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+        }
+        
+        // Mini Prompt B: Missing Hours for Hourly Contractors
+        if (contractor.employmentType === "contractor" && contractor.compensationType === "Hourly") {
+          if (!contractor.hoursWorked || contractor.hoursWorked === 0) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "missing-hours",
+              description: "Enter the total hours worked this period to calculate pay.",
+              severity: "high",
               resolved: false,
               snoozed: false,
             });
@@ -4119,6 +4168,97 @@ You can ask me about:
                               </SheetHeader>
 
                               <div className="space-y-6 mt-6">
+                                {/* Payroll / Compensation Settings (Contractors Only) */}
+                                {selectedContractor.employmentType === "contractor" && selectedCycle !== "previous" && (
+                                  <div className="space-y-3">
+                                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                      <Settings className="h-4 w-4" />
+                                      Payroll / Compensation
+                                    </h4>
+                                    <Card className="border-border/20 bg-card/30">
+                                      <CardContent className="p-4 space-y-3">
+                                        <div className="space-y-2">
+                                          <Label className="text-sm text-muted-foreground">Compensation Type</Label>
+                                          <Select
+                                            value={selectedContractor.compensationType || "Monthly"}
+                                            onValueChange={(value: "Monthly" | "Daily" | "Hourly") => {
+                                              setContractors(prev => prev.map(c => 
+                                                c.id === selectedContractor.id 
+                                                  ? { 
+                                                      ...c, 
+                                                      compensationType: value,
+                                                      hourlyRate: value === "Hourly" ? (c.hourlyRate || 0) : undefined,
+                                                      hoursWorked: value === "Hourly" ? (c.hoursWorked || 0) : undefined,
+                                                      expectedMonthlyHours: value === "Hourly" ? (c.expectedMonthlyHours || 160) : undefined,
+                                                    }
+                                                  : c
+                                              ));
+                                              setSelectedContractor(prev => prev ? { 
+                                                ...prev, 
+                                                compensationType: value,
+                                                hourlyRate: value === "Hourly" ? (prev.hourlyRate || 0) : undefined,
+                                                hoursWorked: value === "Hourly" ? (prev.hoursWorked || 0) : undefined,
+                                                expectedMonthlyHours: value === "Hourly" ? (prev.expectedMonthlyHours || 160) : undefined,
+                                              } : null);
+                                            }}
+                                          >
+                                            <SelectTrigger className="w-full">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="Monthly">Monthly</SelectItem>
+                                              <SelectItem value="Daily">Daily</SelectItem>
+                                              <SelectItem value="Hourly">Hourly</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                        
+                                        {selectedContractor.compensationType === "Hourly" && (
+                                          <>
+                                            <div className="space-y-2">
+                                              <Label className="text-sm text-muted-foreground">Hourly Rate ({selectedContractor.currency})</Label>
+                                              <Input
+                                                type="number"
+                                                value={selectedContractor.hourlyRate || ""}
+                                                onChange={(e) => {
+                                                  const rate = Number(e.target.value);
+                                                  setContractors(prev => prev.map(c => 
+                                                    c.id === selectedContractor.id 
+                                                      ? { ...c, hourlyRate: rate, baseSalary: rate * (c.hoursWorked || 0), netPay: rate * (c.hoursWorked || 0) }
+                                                      : c
+                                                  ));
+                                                  setSelectedContractor(prev => prev ? { ...prev, hourlyRate: rate, baseSalary: rate * (prev.hoursWorked || 0), netPay: rate * (prev.hoursWorked || 0) } : null);
+                                                }}
+                                                className="w-full"
+                                                placeholder="0.00"
+                                              />
+                                            </div>
+                                            <div className="space-y-2">
+                                              <Label className="text-sm text-muted-foreground">Expected Monthly Hours (for projections)</Label>
+                                              <Input
+                                                type="number"
+                                                value={selectedContractor.expectedMonthlyHours || ""}
+                                                onChange={(e) => {
+                                                  const hours = Number(e.target.value);
+                                                  setContractors(prev => prev.map(c => 
+                                                    c.id === selectedContractor.id 
+                                                      ? { ...c, expectedMonthlyHours: hours }
+                                                      : c
+                                                  ));
+                                                  setSelectedContractor(prev => prev ? { ...prev, expectedMonthlyHours: hours } : null);
+                                                }}
+                                                className="w-full"
+                                                placeholder="160"
+                                              />
+                                              <p className="text-xs text-muted-foreground">Optional: Used for monthly cost estimates</p>
+                                            </div>
+                                          </>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                )}
+
                                 {/* Detailed Payment Breakdown */}
                                 <div className="space-y-3">
                                   <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -4126,17 +4266,53 @@ You can ask me about:
                                     Payment Breakdown
                                   </h4>
                                   <Card className="border-border/20 bg-card/30">
-                                    <CardContent className="p-4 space-y-3">
-                                       {/* Base Salary / Consultancy Fee */}
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">
-                                          {selectedContractor.employmentType === "employee" ? "Base Salary" : "Base Consultancy Fee"}
-                                        </span>
-                                        <span className="text-sm font-semibold">
-                                          {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
-                                        </span>
-                                      </div>
-                                      
+                                     <CardContent className="p-4 space-y-3">
+                                       {/* Contractor - Hourly */}
+                                       {selectedContractor.employmentType === "contractor" && selectedContractor.compensationType === "Hourly" ? (
+                                         <>
+                                           <div className="flex items-center justify-between">
+                                             <span className="text-sm text-muted-foreground">Hourly Rate</span>
+                                             <span className="text-sm font-semibold">
+                                               {selectedContractor.currency} {selectedContractor.hourlyRate?.toLocaleString() || 0}
+                                             </span>
+                                           </div>
+                                           <div className="flex items-center justify-between">
+                                             <span className="text-sm text-muted-foreground">Hours Worked</span>
+                                             <div className="flex items-center gap-2">
+                                               {selectedCycle !== "previous" ? (
+                                                 <Input
+                                                   type="number"
+                                                   value={selectedContractor.hoursWorked || ""}
+                                                   onChange={(e) => {
+                                                     const hours = Number(e.target.value);
+                                                     setContractors(prev => prev.map(c => 
+                                                       c.id === selectedContractor.id 
+                                                         ? { ...c, hoursWorked: hours, baseSalary: (c.hourlyRate || 0) * hours, netPay: (c.hourlyRate || 0) * hours }
+                                                         : c
+                                                     ));
+                                                     setSelectedContractor(prev => prev ? { ...prev, hoursWorked: hours, baseSalary: (prev.hourlyRate || 0) * hours, netPay: (prev.hourlyRate || 0) * hours } : null);
+                                                   }}
+                                                   className="w-24 h-8 text-sm"
+                                                   placeholder="0"
+                                                 />
+                                               ) : (
+                                                 <span className="text-sm font-semibold">{selectedContractor.hoursWorked || 0}</span>
+                                               )}
+                                             </div>
+                                           </div>
+                                         </>
+                                       ) : (
+                                         /* Base Salary / Consultancy Fee */
+                                         <div className="flex items-center justify-between">
+                                           <span className="text-sm text-muted-foreground">
+                                             {selectedContractor.employmentType === "employee" ? "Base Salary" : "Base Consultancy Fee"}
+                                           </span>
+                                           <span className="text-sm font-semibold">
+                                             {selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}
+                                           </span>
+                                         </div>
+                                       )}
+                                       
                                       {/* Benefits or Line Items */}
                                       {selectedContractor.employmentType === "employee" && selectedContractor.employerTaxes && (
                                         <div className="space-y-2">
