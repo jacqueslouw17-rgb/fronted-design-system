@@ -130,6 +130,7 @@ interface ContractorPayment {
   lineItems?: LineItem[];
   startDate?: string;
   endDate?: string;
+  compensationType?: "Monthly" | "Daily" | "Hourly" | "Project-Based";
   nationalId?: string;
   taxEmployee?: number;
   sssEmployee?: number;
@@ -143,12 +144,13 @@ interface ContractorPayment {
   holidayPay?: number;
   employerTax?: number;
   pension?: number;
-  status?: string;
+  status?: "Active" | "Terminated" | "Contract Ended" | "On Hold";
   estFees?: number;
   fxRate?: number;
   recvLocal?: number;
   eta?: string;
   allowOverride?: boolean;
+  allowEmploymentOverride?: boolean;
   withholdingTaxRate?: number;
   recurringAdjustments?: RecurringAdjustment[];
   
@@ -213,6 +215,7 @@ export default function EmployeePayrollDrawer({
         lineItems: employee.lineItems || [],
         recurringAdjustments: employee.recurringAdjustments || [],
         allowOverride: employee.allowOverride || false,
+        allowEmploymentOverride: employee.allowEmploymentOverride || false,
       });
     }
   }, [employee]);
@@ -455,6 +458,10 @@ export default function EmployeePayrollDrawer({
                         <Label className="text-xs text-muted-foreground">Currency</Label>
                         <p className="font-medium mt-1">{formData.currency}</p>
                       </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Compensation Type</Label>
+                        <p className="font-medium mt-1">{formData.compensationType || "Monthly"}</p>
+                      </div>
                       {isNO && formData.nationalId && (
                         <div>
                           <Label className="text-xs text-muted-foreground">National ID</Label>
@@ -498,6 +505,7 @@ export default function EmployeePayrollDrawer({
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
+                              disabled={!formData.allowEmploymentOverride}
                               className={cn(
                                 "w-full justify-start text-left font-normal h-8 mt-1",
                                 !formData.startDate && "text-muted-foreground"
@@ -526,6 +534,7 @@ export default function EmployeePayrollDrawer({
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
+                              disabled={!formData.allowEmploymentOverride}
                               className={cn(
                                 "w-full justify-start text-left font-normal h-8 mt-1",
                                 !formData.endDate && "text-muted-foreground"
@@ -548,6 +557,44 @@ export default function EmployeePayrollDrawer({
                           </PopoverContent>
                         </Popover>
                       </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Employment Status</Label>
+                      <Select
+                        value={formData.status || "Active"}
+                        onValueChange={(value: "Active" | "Terminated" | "Contract Ended" | "On Hold") => 
+                          setFormData(prev => prev ? ({ ...prev, status: value }) : null)
+                        }
+                        disabled={!formData.allowEmploymentOverride}
+                      >
+                        <SelectTrigger className="h-8 mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Terminated">Terminated</SelectItem>
+                          <SelectItem value="Contract Ended">Contract Ended</SelectItem>
+                          <SelectItem value="On Hold">On Hold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <Separator className="my-3" />
+                    
+                    {/* Override Toggle */}
+                    <div className="flex items-center justify-between py-2">
+                      <div className="space-y-0.5">
+                        <Label className="text-xs font-medium">Override employment dates & status for this cycle</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Enable to modify employment details for this payroll cycle only
+                        </p>
+                      </div>
+                      <Switch
+                        checked={formData.allowEmploymentOverride || false}
+                        onCheckedChange={(checked) => 
+                          setFormData(prev => prev ? ({ ...prev, allowEmploymentOverride: checked }) : null)
+                        }
+                      />
                     </div>
                   </div>
                 </CollapsibleContent>

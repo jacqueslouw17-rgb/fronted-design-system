@@ -76,6 +76,8 @@ interface ContractorPayment {
   hourlyRate?: number;
   hoursWorked?: number;
   expectedMonthlyHours?: number;
+  // Override settings for this payroll cycle
+  allowEmploymentOverride?: boolean;
   // Employee-specific fields
   lineItems?: Array<{
     id: string;
@@ -4594,8 +4596,10 @@ You can ask me about:
                                   >
                                     {selectedContractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
                                   </Badge>
-                                  <span className="text-sm text-muted-foreground">•</span>
-                                  <span className="text-sm text-muted-foreground">{selectedContractor.country}</span>
+                                   <span className="text-sm text-muted-foreground">•</span>
+                                   <span className="text-sm text-muted-foreground">{selectedContractor.country}</span>
+                                   <span className="text-sm text-muted-foreground">•</span>
+                                   <span className="text-sm text-muted-foreground">{selectedContractor.compensationType || "Monthly"}</span>
                                   {selectedCycle === "previous" && (
                                     <>
                                       <span className="text-sm text-muted-foreground">•</span>
@@ -4618,6 +4622,7 @@ You can ask me about:
                                             <Input
                                               type="date"
                                               value={selectedContractor.startDate || ""}
+                                              disabled={!selectedContractor.allowEmploymentOverride}
                                               onChange={(e) => {
                                                 setContractors(prev => prev.map(c => 
                                                   c.id === selectedContractor.id 
@@ -4633,6 +4638,7 @@ You can ask me about:
                                             <Input
                                               type="date"
                                               value={selectedContractor.endDate || ""}
+                                              disabled={!selectedContractor.allowEmploymentOverride}
                                               onChange={(e) => {
                                                 setContractors(prev => prev.map(c => 
                                                   c.id === selectedContractor.id 
@@ -4648,6 +4654,7 @@ You can ask me about:
                                           <Label className="text-xs text-muted-foreground">Employment Status</Label>
                                           <Select
                                             value={selectedContractor.status || "Active"}
+                                            disabled={!selectedContractor.allowEmploymentOverride}
                                             onValueChange={(value: "Active" | "Terminated" | "Contract Ended" | "On Hold") => {
                                               setContractors(prev => prev.map(c => 
                                                 c.id === selectedContractor.id 
