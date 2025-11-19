@@ -1433,6 +1433,9 @@ const PayrollBatch: React.FC = () => {
                             </TableHead>
                             <TableHead className="text-xs min-w-[120px]">Role</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
+                            <TableHead className="text-xs min-w-[100px]">Status</TableHead>
+                            <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
+                            <TableHead className="text-xs min-w-[110px]">End Date</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Hourly Rate</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
@@ -1540,6 +1543,64 @@ const PayrollBatch: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
+                              {/* Employment Status */}
+                              <TableCell className="min-w-[100px]">
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-xs",
+                                    contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30",
+                                    contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30",
+                                    contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30",
+                                    contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30"
+                                  )}
+                                >
+                                  {contractor.status || "Active"}
+                                </Badge>
+                              </TableCell>
+                              {/* Start Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}
+                              </TableCell>
+                              {/* End Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}
+                              </TableCell>
+                              {/* Hours Worked - for hourly contractors */}
+                              <TableCell className="text-right text-sm min-w-[110px]">
+                                {contractor.compensationType === "Hourly" ? (
+                                  <Input
+                                    type="number"
+                                    value={contractor.hoursWorked || ""}
+                                    onChange={(e) => {
+                                      const hours = parseFloat(e.target.value) || 0;
+                                      setContractors(prev => prev.map(c =>
+                                        c.id === contractor.id
+                                          ? {
+                                              ...c,
+                                              hoursWorked: hours,
+                                              baseSalary: (c.hourlyRate || 0) * hours,
+                                              netPay: (c.hourlyRate || 0) * hours
+                                            }
+                                          : c
+                                      ));
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-7 text-sm text-right"
+                                    disabled={selectedCycle === "previous"}
+                                  />
+                                ) : (
+                                  "—"
+                                )}
+                              </TableCell>
+                              {/* Hourly Rate - for hourly contractors */}
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.compensationType === "Hourly" && contractor.hourlyRate
+                                  ? `${symbol}${contractor.hourlyRate.toLocaleString()}`
+                                  : "—"
+                                }
+                              </TableCell>
+                              {/* Gross Pay */}
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[110px]">
                                 {symbol}{grossPay.toLocaleString()}
                               </TableCell>
@@ -1789,6 +1850,29 @@ const PayrollBatch: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
+                              {/* Employment Status */}
+                              <TableCell className="min-w-[100px]">
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-xs",
+                                    contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30",
+                                    contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30",
+                                    contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30",
+                                    contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30"
+                                  )}
+                                >
+                                  {contractor.status || "Active"}
+                                </Badge>
+                              </TableCell>
+                              {/* Start Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}
+                              </TableCell>
+                              {/* End Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}
+                              </TableCell>
                               {/* Hours Worked - Only for Hourly Contractors */}
                               <TableCell className="text-right text-sm min-w-[110px]">
                                 {contractor.employmentType === "contractor" && contractor.compensationType === "Hourly" ? (
@@ -4232,6 +4316,72 @@ You can ask me about:
                               </SheetHeader>
 
                               <div className="space-y-6 mt-6">
+                                {/* Payroll Details Section */}
+                                {selectedCycle !== "previous" && (
+                                  <div className="space-y-3">
+                                    <h4 className="text-sm font-semibold text-foreground">Payroll Details</h4>
+                                    <Card className="border-border/20 bg-card/30">
+                                      <CardContent className="p-4 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                          <div className="space-y-1.5">
+                                            <Label className="text-xs text-muted-foreground">Start Date</Label>
+                                            <Input
+                                              type="date"
+                                              value={selectedContractor.startDate || ""}
+                                              onChange={(e) => {
+                                                setContractors(prev => prev.map(c => 
+                                                  c.id === selectedContractor.id 
+                                                    ? { ...c, startDate: e.target.value }
+                                                    : c
+                                                ));
+                                              }}
+                                              className="text-sm"
+                                            />
+                                          </div>
+                                          <div className="space-y-1.5">
+                                            <Label className="text-xs text-muted-foreground">End Date</Label>
+                                            <Input
+                                              type="date"
+                                              value={selectedContractor.endDate || ""}
+                                              onChange={(e) => {
+                                                setContractors(prev => prev.map(c => 
+                                                  c.id === selectedContractor.id 
+                                                    ? { ...c, endDate: e.target.value || undefined }
+                                                    : c
+                                                ));
+                                              }}
+                                              className="text-sm"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs text-muted-foreground">Employment Status</Label>
+                                          <Select
+                                            value={selectedContractor.status || "Active"}
+                                            onValueChange={(value: "Active" | "Terminated" | "Contract Ended" | "On Hold") => {
+                                              setContractors(prev => prev.map(c => 
+                                                c.id === selectedContractor.id 
+                                                  ? { ...c, status: value }
+                                                  : c
+                                              ));
+                                            }}
+                                          >
+                                            <SelectTrigger className="text-sm">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="Active">Active</SelectItem>
+                                              <SelectItem value="Terminated">Terminated</SelectItem>
+                                              <SelectItem value="Contract Ended">End of Contract</SelectItem>
+                                              <SelectItem value="On Hold">On Hold</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                )}
+
                                 {/* Payroll / Compensation Settings (Contractors Only) */}
                                 {selectedContractor.employmentType === "contractor" && selectedCycle !== "previous" && (
                                   <div className="space-y-3">
