@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useCountrySettings } from "@/hooks/useCountrySettings";
 
 type Country = "PH" | "NO";
 
@@ -85,6 +86,9 @@ interface CountryRulesDrawerProps {
 export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesDrawerProps) {
   const [selectedCountry, setSelectedCountry] = useState<Country>("PH");
   const [allowEmployeeOverride, setAllowEmployeeOverride] = useState(false);
+  
+  // Country settings hook
+  const { updateSettings, getSettings } = useCountrySettings();
   
   // PH Tax Table with year selector
   const [selectedTaxYear, setSelectedTaxYear] = useState("2025");
@@ -180,10 +184,12 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   // Payout frequency
   const [payoutFrequency, setPayoutFrequency] = useState("bi-monthly");
 
-  // Rate Formula Configuration
-  const [hoursPerDay, setHoursPerDay] = useState("8");
-  const [phDaysPerMonth, setPhDaysPerMonth] = useState("21.67");
-  const [noDaysPerMonth, setNoDaysPerMonth] = useState("21.7");
+  // Rate Formula Configuration - Initialize from stored settings
+  const phSettings = getSettings("PH");
+  const noSettings = getSettings("NO");
+  const [hoursPerDay, setHoursPerDay] = useState(phSettings.hoursPerDay.toString());
+  const [phDaysPerMonth, setPhDaysPerMonth] = useState(phSettings.daysPerMonth.toString());
+  const [noDaysPerMonth, setNoDaysPerMonth] = useState(noSettings.daysPerMonth.toString());
 
   // PH SSS Contribution Table (2025)
   const [sssTable, setSssTable] = useState<SSSTableRow[]>([
@@ -363,6 +369,10 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
   };
 
   const handleSaveCountryRules = () => {
+    // Update country settings in the shared store
+    updateSettings("PH", parseFloat(hoursPerDay), parseFloat(phDaysPerMonth));
+    updateSettings("NO", parseFloat(hoursPerDay), parseFloat(noDaysPerMonth));
+    
     const countryRules = {
       PH: {
         tax_table: taxTable,

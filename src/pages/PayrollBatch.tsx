@@ -31,6 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { addDays, format } from "date-fns";
+import { useCountrySettings } from "@/hooks/useCountrySettings";
 
 type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
 
@@ -259,6 +260,7 @@ const PayrollBatch: React.FC = () => {
   const navigate = useNavigate();
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
   const { isSpeaking, addMessage, setLoading, setOpen } = useAgentState();
+  const { getSettings } = useCountrySettings();
   const [viewMode, setViewMode] = useState<"tracker" | "payroll">("payroll");
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
@@ -411,10 +413,12 @@ const PayrollBatch: React.FC = () => {
 
   // Pro-rating calculation helpers
   const calculateProratedPay = (baseSalary: number, leaveDays: number, workingDays: number = 21.67, countryCode?: string) => {
-    // Use country-specific divisor from Country Settings if countryCode is provided
+    // Use country-specific divisor from Country Settings
     const isPH = countryCode === "PH";
     const isNO = countryCode === "NO";
-    const daysPerMonth = isPH ? 21.67 : isNO ? 21.7 : workingDays;
+    const phSettings = getSettings("PH");
+    const noSettings = getSettings("NO");
+    const daysPerMonth = isPH ? phSettings.daysPerMonth : isNO ? noSettings.daysPerMonth : workingDays;
     
     const dailyRate = baseSalary / daysPerMonth;
     const payDays = daysPerMonth - leaveDays;
@@ -451,9 +455,9 @@ const PayrollBatch: React.FC = () => {
       ...prev,
       [contractorId]: {
         ...prev[contractorId],
-        contractorId,
-        workingDays: 21.67,
-        leaveDays: 0,
+      contractorId,
+      workingDays: getSettings("PH").daysPerMonth,
+      leaveDays: 0,
         clientConfirmed: false,
         contractorReported: false,
         ...prev[contractorId],
@@ -946,7 +950,7 @@ const PayrollBatch: React.FC = () => {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-muted-foreground">
-                            Pro-rated: Base Pay ÷ 21.67 × (Working Days - Leave Days)
+                            Pro-rated: Base Pay ÷ Days Per Month × (Working Days - Leave Days)
                           </div>
                           <Button
                             size="sm"
@@ -973,13 +977,15 @@ const PayrollBatch: React.FC = () => {
                             {allContractors.filter(c => leaveRecords[c.id]?.leaveDays > 0).map((contractor) => {
                               const leaveData = leaveRecords[contractor.id];
                               const hasLeave = leaveData && leaveData.leaveDays > 0;
-                              const workingDays = leaveData?.workingDays || 21.67;
                               const leaveDays = leaveData?.leaveDays || 0;
                               
                               // Use country-specific divisor from Country Settings
                               const isPHContractor = contractor.countryCode === "PH";
                               const isNOContractor = contractor.countryCode === "NO";
-                              const daysPerMonth = isPHContractor ? 21.67 : isNOContractor ? 21.7 : 22;
+                              const phSettings = getSettings("PH");
+                              const noSettings = getSettings("NO");
+                              const daysPerMonth = isPHContractor ? phSettings.daysPerMonth : isNOContractor ? noSettings.daysPerMonth : 22;
+                              const workingDays = leaveData?.workingDays || daysPerMonth;
                               
                               const dailyRate = contractor.baseSalary / daysPerMonth;
                               const unpaidLeaveAmount = dailyRate * leaveDays;
@@ -3749,7 +3755,7 @@ You can ask me about:
                               <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                 <Info className="h-4 w-4 text-blue-600" />
                                 <p className="text-xs text-blue-600">
-                                  Formula: Base Pay ÷ 21.67 × Pay Days
+                                  Formula: Base Pay ÷ Days Per Month × Pay Days
                                 </p>
                               </div>
                             </div>
@@ -4178,9 +4184,10 @@ You can ask me about:
                       }
                       
                       selectedLeaveWorkers.forEach(workerId => {
+                        const phSettings = getSettings("PH");
                         handleUpdateLeave(workerId, { 
                           leaveDays: 1, 
-                          workingDays: 21.67,
+                          workingDays: phSettings.daysPerMonth,
                           clientConfirmed: false 
                         });
                       });
