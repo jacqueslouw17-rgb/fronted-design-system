@@ -112,7 +112,8 @@ interface PayrollException {
         "invalid-work-type-combination" | "night-differential-invalid-hours" | 
         "missing-employer-sss" | "missing-withholding-tax" |
         "status-mismatch" | "employment-ending-this-period" | "end-date-before-period" | "upcoming-contract-end" |
-        "missing-hours";
+        "missing-hours" | "missing-dates" | "end-date-passed-active" | "deduction-exceeds-gross" | 
+        "missing-tax-fields" | "adjustment-exceeds-cap" | "contribution-table-year-missing";
   description: string;
   severity: "high" | "medium" | "low";
   resolved: boolean;
@@ -931,6 +932,121 @@ const PayrollBatch: React.FC = () => {
               type: "missing-hours",
               description: "Enter the total hours worked this period to calculate pay.",
               severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+        }
+
+        // NEW: Missing Start Date or End Date
+        if (!contractor.startDate) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "missing-dates",
+            description: "Start date is required for all workers.",
+            severity: "high",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+
+        // NEW: End Date passed but worker still marked Active
+        if (contractor.endDate && contractor.status === "Active") {
+          const endDate = new Date(contractor.endDate);
+          const today = new Date();
+          if (endDate < today) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "end-date-passed-active",
+              description: `End date (${format(endDate, "MMM d, yyyy")}) has passed but worker is still marked as Active.`,
+              severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+        }
+
+        // NEW: Deduction amount exceeding gross pay
+        if (isEmployee && contractor.baseSalary) {
+          // Calculate total deductions (rough estimate for validation)
+          const taxDeduction = contractor.baseSalary * 0.15; // Estimate
+          const socialDeduction = contractor.sssEmployee || 0;
+          const philHealthDeduction = contractor.philHealthEmployee || 0;
+          const pagIbigDeduction = contractor.pagIbigEmployee || 0;
+          const totalDeductions = taxDeduction + socialDeduction + philHealthDeduction + pagIbigDeduction;
+          
+          if (totalDeductions > contractor.baseSalary) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "deduction-exceeds-gross",
+              description: `Total deductions (${contractor.currency} ${totalDeductions.toLocaleString()}) exceed gross pay (${contractor.currency} ${contractor.baseSalary.toLocaleString()}).`,
+              severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+        }
+
+        // NEW: Missing mandatory tax/contribution fields (for employees)
+        if (isEmployee && isPH) {
+          const missingFields: string[] = [];
+          if (!contractor.sssEmployee) missingFields.push("SSS Employee");
+          if (!contractor.sssEmployer) missingFields.push("SSS Employer");
+          if (!contractor.philHealthEmployee) missingFields.push("PhilHealth Employee");
+          if (!contractor.philHealthEmployer) missingFields.push("PhilHealth Employer");
+          if (!contractor.pagIbigEmployee) missingFields.push("Pag-IBIG");
+          
+          if (missingFields.length > 0) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "missing-tax-fields",
+              description: `Missing mandatory contribution fields: ${missingFields.join(", ")}`,
+              severity: "high",
+              resolved: false,
+              snoozed: false,
+            });
+          }
+        }
+
+        // NEW: Adjustment line amount exceeds configured caps
+        if (contractor.lineItems && contractor.lineItems.length > 0) {
+          contractor.lineItems.forEach(item => {
+            if (item.cap && item.amount > item.cap) {
+              detectedExceptions.push({
+                id: `exc-${exceptionCounter++}`,
+                contractorId: contractor.id,
+                contractorName: contractor.name,
+                type: "adjustment-exceeds-cap",
+                description: `Adjustment "${item.name}" amount (${contractor.currency} ${item.amount.toLocaleString()}) exceeds configured cap (${contractor.currency} ${item.cap.toLocaleString()}).`,
+                severity: "medium",
+                resolved: false,
+                snoozed: false,
+              });
+            }
+          });
+        }
+
+        // NEW: PH-specific - Contribution table year missing
+        if (isPH && isEmployee) {
+          // This would check if the SSS/PhilHealth/Pag-IBIG tables have the current year configured
+          // For now, we'll flag if SSS contribution is exactly 0 or missing (indicating table might not be configured)
+          const currentYear = new Date().getFullYear();
+          if (!contractor.sssEmployee || contractor.sssEmployee === 0) {
+            detectedExceptions.push({
+              id: `exc-${exceptionCounter++}`,
+              contractorId: contractor.id,
+              contractorName: contractor.name,
+              type: "contribution-table-year-missing",
+              description: `SSS contribution table for ${currentYear} may not be configured. Please verify country settings.`,
+              severity: "medium",
               resolved: false,
               snoozed: false,
             });
@@ -2132,6 +2248,13 @@ const PayrollBatch: React.FC = () => {
           "employment-ending-this-period": "Employment Ending This Period",
           "end-date-before-period": "End Date Before Current Period",
           "upcoming-contract-end": "Upcoming Contract End",
+          "missing-hours": "Missing Hours",
+          "missing-dates": "Missing Dates",
+          "end-date-passed-active": "End Date Passed but Active",
+          "deduction-exceeds-gross": "Deduction Exceeds Gross",
+          "missing-tax-fields": "Missing Tax Fields",
+          "adjustment-exceeds-cap": "Adjustment Exceeds Cap",
+          "contribution-table-year-missing": "Contribution Table Year Missing",
         };
 
         return (
@@ -2271,7 +2394,10 @@ const PayrollBatch: React.FC = () => {
                               exception.type === "missing-employer-sss" || exception.type === "missing-withholding-tax" ||
                               exception.type === "missing-hours" || exception.type === "status-mismatch" || 
                               exception.type === "employment-ending-this-period" || exception.type === "end-date-before-period" ||
-                              exception.type === "upcoming-contract-end") && (
+                              exception.type === "upcoming-contract-end" || exception.type === "missing-dates" || 
+                              exception.type === "end-date-passed-active" || exception.type === "deduction-exceeds-gross" ||
+                              exception.type === "missing-tax-fields" || exception.type === "adjustment-exceeds-cap" ||
+                              exception.type === "contribution-table-year-missing") && (
                               <Button
                                 size="sm"
                                 variant="default"
