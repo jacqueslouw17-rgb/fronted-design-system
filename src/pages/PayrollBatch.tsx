@@ -99,7 +99,11 @@ interface PayrollException {
   id: string;
   contractorId: string;
   contractorName: string;
-  type: "missing-bank" | "fx-mismatch" | "pending-leave" | "unverified-identity";
+  type: "missing-bank" | "fx-mismatch" | "pending-leave" | "unverified-identity" | 
+        "below-minimum-wage" | "allowance-exceeds-cap" | "missing-govt-id" | 
+        "incorrect-contribution-tier" | "missing-13th-month" | "ot-holiday-type-not-selected" | 
+        "invalid-work-type-combination" | "night-differential-invalid-hours" | 
+        "missing-employer-sss" | "missing-withholding-tax";
   description: string;
   severity: "high" | "medium" | "low";
   resolved: boolean;
@@ -266,7 +270,170 @@ const PayrollBatch: React.FC = () => {
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [exceptions, setExceptions] = useState<PayrollException[]>(initialExceptions);
+  // Validate and generate exceptions
+  const validatePayrollExceptions = (): PayrollException[] => {
+    const detectedExceptions: PayrollException[] = [...initialExceptions];
+    let exceptionCounter = detectedExceptions.length + 1;
+
+    allContractors.forEach((contractor) => {
+      const isPH = contractor.countryCode === "PH";
+      const isEmployee = contractor.employmentType === "employee";
+
+      // Mini Prompt 1: Minimum Wage Validation (PH only)
+      if (isPH) {
+        const monthlyMinimumWage = 13000; // Example: PHP 13,000 minimum wage
+        const dailyMinimumWage = 570; // Example: PHP 570 daily minimum
+        const dailyRate = contractor.baseSalary / 22; // Using default divisor
+        
+        if (contractor.baseSalary < monthlyMinimumWage || dailyRate < dailyMinimumWage) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "below-minimum-wage",
+            description: "Salary below minimum wage for this region.",
+            severity: "high",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+      }
+
+      // Mini Prompt 2: Validate Allowances Exceeding Caps (PH only)
+      if (isPH && isEmployee && contractor.lineItems) {
+        const nonTaxableAllowances = contractor.lineItems.filter(item => !item.taxable);
+        const totalNonTaxable = nonTaxableAllowances.reduce((sum, item) => sum + item.amount, 0);
+        const allowanceCap = 90000; // Example: PHP 90,000 annual cap / 12 = 7,500 monthly
+        
+        if (totalNonTaxable > allowanceCap) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "allowance-exceeds-cap",
+            description: "Non-taxable allowance exceeds government cap. Excess will be taxable.",
+            severity: "medium",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+      }
+
+      // Mini Prompt 3: Missing Govt. ID Numbers (PH only)
+      if (isPH && isEmployee) {
+        const missingIds: string[] = [];
+        if (!contractor.nationalId) missingIds.push("TIN");
+        if (!contractor.sssEmployee) missingIds.push("SSS");
+        if (!contractor.philHealthEmployee) missingIds.push("PhilHealth");
+        if (!contractor.pagIbigEmployee) missingIds.push("Pag-IBIG");
+
+        if (missingIds.length > 0) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "missing-govt-id",
+            description: `Missing mandatory government ID: ${missingIds.join(", ")}`,
+            severity: "high",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+      }
+
+      // Mini Prompt 4: Incorrect Contribution Tier Based on Salary (PH only)
+      if (isPH && isEmployee && contractor.sssEmployee) {
+        // Example SSS brackets (simplified)
+        const sssTable = [
+          { min: 0, max: 4250, contribution: 180 },
+          { min: 4250, max: 4750, contribution: 202.50 },
+          { min: 4750, max: 5250, contribution: 225 },
+          { min: 5250, max: 5750, contribution: 247.50 },
+          // ... more brackets
+        ];
+        
+        const monthlySalary = contractor.baseSalary;
+        const correctBracket = sssTable.find(b => monthlySalary >= b.min && monthlySalary < b.max);
+        
+        if (correctBracket && contractor.sssEmployee !== correctBracket.contribution) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "incorrect-contribution-tier",
+            description: "Contribution tier does not match correct salary bracket.",
+            severity: "medium",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+      }
+
+      // Mini Prompt 5: 13th Month Pay Not Included (PH employees only)
+      if (isPH && isEmployee) {
+        const has13thMonth = contractor.lineItems?.some(item => 
+          item.name.toLowerCase().includes("13th month")
+        );
+        
+        if (!has13thMonth) {
+          detectedExceptions.push({
+            id: `exc-${exceptionCounter++}`,
+            contractorId: contractor.id,
+            contractorName: contractor.name,
+            type: "missing-13th-month",
+            description: "13th month is mandatory for this worker type.",
+            severity: "high",
+            resolved: false,
+            snoozed: false,
+          });
+        }
+      }
+
+      // Mini Prompt 6: OT/Holiday Pay Type Not Selected
+      // This would require checking if overtime entries exist without rule selection
+      // Placeholder for when overtimeHolidayEntries are available in contractor data
+      
+      // Mini Prompt 7: Invalid Work Type Combination
+      // This would check for conflicting overtime/holiday types
+      // Placeholder for when overtimeHolidayEntries are available
+
+      // Mini Prompt 8: Night Differential Outside Valid Hours
+      // This would validate night differential hours are between 10 PM - 6 AM
+      // Placeholder for when time-based entries are available
+
+      // Mini Prompt 9: Missing Employer Cost for SSS (PH employees only)
+      if (isPH && isEmployee && contractor.sssEmployee && !contractor.sssEmployer) {
+        detectedExceptions.push({
+          id: `exc-${exceptionCounter++}`,
+          contractorId: contractor.id,
+          contractorName: contractor.name,
+          type: "missing-employer-sss",
+          description: "Employer SSS contribution is required.",
+          severity: "high",
+          resolved: false,
+          snoozed: false,
+        });
+      }
+
+      // Mini Prompt 10: Withholding Tax Input Missing When Required
+      if (isEmployee && contractor.withholdingTax === undefined) {
+        detectedExceptions.push({
+          id: `exc-${exceptionCounter++}`,
+          contractorId: contractor.id,
+          contractorName: contractor.name,
+          type: "missing-withholding-tax",
+          description: "Withholding Tax rate or fixed amount is required.",
+          severity: "medium",
+          resolved: false,
+          snoozed: false,
+        });
+      }
+    });
+
+    return detectedExceptions;
+  };
+
+  const [exceptions, setExceptions] = useState<PayrollException[]>(() => validatePayrollExceptions());
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
   const [bankAccountType, setBankAccountType] = useState("");
@@ -1650,7 +1817,17 @@ const PayrollBatch: React.FC = () => {
           "missing-bank": "Missing Bank Details",
           "fx-mismatch": "FX Mismatch",
           "pending-leave": "Pending Leave Confirmation",
-          "unverified-identity": "Unverified Identity"
+          "unverified-identity": "Unverified Identity",
+          "below-minimum-wage": "Minimum Wage",
+          "allowance-exceeds-cap": "Allowance Cap",
+          "missing-govt-id": "Govt ID",
+          "incorrect-contribution-tier": "Contribution Tier",
+          "missing-13th-month": "13th Month Pay",
+          "ot-holiday-type-not-selected": "OT/Holiday Type",
+          "invalid-work-type-combination": "Work Type Conflict",
+          "night-differential-invalid-hours": "Night Differential",
+          "missing-employer-sss": "Employer SSS",
+          "missing-withholding-tax": "Withholding Tax",
         };
 
         return (
