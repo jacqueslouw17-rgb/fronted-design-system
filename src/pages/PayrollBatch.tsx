@@ -1125,7 +1125,7 @@ const PayrollBatch: React.FC = () => {
     });
   }, []); // Empty dependency array - only run once on mount
 
-  const groupedByCurrency = allContractors.reduce((acc, contractor) => {
+  const groupedByCurrency = activeContractors.reduce((acc, contractor) => {
     if (!acc[contractor.currency]) {
       acc[contractor.currency] = [];
     }
