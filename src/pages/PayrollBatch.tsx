@@ -317,6 +317,16 @@ const PayrollBatch: React.FC = () => {
   const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
+  // Review page filters and snooze
+  const [employmentTypeFilter, setEmploymentTypeFilter] = useState<"all" | "employee" | "contractor">("all");
+  const [snoozedWorkers, setSnoozedWorkers] = useState<string[]>([]);
+  const [showSnoozedSection, setShowSnoozedSection] = useState(true);
+  
+  // Execute page filters
+  const [executeEmploymentType, setExecuteEmploymentType] = useState<"all" | "employees" | "contractors">("all");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [payoutPeriod, setPayoutPeriod] = useState<"full" | "first-half" | "second-half">("full");
+  
   const [exceptions, setExceptions] = useState<PayrollException[]>(initialExceptions);
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
@@ -370,6 +380,32 @@ const PayrollBatch: React.FC = () => {
     ...contractorsByCurrency.NOK,
     ...contractorsByCurrency.PHP,
   ]);
+  
+  const allContractors = Object.values(contractorsByCurrency).flat();
+  
+  // Filter allContractors based on employment type filter
+  const filteredContractors = allContractors.filter(c => {
+    if (employmentTypeFilter === "all") return true;
+    return employmentTypeFilter === "employee" ? c.employmentType === "employee" : c.employmentType === "contractor";
+  });
+  
+  // Split contractors into active and snoozed
+  const activeContractors = filteredContractors.filter(c => !snoozedWorkers.includes(c.id));
+  const snoozedContractorsList = allContractors.filter(c => snoozedWorkers.includes(c.id));
+  
+  // Handler functions for snooze
+  const handleSnoozeWorker = (workerId: string) => {
+    setSnoozedWorkers(prev => [...prev, workerId]);
+    const worker = allContractors.find(c => c.id === workerId);
+    toast.success(`${worker?.name} snoozed for this cycle`);
+  };
+  
+  const handleUndoSnooze = (workerId: string) => {
+    setSnoozedWorkers(prev => prev.filter(id => id !== workerId));
+    const worker = allContractors.find(c => c.id === workerId);
+    toast.success(`${worker?.name} restored to batch`);
+  };
+  
   const [payrollCycleData, setPayrollCycleData] = useState<{
     previous: {
       label: string;
@@ -692,8 +728,6 @@ const PayrollBatch: React.FC = () => {
     country: "United States",
     role: "admin"
   };
-
-  const allContractors = contractors;
 
   const currentCycleData = payrollCycleData[selectedCycle];
 
@@ -1288,7 +1322,7 @@ const PayrollBatch: React.FC = () => {
     return receipt?.status === "Paid" ? "Paid" : receipt?.status === "InTransit" ? "InTransit" : "InTransit";
   };
 
-  const filteredContractors = allContractors.filter(c => {
+  const filteredTrackContractors = allContractors.filter(c => {
     const matchesStatus = statusFilter === "all" || getPaymentStatus(c.id) === statusFilter;
     const matchesType = workerTypeFilter === "all" || c.employmentType === workerTypeFilter;
     return matchesStatus && matchesType;
@@ -1541,6 +1575,38 @@ const PayrollBatch: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Employment Type Filter */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Filter by:</span>
+                  <Tabs value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v as any)}>
+                    <TabsList className="h-9">
+                      <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                      <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
+                      <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Employment Type Filter */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Filter by:</span>
+                  <Tabs value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v as any)}>
+                    <TabsList className="h-9">
+                      <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                      <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
+                      <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Currency Tables */}
             {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
               const currencySymbols: Record<string, string> = {
@@ -1596,6 +1662,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right min-w-[130px]">Total Payable</TableHead>
                             <TableHead className="text-xs min-w-[100px]">Payment Status</TableHead>
                             <TableHead className="text-xs min-w-[90px]">ETA</TableHead>
+                            <TableHead className="text-xs text-right min-w-[120px]">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1613,7 +1680,7 @@ const PayrollBatch: React.FC = () => {
                                   </span>
                                 </div>
                               </TableCell>
-                              <TableCell colSpan={10} className="py-2 bg-muted/20"></TableCell>
+                              <TableCell colSpan={11} className="py-2 bg-muted/20"></TableCell>
                             </TableRow>
                             {contractorsList.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
@@ -1815,6 +1882,19 @@ const PayrollBatch: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm min-w-[90px]">{contractor.eta}</TableCell>
+                              <TableCell className="text-xs text-right min-w-[120px]">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSnoozeWorker(contractor.id);
+                                  }}
+                                >
+                                  Snooze for This Cycle
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           );
                         })}
@@ -1918,7 +1998,7 @@ const PayrollBatch: React.FC = () => {
                                   )}
                                 </div>
                               </TableCell>
-                              <TableCell colSpan={10} className="py-2 bg-muted/20"></TableCell>
+                              <TableCell colSpan={11} className="py-2 bg-muted/20"></TableCell>
                             </TableRow>
                             {employeesList.map((contractor) => {
                           const leaveData = leaveRecords[contractor.id];
@@ -2137,6 +2217,19 @@ const PayrollBatch: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground min-w-[90px]">{contractor.eta}</TableCell>
+                              <TableCell className="text-xs text-right min-w-[120px]">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSnoozeWorker(contractor.id);
+                                  }}
+                                >
+                                  Snooze for This Cycle
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           );
                         })}
@@ -2633,6 +2726,75 @@ const PayrollBatch: React.FC = () => {
             </div> */}
 
             <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
+
+            {/* Employment Type Selector */}
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+              <CardContent className="p-4">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Execute for:</span>
+                    <Select value={executeEmploymentType} onValueChange={(v) => {
+                      setExecuteEmploymentType(v as any);
+                      if (v !== "employees") {
+                        setSelectedCountries([]);
+                        setPayoutPeriod("full");
+                      }
+                    }}>
+                      <SelectTrigger className="w-[200px] h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="employees">Employees Only</SelectItem>
+                        <SelectItem value="contractors">Contractors Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Country + Payout Period for Employees */}
+                  {executeEmploymentType === "employees" && (
+                    <div className="flex items-center gap-4 pl-4 border-l-2 border-primary/30">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Country:</span>
+                        <Select value={selectedCountries.length > 0 ? selectedCountries.join(",") : "all"} onValueChange={(v) => {
+                          if (v === "all") {
+                            setSelectedCountries([]);
+                          } else {
+                            setSelectedCountries(v.split(","));
+                          }
+                        }}>
+                          <SelectTrigger className="w-[160px] h-8 text-xs">
+                            <SelectValue placeholder="All countries" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All countries</SelectItem>
+                            <SelectItem value="PT">Portugal</SelectItem>
+                            <SelectItem value="FR">France</SelectItem>
+                            <SelectItem value="IT">Italy</SelectItem>
+                            <SelectItem value="NO">Norway</SelectItem>
+                            <SelectItem value="PH">Philippines</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Payout Period:</span>
+                        <Select value={payoutPeriod} onValueChange={(v) => setPayoutPeriod(v as any)}>
+                          <SelectTrigger className="w-[140px] h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full">Full Month</SelectItem>
+                            <SelectItem value="first-half">1st Half</SelectItem>
+                            <SelectItem value="second-half">2nd Half</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Warning if exceptions exist */}
             {activeExceptions.length > 0 && (
@@ -3214,7 +3376,7 @@ const PayrollBatch: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredContractors.map((contractor) => {
+                      {filteredTrackContractors.map((contractor) => {
                         const status = getPaymentStatus(contractor.id);
                         const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
                         const taxesAndFees = (contractor.employerTaxes || 0) + contractor.estFees;
