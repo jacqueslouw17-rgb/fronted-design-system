@@ -1576,7 +1576,7 @@ const PayrollBatch: React.FC = () => {
             </Card>
 
             {/* Employment Type Filter */}
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-start mb-4">
               <Tabs value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v as any)}>
                 <TabsList className="h-9">
                   <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
