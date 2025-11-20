@@ -1576,20 +1576,15 @@ const PayrollBatch: React.FC = () => {
             </Card>
 
             {/* Employment Type Filter */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Filter by:</span>
-                  <Tabs value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v as any)}>
-                    <TabsList className="h-9">
-                      <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-                      <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
-                      <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex justify-end mb-4">
+              <Tabs value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v as any)}>
+                <TabsList className="h-9">
+                  <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                  <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
+                  <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
 
             {/* Currency Tables */}
             {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
