@@ -1302,7 +1302,7 @@ const PayrollBatch: React.FC = () => {
             </div>
 
             {/* Leave & Attendance Section */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm mb-8">
               <CardContent className="p-4">
                 <button onClick={() => setShowLeaveSection(!showLeaveSection)} className="w-full flex items-center justify-between group">
                   <div className="flex flex-col gap-1">
