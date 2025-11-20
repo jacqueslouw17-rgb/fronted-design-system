@@ -30,6 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { addDays, format } from "date-fns";
 import { useCountrySettings } from "@/hooks/useCountrySettings";
 type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
@@ -395,6 +396,25 @@ const PayrollBatch: React.FC = () => {
     const worker = allContractors.find(c => c.id === workerId);
     toast.success(`${worker?.name} restored to batch`);
   };
+
+  // Filtered workers for execution based on selections and snoozed state
+  const executeFilteredWorkers = allContractors.filter(c => {
+    // First, exclude snoozed workers
+    if (snoozedWorkers.includes(c.id)) return false;
+    
+    // Filter by employment type
+    if (executeEmploymentType === 'employees') {
+      if (c.employmentType !== 'employee') return false;
+      
+      // Additional filters for employees only
+      if (selectedCountries.length > 0 && !selectedCountries.includes(c.countryCode)) return false;
+      // Payout period filtering would go here if we had the data to support it
+    } else if (executeEmploymentType === 'contractors') {
+      if (c.employmentType !== 'contractor') return false;
+    }
+    
+    return true;
+  });
   const [payrollCycleData, setPayrollCycleData] = useState<{
     previous: {
       label: string;
@@ -1160,11 +1180,11 @@ const PayrollBatch: React.FC = () => {
   const handleExecutePayroll = async () => {
     setIsExecuting(true);
     const initialProgress: Record<string, "pending" | "processing" | "complete"> = {};
-    allContractors.forEach(c => {
+    executeFilteredWorkers.forEach(c => {
       initialProgress[c.id] = "pending";
     });
     setExecutionProgress(initialProgress);
-    for (const contractor of allContractors) {
+    for (const contractor of executeFilteredWorkers) {
       setExecutionProgress(prev => ({
         ...prev,
         [contractor.id]: "processing"
@@ -1993,6 +2013,52 @@ const PayrollBatch: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Snoozed Workers Section */}
+            {snoozedContractorsList.length > 0 && <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+                <Collapsible open={showSnoozedSection} onOpenChange={setShowSnoozedSection}>
+                  <div className="p-4">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-70 transition-opacity">
+                      <h4 className="text-sm font-semibold text-foreground">
+                        Snoozed Workers ({snoozedContractorsList.length})
+                      </h4>
+                      <Button variant="ghost" size="sm" className="h-7">
+                        {showSnoozedSection ? "Hide" : "Show"}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Employment Type</TableHead>
+                            <TableHead>Country</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {snoozedContractorsList.map(worker => <TableRow key={worker.id}>
+                              <TableCell className="font-medium">{worker.name}</TableCell>
+                              <TableCell className="capitalize">{worker.employmentType}</TableCell>
+                              <TableCell>{worker.country}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="text-xs">
+                                  Snoozed this cycle
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleUndoSnooze(worker.id)}>
+                                  Undo Snooze
+                                </Button>
+                              </TableCell>
+                            </TableRow>)}
+                        </TableBody>
+                      </Table>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+              </Card>}
+
             {/* Footer Navigation */}
             <div className="pt-4 border-t border-border flex items-center justify-between">
               <Button variant="outline" className="h-9 px-4 text-sm" onClick={handleReturnToPayrollOverview}>
@@ -2398,11 +2464,11 @@ const PayrollBatch: React.FC = () => {
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
                             <span className="text-xs">Contractors (COR)</span>
-                            <span className="text-xs font-medium">{allContractors.filter(c => c.employmentType === "contractor").length}</span>
+                            <span className="text-xs font-medium">{executeFilteredWorkers.filter(c => c.employmentType === "contractor").length}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs">Employees (EOR)</span>
-                            <span className="text-xs font-medium">{allContractors.filter(c => c.employmentType === "employee").length}</span>
+                            <span className="text-xs font-medium">{executeFilteredWorkers.filter(c => c.employmentType === "employee").length}</span>
                           </div>
                         </div>
                       </div>
@@ -2431,17 +2497,17 @@ const PayrollBatch: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold text-foreground">Processing Batch</h4>
                       <Badge variant="outline" className="text-xs">
-                        {Object.values(executionProgress).filter(s => s === "complete").length} / {allContractors.length}
+                        {Object.values(executionProgress).filter(s => s === "complete").length} / {executeFilteredWorkers.length}
                       </Badge>
                     </div>
                     
                     {/* Group by employment type */}
-                    {allContractors.filter(c => c.employmentType === "contractor").length > 0 && <div className="space-y-2">
+                    {executeFilteredWorkers.filter(c => c.employmentType === "contractor").length > 0 && <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Contractor Payments ({allContractors.filter(c => c.employmentType === "contractor").length})</h5>
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Contractor Payments ({executeFilteredWorkers.filter(c => c.employmentType === "contractor").length})</h5>
                         </div>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {allContractors.filter(c => c.employmentType === "contractor").map(contractor => {
+                          {executeFilteredWorkers.filter(c => c.employmentType === "contractor").map(contractor => {
                       const status = executionProgress[contractor.id] || "pending";
                       return <motion.div key={contractor.id} initial={{
                         opacity: 0,
@@ -2488,12 +2554,12 @@ const PayrollBatch: React.FC = () => {
                       </div>}
 
                     {/* Employee Payroll Group */}
-                    {allContractors.filter(c => c.employmentType === "employee").length > 0 && <div className="space-y-2">
+                    {executeFilteredWorkers.filter(c => c.employmentType === "employee").length > 0 && <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Employee Payroll ({allContractors.filter(c => c.employmentType === "employee").length})</h5>
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Employee Payroll ({executeFilteredWorkers.filter(c => c.employmentType === "employee").length})</h5>
                         </div>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {allContractors.filter(c => c.employmentType === "employee").map(employee => {
+                          {executeFilteredWorkers.filter(c => c.employmentType === "employee").map(employee => {
                       const status = executionProgress[employee.id] || "pending";
                       return <motion.div key={employee.id} initial={{
                         opacity: 0,
