@@ -177,7 +177,7 @@ const Flows = () => {
   const flows = [
     {
       id: "f1-admin-onboarding",
-      title: "Flow 1 — Admin Onboarding",
+      title: "Flow 2.1 - Company Admin Onboarding",
       description: "Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3",
       steps: 7,
       patterns: patterns.map(p => p.id),
