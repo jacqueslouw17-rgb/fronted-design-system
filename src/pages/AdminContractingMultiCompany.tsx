@@ -535,8 +535,6 @@ const AdminContractingMultiCompany = () => {
     }
   }, [searchParams, contractFlow, navigate]);
 
-  const selectedCompanyName = MOCK_COMPANIES.find(c => c.id === selectedCompany)?.name || "";
-
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
@@ -549,8 +547,8 @@ const AdminContractingMultiCompany = () => {
           profileSettingsUrl="/change-password"
           profileMenuLabel="Change Password"
           companySwitcher={{
-            companies: MOCK_COMPANIES,
-            selectedCompany: selectedCompany,
+            companies,
+            selectedCompany,
             onCompanyChange: handleCompanyChange
           }}
         />
@@ -665,7 +663,7 @@ const AdminContractingMultiCompany = () => {
                         />
                       ) : (
                         <AgentHeader
-                          title={`Welcome Joe, get to work at ${selectedCompanyName}!`}
+                          title={`Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`}
                           subtitle={
                             searchParams.get("allSigned") === "true"
                               ? "Both candidates have signed! Let's trigger their onboarding checklists."
