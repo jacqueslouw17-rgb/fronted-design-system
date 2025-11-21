@@ -649,11 +649,11 @@ const DesignSystem = () => {
               <Link to="/flows/contract-flow-multi-company">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-1.5">
                       <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 transition-all duration-200 group-hover:bg-cyan-600 group-hover:border-cyan-600">
                         <Workflow className="h-5 w-5 text-cyan-600 dark:text-cyan-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 2.1 — Fronted Admin v1                                                                                                                                                                              </CardTitle>
+                      <CardTitle className="text-lg">Flow 2.1 — Fronted Admin v1</CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">
                       Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.
