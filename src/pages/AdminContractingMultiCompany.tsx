@@ -191,9 +191,27 @@ const AdminContractingMultiCompany = () => {
     const newCompanyId = `company-${Date.now()}`;
     const newCompany = { id: newCompanyId, name: companyName };
     
-    setCompanies(prev => [...prev, newCompany]);
-    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
+    console.log('[Adding New Company]', {
+      newCompanyId,
+      newCompany,
+      companyName,
+      currentCompanyContractors: companyContractors
+    });
+    
+    setCompanies(prev => {
+      const updated = [...prev, newCompany];
+      console.log('[Updated Companies]', updated);
+      return updated;
+    });
+    
+    setCompanyContractors(prev => {
+      const updated = { ...prev, [newCompanyId]: [] };
+      console.log('[Updated Company Contractors]', updated);
+      return updated;
+    });
+    
     setSelectedCompany(newCompanyId);
+    console.log('[Selected Company Set To]', newCompanyId);
     
     toast({
       title: "Company Added",
