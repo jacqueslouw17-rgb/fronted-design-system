@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Rocket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -77,6 +77,19 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
+            {/* Header */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Rocket className="h-4 w-4 text-primary" />
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+                  Ready to Launch
+                </h3>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Review what we've set up and send the invite to get started.
+              </p>
+            </div>
+
             {/* What we configured */}
             <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
               <Label className="text-sm font-medium">What We've Configured</Label>
