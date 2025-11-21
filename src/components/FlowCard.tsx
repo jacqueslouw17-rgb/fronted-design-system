@@ -14,7 +14,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/admin/onboarding",
       iconColor: "amber",
       icon: Workflow,
-      title: "Flow 2.1 - Company Admin Onboarding",
+      title: "Flow 2.1 - Company Admin Onboarding v1",
       locked: true,
       description: "Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3",
       steps: "7 steps",
