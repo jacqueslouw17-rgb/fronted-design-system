@@ -56,7 +56,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
           <ul className="space-y-2.5">
             {[
               "Company details",
-              "Approval workflows and notifications",
+              "Hiring locations",
               "Your personalized dashboard"
             ].map((item, idx) => (
               <li key={idx} className="flex items-center gap-2.5 text-sm">
