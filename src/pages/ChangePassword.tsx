@@ -51,8 +51,8 @@ const ChangePassword = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Minimal header */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b bg-card">
-        <img 
+      <div className="relative z-10 flex items-center justify-between px-6 py-4">
+        <img
           src={frontedLogo}
           alt="Fronted"
           className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
