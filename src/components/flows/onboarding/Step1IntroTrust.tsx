@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Loader2, Globe } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AuthOptions from "@/components/shared/AuthOptions";
@@ -21,10 +21,10 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
   const [authData, setAuthData] = useState<Record<string, any>>(formData.authData || {});
   const [preferredLanguage, setPreferredLanguage] = useState(formData.preferredLanguage || "en");
 
-  const handleAuthComplete = (method: string, data?: Record<string, any>) => {
+  const handleAuthComplete = useCallback((method: string, data?: Record<string, any>) => {
     setAuthMethod(method);
     setAuthData(data || {});
-  };
+  }, []);
 
   const handleContinue = () => {
     if (!authMethod) {
