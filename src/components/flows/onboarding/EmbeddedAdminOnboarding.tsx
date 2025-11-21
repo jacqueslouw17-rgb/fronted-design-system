@@ -125,7 +125,17 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
   };
 
   const renderStepContent = (stepId: string) => {
-    const stepData = state.formData[stepId] || {};
+    // For the final step, provide a merged view of earlier steps so it can
+    // reflect completion states (e.g. hiring locations)
+    const stepData = stepId === "finish_dashboard_transition"
+      ? {
+          ...(state.formData["intro_trust_model"] || {}),
+          ...(state.formData["org_profile"] || {}),
+          ...(state.formData["localization_country_blocks"] || {}),
+          ...(state.formData[stepId] || {}),
+        }
+      : (state.formData[stepId] || {});
+
     const stepProps = {
       formData: stepData,
       onComplete: handleStepComplete,
