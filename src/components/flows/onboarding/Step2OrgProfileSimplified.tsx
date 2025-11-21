@@ -327,7 +327,7 @@ const Step2OrgProfileSimplified = ({
               Saving...
             </>
           ) : (
-            "Save & Continue"
+            "Continue"
           )}
         </Button>
       </div>

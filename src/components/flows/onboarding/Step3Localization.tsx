@@ -183,7 +183,7 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
               Saving...
             </>
           ) : (
-            hasPersistedData ? "Save Changes" : "Load Blocks & Continue"
+            "Continue"
           )}
           </Button>
         </div>
