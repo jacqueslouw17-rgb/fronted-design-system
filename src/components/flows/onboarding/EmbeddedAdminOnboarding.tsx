@@ -21,13 +21,15 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
+import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Admin details", stepNumber: 1 },
   { id: "org_profile", title: "Company details", stepNumber: 2 },
   { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 3 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 4 }
+  { id: "integrations_connect", title: "Integrations", stepNumber: 4 },
+  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 5 }
 ];
 
 interface EmbeddedAdminOnboardingProps {
@@ -139,6 +141,8 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
         return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
+      case "integrations_connect":
+        return <Step4Integrations {...stepProps} />;
       case "finish_dashboard_transition":
         return <Step7Finish {...stepProps} />;
       default:
