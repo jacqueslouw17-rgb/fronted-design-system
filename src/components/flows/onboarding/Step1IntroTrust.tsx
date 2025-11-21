@@ -57,7 +57,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
             {[
               "Company details",
               "Hiring locations",
-              "Your personalized dashboard"
+              "Send invite to company admin"
             ].map((item, idx) => (
               <li key={idx} className="flex items-center gap-2.5 text-sm">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
