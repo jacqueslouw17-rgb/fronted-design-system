@@ -56,9 +56,6 @@ const Step2OrgProfileSimplified = ({
     
     if (!data.companyName) newErrors.companyName = "Company name is required";
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    if (!Array.isArray(data.payrollCurrency) || data.payrollCurrency.length === 0) {
-      newErrors.payrollCurrency = "At least one payroll currency is required";
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -98,8 +95,7 @@ const Step2OrgProfileSimplified = ({
   // Check if all required fields are filled
   const isFormValid = 
     data.companyName.trim().length > 0 &&
-    data.hqCountry.trim().length > 0 &&
-    Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0;
+    data.hqCountry.trim().length > 0;
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
@@ -155,7 +151,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="payrollCurrency" className="text-sm">
-              Payroll Currencies <span className="text-destructive">*</span>
+              Payroll Currencies
             </Label>
             <Popover>
               <PopoverTrigger asChild>
