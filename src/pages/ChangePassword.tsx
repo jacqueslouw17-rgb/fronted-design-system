@@ -172,14 +172,6 @@ const ChangePassword = () => {
                     </Button>
                   </div>
                 </form>
-
-                {/* Security Notice */}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
-                  <span className="text-lg leading-none flex-shrink-0">🔒</span>
-                  <p className="text-sm text-foreground/80 leading-relaxed">
-                    Your password is encrypted and secure. Make sure to use a strong, unique password that you don't use anywhere else.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
