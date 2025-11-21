@@ -138,7 +138,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 variant="outline"
                 role="combobox"
                 aria-expanded={companySearchOpen}
-                className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
+                className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between hover:bg-muted/30"
               >
                 <span className="truncate">
                   {companySwitcher.selectedCompany === "add-new" 
