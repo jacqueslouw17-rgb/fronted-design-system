@@ -195,8 +195,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
   const colors = colorClasses[flow.iconColor as keyof typeof colorClasses];
 
   return (
-    <Link to={flow.path}>
-      <Card className="hover:shadow-lg transition-all group h-full">
+    <Card className="hover:shadow-lg transition-all group h-full cursor-move">
         <CardHeader className={flow.locked ? "relative" : ""}>
           <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
@@ -237,10 +236,14 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
             )}
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+            <Link 
+              to={flow.path}
+              className="flex items-center text-sm text-primary hover:translate-x-1 transition-transform"
+              onClick={(e) => e.stopPropagation()}
+            >
               View flow
-              <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-            </div>
+              <ArrowRight className="w-3.5 h-3.5 ml-1 hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+            </Link>
             {flow.dataModel && (
               <>
                 <div className="h-4 w-px bg-border" />
@@ -258,6 +261,5 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
           </div>
         </CardContent>
       </Card>
-    </Link>
   );
 };
