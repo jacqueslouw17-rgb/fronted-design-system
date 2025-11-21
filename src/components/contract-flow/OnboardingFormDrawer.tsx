@@ -49,6 +49,20 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
     salary: candidate.salary,
     startDate: candidate.startDate || "",
   });
+
+  // Keep form state in sync when candidate changes (e.g. selecting another card)
+  React.useEffect(() => {
+    if (!candidate) return;
+    setFormData({
+      name: candidate.name,
+      email: candidate.email || "",
+      role: candidate.role,
+      salary: candidate.salary,
+      startDate: candidate.startDate || "",
+    });
+    setEmploymentType(candidate.employmentType || null);
+    setShowEmploymentConfirm(!isFromATS && !candidate.employmentType && candidate.employmentTypeSource === "suggested");
+  }, [candidate, isFromATS]);
   const handleSendForm = async () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));

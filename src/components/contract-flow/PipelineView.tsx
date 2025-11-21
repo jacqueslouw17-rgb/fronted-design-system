@@ -38,6 +38,8 @@ interface Contractor {
   formSent?: boolean;
   dataReceived?: boolean;
   employmentType?: "contractor" | "employee";
+  email?: string;
+  hasATSData?: boolean;
   checklist?: ChecklistRequirement[];
   checklistProgress?: number;
   isTransitioning?: boolean;
@@ -1172,10 +1174,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       countryCode: selectedContractor.country === "Philippines" ? "PH" : selectedContractor.country === "Norway" ? "NO" : "XK",
       flag: selectedContractor.countryFlag,
       salary: selectedContractor.salary,
-      email: "",
-      employmentType: "contractor",
+      email: selectedContractor.email || "",
+      employmentType: selectedContractor.employmentType || "contractor",
       startDate: "",
-      employmentTypeSource: "suggested"
+      employmentTypeSource: selectedContractor.hasATSData ? "ats" : "suggested",
+      hasATSData: selectedContractor.hasATSData,
     } : {} as any} onComplete={() => {
       // Simulate candidate completing form - auto-move to drafting
       if (selectedContractor) {
