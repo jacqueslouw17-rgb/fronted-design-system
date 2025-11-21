@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2 } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1048,164 +1048,116 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           )}
                         </div>
 
-                          {/* Details */}
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Salary</span>
-                              <span className="font-medium text-foreground">{contractor.salary}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Country</span>
-                              <span className="font-medium text-foreground">{contractor.country}</span>
-                            </div>
+                        {/* Contractor Details */}
+                        <div className="flex flex-col gap-1.5 text-[11px]">
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Salary</span>
+                            <span className="font-medium text-foreground">{contractor.salary}</span>
                           </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Country</span>
+                            <span className="font-medium text-foreground">{contractor.country}</span>
+                          </div>
+                        </div>
 
-                          {/* Action Buttons based on status */}
-                          {status === "offer-accepted" && <div className="flex gap-2 pt-2">
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={e => {
-                        e.stopPropagation();
-                        handleOpenConfigure(contractor);
-                      }}>
-                                <Settings className="h-3 w-3 mr-1" />
+                        {/* Quick Actions */}
+                        <div className="flex gap-2 pt-1">
+                          {status === "offer-accepted" && <>
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80" onClick={e => {
+                          e.stopPropagation();
+                          handleOpenConfigure(contractor);
+                        }}>
+                                <Settings className="h-3 w-3" />
                                 Configure
                               </Button>
-                              <Button size="sm" className="flex-1 text-xs h-8" disabled={sendingFormIds.has(contractor.id)} onClick={e => {
-                        e.stopPropagation();
-                        handleSendForm(contractor.id);
-                      }}>
-                                {sendingFormIds.has(contractor.id) ? <>
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                    Sending...
-                                  </> : <>
-                                    <Send className="h-3 w-3 mr-1" />
-                                    Send Form
-                                  </>}
-                              </Button>
-                            </div>}
-
-                          {status === "data-pending" && <div className="flex gap-2 pt-2">
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" onClick={e => {
-                        e.stopPropagation();
-                        handleOpenConfigure(contractor);
-                      }}>
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Form
-                              </Button>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-8" disabled={resentFormIds.has(contractor.id)} onClick={e => {
-                        e.stopPropagation();
-                        setResentFormIds(prev => new Set([...prev, contractor.id]));
-                        toast.info(`Resending form to ${contractor.name}`);
-                      }}>
-                                <Send className="h-3 w-3 mr-1" />
-                                {resentFormIds.has(contractor.id) ? 'Sent' : 'Resend'}
-                              </Button>
-                            </div>}
-
-                          {status === "drafting" && <div className="pt-2 space-y-2">
-                              <Button size="sm" className="w-full text-xs h-8" disabled={transitioningIds.has(contractor.id)} data-testid={`draft-contract-${contractor.id}`} onClick={e => {
-                        e.stopPropagation();
-                        handleDraftContract([contractor.id]);
-                      }}>
-                                {transitioningIds.has(contractor.id) ? <>
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                    Sending...
-                                  </> : <>
-                                    <FileEdit className="h-3 w-3 mr-1" />
-                                    Draft Contract
-                                  </>}
-                              </Button>
-                            </div>}
-
-                          {status === "awaiting-signature" && <div className="pt-2">
-                              <Button variant="outline" size="sm" className="w-full text-xs h-8" onClick={e => {
-                        e.stopPropagation();
-                        handleOpenSignatureWorkflow(contractor);
-                      }}>
-                                <FileSignature className="h-3 w-3 mr-1" />
-                                View Signatures
-                              </Button>
-                            </div>}
-
-                          {/* Onboarding Trigger - Special Card */}
-                          {status === "trigger-onboarding" && <div className="pt-2 space-y-2">
-                              <div className="text-xs text-foreground/80 bg-primary/5 p-2 rounded border border-primary/10">Would you like me to start their onboarding?</div>
-                              <Button size="sm" className="w-full text-xs h-8 bg-gradient-primary" onClick={e => {
-                        e.stopPropagation();
-                        handleStartOnboardingClick(contractor);
-                      }}>
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Yes, Start
-                              </Button>
-                            </div>}
-
-                          {/* Onboarding Progress Display */}
-                          {status === "onboarding-pending" && contractor.checklist && <div className="pt-2 space-y-2">
-                              {/* Badge: Checklist in Progress */}
-                              <Badge variant="outline" className="w-full justify-center text-xs bg-accent-blue-fill text-accent-blue-text border-accent-blue-outline/30">
-                                Onboarding in progress
-                              </Badge>
-                            </div>}
-
-                          {/* Payroll Ready Column - Different UI based on payroll status */}
-                          {status === "payroll-ready" && <div className="pt-2 space-y-2">
-                              {contractor.status === "CERTIFIED" && <>
-                                  <Badge variant="outline" className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                    Payroll Ready
-                                  </Badge>
-                                  <Button size="sm" variant="outline" className="w-full text-xs h-7" onClick={e => {
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                           e.stopPropagation();
-                          handleAddToBatchFromCertified(contractor);
+                          setSelectedContractor(contractor);
+                          setConfigureDrawerOpen(true);
                         }}>
-                                    <Plus className="h-3 w-3 mr-1" />
-                                    Add to Batch
-                                  </Button>
-                                </>}
-                              
-                              {contractor.status === "PAYROLL_PENDING" && <Badge variant="outline" className="w-full justify-center text-xs bg-primary/10 text-primary border-primary/30">
-                                  <Clock className="h-3 w-3 mr-1" />
-                                  In Current Batch
-                                </Badge>}
-                              
-                              {contractor.status === "IN_BATCH" && <Badge variant="outline" className="w-full justify-center text-xs bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-500/30">
-                                  <FileText className="h-3 w-3 mr-1" />
-                                  Batch Created
-                                </Badge>}
-                              
-                              {contractor.status === "EXECUTING" && <Badge variant="outline" className="w-full justify-center text-xs bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-500/30">
-                                  <Activity className="h-3 w-3 mr-1" />
-                                  Processing
-                                </Badge>}
-                              
-                              {contractor.status === "PAID" && <Badge variant="outline" className="w-full justify-center text-xs bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-500/30">
-                                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                                  Paid
-                                </Badge>}
-                              
-                              {contractor.status === "ON_HOLD" && <Badge variant="outline" className="w-full justify-center text-xs bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-500/30">
-                                  <AlertCircle className="h-3 w-3 mr-1" />
-                                  On Hold
-                                </Badge>}
+                                <Send className="h-3 w-3" />
+                                Send Form
+                              </Button>
+                            </>}
+                          
+                          {status === "data-pending" && <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30 hover:bg-accent-blue-fill/30">
+                                <Clock className="h-3 w-3" />
+                                Waiting for data
+                              </Badge>
                             </div>}
                           
-                          {/* Certified Column - Show certified badge and download button */}
-                          {status === "CERTIFIED" && <div className="pt-2 space-y-2">
-                              <Badge variant="outline" className="w-full justify-center text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                          {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                          e.stopPropagation();
+                          handleOpenDocumentBundle(contractor);
+                        }}>
+                              <FileEdit className="h-3 w-3" />
+                              Draft Contract
+                            </Button>}
+                          
+                          {status === "awaiting-signature" && <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
+                                <Clock className="h-3 w-3" />
+                                Pending signature
+                              </Badge>
+                            </div>}
+                          
+                          {status === "trigger-onboarding" && <Button size="sm" className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium" onClick={e => {
+                          e.stopPropagation();
+                          handleStartOnboardingClick(contractor);
+                        }}>
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Start Onboarding
+                            </Button>}
+                          
+                          {status === "onboarding-pending" && <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30 hover:bg-accent-blue-fill/30">
+                                <Clock className="h-3 w-3" />
+                                In progress
+                              </Badge>
+                            </div>}
+                          
+                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30 hover:bg-accent-green-fill/30">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Ready for payroll
+                              </Badge>
+                            </div>}
+                          
+                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
+                                <Award className="h-3 w-3" />
                                 Certified
                               </Badge>
-                              <Button size="sm" variant="outline" className="w-full text-xs h-7" onClick={e => {
-                        e.stopPropagation();
-                        toast.success(`Certificate downloaded for ${contractor.name}`);
-                      }}>
-                                <Download className="h-3 w-3 mr-1" />
-                                Download Certificate
-                              </Button>
                             </div>}
-                        </CardContent>
-                      </Card>
+                        </div>
+
+                        {/* Display Flags */}
+                        {status === "data-pending" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-green-text">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Data received</span>
+                          </div>}
+                        {status === "drafting" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-blue-text">
+                            <Sparkles className="h-3 w-3" />
+                            <span>Auto-draft ready</span>
+                          </div>}
+                      </CardContent>
+                    </Card>
                     </motion.div>)}
-                  </AnimatePresence>
+                </AnimatePresence>
+                
+                {/* Add Candidate Button - Always visible in offer-accepted column */}
+                {status === "offer-accepted" && items.length > 0 && onAddCandidate && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={onAddCandidate}
+                    className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Candidate
+                  </Button>
+                )}
                 </div>
               </motion.div>;
       })}
