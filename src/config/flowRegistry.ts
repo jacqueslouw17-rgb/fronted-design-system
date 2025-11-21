@@ -104,6 +104,17 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     filePaths: [
       'src/pages/flows/ContractorPayroll.tsx'
     ]
+  },
+  'f2-1-admin-contracting-multi-company': {
+    id: 'f2-1-admin-contracting-multi-company',
+    title: 'Flow 2.1 — Admin Contracting (Multi-Company)',
+    path: '/flows/contract-flow-multi-company',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/AdminContractingMultiCompany.tsx'
+    ]
   }
 };
 

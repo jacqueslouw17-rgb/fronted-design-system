@@ -226,13 +226,14 @@ const Flows = () => {
       locked: true
     },
     {
-      id: "f2-1-admin-payroll",
-      title: "Flow 2.1 — Admin Payroll",
-      description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, document bundling & signature collection, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
+      id: "f2-1-admin-contracting-multi-company",
+      title: "Flow 2.1 — Admin Contracting (Multi-Company)",
+      description: "Multi-company version of Flow 2: Enables Fronted admins to switch between companies and manage contracts for multiple organizations. Includes company switcher dropdown and 'Add New Company' action that starts Flow 1 onboarding.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
-      path: "/flows/contract-flow",
-      comingSoon: false
+      path: "/flows/contract-flow-multi-company",
+      comingSoon: false,
+      locked: false
     },
     {
       id: "f5-1-employee-payroll",
