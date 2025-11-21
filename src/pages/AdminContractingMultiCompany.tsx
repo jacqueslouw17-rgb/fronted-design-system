@@ -118,23 +118,103 @@ const AdminContractingMultiCompany = () => {
         countryFlag: "🇲🇽",
         role: "Marketing Manager",
         salary: "MXN 45,000/mo",
-        status: "onboarding" as const,
+        status: "onboarding-pending" as const,
         formSent: true,
         dataReceived: true,
         employmentType: "employee" as const,
       },
     ],
-    "3": [ // Startup Ventures
+    "3": [ // Startup Ventures - Empty
+    ],
+    "5": [ // CloudScale Solutions
       {
-        id: "contractor-4",
-        name: "Ahmed Hassan",
-        country: "India",
-        countryFlag: "🇮🇳",
-        role: "Backend Developer",
-        salary: "INR 150,000/mo",
+        id: "contractor-5",
+        name: "James Anderson",
+        country: "United Kingdom",
+        countryFlag: "🇬🇧",
+        role: "DevOps Engineer",
+        salary: "GBP 5,500/mo",
+        status: "drafting" as const,
+        formSent: true,
+        dataReceived: true,
+        employmentType: "contractor" as const,
+      },
+      {
+        id: "contractor-6",
+        name: "Emma Wilson",
+        country: "Australia",
+        countryFlag: "🇦🇺",
+        role: "Product Manager",
+        salary: "AUD 9,000/mo",
+        status: "awaiting-signature" as const,
+        formSent: true,
+        dataReceived: true,
+        employmentType: "employee" as const,
+      },
+    ],
+    "7": [ // Quantum Systems Co.
+      {
+        id: "contractor-7",
+        name: "Carlos Mendez",
+        country: "Brazil",
+        countryFlag: "🇧🇷",
+        role: "Data Scientist",
+        salary: "BRL 18,000/mo",
+        status: "trigger-onboarding" as const,
+        formSent: true,
+        dataReceived: true,
+        employmentType: "contractor" as const,
+      },
+    ],
+    "9": [ // Apex Technologies
+      {
+        id: "contractor-8",
+        name: "Yuki Tanaka",
+        country: "Japan",
+        countryFlag: "🇯🇵",
+        role: "UX Designer",
+        salary: "JPY 800,000/mo",
         status: "offer-accepted" as const,
         formSent: false,
         dataReceived: false,
+        employmentType: "contractor" as const,
+      },
+      {
+        id: "contractor-9",
+        name: "Nina Petrov",
+        country: "Poland",
+        countryFlag: "🇵🇱",
+        role: "QA Engineer",
+        salary: "PLN 12,000/mo",
+        status: "data-pending" as const,
+        formSent: true,
+        dataReceived: false,
+        employmentType: "employee" as const,
+      },
+      {
+        id: "contractor-10",
+        name: "Mohammed Ali",
+        country: "UAE",
+        countryFlag: "🇦🇪",
+        role: "Solutions Architect",
+        salary: "AED 22,000/mo",
+        status: "CERTIFIED" as const,
+        formSent: true,
+        dataReceived: true,
+        employmentType: "contractor" as const,
+      },
+    ],
+    "11": [ // Catalyst Innovations
+      {
+        id: "contractor-11",
+        name: "Isabella Rossi",
+        country: "Italy",
+        countryFlag: "🇮🇹",
+        role: "Tech Lead",
+        salary: "EUR 6,500/mo",
+        status: "drafting" as const,
+        formSent: true,
+        dataReceived: true,
         employmentType: "contractor" as const,
       },
     ],
@@ -191,27 +271,9 @@ const AdminContractingMultiCompany = () => {
     const newCompanyId = `company-${Date.now()}`;
     const newCompany = { id: newCompanyId, name: companyName };
     
-    console.log('[Adding New Company]', {
-      newCompanyId,
-      newCompany,
-      companyName,
-      currentCompanyContractors: companyContractors
-    });
-    
-    setCompanies(prev => {
-      const updated = [...prev, newCompany];
-      console.log('[Updated Companies]', updated);
-      return updated;
-    });
-    
-    setCompanyContractors(prev => {
-      const updated = { ...prev, [newCompanyId]: [] };
-      console.log('[Updated Company Contractors]', updated);
-      return updated;
-    });
-    
+    setCompanies(prev => [...prev, newCompany]);
+    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
     setSelectedCompany(newCompanyId);
-    console.log('[Selected Company Set To]', newCompanyId);
     
     toast({
       title: "Company Added",
