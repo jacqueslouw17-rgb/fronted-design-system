@@ -273,7 +273,7 @@ const DesignSystem = () => {
   // Flow cards drag and drop state
   const [flowOrder, setFlowOrder] = useState<string[]>(() => {
     const saved = localStorage.getItem('flowOrder');
-    return saved ? JSON.parse(saved) : [
+    const defaultOrder = [
       'flow-1-admin-onboarding',
       'flow-2-admin-contracting',
       'flow-3-candidate-data',
@@ -281,8 +281,22 @@ const DesignSystem = () => {
       'flow-5-candidate-dashboard',
       'flow-1.1-fronted-admin',
       'flow-2.1-company-admin',
-      'flow-2.1-admin-payroll'
+      'flow-2.1-admin-payroll',
     ];
+
+    if (saved) {
+      try {
+        const parsed: string[] = JSON.parse(saved);
+        // Ensure hidden flows (5.1, 5.2) never appear even from old saved state
+        return parsed.filter(
+          (id) => id !== 'flow-5.1-employee-payroll' && id !== 'flow-5.2-contractor-payroll'
+        );
+      } catch {
+        return defaultOrder;
+      }
+    }
+
+    return defaultOrder;
   });
   const [draggedFlowId, setDraggedFlowId] = useState<string | null>(null);
 
