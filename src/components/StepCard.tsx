@@ -14,6 +14,7 @@ interface StepCardProps {
   children?: ReactNode;
   headerId?: string;
   isLocked?: boolean;
+  subtitle?: string;
 }
 
 const StepCard = ({
@@ -25,6 +26,7 @@ const StepCard = ({
   children,
   headerId,
   isLocked = false,
+  subtitle,
 }: StepCardProps) => {
   const getStatusBadge = () => {
     if (isLocked) {
@@ -89,6 +91,9 @@ const StepCard = ({
           )}
           <div className="truncate">
             <h3 className="text-sm font-medium text-foreground/90 truncate">{title}</h3>
+            {subtitle && !isExpanded && (
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+            )}
           </div>
         </div>
         <div className="flex-shrink-0">

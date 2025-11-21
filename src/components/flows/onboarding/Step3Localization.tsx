@@ -3,8 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Globe, Loader2, Info } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -98,18 +97,6 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
             Hiring Locations
           </h3>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="right" align="center" className="max-w-[250px]">
-                <p className="text-xs">
-                  This helps us tailor compliance and payroll setup per location.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
         <p className="text-xs text-muted-foreground">
           Select the countries where you plan to hire or manage employees.
