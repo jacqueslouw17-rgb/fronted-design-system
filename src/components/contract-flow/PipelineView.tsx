@@ -1063,7 +1063,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         {/* Quick Actions */}
                         <div className="flex gap-2 pt-1">
                           {status === "offer-accepted" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80" onClick={e => {
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
                           e.stopPropagation();
                           handleOpenConfigure(contractor);
                         }}>
