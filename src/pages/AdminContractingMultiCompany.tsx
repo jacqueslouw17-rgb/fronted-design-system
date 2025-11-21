@@ -853,6 +853,7 @@ const AdminContractingMultiCompany = () => {
                     <div className="space-y-4">
                     <div className="mt-3">
                           <PipelineView 
+                            key={selectedCompany}
                             contractors={companyContractors[selectedCompany] || []}
                             onAddCandidate={handleAddCandidate}
                             onRemoveContractor={(contractorId) => {
