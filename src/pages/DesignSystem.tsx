@@ -395,12 +395,7 @@ const DesignSystem = () => {
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
                       <div className="h-4 w-px bg-border" />
-                      <a 
-                        href="/docs/Flow1_Admin_Onboarding_Data_Model.md" 
-                        download="Flow1_Admin_Onboarding_Data_Model.md"
-                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <a href="/docs/Flow1_Admin_Onboarding_Data_Model.md" download="Flow1_Admin_Onboarding_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
                         <FileText className="w-3.5 h-3.5" strokeWidth={2} />
                         Data Model
                       </a>
@@ -456,12 +451,7 @@ const DesignSystem = () => {
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
                       <div className="h-4 w-px bg-border" />
-                      <a 
-                        href="/docs/Flow2_Admin_Contracting_Data_Model.md" 
-                        download="Flow2_Admin_Contracting_Data_Model.md"
-                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <a href="/docs/Flow2_Admin_Contracting_Data_Model.md" download="Flow2_Admin_Contracting_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
                         <FileText className="w-3.5 h-3.5" strokeWidth={2} />
                         Data Model
                       </a>
@@ -524,12 +514,7 @@ const DesignSystem = () => {
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
                       <div className="h-4 w-px bg-border" />
-                      <a 
-                        href="/docs/Flow3_Candidate_Data_Collection_Data_Model.md" 
-                        download="Flow3_Candidate_Data_Collection_Data_Model.md"
-                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <a href="/docs/Flow3_Candidate_Data_Collection_Data_Model.md" download="Flow3_Candidate_Data_Collection_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
                         <FileText className="w-3.5 h-3.5" strokeWidth={2} />
                         Data Model
                       </a>
@@ -592,12 +577,7 @@ const DesignSystem = () => {
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
                       <div className="h-4 w-px bg-border" />
-                      <a 
-                        href="/docs/Flow4_Candidate_Onboarding_Data_Model.md" 
-                        download="Flow4_Candidate_Onboarding_Data_Model.md"
-                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <a href="/docs/Flow4_Candidate_Onboarding_Data_Model.md" download="Flow4_Candidate_Onboarding_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
                         <FileText className="w-3.5 h-3.5" strokeWidth={2} />
                         Data Model
                       </a>
@@ -657,12 +637,7 @@ const DesignSystem = () => {
                         <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </div>
                       <div className="h-4 w-px bg-border" />
-                      <a 
-                        href="/docs/Flow5_Candidate_Dashboard_Data_Model.md" 
-                        download="Flow5_Candidate_Dashboard_Data_Model.md"
-                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <a href="/docs/Flow5_Candidate_Dashboard_Data_Model.md" download="Flow5_Candidate_Dashboard_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
                         <FileText className="w-3.5 h-3.5" strokeWidth={2} />
                         Data Model
                       </a>
@@ -678,7 +653,7 @@ const DesignSystem = () => {
                       <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 transition-all duration-200 group-hover:bg-cyan-600 group-hover:border-cyan-600">
                         <Workflow className="h-5 w-5 text-cyan-600 dark:text-cyan-400 transition-colors duration-200 group-hover:text-white" />
                       </div>
-                      <CardTitle className="text-lg">Flow 2.1 — Admin Contracting (Multi-Company)</CardTitle>
+                      <CardTitle className="text-lg">Flow 2.1 — Fronted Admin Contra         </CardTitle>
                     </div>
                     <CardDescription className="line-clamp-3">
                       Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.
