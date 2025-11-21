@@ -187,11 +187,19 @@ const AdminContractingMultiCompany = () => {
   };
 
   const handleNewCompanyComplete = (companyName: string) => {
-    // This will be called when the onboarding flow completes
+    // Add the new company directly instead of relying on URL params
+    const newCompanyId = `company-${Date.now()}`;
+    const newCompany = { id: newCompanyId, name: companyName };
+    
+    setCompanies(prev => [...prev, newCompany]);
+    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
+    setSelectedCompany(newCompanyId);
+    
     toast({
       title: "Company Added",
       description: `${companyName} has been added successfully!`,
     });
+    
     setIsAddingNewCompany(false);
   };
 
