@@ -456,7 +456,7 @@ const AdminContractingMultiCompany = () => {
 
       {/* Simple Header for Add New Company */}
       {isAddingNewCompany && (
-        <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6">
+        <header className="sticky top-0 z-50 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6">
           <img 
             src={frontedLogo}
             alt="Fronted"
