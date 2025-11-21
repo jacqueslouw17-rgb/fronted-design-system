@@ -454,23 +454,23 @@ const AdminContractingMultiCompany = () => {
         />
       )}
 
-      {/* Simple Header for Add New Company */}
+      {/* Logo and Close Button for Add New Company - No container */}
       {isAddingNewCompany && (
-        <header className="sticky top-0 z-50 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6">
+        <>
           <img 
             src={frontedLogo}
             alt="Fronted"
-            className="h-5 sm:h-6 w-auto"
+            className="fixed top-4 left-6 z-50 h-5 sm:h-6 w-auto"
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCancelAddCompany}
-            className="h-8 w-8 sm:h-10 sm:w-10"
+            className="fixed top-4 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </header>
+        </>
       )}
 
       {/* Main Content Area */}
