@@ -335,6 +335,14 @@ const DesignSystem = () => {
       setPatternDrawerOpen(true);
     }
   };
+
+  const handlePatternClickWrapper = (path: string) => {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handlePatternClick(path);
+    };
+  };
   return <div className="min-h-screen bg-background flex flex-col items-center p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl w-full space-y-6 sm:space-y-8">
         <div className="text-center space-y-2">
@@ -369,7 +377,7 @@ const DesignSystem = () => {
                           {pattern.description}
                         </CardDescription>
                         {linkedComponents.length > 0 && <div className="flex flex-wrap gap-1.5 pt-1">
-                            {linkedComponents.slice(0, 3).map(comp => <Badge key={comp.id} variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                            {linkedComponents.slice(0, 3).map(comp => <Badge key={comp.id} variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         handleComponentClick(comp.id);
@@ -406,7 +414,7 @@ const DesignSystem = () => {
                     onDragEnd={handleFlowDragEnd}
                     className={`transition-opacity ${draggedFlowId === flowId ? 'opacity-50' : 'opacity-100'} cursor-move`}
                   >
-                    <FlowCard flowId={flowId} onPatternClick={handlePatternClick} />
+                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
                   </div>
                 );
               })}
