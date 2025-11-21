@@ -1031,9 +1031,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 relative z-10 flex-shrink-0"
                               onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
+                                console.log('Remove clicked for:', contractor.id);
                                 onRemoveContractor(contractor.id);
                               }}
                             >
