@@ -163,7 +163,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                       setCompanySearchOpen(false);
                       setCompanySearchValue("");
                     }}
-                    className="text-primary font-medium"
+                    className="text-primary font-medium hover:bg-muted/50"
                   >
                     <span className="text-lg mr-2">+</span>
                     Add New Company
@@ -181,7 +181,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                           setCompanySearchOpen(false);
                           setCompanySearchValue("");
                         }}
-                        className="truncate"
+                        className="truncate hover:bg-muted/50"
                       >
                         <Check
                           className={cn(
