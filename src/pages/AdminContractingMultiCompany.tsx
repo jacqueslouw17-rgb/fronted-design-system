@@ -460,13 +460,13 @@ const AdminContractingMultiCompany = () => {
           <img 
             src={frontedLogo}
             alt="Fronted"
-            className="fixed top-4 left-6 z-50 h-5 sm:h-6 w-auto"
+            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto"
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCancelAddCompany}
-            className="fixed top-4 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
