@@ -5,7 +5,7 @@ import { ArrowRight, FileText, Workflow, UserCheck } from "lucide-react";
 
 interface FlowCardProps {
   flowId: string;
-  onPatternClick: (path: string) => void;
+  onPatternClick: (path: string) => (e: React.MouseEvent) => void;
 }
 
 export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
@@ -225,11 +225,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
                 key={idx}
                 variant="secondary"
                 className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onPatternClick(badge.path);
-                }}
+                onClick={onPatternClick(badge.path)}
               >
                 {badge.label}
               </Badge>
