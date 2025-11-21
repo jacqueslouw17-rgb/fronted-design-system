@@ -26,7 +26,7 @@ export interface FlowMetadata {
 export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
   'f1-admin-onboarding': {
     id: 'f1-admin-onboarding',
-    title: 'Flow 1 — Admin Onboarding',
+    title: 'Flow 2.1 - Company Admin Onboarding',
     path: '/flows/admin/onboarding',
     locked: true,
     lockedDate: '2025-01-13',
