@@ -37,6 +37,18 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const [editingLabel, setEditingLabel] = useState("");
   const [employmentType, setEmploymentType] = useState<"contractor" | "employee" | null>(candidate.employmentType || null);
   const [showEmploymentConfirm, setShowEmploymentConfirm] = useState(!candidate.employmentType && candidate.employmentTypeSource === "suggested");
+  
+  // Detect if candidate is from ATS or manually added
+  const isFromATS = candidate.employmentTypeSource === "ats" || (candidate as any).hasATSData;
+  
+  // Form data state for manual candidates
+  const [formData, setFormData] = useState({
+    name: candidate.name,
+    email: candidate.email || "",
+    role: candidate.role,
+    salary: candidate.salary,
+    startDate: candidate.startDate || "",
+  });
   const handleSendForm = async () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -50,9 +62,18 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
   const handleSaveDraft = async () => {
     setIsSavingDraft(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    toast.success("📝 Form configuration saved as draft.", {
-      duration: 3000
-    });
+    
+    // Save the updated form data for manual candidates
+    if (!isFromATS) {
+      toast.success("📝 Candidate information updated successfully.", {
+        duration: 3000
+      });
+    } else {
+      toast.success("📝 Form configuration saved as draft.", {
+        duration: 3000
+      });
+    }
+    
     setIsSavingDraft(false);
     onOpenChange(false);
   };
@@ -104,48 +125,102 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Full Name</Label>
-              <Input value={candidate.name} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              {isFromATS ? (
+                <>
+                  <Input value={candidate.name} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </>
+              ) : (
+                <Input 
+                  value={formData.name} 
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="bg-background"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              {isFromATS ? (
+                <>
+                  <Input value={candidate.email || "candidate@example.com"} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </>
+              ) : (
+                <Input 
+                  value={formData.email} 
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  type="email"
+                  className="bg-background"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>Role</Label>
-              <Input value={candidate.role} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              {isFromATS ? (
+                <>
+                  <Input value={candidate.role} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </>
+              ) : (
+                <Input 
+                  value={formData.role} 
+                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                  className="bg-background"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>Salary</Label>
-              <Input value={candidate.salary} disabled className="bg-muted/50" />
-              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              {isFromATS ? (
+                <>
+                  <Input value={candidate.salary} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </>
+              ) : (
+                <Input 
+                  value={formData.salary} 
+                  onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
+                  className="bg-background"
+                />
+              )}
             </div>
           </div>
 
           {/* Start Date */}
           <div className="space-y-2">
             <Label>Start Date</Label>
-            {candidate.startDate ? <>
-                <Input value={candidate.startDate} disabled className="bg-muted/50" />
-                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-              </> : <>
-                <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
-                <p className="text-xs text-muted-foreground">To be filled by candidate</p>
-              </>}
+            {isFromATS ? (
+              candidate.startDate ? (
+                <>
+                  <Input value={candidate.startDate} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </>
+              ) : (
+                <>
+                  <Input placeholder="To be filled by candidate" disabled className="bg-muted/30" />
+                  <p className="text-xs text-muted-foreground">To be filled by candidate</p>
+                </>
+              )
+            ) : (
+              <Input 
+                type="date"
+                value={formData.startDate} 
+                onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                className="bg-background"
+              />
+            )}
           </div>
 
           {/* Employment Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               Employment Type
-              {candidate.employmentTypeSource === "ats" && <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>}
+              {isFromATS && <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ATS</Badge>}
             </Label>
-            {candidate.employmentTypeSource === "ats" ? <>
+            {isFromATS ? <>
                 <Input value={candidate.employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
                 <p className="text-xs text-muted-foreground">Locked from ATS</p>
               </> : showEmploymentConfirm ? <div className="space-y-3">
@@ -170,8 +245,18 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                   </Button>
                 </div>
               </div> : <>
-                <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
-                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                <Select 
+                  value={employmentType || undefined} 
+                  onValueChange={(value: "contractor" | "employee") => setEmploymentType(value)}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select employment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="contractor">Contractor</SelectItem>
+                    <SelectItem value="employee">Employee</SelectItem>
+                  </SelectContent>
+                </Select>
               </>}
           </div>
 
@@ -354,7 +439,18 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className="flex-1">
+            {!isFromATS && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleSaveDraft} 
+                disabled={isSubmitting || isSavingDraft}
+                className="flex-1"
+              >
+                {isSavingDraft ? "Saving..." : "Save Changes"}
+              </Button>
+            )}
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting} className={isFromATS ? "flex-1" : ""}>
               Cancel
             </Button>
             <Button type="button" onClick={handleSendForm} disabled={isSubmitting} className="flex-1">
