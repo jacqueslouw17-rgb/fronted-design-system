@@ -32,7 +32,7 @@ const Step2OrgProfileSimplified = ({
     hqCountry: formData.hqCountry || "",
     payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
     payrollFrequency: formData.payrollFrequency || "monthly",
-    payoutDay: formData.payoutDay || "25",
+    payoutDay: formData.payoutDay || "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -46,7 +46,7 @@ const Step2OrgProfileSimplified = ({
         hqCountry: formData.hqCountry || "",
         payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
         payrollFrequency: formData.payrollFrequency || "monthly",
-        payoutDay: formData.payoutDay || "25",
+        payoutDay: formData.payoutDay || "",
       });
     }
   }, [formData, data.companyName]);
@@ -273,6 +273,7 @@ const Step2OrgProfileSimplified = ({
               max="31"
               value={data.payoutDay}
               onChange={(e) => handleFieldChange('payoutDay', e.target.value)}
+              placeholder="e.g., 25"
               className="text-sm"
             />
             <p className="text-xs text-muted-foreground">
