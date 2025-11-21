@@ -114,7 +114,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/contract-flow-company-admin",
       iconColor: "purple",
       icon: Workflow,
-      title: "Flow 2.1 - Company Admin v1",
+      title: "Flow 2.2 Company Admin v1",
       locked: false,
       description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
       steps: "7 steps",
