@@ -1004,7 +1004,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                   duration: 0.2
                 }
               }}>
-                    <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm">
+                <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm" onClick={() => {
+                    if (status === "awaiting-signature") {
+                      handleOpenSignatureWorkflow(contractor);
+                    }
+                  }}>
                       <CardContent className="p-3 space-y-2">
                          {/* Contractor Header - No checkbox for certain columns */}
                         <div className="flex items-start gap-2">
@@ -1100,8 +1104,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               Draft Contract
                             </Button>}
                           
-                          {status === "awaiting-signature" && <div className="flex items-center justify-center w-full py-1">
-                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
+                          {status === "awaiting-signature" && <div className="flex items-center justify-center w-full py-1 cursor-pointer" onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenSignatureWorkflow(contractor);
+                            }}>
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30 cursor-pointer">
                                 <Clock className="h-3 w-3" />
                                 Pending signature
                               </Badge>
