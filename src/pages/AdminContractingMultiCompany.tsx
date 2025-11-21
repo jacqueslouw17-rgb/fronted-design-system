@@ -97,6 +97,8 @@ const AdminContractingMultiCompany = () => {
         formSent: false,
         dataReceived: false,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "maria.santos@email.com",
       },
       {
         id: "contractor-2",
@@ -109,6 +111,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "liam.chen@email.com",
       },
       {
         id: "contractor-1b",
@@ -121,6 +125,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "ahmed.hassan@email.com",
       },
     ],
     "2": [ // InnovateLabs Inc.
@@ -135,6 +141,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "employee" as const,
+        hasATSData: true,
+        email: "sofia.rodriguez@email.com",
       },
       {
         id: "contractor-3b",
@@ -147,6 +155,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "lucas.silva@email.com",
       },
       {
         id: "contractor-3c",
@@ -159,6 +169,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "priya.sharma@email.com",
       },
     ],
     "3": [ // Startup Ventures - Empty
@@ -175,6 +187,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "james.anderson@email.com",
       },
       {
         id: "contractor-6",
@@ -187,6 +201,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "employee" as const,
+        hasATSData: true,
+        email: "emma.wilson@email.com",
       },
       {
         id: "contractor-5b",
@@ -199,6 +215,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: false,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "oliver.schmidt@email.com",
       },
     ],
     "7": [ // Quantum Systems Co.
@@ -213,6 +231,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "carlos.mendez@email.com",
       },
       {
         id: "contractor-7b",
@@ -225,6 +245,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "anna.kowalski@email.com",
       },
     ],
     "9": [ // Apex Technologies
@@ -239,6 +261,8 @@ const AdminContractingMultiCompany = () => {
         formSent: false,
         dataReceived: false,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "yuki.tanaka@email.com",
       },
       {
         id: "contractor-9",
@@ -251,6 +275,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: false,
         employmentType: "employee" as const,
+        hasATSData: true,
+        email: "nina.petrov@email.com",
       },
       {
         id: "contractor-10",
@@ -263,6 +289,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "mohammed.ali@email.com",
       },
     ],
     "11": [ // Catalyst Innovations
@@ -277,6 +305,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "isabella.rossi@email.com",
       },
       {
         id: "contractor-11b",
@@ -289,6 +319,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "contractor" as const,
+        hasATSData: true,
+        email: "thomas.dubois@email.com",
       },
       {
         id: "contractor-11c",
@@ -301,6 +333,8 @@ const AdminContractingMultiCompany = () => {
         formSent: true,
         dataReceived: true,
         employmentType: "employee" as const,
+        hasATSData: true,
+        email: "sarah.obrien@email.com",
       },
     ],
   });
