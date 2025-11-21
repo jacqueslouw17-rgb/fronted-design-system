@@ -83,7 +83,62 @@ const AdminContractingMultiCompany = () => {
   const [selectedCompany, setSelectedCompany] = useState<string>(MOCK_COMPANIES[0].id);
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [companies, setCompanies] = useState(MOCK_COMPANIES);
-  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({});
+  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({
+    "1": [ // TechCorp Global
+      {
+        id: "contractor-1",
+        name: "Maria Santos",
+        country: "Philippines",
+        countryFlag: "🇵🇭",
+        role: "Senior Developer",
+        salary: "PHP 120,000/mo",
+        status: "offer-accepted" as const,
+        formSent: false,
+        dataReceived: false,
+        employmentType: "contractor" as const,
+      },
+      {
+        id: "contractor-2",
+        name: "Liam Chen",
+        country: "Singapore",
+        countryFlag: "🇸🇬",
+        role: "Frontend Developer",
+        salary: "SGD 7,500/mo",
+        status: "data-pending" as const,
+        formSent: true,
+        dataReceived: false,
+        employmentType: "contractor" as const,
+      },
+    ],
+    "2": [ // InnovateLabs Inc.
+      {
+        id: "contractor-3",
+        name: "Sofia Rodriguez",
+        country: "Mexico",
+        countryFlag: "🇲🇽",
+        role: "Marketing Manager",
+        salary: "MXN 45,000/mo",
+        status: "onboarding" as const,
+        formSent: true,
+        dataReceived: true,
+        employmentType: "employee" as const,
+      },
+    ],
+    "3": [ // Startup Ventures
+      {
+        id: "contractor-4",
+        name: "Ahmed Hassan",
+        country: "India",
+        countryFlag: "🇮🇳",
+        role: "Backend Developer",
+        salary: "INR 150,000/mo",
+        status: "offer-accepted" as const,
+        formSent: false,
+        dataReceived: false,
+        employmentType: "contractor" as const,
+      },
+    ],
+  });
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   
   // Check for new company from onboarding
