@@ -8,7 +8,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Bot, ArrowLeft, X, FileCheck, Building2, Plus } from "lucide-react";
+import { ArrowLeft, X, FileCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useToast } from "@/hooks/use-toast";
@@ -42,13 +42,6 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // Mock companies data
 const MOCK_COMPANIES = [
@@ -427,6 +420,11 @@ const AdminContractingMultiCompany = () => {
         userName={`${userData.firstName} ${userData.lastName}`}
         isDrawerOpen={isDrawerOpen}
         onDrawerToggle={toggleDrawer}
+        companySwitcher={{
+          companies: MOCK_COMPANIES,
+          selectedCompany: selectedCompany,
+          onCompanyChange: handleCompanyChange
+        }}
       />
 
       {/* Main Content Area */}
@@ -447,34 +445,6 @@ const AdminContractingMultiCompany = () => {
           <AgentLayout context="Contract Flow">
             <div className="flex-1 overflow-auto relative">
               <div className="relative z-10">
-              
-              {/* Company Switcher - Top Left */}
-              {(contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") && (
-                <div className="max-w-7xl mx-auto px-8 pt-6 pb-2">
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                    <Select value={selectedCompany} onValueChange={handleCompanyChange}>
-                      <SelectTrigger className="w-[280px] bg-background">
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background z-50">
-                        {MOCK_COMPANIES.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="add-new">
-                          <div className="flex items-center gap-2 text-primary font-medium">
-                            <Plus className="h-4 w-4" />
-                            Add New Company
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
               <AnimatePresence mode="wait">
                 {contractFlow.phase === "prompt" ? (
                   <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">

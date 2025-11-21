@@ -33,9 +33,14 @@ interface TopbarProps {
   onDrawerToggle?: () => void;
   profileSettingsUrl?: string; // Custom profile settings URL
   dashboardUrl?: string; // Custom dashboard URL for logo click
+  companySwitcher?: {
+    companies: Array<{ id: string; name: string }>;
+    selectedCompany: string;
+    onCompanyChange: (companyId: string) => void;
+  };
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", dashboardUrl }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", dashboardUrl, companySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
   const initials = userName
     .split(" ")
@@ -90,6 +95,28 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           className="h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
           onClick={() => navigate(dashboardUrl || '/candidate-dashboard')}
         />
+        
+        {/* Company Switcher */}
+        {companySwitcher && (
+          <Select value={companySwitcher.selectedCompany} onValueChange={companySwitcher.onCompanyChange}>
+            <SelectTrigger className="w-[200px] h-8 sm:h-9 text-xs sm:text-sm bg-background">
+              <SelectValue placeholder="Select company" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {companySwitcher.companies.map((company) => (
+                <SelectItem key={company.id} value={company.id}>
+                  {company.name}
+                </SelectItem>
+              ))}
+              <SelectItem value="add-new">
+                <div className="flex items-center gap-2 text-primary font-medium">
+                  <span className="text-lg">+</span>
+                  Add New Company
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Actions */}
