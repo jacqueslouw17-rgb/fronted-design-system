@@ -127,7 +127,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
                 Processing...
               </>
             ) : (
-              isInviteMode ? "Save & Continue" : "Get Started"
+              isInviteMode ? "Continue" : "Get Started"
             )}
           </Button>
         )}
