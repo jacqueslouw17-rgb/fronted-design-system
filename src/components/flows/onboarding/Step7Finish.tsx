@@ -42,7 +42,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
 
   const completedItems = [
     { label: "Admin details", icon: CheckCircle2, done: true },
-    { label: "Company details", icon: CheckCircle2, done: !!formData.companyName, skipped: !formData.companyName },
+    { label: "Company details", icon: CheckCircle2, done: true, skipped: false },
     { label: "Hiring locations", icon: CheckCircle2, done: !!formData.selectedCountries, skipped: !formData.selectedCountries || formData.selectedCountries.length === 0 }
   ];
 
