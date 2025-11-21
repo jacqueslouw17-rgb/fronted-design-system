@@ -24,7 +24,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
     // Show button loading immediately
     setIsButtonLoading(true);
     
-    // Complete the step first
+    // Complete the step first - this will call handleNewCompanyComplete with the company name
     onComplete("finish_dashboard_transition");
     
     // Small delay before showing transition screen
@@ -33,12 +33,12 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
     // Start transition
     setIsTransitioning(true);
     
-    // Navigate to Multi-Company Admin Dashboard with new company flag
+    // Just close the transition after a moment
     setTimeout(() => {
-      const companyName = formData.companyName || 'New Company';
-      navigate(`/flows/contract-flow-multi-company?newCompany=${encodeURIComponent(companyName)}`);
+      setIsTransitioning(false);
+      setIsButtonLoading(false);
     }, 1500);
-  }, [navigate, onComplete]);
+  }, [onComplete]);
 
   const completedItems = [
     { label: "Admin details", icon: CheckCircle2, done: true },
