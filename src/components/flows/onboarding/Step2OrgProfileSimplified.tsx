@@ -305,16 +305,32 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || !isFormValid}>
-        {externalProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          "Save & Continue"
-        )}
-      </Button>
+      <div className="flex gap-3">
+        <Button 
+          onClick={() => onComplete("org_profile", {})} 
+          variant="ghost" 
+          size="lg" 
+          className="flex-1"
+          disabled={externalProcessing}
+        >
+          Skip for now
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          size="lg" 
+          className="flex-1" 
+          disabled={externalProcessing || !isFormValid}
+        >
+          {externalProcessing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save & Continue"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

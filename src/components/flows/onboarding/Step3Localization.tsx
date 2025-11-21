@@ -161,21 +161,32 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
       {isLoadingFields ? (
         <Skeleton className="h-11 w-full" />
       ) : (
-        <Button
-          onClick={handleLoadBlocks}
-          size="lg"
-          className="w-full"
-          disabled={loading || selectedCountries.length === 0 || externalProcessing}
-        >
-        {(loading || externalProcessing) ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          hasPersistedData ? "Save Changes" : "Load Blocks & Continue"
-        )}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => onComplete("localization_country_blocks", { selectedCountries: [], countryRules: [] })}
+            variant="ghost"
+            size="lg"
+            className="flex-1"
+            disabled={loading || externalProcessing}
+          >
+            Skip for now
+          </Button>
+          <Button
+            onClick={handleLoadBlocks}
+            size="lg"
+            className="flex-1"
+            disabled={loading || selectedCountries.length === 0 || externalProcessing}
+          >
+          {(loading || externalProcessing) ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            hasPersistedData ? "Save Changes" : "Load Blocks & Continue"
+          )}
+          </Button>
+        </div>
       )}
     </div>
   );
