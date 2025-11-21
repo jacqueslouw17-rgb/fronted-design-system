@@ -1105,26 +1105,18 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             </Button>}
                           
                           {status === "awaiting-signature" && (
-                            <>
-                              <div className="flex items-center justify-center w-full py-1">
-                                <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
-                                  <Clock className="h-3 w-3" />
-                                  Pending signature
-                                </Badge>
-                              </div>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  handleOpenSignatureWorkflow(contractor);
-                                }}
-                              >
-                                <Eye className="h-3 w-3" />
-                                Track Progress
-                              </Button>
-                            </>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleOpenSignatureWorkflow(contractor);
+                              }}
+                            >
+                              <Eye className="h-3 w-3" />
+                              Track Progress
+                            </Button>
                           )}
                           
                           {status === "trigger-onboarding" && <Button size="sm" className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium" onClick={e => {
