@@ -16,6 +16,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 2.1 - Company Admin Onboarding v1",
       locked: true,
+      deprecated: false,
       description: "Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3",
       steps: "7 steps",
       patterns: "18 patterns",
@@ -33,6 +34,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 1.1 Fronted Admin Dashboard v1",
       locked: true,
+      deprecated: true,
       description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
       steps: "6 steps",
       patterns: "5 patterns",
@@ -49,6 +51,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: UserCheck,
       title: "Flow 1.1 Candidate Data Collection v1",
       locked: true,
+      deprecated: false,
       description: "Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration",
       steps: "4 steps",
       patterns: "4 patterns",
@@ -66,6 +69,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: UserCheck,
       title: "Flow 3.1 Candidate Onboarding v1",
       locked: true,
+      deprecated: false,
       description: "Post-contract onboarding for workers: verify personal info, upload compliance docs, set up payroll, complete work setup, and review onboarding checklist for a smooth first day. Locked for backend build — no further changes allowed.",
       steps: "7 steps",
       patterns: "5 patterns",
@@ -83,6 +87,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 3.2 Candidate Dashboard v1",
       locked: true,
+      deprecated: false,
       description: "Post-onboarding candidate dashboard: contract review & signing with DocuSign sub-statuses, document management, and certification tracking. Locked — finalized flow.",
       steps: "2 steps",
       patterns: "3 patterns",
@@ -100,6 +105,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 1.1 Fronted Admin Dashboard v2",
       locked: false,
+      deprecated: false,
       description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
       steps: "7 steps",
       patterns: "5 patterns",
@@ -116,6 +122,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 2.2 Company Admin v1",
       locked: false,
+      deprecated: false,
       description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
       steps: "7 steps",
       patterns: "5 patterns",
@@ -132,6 +139,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 4.1 - Fronted Admin Payroll",
       locked: false,
+      deprecated: false,
       description: "From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance",
       steps: "6 steps",
       patterns: "5 patterns",
@@ -149,6 +157,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 5.1 — Employee Payroll",
       locked: false,
+      deprecated: false,
       description: "Duplicate of Flow 5 for employee payroll cycle. Will later be updated to support the employee payroll cycle (after payroll posting & payslips). Currently a clean clone — no modifications yet.",
       steps: "2 steps",
       patterns: "3 patterns",
@@ -166,6 +175,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 5.2 — Contractor Payroll",
       locked: false,
+      deprecated: false,
       description: "Duplicate of Flow 5 for contractor payroll cycle. Will later be updated to support the contractor payroll cycle (after payroll posting & payslips). Currently a clean clone — no modifications yet.",
       steps: "2 steps",
       patterns: "3 patterns",
@@ -195,7 +205,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
   const colors = colorClasses[flow.iconColor as keyof typeof colorClasses];
 
   return (
-    <Card className="hover:shadow-lg transition-all group h-full cursor-move">
+    <Card className={`hover:shadow-lg transition-all group h-full cursor-move ${flow.deprecated ? 'opacity-50' : ''}`}>
         <CardHeader className={flow.locked ? "relative" : ""}>
           <div className={`flex items-center gap-3 ${flow.locked ? 'mb-3' : 'mb-1.5'}`}>
             <div className={`p-2 rounded-xl ${colors.bg} ${colors.border} border transition-all duration-200 ${colors.hoverBg} ${colors.hoverBorder}`}>
@@ -205,6 +215,11 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
             {flow.locked && (
               <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
                 🔒
+              </Badge>
+            )}
+            {flow.deprecated && (
+              <Badge variant="outline" className="bg-background/50 text-muted-foreground border-muted">
+                Old
               </Badge>
             )}
           </div>
