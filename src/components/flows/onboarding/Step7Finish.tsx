@@ -41,8 +41,8 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
 
   const completedItems = [
     { label: "Admin details", icon: CheckCircle2, done: true },
-    { label: "Company details", icon: CheckCircle2, done: !!formData.companyName },
-    { label: "Hiring locations", icon: CheckCircle2, done: !!formData.selectedCountries }
+    { label: "Company details", icon: CheckCircle2, done: !!formData.companyName, skipped: !formData.companyName },
+    { label: "Hiring locations", icon: CheckCircle2, done: !!formData.selectedCountries, skipped: !formData.selectedCountries || formData.selectedCountries.length === 0 }
   ];
 
   return (
@@ -102,15 +102,35 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05, duration: 0.3, ease: "easeOut" }}
-                    className="flex items-center gap-2 text-sm p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
+                    className={cn(
+                      "flex items-center justify-between text-sm p-3 rounded-lg border transition-all",
+                      item.done 
+                        ? "bg-green-50/50 dark:bg-green-950/20 border-green-200/50 dark:border-green-800/30" 
+                        : "bg-muted/30 border-border/30"
+                    )}
                   >
+                    <div className="flex items-center gap-2.5">
                       <Icon className={cn(
                         "h-4 w-4 flex-shrink-0",
-                        item.done ? "text-green-600" : "text-muted-foreground"
+                        item.done ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
                       )} />
-                      <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
+                      <span className={cn(
+                        "font-medium",
+                        item.done ? "text-green-900 dark:text-green-100" : "text-muted-foreground"
+                      )}>
                         {item.label}
                       </span>
+                    </div>
+                    {item.skipped && (
+                      <Badge variant="outline" className="text-xs bg-background border-muted-foreground/20 text-muted-foreground">
+                        Skipped
+                      </Badge>
+                    )}
+                    {item.done && (
+                      <Badge variant="outline" className="text-xs bg-green-100/50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300">
+                        Complete
+                      </Badge>
+                    )}
                     </motion.div>
                   );
                 })}
