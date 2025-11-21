@@ -48,6 +48,15 @@ const MOCK_COMPANIES = [
   { id: "1", name: "TechCorp Global" },
   { id: "2", name: "InnovateLabs Inc." },
   { id: "3", name: "Startup Ventures" },
+  { id: "4", name: "Digital Dynamics Ltd." },
+  { id: "5", name: "CloudScale Solutions" },
+  { id: "6", name: "NextGen Enterprises" },
+  { id: "7", name: "Quantum Systems Co." },
+  { id: "8", name: "FutureWorks International" },
+  { id: "9", name: "Apex Technologies" },
+  { id: "10", name: "Horizon Group" },
+  { id: "11", name: "Catalyst Innovations" },
+  { id: "12", name: "Vanguard Partners" },
 ];
 
 const AdminContractingMultiCompany = () => {
