@@ -146,6 +146,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   };
 
   const isATSSelected = selectedAtsId && selectedAtsId !== "manual";
+  
+  const isFormValid = formData.name && formData.email && formData.country && formData.role;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -322,6 +324,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 <Button 
                   className="flex-1"
                   onClick={handleSave}
+                  disabled={!isFormValid}
                 >
                   Save Candidate
                 </Button>
