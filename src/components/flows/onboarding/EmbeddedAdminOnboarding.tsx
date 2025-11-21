@@ -16,6 +16,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAgentState } from "@/hooks/useAgentState";
 import { motion } from "framer-motion";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
 import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
@@ -38,9 +39,8 @@ interface EmbeddedAdminOnboardingProps {
 
 const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
-  
-  // Use bridge hook that connects to persistent store
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useAdminFlowBridge();
+  const { resetAdminFlow } = useOnboardingStore();
   
   const { currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -54,13 +54,14 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Ensure first step is expanded on initial load
+  // Ensure first step is expanded on initial load and reset flow for new company
   useEffect(() => {
     if (!hasInitialized.current) {
+      resetAdminFlow();
       setExpandedStep("intro_trust_model");
       hasInitialized.current = true;
     }
-  }, [setExpandedStep]);
+  }, [resetAdminFlow, setExpandedStep]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
