@@ -23,6 +23,7 @@ const ATS_CANDIDATES = [
     countryFlag: "🇵🇭",
     role: "Senior Developer",
     email: "maria.santos@email.com",
+    employmentType: "contractor" as const,
     hasATSData: true
   },
   { 
@@ -32,6 +33,7 @@ const ATS_CANDIDATES = [
     countryFlag: "🇺🇸",
     role: "Product Manager",
     email: "john.smith@email.com",
+    employmentType: "employee" as const,
     hasATSData: true
   },
   { 
@@ -41,6 +43,7 @@ const ATS_CANDIDATES = [
     countryFlag: "🇸🇬",
     role: "UX Designer",
     email: "sarah.chen@email.com",
+    employmentType: "contractor" as const,
     hasATSData: true
   },
   { 
@@ -50,6 +53,7 @@ const ATS_CANDIDATES = [
     countryFlag: "",
     role: "",
     email: "",
+    employmentType: "contractor" as const,
     hasATSData: false
   },
 ];
@@ -67,6 +71,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
     countryFlag: "",
     role: "",
     salary: "",
+    startDate: "",
+    employmentType: "contractor" as "contractor" | "employee",
   });
 
   const handleATSSelect = (value: string) => {
@@ -81,6 +87,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
         countryFlag: "",
         role: "",
         salary: "",
+        startDate: "",
+        employmentType: "contractor",
       });
     } else {
       // Pre-fill from ATS
@@ -93,6 +101,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
           countryFlag: candidate.countryFlag,
           role: candidate.role,
           salary: "",
+          startDate: "",
+          employmentType: candidate.employmentType,
         });
       }
     }
@@ -114,7 +124,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       status: "offer-accepted" as const,
       formSent: false,
       dataReceived: false,
-      employmentType: "contractor" as const,
+      employmentType: formData.employmentType,
     };
 
     onSave(newCandidate);
@@ -129,6 +139,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       countryFlag: "",
       role: "",
       salary: "",
+      startDate: "",
+      employmentType: "contractor",
     });
     onOpenChange(false);
   };
@@ -259,6 +271,43 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
                     placeholder="e.g., $5,000/mo"
                   />
+                  {isATSSelected && (
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Start Date (Optional)</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                  />
+                  {!formData.startDate && (
+                    <p className="text-xs text-muted-foreground">To be filled by candidate</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="employmentType">Employment Type *</Label>
+                  <Select 
+                    value={formData.employmentType} 
+                    onValueChange={(value: "contractor" | "employee") => 
+                      setFormData(prev => ({ ...prev, employmentType: value }))
+                    }
+                  >
+                    <SelectTrigger id="employmentType">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="contractor">Contractor</SelectItem>
+                      <SelectItem value="employee">Employee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {isATSSelected && (
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  )}
                 </div>
               </div>
 
