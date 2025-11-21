@@ -446,6 +446,7 @@ const AdminContractingMultiCompany = () => {
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
+          profileSettingsUrl="/change-password"
           profileMenuLabel="Change Password"
           companySwitcher={{
             companies: MOCK_COMPANIES,
