@@ -226,9 +226,9 @@ const Flows = () => {
       locked: true
     },
     {
-      id: "f2-1-admin-contracting-multi-company",
+      id: "f2-shortlist-to-contract-multi",
       title: "Flow 2.1 — Admin Contracting (Multi-Company)",
-      description: "Multi-company version of Flow 2: Enables Fronted admins to switch between companies and manage contracts for multiple organizations. Includes company switcher dropdown and 'Add New Company' action that starts Flow 1 onboarding.",
+      description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
       steps: 7,
       patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
       path: "/flows/contract-flow-multi-company",
