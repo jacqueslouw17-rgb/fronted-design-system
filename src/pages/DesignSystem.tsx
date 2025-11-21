@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { FlowCard } from "@/components/FlowCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -259,6 +260,7 @@ const normalizedPatterns = patterns.map(p => ({
   ...p,
   path: p.path.startsWith("/genie-") ? p.path.replace("/genie-", "/agent-") : p.path
 }));
+
 const DesignSystem = () => {
   const [selectedComponent, setSelectedComponent] = useState<ComponentReference | null>(null);
   const [componentDrawerOpen, setComponentDrawerOpen] = useState(false);
@@ -267,6 +269,58 @@ const DesignSystem = () => {
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const defaultTab = tabParam === "flows" || tabParam === "components" ? tabParam : "patterns";
+  
+  // Flow cards drag and drop state
+  const [flowOrder, setFlowOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem('flowOrder');
+    return saved ? JSON.parse(saved) : [
+      'flow-1-admin-onboarding',
+      'flow-2-admin-contracting',
+      'flow-3-candidate-data',
+      'flow-4-candidate-onboarding',
+      'flow-5-candidate-dashboard',
+      'flow-1.1-fronted-admin',
+      'flow-2.1-company-admin',
+      'flow-2.1-admin-payroll',
+      'flow-5.1-employee-payroll',
+      'flow-5.2-contractor-payroll'
+    ];
+  });
+  const [draggedFlowId, setDraggedFlowId] = useState<string | null>(null);
+
+  // Save flow order to localStorage
+  useEffect(() => {
+    localStorage.setItem('flowOrder', JSON.stringify(flowOrder));
+  }, [flowOrder]);
+
+  const handleFlowDragStart = (e: React.DragEvent, flowId: string) => {
+    setDraggedFlowId(flowId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleFlowDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleFlowDrop = (e: React.DragEvent, targetFlowId: string) => {
+    e.preventDefault();
+    if (!draggedFlowId || draggedFlowId === targetFlowId) return;
+
+    const newOrder = [...flowOrder];
+    const draggedIndex = newOrder.indexOf(draggedFlowId);
+    const targetIndex = newOrder.indexOf(targetFlowId);
+
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedFlowId);
+
+    setFlowOrder(newOrder);
+    setDraggedFlowId(null);
+  };
+
+  const handleFlowDragEnd = () => {
+    setDraggedFlowId(null);
+  };
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
@@ -341,554 +395,21 @@ const DesignSystem = () => {
 
           <TabsContent value="flows" className="mt-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Link to="/flows/admin/onboarding">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader className="relative">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 1 — Admin Onboarding</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Complete end-to-end onboarding for system administrators: introduces Genie, captures company settings, sets up Mini-Rules, connects integrations, and lands in Dashboard v3
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                      <span>•</span>
-                      <span>18 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational Onboarding
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/step-card-pattern');
-                    }}>
-                        Step Card Stack + Progress Bar
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/dashboard');
-                    }}>
-                        Dashboard-Centered Layout + Collapsible Genie Drawer
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +15
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                        View flow
-                        <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                      </div>
-                      <div className="h-4 w-px bg-border" />
-                      <a href="/docs/Flow1_Admin_Onboarding_Data_Model.md" download="Flow1_Admin_Onboarding_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
-                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                        Data Model
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-              
-              <Link to="/flows/contract-flow">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 transition-all duration-200 group-hover:bg-emerald-600 group-hover:border-emerald-600">
-                        <Workflow className="h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 2 - Admin Contracting</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">6 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/contract-preview');
-                    }}>
-                        Contract Preview & E-Sign
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +3
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                        View flow
-                        <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                      </div>
-                      <div className="h-4 w-px bg-border" />
-                      <a href="/docs/Flow2_Admin_Contracting_Data_Model.md" download="Flow2_Admin_Contracting_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
-                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                        Data Model
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/candidate-onboarding">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 transition-all duration-200 group-hover:bg-violet-600 group-hover:border-violet-600">
-                        <UserCheck className="h-5 w-5 text-violet-600 dark:text-violet-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 3 - Candidate Data Collection</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">4 steps</span>
-                      <span>•</span>
-                      <span>4 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/confirmation-modal');
-                    }}>
-                        Smart Approval
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/compliance-checklist');
-                    }}>
-                        Compliance Checklist
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +1
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                        View flow
-                        <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                      </div>
-                      <div className="h-4 w-px bg-border" />
-                      <a href="/docs/Flow3_Candidate_Data_Collection_Data_Model.md" download="Flow3_Candidate_Data_Collection_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
-                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                        Data Model
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/worker-onboarding">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 transition-all duration-200 group-hover:bg-emerald-600 group-hover:border-emerald-600">
-                        <UserCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 4 — Candidate Onboarding</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Post-contract onboarding for workers: verify personal info, upload compliance docs, set up payroll, complete work setup, and review onboarding checklist for a smooth first day. Locked for backend build — no further changes allowed.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Step Card Stack + Progress Bar
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/compliance-checklist');
-                    }}>
-                        Compliance Checklist
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/smart-progress');
-                    }}>
-                        Checklist Progress
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +2
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                        View flow
-                        <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                      </div>
-                      <div className="h-4 w-px bg-border" />
-                      <a href="/docs/Flow4_Candidate_Onboarding_Data_Model.md" download="Flow4_Candidate_Onboarding_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
-                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                        Data Model
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/candidate-dashboard">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
-                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 5 — Candidate Dashboard</CardTitle>
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
-                        🔒
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Post-onboarding candidate dashboard: contract review & signing with DocuSign sub-statuses, document management, and certification tracking. Locked — finalized flow.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">2 steps</span>
-                      <span>•</span>
-                      <span>3 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/data-summary');
-                    }}>
-                        Data Summary Cards
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/compliance-checklist');
-                    }}>
-                        Compliance Checklist
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                        View flow
-                        <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                      </div>
-                      <div className="h-4 w-px bg-border" />
-                      <a href="/docs/Flow5_Candidate_Dashboard_Data_Model.md" download="Flow5_Candidate_Dashboard_Data_Model.md" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
-                        <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                        Data Model
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/contract-flow-multi-company">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 transition-all duration-200 group-hover:bg-cyan-600 group-hover:border-cyan-600">
-                        <Workflow className="h-5 w-5 text-cyan-600 dark:text-cyan-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 1.1 — Fronted Admin v1</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/contract-preview');
-                    }}>
-                        Contract Preview & E-Sign
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +3
-                      </Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/contract-flow-company-admin">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 transition-all duration-200 group-hover:bg-purple-600 group-hover:border-purple-600">
-                        <Workflow className="h-5 w-5 text-purple-600 dark:text-purple-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 2.1 - Company Admin v1</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">7 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/contract-preview');
-                    }}>
-                        Contract Preview & E-Sign
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        +3
-                      </Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/payroll-batch">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-200 group-hover:bg-amber-600 group-hover:border-amber-600">
-                        <Workflow className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg">Flow 2.1 — Admin Payroll</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">6 steps</span>
-                      <span>•</span>
-                      <span>5 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational Onboarding
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/fx-breakdown');
-                    }}>
-                        FX Breakdown Popover
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/confirmation-modal');
-                    }}>
-                        Confirmation Prompt + Smart Approval Modal
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">+2</Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/employee-payroll">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
-                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 5.1 — Employee Payroll</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Duplicate of Flow 5 for employee payroll cycle. Will later be updated to support the employee payroll cycle (after payroll posting & payslips). Currently a clean clone — no modifications yet.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">2 steps</span>
-                      <span>•</span>
-                      <span>3 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/data-summary');
-                    }}>
-                        Data Summary Cards
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/compliance-checklist');
-                    }}>
-                        Compliance Checklist
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Link to="/flows/contractor-payroll">
-                <Card className="hover:shadow-lg transition-all group h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all duration-200 group-hover:bg-blue-600 group-hover:border-blue-600">
-                        <Workflow className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-colors duration-200 group-hover:text-white" />
-                      </div>
-                      <CardTitle className="text-lg flex-1">Flow 5.2 — Contractor Payroll</CardTitle>
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      Duplicate of Flow 5 for contractor-specific payout views. Will later be updated to support contractor-specific payout views. Currently a clean clone — no modifications yet.
-                    </CardDescription>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                      <span className="font-medium">2 steps</span>
-                      <span>•</span>
-                      <span>3 patterns</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/data-summary');
-                    }}>
-                        Data Summary Cards
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/compliance-checklist');
-                    }}>
-                        Compliance Checklist
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handlePatternClick('/onboarding');
-                    }}>
-                        Genie-Led Conversational
-                      </Badge>
-                    </div>
-                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
-                      View flow
-                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
+              {flowOrder.map((flowId) => {
+                return (
+                  <div
+                    key={flowId}
+                    draggable
+                    onDragStart={(e) => handleFlowDragStart(e, flowId)}
+                    onDragOver={handleFlowDragOver}
+                    onDrop={(e) => handleFlowDrop(e, flowId)}
+                    onDragEnd={handleFlowDragEnd}
+                    className={`transition-opacity ${draggedFlowId === flowId ? 'opacity-50' : 'opacity-100'} cursor-move`}
+                  >
+                    <FlowCard flowId={flowId} onPatternClick={handlePatternClick} />
+                  </div>
+                );
+              })}
             </div>
           </TabsContent>
 
