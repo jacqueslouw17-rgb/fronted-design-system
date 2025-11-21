@@ -134,7 +134,7 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
 
     switch (stepId) {
       case "intro_trust_model":
-        return <Step1IntroTrust {...stepProps} />;
+        return <Step1IntroTrust {...stepProps} isInviteMode={true} />;
       case "org_profile":
         return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":

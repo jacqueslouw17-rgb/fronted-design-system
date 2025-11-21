@@ -13,9 +13,10 @@ interface Step1Props {
   onOpenDrawer: () => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  isInviteMode?: boolean;
 }
 
-const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false, isLoadingFields = false }: Step1Props) => {
+const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = false, isLoadingFields = false, isInviteMode = false }: Step1Props) => {
   const [authMethod, setAuthMethod] = useState(formData.authMethod || "");
   const [authData, setAuthData] = useState<Record<string, any>>(formData.authData || {});
   const [preferredLanguage, setPreferredLanguage] = useState(formData.preferredLanguage || "en");
@@ -84,7 +85,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
             <Skeleton className="h-12 w-full" />
           </>
         ) : (
-          <AuthOptions onComplete={handleAuthComplete} isProcessing={isProcessing} />
+          <AuthOptions onComplete={handleAuthComplete} isProcessing={isProcessing} hidePassword={isInviteMode} />
         )}
 
         {/* Preferred Language - Hidden for now */}
@@ -134,7 +135,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
                 Processing...
               </>
             ) : (
-              "Get Started"
+              isInviteMode ? "Continue" : "Get Started"
             )}
           </Button>
         )}
