@@ -49,7 +49,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
       {/* What We'll Set Up Section */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
-          What We'll Set Up
+          We'll Handle the Setup
         </h3>
         
         <div className="bg-card/40 border border-border/40 rounded-lg p-4">
