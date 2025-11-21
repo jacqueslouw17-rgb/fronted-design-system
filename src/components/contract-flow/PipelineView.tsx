@@ -160,6 +160,13 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   mode = "certified",
   onAddCandidate
 }) => {
+  console.log('[PipelineView Render]', {
+    contractorsCount: initialContractors.length,
+    contractors: initialContractors,
+    mode,
+    onAddCandidate: !!onAddCandidate
+  });
+  
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
   const {
@@ -947,7 +954,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               {/* Column Body */}
               <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", config.color)}>
                 {/* Empty state for offer-accepted column */}
-                {status === "offer-accepted" && items.length === 0 && onAddCandidate && (
+                {(() => {
+                  const shouldShowEmpty = status === "offer-accepted" && items.length === 0 && onAddCandidate;
+                  console.log('[Empty State Check]', {
+                    status,
+                    itemsLength: items.length,
+                    hasOnAddCandidate: !!onAddCandidate,
+                    shouldShowEmpty
+                  });
+                  return shouldShowEmpty;
+                })() && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
