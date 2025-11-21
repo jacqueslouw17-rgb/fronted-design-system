@@ -78,7 +78,7 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
             transition={{ duration: 0.3 }}
           >
             {/* Header */}
-            <div className="space-y-2">
+            <div className="space-y-2 mb-6">
               <div className="flex items-center gap-2">
                 <Rocket className="h-4 w-4 text-primary" />
                 <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
