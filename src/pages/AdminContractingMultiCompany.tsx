@@ -13,6 +13,7 @@ import frontedLogo from "@/assets/fronted-logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { useContractFlow } from "@/hooks/useContractFlow";
 import { ContractFlowNotification } from "@/components/contract-flow/ContractFlowNotification";
 import { CandidateConfirmationScreen } from "@/components/contract-flow/CandidateConfirmationScreen";
@@ -766,10 +767,17 @@ const AdminContractingMultiCompany = () => {
 
                     {/* Pipeline Tracking */}
                     <div className="space-y-4">
-                      <div className="mt-3">
+                    <div className="mt-3">
                           <PipelineView 
                             contractors={companyContractors[selectedCompany] || []}
                             onAddCandidate={handleAddCandidate}
+                            onRemoveContractor={(contractorId) => {
+                              setCompanyContractors(prev => ({
+                                ...prev,
+                                [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
+                              }));
+                              sonnerToast.success("Candidate removed");
+                            }}
                             onDraftContract={(ids) => {
                               const params = new URLSearchParams({ ids: ids.join(',') }).toString();
                               navigate(`/flows/contract-creation?${params}`);

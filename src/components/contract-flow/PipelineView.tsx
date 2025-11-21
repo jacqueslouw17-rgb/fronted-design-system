@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -62,6 +62,7 @@ interface PipelineViewProps {
   filterNonCertified?: boolean;
   mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
   onAddCandidate?: () => void;
+  onRemoveContractor?: (contractorId: string) => void;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -158,7 +159,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onSignatureComplete,
   filterNonCertified = false,
   mode = "certified",
-  onAddCandidate
+  onAddCandidate,
+  onRemoveContractor
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
@@ -1025,6 +1027,19 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 Include in this month's batch
                               </p>}
                           </div>
+                          {status === "offer-accepted" && onRemoveContractor && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onRemoveContractor(contractor.id);
+                              }}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
                         </div>
 
                           {/* Details */}
