@@ -138,7 +138,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 variant="outline"
                 role="combobox"
                 aria-expanded={companySearchOpen}
-                className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between hover:bg-muted/30"
+                className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
               >
                 <span className="truncate">
                   {companySwitcher.selectedCompany === "add-new" 
@@ -163,7 +163,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                       setCompanySearchOpen(false);
                       setCompanySearchValue("");
                     }}
-                    className="text-primary font-medium hover:bg-muted/50"
+                    className="text-primary font-medium"
                   >
                     <span className="text-lg mr-2">+</span>
                     Add New Company
@@ -181,7 +181,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                           setCompanySearchOpen(false);
                           setCompanySearchValue("");
                         }}
-                        className="truncate hover:bg-muted/50"
+                        className="truncate"
                       >
                         <Check
                           className={cn(
