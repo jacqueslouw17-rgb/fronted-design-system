@@ -208,6 +208,27 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
             const currentIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
             const isLocked = index > currentIndex && status === 'inactive';
 
+            // Generate subtitle for step 3 (localization) when collapsed
+            let subtitle = undefined;
+            if (step.id === 'localization_country_blocks' && !isExpanded) {
+              const stepData = state.formData[step.id];
+              if (stepData?.selectedCountries && stepData.selectedCountries.length > 0) {
+                const COUNTRIES = [
+                  { code: "NO", name: "Norway", flag: "🇳🇴" },
+                  { code: "PH", name: "Philippines", flag: "🇵🇭" },
+                  { code: "IN", name: "India", flag: "🇮🇳" },
+                  { code: "XK", name: "Kosovo", flag: "🇽🇰" }
+                ];
+                const countryNames = stepData.selectedCountries
+                  .map((code: string) => {
+                    const country = COUNTRIES.find(c => c.code === code);
+                    return country ? `${country.flag} ${country.name}` : code;
+                  })
+                  .join(", ");
+                subtitle = countryNames;
+              }
+            }
+
             return (
               <div 
                 key={step.id}
@@ -223,6 +244,7 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
                   onClick={() => handleStepClick(step.id)}
                   headerId={headerId}
                   isLocked={isLocked}
+                  subtitle={subtitle}
                 >
                   {isExpanded && (
                     <div 
