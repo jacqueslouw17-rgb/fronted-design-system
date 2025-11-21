@@ -281,9 +281,7 @@ const DesignSystem = () => {
       'flow-5-candidate-dashboard',
       'flow-1.1-fronted-admin',
       'flow-2.1-company-admin',
-      'flow-2.1-admin-payroll',
-      'flow-5.1-employee-payroll',
-      'flow-5.2-contractor-payroll'
+      'flow-2.1-admin-payroll'
     ];
   });
   const [draggedFlowId, setDraggedFlowId] = useState<string | null>(null);
