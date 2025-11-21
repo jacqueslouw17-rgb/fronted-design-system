@@ -155,6 +155,20 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                   value={companySearchValue}
                   onValueChange={setCompanySearchValue}
                 />
+                <div className="border-b">
+                  <CommandItem
+                    value="add-new"
+                    onSelect={() => {
+                      companySwitcher.onCompanyChange("add-new");
+                      setCompanySearchOpen(false);
+                      setCompanySearchValue("");
+                    }}
+                    className="text-primary font-medium"
+                  >
+                    <span className="text-lg mr-2">+</span>
+                    Add New Company
+                  </CommandItem>
+                </div>
                 <CommandList className="max-h-[240px]">
                   <CommandEmpty>No company found.</CommandEmpty>
                   <CommandGroup>
@@ -180,18 +194,6 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                         </span>
                       </CommandItem>
                     ))}
-                    <CommandItem
-                      value="add-new"
-                      onSelect={() => {
-                        companySwitcher.onCompanyChange("add-new");
-                        setCompanySearchOpen(false);
-                        setCompanySearchValue("");
-                      }}
-                      className="text-primary font-medium"
-                    >
-                      <span className="text-lg mr-2">+</span>
-                      Add New Company
-                    </CommandItem>
                   </CommandGroup>
                 </CommandList>
               </Command>
