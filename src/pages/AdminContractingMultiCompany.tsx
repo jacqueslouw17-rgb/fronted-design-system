@@ -42,6 +42,7 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
+import EmbeddedAdminOnboarding from "@/components/flows/onboarding/EmbeddedAdminOnboarding";
 
 // Mock companies data
 const MOCK_COMPANIES = [
@@ -78,6 +79,7 @@ const AdminContractingMultiCompany = () => {
   
   // Company switcher state
   const [selectedCompany, setSelectedCompany] = useState<string>(MOCK_COMPANIES[0].id);
+  const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
 
   const userData = {
     firstName: "Joe",
@@ -89,8 +91,8 @@ const AdminContractingMultiCompany = () => {
 
   const handleCompanyChange = (companyId: string) => {
     if (companyId === "add-new") {
-      // Navigate to Flow 1 - Admin Onboarding
-      navigate("/flows/admin/onboarding");
+      // Show embedded admin onboarding flow
+      setIsAddingNewCompany(true);
       return;
     }
     
@@ -101,6 +103,19 @@ const AdminContractingMultiCompany = () => {
       title: "Company Switched",
       description: `Now viewing contracts for ${company?.name}`,
     });
+  };
+
+  const handleNewCompanyComplete = (companyName: string) => {
+    // This will be called when the onboarding flow completes
+    toast({
+      title: "Company Added",
+      description: `${companyName} has been added successfully!`,
+    });
+    setIsAddingNewCompany(false);
+  };
+
+  const handleCancelAddCompany = () => {
+    setIsAddingNewCompany(false);
   };
 
   // Copy all handleKurtAction code from ContractFlowDemo
@@ -454,6 +469,12 @@ const AdminContractingMultiCompany = () => {
           <AgentLayout context="Contract Flow">
             <div className="flex-1 overflow-auto relative">
               <div className="relative z-10">
+              {isAddingNewCompany ? (
+                <EmbeddedAdminOnboarding
+                  onComplete={handleNewCompanyComplete}
+                  onCancel={handleCancelAddCompany}
+                />
+              ) : (
               <AnimatePresence mode="wait">
                 {contractFlow.phase === "prompt" ? (
                   <motion.div key="prompt" className="flex flex-col items-center justify-center min-h-full p-8">
@@ -922,6 +943,7 @@ const AdminContractingMultiCompany = () => {
                 </motion.div>
               ) : null}
             </AnimatePresence>
+            )}
             </div>
           </div>
         </AgentLayout>
