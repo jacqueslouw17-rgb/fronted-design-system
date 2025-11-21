@@ -704,6 +704,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       });
     }, 800);
   };
+
+  const handleRemoveFromOfferAccepted = (contractorId: string) => {
+    setContractors(prev => prev.filter(c => c.id !== contractorId));
+    onRemoveContractor?.(contractorId);
+  };
   const handleBulkSendForms = () => {
     const selectedInOfferAccepted = contractors.filter(c => selectedIds.has(c.id) && c.status === "offer-accepted");
     const updated = contractors.map(c => selectedIds.has(c.id) && c.status === "offer-accepted" ? {
@@ -1035,8 +1040,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                console.log('Remove clicked for:', contractor.id);
-                                onRemoveContractor(contractor.id);
+                                handleRemoveFromOfferAccepted(contractor.id);
                               }}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
