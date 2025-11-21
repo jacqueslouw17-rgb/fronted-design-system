@@ -50,24 +50,6 @@ const ChangePassword = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Minimal header */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4">
-        <img
-          src={frontedLogo}
-          alt="Fronted"
-          className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/flows/contract-flow-multi-company")}
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/flows/contract-flow-multi-company")}
-          className="h-10 w-10"
-        >
-          <X className="h-5 w-5" />
-        </Button>
-      </div>
-
       {/* Main content with AgentLayout */}
       <div className="flex-1">
         <AgentLayout context="Change Password">
@@ -77,6 +59,24 @@ const ChangePassword = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
               <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
               <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+            </div>
+
+            {/* Minimal header - positioned over gradient */}
+            <div className="relative z-10 flex items-center justify-between px-6 py-4">
+              <img
+                src={frontedLogo}
+                alt="Fronted"
+                className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate("/flows/contract-flow-multi-company")}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/flows/contract-flow-multi-company")}
+                className="h-10 w-10"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
 
             {/* Main Content */}
