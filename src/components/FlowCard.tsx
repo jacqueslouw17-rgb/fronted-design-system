@@ -31,7 +31,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/contract-flow",
       iconColor: "emerald",
       icon: Workflow,
-      title: "Flow 2 - Admin Contracting",
+      title: "Flow 1.1 Fronted Admin Dashboard v1",
       locked: true,
       description: "From candidate shortlist to finalized contracts: Kurt guides through draft creation, compliance review, localized e-signatures, and onboarding completion with inline editing and conversational flow",
       steps: "6 steps",
