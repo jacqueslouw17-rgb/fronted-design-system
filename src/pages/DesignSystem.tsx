@@ -671,6 +671,52 @@ const DesignSystem = () => {
                 </Card>
               </Link>
 
+              <Link to="/flows/contract-flow-multi-company">
+                <Card className="hover:shadow-lg transition-all group h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 transition-all duration-200 group-hover:bg-cyan-600 group-hover:border-cyan-600">
+                        <Workflow className="h-5 w-5 text-cyan-600 dark:text-cyan-400 transition-colors duration-200 group-hover:text-white" />
+                      </div>
+                      <CardTitle className="text-lg">Flow 2.1 — Admin Contracting (Multi-Company)</CardTitle>
+                    </div>
+                    <CardDescription className="line-clamp-3">
+                      Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.
+                    </CardDescription>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                      <span className="font-medium">7 steps</span>
+                      <span>•</span>
+                      <span>5 patterns</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/onboarding');
+                    }}>
+                        Genie-Led Conversational
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-foreground hover:text-background transition-all duration-200" onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePatternClick('/contract-preview');
+                    }}>
+                        Contract Preview & E-Sign
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        +3
+                      </Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-primary group-hover:translate-x-1 transition-transform">
+                      View flow
+                      <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
               <Link to="/payroll-batch">
                 <Card className="hover:shadow-lg transition-all group h-full">
                   <CardHeader>
