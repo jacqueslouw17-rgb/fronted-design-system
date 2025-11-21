@@ -140,9 +140,11 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 aria-expanded={companySearchOpen}
                 className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
               >
-                {companySwitcher.selectedCompany === "add-new" 
-                  ? "Select company..."
-                  : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
+                <span className="truncate">
+                  {companySwitcher.selectedCompany === "add-new" 
+                    ? "Select company..."
+                    : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
+                </span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -165,6 +167,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                           setCompanySearchOpen(false);
                           setCompanySearchValue("");
                         }}
+                        className="truncate"
                       >
                         <Check
                           className={cn(
@@ -172,7 +175,9 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                             companySwitcher.selectedCompany === company.id ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {highlightMatch(company.name, companySearchValue)}
+                        <span className="truncate">
+                          {highlightMatch(company.name, companySearchValue)}
+                        </span>
                       </CommandItem>
                     ))}
                     <CommandItem
