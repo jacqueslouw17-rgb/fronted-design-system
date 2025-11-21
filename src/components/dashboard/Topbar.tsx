@@ -173,7 +173,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 <CommandList className="max-h-[240px]">
                   <CommandEmpty>No company found.</CommandEmpty>
                   <CommandGroup>
-                    {companySwitcher.companies.map((company) => (
+                    {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => (
                       <CommandItem
                         key={company.id}
                         value={company.name}
