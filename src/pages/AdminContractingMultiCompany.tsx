@@ -460,7 +460,8 @@ const AdminContractingMultiCompany = () => {
           <img 
             src={frontedLogo}
             alt="Fronted"
-            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto"
+            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleCancelAddCompany}
           />
           <Button
             variant="ghost"
