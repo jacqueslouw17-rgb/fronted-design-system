@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X, FileCheck } from "lucide-react";
+import frontedLogo from "@/assets/fronted-logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useToast } from "@/hooks/use-toast";
@@ -439,17 +440,38 @@ const AdminContractingMultiCompany = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar */}
-      <Topbar 
-        userName={`${userData.firstName} ${userData.lastName}`}
-        isDrawerOpen={isDrawerOpen}
-        onDrawerToggle={toggleDrawer}
-        companySwitcher={{
-          companies: MOCK_COMPANIES,
-          selectedCompany: selectedCompany,
-          onCompanyChange: handleCompanyChange
-        }}
-      />
+      {/* Topbar - hidden when adding new company */}
+      {!isAddingNewCompany && (
+        <Topbar 
+          userName={`${userData.firstName} ${userData.lastName}`}
+          isDrawerOpen={isDrawerOpen}
+          onDrawerToggle={toggleDrawer}
+          companySwitcher={{
+            companies: MOCK_COMPANIES,
+            selectedCompany: selectedCompany,
+            onCompanyChange: handleCompanyChange
+          }}
+        />
+      )}
+
+      {/* Simple Header for Add New Company */}
+      {isAddingNewCompany && (
+        <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-3 sm:px-6">
+          <img 
+            src={frontedLogo}
+            alt="Fronted"
+            className="h-5 sm:h-6 w-auto"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCancelAddCompany}
+            className="h-8 w-8 sm:h-10 sm:w-10"
+          >
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        </header>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 flex overflow-hidden relative">

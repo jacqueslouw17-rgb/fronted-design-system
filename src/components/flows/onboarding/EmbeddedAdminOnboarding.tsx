@@ -6,7 +6,6 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
@@ -152,16 +151,6 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
 
   return (
     <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
-      {/* Close Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 right-4 z-10 hover:bg-primary/10 hover:text-primary transition-colors"
-        onClick={onCancel}
-      >
-        <X className="h-5 w-5" />
-      </Button>
-
       {/* Static background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
