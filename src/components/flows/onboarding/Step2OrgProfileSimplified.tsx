@@ -95,6 +95,12 @@ const Step2OrgProfileSimplified = ({
     setData(prev => ({ ...prev, [fieldName]: value }));
   };
 
+  // Check if all required fields are filled
+  const isFormValid = 
+    data.companyName.trim().length > 0 &&
+    data.hqCountry.trim().length > 0 &&
+    Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0;
+
   return (
     <div className="space-y-5 max-w-xl mx-auto">
       {/* Company Information */}
@@ -299,7 +305,7 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing}>
+      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || !isFormValid}>
         {externalProcessing ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
