@@ -20,6 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import DrawerToggle from "./DrawerToggle";
 
@@ -42,6 +58,9 @@ interface TopbarProps {
 
 const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", dashboardUrl, companySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
+  const [companySearchOpen, setCompanySearchOpen] = useState(false);
+  const [companySearchValue, setCompanySearchValue] = useState("");
+  
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -49,6 +68,21 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
     .toUpperCase();
   
   const showVersionSelector = version && onVersionChange;
+  
+  const highlightMatch = (text: string, search: string) => {
+    if (!search) return <span>{text}</span>;
+    
+    const index = text.toLowerCase().indexOf(search.toLowerCase());
+    if (index === -1) return <span>{text}</span>;
+    
+    return (
+      <span>
+        <span>{text.slice(0, index)}</span>
+        <span className="text-muted-foreground/40">{text.slice(index, index + search.length)}</span>
+        <span>{text.slice(index + search.length)}</span>
+      </span>
+    );
+  };
   
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -98,24 +132,66 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         
         {/* Company Switcher */}
         {companySwitcher && (
-          <Select value={companySwitcher.selectedCompany} onValueChange={companySwitcher.onCompanyChange}>
-            <SelectTrigger className="w-[200px] h-8 sm:h-9 text-xs sm:text-sm bg-background">
-              <SelectValue placeholder="Select company" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              {companySwitcher.companies.map((company) => (
-                <SelectItem key={company.id} value={company.id}>
-                  {company.name}
-                </SelectItem>
-              ))}
-              <SelectItem value="add-new">
-                <div className="flex items-center gap-2 text-primary font-medium">
-                  <span className="text-lg">+</span>
-                  Add New Company
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={companySearchOpen}
+                className="w-[200px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
+              >
+                {companySwitcher.selectedCompany === "add-new" 
+                  ? "Select company..."
+                  : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0 bg-background z-50" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder="Search companies..." 
+                  value={companySearchValue}
+                  onValueChange={setCompanySearchValue}
+                />
+                <CommandList className="max-h-[240px]">
+                  <CommandEmpty>No company found.</CommandEmpty>
+                  <CommandGroup>
+                    {companySwitcher.companies.map((company) => (
+                      <CommandItem
+                        key={company.id}
+                        value={company.name}
+                        onSelect={() => {
+                          companySwitcher.onCompanyChange(company.id);
+                          setCompanySearchOpen(false);
+                          setCompanySearchValue("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            companySwitcher.selectedCompany === company.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {highlightMatch(company.name, companySearchValue)}
+                      </CommandItem>
+                    ))}
+                    <CommandItem
+                      value="add-new"
+                      onSelect={() => {
+                        companySwitcher.onCompanyChange("add-new");
+                        setCompanySearchOpen(false);
+                        setCompanySearchValue("");
+                      }}
+                      className="text-primary font-medium"
+                    >
+                      <span className="text-lg mr-2">+</span>
+                      Add New Company
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
 
