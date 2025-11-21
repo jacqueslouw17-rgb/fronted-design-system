@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,8 +40,9 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
   }, [navigate, onComplete]);
 
   const completedItems = [
-    { label: "Organization profile", icon: CheckCircle2, done: !!formData.companyName },
-    { label: "Country blocks loaded", icon: CheckCircle2, done: !!formData.selectedCountries }
+    { label: "Admin details", icon: CheckCircle2, done: true },
+    { label: "Company details", icon: CheckCircle2, done: !!formData.companyName },
+    { label: "Hiring locations", icon: CheckCircle2, done: !!formData.selectedCountries }
   ];
 
   return (
@@ -76,19 +77,6 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Header */}
-            <div className="text-center space-y-2">
-              <div className="flex justify-center mb-3">
-                <div className="p-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/20">
-                  <Sparkles className="h-8 w-8 text-primary" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold">You're All Set! 🎉</h2>
-              <p className="text-sm text-muted-foreground">
-                Your Fronted workspace is ready
-              </p>
-            </div>
-
             {/* What we configured */}
             <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
               <Label className="text-sm font-medium">What We've Configured</Label>
@@ -130,15 +118,9 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
                     Launching...
                   </>
                 ) : (
-                  <>
-                    Finish & Launch
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
+                  "Send invite"
                 )}
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Your dashboard is ready with Agent-First view
-              </p>
             </div>
           </motion.div>
         )}
