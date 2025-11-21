@@ -5,15 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Building2, User, Calendar, Loader2, Info, Sparkles, ChevronDown, X } from "lucide-react";
+import { Building2, User, Calendar, Loader2, Info, ChevronDown, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import StandardInput from "@/components/shared/StandardInput";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-// Voice-over removed for this step
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Step2Props {
   formData: Record<string, any>;
@@ -29,12 +25,8 @@ const Step2OrgProfileSimplified = ({
   onComplete, 
   isProcessing: externalProcessing, 
   isLoadingFields = false,
-  showAutoFillLoading = true,
+  showAutoFillLoading = false,
 }: Step2Props) => {
-  // Check if we have persisted data (revisiting step)
-  const hasPersistedData = formData && Object.keys(formData).length > 0 && formData.companyName;
-  const [isAutoFilling, setIsAutoFilling] = useState(showAutoFillLoading && !hasPersistedData);
-  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
   const [data, setData] = useState({
     companyName: formData.companyName || "",
     hqCountry: formData.hqCountry || "",
@@ -46,49 +38,9 @@ const Step2OrgProfileSimplified = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   // const { speak } = {} as any; // voice removed
 
-  // Auto-fill data on mount ONLY if no persisted data exists
-  useEffect(() => {
-    if (showAutoFillLoading && isAutoFilling && !hasPersistedData) {
-      const timer = setTimeout(() => {
-        const fieldsToAutoFill = new Set<string>();
-        
-        // Auto-fill with mock data from ATS
-        const mockData = {
-          companyName: formData.companyName || "Fronted Inc",
-          hqCountry: formData.hqCountry || "NO",
-          payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : ["NOK"]),
-          payrollFrequency: formData.payrollFrequency || "monthly",
-          payoutDay: formData.payoutDay || "25",
-        };
-
-        setData(mockData);
-        
-        // Track which fields were auto-filled
-        fieldsToAutoFill.add('companyName');
-        fieldsToAutoFill.add('hqCountry');
-        fieldsToAutoFill.add('payrollCurrency');
-        
-        setAutoFilledFields(fieldsToAutoFill);
-        setIsAutoFilling(false);
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    } else if (hasPersistedData) {
-      // If we have persisted data, mark those fields as auto-filled for visual indicator
-      const persistedFields = new Set<string>();
-      if (formData.companyName) persistedFields.add('companyName');
-      if (formData.hqCountry) persistedFields.add('hqCountry');
-      if (formData.payrollCurrency) persistedFields.add('payrollCurrency');
-      setAutoFilledFields(persistedFields);
-    } else {
-      // If loading is disabled, ensure we don't show skeleton
-      if (!showAutoFillLoading) setIsAutoFilling(false);
-    }
-  }, [isAutoFilling, formData, hasPersistedData, showAutoFillLoading]);
-
   // Watch for formData updates from Kurt
   useEffect(() => {
-    if (!isAutoFilling && formData.companyName && formData.companyName !== data.companyName) {
+    if (formData.companyName && formData.companyName !== data.companyName) {
       setData({
         companyName: formData.companyName || "",
         hqCountry: formData.hqCountry || "",
@@ -97,7 +49,7 @@ const Step2OrgProfileSimplified = ({
         payoutDay: formData.payoutDay || "25",
       });
     }
-  }, [formData, data.companyName, isAutoFilling]);
+  }, [formData, data.companyName]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -141,101 +93,24 @@ const Step2OrgProfileSimplified = ({
 
   const handleFieldChange = (fieldName: string, value: string | string[]) => {
     setData(prev => ({ ...prev, [fieldName]: value }));
-    // Remove auto-fill indicator when user edits the field
-    if (autoFilledFields.has(fieldName)) {
-      setAutoFilledFields(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(fieldName);
-        return newSet;
-      });
-    }
   };
 
-  if (isAutoFilling || isLoadingFields) {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="loading"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="space-y-6 p-6">
-            <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <AudioWaveVisualizer isActive={true} />
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4 }}
-                className="text-center space-y-2"
-              >
-                <h3 className="text-lg font-semibold">Retrieving details</h3>
-                <p className="text-sm text-muted-foreground">Please wait a moment</p>
-              </motion.div>
-            </div>
-            
-            <div className="space-y-4">
-              {[0, 1, 2, 3, 4, 5].map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 1, y: 0 }}
-                  exit={{ 
-                    opacity: 0, 
-                    y: -6,
-                    transition: {
-                      duration: 0.4,
-                      delay: index * 0.15,
-                      ease: "easeOut"
-                    }
-                  }}
-                  className="space-y-2"
-                >
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
-
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key="content"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-        className="space-y-5 max-w-xl mx-auto"
-      >
+    <div className="space-y-5 max-w-xl mx-auto">
       {/* Company Information */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
           <Building2 className="h-4 w-4 text-primary" />
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Company Information
+            Company Details
           </h3>
         </div>
         
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="companyName" className="text-sm">
-                Company Name <span className="text-destructive">*</span>
-              </Label>
-              {autoFilledFields.has('companyName') && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
+            <Label htmlFor="companyName" className="text-sm">
+              Company Name <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="companyName"
               value={data.companyName}
@@ -249,21 +124,9 @@ const Step2OrgProfileSimplified = ({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="hqCountry" className="text-sm">
-                HQ Country <span className="text-destructive">*</span>
-              </Label>
-              {autoFilledFields.has('hqCountry') && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
+            <Label htmlFor="hqCountry" className="text-sm">
+              HQ Country <span className="text-destructive">*</span>
+            </Label>
             <Select value={data.hqCountry} onValueChange={(val) => handleFieldChange('hqCountry', val)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select country" />
@@ -285,21 +148,9 @@ const Step2OrgProfileSimplified = ({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="payrollCurrency" className="text-sm">
-                Payroll Currencies <span className="text-destructive">*</span>
-              </Label>
-              {autoFilledFields.has('payrollCurrency') && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
+            <Label htmlFor="payrollCurrency" className="text-sm">
+              Payroll Currencies <span className="text-destructive">*</span>
+            </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -455,11 +306,10 @@ const Step2OrgProfileSimplified = ({
             Saving...
           </>
         ) : (
-          hasPersistedData ? "Save Changes" : "Save & Continue"
+          "Save & Continue"
         )}
       </Button>
-    </motion.div>
-    </AnimatePresence>
+    </div>
   );
 };
 
