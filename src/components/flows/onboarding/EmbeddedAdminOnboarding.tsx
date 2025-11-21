@@ -25,7 +25,7 @@ import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
   { id: "intro_trust_model", title: "Welcome & Setup", stepNumber: 1 },
-  { id: "org_profile", title: "Organization Profile", stepNumber: 2 },
+  { id: "org_profile", title: "Company details", stepNumber: 2 },
   { id: "localization_country_blocks", title: "Localization & Countries", stepNumber: 3 },
   { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 4 }
 ];
