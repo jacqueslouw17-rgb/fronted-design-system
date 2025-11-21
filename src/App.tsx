@@ -15,6 +15,7 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
+import AdminContractingMultiCompany from "./pages/AdminContractingMultiCompany";
 import ContractCreation from "./pages/ContractCreation";
 import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
@@ -97,6 +98,7 @@ const App = () => (
         <Route path="/flows/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
+        <Route path="/flows/contract-flow-multi-company" element={<AdminContractingMultiCompany />} />
         <Route path="/flows/contract-creation" element={<ContractCreation />} />
         <Route path="/flows/candidate-onboarding" element={<CandidateOnboarding />} />
         <Route path="/candidate-onboarding/:candidateId?" element={<CandidateOnboardingFlow />} />
