@@ -171,7 +171,7 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
                 </div>
               </div> : <>
                 <Input value={employmentType === "contractor" ? "Contractor" : "Employee"} disabled className="bg-muted/50" />
-                <p className="text-xs text-muted-foreground">Confirmed by admin</p>
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
               </>}
           </div>
 
