@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import Topbar from "@/components/dashboard/Topbar";
 import ProgressBar from "@/components/ProgressBar";
 import StepCard from "@/components/StepCard";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
@@ -17,6 +16,7 @@ import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import AdminUserManagement from "@/components/flows/admin-profile/AdminUserManagement";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 const PROFILE_SECTIONS = [
   { id: "company-details", title: "Organization Profile", step: 1 },
@@ -289,21 +289,21 @@ const AdminProfileSettings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
-      <Topbar 
-        userName="Joe User" 
-        profileSettingsUrl="/admin/profile-settings"
-        dashboardUrl="/dashboard-admin"
+      {/* Logo and Close Button */}
+      <img 
+        src={frontedLogo}
+        alt="Fronted"
+        className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={() => navigate("/dashboard-admin")}
       />
-      
-      {/* Back Button */}
-      <div className="relative z-10">
-        <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard-admin")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </div>
-      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => navigate("/dashboard-admin")}
+        className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+      >
+        <X className="h-4 w-4 sm:h-5 sm:w-5" />
+      </Button>
       
       <AgentLayout context="admin-profile-settings">
         <div className="min-h-full bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative">
