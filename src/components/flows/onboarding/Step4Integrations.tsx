@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle, Loader2, Circle } from "lucide-react";
+import { CheckCircle, Loader2, Circle, Plug } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Step4Props {
@@ -133,7 +133,20 @@ const Step4Integrations = ({ formData, onComplete, onOpenDrawer, externalProcess
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="max-w-xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Plug className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            Integrations
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Connect your essential tools to streamline payroll and compliance workflows.
+        </p>
+      </div>
+
       {isLoadingFields ? (
         <div className="space-y-4">
           <Skeleton className="h-28 w-full" />
