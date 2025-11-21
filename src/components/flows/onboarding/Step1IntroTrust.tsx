@@ -55,7 +55,7 @@ const Step1IntroTrust = ({ formData, onComplete, onOpenDrawer, isProcessing = fa
         <div className="bg-card/40 border border-border/40 rounded-lg p-4">
           <ul className="space-y-2.5">
             {[
-              "Company profile and settings",
+              "Company details",
               "Approval workflows and notifications",
               "Your personalized dashboard"
             ].map((item, idx) => (
