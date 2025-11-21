@@ -48,6 +48,7 @@ interface TopbarProps {
   isDrawerOpen?: boolean;
   onDrawerToggle?: () => void;
   profileSettingsUrl?: string; // Custom profile settings URL
+  profileMenuLabel?: string; // Custom label for profile menu item (default: "Profile Settings")
   dashboardUrl?: string; // Custom dashboard URL for logo click
   companySwitcher?: {
     companies: Array<{ id: string; name: string }>;
@@ -56,7 +57,7 @@ interface TopbarProps {
   };
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", dashboardUrl, companySwitcher }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, companySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
@@ -241,7 +242,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate(profileSettingsUrl)}>
-              Profile Settings
+              {profileMenuLabel || "Profile Settings"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
