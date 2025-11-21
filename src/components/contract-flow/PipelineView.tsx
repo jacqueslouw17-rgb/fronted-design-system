@@ -20,6 +20,8 @@ import { PayrollStatusDrawer } from "./PayrollStatusDrawer";
 import { PayrollPreviewDrawer } from "@/components/payroll/PayrollPreviewDrawer";
 import { CertifiedActionDrawer } from "./CertifiedActionDrawer";
 import { ResolvePayrollIssueDrawer } from "./ResolvePayrollIssueDrawer";
+import { CertificateCard } from "./CertificateCard";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { usePayrollBatch } from "@/hooks/usePayrollBatch";
 import { useNavigate } from "react-router-dom";
@@ -200,6 +202,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [batchSelectedIds, setBatchSelectedIds] = useState<Set<string>>(new Set());
   const [resolveIssueDrawerOpen, setResolveIssueDrawerOpen] = useState(false);
   const [selectedForResolveIssue, setSelectedForResolveIssue] = useState<Contractor | null>(null);
+  const [certificateDrawerOpen, setCertificateDrawerOpen] = useState(false);
+  const [selectedForCertificate, setSelectedForCertificate] = useState<Contractor | null>(null);
 
   // Track which contractors have been notified to prevent duplicate toasts
   const notifiedPayrollReadyIds = React.useRef<Set<string>>(new Set());
@@ -569,6 +573,10 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     };
     setSelectedPayrollPayee(payee);
     setPayrollPreviewDrawerOpen(true);
+  };
+  const handleOpenCertificate = (contractor: Contractor) => {
+    setSelectedForCertificate(contractor);
+    setCertificateDrawerOpen(true);
   };
   const handleAddToBatch = () => {
     if (!selectedPayrollPayee) return;
@@ -1141,12 +1149,28 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && <div className="flex items-center justify-center w-full py-1">
-                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
-                                <Award className="h-3 w-3" />
-                                Certified
-                              </Badge>
-                            </div>}
+                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && (
+                            <>
+                              <div className="flex items-center justify-center w-full py-1">
+                                <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
+                                  <Award className="h-3 w-3" />
+                                  Certified
+                                </Badge>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleOpenCertificate(contractor);
+                                }}
+                              >
+                                <Eye className="h-3 w-3" />
+                                View Certificate
+                              </Button>
+                            </>
+                          )}
                         </div>
 
                         {/* Display Flags */}
@@ -1243,5 +1267,42 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 
       {/* Resolve Payroll Issue Drawer */}
       <ResolvePayrollIssueDrawer open={resolveIssueDrawerOpen} onClose={() => setResolveIssueDrawerOpen(false)} contractorName={selectedForResolveIssue?.name || ""} contractorCountry={selectedForResolveIssue?.country || ""} />
+
+      {/* Certificate Drawer */}
+      <Sheet open={certificateDrawerOpen} onOpenChange={setCertificateDrawerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Certificate of Contract</SheetTitle>
+          </SheetHeader>
+          {selectedForCertificate && (
+            <div className="mt-6">
+              <CertificateCard
+                candidate={{
+                  id: selectedForCertificate.id,
+                  name: selectedForCertificate.name,
+                  role: selectedForCertificate.role,
+                  country: selectedForCertificate.country,
+                  countryCode: selectedForCertificate.country === "Philippines" ? "PH" : selectedForCertificate.country === "Norway" ? "NO" : "XK",
+                  flag: selectedForCertificate.countryFlag,
+                  salary: selectedForCertificate.salary,
+                  email: selectedForCertificate.email || "",
+                  employmentType: selectedForCertificate.employmentType || "contractor",
+                  startDate: "",
+                  noticePeriod: "30 days",
+                  pto: "20 days",
+                  currency: selectedForCertificate.salary.includes('₱') ? 'PHP' : selectedForCertificate.salary.includes('€') ? 'EUR' : 'USD',
+                  signingPortal: "Fronted Portal",
+                  status: "Hired" as const,
+                  employmentTypeSource: "suggested",
+                }}
+                index={0}
+                onView={() => {
+                  toast.success("Opening certificate preview");
+                }}
+              />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>;
 };
