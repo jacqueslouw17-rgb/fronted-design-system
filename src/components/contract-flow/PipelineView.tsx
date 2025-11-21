@@ -1074,8 +1074,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                               <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                           e.stopPropagation();
-                          setSelectedContractor(contractor);
-                          setConfigureDrawerOpen(true);
+                          handleSendForm(contractor.id);
                         }}>
                                 <Send className="h-3 w-3" />
                                 Send Form
