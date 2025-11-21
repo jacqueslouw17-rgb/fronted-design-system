@@ -77,7 +77,7 @@ const ContractCreation: React.FC = () => {
               </div>
               <div className="relative z-10">
                 <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-                  <Link to="/flows/contract-flow" aria-label="Back to pipeline">
+                  <Link to="/flows/contract-flow-multi-company" aria-label="Back to pipeline">
                     <Button variant="ghost" size="sm" className="gap-2">
                       <ArrowLeft className="h-4 w-4" />
                       Back
