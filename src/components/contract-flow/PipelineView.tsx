@@ -1152,7 +1152,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                     variant="outline" 
                     size="sm" 
                     onClick={onAddCandidate}
-                    className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50"
+                    className="w-full gap-2 border-dashed hover:bg-primary/5 hover:border-primary/50 hover:text-primary"
                   >
                     <Plus className="h-4 w-4" />
                     Add Candidate
