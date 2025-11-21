@@ -125,6 +125,9 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
       formSent: false,
       dataReceived: false,
       employmentType: formData.employmentType,
+      hasATSData: selectedAtsId !== "manual", // Track if from ATS or manual
+      email: formData.email,
+      startDate: formData.startDate,
     };
 
     onSave(newCandidate);
