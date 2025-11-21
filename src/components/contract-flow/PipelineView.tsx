@@ -61,6 +61,7 @@ interface PipelineViewProps {
   onSignatureComplete?: () => void;
   filterNonCertified?: boolean;
   mode?: "certified" | "payroll-ready" | "full-pipeline-with-payroll";
+  onAddCandidate?: () => void;
 }
 const statusConfig = {
   "offer-accepted": {
@@ -156,7 +157,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   onDraftContract,
   onSignatureComplete,
   filterNonCertified = false,
-  mode = "certified"
+  mode = "certified",
+  onAddCandidate
 }) => {
   const columns = mode === "full-pipeline-with-payroll" ? COLUMNS_FULL_PIPELINE : mode === "payroll-ready" ? COLUMNS_MERGED : COLUMNS_CERTIFIED;
   const navigate = useNavigate();
@@ -944,6 +946,31 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 
               {/* Column Body */}
               <div className={cn("min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg", config.color)}>
+                {/* Empty state for offer-accepted column */}
+                {status === "offer-accepted" && items.length === 0 && onAddCandidate && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center justify-center py-12 px-4 text-center"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                      <Plus className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="text-sm font-medium text-foreground mb-1">No candidates yet</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Add your first candidate to start the contracting process
+                    </p>
+                    <Button 
+                      size="sm" 
+                      onClick={onAddCandidate}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Candidate
+                    </Button>
+                  </motion.div>
+                )}
+                
                 {/* Payroll Summary Card - Removed for certified column */}
                 
                 <AnimatePresence mode="popLayout">

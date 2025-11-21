@@ -44,6 +44,7 @@ import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-fl
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import EmbeddedAdminOnboarding from "@/components/flows/onboarding/EmbeddedAdminOnboarding";
+import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
 
 // Mock companies data
 const MOCK_COMPANIES = [
@@ -81,6 +82,30 @@ const AdminContractingMultiCompany = () => {
   // Company switcher state
   const [selectedCompany, setSelectedCompany] = useState<string>(MOCK_COMPANIES[0].id);
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
+  const [companies, setCompanies] = useState(MOCK_COMPANIES);
+  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({});
+  const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
+  
+  // Check for new company from onboarding
+  useEffect(() => {
+    const newCompanyName = searchParams.get('newCompany');
+    if (newCompanyName) {
+      const newCompanyId = `company-${Date.now()}`;
+      const newCompany = { id: newCompanyId, name: decodeURIComponent(newCompanyName) };
+      
+      setCompanies(prev => [...prev, newCompany]);
+      setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
+      setSelectedCompany(newCompanyId);
+      
+      toast({
+        title: "Company Added",
+        description: `${newCompany.name} has been added successfully!`,
+      });
+      
+      // Clean URL
+      navigate('/flows/contract-flow-multi-company', { replace: true });
+    }
+  }, [searchParams, navigate, toast]);
 
   const userData = {
     firstName: "Joe",
@@ -98,7 +123,7 @@ const AdminContractingMultiCompany = () => {
     }
     
     setSelectedCompany(companyId);
-    const company = MOCK_COMPANIES.find(c => c.id === companyId);
+    const company = companies.find(c => c.id === companyId);
     
     toast({
       title: "Company Switched",
@@ -117,6 +142,18 @@ const AdminContractingMultiCompany = () => {
 
   const handleCancelAddCompany = () => {
     setIsAddingNewCompany(false);
+  };
+
+  const handleAddCandidate = () => {
+    setIsAddCandidateDrawerOpen(true);
+  };
+
+  const handleSaveCandidate = (candidate: any) => {
+    // Add candidate to current company's contractors
+    setCompanyContractors(prev => ({
+      ...prev,
+      [selectedCompany]: [...(prev[selectedCompany] || []), candidate]
+    }));
   };
 
   // Copy all handleKurtAction code from ContractFlowDemo
@@ -590,180 +627,8 @@ const AdminContractingMultiCompany = () => {
                     <div className="space-y-4">
                       <div className="mt-3">
                           <PipelineView 
-                            contractors={[
-                              {
-                                id: "display-1",
-                                name: "Liam Chen",
-                                country: "Singapore",
-                                countryFlag: "🇸🇬",
-                                role: "Frontend Developer",
-                                salary: "SGD 7,500/mo",
-                                status: "offer-accepted" as const,
-                                formSent: false,
-                                dataReceived: false,
-                                employmentType: "contractor" as const,
-                              },
-                              {
-                                id: "display-2",
-                                name: "Sofia Rodriguez",
-                                country: "Mexico",
-                                countryFlag: "🇲🇽",
-                                role: "Marketing Manager",
-                                salary: "MXN 45,000/mo",
-                                status: "data-pending" as const,
-                                formSent: true,
-                                dataReceived: false,
-                                employmentType: "employee" as const,
-                              },
-                              {
-                                id: "display-3",
-                                name: "Elena Popescu",
-                                country: "Romania",
-                                countryFlag: "🇷🇴",
-                                role: "Backend Developer",
-                                salary: "RON 18,000/mo",
-                                status: "drafting" as const,
-                                formSent: false,
-                                dataReceived: true,
-                                employmentType: "contractor" as const,
-                              },
-                              ...contractFlow.selectedCandidates.map((candidate, index) => ({
-                                id: candidate.id,
-                                name: candidate.name,
-                                country: candidate.country,
-                                countryFlag: candidate.flag,
-                                role: candidate.role,
-                                salary: candidate.salary,
-                                 status: (searchParams.get("phase") === "data-collection" && searchParams.get("moved") === "true") 
-                                   ? "awaiting-signature" as const 
-                                   : (searchParams.get("onboarding") === "true")
-                                     ? "trigger-onboarding" as const
-                                     : "drafting" as const,
-                                formSent: false,
-                                dataReceived: true,
-                                employmentType: candidate.employmentType || "contractor",
-                              })),
-                              {
-                                id: "cert-0",
-                                name: "David Martinez",
-                                country: "Portugal",
-                                countryFlag: "🇵🇹",
-                                role: "Technical Writer",
-                                salary: "€4,200/mo",
-                                status: "CERTIFIED" as const,
-                                employmentType: "contractor" as const,
-                              },
-                              {
-                                id: "cert-1",
-                                name: "Emma Wilson",
-                                country: "United Kingdom",
-                                countryFlag: "🇬🇧",
-                                role: "Senior Backend Developer",
-                                salary: "£6,500/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-2",
-                                name: "Luis Hernandez",
-                                country: "Spain",
-                                countryFlag: "🇪🇸",
-                                role: "Product Manager",
-                                salary: "€5,200/mo",
-                                status: "IN_BATCH" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-3",
-                                name: "Yuki Tanaka",
-                                country: "Japan",
-                                countryFlag: "🇯🇵",
-                                role: "UI/UX Designer",
-                                salary: "¥650,000/mo",
-                                status: "EXECUTING" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-4",
-                                name: "Sophie Dubois",
-                                country: "France",
-                                countryFlag: "🇫🇷",
-                                role: "Data Scientist",
-                                salary: "€5,800/mo",
-                                status: "PAID" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "last" as const,
-                              },
-                              {
-                                id: "cert-5",
-                                name: "Ahmed Hassan",
-                                country: "Egypt",
-                                countryFlag: "🇪🇬",
-                                role: "Mobile Developer",
-                                salary: "EGP 45,000/mo",
-                                status: "ON_HOLD" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-6",
-                                name: "Anna Kowalski",
-                                country: "Poland",
-                                countryFlag: "🇵🇱",
-                                role: "QA Engineer",
-                                salary: "PLN 15,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-7",
-                                name: "Marcus Silva",
-                                country: "Brazil",
-                                countryFlag: "🇧🇷",
-                                role: "Full Stack Developer",
-                                salary: "R$ 18,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "current" as const,
-                              },
-                              {
-                                id: "cert-8",
-                                name: "Priya Sharma",
-                                country: "India",
-                                countryFlag: "🇮🇳",
-                                role: "DevOps Engineer",
-                                salary: "₹2,50,000/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "next" as const,
-                              },
-                              {
-                                id: "cert-9",
-                                name: "Lars Anderson",
-                                country: "Sweden",
-                                countryFlag: "🇸🇪",
-                                role: "Security Engineer",
-                                salary: "SEK 58,000/mo",
-                                status: "PAID" as const,
-                                employmentType: "contractor" as const,
-                                payrollMonth: "last" as const,
-                              },
-                              {
-                                id: "cert-10",
-                                name: "Isabella Costa",
-                                country: "Portugal",
-                                countryFlag: "🇵🇹",
-                                role: "Content Strategist",
-                                salary: "€3,200/mo",
-                                status: "PAYROLL_PENDING" as const,
-                                employmentType: "employee" as const,
-                                payrollMonth: "current" as const,
-                              },
-                            ]}
+                            contractors={companyContractors[selectedCompany] || []}
+                            onAddCandidate={handleAddCandidate}
                             onDraftContract={(ids) => {
                               const params = new URLSearchParams({ ids: ids.join(',') }).toString();
                               navigate(`/flows/contract-creation?${params}`);
@@ -973,6 +838,13 @@ const AdminContractingMultiCompany = () => {
           </div>
         </AgentLayout>
       </main>
+      
+      {/* Add Candidate Drawer */}
+      <AddCandidateDrawer
+        open={isAddCandidateDrawerOpen}
+        onOpenChange={setIsAddCandidateDrawerOpen}
+        onSave={handleSaveCandidate}
+      />
     </div>
   </RoleLensProvider>
   );

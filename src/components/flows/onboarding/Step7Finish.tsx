@@ -33,9 +33,10 @@ const Step7Finish = ({ formData, onComplete, isProcessing: externalProcessing }:
     // Start transition
     setIsTransitioning(true);
     
-    // Navigate to Admin Dashboard
+    // Navigate to Multi-Company Admin Dashboard with new company flag
     setTimeout(() => {
-      navigate('/dashboard');
+      const companyName = formData.companyName || 'New Company';
+      navigate(`/flows/contract-flow-multi-company?newCompany=${encodeURIComponent(companyName)}`);
     }, 1500);
   }, [navigate, onComplete]);
 
