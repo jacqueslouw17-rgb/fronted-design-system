@@ -1177,8 +1177,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               </Badge>
                             </div>}
                           
-                          {status === "payroll-ready" && (
+                          {status === "payroll-ready" && contractor.status === "PAYROLL_PENDING" && (
+                            <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30 hover:bg-accent-green-fill/30">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Ready for payroll
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          {status === "payroll-ready" && contractor.status === "CERTIFIED" && (
                             <>
+                              <div className="flex items-center justify-center w-full py-1">
+                                <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
+                                  <Award className="h-3 w-3" />
+                                  Certified
+                                </Badge>
+                              </div>
                               <Button 
                                 size="sm" 
                                 variant="outline"
