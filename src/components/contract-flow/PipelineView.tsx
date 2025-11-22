@@ -448,6 +448,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
       return () => clearTimeout(timer);
     }
   }, [contractors, onContractorUpdate]);
+
+  // Clear resent form IDs after delay to re-enable button
+  React.useEffect(() => {
+    if (resentFormIds.size > 0) {
+      const timer = setTimeout(() => {
+        setResentFormIds(new Set());
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [resentFormIds]);
   const getContractorsByStatus = (status: typeof columns[number]) => {
     // Handle payroll-ready column - include all payroll statuses
     if (status === "payroll-ready") {
@@ -1111,12 +1121,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 <Eye className="h-3 w-3" />
                                 View Form
                               </Button>
-                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
-                          e.stopPropagation();
-                          handleSendForm(contractor.id);
-                        }}>
+                              <Button 
+                                size="sm" 
+                                className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" 
+                                disabled={resentFormIds.has(contractor.id)}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleSendForm(contractor.id);
+                                }}
+                              >
                                 <Send className="h-3 w-3" />
-                                Resend
+                                {resentFormIds.has(contractor.id) ? "Sent" : "Resend"}
                               </Button>
                             </>}
                           
