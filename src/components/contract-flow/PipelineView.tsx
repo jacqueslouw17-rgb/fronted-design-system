@@ -1093,12 +1093,22 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                             </>}
                           
-                          {status === "data-pending" && <div className="flex items-center justify-center w-full py-1">
-                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30 hover:bg-accent-blue-fill/30">
-                                <Clock className="h-3 w-3" />
-                                Waiting for data
-                              </Badge>
-                            </div>}
+                          {status === "data-pending" && <>
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
+                          e.stopPropagation();
+                          handleOpenConfigure(contractor);
+                        }}>
+                                <Eye className="h-3 w-3" />
+                                View Form
+                              </Button>
+                              <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
+                          e.stopPropagation();
+                          handleSendForm(contractor.id);
+                        }}>
+                                <Send className="h-3 w-3" />
+                                Resend
+                              </Button>
+                            </>}
                           
                           {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                           e.stopPropagation();
