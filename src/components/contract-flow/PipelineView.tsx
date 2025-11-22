@@ -698,6 +698,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
     setSelectedIds(newSelected);
   };
   const handleSendForm = (contractorId: string) => {
+    // Check if contractor is already in data-pending (resend scenario)
+    const contractor = contractors.find(c => c.id === contractorId);
+    if (contractor?.status === "data-pending") {
+      // Just mark as resent and show notification
+      setResentFormIds(prev => new Set([...prev, contractorId]));
+      toast.info(`Form resent to ${contractor.name}`);
+      return;
+    }
+
+    // Initial send - move to data-pending
     setSendingFormIds(prev => new Set([...prev, contractorId]));
     setTimeout(() => {
       const updated = contractors.map(c => c.id === contractorId ? {
