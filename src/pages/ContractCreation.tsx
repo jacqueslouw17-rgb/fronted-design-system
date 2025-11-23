@@ -72,7 +72,8 @@ const ContractCreation: React.FC = () => {
                 <img 
                   src={frontedLogo} 
                   alt="Fronted" 
-                  className="h-7 sm:h-8 w-auto"
+                  className="h-7 sm:h-8 w-auto cursor-pointer"
+                  onClick={() => navigate("/flows/contract-flow-multi-company")}
                 />
                 <Button
                   variant="ghost"
