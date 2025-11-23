@@ -638,21 +638,19 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             </motion.div>
 
             <div className="flex gap-3 justify-end">
-              {index > 0 && (
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    window.scrollTo({
-                      top: 0,
-                      behavior: 'smooth'
-                    });
-                    onPrevious();
-                  }} 
-                  size="lg"
-                >
-                  Previous
-                </Button>
-              )}
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                  });
+                  onPrevious();
+                }} 
+                size="lg"
+              >
+                Previous
+              </Button>
               <Button onClick={() => {
                 window.scrollTo({
                   top: 0,
