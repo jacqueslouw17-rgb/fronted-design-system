@@ -656,7 +656,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between gap-3">
+      <div className="flex justify-end gap-3">
         {currentIndex > 0 && onPrevious && (
           <Button 
             onClick={onPrevious}
@@ -670,7 +670,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         <Button 
           onClick={handleNext} 
           size="lg" 
-          className="gap-2 ml-auto"
+          className="gap-2"
         >
           <Sparkles className="h-5 w-5" />
           {currentIndex + 1 === totalCandidates 
