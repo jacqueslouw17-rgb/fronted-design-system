@@ -637,7 +637,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               <ContractCarousel pages={carouselPages} />
             </motion.div>
 
-            <div className={index === 0 ? "" : "flex gap-3"}>
+            <div className="flex gap-3 justify-end">
               {index > 0 && (
                 <Button 
                   variant="outline"
@@ -648,7 +648,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                     });
                     onPrevious();
                   }} 
-                  className="flex-1"
+                  size="lg"
                 >
                   Previous
                 </Button>
@@ -659,7 +659,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                   behavior: 'smooth'
                 });
                 onNext();
-              }} className={index === 0 ? "w-full" : "flex-1"}>
+              }} size="lg">
                 {index === total - 1 ? "Review All Drafts" : "Next Draft"}
               </Button>
             </div>
