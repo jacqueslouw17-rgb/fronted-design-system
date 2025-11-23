@@ -50,6 +50,7 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 const ContractFlowDemo = () => {
   const navigate = useNavigate();
@@ -739,21 +740,18 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
                 <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  {/* Navigation - Back and Close buttons */}
+                  {/* Navigation - Logo and Close buttons */}
                   <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
+                    <img 
+                      src={frontedLogo} 
+                      alt="Fronted" 
+                      className="h-7 sm:h-8 w-auto cursor-pointer"
                       onClick={() => {
                         // Navigate back to contract creation
                         const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
                         navigate(`/flows/contract-creation?ids=${ids}`);
                       }}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
+                    />
                     <Button
                       variant="ghost"
                       size="sm"
@@ -815,20 +813,30 @@ const ContractFlowDemo = () => {
                         />
                       </div>
                     ))}
-                    {/* Single Generate button for all candidates */}
+                    {/* Action buttons */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="pt-4"
+                      className="pt-4 flex gap-3 justify-end"
                     >
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          // Navigate back to contract creation
+                          const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
+                          navigate(`/flows/contract-creation?ids=${ids}`);
+                        }}
+                        size="lg"
+                      >
+                        Previous
+                      </Button>
                       <Button 
                         onClick={() => {
                           toast({ title: "Signing packs generated for all candidates" });
                           contractFlow.proceedFromBundle();
                         }}
                         size="lg"
-                        className="w-full"
                       >
                         <FileCheck className="mr-2 h-5 w-5" />
                         Generate Signing Packs
@@ -839,20 +847,17 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
                 <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  {/* Navigation - Back and Close buttons */}
+                  {/* Navigation - Logo and Close buttons */}
                   <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
+                    <img 
+                      src={frontedLogo} 
+                      alt="Fronted" 
+                      className="h-7 sm:h-8 w-auto cursor-pointer"
                       onClick={() => {
                         // Navigate back to bundle creation
                         navigate("/flows/contract-flow?phase=bundle-creation");
                       }}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
+                    />
                     <Button
                       variant="ghost"
                       size="sm"
@@ -883,17 +888,14 @@ const ContractFlowDemo = () => {
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
                 <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  {/* Navigation - Back and Close buttons */}
+                  {/* Navigation - Logo and Close buttons */}
                   <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
+                    <img 
+                      src={frontedLogo} 
+                      alt="Fronted" 
+                      className="h-7 sm:h-8 w-auto cursor-pointer"
                       onClick={() => contractFlow.backToDrafting()}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
+                    />
                     <Button
                       variant="ghost"
                       size="sm"
@@ -912,6 +914,7 @@ const ContractFlowDemo = () => {
                         toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
                         navigate("/flows/contract-flow?phase=data-collection&moved=true");
                       }}
+                      onBack={() => contractFlow.backToDrafting()}
                     />
                   </div>
                 </motion.div>

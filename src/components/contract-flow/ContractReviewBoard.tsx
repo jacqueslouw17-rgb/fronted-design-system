@@ -113,13 +113,20 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         })}
       </div>
 
-      {/* Action button */}
+      {/* Action buttons */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.3 }}
-        className="flex justify-center"
+        className="flex justify-end gap-3"
       >
+        <Button
+          variant="outline"
+          onClick={onBack}
+          size="lg"
+        >
+          Previous
+        </Button>
         <Button
           onClick={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,7 +146,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
             }, totalDelay);
           }}
           disabled={isSending}
-          className="max-w-md bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
+          className="bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-shadow"
           size="lg"
         >
           {isSending ? (
