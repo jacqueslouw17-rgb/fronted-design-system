@@ -408,12 +408,17 @@ const ContractFlowDemo = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar */}
-      <Topbar 
-        userName={`${userData.firstName} ${userData.lastName}`}
-        isDrawerOpen={isDrawerOpen}
-        onDrawerToggle={toggleDrawer}
-      />
+      {/* Topbar - only show on main dashboard/pipeline views */}
+      {(contractFlow.phase === "prompt" ||
+        contractFlow.phase === "generating" ||
+        contractFlow.phase === "offer-accepted" ||
+        contractFlow.phase === "data-collection") && (
+        <Topbar 
+          userName={`${userData.firstName} ${userData.lastName}`}
+          isDrawerOpen={isDrawerOpen}
+          onDrawerToggle={toggleDrawer}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 flex overflow-hidden relative">
