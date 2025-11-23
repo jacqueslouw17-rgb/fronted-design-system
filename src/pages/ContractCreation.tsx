@@ -47,63 +47,60 @@ const ContractCreation: React.FC = () => {
 
   return (
     <RoleLensProvider initialRole="admin">
-      <div className="min-h-screen flex flex-col w-full bg-background">
-        {/* Minimal Header */}
-        <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-4 sm:px-6">
-          <img 
-            src={frontedLogo} 
-            alt="Fronted" 
-            className="h-7 sm:h-8 w-auto"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => navigate("/flows/contract-flow-multi-company")}
-            aria-label="Close and return to pipeline"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </header>
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Dashboard Drawer */}
+        <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex overflow-hidden">
-          {/* Dashboard Drawer */}
-          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
-
-          {/* Contract Creation Area */}
-          <AgentLayout context="Contract Drafting">
-            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
-              {/* Static background */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-                <div
-                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
-                />
-                <div
-                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                  style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
-                />
-              </div>
-              <div className="relative z-10">
-                <ContractCreationScreen
-                  candidate={current}
-                  currentIndex={index}
-                  totalCandidates={selected.length}
-                  onNext={() => {
-                    if (index < selected.length - 1) {
-                      setIndex((i) => i + 1);
-                    } else {
-                      // Navigate to bundle creation phase
-                      navigate("/flows/contract-flow?phase=bundle-creation");
-                    }
-                  }}
-                />
-              </div>
+        {/* Contract Creation Area */}
+        <AgentLayout context="Contract Drafting">
+          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
+            {/* Static background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+              <div
+                className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+                style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
+              />
+              <div
+                className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+                style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }}
+              />
             </div>
-          </AgentLayout>
-        </main>
+            <div className="relative z-10">
+              {/* Logo and Close Button */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <img 
+                  src={frontedLogo} 
+                  alt="Fronted" 
+                  className="h-7 sm:h-8 w-auto"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => navigate("/flows/contract-flow-multi-company")}
+                  aria-label="Close and return to pipeline"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <ContractCreationScreen
+                candidate={current}
+                currentIndex={index}
+                totalCandidates={selected.length}
+                onNext={() => {
+                  if (index < selected.length - 1) {
+                    setIndex((i) => i + 1);
+                  } else {
+                    // Navigate to bundle creation phase
+                    navigate("/flows/contract-flow?phase=bundle-creation");
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </AgentLayout>
       </div>
     </RoleLensProvider>
   );
