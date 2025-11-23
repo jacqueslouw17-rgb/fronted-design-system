@@ -1187,40 +1187,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           )}
                           
                           {status === "CERTIFIED" && (
-                            <>
-                              <div className="flex items-center justify-center w-full py-1">
-                                <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-purple-fill/20 text-accent-purple-text border-accent-purple-outline/30 hover:bg-accent-purple-fill/30">
-                                  <Award className="h-3 w-3" />
-                                  Certified
-                                </Badge>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    handleOpenCertificate(contractor);
-                                  }}
-                                >
-                                  <Eye className="h-3 w-3" />
-                                  View
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    toast.success("Certificate downloaded");
-                                  }}
-                                >
-                                  <Download className="h-3 w-3" />
-                                  Download
-                                </Button>
-                              </div>
-                            </>
+                            <div className="flex items-center justify-center w-full py-1">
+                              <Badge variant="secondary" className="text-xs gap-1.5 bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30 hover:bg-accent-green-fill/30">
+                                <Award className="h-3 w-3" />
+                                Certified
+                              </Badge>
+                            </div>
                           )}
                           
                           {status === "payroll-ready" && contractor.status === "CERTIFIED" && (
