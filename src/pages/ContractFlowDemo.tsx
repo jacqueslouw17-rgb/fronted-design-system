@@ -880,7 +880,13 @@ const ContractFlowDemo = () => {
                           contractFlow.nextDraft(); 
                         }}
                         onPrevious={() => {
-                          contractFlow.previousDraft();
+                          if (contractFlow.currentDraftIndex === 0) {
+                            // If on first candidate, go back to bundle creation
+                            navigate("/flows/contract-flow?phase=bundle-creation");
+                          } else {
+                            // Otherwise go to previous candidate
+                            contractFlow.previousDraft();
+                          }
                         }}
                       />
                     </div>
