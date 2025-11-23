@@ -1194,18 +1194,32 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                   Certified
                                 </Badge>
                               </div>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  handleOpenCertificate(contractor);
-                                }}
-                              >
-                                <Eye className="h-3 w-3" />
-                                View Certificate
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    handleOpenCertificate(contractor);
+                                  }}
+                                >
+                                  <Eye className="h-3 w-3" />
+                                  View
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    toast.success("Certificate downloaded");
+                                  }}
+                                >
+                                  <Download className="h-3 w-3" />
+                                  Download
+                                </Button>
+                              </div>
                             </>
                           )}
                         </div>
