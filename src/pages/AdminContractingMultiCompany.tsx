@@ -360,6 +360,22 @@ const AdminContractingMultiCompany = () => {
       navigate('/flows/contract-flow-multi-company', { replace: true });
     }
   }, [searchParams, navigate, toast]);
+  
+  // Merge contractors from store into the current company when moved=true
+  useEffect(() => {
+    if (searchParams.get("moved") === "true" && contractors.length > 0) {
+      setCompanyContractors(prev => ({
+        ...prev,
+        [selectedCompany]: [
+          ...(prev[selectedCompany] || []),
+          ...contractors.filter(c => 
+            // Only add contractors that aren't already in this company
+            !(prev[selectedCompany] || []).some(existing => existing.id === c.id)
+          )
+        ]
+      }));
+    }
+  }, [searchParams, contractors, selectedCompany]);
 
   const userData = {
     firstName: "Joe",
