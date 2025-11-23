@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContractCreationScreen } from "@/components/contract-flow/ContractCreationScreen";
 import { Candidate, useMockCandidates } from "@/hooks/useContractFlow";
-import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
 import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -48,12 +48,23 @@ const ContractCreation: React.FC = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-        {/* Topbar */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`}
-          isDrawerOpen={isDrawerOpen}
-          onDrawerToggle={toggleDrawer}
-        />
+        {/* Minimal Header */}
+        <header className="sticky top-0 z-50 h-14 sm:h-16 border-b bg-card flex items-center justify-between px-4 sm:px-6">
+          <img 
+            src={frontedLogo} 
+            alt="Fronted" 
+            className="h-7 sm:h-8 w-auto"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => navigate("/flows/contract-flow-multi-company")}
+            aria-label="Close and return to pipeline"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </header>
 
         {/* Main Content Area */}
         <main className="flex-1 flex overflow-hidden">
@@ -76,15 +87,6 @@ const ContractCreation: React.FC = () => {
                 />
               </div>
               <div className="relative z-10">
-                <div className="max-w-7xl mx-auto px-6 pt-4 pb-2">
-                  <Link to="/flows/contract-flow-multi-company" aria-label="Back to pipeline">
-                    <Button variant="ghost" size="sm" className="gap-2">
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
-                  </Link>
-                </div>
-
                 <ContractCreationScreen
                   candidate={current}
                   currentIndex={index}
