@@ -50,7 +50,6 @@ import { KurtChatSidebar } from "@/components/kurt/KurtChatSidebar";
 import { generateAnyUpdatesMessage, generateAskKurtMessage } from "@/lib/kurt-flow2-context";
 import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
-import frontedLogo from "@/assets/fronted-logo.png";
 
 const ContractFlowDemo = () => {
   const navigate = useNavigate();
@@ -409,6 +408,12 @@ const ContractFlowDemo = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
+      {/* Topbar */}
+      <Topbar 
+        userName={`${userData.firstName} ${userData.lastName}`}
+        isDrawerOpen={isDrawerOpen}
+        onDrawerToggle={toggleDrawer}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 flex overflow-hidden relative">
@@ -427,23 +432,6 @@ const ContractFlowDemo = () => {
           {/* Contract Flow Main Area with Agent Layout */}
           <AgentLayout context="Contract Flow">
             <div className="flex-1 overflow-auto relative">
-              {/* Minimal Header - Logo and Close */}
-              <div className="flex items-center justify-between px-6 sm:px-8 pt-6 pb-4">
-                <img 
-                  src={frontedLogo} 
-                  alt="Fronted" 
-                  className="h-7 sm:h-8 w-auto cursor-pointer"
-                  onClick={() => navigate("/flows/contract-flow-multi-company")}
-                />
-                <button
-                  onClick={() => navigate("/flows/contract-flow-multi-company")}
-                  className="p-2 rounded-full hover:bg-muted/50 transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="h-5 w-5 text-muted-foreground" />
-                </button>
-              </div>
-              
               <div className="relative z-10">
               <AnimatePresence mode="wait">
                 {contractFlow.phase === "prompt" ? (
