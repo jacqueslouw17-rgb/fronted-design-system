@@ -915,10 +915,10 @@ const ContractFlowDemo = () => {
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
                       onStartSigning={() => { 
-                        // Update phase and navigate back to pipeline
+                        // Update phase and navigate to multi-company flow
                         contractFlow.proceedToDataCollection();
                         toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
-                        navigate("/flows/contract-flow?phase=data-collection&moved=true");
+                        navigate("/flows/contract-flow-multi-company?phase=data-collection&moved=true");
                       }}
                       onBack={() => contractFlow.backToDrafting()}
                     />
