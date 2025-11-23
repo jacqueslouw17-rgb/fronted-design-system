@@ -78,7 +78,7 @@ const AdminContractingMultiCompany = () => {
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
-  const { contractors } = useContractorStore();
+  const { contractors, setContractors } = useContractorStore();
   
   // Company switcher state
   const [selectedCompany, setSelectedCompany] = useState<string>(MOCK_COMPANIES[0].id);
@@ -374,8 +374,14 @@ const AdminContractingMultiCompany = () => {
           )
         ]
       }));
+      
+      // Clear the contractor store after merging to prevent duplicates
+      setContractors([]);
+      
+      // Clear the moved param to prevent re-triggering
+      navigate('/flows/contract-flow-multi-company?phase=data-collection', { replace: true });
     }
-  }, [searchParams, contractors, selectedCompany]);
+  }, [searchParams, contractors, selectedCompany, setContractors, navigate]);
 
   const userData = {
     firstName: "Joe",
