@@ -86,19 +86,24 @@ const ContractCreation: React.FC = () => {
                 </Button>
               </div>
 
-              <ContractCreationScreen
-                candidate={current}
-                currentIndex={index}
-                totalCandidates={selected.length}
-                onNext={() => {
-                  if (index < selected.length - 1) {
-                    setIndex((i) => i + 1);
-                  } else {
-                    // Navigate to bundle creation phase
-                    navigate("/flows/contract-flow?phase=bundle-creation");
-                  }
-                }}
-              />
+                <ContractCreationScreen
+                  candidate={current}
+                  currentIndex={index}
+                  totalCandidates={selected.length}
+                  onPrevious={() => {
+                    if (index > 0) {
+                      setIndex((i) => i - 1);
+                    }
+                  }}
+                  onNext={() => {
+                    if (index < selected.length - 1) {
+                      setIndex((i) => i + 1);
+                    } else {
+                      // Navigate to bundle creation phase
+                      navigate("/flows/contract-flow?phase=bundle-creation");
+                    }
+                  }}
+                />
             </div>
           </div>
         </AgentLayout>

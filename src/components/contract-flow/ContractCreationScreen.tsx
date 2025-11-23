@@ -18,6 +18,7 @@ import { useAgentState } from "@/hooks/useAgentState";
 interface ContractCreationScreenProps {
   candidate: Candidate;
   onNext: () => void;
+  onPrevious?: () => void;
   currentIndex?: number;
   totalCandidates?: number;
 }
@@ -31,6 +32,7 @@ interface MissingField {
 export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
   candidate,
   onNext,
+  onPrevious,
   currentIndex = 0,
   totalCandidates = 1,
 }) => {
@@ -654,8 +656,22 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-end gap-3">
-        <Button onClick={handleNext} size="lg" className="gap-2">
+      <div className="flex justify-between gap-3">
+        {currentIndex > 0 && onPrevious && (
+          <Button 
+            onClick={onPrevious}
+            variant="outline"
+            size="lg"
+            className="px-8"
+          >
+            Previous
+          </Button>
+        )}
+        <Button 
+          onClick={handleNext} 
+          size="lg" 
+          className="gap-2 ml-auto"
+        >
           <Sparkles className="h-5 w-5" />
           {currentIndex + 1 === totalCandidates 
             ? "Next: Review Contract Bundle" 
