@@ -68,6 +68,7 @@ const ContractFlowDemo = () => {
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
   const { contractors } = useContractorStore();
+  const { setContractors } = useContractorStore();
 
   const userData = {
     firstName: "Joe",
@@ -915,6 +916,23 @@ const ContractFlowDemo = () => {
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
                       onStartSigning={() => { 
+                        // Add candidates to contractor store with awaiting-signature status
+                        const newContractors = contractFlow.selectedCandidates.map(candidate => ({
+                          id: candidate.id,
+                          name: candidate.name,
+                          country: candidate.country,
+                          countryFlag: candidate.flag,
+                          role: candidate.role,
+                          salary: candidate.salary,
+                          status: "awaiting-signature" as const,
+                          formSent: true,
+                          dataReceived: true,
+                          employmentType: candidate.employmentType || "contractor" as const,
+                        }));
+                        
+                        // Update the contractor store
+                        setContractors([...contractors, ...newContractors]);
+                        
                         // Update phase and navigate to multi-company flow
                         contractFlow.proceedToDataCollection();
                         toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
