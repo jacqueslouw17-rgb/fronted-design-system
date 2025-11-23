@@ -118,7 +118,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.3 }}
-        className="flex justify-end gap-3"
+        className="flex justify-center gap-3"
       >
         <Button
           variant="outline"
