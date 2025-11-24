@@ -38,7 +38,7 @@ interface EmbeddedAdminOnboardingProps {
 
 const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
-  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus } = useAdminFlowBridge();
+  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus, getStepData } = useAdminFlowBridge();
   const { resetAdminFlow } = useOnboardingStore();
   
   const { currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
@@ -80,7 +80,9 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
 
     // Check if this is the final step
     if (stepId === "finish_dashboard_transition") {
-      const companyName = state.formData.org_profile?.companyName || "New Company";
+      // Read company name directly from store to ensure we get the latest saved value
+      const orgProfileData = getStepData("org_profile");
+      const companyName = orgProfileData?.companyName || "New Company";
       
       toast({
         title: "Setup Complete",
