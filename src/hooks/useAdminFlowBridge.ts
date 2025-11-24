@@ -25,11 +25,9 @@ export const useAdminFlowBridge = () => {
   };
 
   const updateFormData = useCallback((data: Record<string, any>) => {
-    console.log('[AdminFlowBridge] updateFormData called - currentStep:', adminFlow.currentStep, 'data:', data);
     // Update the current step's data
     updateAdminStepData(adminFlow.currentStep, data);
-    console.log('[AdminFlowBridge] After update, stepData:', adminFlow.stepData);
-  }, [adminFlow.currentStep, adminFlow.stepData, updateAdminStepData]);
+  }, [adminFlow.currentStep, updateAdminStepData]);
 
   const completeStep = useCallback((stepId: string) => {
     completeAdminStep(stepId);

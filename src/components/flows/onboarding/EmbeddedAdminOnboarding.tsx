@@ -1,4 +1,11 @@
 /**
+ * ⚠️ LOCKED COMPONENT - Part of Flow 1.1 Fronted Admin Dashboard v2 ⚠️
+ * 
+ * This component is part of a LOCKED flow and should NOT be modified.
+ * See: src/pages/AdminContractingMultiCompany.tsx
+ * Flow: Flow 1.1 — Fronted Admin Dashboard v2
+ * Locked Date: 2025-01-15
+ * 
  * Embedded Admin Onboarding Flow
  * 
  * This is a duplicate of Flow 1 Admin Onboarding, adapted to render
@@ -72,7 +79,6 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
 
     // Update form data if provided
     if (data) {
-      console.log('[EmbeddedAdmin] Updating form data for step:', stepId, 'with data:', data);
       updateFormData(data);
     }
     
@@ -83,9 +89,7 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     if (stepId === "finish_dashboard_transition") {
       // Read company name directly from store to ensure we get the latest saved value
       const orgProfileData = getStepData("org_profile");
-      console.log('[EmbeddedAdmin] Reading org_profile data:', orgProfileData);
       const companyName = orgProfileData?.companyName || "New Company";
-      console.log('[EmbeddedAdmin] Company name to be passed:', companyName);
       
       toast({
         title: "Setup Complete",

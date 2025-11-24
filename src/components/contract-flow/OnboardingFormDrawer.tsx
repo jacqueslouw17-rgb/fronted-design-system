@@ -1,3 +1,12 @@
+/**
+ * ⚠️ LOCKED COMPONENT - Part of Flow 1.1 Fronted Admin Dashboard v2 ⚠️
+ * 
+ * This component is part of a LOCKED flow and should NOT be modified.
+ * See: src/pages/AdminContractingMultiCompany.tsx
+ * Flow: Flow 1.1 — Fronted Admin Dashboard v2
+ * Locked Date: 2025-01-15
+ */
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";

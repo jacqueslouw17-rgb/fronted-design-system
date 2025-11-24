@@ -15,14 +15,28 @@ The Flow Locking system prevents structural, design, and logic changes to finali
   - `src/pages/flows/AdminOnboarding.tsx`
   - `src/components/flows/onboarding/Step*.tsx`
 
-### Flow 3 — Candidate Data Collection
+### Flow 5 — Candidate Dashboard
 - **Status**: 🔒 LOCKED
-- **Locked Date**: 2025-01-13
-- **Path**: `/flows/candidate-onboarding`
-- **Reason**: Finalized for backend integration
+- **Locked Date**: 2025-01-14
+- **Path**: `/flows/candidate-dashboard`
+- **Reason**: Finalized contract flow with signing sub-statuses and document management
 - **Files**:
-  - `src/pages/CandidateOnboarding.tsx`
-  - `src/components/flows/candidate-onboarding/CandidateStep2PersonalDetails.tsx`
+  - `src/pages/flows/CandidateDashboard.tsx`
+  - `src/components/contract-flow/ContractPreviewDrawer.tsx`
+
+### Flow 1.1 — Fronted Admin Dashboard v2
+- **Status**: 🔒 LOCKED
+- **Locked Date**: 2025-01-15
+- **Path**: `/flows/contract-flow-multi-company`
+- **Reason**: Finalized multi-company admin dashboard with pipeline, company switcher, and contractor management
+- **Files**:
+  - `src/pages/AdminContractingMultiCompany.tsx`
+  - `src/components/contract-flow/PipelineView.tsx`
+  - `src/components/contract-flow/AddCandidateDrawer.tsx`
+  - `src/components/contract-flow/OnboardingFormDrawer.tsx`
+  - `src/components/flows/onboarding/EmbeddedAdminOnboarding.tsx`
+  - `src/components/flows/onboarding/Step2OrgProfileSimplified.tsx`
+  - `src/components/flows/onboarding/Step7Finish.tsx`
 
 ## How It Works
 
