@@ -179,7 +179,7 @@ const FrontedAdminProfileSettings = () => {
                   onOpenChange={setIsCompanyAdminsOpen}
                   className="bg-card/40 border border-border/40 rounded-lg"
                 >
-                  <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-accent/5 transition-colors rounded-t-lg">
+                  <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-muted/30 transition-colors rounded-t-lg">
                     <div className="flex items-center gap-2">
                       <Mail className="h-5 w-5 text-primary" />
                       <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
