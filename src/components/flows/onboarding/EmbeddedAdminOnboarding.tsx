@@ -26,10 +26,9 @@ import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
-  { id: "intro_trust_model", title: "Admin details", stepNumber: 1 },
-  { id: "org_profile", title: "Company details", stepNumber: 2 },
-  { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 3 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 4 }
+  { id: "org_profile", title: "Company details", stepNumber: 1 },
+  { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 2 },
+  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 3 }
 ];
 
 interface EmbeddedAdminOnboardingProps {
@@ -58,7 +57,7 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
-      setExpandedStep("intro_trust_model");
+      setExpandedStep("org_profile");
       hasInitialized.current = true;
     }
   }, [resetAdminFlow, setExpandedStep]);
@@ -129,7 +128,6 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     // reflect completion states (e.g. hiring locations)
     const stepData = stepId === "finish_dashboard_transition"
       ? {
-          ...(state.formData["intro_trust_model"] || {}),
           ...(state.formData["org_profile"] || {}),
           ...(state.formData["localization_country_blocks"] || {}),
           ...(state.formData[stepId] || {}),
@@ -145,8 +143,6 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     };
 
     switch (stepId) {
-      case "intro_trust_model":
-        return <Step1IntroTrust {...stepProps} isInviteMode={true} />;
       case "org_profile":
         return <Step2OrgProfileSimplified {...stepProps} />;
       case "localization_country_blocks":

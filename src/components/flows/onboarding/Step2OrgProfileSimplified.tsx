@@ -29,6 +29,8 @@ const Step2OrgProfileSimplified = ({
 }: Step2Props) => {
   const [data, setData] = useState({
     companyName: formData.companyName || "",
+    adminName: formData.adminName || "",
+    adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
     payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
     payrollFrequency: formData.payrollFrequency || "monthly",
@@ -43,6 +45,8 @@ const Step2OrgProfileSimplified = ({
     if (formData.companyName && formData.companyName !== data.companyName) {
       setData({
         companyName: formData.companyName || "",
+        adminName: formData.adminName || "",
+        adminEmail: formData.adminEmail || "",
         hqCountry: formData.hqCountry || "",
         payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
         payrollFrequency: formData.payrollFrequency || "monthly",
@@ -55,6 +59,11 @@ const Step2OrgProfileSimplified = ({
     const newErrors: Record<string, string> = {};
     
     if (!data.companyName) newErrors.companyName = "Company name is required";
+    if (!data.adminName) newErrors.adminName = "Admin name is required";
+    if (!data.adminEmail) newErrors.adminEmail = "Admin email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail)) {
+      newErrors.adminEmail = "Invalid email format";
+    }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
     
     setErrors(newErrors);
@@ -95,6 +104,8 @@ const Step2OrgProfileSimplified = ({
   // Check if all required fields are filled
   const isFormValid = 
     data.companyName.trim().length > 0 &&
+    data.adminName.trim().length > 0 &&
+    data.adminEmail.trim().length > 0 &&
     data.hqCountry.trim().length > 0;
 
   return (
@@ -122,6 +133,39 @@ const Step2OrgProfileSimplified = ({
             />
             {errors.companyName && (
               <p className="text-xs text-destructive">{errors.companyName}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminName" className="text-sm">
+              Admin Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="adminName"
+              value={data.adminName}
+              onChange={(e) => handleFieldChange('adminName', e.target.value)}
+              placeholder="John Doe"
+              className="text-sm"
+            />
+            {errors.adminName && (
+              <p className="text-xs text-destructive">{errors.adminName}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminEmail" className="text-sm">
+              Admin Email <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="adminEmail"
+              type="email"
+              value={data.adminEmail}
+              onChange={(e) => handleFieldChange('adminEmail', e.target.value)}
+              placeholder="admin@company.com"
+              className="text-sm"
+            />
+            {errors.adminEmail && (
+              <p className="text-xs text-destructive">{errors.adminEmail}</p>
             )}
           </div>
 
