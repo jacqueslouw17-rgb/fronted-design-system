@@ -765,8 +765,8 @@ const AdminContractingMultiCompany = () => {
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
           onDrawerToggle={toggleDrawer}
-          profileSettingsUrl="/change-password"
-          profileMenuLabel="Change Password"
+          profileSettingsUrl="/fronted-admin/profile-settings"
+          profileMenuLabel="Profile Settings"
           companySwitcher={{
             companies,
             selectedCompany,

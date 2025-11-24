@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import DashboardAdmin from "./pages/flows/DashboardAdmin";
 import Auth from "./pages/Auth";
 import ProfileSettings from "./pages/ProfileSettings";
+import FrontedAdminProfileSettings from "./pages/FrontedAdminProfileSettings";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 
 // Flows
@@ -93,6 +94,7 @@ const App = () => (
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<DashboardAdmin />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />
+        <Route path="/fronted-admin/profile-settings" element={<FrontedAdminProfileSettings />} />
         
         {/* Flows Routes */}
         <Route path="/flows" element={<Flows />} />
