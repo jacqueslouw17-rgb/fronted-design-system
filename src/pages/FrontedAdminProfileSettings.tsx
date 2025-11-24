@@ -62,7 +62,7 @@ const FrontedAdminProfileSettings = () => {
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCompanyAdminsOpen, setIsCompanyAdminsOpen] = useState(true);
+  const [isCompanyAdminsOpen, setIsCompanyAdminsOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
