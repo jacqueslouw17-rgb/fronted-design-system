@@ -80,6 +80,7 @@ const Step2OrgProfileSimplified = ({
       return;
     }
 
+    console.log('[Step2OrgProfile] Saving data:', data);
     // No generic save notification - let the step transition speak for itself
     onComplete("org_profile", data);
   };
