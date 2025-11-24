@@ -1,8 +1,32 @@
 /**
- * Flow 2.1 — Admin Contracting (Multi-Company Version)
+ * ⚠️ LOCKED FLOW - DO NOT MODIFY ⚠️
  * 
- * This flow is editable and adds company switching capabilities
- * to the base contracting flow.
+ * Flow 1.1 — Fronted Admin Dashboard v2
+ * Status: LOCKED (finalized for backend integration)
+ * Locked Date: 2025-01-15
+ * 
+ * This flow is finalized and should NOT be modified for:
+ * - Structural changes (adding/removing steps, pipeline columns)
+ * - Design changes (styling, layout, component structure)
+ * - Logic changes (validation, flow control, state management)
+ * - Batch updates or pattern-level edits
+ * 
+ * Multi-company admin dashboard with:
+ * - Pipeline view with contractor cards
+ * - Company switcher dropdown
+ * - Add new company onboarding flow
+ * - Contractor management (add, configure, send forms)
+ * - Contract creation and signature tracking
+ * 
+ * Related locked files:
+ * - src/components/contract-flow/PipelineView.tsx
+ * - src/components/contract-flow/AddCandidateDrawer.tsx
+ * - src/components/contract-flow/OnboardingFormDrawer.tsx
+ * - src/components/flows/onboarding/EmbeddedAdminOnboarding.tsx
+ * - src/components/flows/onboarding/Step2OrgProfileSimplified.tsx
+ * - src/components/flows/onboarding/Step7Finish.tsx
+ * 
+ * To unlock: Update src/config/flowRegistry.ts
  */
 
 import React, { useEffect, useState } from "react";

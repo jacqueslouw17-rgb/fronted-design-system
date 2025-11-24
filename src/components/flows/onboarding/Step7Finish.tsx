@@ -1,3 +1,12 @@
+/**
+ * ⚠️ LOCKED COMPONENT - Part of Flow 1.1 Fronted Admin Dashboard v2 ⚠️
+ * 
+ * This component is part of a LOCKED flow and should NOT be modified.
+ * See: src/pages/AdminContractingMultiCompany.tsx
+ * Flow: Flow 1.1 — Fronted Admin Dashboard v2
+ * Locked Date: 2025-01-15
+ */
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
