@@ -109,7 +109,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
   };
 
   const handleSave = () => {
-    if (!formData.name || !formData.email || !formData.country || !formData.role) {
+    if (!formData.name || !formData.email || !formData.country || !formData.role || !formData.salary || !formData.startDate) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -150,7 +150,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
   const isATSSelected = selectedAtsId && selectedAtsId !== "manual";
   
-  const isFormValid = formData.name && formData.email && formData.country && formData.role;
+  const isFormValid = formData.name && formData.email && formData.country && formData.role && formData.salary && formData.startDate;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -269,7 +269,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="salary">Salary (Optional)</Label>
+                  <Label htmlFor="salary">Salary *</Label>
                   <Input
                     id="salary"
                     value={formData.salary}
@@ -282,16 +282,13 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date (Optional)</Label>
+                  <Label htmlFor="startDate">Start Date *</Label>
                   <Input
                     id="startDate"
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
                   />
-                  {!formData.startDate && (
-                    <p className="text-xs text-muted-foreground">To be filled by candidate</p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
