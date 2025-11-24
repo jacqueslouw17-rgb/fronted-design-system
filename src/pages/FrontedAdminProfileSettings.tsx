@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { X, Mail, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { X, Mail, CheckCircle, Clock, AlertCircle, Loader2, ChevronDown } from "lucide-react";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { toast } from "sonner";
 import { AgentHeader } from "@/components/agent/AgentHeader";
@@ -61,6 +62,7 @@ const FrontedAdminProfileSettings = () => {
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompanyAdminsOpen, setIsCompanyAdminsOpen] = useState(true);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -172,16 +174,33 @@ const FrontedAdminProfileSettings = () => {
 
               {/* Company Admins Section */}
               <div className="mt-8 space-y-4">
-                <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-                  <div className="flex items-center gap-2 mb-6">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    View status and manage access for all company admins
-                  </p>
+                <Collapsible
+                  open={isCompanyAdminsOpen}
+                  onOpenChange={setIsCompanyAdminsOpen}
+                  className="bg-card/40 border border-border/40 rounded-lg"
+                >
+                  <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-accent/5 transition-colors rounded-t-lg">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
+                      <Badge variant="secondary" className="ml-2">
+                        {companyAdmins.length}
+                      </Badge>
+                    </div>
+                    <ChevronDown 
+                      className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
+                        isCompanyAdminsOpen ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent>
+                    <div className="px-6 pb-6">
+                      <p className="text-sm text-muted-foreground mb-6">
+                        View status and manage access for all company admins
+                      </p>
 
-                  <div className="space-y-4">
+                      <div className="space-y-4">
                     {companyAdmins.map((admin, index) => {
                       const statusConfig = getStatusConfig(admin.status);
                       const StatusIcon = statusConfig.icon;
@@ -236,8 +255,10 @@ const FrontedAdminProfileSettings = () => {
                         </motion.div>
                       );
                     })}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
                 {/* Password Change Section */}
                 <div className="bg-card/40 border border-border/40 rounded-lg p-6">
