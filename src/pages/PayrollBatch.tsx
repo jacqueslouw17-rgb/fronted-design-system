@@ -1351,7 +1351,7 @@ const PayrollBatch: React.FC = () => {
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      For payroll month: {payrollCycleData[selectedCycle].label}
+                      {payrollCycleData[selectedCycle].label}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
