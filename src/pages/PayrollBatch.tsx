@@ -2094,29 +2094,30 @@ const PayrollBatch: React.FC = () => {
                         {/* Per-type Subtotals Row */}
                         <TableRow className="bg-muted/30 border-t border-border">
                           <TableCell colSpan={22} className="p-0">
-                            <div className="p-3 space-y-2">
-                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                Subtotals by Type ({currency})
-                              </p>
-                              <div className="grid grid-cols-3 gap-2">
+                              <div className="flex gap-3 md:gap-4 items-stretch">
                                 {/* Contractors Subtotal */}
-                                <div className="p-3 bg-secondary/5 border border-secondary/20 rounded-lg max-w-[210px]">
-                                  <p className="text-xs text-muted-foreground mb-1">Contractors</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                <div className="flex-1 min-w-0 p-3 bg-secondary/5 border border-secondary/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1 flex justify-between">
+                                    <span>Contractors</span>
+                                    <span>{contractorsList.length} worker{contractorsList.length !== 1 ? 's' : ''}</span>
+                                  </p>
+                                  <p className="text-lg font-bold text-foreground truncate">
                                     {symbol}{contractorsList.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
                                       return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                                     }, 0).toLocaleString()}
                                   </p>
-                                  <p className="text-xs text-muted-foreground mt-0.5">{contractorsList.length} worker{contractorsList.length !== 1 ? 's' : ''}</p>
                                 </div>
                                 {/* Employees Subtotal */}
-                                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg max-w-[210px]">
-                                  <p className="text-xs text-muted-foreground mb-1">Employees</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                <div className="flex-1 min-w-0 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1 flex justify-between">
+                                    <span>Employees</span>
+                                    <span>{employeesList.length} worker{employeesList.length !== 1 ? 's' : ''}</span>
+                                  </p>
+                                  <p className="text-lg font-bold text-foreground truncate">
                                     {symbol}{employeesList.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                      const isPHEmployee = c.countryCode === 'PH' && c.employmentType === 'employee';
                                       const phMultiplier = isPHEmployee ? 0.5 : 1;
                                       const grossPay = c.baseSalary * phMultiplier;
                                       const deductions = 0; // Placeholder
@@ -2124,26 +2125,26 @@ const PayrollBatch: React.FC = () => {
                                       return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                                     }, 0).toLocaleString()}
                                   </p>
-                                  <p className="text-xs text-muted-foreground mt-0.5">{employeesList.length} worker{employeesList.length !== 1 ? 's' : ''}</p>
                                 </div>
                                 {/* Total FX Exposure */}
-                                <div className="p-3 bg-accent/5 border border-accent/20 rounded-lg max-w-[210px]">
-                                  <p className="text-xs text-muted-foreground mb-1">Total</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                <div className="flex-1 min-w-0 p-3 bg-accent/5 border border-accent/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1 flex justify-between">
+                                    <span>Total</span>
+                                    <span>{contractors.length} total</span>
+                                  </p>
+                                  <p className="text-lg font-bold text-foreground truncate">
                                     {symbol}{contractors.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                      const isPHEmployee = c.countryCode === 'PH' && c.employmentType === 'employee';
                                       const phMultiplier = isPHEmployee ? 0.5 : 1;
                                       const grossPay = c.baseSalary * phMultiplier;
                                       const deductions = 0;
                                       const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                      return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                      return sum + (c.employmentType === 'employee' ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                                     }, 0).toLocaleString()}
                                   </p>
-                                  <p className="text-xs text-muted-foreground mt-0.5">{contractors.length} total</p>
                                 </div>
                               </div>
-                            </div>
                           </TableCell>
                         </TableRow>
                       </TableBody>
