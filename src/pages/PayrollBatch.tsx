@@ -3231,11 +3231,46 @@ You can ask me about:
                           <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-6">
-                                <div>
-                                  <h3 className="text-lg font-semibold text-foreground mb-1">Payroll Overview</h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    Summary of payroll cycle and key metrics
-                                  </p>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-4 mb-3">
+                                    <h3 className="text-lg font-semibold text-foreground">Payroll Overview</h3>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={cn(
+                                        "text-xs font-medium",
+                                        currentCycleData.status === "completed" && "bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline",
+                                        currentCycleData.status === "active" && "bg-blue-500/20 text-blue-600 border-blue-500/40",
+                                        currentCycleData.status === "upcoming" && "bg-amber-500/20 text-amber-600 border-amber-500/40"
+                                      )}
+                                    >
+                                      {currentCycleData.status === "completed" ? "Completed" : currentCycleData.status === "active" ? "In Progress" : "Upcoming"}
+                                    </Badge>
+                                  </div>
+                                  
+                                  {/* Compact Run Summary */}
+                                  <div className="flex items-center gap-6 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Pay Period:</span>
+                                      <span className="font-medium text-foreground">{currentCycleData.label}</span>
+                                    </div>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Countries:</span>
+                                      <span className="font-medium text-foreground">PH, NO, PT, FR, IT</span>
+                                    </div>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Primary Currency:</span>
+                                      <span className="font-medium text-foreground">USD</span>
+                                    </div>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Workers:</span>
+                                      <span className="font-medium text-foreground">
+                                        Employees: {allContractors.filter(c => c.employmentType === "employee").length} • Contractors: {allContractors.filter(c => c.employmentType === "contractor").length}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
