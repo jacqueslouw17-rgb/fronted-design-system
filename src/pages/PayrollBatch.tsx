@@ -2098,11 +2098,11 @@ const PayrollBatch: React.FC = () => {
                               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
                                 Subtotals by Type ({currency})
                               </p>
-                              <div className="grid grid-cols-3 gap-4">
+                              <div className="flex gap-3 items-stretch">
                                 {/* Contractors Subtotal */}
-                                <div className="p-3 bg-secondary/5 border border-secondary/20 rounded-lg">
+                                <div className="p-3 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-xs text-muted-foreground mb-1">Contractors</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                  <p className="text-xl font-bold text-foreground">
                                     {symbol}{contractorsList.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
                                       return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
@@ -2111,9 +2111,9 @@ const PayrollBatch: React.FC = () => {
                                   <p className="text-xs text-muted-foreground mt-0.5">{contractorsList.length} worker{contractorsList.length !== 1 ? 's' : ''}</p>
                                 </div>
                                 {/* Employees Subtotal */}
-                                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-xs text-muted-foreground mb-1">Employees</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                  <p className="text-xl font-bold text-foreground">
                                     {symbol}{employeesList.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
                                       const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
@@ -2127,9 +2127,9 @@ const PayrollBatch: React.FC = () => {
                                   <p className="text-xs text-muted-foreground mt-0.5">{employeesList.length} worker{employeesList.length !== 1 ? 's' : ''}</p>
                                 </div>
                                 {/* Total FX Exposure */}
-                                <div className="p-3 bg-accent/5 border border-accent/20 rounded-lg">
+                                <div className="p-3 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-xs text-muted-foreground mb-1">Total FX Exposure</p>
-                                  <p className="text-lg font-bold text-foreground">
+                                  <p className="text-xl font-bold text-foreground">
                                     {symbol}{contractors.reduce((sum, c) => {
                                       const additionalFee = additionalFees[c.id];
                                       const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
