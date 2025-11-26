@@ -2092,9 +2092,9 @@ const PayrollBatch: React.FC = () => {
                         
                         
                         {/* Per-type Subtotals Row */}
-                        <TableRow className="sticky bottom-0 bg-background border-t-2 border-border z-10">
+                        <TableRow className="bg-muted/30 border-t border-border">
                           <TableCell colSpan={22} className="p-0">
-                            <div className="p-2 space-y-1.5 bg-background">
+                            <div className="p-2 space-y-1.5">
                               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
                                 Subtotals by Type ({currency})
                               </p>
