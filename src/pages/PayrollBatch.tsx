@@ -2100,7 +2100,7 @@ const PayrollBatch: React.FC = () => {
                               </p>
                               <div className="max-w-[640px] flex gap-1.5 items-stretch">
                                 {/* Contractors Subtotal */}
-                                <div className="px-2 py-1.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
+                                <div className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{contractorsList.reduce((sum, c) => {
@@ -2113,7 +2113,7 @@ const PayrollBatch: React.FC = () => {
                                   </p>
                                 </div>
                                 {/* Employees Subtotal */}
-                                <div className="px-2 py-1.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
+                                <div className="px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{employeesList.reduce((sum, c) => {
@@ -2131,7 +2131,7 @@ const PayrollBatch: React.FC = () => {
                                   </p>
                                 </div>
                                 {/* Total FX Exposure */}
-                                <div className="px-2 py-1.5 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
+                                <div className="px-3 py-2.5 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Total FX Exposure</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{contractors.reduce((sum, c) => {
