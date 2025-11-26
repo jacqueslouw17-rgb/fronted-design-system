@@ -1523,7 +1523,12 @@ const PayrollBatch: React.FC = () => {
                     <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
-                        <Badge variant="outline" className="text-xs">{contractors.length} {contractors.length === 1 ? 'payee' : 'payees'}</Badge>
+                        <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">
+                          Employees: {employeesList.length}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs bg-secondary/5 border-secondary/20">
+                          Contractors: {contractorsList.length}
+                        </Badge>
                       </div>
                     </div>
                     
@@ -1778,11 +1783,11 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               <TableCell className="text-sm min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground" onClick={e => {
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50" onClick={e => {
                                 e.stopPropagation();
                                 handleSnoozeWorker(contractor.id);
                               }}>
-                                  Snooze for This Cycle
+                                  Snooze
                                 </Button>
                               </TableCell>
                             </TableRow>;
@@ -2074,11 +2079,11 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground" onClick={e => {
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50" onClick={e => {
                                 e.stopPropagation();
                                 handleSnoozeWorker(contractor.id);
                               }}>
-                                  Snooze for This Cycle
+                                  Snooze
                                 </Button>
                               </TableCell>
                             </TableRow>;
@@ -2086,40 +2091,60 @@ const PayrollBatch: React.FC = () => {
                           </>}
                         
                         
-                        {/* Total Summary Row */}
-                        <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
-                          <TableCell className={cn("text-sm sticky left-0 z-20 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-muted/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                            Total {currency}
+                        {/* Per-type Subtotals Row */}
+                        <TableRow className="bg-muted/30 border-t border-border">
+                          <TableCell colSpan={22} className="p-0">
+                            <div className="p-4 space-y-3">
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                                Subtotals by Type ({currency})
+                              </p>
+                              <div className="grid grid-cols-3 gap-4">
+                                {/* Contractors Subtotal */}
+                                <div className="p-3 bg-secondary/5 border border-secondary/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1">Contractors</p>
+                                  <p className="text-lg font-bold text-foreground">
+                                    {symbol}{contractorsList.reduce((sum, c) => {
+                                      const additionalFee = additionalFees[c.id];
+                                      return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                    }, 0).toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">{contractorsList.length} worker{contractorsList.length !== 1 ? 's' : ''}</p>
+                                </div>
+                                {/* Employees Subtotal */}
+                                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1">Employees</p>
+                                  <p className="text-lg font-bold text-foreground">
+                                    {symbol}{employeesList.reduce((sum, c) => {
+                                      const additionalFee = additionalFees[c.id];
+                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                      const grossPay = c.baseSalary * phMultiplier;
+                                      const deductions = 0; // Placeholder
+                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                      return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                    }, 0).toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">{employeesList.length} worker{employeesList.length !== 1 ? 's' : ''}</p>
+                                </div>
+                                {/* Total FX Exposure */}
+                                <div className="p-3 bg-accent/5 border border-accent/20 rounded-lg">
+                                  <p className="text-xs text-muted-foreground mb-1">Total FX Exposure</p>
+                                  <p className="text-lg font-bold text-foreground">
+                                    {symbol}{contractors.reduce((sum, c) => {
+                                      const additionalFee = additionalFees[c.id];
+                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                      const grossPay = c.baseSalary * phMultiplier;
+                                      const deductions = 0;
+                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                      return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                    }, 0).toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-0.5">{contractors.length} total worker{contractors.length !== 1 ? 's' : ''}</p>
+                                </div>
+                              </div>
+                            </div>
                           </TableCell>
-                          <TableCell className="text-sm"></TableCell>
-                          <TableCell className="text-sm"></TableCell>
-                          <TableCell className="text-right text-sm">
-                            {symbol}{contractors.reduce((sum, c) => sum + c.baseSalary, 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {symbol}{contractors.reduce((sum, c) => {
-                            return sum + getLeaveDeduction(c);
-                          }, 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {symbol}{contractors.reduce((sum, c) => sum + getPaymentDue(c), 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {symbol}{contractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {symbol}{contractors.reduce((sum, c) => {
-                            const additionalFee = additionalFees[c.id];
-                            return sum + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          }, 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-bold">
-                            {symbol}{contractors.reduce((sum, c) => {
-                            const additionalFee = additionalFees[c.id];
-                            return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          }, 0).toLocaleString()}
-                          </TableCell>
-                          <TableCell colSpan={2}></TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -2128,49 +2153,71 @@ const PayrollBatch: React.FC = () => {
                 </Card>;
           })}
 
-            {/* Summary Card */}
+            {/* Enhanced Bottom Summary - Per-currency & Per-type FX view */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
-                <div className="grid grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + c.baseSalary, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Total gross salaries</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
-                    </p>
-                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-amber-600 mt-1">
-                        Includes pro-rated adjustments
-                      </p>}
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${allContractors.reduce((sum, c) => {
+                <h3 className="text-sm font-semibold text-foreground mb-4">Payroll Summary - FX Exposure by Type</h3>
+                <div className="space-y-3">
+                  {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
+                    const currencySymbols: Record<string, string> = {
+                      EUR: "€",
+                      NOK: "kr",
+                      PHP: "₱",
+                      USD: "$"
+                    };
+                    const symbol = currencySymbols[currency] || currency;
+                    
+                    const contractorsList = contractors.filter(c => c.employmentType === "contractor");
+                    const employeesList = contractors.filter(c => c.employmentType === "employee");
+                    
+                    const contractorTotal = contractorsList.reduce((sum, c) => {
                       const additionalFee = additionalFees[c.id];
-                      return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
+                      return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0);
+                    
+                    const employeeTotal = employeesList.reduce((sum, c) => {
                       const additionalFee = additionalFees[c.id];
-                      return sum + c.baseSalary + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Gross + Fees</p>
-                  </div>
+                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                      const phMultiplier = isPHEmployee ? 0.5 : 1;
+                      const grossPay = c.baseSalary * phMultiplier;
+                      const deductions = 0;
+                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                      return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0);
+                    
+                    const combinedTotal = contractorTotal + employeeTotal;
+                    
+                    return (
+                      <div key={currency} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
+                        <p className="text-sm font-medium text-foreground min-w-[60px]">{currency}</p>
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="text-right">
+                            <span className="text-muted-foreground">Employees: </span>
+                            <span className="font-semibold text-foreground">
+                              {symbol}{employeeTotal.toLocaleString()}
+                            </span>
+                          </div>
+                          <span className="text-muted-foreground">·</span>
+                          <div className="text-right">
+                            <span className="text-muted-foreground">Contractors: </span>
+                            <span className="font-semibold text-foreground">
+                              {symbol}{contractorTotal.toLocaleString()}
+                            </span>
+                          </div>
+                          <span className="text-muted-foreground">·</span>
+                          <div className="text-right">
+                            <span className="text-muted-foreground">Total: </span>
+                            <span className="font-bold text-foreground">
+                              {symbol}{combinedTotal.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 <p className="text-xs text-muted-foreground/70 mt-4 text-center">
-                  Includes pro-rated adjustments and currency conversions
+                  FX exposure excludes snoozed workers · Includes all fees and adjustments
                 </p>
               </CardContent>
             </Card>
@@ -2180,9 +2227,14 @@ const PayrollBatch: React.FC = () => {
                 <Collapsible open={showSnoozedSection} onOpenChange={setShowSnoozedSection}>
                   <div className="p-4">
                     <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-70 transition-opacity">
-                      <h4 className="text-sm font-semibold text-foreground">
-                        Snoozed Workers ({snoozedContractorsList.length})
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Snoozed Workers ({snoozedContractorsList.length})
+                        </h4>
+                        <Badge variant="outline" className="text-xs bg-muted/50">
+                          Excluded from totals
+                        </Badge>
+                      </div>
                       <Button variant="ghost" size="sm" className="h-7">
                         {showSnoozedSection ? "Hide" : "Show"}
                       </Button>
