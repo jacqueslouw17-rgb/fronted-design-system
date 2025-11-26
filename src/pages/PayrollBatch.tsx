@@ -13,6 +13,7 @@ import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
+import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,18 @@ interface LeaveRecord {
   approvedBy?: string;
   clientConfirmed: boolean;
   contractorReported: boolean;
+  // Enhanced leave tracking
+  leaveBreakdown?: {
+    Annual?: number;
+    Sick?: number;
+    Unpaid?: number;
+    Parental?: number;
+    Other?: number;
+  };
+  hasPendingLeave?: boolean;
+  hasMissingAttendance?: boolean;
+  scheduledDays?: number;
+  actualDays?: number;
 }
 interface ContractorPayment {
   id: string;
@@ -112,6 +125,9 @@ interface ContractorPayment {
   employerTax?: number;
   pension?: number;
   allowOverride?: boolean;
+  // Additional payroll fields
+  ftePercent?: number;
+  role?: string;
 }
 interface PayrollException {
   id: string;
@@ -364,6 +380,8 @@ const PayrollBatch: React.FC = () => {
   const [countryRulesDrawerOpen, setCountryRulesDrawerOpen] = useState(false);
   const [employeePayrollDrawerOpen, setEmployeePayrollDrawerOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<ContractorPayment | null>(null);
+  const [leaveDetailsDrawerOpen, setLeaveDetailsDrawerOpen] = useState(false);
+  const [selectedWorkerForLeave, setSelectedWorkerForLeave] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
@@ -1524,8 +1542,13 @@ const PayrollBatch: React.FC = () => {
                               Name
                             </TableHead>
                             <TableHead className="text-xs min-w-[120px]">Employment Type</TableHead>
+                            <TableHead className="text-xs min-w-[80px]">FTE %</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
                             <TableHead className="text-xs min-w-[100px]">Status</TableHead>
+                            <TableHead className="text-xs text-right min-w-[100px]">Scheduled Days</TableHead>
+                            <TableHead className="text-xs text-right min-w-[100px]">Actual Days</TableHead>
+                            <TableHead className="text-xs min-w-[140px]">Leave Taken</TableHead>
+                            <TableHead className="text-xs text-right min-w-[100px]">Net Payable Days</TableHead>
                             <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
                             <TableHead className="text-xs min-w-[110px]">End Date</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
@@ -1603,12 +1626,79 @@ const PayrollBatch: React.FC = () => {
                                   {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
                                 </Badge>
                               </TableCell>
+                              {/* FTE % */}
+                              <TableCell className="text-sm text-center min-w-[80px]">
+                                {contractor.ftePercent || 100}%
+                              </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
                               <TableCell className="min-w-[100px]">
                                 <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30", contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30", contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30")}>
                                   {contractor.status || "Active"}
                                 </Badge>
+                              </TableCell>
+                              {/* Scheduled Days */}
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
+                                {leaveData?.scheduledDays || 22}d
+                              </TableCell>
+                              {/* Actual Days */}
+                              <TableCell className="text-right text-sm text-foreground min-w-[100px]">
+                                {leaveData?.actualDays || 22}d
+                              </TableCell>
+                              {/* Leave Taken with breakdown */}
+                              <TableCell className="min-w-[140px]">
+                                {hasLeave ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                      {leaveData.leaveBreakdown ? 
+                                        Object.entries(leaveData.leaveBreakdown)
+                                          .filter(([_, days]) => days && days > 0)
+                                          .map(([type, days]) => `${type}: ${days}d`)
+                                          .join(", ") 
+                                        : `${leaveData.leaveDays}d`}
+                                    </span>
+                                    {leaveData.hasPendingLeave && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Pending leave approval</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    {leaveData.hasMissingAttendance && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Clock className="h-3.5 w-3.5 text-amber-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Missing timesheet data</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedWorkerForLeave(contractor);
+                                        setLeaveDetailsDrawerOpen(true);
+                                      }}
+                                      className="text-xs text-primary hover:underline"
+                                    >
+                                      View details
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">—</span>
+                                )}
+                              </TableCell>
+                              {/* Net Payable Days */}
+                              <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
+                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -1823,12 +1913,87 @@ const PayrollBatch: React.FC = () => {
                                   {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
                                 </Badge>
                               </TableCell>
+                              {/* FTE % */}
+                              <TableCell className="text-sm text-center min-w-[80px]">
+                                {contractor.ftePercent || 100}%
+                              </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
                               <TableCell className="min-w-[100px]">
                                 <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30", contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30", contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30")}>
                                   {contractor.status || "Active"}
                                 </Badge>
+                              </TableCell>
+                              {/* Scheduled Days */}
+                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
+                                {leaveData?.scheduledDays || 22}d
+                              </TableCell>
+                              {/* Actual Days */}
+                              <TableCell className="text-right text-sm text-foreground min-w-[100px]">
+                                {leaveData?.actualDays || 22}d
+                              </TableCell>
+                              {/* Leave Taken with breakdown */}
+                              <TableCell className="min-w-[140px]">
+                                {hasLeave ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                      {leaveData.leaveBreakdown ? 
+                                        Object.entries(leaveData.leaveBreakdown)
+                                          .filter(([_, days]) => days && days > 0)
+                                          .map(([type, days]) => `${type}: ${days}d`)
+                                          .join(", ") 
+                                        : `${leaveData.leaveDays}d`}
+                                    </span>
+                                    {leaveData.hasPendingLeave && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Pending leave approval</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    {leaveData.hasMissingAttendance && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Clock className="h-3.5 w-3.5 text-amber-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">Missing timesheet data</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedWorkerForLeave(contractor);
+                                        setLeaveDetailsDrawerOpen(true);
+                                      }}
+                                      className="text-xs text-primary hover:underline"
+                                    >
+                                      View details
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">—</span>
+                                )}
+                              </TableCell>
+                              {/* Net Payable Days */}
+                              <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
+                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
+                              </TableCell>
+                              {/* Start Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}
+                              </TableCell>
+                              {/* End Date */}
+                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
+                                {contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -4403,6 +4568,51 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
+            <LeaveDetailsDrawer 
+              open={leaveDetailsDrawerOpen} 
+              onOpenChange={setLeaveDetailsDrawerOpen}
+              workerName={selectedWorkerForLeave?.name || ""}
+              workerRole={selectedWorkerForLeave?.role}
+              country={selectedWorkerForLeave?.country || ""}
+              employmentType={selectedWorkerForLeave?.employmentType || "contractor"}
+              ftePercent={selectedWorkerForLeave?.ftePercent || 100}
+              scheduledDays={selectedWorkerForLeave?.leaveData?.scheduledDays || 22}
+              actualDays={selectedWorkerForLeave?.leaveData?.actualDays || 22}
+              leaveEntries={selectedWorkerForLeave ? [
+                {
+                  id: "leave-1",
+                  requestDate: "Nov 1, 2025",
+                  leaveStartDate: "Nov 5, 2025",
+                  leaveEndDate: "Nov 7, 2025",
+                  leaveType: "Annual",
+                  daysCount: 3,
+                  status: selectedWorkerForLeave.leaveData?.hasPendingLeave ? "Pending" : "Approved",
+                  approvedBy: "Jane Smith",
+                  recordedInFronted: true,
+                  notes: "Pre-approved family vacation"
+                },
+                {
+                  id: "leave-2",
+                  requestDate: "Oct 28, 2025",
+                  leaveStartDate: "Nov 12, 2025",
+                  leaveEndDate: "Nov 12, 2025",
+                  leaveType: "Sick",
+                  daysCount: 1,
+                  status: "Approved",
+                  approvedBy: "Company HR System",
+                  recordedInFronted: false
+                }
+              ] : []}
+              attendanceAnomalies={selectedWorkerForLeave?.leaveData?.hasMissingAttendance ? [
+                {
+                  id: "anomaly-1",
+                  date: "Nov 8, 2025",
+                  type: "Missing timesheet",
+                  description: "No timesheet submitted for this date",
+                  severity: "high"
+                }
+              ] : []}
+            />
 
             {/* Leave Record Selector Dialog */}
             <Dialog open={leaveSelectorOpen} onOpenChange={open => {
