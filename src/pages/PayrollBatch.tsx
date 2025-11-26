@@ -1347,12 +1347,9 @@ const PayrollBatch: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
                       <Badge variant="outline" className="text-xs">
-                        {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {payrollCycleData[selectedCycle].label}
-                    </p>
+                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
+                    </Badge>
+                  </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">
