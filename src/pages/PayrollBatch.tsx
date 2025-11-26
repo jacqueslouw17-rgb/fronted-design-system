@@ -2098,7 +2098,7 @@ const PayrollBatch: React.FC = () => {
                               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
                                 Subtotals by Type ({currency})
                               </p>
-                              <div className="flex gap-1.5 items-stretch">
+                              <div className="max-w-[640px] mx-auto flex gap-1.5 items-stretch">
                                 {/* Contractors Subtotal */}
                                 <div className="px-2 py-1.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
