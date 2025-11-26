@@ -2153,37 +2153,79 @@ const PayrollBatch: React.FC = () => {
                 </Card>;
           })}
 
-            {/* Simple Summary Metrics */}
+            {/* Payroll Totals Summary */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
+                <h3 className="text-sm font-semibold text-foreground mb-6">Payroll Run Totals</h3>
                 <div className="grid grid-cols-4 gap-6">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Workers</p>
+                    <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {allContractors.length}
+                      ${(allContractors.reduce((sum, c) => {
+                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                        const phMultiplier = isPHEmployee ? 0.5 : 1;
+                        return sum + (c.baseSalary * phMultiplier);
+                      }, 0) / 1000).toFixed(1)}K
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Active this cycle</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Currencies</p>
+                    <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {Object.keys(groupedByCurrency).length}
+                      ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
+                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
+                      <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>
+                    )}
+                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
+                      <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
+                    )}
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Contractors</p>
+                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {allContractors.filter(c => c.employmentType === "contractor").length}
+                      ${allContractors.reduce((sum, c) => {
+                        const additionalFee = additionalFees[c.id];
+                        return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                      }, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Independent workers</p>
+                    <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Employees</p>
+                    <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {allContractors.filter(c => c.employmentType === "employee").length}
+                      ${(allContractors.reduce((sum, c) => {
+                        const additionalFee = additionalFees[c.id];
+                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                        const phMultiplier = isPHEmployee ? 0.5 : 1;
+                        return sum + (c.baseSalary * phMultiplier) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                      }, 0) / 1000).toFixed(1)}K
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Full-time staff</p>
+                    <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+                  </div>
+                </div>
+                <div className="mt-6 pt-6 border-t border-border/30">
+                  <div className="flex items-center justify-center gap-8 text-sm">
+                    <div className="text-center">
+                      <span className="text-muted-foreground">Employees: </span>
+                      <span className="font-semibold text-foreground">
+                        {allContractors.filter(c => c.employmentType === "employee").length}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">·</span>
+                    <div className="text-center">
+                      <span className="text-muted-foreground">Contractors: </span>
+                      <span className="font-semibold text-foreground">
+                        {allContractors.filter(c => c.employmentType === "contractor").length}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">·</span>
+                    <div className="text-center">
+                      <span className="text-muted-foreground">Currencies: </span>
+                      <span className="font-semibold text-foreground">
+                        {Object.keys(groupedByCurrency).length}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
