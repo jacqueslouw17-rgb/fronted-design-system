@@ -3230,14 +3230,15 @@ You can ask me about:
                       }}>
                           <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
-                              <div className="flex items-center justify-between mb-6">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-4 mb-3">
-                                    <h3 className="text-lg font-semibold text-foreground">Payroll Overview</h3>
+                              <div className="flex items-start justify-between mb-6">
+                                <div className="space-y-4 flex-1">
+                                  {/* Title and Status */}
+                                  <div className="flex items-center gap-3">
+                                    <h3 className="text-xl font-semibold text-foreground">Payroll Overview</h3>
                                     <Badge 
                                       variant="outline" 
                                       className={cn(
-                                        "text-xs font-medium",
+                                        "text-xs font-medium px-2.5 py-0.5",
                                         currentCycleData.status === "completed" && "bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline",
                                         currentCycleData.status === "active" && "bg-blue-500/20 text-blue-600 border-blue-500/40",
                                         currentCycleData.status === "upcoming" && "bg-amber-500/20 text-amber-600 border-amber-500/40"
@@ -3247,31 +3248,33 @@ You can ask me about:
                                     </Badge>
                                   </div>
                                   
-                                  {/* Compact Run Summary */}
-                                  <div className="flex items-center gap-6 text-sm">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">Pay Period:</span>
-                                      <span className="font-medium text-foreground">{currentCycleData.label}</span>
+                                  {/* Run Details Grid */}
+                                  <div className="grid grid-cols-2 gap-x-8 gap-y-3 max-w-2xl">
+                                    <div className="space-y-0.5">
+                                      <p className="text-xs text-muted-foreground">Pay Period</p>
+                                      <p className="text-sm font-medium text-foreground">{currentCycleData.label}</p>
                                     </div>
-                                    <Separator orientation="vertical" className="h-4" />
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">Countries:</span>
-                                      <span className="font-medium text-foreground">PH, NO, PT, FR, IT</span>
+                                    
+                                    <div className="space-y-0.5">
+                                      <p className="text-xs text-muted-foreground">Primary Currency</p>
+                                      <p className="text-sm font-medium text-foreground">USD</p>
                                     </div>
-                                    <Separator orientation="vertical" className="h-4" />
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">Primary Currency:</span>
-                                      <span className="font-medium text-foreground">USD</span>
+                                    
+                                    <div className="space-y-0.5">
+                                      <p className="text-xs text-muted-foreground">Countries</p>
+                                      <p className="text-sm font-medium text-foreground">Philippines, Norway, Portugal, France, Italy</p>
                                     </div>
-                                    <Separator orientation="vertical" className="h-4" />
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">Workers:</span>
-                                      <span className="font-medium text-foreground">
-                                        Employees: {allContractors.filter(c => c.employmentType === "employee").length} • Contractors: {allContractors.filter(c => c.employmentType === "contractor").length}
-                                      </span>
+                                    
+                                    <div className="space-y-0.5">
+                                      <p className="text-xs text-muted-foreground">Workers Included</p>
+                                      <p className="text-sm font-medium text-foreground">
+                                        {allContractors.filter(c => c.employmentType === "employee").length} Employees, {allContractors.filter(c => c.employmentType === "contractor").length} Contractors
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
+                                
+                                {/* Action Buttons */}
                                 <div className="flex items-center gap-2">
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
                                     <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
