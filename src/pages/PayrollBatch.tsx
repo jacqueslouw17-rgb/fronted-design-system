@@ -2153,72 +2153,39 @@ const PayrollBatch: React.FC = () => {
                 </Card>;
           })}
 
-            {/* Enhanced Bottom Summary - Per-currency & Per-type FX view */}
+            {/* Simple Summary Metrics */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-4">Payroll Summary - FX Exposure by Type</h3>
-                <div className="space-y-3">
-                  {Object.entries(groupedByCurrency).map(([currency, contractors]) => {
-                    const currencySymbols: Record<string, string> = {
-                      EUR: "€",
-                      NOK: "kr",
-                      PHP: "₱",
-                      USD: "$"
-                    };
-                    const symbol = currencySymbols[currency] || currency;
-                    
-                    const contractorsList = contractors.filter(c => c.employmentType === "contractor");
-                    const employeesList = contractors.filter(c => c.employmentType === "employee");
-                    
-                    const contractorTotal = contractorsList.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0);
-                    
-                    const employeeTotal = employeesList.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                      const grossPay = c.baseSalary * phMultiplier;
-                      const deductions = 0;
-                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                      return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0);
-                    
-                    const combinedTotal = contractorTotal + employeeTotal;
-                    
-                    return (
-                      <div key={currency} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
-                        <p className="text-sm font-medium text-foreground min-w-[60px]">{currency}</p>
-                        <div className="flex items-center gap-6 text-sm">
-                          <div className="text-right">
-                            <span className="text-muted-foreground">Employees: </span>
-                            <span className="font-semibold text-foreground">
-                              {symbol}{employeeTotal.toLocaleString()}
-                            </span>
-                          </div>
-                          <span className="text-muted-foreground">·</span>
-                          <div className="text-right">
-                            <span className="text-muted-foreground">Contractors: </span>
-                            <span className="font-semibold text-foreground">
-                              {symbol}{contractorTotal.toLocaleString()}
-                            </span>
-                          </div>
-                          <span className="text-muted-foreground">·</span>
-                          <div className="text-right">
-                            <span className="text-muted-foreground">Total: </span>
-                            <span className="font-bold text-foreground">
-                              {symbol}{combinedTotal.toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="grid grid-cols-4 gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Total Workers</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {allContractors.length}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Active this cycle</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Currencies</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {Object.keys(groupedByCurrency).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Multi-currency run</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Contractors</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {allContractors.filter(c => c.employmentType === "contractor").length}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Independent workers</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Employees</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {allContractors.filter(c => c.employmentType === "employee").length}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Full-time staff</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground/70 mt-4 text-center">
-                  FX exposure excludes snoozed workers · Includes all fees and adjustments
-                </p>
               </CardContent>
             </Card>
 
