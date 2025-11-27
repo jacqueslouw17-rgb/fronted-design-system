@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -427,6 +429,12 @@ const PayrollBatch: React.FC = () => {
   }>>>({});
   const [contractors, setContractors] = useState<ContractorPayment[]>(() => [...contractorsByCurrency.EUR, ...contractorsByCurrency.NOK, ...contractorsByCurrency.PHP]);
   const allContractors = Object.values(contractorsByCurrency).flat();
+
+  // Mark as complete confirmation state
+  const [isMarkCompleteConfirmOpen, setIsMarkCompleteConfirmOpen] = useState(false);
+  const [hasUnresolvedIssues, setHasUnresolvedIssues] = useState(false);
+  const [unresolvedIssues, setUnresolvedIssues] = useState({ blockingExceptions: 0, failedPayouts: 0, failedPostings: 0 });
+  const [forceCompleteJustification, setForceCompleteJustification] = useState("");
 
   // Filter allContractors based on employment type filter
   const filteredContractors = allContractors.filter(c => {
@@ -1538,6 +1546,23 @@ const PayrollBatch: React.FC = () => {
     toast.success("Returned to Payroll Overview");
   };
   const handleCompleteAndReturnToOverview = () => {
+    // Check for unresolved issues before proceeding
+    const blockingExceptions = exceptions.filter(e => e.isBlocking && !e.resolved && !e.overrideInfo);
+    const failedPayouts = executionLog?.workers.filter(w => w.status === "failed" && w.employmentType === "contractor") || [];
+    const failedPostings = executionLog?.workers.filter(w => w.status === "failed" && w.employmentType === "employee") || [];
+    
+    const hasIssues = blockingExceptions.length > 0 || failedPayouts.length > 0 || failedPostings.length > 0;
+    
+    setUnresolvedIssues({
+      blockingExceptions: blockingExceptions.length,
+      failedPayouts: failedPayouts.length,
+      failedPostings: failedPostings.length,
+    });
+    setHasUnresolvedIssues(hasIssues);
+    setIsMarkCompleteConfirmOpen(true);
+  };
+
+  const confirmMarkComplete = (forced = false) => {
     // Mark November as completed
     setPayrollCycleData(prev => ({
       ...prev,
@@ -1548,13 +1573,31 @@ const PayrollBatch: React.FC = () => {
       }
     }));
 
+    setIsMarkCompleteConfirmOpen(false);
+    setForceCompleteJustification("");
+
     // Navigate back to overview and scroll to top
     navigate("/payroll-batch");
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-    toast.success("November payroll cycle completed");
+    
+    toast.success(
+      forced 
+        ? "November payroll cycle completed with unresolved issues and is now locked"
+        : "November payroll cycle completed"
+    );
+  };
+
+  const handleGoBackToFix = () => {
+    setIsMarkCompleteConfirmOpen(false);
+    // Navigate to Exceptions if blocking exceptions exist, otherwise to Execution
+    if (unresolvedIssues.blockingExceptions > 0) {
+      setCurrentStep("exceptions");
+    } else {
+      setCurrentStep("execute");
+    }
   };
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
     // For completed payroll cycles, all payments are marked as Paid
@@ -5125,6 +5168,81 @@ You can ask me about:
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            {/* Mark as Complete Confirmation Dialog */}
+            <AlertDialog open={isMarkCompleteConfirmOpen} onOpenChange={setIsMarkCompleteConfirmOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {hasUnresolvedIssues ? "Unresolved issues remain for this payroll run" : "Complete this payroll run?"}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {hasUnresolvedIssues ? (
+                      <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                          The following issues have not been resolved:
+                        </p>
+                        <div className="space-y-2 text-sm">
+                          {unresolvedIssues.blockingExceptions > 0 && (
+                            <div className="flex items-center gap-2 text-destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <span>Blocking exceptions: {unresolvedIssues.blockingExceptions}</span>
+                            </div>
+                          )}
+                          {unresolvedIssues.failedPostings > 0 && (
+                            <div className="flex items-center gap-2 text-destructive">
+                              <XCircle className="h-4 w-4" />
+                              <span>Failed employee postings: {unresolvedIssues.failedPostings}</span>
+                            </div>
+                          )}
+                          {unresolvedIssues.failedPayouts > 0 && (
+                            <div className="flex items-center gap-2 text-destructive">
+                              <XCircle className="h-4 w-4" />
+                              <span>Failed contractor payouts: {unresolvedIssues.failedPayouts}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-2 pt-2">
+                          <label htmlFor="justification" className="text-sm font-medium">
+                            Please provide a reason for completing this run with unresolved issues:
+                          </label>
+                          <Textarea
+                            id="justification"
+                            value={forceCompleteJustification}
+                            onChange={(e) => setForceCompleteJustification(e.target.value)}
+                            placeholder="Enter your justification here..."
+                            className="min-h-[80px]"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      "All blocking exceptions are resolved and all payouts/postings have completed. Once you mark this run as complete, it will be locked and become read-only."
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setForceCompleteJustification("")}>Cancel</AlertDialogCancel>
+                  {hasUnresolvedIssues ? (
+                    <>
+                      <Button variant="outline" onClick={handleGoBackToFix}>
+                        Go back to fix issues
+                      </Button>
+                      <AlertDialogAction 
+                        onClick={() => confirmMarkComplete(true)}
+                        disabled={!forceCompleteJustification.trim()}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Force complete with issues
+                      </AlertDialogAction>
+                    </>
+                  ) : (
+                    <AlertDialogAction onClick={() => confirmMarkComplete(false)}>
+                      Mark as complete
+                    </AlertDialogAction>
+                  )}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </AgentLayout>
         </main>
       </div>
