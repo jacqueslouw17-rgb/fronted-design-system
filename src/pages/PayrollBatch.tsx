@@ -14,6 +14,7 @@ import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
+import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,7 @@ interface PayrollException {
   id: string;
   contractorId: string;
   contractorName: string;
+  contractorCountry?: string;
   type: "missing-bank" | "fx-mismatch" | "pending-leave" | "unverified-identity" | "below-minimum-wage" | "allowance-exceeds-cap" | "missing-govt-id" | "incorrect-contribution-tier" | "missing-13th-month" | "ot-holiday-type-not-selected" | "invalid-work-type-combination" | "night-differential-invalid-hours" | "missing-employer-sss" | "missing-withholding-tax" | "status-mismatch" | "employment-ending-this-period" | "end-date-before-period" | "upcoming-contract-end" | "missing-hours" | "missing-dates" | "end-date-passed-active" | "deduction-exceeds-gross" | "missing-tax-fields" | "adjustment-exceeds-cap" | "contribution-table-year-missing";
   description: string;
   severity: "high" | "medium" | "low";
@@ -140,29 +142,42 @@ interface PayrollException {
   snoozed: boolean;
   ignored: boolean;
   formSent?: boolean;
+  canFixInPayroll: boolean; // Can be resolved within payroll vs requires external fix
+  isBlocking: boolean; // Blocks execution unless overridden
+  overrideInfo?: {
+    overriddenBy: string;
+    overriddenAt: string;
+    justification: string;
+  };
 }
 const initialExceptions: PayrollException[] = [{
   id: "exc-1",
   contractorId: "5",
   contractorName: "Emma Wilson",
+  contractorCountry: "Norway",
   type: "missing-bank",
   description: "Bank account IBAN/routing number missing – cannot process payment",
   severity: "high",
   resolved: false,
   snoozed: false,
   ignored: false,
-  formSent: false
+  formSent: false,
+  canFixInPayroll: true, // Can be fixed by opening worker panel
+  isBlocking: true // Blocks execution
 }, {
   id: "exc-2",
   contractorId: "7",
   contractorName: "Luis Hernandez",
+  contractorCountry: "Philippines",
   type: "fx-mismatch",
   description: "Currency preference set to USD but contract specifies PHP",
   severity: "medium",
   resolved: false,
   snoozed: false,
   ignored: false,
-  formSent: false
+  formSent: false,
+  canFixInPayroll: false, // Must be fixed in contract/profile
+  isBlocking: false // Warning only
 }];
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
   EUR: [{
@@ -341,6 +356,12 @@ const PayrollBatch: React.FC = () => {
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
   const [selectedException, setSelectedException] = useState<PayrollException | null>(null);
   const [bankAccountType, setBankAccountType] = useState("");
+  // Override modal state
+  const [overrideModalOpen, setOverrideModalOpen] = useState(false);
+  const [exceptionToOverride, setExceptionToOverride] = useState<PayrollException | null>(null);
+  const [overrideJustification, setOverrideJustification] = useState("");
+  // Exceptions grouping filter
+  const [exceptionGroupFilter, setExceptionGroupFilter] = useState<"all" | "fixable" | "non-fixable">("all");
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
   const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
     const currentDay = new Date().getDate();
@@ -758,12 +779,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "below-minimum-wage",
               description: "Salary below minimum wage for this region.",
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: true
             });
           }
         }
@@ -779,12 +803,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "allowance-exceeds-cap",
               description: "Non-taxable allowance exceeds government cap. Excess will be taxable.",
               severity: "medium",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: false
             });
           }
         }
@@ -801,12 +828,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "missing-govt-id",
               description: `Missing mandatory government ID: ${missingIds.join(", ")}`,
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: false, // Must be fixed in worker profile
+              isBlocking: true
             });
           }
         }
@@ -840,12 +870,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "incorrect-contribution-tier",
               description: "Contribution tier does not match correct salary bracket.",
               severity: "medium",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: false
             });
           }
         }
@@ -858,12 +891,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "missing-13th-month",
               description: "13th month is mandatory for this worker type.",
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: true
             });
           }
         }
@@ -883,12 +919,15 @@ const PayrollBatch: React.FC = () => {
             id: `exc-${exceptionCounter++}`,
             contractorId: contractor.id,
             contractorName: contractor.name,
+            contractorCountry: contractor.country,
             type: "missing-employer-sss",
             description: "Employer SSS contribution is required.",
             severity: "high",
             resolved: false,
             snoozed: false,
-            ignored: false
+            ignored: false,
+            canFixInPayroll: true,
+            isBlocking: true
           });
         }
 
@@ -898,12 +937,15 @@ const PayrollBatch: React.FC = () => {
             id: `exc-${exceptionCounter++}`,
             contractorId: contractor.id,
             contractorName: contractor.name,
+            contractorCountry: contractor.country,
             type: "missing-withholding-tax",
             description: "Withholding Tax rate or fixed amount is required.",
             severity: "medium",
             resolved: false,
             snoozed: false,
-            ignored: false
+            ignored: false,
+            canFixInPayroll: true,
+            isBlocking: false
           });
         }
 
@@ -914,12 +956,15 @@ const PayrollBatch: React.FC = () => {
             id: `exc-${exceptionCounter++}`,
             contractorId: contractor.id,
             contractorName: contractor.name,
+            contractorCountry: contractor.country,
             type: "status-mismatch",
             description: `This worker is not marked as Active (current status: ${workerStatus}). Review if they should be included in this pay run.`,
             severity: "high",
             resolved: false,
             snoozed: false,
-            ignored: false
+            ignored: false,
+            canFixInPayroll: true,
+            isBlocking: false
           });
         }
 
@@ -938,12 +983,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "employment-ending-this-period",
               description: `Employee ending this month — verify prorated pay. Last working day: ${format(endDate, "MMM d, yyyy")}.`,
               severity: "medium",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: false
             });
           }
           // Check if end date is before current period
@@ -952,12 +1000,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "end-date-before-period",
               description: `This worker's end date (${format(endDate, "MMM d, yyyy")}) is before this pay period. Confirm if they should be removed from this run.`,
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: false
             });
           }
           // Check if end date is within 30 days after period (non-blocking info)
@@ -966,12 +1017,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "upcoming-contract-end",
               description: `This worker's contract ends on ${format(endDate, "MMM d, yyyy")}. Check if any final pay or adjustments are needed next cycle.`,
               severity: "low",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: false,
+              isBlocking: false
             });
           }
         }
@@ -983,12 +1037,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "missing-hours",
               description: "Enter the total hours worked this period to calculate pay.",
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: true
             });
           }
         }
@@ -999,12 +1056,15 @@ const PayrollBatch: React.FC = () => {
             id: `exc-${exceptionCounter++}`,
             contractorId: contractor.id,
             contractorName: contractor.name,
+            contractorCountry: contractor.country,
             type: "missing-dates",
             description: "Start date is required for all workers.",
             severity: "high",
             resolved: false,
             snoozed: false,
-            ignored: false
+            ignored: false,
+            canFixInPayroll: false,
+            isBlocking: true
           });
         }
 
@@ -1017,12 +1077,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "end-date-passed-active",
               description: `End date (${format(endDate, "MMM d, yyyy")}) has passed but worker is still marked as Active.`,
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: false
             });
           }
         }
@@ -1040,12 +1103,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "deduction-exceeds-gross",
               description: `Total deductions (${contractor.currency} ${totalDeductions.toLocaleString()}) exceed gross pay (${contractor.currency} ${contractor.baseSalary.toLocaleString()}).`,
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: true
             });
           }
         }
@@ -1063,12 +1129,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "missing-tax-fields",
               description: `Missing mandatory contribution fields: ${missingFields.join(", ")}`,
               severity: "high",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: true,
+              isBlocking: true
             });
           }
         }
@@ -1081,12 +1150,15 @@ const PayrollBatch: React.FC = () => {
                 id: `exc-${exceptionCounter++}`,
                 contractorId: contractor.id,
                 contractorName: contractor.name,
+                contractorCountry: contractor.country,
                 type: "adjustment-exceeds-cap",
                 description: `Adjustment "${item.name}" amount (${contractor.currency} ${item.amount.toLocaleString()}) exceeds configured cap (${contractor.currency} ${item.cap.toLocaleString()}).`,
                 severity: "medium",
                 resolved: false,
                 snoozed: false,
-                ignored: false
+                ignored: false,
+                canFixInPayroll: true,
+                isBlocking: false
               });
             }
           });
@@ -1102,12 +1174,15 @@ const PayrollBatch: React.FC = () => {
               id: `exc-${exceptionCounter++}`,
               contractorId: contractor.id,
               contractorName: contractor.name,
+              contractorCountry: contractor.country,
               type: "contribution-table-year-missing",
               description: `SSS contribution table for ${currentYear} may not be configured. Please verify country settings.`,
               severity: "medium",
               resolved: false,
               snoozed: false,
-              ignored: false
+              ignored: false,
+              canFixInPayroll: false,
+              isBlocking: false
             });
           }
         }
@@ -1181,6 +1256,38 @@ const PayrollBatch: React.FC = () => {
       snoozed: true
     } : exc));
     toast.info(`${exception?.contractorName || 'Candidate'} snoozed to next cycle`);
+  };
+  
+  const handleOpenOverrideModal = (exception: PayrollException) => {
+    setExceptionToOverride(exception);
+    setOverrideJustification("");
+    setOverrideModalOpen(true);
+  };
+  
+  const handleConfirmOverride = () => {
+    if (!exceptionToOverride || !overrideJustification.trim()) {
+      toast.error("Please provide a justification for the override");
+      return;
+    }
+    
+    setExceptions(prev => prev.map(exc => 
+      exc.id === exceptionToOverride.id 
+        ? {
+            ...exc,
+            resolved: true,
+            overrideInfo: {
+              overriddenBy: "Current User", // In production, use actual user
+              overriddenAt: new Date().toISOString(),
+              justification: overrideJustification
+            }
+          }
+        : exc
+    ));
+    
+    toast.success(`Exception overridden for ${exceptionToOverride.contractorName}`);
+    setOverrideModalOpen(false);
+    setExceptionToOverride(null);
+    setOverrideJustification("");
   };
   const handleSendFormToCandidate = (exception: PayrollException) => {
     setExceptions(prev => prev.map(exc => exc.id === exception.id ? {
@@ -2329,50 +2436,54 @@ const PayrollBatch: React.FC = () => {
           "adjustment-exceeds-cap": "Adjustment Exceeds Cap",
           "contribution-table-year-missing": "Contribution Table Year Missing"
         };
+        
+        // Filter exceptions by fixability
+        const fixableExceptions = activeExceptions.filter(e => e.canFixInPayroll);
+        const nonFixableExceptions = activeExceptions.filter(e => !e.canFixInPayroll);
+        const displayedExceptions = exceptionGroupFilter === "fixable" 
+          ? fixableExceptions 
+          : exceptionGroupFilter === "non-fixable" 
+            ? nonFixableExceptions 
+            : activeExceptions;
+        
+        // Count blocking exceptions
+        const blockingCount = activeExceptions.filter(e => e.isBlocking && !e.overrideInfo).length;
+        
         return <div className="space-y-6">
-            {/* Step Label - hidden to match Review FX style */}
-            {/* <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 2 of 5 – Exceptions
-              </Badge>
-             </div> */}
-
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
-            {/* Exception Summary Counter */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span className="text-sm font-medium text-foreground">Exceptions Summary:</span>
-                  
-                  {/* Missing Bank Details Count */}
-                  {exceptions.filter(e => e.type === "missing-bank" && !e.resolved && !e.snoozed).length > 0 && <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      {exceptions.filter(e => e.type === "missing-bank" && !e.resolved && !e.snoozed).length} Missing Bank Details
-                    </Badge>}
-                  
-                  {/* Acknowledged Count */}
-                  {acknowledgedExceptions.length > 0 && <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30 gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      {acknowledgedExceptions.length} Acknowledged
-                    </Badge>}
-                  
-                  {/* Ignored Count */}
-                  {ignoredExceptions.length > 0 && <Badge variant="outline" className="bg-muted/20 text-muted-foreground border-border/30 gap-1">
-                      <Circle className="h-3 w-3" />
-                      {ignoredExceptions.length} Ignored
-                    </Badge>}
-                  
-                  {/* Skipped to Next Cycle Count */}
-                  {snoozedExceptions.length > 0 && <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
-                      <Circle className="h-3 w-3" />
-                      {snoozedExceptions.length} Skipped to Next Cycle
-                    </Badge>}
-                  
-            {allExceptionsResolved && <span className="text-xs text-accent-green-text ml-2">✓ All clear!</span>}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Execution Status Banner */}
+            {blockingCount > 0 && (
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20">
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        {blockingCount} blocking exception{blockingCount !== 1 ? 's' : ''} remaining
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {nonFixableExceptions.filter(e => e.isBlocking).length > 0 && `${nonFixableExceptions.filter(e => e.isBlocking).length} must be fixed outside Fronted Payroll • `}
+                        {fixableExceptions.filter(e => e.isBlocking).length > 0 && `${fixableExceptions.filter(e => e.isBlocking).length} can be fixed here or overridden`}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Filter Tabs */}
+            {activeExceptions.length > 0 && (
+              <Tabs value={exceptionGroupFilter} onValueChange={(v) => setExceptionGroupFilter(v as typeof exceptionGroupFilter)}>
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="all">All ({activeExceptions.length})</TabsTrigger>
+                  <TabsTrigger value="fixable">Fixable in Payroll ({fixableExceptions.length})</TabsTrigger>
+                  <TabsTrigger value="non-fixable">Must Fix Outside ({nonFixableExceptions.length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
 
             {allExceptionsResolved && <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10 animate-fade-in">
                 <CardContent className="p-4">
@@ -2389,8 +2500,8 @@ const PayrollBatch: React.FC = () => {
               </Card>}
 
             {/* Active Exceptions List */}
-            {activeExceptions.length > 0 && <div className="space-y-3">
-              {activeExceptions.map(exception => {
+            {displayedExceptions.length > 0 && <div className="space-y-3">
+              {displayedExceptions.map(exception => {
               const severityConfig = {
                 high: {
                   color: "border-amber-500/30 bg-amber-500/5",
@@ -2419,11 +2530,13 @@ const PayrollBatch: React.FC = () => {
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
                               {exception.contractorName}
-                              {exception.severity === "high" && <AlertCircle className="h-3.5 w-3.5 text-amber-600" />}
+                              {exception.contractorCountry && <span className="text-xs text-muted-foreground">• {exception.contractorCountry}</span>}
                             </span>
                             <Badge variant="outline" className="text-[10px]">
                               {exceptionTypeLabels[exception.type] || exception.type}
                             </Badge>
+                            {exception.isBlocking && <Badge variant="destructive" className="text-[10px]">Blocking</Badge>}
+                            {!exception.isBlocking && <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30">Warning</Badge>}
                           </div>
                           <p className="text-xs text-muted-foreground mb-3">
                             {exception.description}
@@ -2462,6 +2575,11 @@ const PayrollBatch: React.FC = () => {
                             <Button size="sm" variant="outline" className="h-7 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={() => handleSnoozeException(exception.id)}>
                               Remove From This Cycle
                             </Button>
+                            
+                            {/* Override & Continue - Only for blocking exceptions */}
+                            {exception.isBlocking && !exception.overrideInfo && <Button size="sm" variant="outline" className="h-7 text-xs border-amber-500/30 text-amber-600 hover:bg-amber-500/10" onClick={() => handleOpenOverrideModal(exception)}>
+                                Override & Continue
+                              </Button>}
                             
                             {/* Ignore for This Cycle - Only for minor warnings (medium/low severity) */}
                             {(exception.severity === "medium" || exception.severity === "low") && <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground" onClick={() => {
@@ -4632,6 +4750,14 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
+            <OverrideExceptionModal 
+              open={overrideModalOpen}
+              onOpenChange={setOverrideModalOpen}
+              exception={exceptionToOverride}
+              justification={overrideJustification}
+              onJustificationChange={setOverrideJustification}
+              onConfirm={handleConfirmOverride}
+            />
             <LeaveDetailsDrawer 
               open={leaveDetailsDrawerOpen} 
               onOpenChange={setLeaveDetailsDrawerOpen}
