@@ -13,7 +13,6 @@ import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
-import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,18 +62,6 @@ interface LeaveRecord {
   approvedBy?: string;
   clientConfirmed: boolean;
   contractorReported: boolean;
-  // Enhanced leave tracking
-  leaveBreakdown?: {
-    Annual?: number;
-    Sick?: number;
-    Unpaid?: number;
-    Parental?: number;
-    Other?: number;
-  };
-  hasPendingLeave?: boolean;
-  hasMissingAttendance?: boolean;
-  scheduledDays?: number;
-  actualDays?: number;
 }
 interface ContractorPayment {
   id: string;
@@ -125,9 +112,6 @@ interface ContractorPayment {
   employerTax?: number;
   pension?: number;
   allowOverride?: boolean;
-  // Additional payroll fields
-  ftePercent?: number;
-  role?: string;
 }
 interface PayrollException {
   id: string;
@@ -380,8 +364,6 @@ const PayrollBatch: React.FC = () => {
   const [countryRulesDrawerOpen, setCountryRulesDrawerOpen] = useState(false);
   const [employeePayrollDrawerOpen, setEmployeePayrollDrawerOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<ContractorPayment | null>(null);
-  const [leaveDetailsDrawerOpen, setLeaveDetailsDrawerOpen] = useState(false);
-  const [selectedWorkerForLeave, setSelectedWorkerForLeave] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
   const [workerTypeFilter, setWorkerTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [selectedCycle, setSelectedCycle] = useState<"previous" | "current" | "next">("current");
@@ -1347,9 +1329,12 @@ const PayrollBatch: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
                       <Badge variant="outline" className="text-xs">
-                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
-                    </Badge>
-                  </div>
+                        {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      For payroll month: {payrollCycleData[selectedCycle].label}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">
@@ -1523,12 +1508,7 @@ const PayrollBatch: React.FC = () => {
                     <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
-                        <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">
-                          Employees: {employeesList.length}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs bg-secondary/5 border-secondary/20">
-                          Contractors: {contractorsList.length}
-                        </Badge>
+                        <Badge variant="outline" className="text-xs">{contractors.length} {contractors.length === 1 ? 'payee' : 'payees'}</Badge>
                       </div>
                     </div>
                     
@@ -1544,13 +1524,8 @@ const PayrollBatch: React.FC = () => {
                               Name
                             </TableHead>
                             <TableHead className="text-xs min-w-[120px]">Employment Type</TableHead>
-                            <TableHead className="text-xs min-w-[80px]">FTE %</TableHead>
                             <TableHead className="text-xs min-w-[120px]">Country</TableHead>
                             <TableHead className="text-xs min-w-[100px]">Status</TableHead>
-                            <TableHead className="text-xs text-right min-w-[100px]">Scheduled Days</TableHead>
-                            <TableHead className="text-xs text-right min-w-[100px]">Actual Days</TableHead>
-                            <TableHead className="text-xs min-w-[140px]">Leave Taken</TableHead>
-                            <TableHead className="text-xs text-right min-w-[100px]">Net Payable Days</TableHead>
                             <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
                             <TableHead className="text-xs min-w-[110px]">End Date</TableHead>
                             <TableHead className="text-xs text-right min-w-[110px]">Hours Worked</TableHead>
@@ -1566,12 +1541,7 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right min-w-[120px]">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
-                      </Table>
-                      
-                      {/* Scrollable worker rows */}
-                      <ScrollArea className="h-[400px]">
-                        <Table className="relative min-w-max">
-                          <TableBody>
+                        <TableBody>
                         {/* Contractors Sub-Group */}
                         {contractorsList.length > 0 && <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
@@ -1633,79 +1603,12 @@ const PayrollBatch: React.FC = () => {
                                   {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
                                 </Badge>
                               </TableCell>
-                              {/* FTE % */}
-                              <TableCell className="text-sm text-center min-w-[80px]">
-                                {contractor.ftePercent || 100}%
-                              </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
                               <TableCell className="min-w-[100px]">
                                 <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30", contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30", contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30")}>
                                   {contractor.status || "Active"}
                                 </Badge>
-                              </TableCell>
-                              {/* Scheduled Days */}
-                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
-                                {leaveData?.scheduledDays || 22}d
-                              </TableCell>
-                              {/* Actual Days */}
-                              <TableCell className="text-right text-sm text-foreground min-w-[100px]">
-                                {leaveData?.actualDays || 22}d
-                              </TableCell>
-                              {/* Leave Taken with breakdown */}
-                              <TableCell className="min-w-[140px]">
-                                {hasLeave ? (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">
-                                      {leaveData.leaveBreakdown ? 
-                                        Object.entries(leaveData.leaveBreakdown)
-                                          .filter(([_, days]) => days && days > 0)
-                                          .map(([type, days]) => `${type}: ${days}d`)
-                                          .join(", ") 
-                                        : `${leaveData.leaveDays}d`}
-                                    </span>
-                                    {leaveData.hasPendingLeave && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Pending leave approval</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {leaveData.hasMissingAttendance && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <Clock className="h-3.5 w-3.5 text-amber-600" />
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Missing timesheet data</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedWorkerForLeave(contractor);
-                                        setLeaveDetailsDrawerOpen(true);
-                                      }}
-                                      className="text-xs text-primary hover:underline"
-                                    >
-                                      View details
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">—</span>
-                                )}
-                              </TableCell>
-                              {/* Net Payable Days */}
-                              <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
-                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -1788,11 +1691,11 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               <TableCell className="text-sm min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50" onClick={e => {
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground" onClick={e => {
                                 e.stopPropagation();
                                 handleSnoozeWorker(contractor.id);
                               }}>
-                                  Snooze
+                                  Snooze for This Cycle
                                 </Button>
                               </TableCell>
                             </TableRow>;
@@ -1920,87 +1823,12 @@ const PayrollBatch: React.FC = () => {
                                   {contractor.employmentType === "employee" ? "Employee" : "Contractor"}
                                 </Badge>
                               </TableCell>
-                              {/* FTE % */}
-                              <TableCell className="text-sm text-center min-w-[80px]">
-                                {contractor.ftePercent || 100}%
-                              </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
                               <TableCell className="min-w-[100px]">
                                 <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30", contractor.status === "Contract Ended" && "bg-orange-500/10 text-orange-600 border-orange-500/30", contractor.status === "On Hold" && "bg-gray-500/10 text-gray-600 border-gray-500/30")}>
                                   {contractor.status || "Active"}
                                 </Badge>
-                              </TableCell>
-                              {/* Scheduled Days */}
-                              <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
-                                {leaveData?.scheduledDays || 22}d
-                              </TableCell>
-                              {/* Actual Days */}
-                              <TableCell className="text-right text-sm text-foreground min-w-[100px]">
-                                {leaveData?.actualDays || 22}d
-                              </TableCell>
-                              {/* Leave Taken with breakdown */}
-                              <TableCell className="min-w-[140px]">
-                                {hasLeave ? (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">
-                                      {leaveData.leaveBreakdown ? 
-                                        Object.entries(leaveData.leaveBreakdown)
-                                          .filter(([_, days]) => days && days > 0)
-                                          .map(([type, days]) => `${type}: ${days}d`)
-                                          .join(", ") 
-                                        : `${leaveData.leaveDays}d`}
-                                    </span>
-                                    {leaveData.hasPendingLeave && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Pending leave approval</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {leaveData.hasMissingAttendance && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <Clock className="h-3.5 w-3.5 text-amber-600" />
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p className="text-xs">Missing timesheet data</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedWorkerForLeave(contractor);
-                                        setLeaveDetailsDrawerOpen(true);
-                                      }}
-                                      className="text-xs text-primary hover:underline"
-                                    >
-                                      View details
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">—</span>
-                                )}
-                              </TableCell>
-                              {/* Net Payable Days */}
-                              <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
-                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
-                              </TableCell>
-                              {/* Start Date */}
-                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
-                                {contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}
-                              </TableCell>
-                              {/* End Date */}
-                              <TableCell className="text-sm text-muted-foreground min-w-[110px]">
-                                {contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -2084,118 +1912,87 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50" onClick={e => {
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground" onClick={e => {
                                 e.stopPropagation();
                                 handleSnoozeWorker(contractor.id);
                               }}>
-                                  Snooze
+                                  Snooze for This Cycle
                                 </Button>
                               </TableCell>
                             </TableRow>;
                         })}
                           </>}
                         
-                          </TableBody>
-                        </Table>
-                      </ScrollArea>
-                      
-                      {/* Sticky Subtotals Section - Outside scrollable area */}
-                      <div className="bg-background/95 border-t border-border p-3 space-y-2">
-                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                          Subtotals by Type ({currency})
-                        </p>
-                        <div className="max-w-[640px] flex gap-2 items-stretch">
-                          {/* Contractors Subtotal */}
-                          <div className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
-                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
-                            <p className="text-base font-semibold text-foreground leading-tight">
-                              {symbol}{contractorsList.reduce((sum, c) => {
-                                const additionalFee = additionalFees[c.id];
-                                return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                              }, 0).toLocaleString()}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                              {contractorsList.length} worker{contractorsList.length !== 1 ? "s" : ""}
-                            </p>
-                          </div>
-                          {/* Employees Subtotal */}
-                          <div className="px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
-                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
-                            <p className="text-base font-semibold text-foreground leading-tight">
-                              {symbol}{employeesList.reduce((sum, c) => {
-                                const additionalFee = additionalFees[c.id];
-                                const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                const grossPay = c.baseSalary * phMultiplier;
-                                const deductions = 0; // Placeholder
-                                const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                              }, 0).toLocaleString()}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                              {employeesList.length} worker{employeesList.length !== 1 ? "s" : ""}
-                            </p>
-                          </div>
-                          {/* Total FX Exposure */}
-                          <div className="px-3 py-2.5 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
-                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Total FX Exposure</p>
-                            <p className="text-base font-semibold text-foreground leading-tight">
-                              {symbol}{contractors.reduce((sum, c) => {
-                                const additionalFee = additionalFees[c.id];
-                                const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                const grossPay = c.baseSalary * phMultiplier;
-                                const deductions = 0;
-                                const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                              }, 0).toLocaleString()}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                              {contractors.length} total worker{contractors.length !== 1 ? "s" : ""}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                        
+                        {/* Total Summary Row */}
+                        <TableRow className="bg-muted/50 font-semibold border-t-2 border-border">
+                          <TableCell className={cn("text-sm sticky left-0 z-20 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-muted/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                            Total {currency}
+                          </TableCell>
+                          <TableCell className="text-sm"></TableCell>
+                          <TableCell className="text-sm"></TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + c.baseSalary, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => {
+                            return sum + getLeaveDeduction(c);
+                          }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + getPaymentDue(c), 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => sum + c.estFees, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">
+                            {symbol}{contractors.reduce((sum, c) => {
+                            const additionalFee = additionalFees[c.id];
+                            return sum + (additionalFee?.accepted ? additionalFee.amount : 0);
+                          }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right text-sm font-bold">
+                            {symbol}{contractors.reduce((sum, c) => {
+                            const additionalFee = additionalFees[c.id];
+                            return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                          }, 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell colSpan={2}></TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
                     </div>
                   </CardContent>
                 </Card>;
           })}
 
-            {/* Payroll Totals Summary */}
+            {/* Summary Card */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-6">Payroll Run Totals</h3>
                 <div className="grid grid-cols-4 gap-6">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
                     <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
-                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                        const phMultiplier = isPHEmployee ? 0.5 : 1;
-                        return sum + (c.baseSalary * phMultiplier);
-                      }, 0) / 1000).toFixed(1)}K
+                      ${(allContractors.reduce((sum, c) => sum + c.baseSalary, 0) / 1000).toFixed(1)}K
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total gross salaries</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
-                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
-                      <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>
-                    )}
-                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
-                      <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
-                    )}
+                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-amber-600 mt-1">
+                        Includes pro-rated adjustments
+                      </p>}
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${allContractors.reduce((sum, c) => {
-                        const additionalFee = additionalFees[c.id];
-                        return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                      }, 0).toLocaleString()}
+                      const additionalFee = additionalFees[c.id];
+                      return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0).toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
                   </div>
@@ -2203,39 +2000,16 @@ const PayrollBatch: React.FC = () => {
                     <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => {
-                        const additionalFee = additionalFees[c.id];
-                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                        const phMultiplier = isPHEmployee ? 0.5 : 1;
-                        return sum + (c.baseSalary * phMultiplier) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                      }, 0) / 1000).toFixed(1)}K
+                      const additionalFee = additionalFees[c.id];
+                      return sum + c.baseSalary + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0) / 1000).toFixed(1)}K
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+                    <p className="text-xs text-muted-foreground mt-1">Gross + Fees</p>
                   </div>
                 </div>
-                <div className="mt-6 pt-6 border-t border-border/30">
-                  <div className="flex items-center justify-center gap-8 text-sm">
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Employees: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "employee").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Contractors: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "contractor").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Currencies: </span>
-                      <span className="font-semibold text-foreground">
-                        {Object.keys(groupedByCurrency).length}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-xs text-muted-foreground/70 mt-4 text-center">
+                  Includes pro-rated adjustments and currency conversions
+                </p>
               </CardContent>
             </Card>
 
@@ -2244,14 +2018,9 @@ const PayrollBatch: React.FC = () => {
                 <Collapsible open={showSnoozedSection} onOpenChange={setShowSnoozedSection}>
                   <div className="p-4">
                     <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-70 transition-opacity">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-semibold text-foreground">
-                          Snoozed Workers ({snoozedContractorsList.length})
-                        </h4>
-                        <Badge variant="outline" className="text-xs bg-muted/50">
-                          Excluded from totals
-                        </Badge>
-                      </div>
+                      <h4 className="text-sm font-semibold text-foreground">
+                        Snoozed Workers ({snoozedContractorsList.length})
+                      </h4>
                       <Button variant="ghost" size="sm" className="h-7">
                         {showSnoozedSection ? "Hide" : "Show"}
                       </Button>
@@ -3461,15 +3230,14 @@ You can ask me about:
                       }}>
                           <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                             <CardContent className="p-6">
-                              <div className="flex items-start justify-between mb-6">
-                                <div className="space-y-4 flex-1">
-                                  {/* Title and Status */}
-                                  <div className="flex items-center gap-3">
-                                    <h3 className="text-xl font-semibold text-foreground">Payroll Overview</h3>
+                              <div className="flex items-center justify-between mb-6">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-4 mb-3">
+                                    <h3 className="text-lg font-semibold text-foreground">Payroll Overview</h3>
                                     <Badge 
                                       variant="outline" 
                                       className={cn(
-                                        "text-xs font-medium px-2.5 py-0.5",
+                                        "text-xs font-medium",
                                         currentCycleData.status === "completed" && "bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline",
                                         currentCycleData.status === "active" && "bg-blue-500/20 text-blue-600 border-blue-500/40",
                                         currentCycleData.status === "upcoming" && "bg-amber-500/20 text-amber-600 border-amber-500/40"
@@ -3479,33 +3247,31 @@ You can ask me about:
                                     </Badge>
                                   </div>
                                   
-                                  {/* Run Details Grid */}
-                                  <div className="grid grid-cols-2 gap-x-8 gap-y-3 max-w-2xl">
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Pay Period</p>
-                                      <p className="text-sm font-medium text-foreground">{currentCycleData.label}</p>
+                                  {/* Compact Run Summary */}
+                                  <div className="flex items-center gap-6 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Pay Period:</span>
+                                      <span className="font-medium text-foreground">{currentCycleData.label}</span>
                                     </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Primary Currency</p>
-                                      <p className="text-sm font-medium text-foreground">USD</p>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Countries:</span>
+                                      <span className="font-medium text-foreground">PH, NO, PT, FR, IT</span>
                                     </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Countries</p>
-                                      <p className="text-sm font-medium text-foreground">Philippines, Norway, Portugal, France, Italy</p>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Primary Currency:</span>
+                                      <span className="font-medium text-foreground">USD</span>
                                     </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Workers Included</p>
-                                      <p className="text-sm font-medium text-foreground">
-                                        {allContractors.filter(c => c.employmentType === "employee").length} Employees, {allContractors.filter(c => c.employmentType === "contractor").length} Contractors
-                                      </p>
+                                    <Separator orientation="vertical" className="h-4" />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Workers:</span>
+                                      <span className="font-medium text-foreground">
+                                        Employees: {allContractors.filter(c => c.employmentType === "employee").length} • Contractors: {allContractors.filter(c => c.employmentType === "contractor").length}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-                                
-                                {/* Action Buttons */}
                                 <div className="flex items-center gap-2">
                                   <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
                                     <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
@@ -4634,51 +4400,6 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
-            <LeaveDetailsDrawer 
-              open={leaveDetailsDrawerOpen} 
-              onOpenChange={setLeaveDetailsDrawerOpen}
-              workerName={selectedWorkerForLeave?.name || ""}
-              workerRole={selectedWorkerForLeave?.role}
-              country={selectedWorkerForLeave?.country || ""}
-              employmentType={selectedWorkerForLeave?.employmentType || "contractor"}
-              ftePercent={selectedWorkerForLeave?.ftePercent || 100}
-              scheduledDays={selectedWorkerForLeave?.leaveData?.scheduledDays || 22}
-              actualDays={selectedWorkerForLeave?.leaveData?.actualDays || 22}
-              leaveEntries={selectedWorkerForLeave ? [
-                {
-                  id: "leave-1",
-                  requestDate: "Nov 1, 2025",
-                  leaveStartDate: "Nov 5, 2025",
-                  leaveEndDate: "Nov 7, 2025",
-                  leaveType: "Annual",
-                  daysCount: 3,
-                  status: selectedWorkerForLeave.leaveData?.hasPendingLeave ? "Pending" : "Approved",
-                  approvedBy: "Jane Smith",
-                  recordedInFronted: true,
-                  notes: "Pre-approved family vacation"
-                },
-                {
-                  id: "leave-2",
-                  requestDate: "Oct 28, 2025",
-                  leaveStartDate: "Nov 12, 2025",
-                  leaveEndDate: "Nov 12, 2025",
-                  leaveType: "Sick",
-                  daysCount: 1,
-                  status: "Approved",
-                  approvedBy: "Company HR System",
-                  recordedInFronted: false
-                }
-              ] : []}
-              attendanceAnomalies={selectedWorkerForLeave?.leaveData?.hasMissingAttendance ? [
-                {
-                  id: "anomaly-1",
-                  date: "Nov 8, 2025",
-                  type: "Missing timesheet",
-                  description: "No timesheet submitted for this date",
-                  severity: "high"
-                }
-              ] : []}
-            />
 
             {/* Leave Record Selector Dialog */}
             <Dialog open={leaveSelectorOpen} onOpenChange={open => {

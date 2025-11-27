@@ -80,7 +80,7 @@ export default function CountryRulesDrawer({ open, onOpenChange }: CountryRulesD
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[600px] sm:max-w-[600px] p-0">
         <SheetHeader className="p-6 pb-4 border-b border-border/50">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
             <SheetTitle className="text-lg font-semibold">Country Payroll Rules</SheetTitle>
             <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/50 gap-1.5">
               <Lock className="h-3 w-3" />
