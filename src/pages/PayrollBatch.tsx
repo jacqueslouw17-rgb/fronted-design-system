@@ -16,6 +16,8 @@ import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
 import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttendanceExceptionDrawer";
+import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
+import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -367,9 +369,9 @@ const PayrollBatch: React.FC = () => {
   const [leaveAttendanceDrawerOpen, setLeaveAttendanceDrawerOpen] = useState(false);
   const [selectedLeaveException, setSelectedLeaveException] = useState<PayrollException | null>(null);
   
+  // Execution confirmation state
   const [executionConfirmOpen, setExecutionConfirmOpen] = useState(false);
   const [pendingExecutionCohort, setPendingExecutionCohort] = useState<"all" | "employees" | "contractors" | null>(null);
-  const [executingCohort, setExecutingCohort] = useState<"all" | "employees" | "contractors" | null>(null);
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
   const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
     const currentDay = new Date().getDate();
@@ -1345,14 +1347,34 @@ const PayrollBatch: React.FC = () => {
   // const handleRequestApproval = () => { ... }
   // const handleAdminOverride = () => { ... }
 
-  const handleExecutePayroll = async () => {
+  // Open confirmation dialog for execution
+  const handleExecuteClick = (cohort: "all" | "employees" | "contractors") => {
+    setPendingExecutionCohort(cohort);
+    setExecutionConfirmOpen(true);
+  };
+
+  // Confirm and execute payroll
+  const handleConfirmExecution = async () => {
+    if (!pendingExecutionCohort) return;
+    
+    setExecutionConfirmOpen(false);
     setIsExecuting(true);
+    
+    // Filter workers based on cohort
+    let workersToExecute = executeFilteredWorkers;
+    if (pendingExecutionCohort === "employees") {
+      workersToExecute = executeFilteredWorkers.filter(c => c.employmentType === "employee");
+    } else if (pendingExecutionCohort === "contractors") {
+      workersToExecute = executeFilteredWorkers.filter(c => c.employmentType === "contractor");
+    }
+    
     const initialProgress: Record<string, "pending" | "processing" | "complete"> = {};
-    executeFilteredWorkers.forEach(c => {
+    workersToExecute.forEach(c => {
       initialProgress[c.id] = "pending";
     });
     setExecutionProgress(initialProgress);
-    for (const contractor of executeFilteredWorkers) {
+    
+    for (const contractor of workersToExecute) {
       setExecutionProgress(prev => ({
         ...prev,
         [contractor.id]: "processing"
@@ -1363,8 +1385,22 @@ const PayrollBatch: React.FC = () => {
         [contractor.id]: "complete"
       }));
     }
+    
     setIsExecuting(false);
-    toast.success("Payroll batch processed successfully!");
+    setPendingExecutionCohort(null);
+    
+    const cohortLabel = pendingExecutionCohort === "all" 
+      ? "all workers" 
+      : pendingExecutionCohort === "employees" 
+        ? "employees" 
+        : "contractors";
+    
+    toast.success(`Payroll batch processed successfully for ${cohortLabel}!`);
+  };
+
+  // Legacy handler - now redirects to new flow
+  const handleExecutePayroll = () => {
+    handleExecuteClick("all");
   };
   const handleViewReceipt = (receipt: any) => {
     setSelectedReceipt(receipt);
@@ -4812,11 +4848,11 @@ You can ask me about:
         onOpenChange={setExecutionConfirmOpen}
         onConfirm={handleConfirmExecution}
         cohort={pendingExecutionCohort || "all"}
-        employeeCount={currentBatch?.payees.filter(p => p.employmentType === "Employee").length || 0}
-        contractorCount={currentBatch?.payees.filter(p => p.employmentType === "Contractor").length || 0}
-        employeeTotal={currentBatch?.payees.filter(p => p.employmentType === "Employee").reduce((sum, p) => sum + p.gross, 0) || 0}
-        contractorTotal={currentBatch?.payees.filter(p => p.employmentType === "Contractor").reduce((sum, p) => sum + p.gross, 0) || 0}
-        currency={currentBatch?.baseCurrency || "USD"}
+        employeeCount={allContractors.filter(c => c.employmentType === "employee").length}
+        contractorCount={allContractors.filter(c => c.employmentType === "contractor").length}
+        employeeTotal={allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.baseSalary, 0)}
+        contractorTotal={allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + c.baseSalary, 0)}
+        currency="USD"
       />
             <LeaveAttendanceExceptionDrawer
               open={leaveAttendanceDrawerOpen}
