@@ -13,6 +13,7 @@ import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
+import WorkerRulesDrawer from "@/components/payroll/WorkerRulesDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -380,6 +381,8 @@ const PayrollBatch: React.FC = () => {
   const [countryRulesDrawerOpen, setCountryRulesDrawerOpen] = useState(false);
   const [employeePayrollDrawerOpen, setEmployeePayrollDrawerOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<ContractorPayment | null>(null);
+  const [workerRulesDrawerOpen, setWorkerRulesDrawerOpen] = useState(false);
+  const [selectedWorkerForRules, setSelectedWorkerForRules] = useState<ContractorPayment | null>(null);
   const [leaveDetailsDrawerOpen, setLeaveDetailsDrawerOpen] = useState(false);
   const [selectedWorkerForLeave, setSelectedWorkerForLeave] = useState<ContractorPayment | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "Paid" | "InTransit" | "Failed">("all");
@@ -1256,6 +1259,11 @@ const PayrollBatch: React.FC = () => {
     setSelectedEmployee(employee);
     setEmployeePayrollDrawerOpen(true);
   };
+  const handleOpenWorkerRules = (worker: ContractorPayment) => {
+    console.log('[PayrollBatch] Opening WorkerRulesDrawer with', worker);
+    setSelectedWorkerForRules(worker);
+    setWorkerRulesDrawerOpen(true);
+  };
   const handleSaveEmployeePayroll = (data: ContractorPayment) => {
     // Note: In production, this would update the backend state
     // For now, mock data remains static
@@ -1591,11 +1599,8 @@ const PayrollBatch: React.FC = () => {
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                           return <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
                             if (selectedCycle === "previous") return;
-                            if (contractor.employmentType === "employee") {
-                              handleOpenEmployeePayroll(contractor);
-                            } else {
-                              handleOpenContractorDetail(contractor);
-                            }
+                            // Open rules-aware drawer for review step
+                            handleOpenWorkerRules(contractor);
                           }}>
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
                                 <div className="flex items-center gap-2">
@@ -1880,11 +1885,8 @@ const PayrollBatch: React.FC = () => {
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
                           return <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
                             if (selectedCycle === "previous") return;
-                            if (contractor.employmentType === "employee") {
-                              handleOpenEmployeePayroll(contractor);
-                            } else {
-                              handleOpenContractorDetail(contractor);
-                            }
+                            // Open rules-aware drawer for review step
+                            handleOpenWorkerRules(contractor);
                           }}>
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
                                 <div className="flex items-center gap-2">
@@ -4632,6 +4634,7 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
+            <WorkerRulesDrawer open={workerRulesDrawerOpen} onOpenChange={setWorkerRulesDrawerOpen} worker={selectedWorkerForRules} />
             <LeaveDetailsDrawer 
               open={leaveDetailsDrawerOpen} 
               onOpenChange={setLeaveDetailsDrawerOpen}
