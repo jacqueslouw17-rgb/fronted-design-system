@@ -18,6 +18,7 @@ import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionMo
 import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttendanceExceptionDrawer";
 import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
+import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -372,6 +373,9 @@ const PayrollBatch: React.FC = () => {
   // Execution confirmation state
   const [executionConfirmOpen, setExecutionConfirmOpen] = useState(false);
   const [pendingExecutionCohort, setPendingExecutionCohort] = useState<"all" | "employees" | "contractors" | null>(null);
+  
+  // Execution log state - persists last batch results
+  const [executionLog, setExecutionLog] = useState<ExecutionLogData | null>(null);
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
   const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
     const currentDay = new Date().getDate();
@@ -383,7 +387,7 @@ const PayrollBatch: React.FC = () => {
   const [userRole] = useState<"admin" | "user">("admin");
   const [autoRetryEnabled, setAutoRetryEnabled] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete">>({});
+  const [executionProgress, setExecutionProgress] = useState<Record<string, "pending" | "processing" | "complete" | "failed">>({});
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
@@ -1374,20 +1378,54 @@ const PayrollBatch: React.FC = () => {
     });
     setExecutionProgress(initialProgress);
     
+    // Track results for execution log
+    const logWorkers: ExecutionLogWorker[] = [];
+    
     for (const contractor of workersToExecute) {
       setExecutionProgress(prev => ({
         ...prev,
         [contractor.id]: "processing"
       }));
+      
       await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+      
+      // Simulate random failures (10% chance) for demo purposes
+      const isFailed = Math.random() < 0.1;
+      
       setExecutionProgress(prev => ({
         ...prev,
-        [contractor.id]: "complete"
+        [contractor.id]: isFailed ? "failed" : "complete"
       }));
+      
+      // Add to log
+      logWorkers.push({
+        id: contractor.id,
+        name: contractor.name,
+        employmentType: contractor.employmentType,
+        country: contractor.country,
+        status: isFailed ? "failed" : "success",
+        errorMessage: isFailed 
+          ? `Payment processing error: ${contractor.employmentType === "employee" ? "Payroll system rejected posting" : "Bank account validation failed"}`
+          : undefined
+      });
     }
     
     setIsExecuting(false);
-    setPendingExecutionCohort(null);
+    
+    // Create execution log entry
+    const employeeCount = workersToExecute.filter(c => c.employmentType === "employee").length;
+    const contractorCount = workersToExecute.filter(c => c.employmentType === "contractor").length;
+    
+    setExecutionLog({
+      timestamp: new Date(),
+      cohort: pendingExecutionCohort,
+      employeeCount,
+      contractorCount,
+      workers: logWorkers
+    });
+    
+    const successCount = logWorkers.filter(w => w.status === "success").length;
+    const failureCount = logWorkers.filter(w => w.status === "failed").length;
     
     const cohortLabel = pendingExecutionCohort === "all" 
       ? "all workers" 
@@ -1395,12 +1433,59 @@ const PayrollBatch: React.FC = () => {
         ? "employees" 
         : "contractors";
     
-    toast.success(`Payroll batch processed successfully for ${cohortLabel}!`);
+    if (failureCount === 0) {
+      toast.success(`Payroll batch processed successfully for ${cohortLabel}! ${successCount} workers completed.`);
+    } else {
+      toast.warning(`Batch completed with ${failureCount} failure${failureCount > 1 ? 's' : ''}. Check execution log for details.`);
+    }
+    
+    setPendingExecutionCohort(null);
   };
 
   // Legacy handler - now redirects to new flow
   const handleExecutePayroll = () => {
     handleExecuteClick("all");
+  };
+  
+  // Navigate to exceptions with context for a specific worker
+  const handleViewException = (workerId: string) => {
+    // Find if there's an existing exception for this worker
+    const workerException = exceptions.find(exc => exc.contractorId === workerId);
+    
+    if (!workerException) {
+      // Create a temporary exception for this execution failure
+      const worker = allContractors.find(c => c.id === workerId);
+      if (worker) {
+        const newException: PayrollException = {
+          id: `exec-fail-${workerId}-${Date.now()}`,
+          contractorId: workerId,
+          contractorName: worker.name,
+          contractorCountry: worker.country,
+          type: "missing-bank", // Generic type for execution failures
+          description: "Payment execution failed - see execution log for details",
+          severity: "high",
+          resolved: false,
+          snoozed: false,
+          ignored: false,
+          canFixInPayroll: false,
+          isBlocking: true
+        };
+        setExceptions(prev => [newException, ...prev]);
+      }
+    }
+    
+    // Navigate to exceptions step
+    setCurrentStep("exceptions");
+    
+    // Scroll to the worker's exception after a brief delay
+    setTimeout(() => {
+      const exceptionRow = document.querySelector(`[data-worker-id="${workerId}"]`);
+      if (exceptionRow) {
+        exceptionRow.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 300);
+    
+    toast.info(`Navigated to Exceptions for ${allContractors.find(c => c.id === workerId)?.name}`);
   };
   const handleViewReceipt = (receipt: any) => {
     setSelectedReceipt(receipt);
@@ -2599,7 +2684,7 @@ const PayrollBatch: React.FC = () => {
                 }
               };
               const config = severityConfig[exception.severity];
-              return <Card key={exception.id} className={cn("border", config.color, "transition-all duration-300")}>
+              return <Card key={exception.id} className={cn("border", config.color, "transition-all duration-300")} data-worker-id={exception.contractorId}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className={cn("flex items-center justify-center w-8 h-8 rounded-full bg-muted/50", config.warningIcon && "animate-pulse")}>
@@ -3059,7 +3144,7 @@ const PayrollBatch: React.FC = () => {
                     </div>
                   </div>}
 
-                {!isExecuting && Object.keys(executionProgress).length > 0 && Object.values(executionProgress).every(s => s === "complete") && <div className="space-y-3">
+                {!isExecuting && Object.keys(executionProgress).length > 0 && Object.values(executionProgress).every(s => s === "complete" || s === "failed") && <div className="space-y-3">
                     <div className="flex items-center gap-3 p-4 rounded-lg bg-accent-green-fill/10 border border-accent-green-outline/20">
                       <motion.div initial={{
                     scale: 0
@@ -3089,6 +3174,14 @@ const PayrollBatch: React.FC = () => {
                   </div>}
               </CardContent>
             </Card>
+            
+            {/* Execution Log - Shows results from last batch execution */}
+            {executionLog && (
+              <ExecutionLog 
+                logData={executionLog} 
+                onViewException={handleViewException}
+              />
+            )}
           </div>;
       case "track":
         const totalGrossPay = filteredContractors.reduce((sum, c) => sum + c.baseSalary, 0);
