@@ -15,6 +15,7 @@ import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
+import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttendanceExceptionDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -362,6 +363,9 @@ const PayrollBatch: React.FC = () => {
   const [overrideJustification, setOverrideJustification] = useState("");
   // Exceptions grouping filter
   const [exceptionGroupFilter, setExceptionGroupFilter] = useState<"all" | "fixable" | "non-fixable">("all");
+  // Leave/attendance exception drawer
+  const [leaveAttendanceDrawerOpen, setLeaveAttendanceDrawerOpen] = useState(false);
+  const [selectedLeaveException, setSelectedLeaveException] = useState<PayrollException | null>(null);
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
   const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
     const currentDay = new Date().getDate();
@@ -1288,6 +1292,41 @@ const PayrollBatch: React.FC = () => {
     setOverrideModalOpen(false);
     setExceptionToOverride(null);
     setOverrideJustification("");
+  };
+  
+  const handleOpenLeaveAttendanceDrawer = (exception: PayrollException) => {
+    setSelectedLeaveException(exception);
+    setLeaveAttendanceDrawerOpen(true);
+  };
+  
+  const handleResolveLeaveAttendance = (exceptionId: string, resolution: "unpaid-leave" | "worked-days" | "snooze") => {
+    const exception = exceptions.find(exc => exc.id === exceptionId);
+    if (!exception) return;
+    
+    if (resolution === "snooze") {
+      // Use existing snooze functionality
+      handleSnoozeException(exceptionId);
+    } else {
+      // Mark as resolved and update worker data
+      setExceptions(prev => prev.map(exc => 
+        exc.id === exceptionId 
+          ? { ...exc, resolved: true }
+          : exc
+      ));
+      
+      // Update contractor data based on resolution
+      const contractor = allContractors.find(c => c.id === exception.contractorId);
+      if (contractor && resolution === "unpaid-leave") {
+        // Apply unpaid leave proration
+        toast.success(`${exception.contractorName} marked as unpaid leave - earnings adjusted`);
+      } else if (contractor && resolution === "worked-days") {
+        // Treat as fully worked
+        toast.success(`${exception.contractorName} will be paid for full expected days`);
+      }
+    }
+    
+    setLeaveAttendanceDrawerOpen(false);
+    setSelectedLeaveException(null);
   };
   const handleSendFormToCandidate = (exception: PayrollException) => {
     setExceptions(prev => prev.map(exc => exc.id === exception.id ? {
@@ -2543,13 +2582,18 @@ const PayrollBatch: React.FC = () => {
                           </p>
                           <div className="flex gap-2 flex-wrap">
                             {/* Fix Now / Validate Again / Fixed - Dynamic label based on exception type */}
+                            {/* Leave/Attendance related - open dedicated drawer */}
+                            {exception.type === "pending-leave" && <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleOpenLeaveAttendanceDrawer(exception)}>
+                                Review Details
+                              </Button>}
+                            
                             {exception.type === "missing-bank" && !exception.formSent && <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleSendFormToCandidate(exception)}>
                                 Fix Now
                               </Button>}
                             {exception.formSent && <Button size="sm" variant="outline" className="h-7 text-xs border-green-500/30 text-green-600 hover:bg-green-500/10" onClick={() => handleResolveException(exception.id)}>
                                 Validate Again
                               </Button>}
-                            {(exception.type === "fx-mismatch" || exception.type === "pending-leave" || exception.type === "unverified-identity") && <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleOpenFixDrawer(exception)}>
+                            {(exception.type === "fx-mismatch" || exception.type === "unverified-identity") && <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => handleOpenFixDrawer(exception)}>
                                 Fix Now
                               </Button>}
                             {(exception.type === "below-minimum-wage" || exception.type === "allowance-exceeds-cap" || exception.type === "missing-govt-id" || exception.type === "incorrect-contribution-tier" || exception.type === "missing-13th-month" || exception.type === "ot-holiday-type-not-selected" || exception.type === "invalid-work-type-combination" || exception.type === "night-differential-invalid-hours" || exception.type === "missing-employer-sss" || exception.type === "missing-withholding-tax" || exception.type === "missing-hours" || exception.type === "status-mismatch" || exception.type === "employment-ending-this-period" || exception.type === "end-date-before-period" || exception.type === "upcoming-contract-end" || exception.type === "missing-dates" || exception.type === "end-date-passed-active" || exception.type === "deduction-exceeds-gross" || exception.type === "missing-tax-fields" || exception.type === "adjustment-exceeds-cap" || exception.type === "contribution-table-year-missing") && <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => {
@@ -4757,6 +4801,13 @@ You can ask me about:
               justification={overrideJustification}
               onJustificationChange={setOverrideJustification}
               onConfirm={handleConfirmOverride}
+            />
+            <LeaveAttendanceExceptionDrawer
+              open={leaveAttendanceDrawerOpen}
+              onOpenChange={setLeaveAttendanceDrawerOpen}
+              exception={selectedLeaveException}
+              worker={selectedLeaveException ? allContractors.find(c => c.id === selectedLeaveException.contractorId) : undefined}
+              onResolve={handleResolveLeaveAttendance}
             />
             <LeaveDetailsDrawer 
               open={leaveDetailsDrawerOpen} 
