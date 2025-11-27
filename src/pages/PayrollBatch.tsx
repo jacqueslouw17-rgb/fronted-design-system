@@ -19,6 +19,7 @@ import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttend
 import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
+import { RuleAwarenessBadge } from "@/components/payroll/RuleAwarenessBadge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1944,7 +1945,18 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               {/* FTE % */}
                               <TableCell className="text-sm text-center min-w-[80px]">
-                                {contractor.ftePercent || 100}%
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <span>{contractor.ftePercent || 100}%</span>
+                                  <RuleAwarenessBadge 
+                                    field="FTE Percentage"
+                                    layers={{
+                                      countryMinimum: "N/A",
+                                      companyDefault: 100,
+                                      workerOverride: contractor.ftePercent !== 100 ? contractor.ftePercent : undefined
+                                    }}
+                                    unit="%"
+                                  />
+                                </div>
                               </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
@@ -1955,7 +1967,18 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               {/* Scheduled Days */}
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
-                                {leaveData?.scheduledDays || 22}d
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <span>{leaveData?.scheduledDays || 22}d</span>
+                                  <RuleAwarenessBadge 
+                                    field="Scheduled Working Days"
+                                    layers={{
+                                      countryMinimum: contractor.country === "Norway" ? 22 : contractor.country === "Philippines" ? 22 : 21,
+                                      companyDefault: 22,
+                                      workerOverride: leaveData?.scheduledDays !== 22 ? leaveData?.scheduledDays : undefined
+                                    }}
+                                    unit="d"
+                                  />
+                                </div>
                               </TableCell>
                               {/* Actual Days */}
                               <TableCell className="text-right text-sm text-foreground min-w-[100px]">
@@ -2231,7 +2254,18 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               {/* FTE % */}
                               <TableCell className="text-sm text-center min-w-[80px]">
-                                {contractor.ftePercent || 100}%
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <span>{contractor.ftePercent || 100}%</span>
+                                  <RuleAwarenessBadge 
+                                    field="FTE Percentage"
+                                    layers={{
+                                      countryMinimum: "N/A",
+                                      companyDefault: 100,
+                                      workerOverride: contractor.ftePercent !== 100 ? contractor.ftePercent : undefined
+                                    }}
+                                    unit="%"
+                                  />
+                                </div>
                               </TableCell>
                               <TableCell className="text-sm min-w-[120px]">{contractor.country}</TableCell>
                               {/* Employment Status */}
@@ -2242,7 +2276,18 @@ const PayrollBatch: React.FC = () => {
                               </TableCell>
                               {/* Scheduled Days */}
                               <TableCell className="text-right text-sm text-muted-foreground min-w-[100px]">
-                                {leaveData?.scheduledDays || 22}d
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <span>{leaveData?.scheduledDays || 22}d</span>
+                                  <RuleAwarenessBadge 
+                                    field="Scheduled Working Days"
+                                    layers={{
+                                      countryMinimum: contractor.country === "Norway" ? 22 : contractor.country === "Philippines" ? 22 : 21,
+                                      companyDefault: 22,
+                                      workerOverride: leaveData?.scheduledDays !== 22 ? leaveData?.scheduledDays : undefined
+                                    }}
+                                    unit="d"
+                                  />
+                                </div>
                               </TableCell>
                               {/* Actual Days */}
                               <TableCell className="text-right text-sm text-foreground min-w-[100px]">
@@ -2653,6 +2698,36 @@ const PayrollBatch: React.FC = () => {
             ? nonFixableExceptions 
             : activeExceptions;
         
+        // Categorize exception types
+        const getExceptionCategory = (type: PayrollException['type']): "rule-violation" | "missing-data" | "system-error" => {
+          const ruleViolations = [
+            "below-minimum-wage",
+            "allowance-exceeds-cap",
+            "incorrect-contribution-tier",
+            "deduction-exceeds-gross",
+            "adjustment-exceeds-cap",
+            "night-differential-invalid-hours",
+            "invalid-work-type-combination"
+          ];
+          
+          const missingData = [
+            "missing-bank",
+            "missing-govt-id",
+            "missing-13th-month",
+            "missing-employer-sss",
+            "missing-withholding-tax",
+            "missing-hours",
+            "missing-dates",
+            "missing-tax-fields",
+            "contribution-table-year-missing",
+            "pending-leave"
+          ];
+          
+          if (ruleViolations.includes(type)) return "rule-violation";
+          if (missingData.includes(type)) return "missing-data";
+          return "system-error";
+        };
+        
         // Count blocking exceptions
         const blockingCount = activeExceptions.filter(e => e.isBlocking && !e.overrideInfo).length;
         
@@ -2708,7 +2783,7 @@ const PayrollBatch: React.FC = () => {
 
             {/* Active Exceptions List */}
             {displayedExceptions.length > 0 && <div className="space-y-3">
-              {displayedExceptions.map(exception => {
+            {displayedExceptions.map(exception => {
               const severityConfig = {
                 high: {
                   color: "border-amber-500/30 bg-amber-500/5",
@@ -2727,6 +2802,24 @@ const PayrollBatch: React.FC = () => {
                 }
               };
               const config = severityConfig[exception.severity];
+              const category = getExceptionCategory(exception.type);
+              
+              // Category badge configuration
+              const categoryConfig = {
+                "rule-violation": {
+                  label: "Rule violation",
+                  className: "bg-red-500/10 text-red-600 border-red-500/30"
+                },
+                "missing-data": {
+                  label: "Missing data",
+                  className: "bg-blue-500/10 text-blue-600 border-blue-500/30"
+                },
+                "system-error": {
+                  label: "System error",
+                  className: "bg-orange-500/10 text-orange-600 border-orange-500/30"
+                }
+              };
+              
               return <Card key={exception.id} className={cn("border", config.color, "transition-all duration-300")} data-worker-id={exception.contractorId}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -2741,6 +2834,10 @@ const PayrollBatch: React.FC = () => {
                             </span>
                             <Badge variant="outline" className="text-[10px]">
                               {exceptionTypeLabels[exception.type] || exception.type}
+                            </Badge>
+                            {/* Category Badge - Rule violation, Missing data, or System error */}
+                            <Badge variant="outline" className={cn("text-[10px]", categoryConfig[category].className)}>
+                              {categoryConfig[category].label}
                             </Badge>
                             {exception.isBlocking && <Badge variant="destructive" className="text-[10px]">Blocking</Badge>}
                             {!exception.isBlocking && <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30">Warning</Badge>}
