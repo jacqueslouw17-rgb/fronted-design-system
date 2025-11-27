@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check, Search } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, XCircle, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check, Search, Users, Briefcase, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -3031,7 +3031,7 @@ const PayrollBatch: React.FC = () => {
                       }} animate={{
                         opacity: 1,
                         x: 0
-                      }} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20", status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse", status === "pending" && "bg-muted/20 border-border")}>
+                      }} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20", status === "failed" && "bg-red-500/10 border-red-500/30", status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse", status === "pending" && "bg-muted/20 border-border")}>
                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
                                   {status === "complete" && <motion.div initial={{
                             scale: 0
@@ -3042,6 +3042,16 @@ const PayrollBatch: React.FC = () => {
                             stiffness: 200
                           }}>
                                       <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+                                    </motion.div>}
+                                  {status === "failed" && <motion.div initial={{
+                            scale: 0
+                          }} animate={{
+                            scale: 1
+                          }} transition={{
+                            type: "spring",
+                            stiffness: 200
+                          }}>
+                                      <XCircle className="h-4 w-4 text-red-600" />
                                     </motion.div>}
                                   {status === "processing" && <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />}
                                   {status === "pending" && <Circle className="h-3 w-3 text-muted-foreground" />}
@@ -3059,8 +3069,9 @@ const PayrollBatch: React.FC = () => {
                                   </p>
                                 </div>
 
-                                <Badge variant="outline" className={cn("text-[10px]", status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30", status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "pending" && "bg-muted text-muted-foreground")}>
+                                <Badge variant="outline" className={cn("text-[10px]", status === "complete" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30", status === "failed" && "bg-red-500/10 text-red-600 border-red-500/30", status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "pending" && "bg-muted text-muted-foreground")}>
                                   {status === "complete" && "Paid"}
+                                  {status === "failed" && "Failed"}
                                   {status === "processing" && "Processing"}
                                   {status === "pending" && "Queued"}
                                 </Badge>
@@ -3083,7 +3094,7 @@ const PayrollBatch: React.FC = () => {
                       }} animate={{
                         opacity: 1,
                         x: 0
-                      }} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", status === "complete" && "bg-blue-500/10 border-blue-500/20", status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse", status === "pending" && "bg-muted/20 border-border")}>
+                      }} className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors", status === "complete" && "bg-blue-500/10 border-blue-500/20", status === "failed" && "bg-red-500/10 border-red-500/30", status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse", status === "pending" && "bg-muted/20 border-border")}>
                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
                                   {status === "complete" && <motion.div initial={{
                             scale: 0
@@ -3094,6 +3105,16 @@ const PayrollBatch: React.FC = () => {
                             stiffness: 200
                           }}>
                                       <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                                    </motion.div>}
+                                  {status === "failed" && <motion.div initial={{
+                            scale: 0
+                          }} animate={{
+                            scale: 1
+                          }} transition={{
+                            type: "spring",
+                            stiffness: 200
+                          }}>
+                                      <XCircle className="h-4 w-4 text-red-600" />
                                     </motion.div>}
                                   {status === "processing" && <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />}
                                   {status === "pending" && <Circle className="h-3 w-3 text-muted-foreground" />}
@@ -3114,8 +3135,9 @@ const PayrollBatch: React.FC = () => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Badge variant="outline" className={cn("text-[10px]", status === "complete" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "pending" && "bg-muted text-muted-foreground")}>
+                                      <Badge variant="outline" className={cn("text-[10px]", status === "complete" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "failed" && "bg-red-500/10 text-red-600 border-red-500/30", status === "processing" && "bg-blue-500/10 text-blue-600 border-blue-500/30", status === "pending" && "bg-muted text-muted-foreground")}>
                                         {status === "complete" && "Posted"}
+                                        {status === "failed" && "Failed"}
                                         {status === "processing" && "Posting"}
                                         {status === "pending" && "Queued"}
                                       </Badge>
