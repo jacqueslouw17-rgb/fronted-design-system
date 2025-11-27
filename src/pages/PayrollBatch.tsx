@@ -1566,7 +1566,12 @@ const PayrollBatch: React.FC = () => {
                             <TableHead className="text-xs text-right min-w-[120px]">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
-                        <TableBody>
+                      </Table>
+                      
+                      {/* Scrollable worker rows */}
+                      <ScrollArea className="h-[400px]">
+                        <Table className="relative min-w-max">
+                          <TableBody>
                         {/* Contractors Sub-Group */}
                         {contractorsList.length > 0 && <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
@@ -2090,70 +2095,67 @@ const PayrollBatch: React.FC = () => {
                         })}
                           </>}
                         
-                        
-                        {/* Per-type Subtotals Row */}
-                        <TableRow className="bg-muted/30 border-t border-border">
-                          <TableCell colSpan={22} className="p-0">
-                            <div className="p-2 space-y-1.5">
-                              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
-                                Subtotals by Type ({currency})
-                              </p>
-                              <div className="max-w-[640px] flex gap-1.5 items-stretch">
-                                {/* Contractors Subtotal */}
-                                <div className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
-                                  <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
-                                  <p className="text-base font-semibold text-foreground leading-tight">
-                                    {symbol}{contractorsList.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
-                                  </p>
-                                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                                    {contractorsList.length} worker{contractorsList.length !== 1 ? "s" : ""}
-                                  </p>
-                                </div>
-                                {/* Employees Subtotal */}
-                                <div className="px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
-                                  <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
-                                  <p className="text-base font-semibold text-foreground leading-tight">
-                                    {symbol}{employeesList.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                      const grossPay = c.baseSalary * phMultiplier;
-                                      const deductions = 0; // Placeholder
-                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                      return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
-                                  </p>
-                                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                                    {employeesList.length} worker{employeesList.length !== 1 ? "s" : ""}
-                                  </p>
-                                </div>
-                                {/* Total FX Exposure */}
-                                <div className="px-3 py-2.5 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
-                                  <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Total FX Exposure</p>
-                                  <p className="text-base font-semibold text-foreground leading-tight">
-                                    {symbol}{contractors.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                      const grossPay = c.baseSalary * phMultiplier;
-                                      const deductions = 0;
-                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                      return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
-                                  </p>
-                                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                                    {contractors.length} total worker{contractors.length !== 1 ? "s" : ""}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                          </TableBody>
+                        </Table>
+                      </ScrollArea>
+                      
+                      {/* Sticky Subtotals Section - Outside scrollable area */}
+                      <div className="bg-background/95 border-t border-border p-3 space-y-2">
+                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                          Subtotals by Type ({currency})
+                        </p>
+                        <div className="max-w-[640px] flex gap-2 items-stretch">
+                          {/* Contractors Subtotal */}
+                          <div className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
+                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
+                            <p className="text-base font-semibold text-foreground leading-tight">
+                              {symbol}{contractorsList.reduce((sum, c) => {
+                                const additionalFee = additionalFees[c.id];
+                                return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                              }, 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                              {contractorsList.length} worker{contractorsList.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                          {/* Employees Subtotal */}
+                          <div className="px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
+                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
+                            <p className="text-base font-semibold text-foreground leading-tight">
+                              {symbol}{employeesList.reduce((sum, c) => {
+                                const additionalFee = additionalFees[c.id];
+                                const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                const grossPay = c.baseSalary * phMultiplier;
+                                const deductions = 0; // Placeholder
+                                const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                              }, 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                              {employeesList.length} worker{employeesList.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                          {/* Total FX Exposure */}
+                          <div className="px-3 py-2.5 bg-accent/5 border border-accent/20 rounded-lg flex-1 min-w-0">
+                            <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Total FX Exposure</p>
+                            <p className="text-base font-semibold text-foreground leading-tight">
+                              {symbol}{contractors.reduce((sum, c) => {
+                                const additionalFee = additionalFees[c.id];
+                                const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                const grossPay = c.baseSalary * phMultiplier;
+                                const deductions = 0;
+                                const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                              }, 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                              {contractors.length} total worker{contractors.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>;
