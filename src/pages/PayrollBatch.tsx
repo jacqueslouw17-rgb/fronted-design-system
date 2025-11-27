@@ -3214,35 +3214,33 @@ const PayrollBatch: React.FC = () => {
         }, 0);
         const totalNetPay = filteredContractors.reduce((sum, c) => sum + getPaymentDue(c), 0);
         const grandTotal = totalGrossPay + totalTaxesAndFees;
+        
+        // Calculate cohort-specific totals
+        const employees = allContractors.filter(c => c.employmentType === "employee");
+        const contractors = allContractors.filter(c => c.employmentType === "contractor");
+        
+        const employeeTotal = employees.reduce((sum, e) => sum + e.netPay, 0);
+        const contractorTotal = contractors.reduce((sum, c) => sum + getPaymentDue(c), 0);
+        
+        const employeePosted = employees.length;
+        const contractorsPaid = contractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
+        const contractorsPending = contractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
+        const contractorsFailed = contractors.filter(c => getPaymentStatus(c.id) === "Failed").length;
+        
+        // Determine employee and contractor status
+        const employeeStatus = employeePosted === employees.length ? "Posted" : "Partially Posted";
+        const contractorStatus = contractorsPaid === contractors.length ? "Paid" : 
+                                 contractorsPaid > 0 ? "Partially Paid" : 
+                                 contractorsFailed > 0 ? "Failed" : "Pending";
+        
         return <div className="space-y-6">
-            {/* Step Label - hidden to match Review FX style */}
-            {/* <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                Step 4 of 4 – Track & Reconcile
-              </Badge>
-             </div> */}
-
             {/* Header Context Bar */}
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/20 bg-card/30 backdrop-blur-sm">
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-sm font-medium text-foreground">Payroll Cycle: November 2025</p>
-                  <p className="text-xs text-muted-foreground">Monitor payouts, post employee payroll, view receipts, and reconcile completed payments.</p>
+                  <p className="text-sm font-medium text-foreground">Track & Reconcile: November 2025</p>
+                  <p className="text-xs text-muted-foreground">Monitor employee postings and contractor payouts</p>
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-1.5 rounded-full hover:bg-muted/50 transition-colors">
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs">
-                      <p className="text-xs">
-                        Payouts are executed via Wise on the 15th of each month (or previous weekday).
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-2">
@@ -3253,14 +3251,9 @@ const PayrollBatch: React.FC = () => {
                   <FileText className="h-3.5 w-3.5" />
                   Audit PDF
                 </Button>
-                <Button variant="outline" size="sm" disabled className="gap-2">
-                  <Building2 className="h-3.5 w-3.5" />
-                  Export to Accounting
-                </Button>
               </div>
             </div>
 
-            {/* Batch Summary - November 2025 */}
             {selectedCycle === "previous" && <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/10">
                 <Info className="h-4 w-4 text-amber-600" />
                 <p className="text-sm text-amber-900 dark:text-amber-200">
@@ -3268,80 +3261,80 @@ const PayrollBatch: React.FC = () => {
                 </p>
               </div>}
 
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Batch Summary – November 2025</h3>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Contractors Paid</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {allContractors.filter(c => c.employmentType === "contractor").length}
-                    </p>
+            {/* Cohort Summary Blocks - Employees vs Contractors */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Employees Summary */}
+              <Card className="border border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-blue-500/10 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-base font-semibold text-foreground">Employees</h3>
+                    </div>
+                    <Badge className="bg-blue-500/20 text-blue-700 border-blue-500/30">
+                      {employeeStatus}
+                    </Badge>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Employees Posted</p>
-                    <p className="text-lg font-semibold text-blue-600">
-                      {allContractors.filter(c => c.employmentType === "employee").length}
-                    </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Posted Runs</span>
+                      <span className="text-lg font-bold text-foreground">{employeePosted}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Total Posted</span>
+                      <span className="text-lg font-bold text-blue-600">${(employeeTotal / 1000).toFixed(1)}K</span>
+                    </div>
+                    <div className="pt-2 border-t border-blue-500/20">
+                      <p className="text-xs text-muted-foreground">
+                        Posted to payroll system - no funds transferred from Fronted
+                      </p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Total Outflow (Contractors)</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      ${(allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Payroll Posted (Employees)</p>
-                    <p className="text-lg font-semibold text-blue-600">
-                      ${(allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.netPay, 0) / 1000).toFixed(1)}K
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Progress & Status Summary */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">Payments Reconciled</span>
-                    <span className="text-muted-foreground">
-                      {paidCount} / {allContractors.length} Completed ({pendingCount} Pending)
-                    </span>
+              {/* Contractors Summary */}
+              <Card className="border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="h-5 w-5 text-primary" />
+                      <h3 className="text-base font-semibold text-foreground">Contractors</h3>
+                    </div>
+                    <Badge className={cn(
+                      "border",
+                      contractorStatus === "Paid" && "bg-green-500/20 text-green-700 border-green-500/30",
+                      contractorStatus === "Partially Paid" && "bg-amber-500/20 text-amber-700 border-amber-500/30",
+                      contractorStatus === "Failed" && "bg-red-500/20 text-red-700 border-red-500/30",
+                      contractorStatus === "Pending" && "bg-blue-500/20 text-blue-700 border-blue-500/30"
+                    )}>
+                      {contractorStatus}
+                    </Badge>
                   </div>
-                  <div className="relative h-1 bg-muted/30 rounded-full overflow-hidden">
-                    <motion.div initial={{
-                    width: 0
-                  }} animate={{
-                    width: `${paidCount / allContractors.length * 100}%`
-                  }} transition={{
-                    duration: 0.8,
-                    ease: "easeOut"
-                  }} className="absolute inset-y-0 left-0 bg-gradient-progress rounded-full" />
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Payout Batches</span>
+                      <span className="text-lg font-bold text-foreground">
+                        {contractorsPaid} / {contractors.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Total Paid</span>
+                      <span className="text-lg font-bold text-primary">${(contractorTotal / 1000).toFixed(1)}K</span>
+                    </div>
+                    <div className="pt-2 border-t border-primary/20">
+                      <p className="text-xs text-muted-foreground">
+                        {contractorsPending > 0 && `${contractorsPending} pending • `}
+                        {contractorsFailed > 0 && `${contractorsFailed} failed • `}
+                        Sent via payment provider
+                      </p>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button onClick={() => setStatusFilter("all")} className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors", statusFilter === "all" ? "bg-primary/10 text-primary border border-primary/20" : "bg-muted/30 text-muted-foreground hover:bg-muted/50")}>
-                    All ({allContractors.length})
-                  </button>
-                  <button onClick={() => setStatusFilter("Paid")} className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors", statusFilter === "Paid" ? "bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30" : "bg-muted/30 text-muted-foreground hover:bg-muted/50")}>
-                    <CheckCircle2 className="h-3 w-3" />
-                    Paid ({paidCount})
-                  </button>
-                  <button onClick={() => setStatusFilter("InTransit")} className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors", statusFilter === "InTransit" ? "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20" : "bg-muted/30 text-muted-foreground hover:bg-muted/50")}>
-                    <Clock className="h-3 w-3" />
-                    Pending ({pendingCount})
-                  </button>
-                  {failedCount > 0 && <button onClick={() => setStatusFilter("Failed")} className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors", statusFilter === "Failed" ? "bg-red-500/10 text-red-600 border border-red-500/20" : "bg-muted/30 text-muted-foreground hover:bg-muted/50")}>
-                      <AlertCircle className="h-3 w-3" />
-                      Failed ({failedCount})
-                    </button>}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Completion State Banner */}
             {allPaymentsPaid && <motion.div initial={{
@@ -3362,133 +3355,148 @@ const PayrollBatch: React.FC = () => {
                 </div>
               </motion.div>}
 
-            {!allPaymentsPaid && pendingCount > 0 && <div className="flex items-start gap-3 p-4 rounded-lg border border-yellow-500/20 bg-yellow-500/10">
-                <Clock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            {!allPaymentsPaid && (pendingCount > 0 || contractorsFailed > 0) && <div className="flex items-start gap-3 p-4 rounded-lg border border-amber-500/20 bg-amber-500/10">
+                <Clock className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {pendingCount} payment{pendingCount !== 1 ? 's' : ''} still pending confirmation – check again later.
+                    {contractorsPending > 0 && `${contractorsPending} payment${contractorsPending !== 1 ? 's' : ''} pending confirmation`}
+                    {contractorsFailed > 0 && ` • ${contractorsFailed} payment${contractorsFailed !== 1 ? 's' : ''} failed`}
                   </p>
                 </div>
               </div>}
 
-            {/* Detailed Reconciliation Table */}
+            {/* Tabbed Detail View - Employees vs Contractors */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-foreground">Payment Reconciliation</h3>
-                  <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg">
-                    <Button variant={workerTypeFilter === "all" ? "secondary" : "ghost"} size="sm" className="h-7 text-xs px-3" onClick={() => setWorkerTypeFilter("all")}>
-                      All
-                    </Button>
-                    <Button variant={workerTypeFilter === "employee" ? "secondary" : "ghost"} size="sm" className="h-7 text-xs px-3" onClick={() => setWorkerTypeFilter("employee")}>
-                      Employees
-                    </Button>
-                    <Button variant={workerTypeFilter === "contractor" ? "secondary" : "ghost"} size="sm" className="h-7 text-xs px-3" onClick={() => setWorkerTypeFilter("contractor")}>
-                      Contractors
-                    </Button>
+                <Tabs value={workerTypeFilter} onValueChange={(v) => setWorkerTypeFilter(v as typeof workerTypeFilter)}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-foreground">Payment Details</h3>
+                    <TabsList className="grid w-auto grid-cols-3">
+                      <TabsTrigger value="all">All</TabsTrigger>
+                      <TabsTrigger value="employee">Employees</TabsTrigger>
+                      <TabsTrigger value="contractor">Contractors</TabsTrigger>
+                    </TabsList>
                   </div>
-                </div>
-                
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-xs font-medium">Employee / Contractor</TableHead>
-                        <TableHead className="text-xs font-medium text-right">Gross Pay</TableHead>
-                        <TableHead className="text-xs font-medium text-right">Taxes & Fees</TableHead>
-                        <TableHead className="text-xs font-medium text-right">Net Pay</TableHead>
-                        <TableHead className="text-xs font-medium text-right">FX Rate</TableHead>
-                        <TableHead className="text-xs font-medium text-center">Status</TableHead>
-                        <TableHead className="text-xs font-medium text-center">Receipt</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredTrackContractors.map(contractor => {
-                      const status = getPaymentStatus(contractor.id);
-                      const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
-                      const taxesAndFees = (contractor.employerTaxes || 0) + contractor.estFees;
-                      const netPay = getPaymentDue(contractor);
-                      return <TableRow key={contractor.id} className="hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(contractor)}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">{contractor.name}</span>
-                                <Badge variant="outline" className={cn("text-[10px]", contractor.employmentType === "employee" ? "bg-blue-500/10 text-blue-600 border-blue-500/30" : "bg-purple-500/10 text-purple-600 border-purple-500/30")}>
-                                  {contractor.employmentType === "employee" ? "EE" : "IC"}
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground">{contractor.country}</p>
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                              {contractor.currency} {contractor.baseSalary.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right text-amber-600 font-medium">
-                              +{contractor.currency} {taxesAndFees.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right font-semibold text-foreground">
-                              {contractor.currency} {Math.round(netPay).toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right text-xs text-muted-foreground">
-                              {contractor.fxRate.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {contractor.employmentType === "employee" ? <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                        Posted
-                                      </Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-xs">Payroll posted for accounting. No funds transferred from Fronted.</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider> : <Badge variant={status === "Paid" ? "default" : "outline"} className={cn("text-[10px]", status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30", status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30", status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30")}>
-                                  {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                  {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
-                                  {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
-                                  {status}
-                                </Badge>}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {contractor.employmentType === "contractor" && receipt && <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => {
-                            e.stopPropagation();
-                            handleViewReceipt(receipt);
-                          }}>
-                                  View
-                                </Button>}
-                              {contractor.employmentType === "employee" && <span className="text-xs text-muted-foreground">—</span>}
-                            </TableCell>
-                          </TableRow>;
-                    })}
-                      
-                      {/* Totals Row */}
-                      <TableRow className="bg-muted/20 border-t-2 border-border">
-                        <TableCell className="font-bold text-foreground">
-                          Total
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-foreground">
-                          ${(totalGrossPay / 1000).toFixed(1)}K
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-amber-600">
-                          +${(totalTaxesAndFees / 1000).toFixed(1)}K
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-foreground">
-                          ${(totalNetPay / 1000).toFixed(1)}K
-                        </TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">
-                          —
-                        </TableCell>
-                        <TableCell className="text-center font-bold text-foreground">
-                          {paidCount}/{allContractors.length}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          —
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
+                  
+                  <div className="overflow-x-auto">
+                    {/* Employees Table */}
+                    {(workerTypeFilter === "all" || workerTypeFilter === "employee") && employees.length > 0 && (
+                      <div className="mb-6">
+                        {workerTypeFilter === "all" && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <Users className="h-4 w-4 text-blue-600" />
+                            <h4 className="text-sm font-semibold text-blue-600">Employees ({employees.length})</h4>
+                          </div>
+                        )}
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-blue-500/5">
+                              <TableHead className="text-xs font-medium">Employee</TableHead>
+                              <TableHead className="text-xs font-medium text-right">Posted Amount</TableHead>
+                              <TableHead className="text-xs font-medium text-center">Status</TableHead>
+                              <TableHead className="text-xs font-medium">Integration Ref</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {employees.map(employee => (
+                              <TableRow key={employee.id} className="hover:bg-blue-500/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(employee)}>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-foreground">{employee.name}</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{employee.country} • {employee.currency}</p>
+                                </TableCell>
+                                <TableCell className="text-right font-semibold text-foreground">
+                                  {employee.currency} {employee.netPay.toLocaleString()}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/30 text-[10px]">
+                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    Posted
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <span className="text-xs text-muted-foreground font-mono">
+                                    {employee.id ? `PR-${employee.id.substring(0, 8)}` : "—"}
+                                  </span>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {/* Contractors Table */}
+                    {(workerTypeFilter === "all" || workerTypeFilter === "contractor") && contractors.length > 0 && (
+                      <div>
+                        {workerTypeFilter === "all" && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <Briefcase className="h-4 w-4 text-primary" />
+                            <h4 className="text-sm font-semibold text-primary">Contractors ({contractors.length})</h4>
+                          </div>
+                        )}
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-primary/5">
+                              <TableHead className="text-xs font-medium">Contractor</TableHead>
+                              <TableHead className="text-xs font-medium text-right">Payout Amount</TableHead>
+                              <TableHead className="text-xs font-medium text-center">Payment Status</TableHead>
+                              <TableHead className="text-xs font-medium">Provider Ref</TableHead>
+                              <TableHead className="text-xs font-medium text-center">Receipt</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {contractors.map(contractor => {
+                              const status = getPaymentStatus(contractor.id);
+                              const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
+                              const netPay = getPaymentDue(contractor);
+                              
+                              return (
+                                <TableRow key={contractor.id} className="hover:bg-primary/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(contractor)}>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium text-foreground">{contractor.name}</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{contractor.country} • {contractor.currency}</p>
+                                  </TableCell>
+                                  <TableCell className="text-right font-semibold text-foreground">
+                                    {contractor.currency} {Math.round(netPay).toLocaleString()}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Badge variant={status === "Paid" ? "default" : "outline"} className={cn("text-[10px]", status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30", status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30", status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30")}>
+                                      {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                      {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
+                                      {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
+                                      {status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="text-xs text-muted-foreground font-mono">
+                                      {receipt ? receipt.providerRef : `TXN-${contractor.id.substring(0, 8)}`}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {receipt && (
+                                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => {
+                                        e.stopPropagation();
+                                        handleViewReceipt(receipt);
+                                      }}>
+                                        <Receipt className="h-3 w-3 mr-1" />
+                                        View
+                                      </Button>
+                                    )}
+                                    {!receipt && <span className="text-xs text-muted-foreground">—</span>}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+                </Tabs>
 
                 {/* Historical Records Note */}
                 {currentCycleData.status === "completed" && <div className="mt-4 pt-4 border-t border-border/30">
@@ -3499,7 +3507,7 @@ const PayrollBatch: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Navigation */}
+            {/* Navigation with Mark as Complete */}
             <div className="flex items-center justify-between pt-4">
               <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>
                 ← Previous: Execute
