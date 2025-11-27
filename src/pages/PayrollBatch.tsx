@@ -366,6 +366,10 @@ const PayrollBatch: React.FC = () => {
   // Leave/attendance exception drawer
   const [leaveAttendanceDrawerOpen, setLeaveAttendanceDrawerOpen] = useState(false);
   const [selectedLeaveException, setSelectedLeaveException] = useState<PayrollException | null>(null);
+  
+  const [executionConfirmOpen, setExecutionConfirmOpen] = useState(false);
+  const [pendingExecutionCohort, setPendingExecutionCohort] = useState<"all" | "employees" | "contractors" | null>(null);
+  const [executingCohort, setExecutingCohort] = useState<"all" | "employees" | "contractors" | null>(null);
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
   const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">(() => {
     const currentDay = new Date().getDate();
@@ -4794,14 +4798,26 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
-            <OverrideExceptionModal 
-              open={overrideModalOpen}
-              onOpenChange={setOverrideModalOpen}
-              exception={exceptionToOverride}
-              justification={overrideJustification}
-              onJustificationChange={setOverrideJustification}
-              onConfirm={handleConfirmOverride}
-            />
+      <OverrideExceptionModal
+        open={overrideModalOpen}
+        onOpenChange={setOverrideModalOpen}
+        exception={exceptionToOverride}
+        justification={overrideJustification}
+        onJustificationChange={setOverrideJustification}
+        onConfirm={handleConfirmOverride}
+      />
+
+      <ExecutionConfirmationDialog
+        open={executionConfirmOpen}
+        onOpenChange={setExecutionConfirmOpen}
+        onConfirm={handleConfirmExecution}
+        cohort={pendingExecutionCohort || "all"}
+        employeeCount={currentBatch?.payees.filter(p => p.employmentType === "Employee").length || 0}
+        contractorCount={currentBatch?.payees.filter(p => p.employmentType === "Contractor").length || 0}
+        employeeTotal={currentBatch?.payees.filter(p => p.employmentType === "Employee").reduce((sum, p) => sum + p.gross, 0) || 0}
+        contractorTotal={currentBatch?.payees.filter(p => p.employmentType === "Contractor").reduce((sum, p) => sum + p.gross, 0) || 0}
+        currency={currentBatch?.baseCurrency || "USD"}
+      />
             <LeaveAttendanceExceptionDrawer
               open={leaveAttendanceDrawerOpen}
               onOpenChange={setLeaveAttendanceDrawerOpen}
