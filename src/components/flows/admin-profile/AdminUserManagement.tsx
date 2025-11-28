@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Users, UserPlus, Mail, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,15 +27,20 @@ const AdminUserManagement = ({
   onComplete, 
   isProcessing 
 }: AdminUserManagementProps) => {
-  const [users, setUsers] = useState<AdminUser[]>(formData.users || [
-    {
-      id: "1",
-      name: "Joe User",
-      email: "joe@fronted.com",
-      role: "admin",
-      status: "active"
-    }
-  ]);
+  // Ensure we always have at least one admin user
+  const initialUsers = formData.users && formData.users.length > 0 
+    ? formData.users 
+    : [
+        {
+          id: "1",
+          name: "Joe User",
+          email: "joe@fronted.com",
+          role: "admin",
+          status: "active" as const
+        }
+      ];
+  
+  const [users, setUsers] = useState<AdminUser[]>(initialUsers);
 
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -43,6 +48,13 @@ const AdminUserManagement = ({
     email: "",
     role: "admin"
   });
+
+  // Update users when formData changes
+  useEffect(() => {
+    if (formData.users && formData.users.length > 0) {
+      setUsers(formData.users);
+    }
+  }, [formData.users]);
 
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
