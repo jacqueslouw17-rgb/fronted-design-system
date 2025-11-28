@@ -164,7 +164,7 @@ const CompanyAdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden min-h-screen">
+    <div className="fixed inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] overflow-hidden">
       {/* Static background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
@@ -174,24 +174,26 @@ const CompanyAdminOnboarding = () => {
              style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
-      {/* Logo Header */}
-      <div className="relative z-10 px-6 pt-6 pb-0">
-        <img 
-          src={frontedLogo} 
-          alt="Fronted" 
-          className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/")}
-        />
-      </div>
+      {/* Scrollable Content Container */}
+      <div className="relative z-10 h-full overflow-y-auto">
+        {/* Logo Header */}
+        <div className="px-6 pt-6 pb-0">
+          <img 
+            src={frontedLogo} 
+            alt="Fronted" 
+            className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate("/")}
+          />
+        </div>
 
-      {/* Content */}
-      <div 
-        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-6 pt-4 pb-32 space-y-6 relative z-10 mx-auto"
-        style={{
-          width: '100%',
-          maxWidth: '800px'
-        }}
-      >
+        {/* Content */}
+        <div 
+          className="px-6 pt-4 pb-32 space-y-6 mx-auto"
+          style={{
+            width: '100%',
+            maxWidth: '800px'
+          }}
+        >
         {/* Header */}
         <div className="flex flex-col items-center space-y-6 mb-8">
           <motion.div
@@ -257,6 +259,7 @@ const CompanyAdminOnboarding = () => {
               );
             })}
           </AnimatePresence>
+        </div>
         </div>
       </div>
     </div>
