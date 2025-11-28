@@ -5,7 +5,7 @@
  * and access their contracts and certificates.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Users, Search, Download, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 // Mock data for certified workers
 const mockCertifiedWorkers = [
@@ -58,6 +59,17 @@ const CompanyAdminDashboard = () => {
   
   // Mock company data - in production, this would come from auth context
   const companyName = "Acme Corp";
+
+  // Celebration confetti on mount
+  useEffect(() => {
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }, 300);
+  }, []);
 
   // Filter workers based on search query
   const filteredWorkers = useMemo(() => {

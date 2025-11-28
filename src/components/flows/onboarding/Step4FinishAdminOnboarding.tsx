@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, Rocket } from "lucide-react";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 
 interface Step4Props {
@@ -28,6 +29,7 @@ const cn = (...classes: (string | boolean | undefined)[]) => {
 const Step4FinishAdminOnboarding = ({ formData, onComplete, isProcessing: externalProcessing }: Step4Props) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleFinish = useCallback(async () => {
     // Show button loading immediately
@@ -42,12 +44,11 @@ const Step4FinishAdminOnboarding = ({ formData, onComplete, isProcessing: extern
     // Start transition
     setIsTransitioning(true);
     
-    // Just close the transition after a moment
+    // Navigate to Flow 6 Company Admin Dashboard after transition
     setTimeout(() => {
-      setIsTransitioning(false);
-      setIsButtonLoading(false);
+      navigate('/flows/company-admin-dashboard');
     }, 1500);
-  }, [onComplete]);
+  }, [onComplete, navigate]);
 
   const completedItems = [
     { label: "Company details", icon: CheckCircle2, done: true, skipped: false },
