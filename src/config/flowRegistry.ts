@@ -132,6 +132,20 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/onboarding/Step2OrgProfileSimplified.tsx',
       'src/components/flows/onboarding/Step7Finish.tsx'
     ]
+  },
+  'f5-company-admin-onboarding': {
+    id: 'f5-company-admin-onboarding',
+    title: 'Flow 5 — Company Admin Onboarding v1',
+    path: '/flows/company-admin-onboarding',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/CompanyAdminOnboarding.tsx',
+      'src/components/flows/onboarding/Step2OrgProfileSimplified.tsx',
+      'src/components/flows/onboarding/Step3Localization.tsx',
+      'src/components/flows/onboarding/Step7Finish.tsx'
+    ]
   }
 };
 

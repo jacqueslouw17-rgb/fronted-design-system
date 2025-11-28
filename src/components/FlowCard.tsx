@@ -133,6 +133,22 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 3,
       dataModel: null
     },
+    'flow-5-company-admin-onboarding': {
+      path: "/flows/company-admin-onboarding",
+      iconColor: "blue",
+      icon: Workflow,
+      title: "Flow 5 — Company Admin Onboarding v1",
+      locked: false,
+      deprecated: false,
+      description: "Standalone onboarding flow for Company Admins accessed via email invite. Duplicated from Add Company flow with admin-focused messaging and no close button.",
+      steps: "3 steps",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Step Card Stack + Progress Bar", path: "/step-card-pattern" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
     'flow-2.1-admin-payroll': {
       path: "/payroll-batch",
       iconColor: "amber",
