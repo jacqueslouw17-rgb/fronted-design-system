@@ -19,11 +19,9 @@ interface SignatureWorkflowDrawerProps {
 }
 
 type SigningStatus = 
-  | "pending_candidate"      // Sent to candidate, awaiting signature
-  | "candidate_signed"       // Candidate signed, admin must sign
-  | "opening_docusign"       // Admin clicked sign, opening DocuSign
-  | "admin_signing"          // Admin is signing
-  | "fully_signed"           // Both signed
+  | "ready_to_send"          // Ready to send to candidate
+  | "sent_to_candidate"      // Sent to candidate, awaiting signature
+  | "candidate_signed"       // Candidate signed, ready for next steps
   | "certified";             // Certified and sent to candidate
 
 interface ContractItem {
@@ -71,16 +69,12 @@ const getDocumentsForCandidate = (candidate: Candidate | null): Document[] => {
 // Helper functions for status labels and descriptions
 const getStatusLabel = (status: SigningStatus): string => {
   switch (status) {
-    case "pending_candidate":
+    case "ready_to_send":
+      return "Ready to Send";
+    case "sent_to_candidate":
       return "Awaiting Candidate Signature";
     case "candidate_signed":
-      return "Ready for Admin Signature";
-    case "opening_docusign":
-      return "Opening DocuSign...";
-    case "admin_signing":
-      return "Admin Signing in Progress";
-    case "fully_signed":
-      return "Fully Signed";
+      return "Candidate Signed";
     case "certified":
       return "Certified & Sent";
   }
@@ -88,16 +82,12 @@ const getStatusLabel = (status: SigningStatus): string => {
 
 const getStatusDescription = (status: SigningStatus, candidateName: string): string => {
   switch (status) {
-    case "pending_candidate":
-      return `Contract sent to ${candidateName}. Waiting for their signature via DocuSign.`;
+    case "ready_to_send":
+      return `Ready to send to ${candidateName} for electronic signature.`;
+    case "sent_to_candidate":
+      return `Contract sent to ${candidateName}. Waiting for their signature.`;
     case "candidate_signed":
-      return `${candidateName} has signed. Admin must now counter-sign to finalize.`;
-    case "opening_docusign":
-      return "Redirecting to DocuSign for admin signature...";
-    case "admin_signing":
-      return "Admin signature in progress via DocuSign.";
-    case "fully_signed":
-      return "Both parties have signed. Contract is fully executed.";
+      return `${candidateName} has signed the contract. Ready for next steps.`;
     case "certified":
       return "Contract certified and copy sent to candidate. Ready for onboarding.";
   }
@@ -105,15 +95,12 @@ const getStatusDescription = (status: SigningStatus, candidateName: string): str
 
 const getStatusBadge = (status: SigningStatus) => {
   switch (status) {
-    case "pending_candidate":
+    case "ready_to_send":
+      return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 Ready</Badge>;
+    case "sent_to_candidate":
       return <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">🟡 Pending</Badge>;
     case "candidate_signed":
-      return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 Action Needed</Badge>;
-    case "opening_docusign":
-    case "admin_signing":
-      return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 In Progress</Badge>;
-    case "fully_signed":
-      return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Completed</Badge>;
+      return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Signed</Badge>;
     case "certified":
       return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Certified</Badge>;
   }
@@ -126,7 +113,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   onComplete,
   onSendForSignatures,
 }) => {
-  const [signingStatus, setSigningStatus] = useState<SigningStatus>("pending_candidate");
+  const [signingStatus, setSigningStatus] = useState<SigningStatus>("ready_to_send");
   const [documents, setDocuments] = useState<Document[]>([]);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [contractItems, setContractItems] = useState<ContractItem[]>([]);
@@ -136,86 +123,78 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   useEffect(() => {
     if (candidate) {
       setDocuments(getDocumentsForCandidate(candidate));
-      setSigningStatus("pending_candidate");
+      setSigningStatus("ready_to_send");
       setResendSent(false);
       
       // Initialize contract items
       setContractItems([
         {
-          id: "sent_to_candidate",
-          label: "Contract Sent to Candidate",
-          description: `Sent to ${candidate.name} for signature via DocuSign.`,
+          id: "sent_to_admins",
+          label: "Sent to Admins",
+          description: "Contract was prepared and sent to the internal Fronted admin for review.",
           status: "complete",
           timestamp: new Date().toLocaleString(),
         },
         {
-          id: "candidate_signature",
-          label: "Candidate Signature",
-          description: `Waiting for ${candidate.name} to sign.`,
+          id: "send_to_candidate",
+          label: "Send to Candidate",
+          description: "Ready to send to the candidate for electronic signature.",
           status: "active",
         },
         {
-          id: "admin_signature",
-          label: "Admin Counter-Signature",
-          description: "Admin must sign after candidate completes.",
+          id: "candidate_signed",
+          label: "Candidate Signed",
+          description: "Candidate has signed the contract. Ready for next steps.",
           status: "pending",
         },
       ]);
     }
   }, [candidate]);
 
-  // Simulate candidate signing
-  const handleSimulateCandidateSigned = () => {
-    setSigningStatus("candidate_signed");
+  // Handle sending to candidate
+  const handleSendToCandidate = () => {
+    setSigningStatus("sent_to_candidate");
     setContractItems(prev => prev.map(item => {
-      if (item.id === "candidate_signature") {
-        return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
+      if (item.id === "send_to_candidate") {
+        return { 
+          ...item, 
+          status: "complete" as const, 
+          timestamp: new Date().toLocaleString(),
+          description: "Contract sent to the candidate. Waiting for their signature."
+        };
       }
-      if (item.id === "admin_signature") {
+      if (item.id === "candidate_signed") {
         return { ...item, status: "active" as const };
       }
       return item;
     }));
     
-    toast.success(`${candidate?.name} has signed the contract.`);
+    toast.success(`Contract sent to ${candidate?.name} for signature.`);
+    setResendSent(true);
   };
 
-  // Handle admin signing
-  const handleAdminSign = () => {
-    setSigningStatus("opening_docusign");
+  // Simulate candidate signing
+  const handleSimulateCandidateSigned = () => {
+    setSigningStatus("candidate_signed");
+    setContractItems(prev => prev.map(item => {
+      if (item.id === "candidate_signed") {
+        return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
+      }
+      return item;
+    }));
     
-    toast.info("Opening DocuSign...");
+    toast.success(`${candidate?.name} has signed the contract.`);
     
-    // Simulate DocuSign flow
+    // Move to onboarding column after brief delay
     setTimeout(() => {
-      setSigningStatus("admin_signing");
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
       
-      setTimeout(() => {
-        setSigningStatus("fully_signed");
-        setContractItems(prev => prev.map(item => {
-          if (item.id === "admin_signature") {
-            return { ...item, status: "complete" as const, timestamp: new Date().toLocaleString() };
-          }
-          return item;
-        }));
-        
-        toast.success("Admin signature completed. Contract is fully signed.");
-        
-        // Auto-certify after a brief delay
-        setTimeout(() => {
-          setSigningStatus("certified");
-          
-          // Trigger confetti
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-          
-          toast.success("Contract certified and sent to candidate. Ready for onboarding!");
-          onComplete?.();
-        }, 1500);
-      }, 1500);
+      toast.success("Contract signed! Moving candidate to Onboard Candidate column.");
+      onComplete?.();
     }, 1000);
   };
 
@@ -322,19 +301,25 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                         </p>
                       )}
                     </div>
-                    {item.id === "candidate_signature" && item.status === "active" && (
+                    {item.id === "send_to_candidate" && item.status === "active" && (
                       <Button
                         size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setResendSent(true);
-                          toast.success("Reminder sent to candidate");
-                        }}
-                        disabled={resendSent}
+                        onClick={handleSendToCandidate}
                         className="flex-shrink-0"
                       >
                         <Send className="h-3 w-3 mr-1.5" />
-                        {resendSent ? "Sent" : "Send Again"}
+                        Send
+                      </Button>
+                    )}
+                    {item.id === "send_to_candidate" && item.status === "complete" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleSendToCandidate}
+                        className="flex-shrink-0"
+                      >
+                        <Send className="h-3 w-3 mr-1.5" />
+                        Send Again
                       </Button>
                     )}
                   </motion.div>
@@ -364,7 +349,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
             {/* Action Buttons */}
             <div className="space-y-2">
-              {signingStatus === "pending_candidate" && (
+              {signingStatus === "sent_to_candidate" && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -376,25 +361,15 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
               )}
 
               {signingStatus === "candidate_signed" && (
-                <Button
-                  className="w-full"
-                  onClick={handleAdminSign}
-                >
-                  <FileSignature className="h-4 w-4 mr-2" />
-                  Sign as Admin
-                </Button>
-              )}
-
-              {(signingStatus === "fully_signed" || signingStatus === "certified") && (
                 <motion.div
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   className="p-4 rounded-lg bg-success/10 border border-success/20 text-center"
                 >
                   <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
-                  <p className="font-medium text-success">Contract Certified</p>
+                  <p className="font-medium text-success">Contract Signed</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Ready to move candidate to onboarding phase.
+                    Candidate has completed signing. Moving to onboarding phase.
                   </p>
                 </motion.div>
               )}

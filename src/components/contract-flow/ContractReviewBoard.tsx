@@ -155,7 +155,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
               Sending to candidates...
             </>
           ) : (
-            "Send to Candidates"
+            "Send for Signature"
           )}
         </Button>
       </motion.div>
