@@ -13,6 +13,7 @@ interface Step3Props {
   onOpenDrawer: () => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
+  showSkipButton?: boolean;
 }
 
 const COUNTRIES = [
@@ -42,7 +43,7 @@ const COUNTRIES = [
   }
 ];
 
-const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false }: Step3Props) => {
+const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false, showSkipButton = true }: Step3Props) => {
   const hasPersistedData = formData && formData.selectedCountries && formData.selectedCountries.length > 0;
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
@@ -162,19 +163,21 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
         <Skeleton className="h-11 w-full" />
       ) : (
         <div className="flex gap-3">
-          <Button
-            onClick={() => onComplete("localization_country_blocks", { selectedCountries: [], countryRules: [] })}
-            variant="ghost"
-            size="lg"
-            className="flex-1"
-            disabled={loading || externalProcessing}
-          >
-            Skip for now
-          </Button>
+          {showSkipButton && (
+            <Button
+              onClick={() => onComplete("localization_country_blocks", { selectedCountries: [], countryRules: [] })}
+              variant="ghost"
+              size="lg"
+              className="flex-1"
+              disabled={loading || externalProcessing}
+            >
+              Skip for now
+            </Button>
+          )}
           <Button
             onClick={handleLoadBlocks}
             size="lg"
-            className="flex-1"
+            className={showSkipButton ? "flex-1" : "w-full"}
             disabled={loading || selectedCountries.length === 0 || externalProcessing}
           >
           {(loading || externalProcessing) ? (

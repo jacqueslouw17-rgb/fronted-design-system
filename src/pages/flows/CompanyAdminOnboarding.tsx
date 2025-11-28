@@ -185,7 +185,7 @@ const CompanyAdminOnboarding = () => {
       case "company_details":
         return <Step2CompanyDetailsOnly {...commonProps} />;
       case "localization_country_blocks":
-        return <Step3Localization {...commonProps} />;
+        return <Step3Localization {...commonProps} showSkipButton={false} />;
       case "finish_dashboard_transition":
         return <Step4FinishAdminOnboarding {...commonProps} />;
       default:
