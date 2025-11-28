@@ -249,7 +249,7 @@ const CompanyAdminOnboarding = () => {
             delay: 0.1,
             ease: "easeOut"
           }} className="text-center space-y-3 max-w-2xl">
-            <h1 className="text-3xl font-bold text-foreground">Hi Joe! Let's Complete your Onboarding</h1>
+            <h1 className="text-3xl font-bold text-foreground">Hi Joe! Let's complete your onboarding</h1>
             <p className="text-base text-center text-muted-foreground">
               Complete your admin setup to access your dashboard
             </p>
