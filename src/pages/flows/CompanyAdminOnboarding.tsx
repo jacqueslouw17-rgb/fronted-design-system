@@ -176,14 +176,12 @@ const CompanyAdminOnboarding = () => {
 
       {/* Logo Header */}
       <div className="relative z-10 px-6 pt-6 pb-0">
-        <div className="mx-auto" style={{ width: '100%', maxWidth: '800px' }}>
-          <img 
-            src={frontedLogo} 
-            alt="Fronted" 
-            className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => navigate("/")}
-          />
-        </div>
+        <img 
+          src={frontedLogo} 
+          alt="Fronted" 
+          className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate("/")}
+        />
       </div>
 
       {/* Content */}
