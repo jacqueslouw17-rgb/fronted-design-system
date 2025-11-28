@@ -67,7 +67,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/worker-onboarding",
       iconColor: "emerald",
       icon: UserCheck,
-      title: "Flow 3.1 Candidate Onboarding v1",
+      title: "Flow 3 Candidate Onboarding v1",
       locked: true,
       deprecated: false,
       description: "Post-contract onboarding for workers: verify personal info, upload compliance docs, set up payroll, complete work setup, and review onboarding checklist for a smooth first day. Locked for backend build — no further changes allowed.",
