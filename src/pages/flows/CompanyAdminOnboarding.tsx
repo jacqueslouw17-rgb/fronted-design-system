@@ -22,8 +22,6 @@ import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { toast } from "sonner";
-import confetti from "canvas-confetti";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import frontedLogo from "@/assets/fronted-logo.png";
 
@@ -122,24 +120,8 @@ const CompanyAdminOnboarding = () => {
 
     // Check if this is the final step
     if (stepId === "finish_dashboard_transition") {
-      // Read company name from store
-      const orgProfileData = getStepData("org_profile");
-      const companyName = orgProfileData?.companyName || "Your Company";
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: {
-          y: 0.6
-        }
-      });
-      toast.success("Company onboarding complete!", {
-        description: `${companyName} has been set up successfully.`
-      });
-
-      // Navigate to company admin dashboard
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      // Final step completed; navigation to the Company Admin Dashboard
+      // is handled inside Step4FinishAdminOnboarding.
       setIsProcessing(false);
       return;
     }
