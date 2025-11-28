@@ -58,6 +58,12 @@ const Step2CompanyDetailsOnly = ({
     
     if (!data.companyName) newErrors.companyName = "Company name is required";
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
+    if (!Array.isArray(data.payrollCurrency) || data.payrollCurrency.length === 0) {
+      newErrors.payrollCurrency = "At least one payroll currency is required";
+    }
+    if (!data.payoutDay || data.payoutDay === "" || parseInt(data.payoutDay) < 1 || parseInt(data.payoutDay) > 31) {
+      newErrors.payoutDay = "Preferred payout date is required (1-31)";
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,7 +89,9 @@ const Step2CompanyDetailsOnly = ({
   // Check if all required fields are filled
   const isFormValid = 
     data.companyName.trim().length > 0 &&
-    data.hqCountry.trim().length > 0;
+    data.hqCountry.trim().length > 0 &&
+    Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 &&
+    data.payoutDay !== "" && parseInt(data.payoutDay) >= 1 && parseInt(data.payoutDay) <= 31;
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
@@ -147,7 +155,7 @@ const Step2CompanyDetailsOnly = ({
 
           <div className="space-y-2">
             <Label htmlFor="payrollCurrency" className="text-sm">
-              Payroll Currencies
+              Payroll Currencies <span className="text-destructive">*</span>
             </Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -256,7 +264,9 @@ const Step2CompanyDetailsOnly = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Date</Label>
+            <Label htmlFor="payoutDay" className="text-sm">
+              Preferred Payout Date <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="payoutDay"
               type="number"
@@ -267,6 +277,9 @@ const Step2CompanyDetailsOnly = ({
               placeholder="e.g., 25"
               className="text-sm"
             />
+            {errors.payoutDay && (
+              <p className="text-xs text-destructive">{errors.payoutDay}</p>
+            )}
             <p className="text-xs text-muted-foreground">
               Day of the month (e.g., 25 = 25th of each month)
             </p>
