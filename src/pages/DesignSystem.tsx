@@ -280,7 +280,6 @@ const DesignSystem = () => {
       'flow-4-candidate-onboarding',
       'flow-5-candidate-dashboard',
       'flow-1.1-fronted-admin',
-      'flow-2.1-company-admin',
       'flow-2.1-admin-payroll',
     ];
 
