@@ -149,6 +149,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-6-company-admin-dashboard': {
+      path: "/flows/company-admin-dashboard",
+      iconColor: "purple",
+      icon: UserCheck,
+      title: "Flow 6 Company Admin Dashboard v1",
+      locked: false,
+      deprecated: false,
+      description: "Single-tenant dashboard for company admins to view certified workers and access contracts/certificates. No company switcher — scoped to one company with search and filtering.",
+      steps: "1 view",
+      patterns: "2 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Dashboard Layout", path: "/dashboard" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
     'flow-2.1-admin-payroll': {
       path: "/payroll-batch",
       iconColor: "amber",

@@ -27,6 +27,7 @@ import CandidateDashboard from "./pages/flows/CandidateDashboard";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
+import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -115,6 +116,7 @@ const App = () => (
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
+        <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />

@@ -146,6 +146,17 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/onboarding/Step3Localization.tsx',
       'src/components/flows/onboarding/Step7Finish.tsx'
     ]
+  },
+  'f6-company-admin-dashboard': {
+    id: 'f6-company-admin-dashboard',
+    title: 'Flow 6 — Company Admin Dashboard v1',
+    path: '/flows/company-admin-dashboard',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/CompanyAdminDashboard.tsx'
+    ]
   }
 };
 
