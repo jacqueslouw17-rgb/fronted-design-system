@@ -28,14 +28,16 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import frontedLogo from "@/assets/fronted-logo.png";
 
 // Step components
-import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+import Step1AdminAccount from "@/components/flows/onboarding/Step1AdminAccount";
+import Step2CompanyDetailsOnly from "@/components/flows/onboarding/Step2CompanyDetailsOnly";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step7Finish from "@/components/flows/onboarding/Step7Finish";
+import Step4FinishAdminOnboarding from "@/components/flows/onboarding/Step4FinishAdminOnboarding";
 
 const FLOW_STEPS = [
-  { id: "org_profile", title: "Company details", stepNumber: 1 },
-  { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 2 },
-  { id: "finish_dashboard_transition", title: "Ready to Launch", stepNumber: 3 }
+  { id: "admin_account", title: "Your details", stepNumber: 1 },
+  { id: "company_details", title: "Company details", stepNumber: 2 },
+  { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 3 },
+  { id: "finish_dashboard_transition", title: "Ready to Launch", stepNumber: 4 }
 ];
 
 const CompanyAdminOnboarding = () => {
@@ -56,14 +58,24 @@ const CompanyAdminOnboarding = () => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Reset flow state on mount
+  // Reset flow state on mount and prefill admin data if available
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
-      setExpandedStep("org_profile");
+      
+      // Prefill admin name and email from invite link (simulated for now)
+      // In production, these would come from URL params or API
+      updateFormData({
+        adminName: "John Doe",
+        adminEmail: "john@company.com",
+        companyName: "Acme Corp",
+        hqCountry: "NO"
+      });
+      
+      setExpandedStep("admin_account");
       hasInitialized.current = true;
     }
-  }, [resetAdminFlow, setExpandedStep]);
+  }, [resetAdminFlow, setExpandedStep, updateFormData]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -150,12 +162,14 @@ const CompanyAdminOnboarding = () => {
     };
 
     switch (stepId) {
-      case "org_profile":
-        return <Step2OrgProfileSimplified {...commonProps} />;
+      case "admin_account":
+        return <Step1AdminAccount {...commonProps} />;
+      case "company_details":
+        return <Step2CompanyDetailsOnly {...commonProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...commonProps} />;
       case "finish_dashboard_transition":
-        return <Step7Finish {...commonProps} />;
+        return <Step4FinishAdminOnboarding {...commonProps} />;
       default:
         return null;
     }
@@ -220,9 +234,9 @@ const CompanyAdminOnboarding = () => {
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             className="text-center space-y-3 max-w-2xl"
           >
-            <h1 className="text-3xl font-bold text-foreground">Admin Onboarding</h1>
+            <h1 className="text-3xl font-bold text-foreground">Company Admin Onboarding</h1>
             <p className="text-base text-center text-muted-foreground">
-              Complete setup to access your dashboard and manage all your certified workers in one place.
+              Complete your admin setup to access your dashboard
             </p>
           </motion.div>
         </div>
