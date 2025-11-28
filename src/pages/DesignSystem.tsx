@@ -286,9 +286,9 @@ const DesignSystem = () => {
     if (saved) {
       try {
         const parsed: string[] = JSON.parse(saved);
-        // Ensure hidden flows (5.1, 5.2) never appear even from old saved state
+        // Ensure hidden flows (5.1, 5.2, 2.1-company-admin) never appear even from old saved state
         return parsed.filter(
-          (id) => id !== 'flow-5.1-employee-payroll' && id !== 'flow-5.2-contractor-payroll'
+          (id) => id !== 'flow-5.1-employee-payroll' && id !== 'flow-5.2-contractor-payroll' && id !== 'flow-2.1-company-admin'
         );
       } catch {
         return defaultOrder;
