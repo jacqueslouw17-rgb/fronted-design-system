@@ -166,6 +166,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-1.1-fronted-admin-v3': {
+      path: "/flows/contract-flow-multi-company-v3",
+      iconColor: "cyan",
+      icon: Workflow,
+      title: "Flow 1 Fronted Admin Dashboard v3",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v2: Multi-company admin dashboard with pipeline, company switcher, add new company flow, and contractor management. This version is unlocked for development.",
+      steps: "7 steps",
+      patterns: "5 patterns",
+      badges: [
+        { label: "Genie-Led Conversational", path: "/onboarding" },
+        { label: "Contract Preview & E-Sign", path: "/contract-preview" }
+      ],
+      additionalCount: 3,
+      dataModel: null
+    },
     'flow-2.1-admin-payroll': {
       path: "/payroll-batch",
       iconColor: "amber",
