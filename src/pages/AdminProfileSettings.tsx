@@ -214,7 +214,7 @@ const AdminProfileSettings = () => {
                     return (
                       <Card
                         key={card.id}
-                        className="p-6 bg-card/40 border-border/40 cursor-pointer hover:bg-card/60 hover:border-primary/20 transition-all group"
+                        className="p-6 bg-card/20 border-border/30 cursor-pointer hover:bg-card/30 hover:border-primary/20 transition-all group"
                         onClick={() => setCurrentSection(card.id)}
                       >
                         <div className="flex items-center justify-between">
