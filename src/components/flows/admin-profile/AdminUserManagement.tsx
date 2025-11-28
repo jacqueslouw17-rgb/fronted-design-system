@@ -94,13 +94,13 @@ const AdminUserManagement = ({
   };
 
   return (
-    <div className="space-y-5 max-w-xl mx-auto">
+    <div className="space-y-5">
       {/* Current Users */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            <Users className="h-5 w-5 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">
               Team Members
             </h3>
           </div>
@@ -109,15 +109,15 @@ const AdminUserManagement = ({
               size="sm"
               variant="outline"
               onClick={() => setShowAddUser(true)}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
             >
-              <UserPlus className="h-3 w-3 mr-1" />
+              <UserPlus className="h-4 w-4 mr-1.5" />
               Add User
             </Button>
           )}
         </div>
         
-        <div className="space-y-2">
+        <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {users.map((user) => (
               <motion.div
@@ -125,18 +125,18 @@ const AdminUserManagement = ({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -100 }}
-                className="bg-card/40 border border-border/40 rounded-lg p-4"
+                className="bg-card/20 border border-border/30 rounded-lg p-5"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{user.name}</span>
-                      <Badge variant={getStatusBadgeVariant(user.status)} className="text-xs">
+                  <div className="flex-1 space-y-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-medium text-base">{user.name}</span>
+                      <Badge variant={getStatusBadgeVariant(user.status)} className="text-xs capitalize">
                         {user.status}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Mail className="h-3 w-3" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
                       {user.email}
                     </div>
                   </div>
@@ -145,9 +145,9 @@ const AdminUserManagement = ({
                       size="sm"
                       variant="ghost"
                       onClick={() => handleRemoveUser(user.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   ) : null}
                 </div>
@@ -166,14 +166,14 @@ const AdminUserManagement = ({
             exit={{ opacity: 0, height: 0 }}
             className="space-y-3"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <UserPlus className="h-4 w-4 text-primary" />
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            <div className="flex items-center gap-2 mb-4">
+              <UserPlus className="h-5 w-5 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">
                 Invite New User
               </h3>
             </div>
             
-            <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+            <div className="bg-card/20 border border-border/30 rounded-lg p-5 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="userName" className="text-sm">
                   Full Name <span className="text-destructive">*</span>

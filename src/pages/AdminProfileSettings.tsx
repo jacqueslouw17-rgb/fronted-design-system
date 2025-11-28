@@ -86,21 +86,24 @@ const AdminProfileSettings = () => {
         supabase.from("localization_settings").select("*").eq("user_id", uid).maybeSingle()
       ]);
 
+      const adminName = orgProfile.data?.contact_name || "Joe User";
+      const adminEmail = orgProfile.data?.contact_email || "joe@fronted.com";
+
       setFormData({
         companyName: orgProfile.data?.company_name || "",
         hqCountry: orgProfile.data?.hq_country || "",
-        adminName: orgProfile.data?.contact_name || "Joe User",
-        adminEmail: orgProfile.data?.contact_email || "",
+        adminName,
+        adminEmail,
         payrollCurrency: orgProfile.data?.default_currency ? [orgProfile.data.default_currency] : [],
         payoutDay: "25",
         selectedCountries: localization.data?.operating_countries || [],
         users: [
           {
             id: "1",
-            name: orgProfile.data?.contact_name || "Joe User",
-            email: orgProfile.data?.contact_email || "joe@fronted.com",
+            name: adminName,
+            email: adminEmail,
             role: "admin",
-            status: "active"
+            status: "active" as const
           }
         ]
       });
