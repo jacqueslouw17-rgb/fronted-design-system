@@ -152,7 +152,7 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
           {isSending ? (
             <>
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-              Sending to candidates...
+              Preparing signatures...
             </>
           ) : (
             "Send for Signature"
