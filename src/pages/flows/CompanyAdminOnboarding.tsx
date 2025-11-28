@@ -222,7 +222,7 @@ const CompanyAdminOnboarding = () => {
           >
             <h1 className="text-3xl font-bold text-foreground">Admin Onboarding</h1>
             <p className="text-base text-center text-muted-foreground">
-              Welcome to Fronted. Confirm your details and set up your company so we can handle payroll and compliance on your behalf.
+              Complete setup to access your dashboard and manage all your certified workers in one place.
             </p>
           </motion.div>
         </div>
