@@ -5,7 +5,7 @@
  * Duplicated from the Add Company flow used in Flow 1.1 Fronted Admin Dashboard v2.
  * 
  * Key differences from embedded version:
- * - No X close icon (standalone, no parent dashboard)
+ * - Standalone flow (not embedded in dashboard)
  * - Heading: "Admin Onboarding"
  * - Welcoming subtitle for company admins
  * - Accessed via deep link from email invite
@@ -14,7 +14,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -22,7 +21,6 @@ import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import frontedLogo from "@/assets/fronted-logo.png";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
@@ -161,120 +159,93 @@ const CompanyAdminOnboarding = () => {
     }
   };
 
-  const completedStepsCount = state.completedSteps.length;
+  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
   const totalSteps = FLOW_STEPS.length;
-  const progressPercent = (completedStepsCount / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-primary/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-accent/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+    <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
+      {/* Static background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+        <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
+        <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
+             style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
-      {/* Header with logo only (no X close icon) */}
-      <div className="relative z-10 px-6 py-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <img 
-            src={frontedLogo} 
-            alt="Fronted" 
-            className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => navigate("/")}
-          />
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="relative z-10 px-6 pb-20">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-4"
-          >
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
-              Admin Onboarding
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Welcome to Fronted. Confirm your details and set up your company so we can handle payroll and compliance on your behalf.
-            </p>
-            <AudioWaveVisualizer 
-              isActive={isSpeaking}
-            />
-          </motion.div>
-
-          {/* Progress bar */}
+      {/* Content */}
+      <div 
+        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-6 pt-8 pb-32 space-y-6 relative z-10 mx-auto"
+        style={{
+          width: '100%',
+          maxWidth: '800px'
+        }}
+      >
+        {/* Header */}
+        <div className="flex flex-col items-center space-y-6 mb-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex justify-center"
+            style={{ maxHeight: '240px' }}
           >
-            <ProgressBar 
-              currentStep={completedStepsCount}
-              totalSteps={totalSteps}
-            />
+            <AudioWaveVisualizer isActive={isSpeaking} />
           </motion.div>
 
-          {/* Step cards */}
-          <div className="space-y-4">
-            <AnimatePresence mode="sync">
-              {FLOW_STEPS.map((step, index) => {
-                const isCompleted = state.completedSteps.includes(step.id);
-                const isCurrent = state.currentStep === step.id;
-                const isExpanded = expandedStep === step.id;
-                const isLocked = !isCompleted && !isCurrent && 
-                                FLOW_STEPS.findIndex(s => s.id === step.id) > 
-                                FLOW_STEPS.findIndex(s => s.id === state.currentStep);
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="text-center space-y-3 max-w-2xl"
+          >
+            <h1 className="text-3xl font-bold text-foreground">Admin Onboarding</h1>
+            <p className="text-base text-center text-muted-foreground">
+              Welcome to Fronted. Confirm your details and set up your company so we can handle payroll and compliance on your behalf.
+            </p>
+          </motion.div>
+        </div>
 
-                return (
-                  <motion.div
-                    key={step.id}
-                    id={`step-card-${step.id}`}
-                    ref={el => stepRefs.current[step.id] = el}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.1 }}
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+        </div>
+
+        {/* Step Cards */}
+        <div className="space-y-3">
+          <AnimatePresence mode="sync">
+            {FLOW_STEPS.map((step, index) => {
+              const isCompleted = state.completedSteps.includes(step.id);
+              const isCurrent = state.currentStep === step.id;
+              const isExpanded = expandedStep === step.id;
+              const isLocked = !isCompleted && !isCurrent && 
+                              FLOW_STEPS.findIndex(s => s.id === step.id) > 
+                              FLOW_STEPS.findIndex(s => s.id === state.currentStep);
+
+              return (
+                <motion.div
+                  key={step.id}
+                  id={`step-card-${step.id}`}
+                  ref={el => stepRefs.current[step.id] = el}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <StepCard
+                    stepNumber={step.stepNumber}
+                    title={step.title}
+                    status={isCompleted ? "completed" : isCurrent ? "active" : "inactive"}
+                    isExpanded={isExpanded}
+                    onClick={() => handleStepClick(step.id)}
+                    isLocked={isLocked}
                   >
-                    <StepCard
-                      stepNumber={step.stepNumber}
-                      title={step.title}
-                      status={isCompleted ? "completed" : isCurrent ? "active" : "inactive"}
-                      isExpanded={isExpanded}
-                      onClick={() => handleStepClick(step.id)}
-                      isLocked={isLocked}
-                    >
-                      {renderStepContent(step.id)}
-                    </StepCard>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                    {renderStepContent(step.id)}
+                  </StepCard>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </div>
     </div>
