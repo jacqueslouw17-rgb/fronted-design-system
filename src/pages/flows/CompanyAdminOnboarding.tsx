@@ -24,6 +24,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
+import frontedLogo from "@/assets/fronted-logo.png";
 
 // Step components
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
@@ -163,7 +164,7 @@ const CompanyAdminOnboarding = () => {
   const totalSteps = FLOW_STEPS.length;
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
+    <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden min-h-screen">
       {/* Static background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
@@ -173,9 +174,21 @@ const CompanyAdminOnboarding = () => {
              style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
       </div>
 
+      {/* Logo Header */}
+      <div className="relative z-10 px-6 pt-6 pb-0">
+        <div className="mx-auto" style={{ width: '100%', maxWidth: '800px' }}>
+          <img 
+            src={frontedLogo} 
+            alt="Fronted" 
+            className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate("/")}
+          />
+        </div>
+      </div>
+
       {/* Content */}
       <div 
-        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-6 pt-8 pb-32 space-y-6 relative z-10 mx-auto"
+        className="flex-shrink-0 flex flex-col h-full overflow-y-auto px-6 pt-4 pb-32 space-y-6 relative z-10 mx-auto"
         style={{
           width: '100%',
           maxWidth: '800px'
