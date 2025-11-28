@@ -282,6 +282,7 @@ const DesignSystem = () => {
       'flow-5-company-admin-onboarding',
       'flow-6-company-admin-dashboard',
       'flow-1.1-fronted-admin',
+      'flow-1.1-fronted-admin-v3',
       'flow-2.1-admin-payroll',
     ];
 
