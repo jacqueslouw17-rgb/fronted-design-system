@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Topbar from "@/components/dashboard/Topbar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
@@ -228,24 +228,37 @@ const CompanyAdminDashboard = () => {
 
                             {/* Action buttons */}
                             <div className="flex items-center gap-1 ml-4 flex-shrink-0">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleViewCertificate(worker.name)}
-                                className="text-muted-foreground hover:text-foreground"
-                              >
-                                <Award className="h-4 w-4 mr-1.5" />
-                                View Certificate
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDownloadContract(worker.name)}
-                                className="text-muted-foreground hover:text-foreground"
-                              >
-                                <Download className="h-4 w-4 mr-1.5" />
-                                Download Contract Bundle
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleViewCertificate(worker.name)}
+                                    className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                                  >
+                                    <Award className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>View certificate</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleDownloadContract(worker.name)}
+                                    className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Download contract bundle</p>
+                                </TooltipContent>
+                              </Tooltip>
                             </div>
                           </div>
                         ))}
