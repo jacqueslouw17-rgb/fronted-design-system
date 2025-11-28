@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import StepCard from "@/components/StepCard";
 import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
@@ -177,12 +178,19 @@ const CompanyAdminOnboarding = () => {
       {/* Scrollable Content Container */}
       <div className="relative z-10 h-full overflow-y-auto">
         {/* Logo Header */}
-        <div className="px-6 pt-6 pb-0">
+        <div className="px-6 pt-6 pb-0 flex items-center gap-3">
+          <button
+            onClick={() => navigate("/?tab=flows")}
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Back to flows"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground/70" />
+          </button>
           <img 
             src={frontedLogo} 
             alt="Fronted" 
             className="h-7 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/?tab=flows")}
           />
         </div>
 
