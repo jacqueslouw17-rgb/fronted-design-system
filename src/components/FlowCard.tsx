@@ -49,7 +49,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/candidate-onboarding",
       iconColor: "violet",
       icon: UserCheck,
-      title: "Flow 1.1 Candidate Data Collection v1",
+      title: "Flow 2 Candidate Data Collection v1",
       locked: true,
       deprecated: false,
       description: "Transition candidates from offer acceptance to contract-ready status: collect personal, tax, and banking details with Genie validation, compliance checking, and ATS integration",
