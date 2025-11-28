@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { FlowCard } from "@/components/FlowCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
 import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow, Lock } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow, Lock, Save } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
 const patterns = [{
   title: "Onboarding Flow",
@@ -419,6 +421,23 @@ const DesignSystem = () => {
           </TabsContent>
 
           <TabsContent value="flows" className="mt-8">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const orderString = JSON.stringify(flowOrder, null, 2);
+                  navigator.clipboard.writeText(orderString);
+                  toast.success("Current flow order saved!", {
+                    description: "The order has been copied to your clipboard. Paste this as the defaultOrder array in DesignSystem.tsx"
+                  });
+                }}
+                className="gap-2"
+              >
+                <Save className="h-4 w-4" />
+                Save Current Order
+              </Button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {flowOrder.map((flowId) => {
                 return (
