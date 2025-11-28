@@ -227,19 +227,21 @@ const CompanyAdminDashboard = () => {
                             </div>
 
                             {/* Action buttons */}
-                            <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                            <div className="flex items-center gap-1 ml-4 flex-shrink-0">
                               <Button
                                 size="sm"
-                                variant="outline"
+                                variant="ghost"
                                 onClick={() => handleViewCertificate(worker.name)}
+                                className="text-muted-foreground hover:text-foreground"
                               >
                                 <Award className="h-4 w-4 mr-1.5" />
                                 View Certificate
                               </Button>
                               <Button
                                 size="sm"
-                                variant="outline"
+                                variant="ghost"
                                 onClick={() => handleDownloadContract(worker.name)}
+                                className="text-muted-foreground hover:text-foreground"
                               >
                                 <Download className="h-4 w-4 mr-1.5" />
                                 Download Contract Bundle
