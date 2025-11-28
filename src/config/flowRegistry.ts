@@ -157,6 +157,23 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     filePaths: [
       'src/pages/flows/CompanyAdminDashboard.tsx'
     ]
+  },
+  'f1.1-fronted-admin-v3': {
+    id: 'f1.1-fronted-admin-v3',
+    title: 'Flow 1 — Fronted Admin Dashboard v3',
+    path: '/flows/contract-flow-multi-company-v3',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/AdminContractingMultiCompanyV3.tsx',
+      'src/components/contract-flow/PipelineView.tsx',
+      'src/components/contract-flow/AddCandidateDrawer.tsx',
+      'src/components/contract-flow/OnboardingFormDrawer.tsx',
+      'src/components/flows/onboarding/EmbeddedAdminOnboarding.tsx',
+      'src/components/flows/onboarding/Step2OrgProfileSimplified.tsx',
+      'src/components/flows/onboarding/Step7Finish.tsx'
+    ]
   }
 };
 

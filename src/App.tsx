@@ -17,6 +17,7 @@ import Flows from "./pages/Flows";
 import AdminOnboarding from "./pages/flows/AdminOnboarding";
 import ContractFlowDemo from "./pages/ContractFlowDemo";
 import AdminContractingMultiCompany from "./pages/AdminContractingMultiCompany";
+import AdminContractingMultiCompanyV3 from "./pages/AdminContractingMultiCompanyV3";
 import CompanyAdminV1 from "./pages/CompanyAdminV1";
 import ChangePassword from "./pages/ChangePassword";
 import ContractCreation from "./pages/ContractCreation";
@@ -105,6 +106,7 @@ const App = () => (
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
           <Route path="/flows/contract-flow-multi-company" element={<AdminContractingMultiCompany />} />
+          <Route path="/flows/contract-flow-multi-company-v3" element={<AdminContractingMultiCompanyV3 />} />
           <Route path="/flows/contract-flow-company-admin" element={<CompanyAdminV1 />} />
           <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/flows/contract-creation" element={<ContractCreation />} />
