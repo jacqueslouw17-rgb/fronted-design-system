@@ -85,7 +85,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/candidate-dashboard",
       iconColor: "blue",
       icon: Workflow,
-      title: "Flow 3.2 Candidate Dashboard v1",
+      title: "Flow 4 Candidate Dashboard v1",
       locked: true,
       deprecated: false,
       description: "Post-onboarding candidate dashboard: contract review & signing with DocuSign sub-statuses, document management, and certification tracking. Locked — finalized flow.",
