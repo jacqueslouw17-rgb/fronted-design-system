@@ -153,7 +153,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/payroll-batch",
       iconColor: "amber",
       icon: Workflow,
-      title: "Flow 7 - Fronted Admin Payroll v1",
+      title: "Flow 7 Fronted Admin Payroll v1",
       locked: false,
       deprecated: false,
       description: "From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance",
