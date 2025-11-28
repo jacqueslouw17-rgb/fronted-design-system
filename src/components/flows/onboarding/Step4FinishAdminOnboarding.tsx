@@ -51,12 +51,7 @@ const Step4FinishAdminOnboarding = ({ formData, onComplete, isProcessing: extern
 
   const completedItems = [
     { label: "Company details", icon: CheckCircle2, done: true, skipped: false },
-    { 
-      label: "Hiring locations", 
-      icon: CheckCircle2, 
-      done: formData.selectedCountries && formData.selectedCountries.length > 0, 
-      skipped: !formData.selectedCountries || formData.selectedCountries.length === 0 
-    }
+    { label: "Hiring locations", icon: CheckCircle2, done: true, skipped: false }
   ];
 
   return (
