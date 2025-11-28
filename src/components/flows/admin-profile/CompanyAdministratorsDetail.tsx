@@ -113,88 +113,14 @@ const CompanyAdministratorsDetail = ({ onCancel }: CompanyAdministratorsDetailPr
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      {/* Header Card with Add Button */}
+      {/* Header Card */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Team Members</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage company administrators and their access
-            </p>
-          </div>
-          {!showAddForm && (
-            <Button
-              size="sm"
-              onClick={() => setShowAddForm(true)}
-              className="h-9"
-            >
-              <UserPlus className="h-4 w-4 mr-1.5" />
-              Add User
-            </Button>
-          )}
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-foreground">Company Administrators</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            View status and manage access for all company admins
+          </p>
         </div>
-
-        {/* Add Form */}
-        <AnimatePresence>
-          {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 pt-4 border-t border-border/30"
-            >
-              <div className="space-y-4 bg-card/60 border border-border/30 rounded-lg p-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyName" className="text-sm">
-                    Company Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="companyName"
-                    value={newAdmin.companyName}
-                    onChange={(e) => setNewAdmin(prev => ({ ...prev, companyName: e.target.value }))}
-                    placeholder="e.g., Acme Corporation"
-                    className="text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="adminEmail" className="text-sm">
-                    Admin Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="adminEmail"
-                    type="email"
-                    value={newAdmin.adminEmail}
-                    onChange={(e) => setNewAdmin(prev => ({ ...prev, adminEmail: e.target.value }))}
-                    placeholder="admin@company.com"
-                    className="text-sm"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    onClick={handleAddAdmin}
-                    size="sm"
-                    className="flex-1"
-                  >
-                    <Mail className="h-3 w-3 mr-1" />
-                    Send Invitation
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setShowAddForm(false);
-                      setNewAdmin({ companyName: "", adminEmail: "" });
-                    }}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Admin List */}
         <div className="space-y-3">
