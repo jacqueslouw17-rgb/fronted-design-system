@@ -26,6 +26,7 @@ import CandidateOnboarding from "./pages/CandidateOnboarding";
 import CandidateOnboardingFlow from "./pages/CandidateOnboardingFlow";
 import WorkerOnboarding from "./pages/flows/WorkerOnboarding";
 import CandidateDashboard from "./pages/flows/CandidateDashboard";
+import CandidateDashboardV2 from "./pages/flows/CandidateDashboardV2";
 import EmployeePayroll from "./pages/flows/EmployeePayroll";
 import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
@@ -117,6 +118,7 @@ const App = () => (
         <Route path="/flows/worker-onboarding" element={<WorkerOnboarding />} />
         <Route path="/flows/candidate-dashboard" element={<CandidateDashboard />} />
         <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
+        <Route path="/flows/candidate-dashboard-v2" element={<CandidateDashboardV2 />} />
         <Route path="/flows/employee-payroll" element={<EmployeePayroll />} />
         <Route path="/flows/contractor-payroll" element={<ContractorPayroll />} />
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />

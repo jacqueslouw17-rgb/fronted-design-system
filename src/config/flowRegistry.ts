@@ -83,6 +83,18 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/contract-flow/ContractPreviewDrawer.tsx'
     ]
   },
+  'f5-candidate-dashboard-v2': {
+    id: 'f5-candidate-dashboard-v2',
+    title: 'Flow 4 — Candidate Dashboard v2',
+    path: '/flows/candidate-dashboard-v2',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/CandidateDashboardV2.tsx',
+      'src/components/contract-flow/ContractPreviewDrawer.tsx'
+    ]
+  },
   'f5-1-employee-payroll': {
     id: 'f5-1-employee-payroll',
     title: 'Flow 5.1 — Employee Payroll',

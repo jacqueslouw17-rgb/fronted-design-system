@@ -99,6 +99,24 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: "/docs/Flow5_Candidate_Dashboard_Data_Model.md"
     },
+    'flow-5-candidate-dashboard-v2': {
+      path: "/flows/candidate-dashboard-v2",
+      iconColor: "blue",
+      icon: Workflow,
+      title: "Flow 4 Candidate Dashboard v2",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v1: Post-onboarding candidate dashboard with contract review & signing, document management, and certification tracking. This version is unlocked for development.",
+      steps: "2 steps",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Compliance Checklist", path: "/compliance-checklist" },
+        { label: "Genie-Led Conversational", path: "/onboarding" }
+      ],
+      additionalCount: 0,
+      dataModel: "/docs/Flow5_Candidate_Dashboard_Data_Model.md"
+    },
     'flow-1.1-fronted-admin': {
       path: "/flows/contract-flow-multi-company",
       iconColor: "cyan",
