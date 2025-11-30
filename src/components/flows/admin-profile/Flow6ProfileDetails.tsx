@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Building2, User, Globe, Loader2, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Flow6ProfileDetailsProps {
   formData: {
@@ -86,25 +87,53 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
 
   return (
     <div className="space-y-6">
-      {/* Step Indicator */}
-      <div className="flex items-center gap-4">
-        <div className={`flex items-center gap-2 ${currentStep === 1 ? 'text-primary' : 'text-muted-foreground'}`}>
-          <div className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold ${
-            currentStep === 1 ? 'border-primary bg-primary/10' : 'border-border bg-background'
-          }`}>
+      {/* Clickable Step Pills */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setCurrentStep(1)}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-full transition-all text-left",
+            currentStep === 1 && "bg-primary/10 border border-primary/20",
+            currentStep !== 1 && "bg-card/40 border border-border/30 hover:bg-card/60 hover:border-primary/10"
+          )}
+        >
+          <div className={cn(
+            "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold",
+            currentStep === 1 && "bg-primary/20 text-primary",
+            currentStep !== 1 && "bg-muted/30 text-muted-foreground"
+          )}>
             1
           </div>
-          <span className="text-sm font-medium">Company & Admin Details</span>
-        </div>
-        <div className="h-[2px] flex-1 bg-border" />
-        <div className={`flex items-center gap-2 ${currentStep === 2 ? 'text-primary' : 'text-muted-foreground'}`}>
-          <div className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold ${
-            currentStep === 2 ? 'border-primary bg-primary/10' : 'border-border bg-background'
-          }`}>
+          <span className={cn(
+            "text-sm font-medium whitespace-nowrap",
+            currentStep === 1 ? "text-primary" : "text-foreground"
+          )}>
+            Company & Admin Details
+          </span>
+        </button>
+
+        <button
+          onClick={() => setCurrentStep(2)}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-full transition-all text-left",
+            currentStep === 2 && "bg-primary/10 border border-primary/20",
+            currentStep !== 2 && "bg-card/40 border border-border/30 hover:bg-card/60 hover:border-primary/10"
+          )}
+        >
+          <div className={cn(
+            "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold",
+            currentStep === 2 && "bg-primary/20 text-primary",
+            currentStep !== 2 && "bg-muted/30 text-muted-foreground"
+          )}>
             2
           </div>
-          <span className="text-sm font-medium">Hiring Locations</span>
-        </div>
+          <span className={cn(
+            "text-sm font-medium whitespace-nowrap",
+            currentStep === 2 ? "text-primary" : "text-foreground"
+          )}>
+            Hiring Locations
+          </span>
+        </button>
       </div>
 
       {/* Step 1: Company & Admin Details */}
@@ -276,7 +305,7 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
             </div>
           </div>
 
-          {/* Navigation Buttons */}
+          {/* Navigation Button */}
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -287,12 +316,19 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
               Cancel
             </Button>
             <Button
-              onClick={() => setCurrentStep(2)}
-              disabled={!isStep1Valid}
+              onClick={handleSaveChanges}
+              disabled={isSaving}
               className="flex-1"
               size="lg"
             >
-              Next: Hiring Locations
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save changes"
+              )}
             </Button>
           </div>
         </div>
@@ -362,19 +398,19 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
             </div>
           )}
 
-          {/* Navigation Buttons */}
+          {/* Navigation Button */}
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => setCurrentStep(1)}
+              onClick={onCancel}
               className="flex-1"
               size="lg"
             >
-              Previous
+              Cancel
             </Button>
             <Button
               onClick={handleSaveChanges}
-              disabled={!isStep2Valid || isSaving}
+              disabled={isSaving}
               className="flex-1"
               size="lg"
             >
@@ -384,7 +420,7 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
                   Saving...
                 </>
               ) : (
-                "Save Changes"
+                "Save changes"
               )}
             </Button>
           </div>
