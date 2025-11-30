@@ -88,7 +88,7 @@ const Flow6ProfileDetails = ({ formData, onSave, onCancel }: Flow6ProfileDetails
   return (
     <div className="space-y-6">
       {/* Clickable Step Pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         <button
           onClick={() => setCurrentStep(1)}
           className={cn(
