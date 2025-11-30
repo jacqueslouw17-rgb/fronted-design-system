@@ -295,14 +295,16 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("profile-details-inner")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Profile Details
-                    </Button>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentSection("profile-details-inner")}
+                        className="w-auto"
+                        size="lg"
+                      >
+                        Back to Profile Details
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -323,14 +325,16 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("profile-details-inner")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Profile Details
-                    </Button>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentSection("profile-details-inner")}
+                        className="w-auto"
+                        size="lg"
+                      >
+                        Back to Profile Details
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -351,14 +355,16 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("profile-details-inner")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Profile Details
-                    </Button>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentSection("profile-details-inner")}
+                        className="w-auto"
+                        size="lg"
+                      >
+                        Back to Profile Details
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -379,14 +385,16 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentSection("profile-details-inner")}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Back to Profile Details
-                    </Button>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentSection("profile-details-inner")}
+                        className="w-auto"
+                        size="lg"
+                      >
+                        Back to Profile Details
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               )}
