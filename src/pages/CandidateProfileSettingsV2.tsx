@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, User, FileCheck, CreditCard, Briefcase, ChevronRight, KeyRound } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -112,22 +113,13 @@ const CandidateProfileSettingsV2 = () => {
     
     setIsSaving(false);
     
-    // Move to next step or complete
-    if (currentProfileStep < 4) {
-      setCurrentProfileStep((currentProfileStep + 1) as ProfileStep);
-      toast.success("✅ Changes saved", {
-        position: "bottom-right",
-        duration: 2000
-      });
-    } else {
-      // Final step - return to overview
-      setCurrentSection("overview");
-      setCurrentProfileStep(1);
-      toast.success("✅ Profile details saved successfully", {
-        position: "bottom-right",
-        duration: 3000
-      });
-    }
+    // Return to overview after save
+    setCurrentSection("overview");
+    setCurrentProfileStep(1);
+    toast.success("✅ Profile details saved successfully", {
+      position: "bottom-right",
+      duration: 3000
+    });
   };
 
   const handleCardClick = (cardId: Section) => {
@@ -136,18 +128,6 @@ const CandidateProfileSettingsV2 = () => {
       setCurrentProfileStep(1);
     } else {
       setCurrentSection(cardId);
-    }
-  };
-
-  const handlePreviousStep = () => {
-    if (currentProfileStep > 1) {
-      setCurrentProfileStep((currentProfileStep - 1) as ProfileStep);
-    }
-  };
-
-  const handleNextStep = () => {
-    if (currentProfileStep < 4) {
-      setCurrentProfileStep((currentProfileStep + 1) as ProfileStep);
     }
   };
 
@@ -249,23 +229,37 @@ const CandidateProfileSettingsV2 = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="space-y-6 pb-20 sm:pb-8"
                 >
-                  {/* Step Indicator */}
-                  <div className="flex items-center gap-2 sm:gap-4 max-w-4xl mx-auto overflow-x-auto pb-2">
-                    {PROFILE_STEPS.map((step, index) => (
-                      <div key={step.number} className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                        <div className={`flex items-center gap-2 ${currentProfileStep === step.number ? 'text-primary' : 'text-muted-foreground'}`}>
-                          <div className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold ${
-                            currentProfileStep === step.number ? 'border-primary bg-primary/10' : 'border-border bg-background'
-                          }`}>
+                  {/* Clickable Step Pills */}
+                  <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto">
+                    {PROFILE_STEPS.map((step) => {
+                      const isActive = currentProfileStep === step.number;
+                      
+                      return (
+                        <button
+                          key={step.number}
+                          onClick={() => setCurrentProfileStep(step.number as ProfileStep)}
+                          className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-full transition-all text-left",
+                            isActive && "bg-primary/10 border border-primary/20",
+                            !isActive && "bg-card/40 border border-border/30 hover:bg-card/60 hover:border-primary/10"
+                          )}
+                        >
+                          <div className={cn(
+                            "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold",
+                            isActive && "bg-primary/20 text-primary",
+                            !isActive && "bg-muted/30 text-muted-foreground"
+                          )}>
                             {step.number}
                           </div>
-                          <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{step.label}</span>
-                        </div>
-                        {index < PROFILE_STEPS.length - 1 && (
-                          <div className="h-[2px] w-8 sm:w-12 bg-border flex-shrink-0" />
-                        )}
-                      </div>
-                    ))}
+                          <span className={cn(
+                            "text-sm font-medium whitespace-nowrap",
+                            isActive ? "text-primary" : "text-foreground"
+                          )}>
+                            {step.label}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {/* Step Content */}
@@ -310,26 +304,24 @@ const CandidateProfileSettingsV2 = () => {
                       />
                     )}
 
-                    {/* Navigation Buttons */}
+                    {/* Save Button */}
                     <div className="flex gap-3">
                       <Button
                         variant="outline"
-                        onClick={currentProfileStep === 1 ? () => setCurrentSection("overview") : handlePreviousStep}
+                        onClick={() => setCurrentSection("overview")}
                         className="flex-1"
                         size="lg"
                       >
-                        {currentProfileStep === 1 ? "Cancel" : "Previous"}
+                        Cancel
                       </Button>
-                      {currentProfileStep < 4 && (
-                        <Button
-                          onClick={handleNextStep}
-                          disabled={!isStepValid()}
-                          className="flex-1"
-                          size="lg"
-                        >
-                          Next
-                        </Button>
-                      )}
+                      <Button
+                        onClick={() => handleStepSave()}
+                        disabled={!isStepValid() || isSaving}
+                        className="flex-1"
+                        size="lg"
+                      >
+                        {isSaving ? "Saving..." : "Save changes"}
+                      </Button>
                     </div>
                   </div>
                 </motion.div>
