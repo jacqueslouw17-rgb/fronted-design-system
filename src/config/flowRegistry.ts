@@ -92,6 +92,7 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     lockedReason: undefined,
     filePaths: [
       'src/pages/flows/CandidateDashboardV2.tsx',
+      'src/pages/CandidateProfileSettingsV2.tsx',
       'src/components/contract-flow/ContractPreviewDrawer.tsx'
     ]
   },
