@@ -295,7 +295,7 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <div className="flex justify-end">
+                    <div className="flex justify-start">
                       <Button
                         variant="outline"
                         onClick={() => setCurrentSection("profile-details-inner")}
@@ -325,7 +325,7 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <div className="flex justify-end">
+                    <div className="flex justify-start">
                       <Button
                         variant="outline"
                         onClick={() => setCurrentSection("profile-details-inner")}
@@ -355,7 +355,7 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <div className="flex justify-end">
+                    <div className="flex justify-start">
                       <Button
                         variant="outline"
                         onClick={() => setCurrentSection("profile-details-inner")}
@@ -385,7 +385,7 @@ const CandidateProfileSettingsV2 = () => {
                       isLoadingFields={false}
                       buttonText="Save Changes"
                     />
-                    <div className="flex justify-end">
+                    <div className="flex justify-start">
                       <Button
                         variant="outline"
                         onClick={() => setCurrentSection("profile-details-inner")}
