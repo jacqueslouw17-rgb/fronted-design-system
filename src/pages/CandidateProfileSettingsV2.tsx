@@ -4,9 +4,9 @@
  * This is isolated to Flow 4 v2 and does not affect other flows
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Loader2, User, FileCheck, CreditCard, Briefcase, ChevronRight } from "lucide-react";
+import { X, User, FileCheck, CreditCard, Briefcase, ChevronRight, KeyRound, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
+import Flow6ChangePassword from "@/components/flows/admin-profile/Flow6ChangePassword";
 import frontedLogo from "@/assets/fronted-logo.png";
 
 // Import existing candidate onboarding step components
@@ -23,32 +24,49 @@ import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/Ca
 import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
 import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
 
-type Section = "overview" | "personal-details" | "compliance-docs" | "payroll-details" | "work-setup";
+type Section = "overview" | "profile-details" | "profile-details-inner" | "change-password" | "personal-details" | "compliance-docs" | "payroll-details" | "work-setup";
 
+// Top-level cards (2 cards only)
 const OVERVIEW_CARDS = [
+  {
+    id: "profile-details" as Section,
+    icon: User,
+    title: "Profile Details",
+    description: "View and update your personal, compliance, and work details."
+  },
+  {
+    id: "change-password" as Section,
+    icon: KeyRound,
+    title: "Change Password",
+    description: "Update your login password for Fronted."
+  }
+];
+
+// Nested sections inside Profile Details
+const PROFILE_DETAIL_SECTIONS = [
   {
     id: "personal-details" as Section,
     icon: User,
     title: "Personal Details",
-    description: "View and update your personal information."
+    description: "Name, contact information, and basic personal data."
   },
   {
     id: "compliance-docs" as Section,
     icon: FileCheck,
     title: "Compliance Documents",
-    description: "Upload and manage required compliance and identity documents."
+    description: "Upload and manage identity and compliance documents."
   },
   {
     id: "payroll-details" as Section,
     icon: CreditCard,
     title: "Payroll Details",
-    description: "Review and update your payout and payroll information."
+    description: "Banking, payout, and tax-related details."
   },
   {
     id: "work-setup" as Section,
     icon: Briefcase,
     title: "Work Setup & Agreements",
-    description: "View work arrangements, policies, and signed agreements."
+    description: "Work arrangements, policies, and contract-related documents."
   }
 ];
 
@@ -95,12 +113,23 @@ const CandidateProfileSettingsV2 = () => {
     await new Promise(resolve => setTimeout(resolve, 800));
     
     setIsSaving(false);
-    setCurrentSection("overview");
+    // Return to the inner profile details screen after saving a nested section
+    setCurrentSection("profile-details-inner");
     
     toast.success("✅ Changes saved successfully", {
       position: "bottom-right",
       duration: 3000
     });
+  };
+
+  const handleCardClick = (cardId: Section) => {
+    if (cardId === "profile-details") {
+      // Navigate to nested inner screen
+      setCurrentSection("profile-details-inner");
+    } else {
+      // Navigate directly to the section
+      setCurrentSection(cardId);
+    }
   };
 
   return (
@@ -138,7 +167,9 @@ const CandidateProfileSettingsV2 = () => {
               <AgentHeader 
                 title="Profile Settings"
                 subtitle={currentSection === "overview" 
-                  ? "Update your personal information, compliance documents, and payroll details." 
+                  ? "Manage your profile details and account security." 
+                  : currentSection === "profile-details-inner"
+                  ? "Update your personal, compliance, and work details."
                   : ""}
                 showPulse={true}
                 isActive={isSpeaking}
@@ -162,7 +193,7 @@ const CandidateProfileSettingsV2 = () => {
                       <Card
                         key={card.id}
                         className="p-6 bg-card/20 border-border/30 cursor-pointer hover:bg-card/30 hover:border-primary/20 transition-all group"
-                        onClick={() => setCurrentSection(card.id)}
+                        onClick={() => handleCardClick(card.id)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
@@ -186,6 +217,68 @@ const CandidateProfileSettingsV2 = () => {
                 </motion.div>
               )}
 
+              {currentSection === "profile-details-inner" && (
+                <motion.div
+                  key="profile-details-inner"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-4 pb-20 sm:pb-8"
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentSection("overview")}
+                    className="mb-4 gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Profile Settings
+                  </Button>
+                  
+                  {PROFILE_DETAIL_SECTIONS.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                      <Card
+                        key={section.id}
+                        className="p-6 bg-card/20 border-border/30 cursor-pointer hover:bg-card/30 hover:border-primary/20 transition-all group"
+                        onClick={() => setCurrentSection(section.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                              <Icon className="h-6 w-6 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-semibold text-foreground mb-1">
+                                {section.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {section.description}
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </motion.div>
+              )}
+
+              {currentSection === "change-password" && (
+                <motion.div
+                  key="change-password"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="pb-20 sm:pb-8"
+                >
+                  <Flow6ChangePassword
+                    onCancel={() => setCurrentSection("overview")}
+                  />
+                </motion.div>
+              )}
+
               {currentSection === "personal-details" && (
                 <motion.div
                   key="personal-details"
@@ -204,11 +297,11 @@ const CandidateProfileSettingsV2 = () => {
                     />
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentSection("overview")}
+                      onClick={() => setCurrentSection("profile-details-inner")}
                       className="w-full sm:w-auto"
                       size="lg"
                     >
-                      Back to Overview
+                      Back to Profile Details
                     </Button>
                   </div>
                 </motion.div>
@@ -232,11 +325,11 @@ const CandidateProfileSettingsV2 = () => {
                     />
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentSection("overview")}
+                      onClick={() => setCurrentSection("profile-details-inner")}
                       className="w-full sm:w-auto"
                       size="lg"
                     >
-                      Back to Overview
+                      Back to Profile Details
                     </Button>
                   </div>
                 </motion.div>
@@ -260,11 +353,11 @@ const CandidateProfileSettingsV2 = () => {
                     />
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentSection("overview")}
+                      onClick={() => setCurrentSection("profile-details-inner")}
                       className="w-full sm:w-auto"
                       size="lg"
                     >
-                      Back to Overview
+                      Back to Profile Details
                     </Button>
                   </div>
                 </motion.div>
@@ -288,11 +381,11 @@ const CandidateProfileSettingsV2 = () => {
                     />
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentSection("overview")}
+                      onClick={() => setCurrentSection("profile-details-inner")}
                       className="w-full sm:w-auto"
                       size="lg"
                     >
-                      Back to Overview
+                      Back to Profile Details
                     </Button>
                   </div>
                 </motion.div>
