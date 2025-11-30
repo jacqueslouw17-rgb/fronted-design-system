@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, User, FileCheck, CreditCard, Briefcase, ChevronRight, KeyRound, ArrowLeft } from "lucide-react";
+import { X, User, FileCheck, CreditCard, Briefcase, ChevronRight, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -24,7 +24,8 @@ import CandidateStep3Compliance from "@/components/flows/candidate-onboarding/Ca
 import CandidateStep4Bank from "@/components/flows/candidate-onboarding/CandidateStep4Bank";
 import CandidateStep5WorkSetup from "@/components/flows/candidate-onboarding/CandidateStep5WorkSetup";
 
-type Section = "overview" | "profile-details" | "profile-details-inner" | "change-password" | "personal-details" | "compliance-docs" | "payroll-details" | "work-setup";
+type Section = "overview" | "profile-details" | "change-password";
+type ProfileStep = 1 | 2 | 3 | 4;
 
 // Top-level cards (2 cards only)
 const OVERVIEW_CARDS = [
@@ -42,30 +43,26 @@ const OVERVIEW_CARDS = [
   }
 ];
 
-// Nested sections inside Profile Details
-const PROFILE_DETAIL_SECTIONS = [
+// Profile Details steps configuration
+const PROFILE_STEPS = [
   {
-    id: "personal-details" as Section,
-    icon: User,
-    title: "Personal Details",
+    number: 1,
+    label: "Personal Details",
     description: "Name, contact information, and basic personal data."
   },
   {
-    id: "compliance-docs" as Section,
-    icon: FileCheck,
-    title: "Compliance Documents",
+    number: 2,
+    label: "Compliance Documents",
     description: "Upload and manage identity and compliance documents."
   },
   {
-    id: "payroll-details" as Section,
-    icon: CreditCard,
-    title: "Payroll Details",
+    number: 3,
+    label: "Payroll Details",
     description: "Banking, payout, and tax-related details."
   },
   {
-    id: "work-setup" as Section,
-    icon: Briefcase,
-    title: "Work Setup & Agreements",
+    number: 4,
+    label: "Work Setup & Agreements",
     description: "Work arrangements, policies, and contract-related documents."
   }
 ];
@@ -74,6 +71,7 @@ const CandidateProfileSettingsV2 = () => {
   const navigate = useNavigate();
   const { isSpeaking } = useAgentState();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
+  const [currentProfileStep, setCurrentProfileStep] = useState<ProfileStep>(1);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -102,7 +100,7 @@ const CandidateProfileSettingsV2 = () => {
     acknowledgedAgreements: true
   });
 
-  const handleSectionSave = async (sectionId: string, data?: Record<string, any>) => {
+  const handleStepSave = async (data?: Record<string, any>) => {
     if (data) {
       setFormData(prev => ({ ...prev, ...data }));
     }
@@ -113,23 +111,49 @@ const CandidateProfileSettingsV2 = () => {
     await new Promise(resolve => setTimeout(resolve, 800));
     
     setIsSaving(false);
-    // Return to the inner profile details screen after saving a nested section
-    setCurrentSection("profile-details-inner");
     
-    toast.success("✅ Changes saved successfully", {
-      position: "bottom-right",
-      duration: 3000
-    });
+    // Move to next step or complete
+    if (currentProfileStep < 4) {
+      setCurrentProfileStep((currentProfileStep + 1) as ProfileStep);
+      toast.success("✅ Changes saved", {
+        position: "bottom-right",
+        duration: 2000
+      });
+    } else {
+      // Final step - return to overview
+      setCurrentSection("overview");
+      setCurrentProfileStep(1);
+      toast.success("✅ Profile details saved successfully", {
+        position: "bottom-right",
+        duration: 3000
+      });
+    }
   };
 
   const handleCardClick = (cardId: Section) => {
     if (cardId === "profile-details") {
-      // Navigate to nested inner screen
-      setCurrentSection("profile-details-inner");
+      setCurrentSection("profile-details");
+      setCurrentProfileStep(1);
     } else {
-      // Navigate directly to the section
       setCurrentSection(cardId);
     }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentProfileStep > 1) {
+      setCurrentProfileStep((currentProfileStep - 1) as ProfileStep);
+    }
+  };
+
+  const handleNextStep = () => {
+    if (currentProfileStep < 4) {
+      setCurrentProfileStep((currentProfileStep + 1) as ProfileStep);
+    }
+  };
+
+  const isStepValid = () => {
+    // Add validation logic per step if needed
+    return true;
   };
 
   return (
@@ -168,7 +192,7 @@ const CandidateProfileSettingsV2 = () => {
                 title="Profile Settings"
                 subtitle={currentSection === "overview" 
                   ? "Manage your profile details and account security." 
-                  : currentSection === "profile-details-inner"
+                  : currentSection === "profile-details"
                   ? "Update your personal, compliance, and work details."
                   : ""}
                 showPulse={true}
@@ -217,51 +241,97 @@ const CandidateProfileSettingsV2 = () => {
                 </motion.div>
               )}
 
-              {currentSection === "profile-details-inner" && (
+              {currentSection === "profile-details" && (
                 <motion.div
-                  key="profile-details-inner"
+                  key="profile-details"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-4 pb-20 sm:pb-8"
+                  className="space-y-6 pb-20 sm:pb-8"
                 >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentSection("overview")}
-                    className="mb-4 gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Profile Settings
-                  </Button>
-                  
-                  {PROFILE_DETAIL_SECTIONS.map((section) => {
-                    const Icon = section.icon;
-                    return (
-                      <Card
-                        key={section.id}
-                        className="p-6 bg-card/20 border-border/30 cursor-pointer hover:bg-card/30 hover:border-primary/20 transition-all group"
-                        onClick={() => setCurrentSection(section.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                              <Icon className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                              <h3 className="text-base font-semibold text-foreground mb-1">
-                                {section.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {section.description}
-                              </p>
-                            </div>
+                  {/* Step Indicator */}
+                  <div className="flex items-center gap-2 sm:gap-4 max-w-4xl mx-auto overflow-x-auto pb-2">
+                    {PROFILE_STEPS.map((step, index) => (
+                      <div key={step.number} className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                        <div className={`flex items-center gap-2 ${currentProfileStep === step.number ? 'text-primary' : 'text-muted-foreground'}`}>
+                          <div className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold ${
+                            currentProfileStep === step.number ? 'border-primary bg-primary/10' : 'border-border bg-background'
+                          }`}>
+                            {step.number}
                           </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{step.label}</span>
                         </div>
-                      </Card>
-                    );
-                  })}
+                        {index < PROFILE_STEPS.length - 1 && (
+                          <div className="h-[2px] w-8 sm:w-12 bg-border flex-shrink-0" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Step Content */}
+                  <div className="max-w-xl mx-auto space-y-6">
+                    {currentProfileStep === 1 && (
+                      <CandidateStep2PersonalDetails
+                        formData={formData}
+                        onComplete={(_, data) => handleStepSave(data)}
+                        isProcessing={isSaving}
+                        isLoadingFields={false}
+                        buttonText="Next"
+                      />
+                    )}
+
+                    {currentProfileStep === 2 && (
+                      <CandidateStep3Compliance
+                        formData={formData}
+                        onComplete={(_, data) => handleStepSave(data)}
+                        isProcessing={isSaving}
+                        isLoadingFields={false}
+                        buttonText="Next"
+                      />
+                    )}
+
+                    {currentProfileStep === 3 && (
+                      <CandidateStep4Bank
+                        formData={formData}
+                        onComplete={(_, data) => handleStepSave(data)}
+                        isProcessing={isSaving}
+                        isLoadingFields={false}
+                        buttonText="Next"
+                      />
+                    )}
+
+                    {currentProfileStep === 4 && (
+                      <CandidateStep5WorkSetup
+                        formData={formData}
+                        onComplete={(_, data) => handleStepSave(data)}
+                        isProcessing={isSaving}
+                        isLoadingFields={false}
+                        buttonText="Save Changes"
+                      />
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={currentProfileStep === 1 ? () => setCurrentSection("overview") : handlePreviousStep}
+                        className="flex-1"
+                        size="lg"
+                      >
+                        {currentProfileStep === 1 ? "Cancel" : "Previous"}
+                      </Button>
+                      {currentProfileStep < 4 && (
+                        <Button
+                          onClick={handleNextStep}
+                          disabled={!isStepValid()}
+                          className="flex-1"
+                          size="lg"
+                        >
+                          Next
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -279,125 +349,6 @@ const CandidateProfileSettingsV2 = () => {
                 </motion.div>
               )}
 
-              {currentSection === "personal-details" && (
-                <motion.div
-                  key="personal-details"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="pb-20 sm:pb-8"
-                >
-                  <div className="space-y-6">
-                    <CandidateStep2PersonalDetails
-                      formData={formData}
-                      onComplete={(_, data) => handleSectionSave("personal-details", data)}
-                      isProcessing={isSaving}
-                      isLoadingFields={false}
-                      buttonText="Save Changes"
-                    />
-                    <div className="flex justify-start">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentSection("profile-details-inner")}
-                        className="w-auto"
-                        size="lg"
-                      >
-                        Back to Profile Details
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {currentSection === "compliance-docs" && (
-                <motion.div
-                  key="compliance-docs"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="pb-20 sm:pb-8"
-                >
-                  <div className="space-y-6">
-                    <CandidateStep3Compliance
-                      formData={formData}
-                      onComplete={(_, data) => handleSectionSave("compliance-docs", data)}
-                      isProcessing={isSaving}
-                      isLoadingFields={false}
-                      buttonText="Save Changes"
-                    />
-                    <div className="flex justify-start">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentSection("profile-details-inner")}
-                        className="w-auto"
-                        size="lg"
-                      >
-                        Back to Profile Details
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {currentSection === "payroll-details" && (
-                <motion.div
-                  key="payroll-details"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="pb-20 sm:pb-8"
-                >
-                  <div className="space-y-6">
-                    <CandidateStep4Bank
-                      formData={formData}
-                      onComplete={(_, data) => handleSectionSave("payroll-details", data)}
-                      isProcessing={isSaving}
-                      isLoadingFields={false}
-                      buttonText="Save Changes"
-                    />
-                    <div className="flex justify-start">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentSection("profile-details-inner")}
-                        className="w-auto"
-                        size="lg"
-                      >
-                        Back to Profile Details
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {currentSection === "work-setup" && (
-                <motion.div
-                  key="work-setup"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="pb-20 sm:pb-8"
-                >
-                  <div className="space-y-6">
-                    <CandidateStep5WorkSetup
-                      formData={formData}
-                      onComplete={(_, data) => handleSectionSave("work-setup", data)}
-                      isProcessing={isSaving}
-                      isLoadingFields={false}
-                      buttonText="Save Changes"
-                    />
-                    <div className="flex justify-start">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentSection("profile-details-inner")}
-                        className="w-auto"
-                        size="lg"
-                      >
-                        Back to Profile Details
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
             </AnimatePresence>
           </div>
         </div>
