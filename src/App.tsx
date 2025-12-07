@@ -82,6 +82,13 @@ import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
 import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
 
+// Flow 2 v2 multi-step pages
+import F2v2_Intro from "./pages/flows/F2v2_Intro";
+import F2v2_CoreForm from "./pages/flows/F2v2_CoreForm";
+import F2v2_PayrollCollection from "./pages/flows/F2v2_PayrollCollection";
+import F2v2_ReviewSubmit from "./pages/flows/F2v2_ReviewSubmit";
+import F2v2_Success from "./pages/flows/F2v2_Success";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -178,6 +185,13 @@ const App = () => (
         <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
+        
+        {/* Flow 2 v2 multi-step routes */}
+        <Route path="/candidate-data-collection-v2/intro" element={<F2v2_Intro />} />
+        <Route path="/candidate-data-collection-v2/core" element={<F2v2_CoreForm />} />
+        <Route path="/candidate-data-collection-v2/payroll" element={<F2v2_PayrollCollection />} />
+        <Route path="/candidate-data-collection-v2/review" element={<F2v2_ReviewSubmit />} />
+        <Route path="/candidate-data-collection-v2/success" element={<F2v2_Success />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
