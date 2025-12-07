@@ -1,16 +1,16 @@
 /**
  * Flow 4.1 — Employee Dashboard v3
- * Request Adjustment Modal (single-page, no wizard)
+ * Request Adjustment Drawer (right-side panel)
  */
 
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -135,16 +135,16 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Request an adjustment</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader className="pb-4 border-b border-border/40">
+          <SheetTitle>Request an adjustment</SheetTitle>
+          <SheetDescription>
             Submit an adjustment for the current pay cycle.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-6">
           {/* Type Selector */}
           <div className="space-y-2">
             <Label>Type</Label>
@@ -283,7 +283,7 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
                 />
               </div>
 
-              <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 Rate per company policy; final amount will be calculated by payroll.
               </p>
             </>
@@ -319,7 +319,7 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
                 {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
               </div>
 
-              <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 Subject to admin approval.
               </p>
             </>
@@ -377,15 +377,16 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
           )}
         </div>
 
-        <div className="flex justify-end gap-3">
-          <Button variant="ghost" onClick={handleClose}>
+        {/* Fixed bottom actions */}
+        <div className="flex gap-3 pt-4 border-t border-border/40">
+          <Button variant="outline" onClick={handleClose} className="flex-1">
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} className="flex-1">
             Submit
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
