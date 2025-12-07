@@ -311,9 +311,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
             <h1 className="text-3xl font-bold text-foreground mb-3 text-center">
               Hi Sofia! Let's complete your payroll details
             </h1>
-            <p className="text-muted-foreground text-center">
-              Let's gather a few more details to get your onboarding started smoothly.
-            </p>
+            <p className="text-muted-foreground text-center">Let's gather a few more details to get your payroll set up.</p>
           </div>
 
           {/* Single Page Form */}
