@@ -17,7 +17,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-
 const CandidateDashboardV2 = () => {
   const location = useLocation();
   const candidateProfile = {
@@ -29,7 +28,7 @@ const CandidateDashboardV2 = () => {
     startDate: "March 15, 2024",
     noticePeriod: "30 days",
     pto: "25 days",
-    country: "Philippines",
+    country: "Philippines"
   };
 
   // One-time success animation on load
@@ -39,7 +38,9 @@ const CandidateDashboardV2 = () => {
       confetti({
         particleCount: 100,
         spread: 70,
-        origin: { y: 0.6 },
+        origin: {
+          y: 0.6
+        }
       });
     }, 300);
   }, []);
@@ -49,19 +50,15 @@ const CandidateDashboardV2 = () => {
     window.open("#", "_blank");
     toast.info("Opening final contract...");
   };
-
   const handleViewCertificate = () => {
     window.open("#", "_blank");
     toast.success("Opening certificate...");
   };
-
   const handleDownloadContract = () => {
     window.open("#", "_blank");
     toast.info("Downloading contract bundle...");
   };
-
-  return (
-    <RoleLensProvider initialRole="contractor">
+  return <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
         <div className="flex flex-col min-h-screen bg-background">
           <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2" dashboardUrl="/flows/candidate-dashboard-v2" />
@@ -72,21 +69,17 @@ const CandidateDashboardV2 = () => {
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                       style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                       style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
+                  background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
+                }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
+                  background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
+                }} />
                 </div>
 
                 <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
                   {/* Agent Header */}
-                  <AgentHeader
-                    title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`}
-                    subtitle="Everything is finalized. Access your documents below."
-                    showPulse={true}
-                    isActive={false}
-                    showInput={false}
-                  />
+                  <AgentHeader title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`} subtitle="Everything is finalized. Access your documents below." showPulse={true} isActive={false} showInput={false} />
 
                   {/* Main Content */}
                   <div className="space-y-6">
@@ -107,36 +100,14 @@ const CandidateDashboardV2 = () => {
                                 <p className="text-xs text-muted-foreground">Your final HR-approved contract bundle.</p>
                               </div>
                             </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={handleDownloadContract}
-                              className="flex-shrink-0 ml-4"
-                            >
+                            <Button size="sm" variant="outline" onClick={handleDownloadContract} className="flex-shrink-0 ml-4">
                               <Download className="h-4 w-4 mr-1.5" />
                               Download
                             </Button>
                           </div>
 
                           {/* Certificate of Contract */}
-                          <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card">
-                            <div className="flex items-center gap-3 flex-1">
-                              <Award className="h-5 w-5 text-accent-green-text flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground">Certificate of Contract</p>
-                                <p className="text-xs text-muted-foreground">Official certification record verifying signatures.</p>
-                              </div>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={handleViewCertificate}
-                              className="flex-shrink-0 ml-4"
-                            >
-                              <Award className="h-4 w-4 mr-1.5" />
-                              View Certificate
-                            </Button>
-                          </div>
+                          
                         </div>
                       </CardContent>
                     </Card>
@@ -147,8 +118,6 @@ const CandidateDashboardV2 = () => {
           </div>
         </div>
       </TooltipProvider>
-    </RoleLensProvider>
-  );
+    </RoleLensProvider>;
 };
-
 export default CandidateDashboardV2;
