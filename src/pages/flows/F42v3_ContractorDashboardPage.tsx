@@ -16,7 +16,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-
 const F42v3_ContractorDashboardPage = () => {
   const candidateProfile = {
     name: "Maria Santos",
@@ -27,7 +26,7 @@ const F42v3_ContractorDashboardPage = () => {
     startDate: "March 15, 2024",
     noticePeriod: "30 days",
     pto: "25 days",
-    country: "Philippines",
+    country: "Philippines"
   };
 
   // One-time success animation on load
@@ -36,7 +35,9 @@ const F42v3_ContractorDashboardPage = () => {
       confetti({
         particleCount: 100,
         spread: 70,
-        origin: { y: 0.6 },
+        origin: {
+          y: 0.6
+        }
       });
     }, 300);
   }, []);
@@ -46,19 +47,15 @@ const F42v3_ContractorDashboardPage = () => {
     window.open("#", "_blank");
     toast.info("Opening final contract...");
   };
-
   const handleViewCertificate = () => {
     window.open("#", "_blank");
     toast.success("Opening certificate...");
   };
-
   const handleDownloadContract = () => {
     window.open("#", "_blank");
     toast.info("Downloading contract bundle...");
   };
-
-  return (
-    <RoleLensProvider initialRole="contractor">
+  return <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
         <div className="flex flex-col min-h-screen bg-background">
           <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2" dashboardUrl="/candidate-dashboard-contractor-v3" />
@@ -69,28 +66,24 @@ const F42v3_ContractorDashboardPage = () => {
                 {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
-                       style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }} />
-                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8"
-                       style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
+                  background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
+                }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
+                  background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
+                }} />
                 </div>
 
                 <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
                   {/* Agent Header */}
-                  <AgentHeader
-                    title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`}
-                    subtitle="Candidate Dashboard — Contractor"
-                    showPulse={true}
-                    isActive={false}
-                    showInput={false}
-                  />
+                  <AgentHeader title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`} subtitle="Candidate Dashboard — Contractor" showPulse={true} isActive={false} showInput={false} />
 
                   {/* Main Content */}
                   <div className="space-y-6">
                     {/* Documents & Certificate Section */}
                     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
-                        <CardTitle className="text-lg">Documents & Certificate</CardTitle>
+                        <CardTitle className="text-lg">Your documents </CardTitle>
                         <CardDescription>Your signed documents are ready to download or view.</CardDescription>
                       </CardHeader>
                       <CardContent className="p-6">
@@ -104,12 +97,7 @@ const F42v3_ContractorDashboardPage = () => {
                                 <p className="text-xs text-muted-foreground">Your final HR-approved contract bundle.</p>
                               </div>
                             </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={handleDownloadContract}
-                              className="flex-shrink-0 ml-4"
-                            >
+                            <Button size="sm" variant="outline" onClick={handleDownloadContract} className="flex-shrink-0 ml-4">
                               <Download className="h-4 w-4 mr-1.5" />
                               Download
                             </Button>
@@ -124,12 +112,7 @@ const F42v3_ContractorDashboardPage = () => {
                                 <p className="text-xs text-muted-foreground">Official certification record verifying signatures.</p>
                               </div>
                             </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={handleViewCertificate}
-                              className="flex-shrink-0 ml-4"
-                            >
+                            <Button size="sm" variant="outline" onClick={handleViewCertificate} className="flex-shrink-0 ml-4">
                               <Award className="h-4 w-4 mr-1.5" />
                               View Certificate
                             </Button>
@@ -144,8 +127,6 @@ const F42v3_ContractorDashboardPage = () => {
           </div>
         </div>
       </TooltipProvider>
-    </RoleLensProvider>
-  );
+    </RoleLensProvider>;
 };
-
 export default F42v3_ContractorDashboardPage;
