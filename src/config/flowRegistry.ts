@@ -198,6 +198,30 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/onboarding/Step2OrgProfileSimplified.tsx',
       'src/components/flows/onboarding/Step7Finish.tsx'
     ]
+  },
+  'f4.1-employee-dashboard-v3': {
+    id: 'f4.1-employee-dashboard-v3',
+    title: 'Flow 4.1 — Employee Dashboard v3',
+    path: '/candidate-dashboard-employee-v3',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F41v3_EmployeeDashboardPage.tsx',
+      'src/stores/F41v3_DashboardStore.ts'
+    ]
+  },
+  'f4.2-contractor-dashboard-v3': {
+    id: 'f4.2-contractor-dashboard-v3',
+    title: 'Flow 4.2 — Contractor Dashboard v3',
+    path: '/candidate-dashboard-contractor-v3',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F42v3_ContractorDashboardPage.tsx',
+      'src/stores/F42v3_DashboardStore.ts'
+    ]
   }
 };
 
