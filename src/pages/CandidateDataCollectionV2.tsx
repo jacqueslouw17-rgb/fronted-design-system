@@ -1,25 +1,8 @@
 /**
- * Flow 2 — Candidate Data Collection v2 (Staging)
+ * Flow 2 v2 - Candidate Data Collection (Single Page Form)
  * 
- * ISOLATED DUPLICATE of Flow 2 — Candidate Data Collection v1
- * Created: 2025-12-07
- * 
- * This file redirects to the multi-step flow intro.
- * v1 remains completely unchanged and locked.
+ * Re-exports the single-page form component.
+ * Version: v2 (staging)
  */
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-const CandidateDataCollectionV2: React.FC = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to the multi-step flow intro
-    navigate("/candidate-data-collection-v2/intro", { replace: true });
-  }, [navigate]);
-
-  return null;
-};
-
-export default CandidateDataCollectionV2;
+export { default } from "./flows/F2v2_CandidateDataForm";
