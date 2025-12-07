@@ -76,7 +76,7 @@ const F42v3_ContractorDashboardPage = () => {
 
                 <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
                   {/* Agent Header */}
-                  <AgentHeader title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`} subtitle="Candidate Dashboard — Contractor" showPulse={true} isActive={false} showInput={false} />
+                  <AgentHeader title={`Welcome back, ${candidateProfile.firstName}!`} subtitle="Candidate Dashboard — Contractor" showPulse={true} isActive={false} showInput={false} />
 
                   {/* Main Content */}
                   <div className="space-y-6">
