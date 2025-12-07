@@ -1,9 +1,12 @@
 /**
  * Flow 2 v2 - Candidate Data Collection (Single Page Form)
  * 
- * Matches v1 layout with added:
- * - Employment Type at top (editable)
- * - Conditional payroll fields based on employment type
+ * STRICT v1 parity with added:
+ * - Employment Type selector at top (editable, not prefilled)
+ * - Conditional minimal payroll fields based on employment type
+ * 
+ * CTAs: "Send Form" (primary) + "Cancel" (secondary)
+ * Success: Same toast + navigation as v1
  * 
  * Version: v2 (staging)
  */
@@ -34,7 +37,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useF2v2_FormStore, F2v2_Analytics, F2v2_EmploymentType } from "@/stores/F2v2_FormStore";
+
+// F2v2 Analytics (staging only)
+const F2v2_Analytics = {
+  track: (event: string, data?: Record<string, unknown>) => {
+    console.log(`[F2v2_Analytics][staging] ${event}`, data || {});
+  }
+};
 
 // Currency options
 const CURRENCIES = [
@@ -47,59 +56,100 @@ const CURRENCIES = [
   { code: 'INR', label: 'INR - Indian Rupee' },
 ];
 
+// F2v2 Employment Type
+type F2v2_EmploymentType = 'employee' | 'contractor' | '';
+type F2v2_BillingModel = 'hourly' | 'fixed' | '';
+
+// F2v2 Form State (local, not using zustand for simplicity matching v1)
+interface F2v2_FormState {
+  // Employment type
+  employment_type: F2v2_EmploymentType;
+  // Core fields (matching v1 structure)
+  idType: string;
+  idNumber: string;
+  taxResidence: string;
+  city: string;
+  nationality: string;
+  address: string;
+  bankName: string;
+  accountNumber: string;
+  payFrequency: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  // Payroll fields
+  country_code: string;
+  currency: string;
+  start_date: string;
+  // Employee-only
+  employee_monthly_salary: string;
+  employee_overtime_eligible: boolean;
+  employee_hours_per_week: string;
+  // Contractor-only
+  contractor_billing_model: F2v2_BillingModel;
+  contractor_hourly_rate: string;
+  contractor_expected_hours_per_week: string;
+  contractor_retainer_amount_monthly: string;
+  contractor_invoice_cadence: string;
+  contractor_timesheet_required: boolean;
+}
+
 const F2v2_CandidateDataForm: React.FC = () => {
   const navigate = useNavigate();
   
-  // v2 Form Store
-  const {
-    core,
-    payroll,
-    setCoreData,
-    setPayrollData,
-    setEmploymentType,
-    clearEmployeeFields,
-    clearContractorFields,
-    saveDraft,
-    submit,
-    reset,
-  } = useF2v2_FormStore();
+  // Pre-filled data from ATS (same as v1)
+  const prefilledData = {
+    fullName: "Sofia Rodriguez",
+    email: "sofia.rodriguez@email.com",
+    role: "Marketing Manager",
+    salary: "$72,000 USD",
+    startDate: "2025-02-01"
+  };
 
-  // Local state for type change confirmation
+  // Form state
+  const [formData, setFormData] = useState<F2v2_FormState>({
+    employment_type: '',
+    idType: '',
+    idNumber: '',
+    taxResidence: '',
+    city: '',
+    nationality: '',
+    address: '',
+    bankName: '',
+    accountNumber: '',
+    payFrequency: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    country_code: 'MX',
+    currency: 'MXN',
+    start_date: '',
+    employee_monthly_salary: '',
+    employee_overtime_eligible: false,
+    employee_hours_per_week: '',
+    contractor_billing_model: '',
+    contractor_hourly_rate: '',
+    contractor_expected_hours_per_week: '',
+    contractor_retainer_amount_monthly: '',
+    contractor_invoice_cadence: 'auto_month_end',
+    contractor_timesheet_required: false,
+  });
+
+  // Type change confirmation
   const [pendingTypeChange, setPendingTypeChange] = useState<F2v2_EmploymentType | null>(null);
   const [showTypeChangeDialog, setShowTypeChangeDialog] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Track page open
   useEffect(() => {
     F2v2_Analytics.track('flow2_v2_opened');
   }, []);
 
-  // Pre-filled data (simulating ATS data)
-  const prefilledData = {
-    fullName: core.fullName || "Sofia Rodriguez",
-    email: core.email || "sofia.rodriguez@email.com",
-    role: core.role || "Marketing Manager",
-  };
-
-  // Initialize core data if empty
-  useEffect(() => {
-    if (!core.fullName) {
-      setCoreData({
-        fullName: "Sofia Rodriguez",
-        email: "sofia.rodriguez@email.com",
-        role: "Marketing Manager",
-      });
-    }
-  }, []);
-
-  // Handle employment type change
+  // Handle employment type change with confirmation
   const handleEmploymentTypeChange = (newType: F2v2_EmploymentType) => {
-    const currentType = payroll.employment_type;
+    const currentType = formData.employment_type;
     
-    // If switching types and has data in opposite type fields, show confirmation
+    // Check if switching types and has data
     if (currentType && currentType !== newType) {
-      const hasEmployeeData = payroll.employee_base_amount !== null || payroll.employee_allowances.length > 0;
-      const hasContractorData = payroll.contractor_hourly_rate !== null || payroll.contractor_retainer_amount !== null;
+      const hasEmployeeData = formData.employee_monthly_salary !== '';
+      const hasContractorData = formData.contractor_hourly_rate !== '' || formData.contractor_retainer_amount_monthly !== '';
       
       if ((currentType === 'employee' && hasEmployeeData) || (currentType === 'contractor' && hasContractorData)) {
         setPendingTypeChange(newType);
@@ -108,171 +158,160 @@ const F2v2_CandidateDataForm: React.FC = () => {
       }
     }
     
-    setEmploymentType(newType);
+    applyTypeChange(newType);
+  };
+
+  const applyTypeChange = (newType: F2v2_EmploymentType) => {
     if (newType === 'employee') {
-      clearContractorFields();
-    } else {
-      clearEmployeeFields();
+      // Clear contractor fields
+      setFormData(prev => ({
+        ...prev,
+        employment_type: newType,
+        contractor_billing_model: '',
+        contractor_hourly_rate: '',
+        contractor_expected_hours_per_week: '',
+        contractor_retainer_amount_monthly: '',
+        contractor_invoice_cadence: 'auto_month_end',
+        contractor_timesheet_required: false,
+      }));
+    } else if (newType === 'contractor') {
+      // Clear employee fields
+      setFormData(prev => ({
+        ...prev,
+        employment_type: newType,
+        employee_monthly_salary: '',
+        employee_overtime_eligible: false,
+        employee_hours_per_week: '',
+      }));
     }
   };
 
   const confirmTypeChange = () => {
     if (pendingTypeChange) {
-      setEmploymentType(pendingTypeChange);
-      if (pendingTypeChange === 'employee') {
-        clearContractorFields();
-      } else {
-        clearEmployeeFields();
-      }
+      applyTypeChange(pendingTypeChange);
       setPendingTypeChange(null);
     }
     setShowTypeChangeDialog(false);
   };
 
-  // Validation
+  // Validation matching v1 style
   const isFormValid = () => {
-    // Basic required fields
-    if (!payroll.employment_type) return false;
-    if (!payroll.currency) return false;
-    if (!payroll.start_date) return false;
-    if (!core.idType || !core.idNumber) return false;
-    if (!core.taxResidence || !core.city || !core.nationality || !core.address) return false;
+    // Core required fields (from v1)
+    const coreValid = 
+      formData.idType &&
+      formData.idNumber &&
+      formData.taxResidence &&
+      formData.city &&
+      formData.nationality &&
+      formData.address &&
+      formData.bankName &&
+      formData.accountNumber &&
+      formData.payFrequency;
+
+    if (!coreValid) return false;
+
+    // Employment type required
+    if (!formData.employment_type) return false;
+
+    // Payroll fields
+    if (!formData.currency || !formData.start_date) return false;
 
     // Type-specific validation
-    if (payroll.employment_type === 'employee') {
-      if (!payroll.employee_base_amount || payroll.employee_base_amount <= 0) return false;
+    if (formData.employment_type === 'employee') {
+      const salary = parseFloat(formData.employee_monthly_salary);
+      if (isNaN(salary) || salary <= 0) return false;
     }
-    
-    if (payroll.employment_type === 'contractor') {
-      if (payroll.contractor_billing_model === 'hourly') {
-        if (!payroll.contractor_hourly_rate || payroll.contractor_hourly_rate <= 0) return false;
-      } else if (payroll.contractor_billing_model === 'fixed') {
-        if (!payroll.contractor_retainer_amount || payroll.contractor_retainer_amount <= 0) return false;
-      } else {
-        return false; // No billing model selected
+
+    if (formData.employment_type === 'contractor') {
+      if (!formData.contractor_billing_model) return false;
+      
+      if (formData.contractor_billing_model === 'hourly') {
+        const rate = parseFloat(formData.contractor_hourly_rate);
+        if (isNaN(rate) || rate <= 0) return false;
+      } else if (formData.contractor_billing_model === 'fixed') {
+        const retainer = parseFloat(formData.contractor_retainer_amount_monthly);
+        if (isNaN(retainer) || retainer <= 0) return false;
       }
     }
 
     return true;
   };
 
-  const handleSubmit = () => {
+  // Send Form - same success pattern as v1
+  const handleSendForm = () => {
     if (!isFormValid()) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     // Build F2v2_Payload
-    const F2v2_Payload = {
-      version: 'v2',
-      submitted_at: new Date().toISOString(),
-      core: {
-        fullName: core.fullName,
-        email: core.email,
-        role: core.role,
-        idType: core.idType,
-        idNumber: core.idNumber,
-        taxResidence: core.taxResidence,
-        city: core.city,
-        nationality: core.nationality,
-        address: core.address,
-      },
-      payroll: {
-        employment_type: payroll.employment_type,
-        country_code: payroll.country_code,
-        currency: payroll.currency,
-        start_date: payroll.start_date,
-        ...(payroll.employment_type === 'employee' ? {
-          employee_rate_structure: payroll.employee_rate_structure || 'monthly_salary',
-          employee_base_amount: payroll.employee_base_amount,
-          employee_overtime_eligible: payroll.employee_overtime_eligible,
-          employee_hours_per_week: payroll.employee_hours_per_week,
-          employee_allowances: payroll.employee_allowances,
-        } : {
-          contractor_billing_model: payroll.contractor_billing_model,
-          contractor_hourly_rate: payroll.contractor_hourly_rate,
-          contractor_expected_hours_per_week: payroll.contractor_max_hours_per_period,
-          contractor_retainer_amount: payroll.contractor_retainer_amount,
-          contractor_invoice_cadence: payroll.contractor_invoice_cadence,
-          contractor_timesheet_required: payroll.contractor_timesheet_required,
-          contractor_billing_cadence: payroll.contractor_billing_cadence,
-        }),
-      },
+    const basePayload = {
+      employment_type: formData.employment_type,
+      country_code: formData.country_code,
+      currency: formData.currency,
+      start_date: formData.start_date,
+      F2v2_version: "v2",
     };
 
-    console.log('[F2v2] Submitted payload:', F2v2_Payload);
-    F2v2_Analytics.track('flow2_v2_submitted', F2v2_Payload);
-    
-    submit();
-    setIsSubmitted(true);
-    toast.success("Form submitted successfully!", {
-      description: "Your candidate data has been saved."
+    let F2v2_Payload: Record<string, unknown>;
+
+    if (formData.employment_type === 'employee') {
+      F2v2_Payload = {
+        ...basePayload,
+        employee_monthly_salary: parseFloat(formData.employee_monthly_salary),
+        employee_overtime_eligible: formData.employee_overtime_eligible,
+        employee_hours_per_week: formData.employee_hours_per_week ? parseInt(formData.employee_hours_per_week) : null,
+      };
+    } else {
+      F2v2_Payload = {
+        ...basePayload,
+        contractor_billing_model: formData.contractor_billing_model,
+        contractor_timesheet_required: formData.contractor_timesheet_required,
+      };
+
+      if (formData.contractor_billing_model === 'hourly') {
+        F2v2_Payload.contractor_hourly_rate = parseFloat(formData.contractor_hourly_rate);
+        F2v2_Payload.contractor_expected_hours_per_week = formData.contractor_expected_hours_per_week 
+          ? parseInt(formData.contractor_expected_hours_per_week) 
+          : null;
+      } else {
+        F2v2_Payload.contractor_retainer_amount_monthly = parseFloat(formData.contractor_retainer_amount_monthly);
+        F2v2_Payload.contractor_invoice_cadence = formData.contractor_invoice_cadence;
+      }
+    }
+
+    console.log('[F2v2] Payload:', F2v2_Payload);
+    F2v2_Analytics.track('flow2_v2_sent', F2v2_Payload);
+
+    // SAME SUCCESS AS v1: toast + navigate
+    toast.success("Form sent successfully to " + prefilledData.fullName, {
+      description: "Kurt will handle the ATS notification automatically"
     });
+    navigate("/flows/admin-dashboard");
   };
 
-  const handleSaveDraft = () => {
-    saveDraft();
-    F2v2_Analytics.track('flow2_v2_saved_draft');
-    toast.success("Draft saved", {
-      description: "You can continue editing this form later"
-    });
-  };
-
+  // Cancel - same as v1
   const handleCancel = () => {
-    navigate("/flows");
+    F2v2_Analytics.track('flow2_v2_cancelled');
+    navigate("/flows/admin-dashboard");
   };
 
-  // Format currency input
-  const formatCurrencyValue = (value: number | null): string => {
-    if (value === null) return '';
-    return value.toFixed(2);
+  // Handle billing model change
+  const handleBillingModelChange = (model: F2v2_BillingModel) => {
+    setFormData(prev => ({
+      ...prev,
+      contractor_billing_model: model,
+      contractor_timesheet_required: model === 'hourly' ? true : prev.contractor_timesheet_required,
+    }));
   };
-
-  const parseCurrencyInput = (input: string): number | null => {
-    const cleaned = input.replace(/[^0-9.]/g, '');
-    const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? null : Math.round(parsed * 100) / 100;
-  };
-
-  if (isSubmitted) {
-    return (
-      <RoleLensProvider initialRole="contractor">
-        <div className="flex flex-col h-screen bg-background">
-          <Topbar
-            userName="Sofia Rodriguez"
-            profileSettingsUrl="/candidate/profile-settings"
-            dashboardUrl="/flows"
-          />
-          <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
-            <div className="max-w-4xl mx-auto p-8">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-16"
-              >
-                <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
-                <h1 className="text-2xl font-bold mb-2">Submission Complete!</h1>
-                <p className="text-muted-foreground mb-6">
-                  Your candidate data has been submitted successfully.
-                </p>
-                <Button onClick={() => navigate("/flows")}>
-                  Return to Flows
-                </Button>
-              </motion.div>
-            </div>
-          </main>
-        </div>
-      </RoleLensProvider>
-    );
-  }
 
   return (
-    <RoleLensProvider initialRole="contractor">
+    <RoleLensProvider initialRole="admin">
       <div className="flex flex-col h-screen bg-background">
         <Topbar
-          userName="Sofia Rodriguez"
-          profileSettingsUrl="/candidate/profile-settings"
-          dashboardUrl="/flows"
+          userName="Joe User"
+          profileSettingsUrl="/admin/profile-settings"
+          dashboardUrl="/flows/admin-dashboard"
         />
 
         <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
@@ -283,18 +322,17 @@ const F2v2_CandidateDataForm: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="space-y-6"
             >
-              {/* Header */}
+              {/* Header - matching v1 exactly */}
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-2xl font-bold">Candidate Details</h1>
-                  <Badge variant="outline" className="text-xs">v2 staging</Badge>
+                <h1 className="text-2xl font-bold mb-2">Onboarding Data Collection Form</h1>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="text-lg">🇲🇽</span>
+                  <span>{prefilledData.fullName} • {prefilledData.role}</span>
+                  <Badge variant="outline" className="text-xs ml-2">v2</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Please provide your details. This helps us set up payroll or invoicing.
-                </p>
               </div>
 
-              {/* Kurt Message Block */}
+              {/* Kurt Message Block - same as v1 */}
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -306,22 +344,22 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   <div className="flex-1">
                     <p className="text-xs font-medium text-foreground mb-1">Kurt will handle the details</p>
                     <p className="text-xs text-muted-foreground">
-                      Once this form is submitted, I'll automatically notify the system — no manual steps needed.
+                      Once this form is submitted, I'll automatically notify the ATS — no manual steps needed.
                     </p>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Compliance Badge */}
+              {/* Compliance Badge - same as v1 */}
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Shield className="h-4 w-4 text-primary" />
-                <span>GDPR & Employment Law Compliant</span>
+                <span>GDPR & Mexico Employment Law Compliant</span>
               </div>
 
-              {/* Single Page Form */}
+              {/* Single Step Form */}
               <div className="space-y-6 bg-card rounded-lg border border-border p-6">
                 
-                {/* SECTION 1: Employment Type (TOP) */}
+                {/* EMPLOYMENT TYPE - TOP (v2 addition) */}
                 <div className="space-y-3">
                   <Label className="flex items-center gap-2">
                     Employment Type
@@ -331,17 +369,17 @@ const F2v2_CandidateDataForm: React.FC = () => {
                     This decides which compensation fields you'll see.
                   </p>
                   <RadioGroup
-                    value={payroll.employment_type}
+                    value={formData.employment_type}
                     onValueChange={(value) => handleEmploymentTypeChange(value as F2v2_EmploymentType)}
                     className="flex gap-4"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="employee" id="emp-employee" />
-                      <Label htmlFor="emp-employee" className="cursor-pointer">Employee (EOR)</Label>
+                      <RadioGroupItem value="employee" id="f2v2-emp-employee" />
+                      <Label htmlFor="f2v2-emp-employee" className="cursor-pointer">Employee (EOR)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="contractor" id="emp-contractor" />
-                      <Label htmlFor="emp-contractor" className="cursor-pointer">Contractor (COR)</Label>
+                      <RadioGroupItem value="contractor" id="f2v2-emp-contractor" />
+                      <Label htmlFor="f2v2-emp-contractor" className="cursor-pointer">Contractor (COR)</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -349,7 +387,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                 {/* Divider */}
                 <div className="border-t border-border" />
 
-                {/* Prefilled fields */}
+                {/* Prefilled fields - same as v1 */}
                 <div className="space-y-2">
                   <Label>Full Name</Label>
                   <Input value={prefilledData.fullName} disabled className="bg-muted/50" />
@@ -368,6 +406,20 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Salary</Label>
+                  <Input value={prefilledData.salary} disabled className="bg-muted/50" />
+                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                </div>
+
+                {prefilledData.startDate && (
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <Input value={prefilledData.startDate} disabled className="bg-muted/50" />
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  </div>
+                )}
+
                 {/* Divider */}
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-4">
@@ -375,15 +427,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Required fields - Core Info */}
+                {/* Required fields - same as v1 */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     ID Type & Number
                     <Badge variant="secondary" className="text-xs">Required</Badge>
                   </Label>
                   <Select 
-                    value={core.idType} 
-                    onValueChange={(value) => setCoreData({ idType: value })}
+                    value={formData.idType} 
+                    onValueChange={(value) => setFormData({ ...formData, idType: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select ID Type" />
@@ -396,8 +448,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </Select>
                   <Input
                     placeholder="ID Number"
-                    value={core.idNumber}
-                    onChange={(e) => setCoreData({ idNumber: e.target.value })}
+                    value={formData.idNumber}
+                    onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
                   />
                 </div>
 
@@ -408,8 +460,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </Label>
                   <Input
                     placeholder="e.g., Mexico"
-                    value={core.taxResidence}
-                    onChange={(e) => setCoreData({ taxResidence: e.target.value })}
+                    value={formData.taxResidence}
+                    onChange={(e) => setFormData({ ...formData, taxResidence: e.target.value })}
                   />
                 </div>
 
@@ -420,8 +472,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </Label>
                   <Input
                     placeholder="e.g., Monterrey"
-                    value={core.city}
-                    onChange={(e) => setCoreData({ city: e.target.value })}
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   />
                 </div>
 
@@ -432,8 +484,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </Label>
                   <Input
                     placeholder="e.g., Mexican"
-                    value={core.nationality}
-                    onChange={(e) => setCoreData({ nationality: e.target.value })}
+                    value={formData.nationality}
+                    onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
                   />
                 </div>
 
@@ -444,29 +496,85 @@ const F2v2_CandidateDataForm: React.FC = () => {
                   </Label>
                   <Textarea
                     placeholder="Full residential address"
-                    value={core.address}
-                    onChange={(e) => setCoreData({ address: e.target.value })}
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     rows={3}
                   />
                 </div>
 
-                {/* SECTION 2: Payroll / Invoicing */}
-                {payroll.employment_type && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Bank Details
+                    <Badge variant="secondary" className="text-xs">Required</Badge>
+                  </Label>
+                  <Input
+                    placeholder="Bank Name"
+                    value={formData.bankName}
+                    onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                    className="mb-2"
+                  />
+                  <Input
+                    placeholder="Account Number / IBAN"
+                    value={formData.accountNumber}
+                    onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Pay Frequency
+                    <Badge variant="secondary" className="text-xs">Required</Badge>
+                  </Label>
+                  <Select 
+                    value={formData.payFrequency} 
+                    onValueChange={(value) => setFormData({ ...formData, payFrequency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Pay Frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Emergency Contact
+                    <span className="text-muted-foreground text-xs">(Optional)</span>
+                  </Label>
+                  <Input
+                    placeholder="Name"
+                    value={formData.emergencyContactName}
+                    onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
+                    className="mb-2"
+                  />
+                  <Input
+                    placeholder="Phone"
+                    value={formData.emergencyContactPhone}
+                    onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+                  />
+                </div>
+
+                {/* COMPENSATION BLOCK - v2 addition (conditional) */}
+                {formData.employment_type && (
                   <>
                     <div className="pt-4 border-t border-border">
                       <p className="text-sm font-medium text-foreground mb-1">
-                        {payroll.employment_type === 'employee' 
+                        {formData.employment_type === 'employee' 
                           ? 'Compensation (Employee)' 
                           : 'Compensation (Contractor)'}
                       </p>
                       <p className="text-xs text-muted-foreground mb-4">
-                        {payroll.employment_type === 'employee'
+                        {formData.employment_type === 'employee'
                           ? "We'll use this to set up your payroll. Bank details come later in onboarding."
                           : "We'll use this to set up your invoicing. You can still submit invoices manually if needed."}
                       </p>
                     </div>
 
-                    {/* Common fields */}
+                    {/* Common payroll fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="flex items-center gap-2">
@@ -474,8 +582,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                           <Badge variant="secondary" className="text-xs">Required</Badge>
                         </Label>
                         <Select 
-                          value={payroll.country_code} 
-                          onValueChange={(value) => setPayrollData({ country_code: value })}
+                          value={formData.country_code} 
+                          onValueChange={(value) => setFormData({ ...formData, country_code: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select Country" />
@@ -497,8 +605,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                           <Badge variant="secondary" className="text-xs">Required</Badge>
                         </Label>
                         <Select 
-                          value={payroll.currency} 
-                          onValueChange={(value) => setPayrollData({ currency: value })}
+                          value={formData.currency} 
+                          onValueChange={(value) => setFormData({ ...formData, currency: value })}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select Currency" />
@@ -510,7 +618,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                           </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
-                          This just sets your pay currency; bank details are collected later.
+                          Sets your pay currency; bank details are collected later.
                         </p>
                       </div>
                     </div>
@@ -522,13 +630,13 @@ const F2v2_CandidateDataForm: React.FC = () => {
                       </Label>
                       <Input
                         type="date"
-                        value={payroll.start_date}
-                        onChange={(e) => setPayrollData({ start_date: e.target.value })}
+                        value={formData.start_date}
+                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                       />
                     </div>
 
                     {/* Employee-specific fields */}
-                    {payroll.employment_type === 'employee' && (
+                    {formData.employment_type === 'employee' && (
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label className="flex items-center gap-2">
@@ -537,18 +645,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                           </Label>
                           <div className="flex gap-2">
                             <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                              {payroll.currency || 'USD'}
+                              {formData.currency || 'USD'}
                             </span>
                             <Input
                               type="number"
                               step="0.01"
                               min="0"
                               placeholder="0.00"
-                              value={payroll.employee_base_amount ?? ''}
-                              onChange={(e) => setPayrollData({ 
-                                employee_base_amount: parseCurrencyInput(e.target.value),
-                                employee_rate_structure: 'monthly_salary'
-                              })}
+                              value={formData.employee_monthly_salary}
+                              onChange={(e) => setFormData({ ...formData, employee_monthly_salary: e.target.value })}
                               className="rounded-l-none"
                             />
                           </div>
@@ -560,8 +665,8 @@ const F2v2_CandidateDataForm: React.FC = () => {
                             <p className="text-xs text-muted-foreground">Can this employee earn overtime?</p>
                           </div>
                           <Switch
-                            checked={payroll.employee_overtime_eligible}
-                            onCheckedChange={(checked) => setPayrollData({ employee_overtime_eligible: checked })}
+                            checked={formData.employee_overtime_eligible}
+                            onCheckedChange={(checked) => setFormData({ ...formData, employee_overtime_eligible: checked })}
                           />
                         </div>
 
@@ -575,17 +680,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                             min="1"
                             max="80"
                             placeholder="e.g., 40"
-                            value={payroll.employee_hours_per_week ?? ''}
-                            onChange={(e) => setPayrollData({ 
-                              employee_hours_per_week: e.target.value ? parseInt(e.target.value) : null 
-                            })}
+                            value={formData.employee_hours_per_week}
+                            onChange={(e) => setFormData({ ...formData, employee_hours_per_week: e.target.value })}
                           />
                         </div>
                       </div>
                     )}
 
                     {/* Contractor-specific fields */}
-                    {payroll.employment_type === 'contractor' && (
+                    {formData.employment_type === 'contractor' && (
                       <div className="space-y-4">
                         <div className="space-y-3">
                           <Label className="flex items-center gap-2">
@@ -593,26 +696,23 @@ const F2v2_CandidateDataForm: React.FC = () => {
                             <Badge variant="secondary" className="text-xs">Required</Badge>
                           </Label>
                           <RadioGroup
-                            value={payroll.contractor_billing_model}
-                            onValueChange={(value) => setPayrollData({ 
-                              contractor_billing_model: value as 'hourly' | 'fixed',
-                              contractor_timesheet_required: value === 'hourly' ? true : payroll.contractor_timesheet_required
-                            })}
+                            value={formData.contractor_billing_model}
+                            onValueChange={(value) => handleBillingModelChange(value as F2v2_BillingModel)}
                             className="flex gap-4"
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="hourly" id="billing-hourly" />
-                              <Label htmlFor="billing-hourly" className="cursor-pointer">Hourly</Label>
+                              <RadioGroupItem value="hourly" id="f2v2-billing-hourly" />
+                              <Label htmlFor="f2v2-billing-hourly" className="cursor-pointer">Hourly</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="fixed" id="billing-fixed" />
-                              <Label htmlFor="billing-fixed" className="cursor-pointer">Fixed</Label>
+                              <RadioGroupItem value="fixed" id="f2v2-billing-fixed" />
+                              <Label htmlFor="f2v2-billing-fixed" className="cursor-pointer">Fixed</Label>
                             </div>
                           </RadioGroup>
                         </div>
 
                         {/* Hourly fields */}
-                        {payroll.contractor_billing_model === 'hourly' && (
+                        {formData.contractor_billing_model === 'hourly' && (
                           <>
                             <div className="space-y-2">
                               <Label className="flex items-center gap-2">
@@ -621,17 +721,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                               </Label>
                               <div className="flex gap-2">
                                 <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                                  {payroll.currency || 'USD'}
+                                  {formData.currency || 'USD'}
                                 </span>
                                 <Input
                                   type="number"
                                   step="0.01"
                                   min="0"
                                   placeholder="0.00"
-                                  value={payroll.contractor_hourly_rate ?? ''}
-                                  onChange={(e) => setPayrollData({ 
-                                    contractor_hourly_rate: parseCurrencyInput(e.target.value) 
-                                  })}
+                                  value={formData.contractor_hourly_rate}
+                                  onChange={(e) => setFormData({ ...formData, contractor_hourly_rate: e.target.value })}
                                   className="rounded-l-none"
                                 />
                               </div>
@@ -647,17 +745,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                                 min="1"
                                 max="80"
                                 placeholder="e.g., 40"
-                                value={payroll.contractor_max_hours_per_period ?? ''}
-                                onChange={(e) => setPayrollData({ 
-                                  contractor_max_hours_per_period: e.target.value ? parseInt(e.target.value) : null 
-                                })}
+                                value={formData.contractor_expected_hours_per_week}
+                                onChange={(e) => setFormData({ ...formData, contractor_expected_hours_per_week: e.target.value })}
                               />
                             </div>
                           </>
                         )}
 
                         {/* Fixed fields */}
-                        {payroll.contractor_billing_model === 'fixed' && (
+                        {formData.contractor_billing_model === 'fixed' && (
                           <>
                             <div className="space-y-2">
                               <Label className="flex items-center gap-2">
@@ -666,17 +762,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                               </Label>
                               <div className="flex gap-2">
                                 <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                                  {payroll.currency || 'USD'}
+                                  {formData.currency || 'USD'}
                                 </span>
                                 <Input
                                   type="number"
                                   step="0.01"
                                   min="0"
                                   placeholder="0.00"
-                                  value={payroll.contractor_retainer_amount ?? ''}
-                                  onChange={(e) => setPayrollData({ 
-                                    contractor_retainer_amount: parseCurrencyInput(e.target.value) 
-                                  })}
+                                  value={formData.contractor_retainer_amount_monthly}
+                                  onChange={(e) => setFormData({ ...formData, contractor_retainer_amount_monthly: e.target.value })}
                                   className="rounded-l-none"
                                 />
                               </div>
@@ -688,17 +782,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
                                 <Badge variant="secondary" className="text-xs">Required</Badge>
                               </Label>
                               <Select 
-                                value={payroll.contractor_invoice_cadence} 
-                                onValueChange={(value) => setPayrollData({ 
-                                  contractor_invoice_cadence: value as 'auto-month-end' | 'manual-submit' 
-                                })}
+                                value={formData.contractor_invoice_cadence} 
+                                onValueChange={(value) => setFormData({ ...formData, contractor_invoice_cadence: value })}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select Invoice Cadence" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="auto-month-end">Auto month-end</SelectItem>
-                                  <SelectItem value="manual-submit">Manual submit</SelectItem>
+                                  <SelectItem value="auto_month_end">Auto month-end</SelectItem>
+                                  <SelectItem value="manual_submit">Manual submit</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -706,22 +798,23 @@ const F2v2_CandidateDataForm: React.FC = () => {
                         )}
 
                         {/* Timesheet Required - shown for both billing models */}
-                        {payroll.contractor_billing_model && (
+                        {formData.contractor_billing_model && (
                           <div className="flex items-center space-x-2">
                             <Checkbox
-                              id="timesheet-required"
-                              checked={payroll.contractor_timesheet_required}
-                              onCheckedChange={(checked) => setPayrollData({ 
+                              id="f2v2-timesheet-required"
+                              checked={formData.contractor_timesheet_required}
+                              onCheckedChange={(checked) => setFormData({ 
+                                ...formData, 
                                 contractor_timesheet_required: checked as boolean 
                               })}
-                              disabled={payroll.contractor_billing_model === 'hourly'}
+                              disabled={formData.contractor_billing_model === 'hourly'}
                             />
                             <Label 
-                              htmlFor="timesheet-required" 
-                              className={payroll.contractor_billing_model === 'hourly' ? 'text-muted-foreground' : ''}
+                              htmlFor="f2v2-timesheet-required" 
+                              className={formData.contractor_billing_model === 'hourly' ? 'text-muted-foreground' : ''}
                             >
                               Timesheet Required
-                              {payroll.contractor_billing_model === 'hourly' && (
+                              {formData.contractor_billing_model === 'hourly' && (
                                 <span className="ml-2 text-xs text-muted-foreground">(Required for hourly)</span>
                               )}
                             </Label>
@@ -733,10 +826,10 @@ const F2v2_CandidateDataForm: React.FC = () => {
                 )}
               </div>
 
-              {/* Preview message */}
+              {/* Preview message - same as v1 */}
               <div className="rounded-lg border border-border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground mb-2">
-                  This form will be submitted for:
+                  This form will be sent to:
                 </p>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
@@ -747,7 +840,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons - matching v1 placement: Cancel + Send Form */}
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
@@ -759,20 +852,12 @@ const F2v2_CandidateDataForm: React.FC = () => {
                 </Button>
                 <Button
                   type="button"
-                  variant="secondary"
-                  onClick={handleSaveDraft}
-                  className="flex-1"
-                >
-                  Save as Draft
-                </Button>
-                <Button
-                  type="button"
                   variant="default"
-                  onClick={handleSubmit}
+                  onClick={handleSendForm}
                   disabled={!isFormValid()}
                   className="flex-1"
                 >
-                  Submit
+                  Send Form
                 </Button>
               </div>
             </motion.div>
