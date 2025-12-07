@@ -86,7 +86,7 @@ const CandidateDashboardV2 = () => {
                     {/* Documents & Certificate Section */}
                     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
-                        <CardTitle className="text-lg">Documents & Certificate</CardTitle>
+                        <CardTitle className="text-lg">Your documents</CardTitle>
                         <CardDescription>Your signed documents are ready to download or view.</CardDescription>
                       </CardHeader>
                       <CardContent className="p-6">
