@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,30 +42,6 @@ const F2v2_Analytics = {
   track: (event: string, data?: Record<string, unknown>) => {
     console.log(`[F2v2_Analytics][staging] ${event}`, data || {});
   }
-};
-
-// F2v2 Frequency Animation Component
-const F2v2_FrequencyAnimation: React.FC = () => {
-  return (
-    <div className="flex items-end justify-center gap-1 h-12 mb-6">
-      {[0, 1, 2, 3, 4].map((i) => (
-        <motion.div
-          key={i}
-          className="w-1.5 bg-primary/60 rounded-full"
-          initial={{ height: 8 }}
-          animate={{ 
-            height: [8, 24 + Math.random() * 20, 12, 32 + Math.random() * 16, 8],
-          }}
-          transition={{
-            duration: 1.2,
-            repeat: Infinity,
-            delay: i * 0.15,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
 };
 
 // Currency options
@@ -348,13 +325,15 @@ const F2v2_CandidateDataForm: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="space-y-8"
         >
-          {/* Centered Header with Frequency Animation */}
-          <div className="text-center pt-8">
-            <F2v2_FrequencyAnimation />
-            <h1 className="text-3xl font-bold text-foreground mb-3">
+          {/* Centered Header with Audio Wave Animation */}
+          <div className="flex flex-col items-center pt-8">
+            <div className="mb-6" style={{ maxHeight: '160px' }}>
+              <AudioWaveVisualizer isActive={false} />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground mb-3 text-center">
               Hi Sofia! Let's complete your profile
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-center">
               Let's gather a few more details to get your onboarding started smoothly.
             </p>
           </div>
