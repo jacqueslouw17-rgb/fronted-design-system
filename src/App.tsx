@@ -181,8 +181,9 @@ const App = () => (
         <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
+        {/* Redirect old multi-step routes to single-page form */}
+        <Route path="/candidate-data-collection-v2/*" element={<CandidateDataCollectionV2 />} />
         
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
