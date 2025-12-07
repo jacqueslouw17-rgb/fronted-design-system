@@ -14,7 +14,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Bot, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,8 +25,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import Topbar from "@/components/dashboard/Topbar";
-import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +41,30 @@ const F2v2_Analytics = {
   track: (event: string, data?: Record<string, unknown>) => {
     console.log(`[F2v2_Analytics][staging] ${event}`, data || {});
   }
+};
+
+// F2v2 Frequency Animation Component
+const F2v2_FrequencyAnimation: React.FC = () => {
+  return (
+    <div className="flex items-end justify-center gap-1 h-12 mb-6">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.div
+          key={i}
+          className="w-1.5 bg-primary/60 rounded-full"
+          initial={{ height: 8 }}
+          animate={{ 
+            height: [8, 24 + Math.random() * 20, 12, 32 + Math.random() * 16, 8],
+          }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            delay: i * 0.15,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
 };
 
 // Currency options
@@ -306,341 +328,398 @@ const F2v2_CandidateDataForm: React.FC = () => {
   };
 
   return (
-    <RoleLensProvider initialRole="admin">
-      <div className="flex flex-col h-screen bg-background">
-        <Topbar
-          userName="Joe User"
-          profileSettingsUrl="/admin/profile-settings"
-          dashboardUrl="/flows/admin-dashboard"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
+      {/* Back Arrow - Top Left */}
+      <div className="absolute top-6 left-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCancel}
+          className="text-foreground hover:bg-transparent"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      </div>
 
-        <main className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
-          <div className="max-w-4xl mx-auto p-8 pb-32">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-6"
-            >
-              {/* Header - matching v1 exactly */}
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">Onboarding Data Collection Form</h1>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <span className="text-lg">🇲🇽</span>
-                  <span>{prefilledData.fullName} • {prefilledData.role}</span>
-                  <Badge variant="outline" className="text-xs ml-2">v2</Badge>
-                </div>
-              </div>
+      <div className="max-w-4xl mx-auto px-8 pt-16 pb-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-8"
+        >
+          {/* Centered Header with Frequency Animation */}
+          <div className="text-center pt-8">
+            <F2v2_FrequencyAnimation />
+            <h1 className="text-3xl font-bold text-foreground mb-3">
+              Hi Sofia! Let's complete your profile
+            </h1>
+            <p className="text-muted-foreground">
+              Let's gather a few more details to get your onboarding started smoothly.
+            </p>
+          </div>
 
-              {/* Kurt Message Block - same as v1 */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-                className="rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/10 p-4"
+          {/* Single Page Form */}
+          <div className="space-y-6 bg-card rounded-lg border border-border p-6">
+            
+            {/* EMPLOYMENT TYPE - TOP (v2 addition) */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                Employment Type
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                This decides which compensation fields you'll see.
+              </p>
+              <RadioGroup
+                value={formData.employment_type}
+                onValueChange={(value) => handleEmploymentTypeChange(value as F2v2_EmploymentType)}
+                className="flex gap-4"
               >
-                <div className="flex items-start gap-3">
-                  <Bot className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-foreground mb-1">Kurt will handle the details</p>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="employee" id="f2v2-emp-employee" />
+                  <Label htmlFor="f2v2-emp-employee" className="cursor-pointer">Employee (EOR)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="contractor" id="f2v2-emp-contractor" />
+                  <Label htmlFor="f2v2-emp-contractor" className="cursor-pointer">Contractor (COR)</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-border" />
+
+            {/* Prefilled fields */}
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input value={prefilledData.fullName} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input value={prefilledData.email} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Input value={prefilledData.role} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Salary</Label>
+              <Input value={prefilledData.salary} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+            </div>
+
+            {prefilledData.startDate && (
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input value={prefilledData.startDate} disabled className="bg-muted/50" />
+                <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+              </div>
+            )}
+
+            {/* Divider */}
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs font-medium text-muted-foreground mb-4">
+                Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by you</Badge>
+              </p>
+            </div>
+
+            {/* Required fields */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                ID Type & Number
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Select 
+                value={formData.idType} 
+                onValueChange={(value) => setFormData({ ...formData, idType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select ID Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="passport">Passport</SelectItem>
+                  <SelectItem value="national-id">National ID</SelectItem>
+                  <SelectItem value="drivers-license">Driver's License</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="ID Number"
+                value={formData.idNumber}
+                onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Tax Residence
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Input
+                placeholder="e.g., Mexico"
+                value={formData.taxResidence}
+                onChange={(e) => setFormData({ ...formData, taxResidence: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                City
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Input
+                placeholder="e.g., Monterrey"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Nationality
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Input
+                placeholder="e.g., Mexican"
+                value={formData.nationality}
+                onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Address
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Textarea
+                placeholder="Full residential address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Bank Details
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Input
+                placeholder="Bank Name"
+                value={formData.bankName}
+                onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                placeholder="Account Number / IBAN"
+                value={formData.accountNumber}
+                onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Pay Frequency
+                <Badge variant="secondary" className="text-xs">Required</Badge>
+              </Label>
+              <Select 
+                value={formData.payFrequency} 
+                onValueChange={(value) => setFormData({ ...formData, payFrequency: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Pay Frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                Emergency Contact
+                <span className="text-muted-foreground text-xs">(Optional)</span>
+              </Label>
+              <Input
+                placeholder="Name"
+                value={formData.emergencyContactName}
+                onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                placeholder="Phone"
+                value={formData.emergencyContactPhone}
+                onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+              />
+            </div>
+
+            {/* COMPENSATION BLOCK - v2 addition (conditional) */}
+            {formData.employment_type && (
+              <>
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    {formData.employment_type === 'employee' 
+                      ? 'Compensation (Employee)' 
+                      : 'Compensation (Contractor)'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {formData.employment_type === 'employee'
+                      ? "We'll use this to set up your payroll. Bank details come later in onboarding."
+                      : "We'll use this to set up your invoicing. You can still submit invoices manually if needed."}
+                  </p>
+                </div>
+
+                {/* Common payroll fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      Country
+                      <Badge variant="secondary" className="text-xs">Required</Badge>
+                    </Label>
+                    <Select 
+                      value={formData.country_code} 
+                      onValueChange={(value) => setFormData({ ...formData, country_code: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MX">Mexico</SelectItem>
+                        <SelectItem value="US">United States</SelectItem>
+                        <SelectItem value="PH">Philippines</SelectItem>
+                        <SelectItem value="BR">Brazil</SelectItem>
+                        <SelectItem value="IN">India</SelectItem>
+                        <SelectItem value="GB">United Kingdom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      Payment Currency
+                      <Badge variant="secondary" className="text-xs">Required</Badge>
+                    </Label>
+                    <Select 
+                      value={formData.currency} 
+                      onValueChange={(value) => setFormData({ ...formData, currency: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map((c) => (
+                          <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <p className="text-xs text-muted-foreground">
-                      Once this form is submitted, I'll automatically notify the ATS — no manual steps needed.
+                      Sets your pay currency; bank details are collected later.
                     </p>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Compliance Badge - same as v1 */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>GDPR & Mexico Employment Law Compliant</span>
-              </div>
-
-              {/* Single Step Form */}
-              <div className="space-y-6 bg-card rounded-lg border border-border p-6">
-                
-                {/* EMPLOYMENT TYPE - TOP (v2 addition) */}
-                <div className="space-y-3">
-                  <Label className="flex items-center gap-2">
-                    Employment Type
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    This decides which compensation fields you'll see.
-                  </p>
-                  <RadioGroup
-                    value={formData.employment_type}
-                    onValueChange={(value) => handleEmploymentTypeChange(value as F2v2_EmploymentType)}
-                    className="flex gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="employee" id="f2v2-emp-employee" />
-                      <Label htmlFor="f2v2-emp-employee" className="cursor-pointer">Employee (EOR)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="contractor" id="f2v2-emp-contractor" />
-                      <Label htmlFor="f2v2-emp-contractor" className="cursor-pointer">Contractor (COR)</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-border" />
-
-                {/* Prefilled fields - same as v1 */}
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input value={prefilledData.fullName} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input value={prefilledData.email} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Role</Label>
-                  <Input value={prefilledData.role} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Salary</Label>
-                  <Input value={prefilledData.salary} disabled className="bg-muted/50" />
-                  <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                </div>
-
-                {prefilledData.startDate && (
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input value={prefilledData.startDate} disabled className="bg-muted/50" />
-                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                  </div>
-                )}
-
-                {/* Divider */}
-                <div className="pt-4 border-t border-border">
-                  <p className="text-xs font-medium text-muted-foreground mb-4">
-                    Required Fields <Badge variant="secondary" className="ml-2 text-xs">To be filled by you</Badge>
-                  </p>
-                </div>
-
-                {/* Required fields - same as v1 */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    ID Type & Number
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Select 
-                    value={formData.idType} 
-                    onValueChange={(value) => setFormData({ ...formData, idType: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select ID Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="passport">Passport</SelectItem>
-                      <SelectItem value="national-id">National ID</SelectItem>
-                      <SelectItem value="drivers-license">Driver's License</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    placeholder="ID Number"
-                    value={formData.idNumber}
-                    onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
-                  />
-                </div>
 
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    Tax Residence
+                    Start Date
                     <Badge variant="secondary" className="text-xs">Required</Badge>
                   </Label>
                   <Input
-                    placeholder="e.g., Mexico"
-                    value={formData.taxResidence}
-                    onChange={(e) => setFormData({ ...formData, taxResidence: e.target.value })}
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    City
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Input
-                    placeholder="e.g., Monterrey"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Nationality
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Input
-                    placeholder="e.g., Mexican"
-                    value={formData.nationality}
-                    onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Address
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Textarea
-                    placeholder="Full residential address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Bank Details
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Input
-                    placeholder="Bank Name"
-                    value={formData.bankName}
-                    onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
-                    className="mb-2"
-                  />
-                  <Input
-                    placeholder="Account Number / IBAN"
-                    value={formData.accountNumber}
-                    onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Pay Frequency
-                    <Badge variant="secondary" className="text-xs">Required</Badge>
-                  </Label>
-                  <Select 
-                    value={formData.payFrequency} 
-                    onValueChange={(value) => setFormData({ ...formData, payFrequency: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Pay Frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Emergency Contact
-                    <span className="text-muted-foreground text-xs">(Optional)</span>
-                  </Label>
-                  <Input
-                    placeholder="Name"
-                    value={formData.emergencyContactName}
-                    onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
-                    className="mb-2"
-                  />
-                  <Input
-                    placeholder="Phone"
-                    value={formData.emergencyContactPhone}
-                    onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
-                  />
-                </div>
-
-                {/* COMPENSATION BLOCK - v2 addition (conditional) */}
-                {formData.employment_type && (
-                  <>
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        {formData.employment_type === 'employee' 
-                          ? 'Compensation (Employee)' 
-                          : 'Compensation (Contractor)'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-4">
-                        {formData.employment_type === 'employee'
-                          ? "We'll use this to set up your payroll. Bank details come later in onboarding."
-                          : "We'll use this to set up your invoicing. You can still submit invoices manually if needed."}
-                      </p>
-                    </div>
-
-                    {/* Common payroll fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          Country
-                          <Badge variant="secondary" className="text-xs">Required</Badge>
-                        </Label>
-                        <Select 
-                          value={formData.country_code} 
-                          onValueChange={(value) => setFormData({ ...formData, country_code: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="MX">Mexico</SelectItem>
-                            <SelectItem value="US">United States</SelectItem>
-                            <SelectItem value="PH">Philippines</SelectItem>
-                            <SelectItem value="BR">Brazil</SelectItem>
-                            <SelectItem value="IN">India</SelectItem>
-                            <SelectItem value="GB">United Kingdom</SelectItem>
-                          </SelectContent>
-                        </Select>
+                {/* Employee-specific fields */}
+                {formData.employment_type === 'employee' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        Monthly Salary
+                        <Badge variant="secondary" className="text-xs">Required</Badge>
+                      </Label>
+                      <div className="flex gap-2">
+                        <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
+                          {formData.currency || 'USD'}
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={formData.employee_monthly_salary}
+                          onChange={(e) => setFormData({ ...formData, employee_monthly_salary: e.target.value })}
+                          className="rounded-l-none"
+                        />
                       </div>
+                    </div>
 
-                      <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          Payment Currency
-                          <Badge variant="secondary" className="text-xs">Required</Badge>
-                        </Label>
-                        <Select 
-                          value={formData.currency} 
-                          onValueChange={(value) => setFormData({ ...formData, currency: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {CURRENCIES.map((c) => (
-                              <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground">
-                          Sets your pay currency; bank details are collected later.
-                        </p>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Overtime Eligible</Label>
+                        <p className="text-xs text-muted-foreground">Can this employee earn overtime?</p>
                       </div>
+                      <Switch
+                        checked={formData.employee_overtime_eligible}
+                        onCheckedChange={(checked) => setFormData({ ...formData, employee_overtime_eligible: checked })}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
-                        Start Date
-                        <Badge variant="secondary" className="text-xs">Required</Badge>
+                        Hours per Week
+                        <span className="text-xs text-muted-foreground">(Optional)</span>
                       </Label>
                       <Input
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                        type="number"
+                        min="1"
+                        max="80"
+                        placeholder="e.g., 40"
+                        value={formData.employee_hours_per_week}
+                        onChange={(e) => setFormData({ ...formData, employee_hours_per_week: e.target.value })}
                       />
                     </div>
+                  </div>
+                )}
 
-                    {/* Employee-specific fields */}
-                    {formData.employment_type === 'employee' && (
-                      <div className="space-y-4">
+                {/* Contractor-specific fields */}
+                {formData.employment_type === 'contractor' && (
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <Label className="flex items-center gap-2">
+                        Billing Model
+                        <Badge variant="secondary" className="text-xs">Required</Badge>
+                      </Label>
+                      <RadioGroup
+                        value={formData.contractor_billing_model}
+                        onValueChange={(value) => handleBillingModelChange(value as F2v2_BillingModel)}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="hourly" id="f2v2-billing-hourly" />
+                          <Label htmlFor="f2v2-billing-hourly" className="cursor-pointer">Hourly</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="fixed" id="f2v2-billing-fixed" />
+                          <Label htmlFor="f2v2-billing-fixed" className="cursor-pointer">Fixed</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    {/* Hourly fields */}
+                    {formData.contractor_billing_model === 'hourly' && (
+                      <>
                         <div className="space-y-2">
                           <Label className="flex items-center gap-2">
-                            Monthly Salary
+                            Hourly Rate
                             <Badge variant="secondary" className="text-xs">Required</Badge>
                           </Label>
                           <div className="flex gap-2">
@@ -652,27 +731,16 @@ const F2v2_CandidateDataForm: React.FC = () => {
                               step="0.01"
                               min="0"
                               placeholder="0.00"
-                              value={formData.employee_monthly_salary}
-                              onChange={(e) => setFormData({ ...formData, employee_monthly_salary: e.target.value })}
+                              value={formData.contractor_hourly_rate}
+                              onChange={(e) => setFormData({ ...formData, contractor_hourly_rate: e.target.value })}
                               className="rounded-l-none"
                             />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-0.5">
-                            <Label>Overtime Eligible</Label>
-                            <p className="text-xs text-muted-foreground">Can this employee earn overtime?</p>
-                          </div>
-                          <Switch
-                            checked={formData.employee_overtime_eligible}
-                            onCheckedChange={(checked) => setFormData({ ...formData, employee_overtime_eligible: checked })}
-                          />
-                        </div>
-
                         <div className="space-y-2">
                           <Label className="flex items-center gap-2">
-                            Hours per Week
+                            Expected Hours/Week
                             <span className="text-xs text-muted-foreground">(Optional)</span>
                           </Label>
                           <Input
@@ -680,189 +748,122 @@ const F2v2_CandidateDataForm: React.FC = () => {
                             min="1"
                             max="80"
                             placeholder="e.g., 40"
-                            value={formData.employee_hours_per_week}
-                            onChange={(e) => setFormData({ ...formData, employee_hours_per_week: e.target.value })}
+                            value={formData.contractor_expected_hours_per_week}
+                            onChange={(e) => setFormData({ ...formData, contractor_expected_hours_per_week: e.target.value })}
                           />
                         </div>
-                      </div>
+                      </>
                     )}
 
-                    {/* Contractor-specific fields */}
-                    {formData.employment_type === 'contractor' && (
-                      <div className="space-y-4">
-                        <div className="space-y-3">
+                    {/* Fixed fields */}
+                    {formData.contractor_billing_model === 'fixed' && (
+                      <>
+                        <div className="space-y-2">
                           <Label className="flex items-center gap-2">
-                            Billing Model
+                            Retainer Amount (per month)
                             <Badge variant="secondary" className="text-xs">Required</Badge>
                           </Label>
-                          <RadioGroup
-                            value={formData.contractor_billing_model}
-                            onValueChange={(value) => handleBillingModelChange(value as F2v2_BillingModel)}
-                            className="flex gap-4"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="hourly" id="f2v2-billing-hourly" />
-                              <Label htmlFor="f2v2-billing-hourly" className="cursor-pointer">Hourly</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="fixed" id="f2v2-billing-fixed" />
-                              <Label htmlFor="f2v2-billing-fixed" className="cursor-pointer">Fixed</Label>
-                            </div>
-                          </RadioGroup>
+                          <div className="flex gap-2">
+                            <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
+                              {formData.currency || 'USD'}
+                            </span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={formData.contractor_retainer_amount_monthly}
+                              onChange={(e) => setFormData({ ...formData, contractor_retainer_amount_monthly: e.target.value })}
+                              className="rounded-l-none"
+                            />
+                          </div>
                         </div>
 
-                        {/* Hourly fields */}
-                        {formData.contractor_billing_model === 'hourly' && (
-                          <>
-                            <div className="space-y-2">
-                              <Label className="flex items-center gap-2">
-                                Hourly Rate
-                                <Badge variant="secondary" className="text-xs">Required</Badge>
-                              </Label>
-                              <div className="flex gap-2">
-                                <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                                  {formData.currency || 'USD'}
-                                </span>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  placeholder="0.00"
-                                  value={formData.contractor_hourly_rate}
-                                  onChange={(e) => setFormData({ ...formData, contractor_hourly_rate: e.target.value })}
-                                  className="rounded-l-none"
-                                />
-                              </div>
-                            </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2">
+                            Invoice Cadence
+                            <Badge variant="secondary" className="text-xs">Required</Badge>
+                          </Label>
+                          <Select 
+                            value={formData.contractor_invoice_cadence} 
+                            onValueChange={(value) => setFormData({ ...formData, contractor_invoice_cadence: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Invoice Cadence" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="auto_month_end">Auto month-end</SelectItem>
+                              <SelectItem value="manual_submit">Manual submit</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
 
-                            <div className="space-y-2">
-                              <Label className="flex items-center gap-2">
-                                Expected Hours/Week
-                                <span className="text-xs text-muted-foreground">(Optional)</span>
-                              </Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                max="80"
-                                placeholder="e.g., 40"
-                                value={formData.contractor_expected_hours_per_week}
-                                onChange={(e) => setFormData({ ...formData, contractor_expected_hours_per_week: e.target.value })}
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {/* Fixed fields */}
-                        {formData.contractor_billing_model === 'fixed' && (
-                          <>
-                            <div className="space-y-2">
-                              <Label className="flex items-center gap-2">
-                                Retainer Amount (per month)
-                                <Badge variant="secondary" className="text-xs">Required</Badge>
-                              </Label>
-                              <div className="flex gap-2">
-                                <span className="flex items-center px-3 bg-muted rounded-l-md border border-r-0 border-input text-sm">
-                                  {formData.currency || 'USD'}
-                                </span>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  placeholder="0.00"
-                                  value={formData.contractor_retainer_amount_monthly}
-                                  onChange={(e) => setFormData({ ...formData, contractor_retainer_amount_monthly: e.target.value })}
-                                  className="rounded-l-none"
-                                />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="flex items-center gap-2">
-                                Invoice Cadence
-                                <Badge variant="secondary" className="text-xs">Required</Badge>
-                              </Label>
-                              <Select 
-                                value={formData.contractor_invoice_cadence} 
-                                onValueChange={(value) => setFormData({ ...formData, contractor_invoice_cadence: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select Invoice Cadence" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="auto_month_end">Auto month-end</SelectItem>
-                                  <SelectItem value="manual_submit">Manual submit</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Timesheet Required - shown for both billing models */}
-                        {formData.contractor_billing_model && (
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="f2v2-timesheet-required"
-                              checked={formData.contractor_timesheet_required}
-                              onCheckedChange={(checked) => setFormData({ 
-                                ...formData, 
-                                contractor_timesheet_required: checked as boolean 
-                              })}
-                              disabled={formData.contractor_billing_model === 'hourly'}
-                            />
-                            <Label 
-                              htmlFor="f2v2-timesheet-required" 
-                              className={formData.contractor_billing_model === 'hourly' ? 'text-muted-foreground' : ''}
-                            >
-                              Timesheet Required
-                              {formData.contractor_billing_model === 'hourly' && (
-                                <span className="ml-2 text-xs text-muted-foreground">(Required for hourly)</span>
-                              )}
-                            </Label>
-                          </div>
-                        )}
+                    {/* Timesheet Required */}
+                    {formData.contractor_billing_model && (
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="f2v2-timesheet-required"
+                          checked={formData.contractor_timesheet_required}
+                          onCheckedChange={(checked) => setFormData({ 
+                            ...formData, 
+                            contractor_timesheet_required: checked as boolean 
+                          })}
+                          disabled={formData.contractor_billing_model === 'hourly'}
+                        />
+                        <Label 
+                          htmlFor="f2v2-timesheet-required" 
+                          className={formData.contractor_billing_model === 'hourly' ? 'text-muted-foreground' : ''}
+                        >
+                          Timesheet Required
+                          {formData.contractor_billing_model === 'hourly' && (
+                            <span className="ml-2 text-xs text-muted-foreground">(Required for hourly)</span>
+                          )}
+                        </Label>
                       </div>
                     )}
-                  </>
-                )}
-              </div>
-
-              {/* Preview message - same as v1 */}
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <p className="text-xs text-muted-foreground mb-2">
-                  This form will be sent to:
-                </p>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{prefilledData.fullName}</p>
-                    <p className="text-xs text-muted-foreground">{prefilledData.role}</p>
                   </div>
-                </div>
-              </div>
-
-              {/* Action Buttons - matching v1 placement: Cancel + Send Form */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  variant="default"
-                  onClick={handleSendForm}
-                  disabled={!isFormValid()}
-                  className="flex-1"
-                >
-                  Send Form
-                </Button>
-              </div>
-            </motion.div>
+                )}
+              </>
+            )}
           </div>
-        </main>
+
+          {/* Preview message */}
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-xs text-muted-foreground mb-2">
+              This form will be sent to:
+            </p>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{prefilledData.fullName}</p>
+                <p className="text-xs text-muted-foreground">{prefilledData.role}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons - Cancel + Send Form */}
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSendForm}
+              disabled={!isFormValid()}
+              className="flex-1"
+            >
+              Send Form
+            </Button>
+          </div>
+        </motion.div>
       </div>
 
       {/* Type Change Confirmation Dialog */}
@@ -880,7 +881,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </RoleLensProvider>
+    </div>
   );
 };
 
