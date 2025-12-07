@@ -286,7 +286,7 @@ const F2v2_CandidateDataForm: React.FC = () => {
   return <div className="min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]">
       {/* Back Arrow - Top Left */}
       <div className="absolute top-6 left-6">
-        <Button variant="ghost" size="icon" onClick={handleCancel} className="text-foreground hover:bg-transparent">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-foreground hover:bg-transparent">
           <ArrowLeft className="h-5 w-5" />
         </Button>
       </div>
