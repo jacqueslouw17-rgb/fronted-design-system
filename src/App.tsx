@@ -80,6 +80,7 @@ import PayrollUseCaseDemo from "./pages/PayrollUseCaseDemo";
 import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
+import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
 
 import NotFound from "./pages/NotFound";
 
@@ -175,6 +176,8 @@ const App = () => (
         <Route path="/payroll/batch/current" element={<PayrollBatchCurrent />} />
         <Route path="/candidate-data-collection" element={<CandidateDataCollection />} />
         <Route path="/flows/candidate-data-collection" element={<CandidateDataCollection />} />
+        <Route path="/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
+        <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

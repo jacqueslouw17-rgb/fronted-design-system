@@ -54,6 +54,17 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/candidate-onboarding/CandidateStep2PersonalDetails.tsx'
     ]
   },
+  'f3-candidate-data-v2': {
+    id: 'f3-candidate-data-v2',
+    title: 'Flow 2 — Candidate Data Collection v2',
+    path: '/flows/candidate-data-collection-v2',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/CandidateDataCollectionV2.tsx'
+    ]
+  },
   'f4-candidate-onboarding-flow': {
     id: 'f4-candidate-onboarding-flow',
     title: 'Flow 4 — Candidate Onboarding',
