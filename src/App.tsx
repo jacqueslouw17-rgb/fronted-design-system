@@ -110,6 +110,7 @@ const App = () => (
         <Route path="/flows" element={<Flows />} />
         <Route path="/flows/admin/onboarding" element={<AdminOnboarding />} />
         <Route path="/flows/dashboard-admin" element={<DashboardAdmin />} />
+        <Route path="/flows/admin-dashboard" element={<DashboardAdmin />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/flows/contract-flow" element={<ContractFlowDemo />} />
           <Route path="/flows/contract-flow-multi-company" element={<AdminContractingMultiCompany />} />
