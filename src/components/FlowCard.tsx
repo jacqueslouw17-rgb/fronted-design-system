@@ -63,6 +63,24 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 1,
       dataModel: "/docs/Flow3_Candidate_Data_Collection_Data_Model.md"
     },
+    'flow-3-candidate-data-v2': {
+      path: "/flows/candidate-data-collection-v2",
+      iconColor: "violet",
+      icon: UserCheck,
+      title: "Flow 2 Candidate Data Collection v2",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v1: Transition candidates from offer acceptance to contract-ready status. This version is unlocked for development and isolated from v1.",
+      steps: "4 steps",
+      patterns: "4 patterns",
+      badges: [
+        { label: "Genie-Led Conversational", path: "/onboarding" },
+        { label: "Smart Approval", path: "/confirmation-modal" },
+        { label: "Compliance Checklist", path: "/compliance-checklist" }
+      ],
+      additionalCount: 1,
+      dataModel: "/docs/Flow3_Candidate_Data_Collection_Data_Model.md"
+    },
     'flow-4-candidate-onboarding': {
       path: "/flows/worker-onboarding",
       iconColor: "emerald",
