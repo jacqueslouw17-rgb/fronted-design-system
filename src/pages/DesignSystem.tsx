@@ -283,6 +283,8 @@ const DesignSystem = () => {
       'flow-4-candidate-onboarding',
       'flow-5-candidate-dashboard',
       'flow-5-candidate-dashboard-v2',
+      'flow-4.1-employee-dashboard-v3',
+      'flow-4.2-contractor-dashboard-v3',
       'flow-5-company-admin-onboarding',
       'flow-6-company-admin-dashboard',
       'flow-1.1-fronted-admin',

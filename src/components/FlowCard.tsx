@@ -272,6 +272,40 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       ],
       additionalCount: 0,
       dataModel: null
+    },
+    'flow-4.1-employee-dashboard-v3': {
+      path: "/candidate-dashboard-employee-v3",
+      iconColor: "blue",
+      icon: UserCheck,
+      title: "Flow 4.1 Employee Dashboard v3",
+      locked: false,
+      deprecated: false,
+      description: "Employee-specific dashboard: Post-onboarding view with contract documents, certificates, and T-5 confirmation. Duplicate of Candidate Dashboard v2 scoped for employees.",
+      steps: "1 view",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Genie-Led Conversational", path: "/onboarding" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
+    'flow-4.2-contractor-dashboard-v3': {
+      path: "/candidate-dashboard-contractor-v3",
+      iconColor: "emerald",
+      icon: UserCheck,
+      title: "Flow 4.2 Contractor Dashboard v3",
+      locked: false,
+      deprecated: false,
+      description: "Contractor-specific dashboard: Post-onboarding view with contract documents, certificates, and T-5 confirmation. Duplicate of Candidate Dashboard v2 scoped for contractors.",
+      steps: "1 view",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Genie-Led Conversational", path: "/onboarding" }
+      ],
+      additionalCount: 0,
+      dataModel: null
     }
   };
 
