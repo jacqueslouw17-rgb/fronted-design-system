@@ -1,8 +1,8 @@
 /**
  * Flow 4.1 — Employee Dashboard v3
  * 
+ * Employee-specific dashboard with T-5 confirmation and adjustments.
  * Duplicate of Flow 4 v2, scoped for Employee context.
- * No functional changes from v2 yet.
  */
 
 import { useEffect } from "react";
@@ -16,6 +16,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { F41v3_UpcomingPayCard } from "@/components/flows/employee-dashboard-v3";
 
 const F41v3_EmployeeDashboardPage = () => {
   const candidateProfile = {
@@ -75,7 +76,7 @@ const F41v3_EmployeeDashboardPage = () => {
                        style={{ background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))' }} />
                 </div>
 
-                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-8 relative z-10">
+                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-6 relative z-10">
                   {/* Agent Header */}
                   <AgentHeader
                     title={`Welcome aboard, ${candidateProfile.firstName}! Your contract is fully certified.`}
@@ -137,6 +138,9 @@ const F41v3_EmployeeDashboardPage = () => {
                         </div>
                       </CardContent>
                     </Card>
+
+                    {/* Upcoming Pay Card - T-5 Confirmation */}
+                    <F41v3_UpcomingPayCard />
                   </div>
                 </div>
               </main>
