@@ -20,7 +20,8 @@ import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -343,7 +344,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const {
     getSettings
   } = useCountrySettings();
-  const [viewMode, setViewMode] = useState<"tracker" | "payroll">("payroll");
+  const [viewMode, setViewMode] = useState<"workers" | "payroll">("workers");
+  const [workersSearchQuery, setWorkersSearchQuery] = useState("");
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
@@ -3648,9 +3650,9 @@ You can ask me about:
 
                     {/* View Mode Switch */}
                     <div className="flex items-center justify-center py-2">
-                      <Tabs value={viewMode} onValueChange={value => setViewMode(value as "tracker" | "payroll")}>
+                      <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
                         <TabsList className="grid w-[280px] grid-cols-2">
-                          <TabsTrigger value="tracker">Tracker</TabsTrigger>
+                          <TabsTrigger value="workers">Workers</TabsTrigger>
                           <TabsTrigger value="payroll">Payroll</TabsTrigger>
                         </TabsList>
                       </Tabs>
@@ -3658,162 +3660,142 @@ You can ask me about:
 
                     {/* Conditional View */}
                     <div className="pt-6">
-                      {viewMode === "tracker" ? (/* Pipeline Tracking - Full Width */
-                    <div className="space-y-4">
-                        <div className="mt-3">
-                          <PipelineView mode="full-pipeline-with-payroll" contractors={[
-                        // Early stage candidates from Flow 2
-                        {
-                          id: "display-1",
-                          name: "Liam Chen",
-                          country: "Singapore",
-                          countryFlag: "🇸🇬",
-                          role: "Frontend Developer",
-                          salary: "SGD 7,500/mo",
-                          status: "offer-accepted" as const,
-                          formSent: false,
-                          dataReceived: false,
-                          employmentType: "contractor" as const
-                        }, {
-                          id: "display-2",
-                          name: "Sofia Rodriguez",
-                          country: "Mexico",
-                          countryFlag: "🇲🇽",
-                          role: "Marketing Manager",
-                          salary: "MXN 45,000/mo",
-                          status: "data-pending" as const,
-                          formSent: true,
-                          dataReceived: false,
-                          employmentType: "employee" as const
-                        }, {
-                          id: "display-3",
-                          name: "Elena Popescu",
-                          country: "Romania",
-                          countryFlag: "🇷🇴",
-                          role: "Backend Developer",
-                          salary: "RON 18,000/mo",
-                          status: "drafting" as const,
-                          formSent: false,
-                          dataReceived: true,
-                          employmentType: "contractor" as const
-                        },
-                        // Certified and payroll candidates
-                        {
-                          id: "cert-0",
-                          name: "David Martinez",
-                          country: "Portugal",
-                          countryFlag: "🇵🇹",
-                          role: "Technical Writer",
-                          salary: "€4,200/mo",
-                          status: "CERTIFIED" as const,
-                          employmentType: "contractor" as const
-                        }, {
-                          id: "cert-1",
-                          name: "Emma Wilson",
-                          country: "United Kingdom",
-                          countryFlag: "🇬🇧",
-                          role: "Senior Backend Developer",
-                          salary: "£6,500/mo",
-                          status: "PAYROLL_PENDING" as const,
-                          employmentType: "employee" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-2",
-                          name: "Luis Hernandez",
-                          country: "Spain",
-                          countryFlag: "🇪🇸",
-                          role: "Product Manager",
-                          salary: "€5,200/mo",
-                          status: "IN_BATCH" as const,
-                          employmentType: "contractor" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-3",
-                          name: "Yuki Tanaka",
-                          country: "Japan",
-                          countryFlag: "🇯🇵",
-                          role: "UI/UX Designer",
-                          salary: "¥650,000/mo",
-                          status: "EXECUTING" as const,
-                          employmentType: "contractor" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-4",
-                          name: "Sophie Dubois",
-                          country: "France",
-                          countryFlag: "🇫🇷",
-                          role: "Data Scientist",
-                          salary: "€5,800/mo",
-                          status: "PAID" as const,
-                          employmentType: "employee" as const,
-                          payrollMonth: "last" as const
-                        }, {
-                          id: "cert-5",
-                          name: "Ahmed Hassan",
-                          country: "Egypt",
-                          countryFlag: "🇪🇬",
-                          role: "Mobile Developer",
-                          salary: "EGP 45,000/mo",
-                          status: "ON_HOLD" as const,
-                          employmentType: "contractor" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-6",
-                          name: "Anna Kowalski",
-                          country: "Poland",
-                          countryFlag: "🇵🇱",
-                          role: "QA Engineer",
-                          salary: "PLN 15,000/mo",
-                          status: "PAYROLL_PENDING" as const,
-                          employmentType: "employee" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-7",
-                          name: "Marcus Silva",
-                          country: "Brazil",
-                          countryFlag: "🇧🇷",
-                          role: "Full Stack Developer",
-                          salary: "R$ 18,000/mo",
-                          status: "PAYROLL_PENDING" as const,
-                          employmentType: "contractor" as const,
-                          payrollMonth: "current" as const
-                        }, {
-                          id: "cert-8",
-                          name: "Priya Sharma",
-                          country: "India",
-                          countryFlag: "🇮🇳",
-                          role: "DevOps Engineer",
-                          salary: "₹2,50,000/mo",
-                          status: "PAYROLL_PENDING" as const,
-                          employmentType: "employee" as const,
-                          payrollMonth: "next" as const
-                        }, {
-                          id: "cert-9",
-                          name: "Lars Anderson",
-                          country: "Sweden",
-                          countryFlag: "🇸🇪",
-                          role: "Security Engineer",
-                          salary: "SEK 58,000/mo",
-                          status: "PAID" as const,
-                          employmentType: "contractor" as const,
-                          payrollMonth: "last" as const
-                        }, {
-                          id: "cert-10",
-                          name: "Isabella Costa",
-                          country: "Portugal",
-                          countryFlag: "🇵🇹",
-                          role: "Content Strategist",
-                          salary: "€3,200/mo",
-                          status: "PAYROLL_PENDING" as const,
-                          employmentType: "employee" as const,
-                          payrollMonth: "current" as const
-                        }]} onDraftContract={ids => {
-                          console.log("Draft contracts for:", ids);
-                        }} onSignatureComplete={() => {
-                          console.log("Signatures complete");
-                        }} />
-                        </div>
-                      </div>) : (/* Payroll Batch Workflow */
+                      {viewMode === "workers" ? (
+                        /* Certified Workers List */
+                        <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+                          <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="text-lg font-semibold">Certified workers</h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {(() => {
+                                    const certifiedWorkers = [
+                                      { id: "1", name: "Maria Santos", role: "Senior Backend Engineer", country: "Philippines", countryFlag: "🇵🇭", employmentType: "Contractor" as const, salary: "PHP 85,000/mo", status: "Certified" },
+                                      { id: "2", name: "John Chen", role: "Product Designer", country: "Singapore", countryFlag: "🇸🇬", employmentType: "Employee" as const, salary: "SGD 6,500/mo", status: "Certified" },
+                                      { id: "3", name: "Sarah Williams", role: "Frontend Developer", country: "United Kingdom", countryFlag: "🇬🇧", employmentType: "Contractor" as const, salary: "GBP 4,800/mo", status: "Certified" }
+                                    ];
+                                    const filtered = workersSearchQuery.trim() 
+                                      ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase()))
+                                      : certifiedWorkers;
+                                    return filtered.length === 0 && workersSearchQuery 
+                                      ? "No workers match your search" 
+                                      : `${filtered.length} certified worker${filtered.length !== 1 ? "s" : ""}`;
+                                  })()}
+                                </p>
+                              </div>
+                              <div className="relative w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input 
+                                  placeholder="Search workers..." 
+                                  value={workersSearchQuery} 
+                                  onChange={e => setWorkersSearchQuery(e.target.value)} 
+                                  className="pl-9 bg-background/60" 
+                                />
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-6">
+                            {(() => {
+                              const certifiedWorkers = [
+                                { id: "1", name: "Maria Santos", role: "Senior Backend Engineer", country: "Philippines", countryFlag: "🇵🇭", employmentType: "Contractor" as const, salary: "PHP 85,000/mo", status: "Certified" },
+                                { id: "2", name: "John Chen", role: "Product Designer", country: "Singapore", countryFlag: "🇸🇬", employmentType: "Employee" as const, salary: "SGD 6,500/mo", status: "Certified" },
+                                { id: "3", name: "Sarah Williams", role: "Frontend Developer", country: "United Kingdom", countryFlag: "🇬🇧", employmentType: "Contractor" as const, salary: "GBP 4,800/mo", status: "Certified" }
+                              ];
+                              const filteredWorkers = workersSearchQuery.trim() 
+                                ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase()))
+                                : certifiedWorkers;
+                              
+                              const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase();
+                              
+                              const handleDownloadContract = (workerName: string) => {
+                                toast.info(`Downloading contract bundle for ${workerName}...`);
+                              };
+                              
+                              if (certifiedWorkers.length === 0) {
+                                return (
+                                  <div className="flex flex-col items-center justify-center py-16 px-6">
+                                    <div className="rounded-full bg-primary/5 p-5 mb-5">
+                                      <Users className="h-10 w-10 text-primary/40" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold mb-2 text-foreground">
+                                      No certified workers yet
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
+                                      Once Fronted completes contracting and certification for your hires,
+                                      they'll appear here automatically.
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              
+                              if (filteredWorkers.length === 0) {
+                                return (
+                                  <div className="flex flex-col items-center justify-center py-12 px-6">
+                                    <Search className="h-10 w-10 text-muted-foreground/40 mb-4" />
+                                    <p className="text-sm text-muted-foreground text-center">
+                                      No workers found matching "{workersSearchQuery}"
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              
+                              return (
+                                <div className="space-y-3">
+                                  {filteredWorkers.map(worker => (
+                                    <div key={worker.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+                                      <div className="flex items-center gap-4 flex-1">
+                                        {/* Avatar */}
+                                        <Avatar className="h-10 w-10">
+                                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                                            {getInitials(worker.name)}
+                                          </AvatarFallback>
+                                        </Avatar>
+
+                                        {/* Worker info */}
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <p className="text-sm font-medium text-foreground">
+                                              {worker.name}
+                                            </p>
+                                            <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
+                                              {worker.status}
+                                            </Badge>
+                                          </div>
+                                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                            <span>{worker.role}</span>
+                                            <span className="flex items-center gap-1">
+                                              <span>{worker.countryFlag}</span>
+                                              <span>{worker.country}</span>
+                                            </span>
+                                            <Badge variant="secondary" className="text-xs">
+                                              {worker.employmentType}
+                                            </Badge>
+                                            {worker.salary && <span className="font-medium">{worker.salary}</span>}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Action buttons */}
+                                      <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Button size="sm" variant="ghost" onClick={() => handleDownloadContract(worker.name)} className="text-muted-foreground hover:text-foreground h-8 w-8 p-0">
+                                              <Download className="h-4 w-4" />
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Download contract bundle</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                          </CardContent>
+                        </Card>
+                      ) : (/* Payroll Batch Workflow */
                     <div className="space-y-6">
                         {/* Payroll Overview Section */}
                         <motion.div initial={{
