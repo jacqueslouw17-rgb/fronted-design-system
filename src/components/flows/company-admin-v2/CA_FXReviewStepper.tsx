@@ -40,18 +40,18 @@ export const CA_FXReviewStepper: React.FC<CA_FXReviewStepperProps> = ({
               <div
                 className={cn(
                   "flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm transition-all",
-                  // Current step: subtle gradient background with refined styling
-                  state === "active" && "bg-gradient-to-r from-accent/80 to-accent/40 text-accent-foreground font-semibold shadow-sm border border-accent/20",
-                  // Completed: muted success styling
-                  state === "done" && "bg-muted/60 text-foreground/80 font-medium",
+                  // Current step: light blue background with darker blue outline
+                  state === "active" && "bg-primary/10 text-primary font-semibold shadow-sm border border-primary/50",
+                  // Completed: subtle primary styling
+                  state === "done" && "bg-primary/5 text-primary/80 font-medium border border-primary/20",
                   // Future: very subtle, neutral
                   state === "todo" && "bg-muted/30 text-muted-foreground/70 font-normal"
                 )}
               >
                 <span className={cn(
                   "flex items-center justify-center w-5 h-5 rounded-md text-xs font-semibold transition-colors",
-                  state === "active" && "bg-foreground/10 text-foreground",
-                  state === "done" && "bg-primary/20 text-primary",
+                  state === "active" && "bg-primary/20 text-primary",
+                  state === "done" && "bg-primary/15 text-primary/70",
                   state === "todo" && "bg-muted/60 text-muted-foreground/60"
                 )}>
                   {state === "done" ? (
