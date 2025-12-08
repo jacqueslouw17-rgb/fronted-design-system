@@ -3826,6 +3826,15 @@ You can ask me about:
                               {/* Step Content (Flow 7 v1 content) */}
                               {renderStepContent()}
 
+                              {/* Worker Workbench Drawer (for FX Review step) */}
+                              <CA_WorkerWorkbenchDrawer 
+                                open={workerWorkbenchOpen} 
+                                onOpenChange={setWorkerWorkbenchOpen} 
+                                worker={selectedWorkbenchWorker} 
+                                payrollPeriod="November 2025" 
+                                onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} 
+                              />
+
                               {/* Step Navigation */}
                               
 
