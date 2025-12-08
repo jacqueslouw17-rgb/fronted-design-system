@@ -191,7 +191,8 @@ const initialExceptions: PayrollException[] = [{
   snoozed: false,
   ignored: false,
   formSent: false,
-  canFixInPayroll: true, // Can be fixed by opening worker panel
+  canFixInPayroll: true,
+  // Can be fixed by opening worker panel
   isBlocking: true // Blocks execution
 }, {
   id: "exc-2",
@@ -205,7 +206,8 @@ const initialExceptions: PayrollException[] = [{
   snoozed: false,
   ignored: false,
   formSent: false,
-  canFixInPayroll: false, // Must be fixed in contract/profile
+  canFixInPayroll: false,
+  // Must be fixed in contract/profile
   isBlocking: false // Warning only
 }];
 const contractorsByCurrency: Record<string, ContractorPayment[]> = {
@@ -368,7 +370,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
   } = useCountrySettings();
   const [viewMode, setViewMode] = useState<"workers" | "payroll" | "batch-review">("workers");
   const [workersSearchQuery, setWorkersSearchQuery] = useState("");
-  
+
   // Batch Review State
   const [currentBatch, setCurrentBatch] = useState<CA_PaymentBatch | null>(null);
   const [batchClientReviewItems, setBatchClientReviewItems] = useState<CA_BatchAdjustment[]>(mockClientReviewItems);
@@ -402,11 +404,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
   // Leave/attendance exception drawer
   const [leaveAttendanceDrawerOpen, setLeaveAttendanceDrawerOpen] = useState(false);
   const [selectedLeaveException, setSelectedLeaveException] = useState<PayrollException | null>(null);
-  
+
   // Execution confirmation state
   const [executionConfirmOpen, setExecutionConfirmOpen] = useState(false);
   const [pendingExecutionCohort, setPendingExecutionCohort] = useState<"all" | "employees" | "contractors" | null>(null);
-  
+
   // Execution log state - persists last batch results
   const [executionLog, setExecutionLog] = useState<ExecutionLogData | null>(null);
   // PH bi-monthly payroll toggle (1st-half / 2nd-half)
@@ -464,7 +466,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
   // Mark as complete confirmation state
   const [isMarkCompleteConfirmOpen, setIsMarkCompleteConfirmOpen] = useState(false);
   const [hasUnresolvedIssues, setHasUnresolvedIssues] = useState(false);
-  const [unresolvedIssues, setUnresolvedIssues] = useState({ blockingExceptions: 0, failedPayouts: 0, failedPostings: 0 });
+  const [unresolvedIssues, setUnresolvedIssues] = useState({
+    blockingExceptions: 0,
+    failedPayouts: 0,
+    failedPostings: 0
+  });
   const [forceCompleteJustification, setForceCompleteJustification] = useState("");
 
   // Flow 6 v2 - Enhanced Payroll State
@@ -482,39 +488,51 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setResolveDrawerPreSelectedCurrency(currency);
     setResolveDrawerOpen(true);
   };
-
   const handleNetToPayClick = (currency: string) => {
     setCurrencyWorkersDrawerCurrency(currency);
     setCurrencyWorkersDrawerOpen(true);
   };
 
   // Get workers by currency for the drawer
-  const getWorkersByCurrency = (currency: string): { employees: CA_WorkerPreviewRow[], contractors: CA_WorkerPreviewRow[] } => {
+  const getWorkersByCurrency = (currency: string): {
+    employees: CA_WorkerPreviewRow[];
+    contractors: CA_WorkerPreviewRow[];
+  } => {
     const employees = mockEmployeePreviewData.filter(e => e.currency === currency);
     const contractors = mockContractorPreviewData.filter(c => c.currency === currency);
-    return { employees, contractors };
+    return {
+      employees,
+      contractors
+    };
   };
-
   const handleApproveAdjustment = (id: string) => {
-    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
+    setCaAdjustments(prev => prev.map(a => a.id === id ? {
+      ...a,
+      status: "approved" as const
+    } : a));
     toast.success("Adjustment approved");
   };
-
   const handleRejectAdjustment = (id: string) => {
-    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
+    setCaAdjustments(prev => prev.map(a => a.id === id ? {
+      ...a,
+      status: "rejected" as const
+    } : a));
     toast.info("Adjustment rejected");
   };
-
   const handleApproveLeave = (id: string) => {
-    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? {
+      ...l,
+      status: "approved" as const
+    } : l));
     toast.success("Leave approved");
   };
-
   const handleRejectLeave = (id: string) => {
-    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? {
+      ...l,
+      status: "rejected" as const
+    } : l));
     toast.info("Leave rejected");
   };
-
   const handleCreateBatch = () => {
     const batch = createMockBatch();
     setCurrentBatch(batch);
@@ -522,47 +540,49 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setCurrentStep("review-fx"); // Reset to first step when creating batch
     toast.success("Payment batch created.");
   };
-
   const handleApproveBatchItem = (id: string) => {
-    setBatchClientReviewItems(prev => prev.map(item => 
-      item.id === id ? { ...item, status: "approved" as const } : item
-    ));
+    setBatchClientReviewItems(prev => prev.map(item => item.id === id ? {
+      ...item,
+      status: "approved" as const
+    } : item));
     toast.success("Adjustment approved");
   };
-
   const handleRejectBatchItem = (id: string) => {
-    setBatchClientReviewItems(prev => prev.map(item => 
-      item.id === id ? { ...item, status: "rejected" as const } : item
-    ));
+    setBatchClientReviewItems(prev => prev.map(item => item.id === id ? {
+      ...item,
+      status: "rejected" as const
+    } : item));
     toast.info("Adjustment rejected");
   };
-
   const handleApproveAllBatchItems = () => {
-    setBatchClientReviewItems(prev => prev.map(item => 
-      item.status === "client_review" ? { ...item, status: "approved" as const } : item
-    ));
+    setBatchClientReviewItems(prev => prev.map(item => item.status === "client_review" ? {
+      ...item,
+      status: "approved" as const
+    } : item));
     toast.success("All adjustments approved");
   };
-
   const handleViewBatchItem = (id: string) => {
     const item = batchClientReviewItems.find(i => i.id === id);
     setSelectedBatchItem(item);
     setItemDetailDrawerOpen(true);
   };
-
   const handleApproveBatch = () => {
     if (!currentBatch) return;
-    setCurrentBatch({ ...currentBatch, status: "client_approved" });
+    setCurrentBatch({
+      ...currentBatch,
+      status: "client_approved"
+    });
     toast.success(`Batch approved. Fronted will execute on ${currentBatch.payoutDate}.`);
   };
-
   const handleRequestChanges = (reason: string) => {
     if (!currentBatch) return;
-    setCurrentBatch({ ...currentBatch, status: "requires_changes" });
+    setCurrentBatch({
+      ...currentBatch,
+      status: "requires_changes"
+    });
     toast.success("Request sent. We'll notify you when it's resolved.");
     setViewMode("payroll");
   };
-
   const handleBackToPayroll = () => {
     setViewMode("payroll");
   };
@@ -593,18 +613,17 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const executeFilteredWorkers = allContractors.filter(c => {
     // First, exclude snoozed workers
     if (snoozedWorkers.includes(c.id)) return false;
-    
+
     // Filter by employment type
     if (executeEmploymentType === 'employees') {
       if (c.employmentType !== 'employee') return false;
-      
+
       // Additional filters for employees only
       if (selectedCountries.length > 0 && !selectedCountries.includes(c.countryCode)) return false;
       // Payout period filtering would go here if we had the data to support it
     } else if (executeEmploymentType === 'contractors') {
       if (c.employmentType !== 'contractor') return false;
     }
-    
     return true;
   });
   const [payrollCycleData, setPayrollCycleData] = useState<{
@@ -988,7 +1007,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
               resolved: false,
               snoozed: false,
               ignored: false,
-              canFixInPayroll: false, // Must be fixed in worker profile
+              canFixInPayroll: false,
+              // Must be fixed in worker profile
               isBlocking: true
             });
           }
@@ -1410,59 +1430,48 @@ const CompanyAdminDashboardV2: React.FC = () => {
     } : exc));
     toast.info(`${exception?.contractorName || 'Candidate'} snoozed to next cycle`);
   };
-  
   const handleOpenOverrideModal = (exception: PayrollException) => {
     setExceptionToOverride(exception);
     setOverrideJustification("");
     setOverrideModalOpen(true);
   };
-  
   const handleConfirmOverride = () => {
     if (!exceptionToOverride || !overrideJustification.trim()) {
       toast.error("Please provide a justification for the override");
       return;
     }
-    
-    setExceptions(prev => prev.map(exc => 
-      exc.id === exceptionToOverride.id 
-        ? {
-            ...exc,
-            resolved: true,
-            overrideInfo: {
-              overriddenBy: "Current User", // In production, use actual user
-              overriddenAt: new Date().toISOString(),
-              justification: overrideJustification
-            }
-          }
-        : exc
-    ));
-    
+    setExceptions(prev => prev.map(exc => exc.id === exceptionToOverride.id ? {
+      ...exc,
+      resolved: true,
+      overrideInfo: {
+        overriddenBy: "Current User",
+        // In production, use actual user
+        overriddenAt: new Date().toISOString(),
+        justification: overrideJustification
+      }
+    } : exc));
     toast.success(`Exception overridden for ${exceptionToOverride.contractorName}`);
     setOverrideModalOpen(false);
     setExceptionToOverride(null);
     setOverrideJustification("");
   };
-  
   const handleOpenLeaveAttendanceDrawer = (exception: PayrollException) => {
     setSelectedLeaveException(exception);
     setLeaveAttendanceDrawerOpen(true);
   };
-  
   const handleResolveLeaveAttendance = (exceptionId: string, resolution: "unpaid-leave" | "worked-days" | "snooze") => {
     const exception = exceptions.find(exc => exc.id === exceptionId);
     if (!exception) return;
-    
     if (resolution === "snooze") {
       // Use existing snooze functionality
       handleSnoozeException(exceptionId);
     } else {
       // Mark as resolved and update worker data
-      setExceptions(prev => prev.map(exc => 
-        exc.id === exceptionId 
-          ? { ...exc, resolved: true }
-          : exc
-      ));
-      
+      setExceptions(prev => prev.map(exc => exc.id === exceptionId ? {
+        ...exc,
+        resolved: true
+      } : exc));
+
       // Update contractor data based on resolution
       const contractor = allContractors.find(c => c.id === exception.contractorId);
       if (contractor && resolution === "unpaid-leave") {
@@ -1473,7 +1482,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
         toast.success(`${exception.contractorName} will be paid for full expected days`);
       }
     }
-    
     setLeaveAttendanceDrawerOpen(false);
     setSelectedLeaveException(null);
   };
@@ -1499,10 +1507,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
   // Confirm and execute payroll
   const handleConfirmExecution = async () => {
     if (!pendingExecutionCohort) return;
-    
     setExecutionConfirmOpen(false);
     setIsExecuting(true);
-    
+
     // Filter workers based on cohort
     let workersToExecute = executeFilteredWorkers;
     if (pendingExecutionCohort === "employees") {
@@ -1510,32 +1517,28 @@ const CompanyAdminDashboardV2: React.FC = () => {
     } else if (pendingExecutionCohort === "contractors") {
       workersToExecute = executeFilteredWorkers.filter(c => c.employmentType === "contractor");
     }
-    
     const initialProgress: Record<string, "pending" | "processing" | "complete"> = {};
     workersToExecute.forEach(c => {
       initialProgress[c.id] = "pending";
     });
     setExecutionProgress(initialProgress);
-    
+
     // Track results for execution log
     const logWorkers: ExecutionLogWorker[] = [];
-    
     for (const contractor of workersToExecute) {
       setExecutionProgress(prev => ({
         ...prev,
         [contractor.id]: "processing"
       }));
-      
       await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
-      
+
       // Simulate random failures (10% chance) for demo purposes
       const isFailed = Math.random() < 0.1;
-      
       setExecutionProgress(prev => ({
         ...prev,
         [contractor.id]: isFailed ? "failed" : "complete"
       }));
-      
+
       // Add to log
       logWorkers.push({
         id: contractor.id,
@@ -1543,18 +1546,14 @@ const CompanyAdminDashboardV2: React.FC = () => {
         employmentType: contractor.employmentType,
         country: contractor.country,
         status: isFailed ? "failed" : "success",
-        errorMessage: isFailed 
-          ? `Payment processing error: ${contractor.employmentType === "employee" ? "Payroll system rejected posting" : "Bank account validation failed"}`
-          : undefined
+        errorMessage: isFailed ? `Payment processing error: ${contractor.employmentType === "employee" ? "Payroll system rejected posting" : "Bank account validation failed"}` : undefined
       });
     }
-    
     setIsExecuting(false);
-    
+
     // Create execution log entry
     const employeeCount = workersToExecute.filter(c => c.employmentType === "employee").length;
     const contractorCount = workersToExecute.filter(c => c.employmentType === "contractor").length;
-    
     setExecutionLog({
       timestamp: new Date(),
       cohort: pendingExecutionCohort,
@@ -1562,22 +1561,14 @@ const CompanyAdminDashboardV2: React.FC = () => {
       contractorCount,
       workers: logWorkers
     });
-    
     const successCount = logWorkers.filter(w => w.status === "success").length;
     const failureCount = logWorkers.filter(w => w.status === "failed").length;
-    
-    const cohortLabel = pendingExecutionCohort === "all" 
-      ? "all workers" 
-      : pendingExecutionCohort === "employees" 
-        ? "employees" 
-        : "contractors";
-    
+    const cohortLabel = pendingExecutionCohort === "all" ? "all workers" : pendingExecutionCohort === "employees" ? "employees" : "contractors";
     if (failureCount === 0) {
       toast.success(`Payroll batch processed successfully for ${cohortLabel}! ${successCount} workers completed.`);
     } else {
       toast.warning(`Batch completed with ${failureCount} failure${failureCount > 1 ? 's' : ''}. Check execution log for details.`);
     }
-    
     setPendingExecutionCohort(null);
   };
 
@@ -1585,12 +1576,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const handleExecutePayroll = () => {
     handleExecuteClick("all");
   };
-  
+
   // Navigate to exceptions with context for a specific worker
   const handleViewException = (workerId: string) => {
     // Find if there's an existing exception for this worker
     const workerException = exceptions.find(exc => exc.contractorId === workerId);
-    
     if (!workerException) {
       // Create a temporary exception for this execution failure
       const worker = allContractors.find(c => c.id === workerId);
@@ -1600,7 +1590,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
           contractorId: workerId,
           contractorName: worker.name,
           contractorCountry: worker.country,
-          type: "missing-bank", // Generic type for execution failures
+          type: "missing-bank",
+          // Generic type for execution failures
           description: "Payment execution failed - see execution log for details",
           severity: "high",
           resolved: false,
@@ -1612,18 +1603,20 @@ const CompanyAdminDashboardV2: React.FC = () => {
         setExceptions(prev => [newException, ...prev]);
       }
     }
-    
+
     // Navigate to exceptions step
     setCurrentStep("exceptions");
-    
+
     // Scroll to the worker's exception after a brief delay
     setTimeout(() => {
       const exceptionRow = document.querySelector(`[data-worker-id="${workerId}"]`);
       if (exceptionRow) {
-        exceptionRow.scrollIntoView({ behavior: "smooth", block: "center" });
+        exceptionRow.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
       }
     }, 300);
-    
     toast.info(`Navigated to Exceptions for ${allContractors.find(c => c.id === workerId)?.name}`);
   };
   const handleViewReceipt = (receipt: any) => {
@@ -1681,18 +1674,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
     const blockingExceptions = exceptions.filter(e => e.isBlocking && !e.resolved && !e.overrideInfo);
     const failedPayouts = executionLog?.workers.filter(w => w.status === "failed" && w.employmentType === "contractor") || [];
     const failedPostings = executionLog?.workers.filter(w => w.status === "failed" && w.employmentType === "employee") || [];
-    
     const hasIssues = blockingExceptions.length > 0 || failedPayouts.length > 0 || failedPostings.length > 0;
-    
     setUnresolvedIssues({
       blockingExceptions: blockingExceptions.length,
       failedPayouts: failedPayouts.length,
-      failedPostings: failedPostings.length,
+      failedPostings: failedPostings.length
     });
     setHasUnresolvedIssues(hasIssues);
     setIsMarkCompleteConfirmOpen(true);
   };
-
   const confirmMarkComplete = (forced = false) => {
     // Mark November as completed
     setPayrollCycleData(prev => ({
@@ -1703,7 +1693,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
         completedDate: "Nov 15, 2025"
       }
     }));
-
     setIsMarkCompleteConfirmOpen(false);
     setForceCompleteJustification("");
 
@@ -1713,14 +1702,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
       top: 0,
       behavior: 'smooth'
     });
-    
-    toast.success(
-      forced 
-        ? "November payroll cycle completed with unresolved issues and is now locked"
-        : "November payroll cycle completed"
-    );
+    toast.success(forced ? "November payroll cycle completed with unresolved issues and is now locked" : "November payroll cycle completed");
   };
-
   const handleGoBackToFix = () => {
     setIsMarkCompleteConfirmOpen(false);
     // Navigate to Exceptions if blocking exceptions exist, otherwise to Execution
@@ -1785,11 +1768,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
             </div>
 
             {/* Leave & Attendance - Compact Info Row */}
-            <CA_LeaveAttendanceInfoRow
-              trackedChanges={Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length}
-              isLocked={true}
-              onViewDetails={() => setLeaveSelectorOpen(true)}
-            />
+            <CA_LeaveAttendanceInfoRow trackedChanges={Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} isLocked={true} onViewDetails={() => setLeaveSelectorOpen(true)} />
 
             {/* Employment Type Filter */}
             <div className="flex justify-start mb-4 mt-6 py-0">
@@ -1946,18 +1925,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
                               </TableCell>
                               {/* Leave Taken with breakdown */}
                               <TableCell className="min-w-[140px]">
-                                {hasLeave ? (
-                                  <div className="flex items-center gap-2">
+                                {hasLeave ? <div className="flex items-center gap-2">
                                     <span className="text-xs text-muted-foreground">
-                                      {leaveData.leaveBreakdown ? 
-                                        Object.entries(leaveData.leaveBreakdown)
-                                          .filter(([_, days]) => days && days > 0)
-                                          .map(([type, days]) => `${type}: ${days}d`)
-                                          .join(", ") 
-                                        : `${leaveData.leaveDays}d`}
+                                      {leaveData.leaveBreakdown ? Object.entries(leaveData.leaveBreakdown).filter(([_, days]) => days && days > 0).map(([type, days]) => `${type}: ${days}d`).join(", ") : `${leaveData.leaveDays}d`}
                                     </span>
-                                    {leaveData.hasPendingLeave && (
-                                      <TooltipProvider>
+                                    {leaveData.hasPendingLeave && <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger>
                                             <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
@@ -1966,10 +1938,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                             <p className="text-xs">Pending leave approval</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {leaveData.hasMissingAttendance && (
-                                      <TooltipProvider>
+                                      </TooltipProvider>}
+                                    {leaveData.hasMissingAttendance && <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger>
                                             <Clock className="h-3.5 w-3.5 text-amber-600" />
@@ -1978,26 +1948,19 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                             <p className="text-xs">Missing timesheet data</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedWorkerForLeave(contractor);
-                                        setLeaveDetailsDrawerOpen(true);
-                                      }}
-                                      className="text-xs text-primary hover:underline"
-                                    >
+                                      </TooltipProvider>}
+                                    <button onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedWorkerForLeave(contractor);
+                                  setLeaveDetailsDrawerOpen(true);
+                                }} className="text-xs text-primary hover:underline">
                                       View details
                                     </button>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">—</span>
-                                )}
+                                  </div> : <span className="text-xs text-muted-foreground">—</span>}
                               </TableCell>
                               {/* Net Payable Days */}
                               <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
-                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
+                                {leaveData?.actualDays ? leaveData.actualDays - (leaveData.leaveDays || 0) : 22}d
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -2233,18 +2196,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
                               </TableCell>
                               {/* Leave Taken with breakdown */}
                               <TableCell className="min-w-[140px]">
-                                {hasLeave ? (
-                                  <div className="flex items-center gap-2">
+                                {hasLeave ? <div className="flex items-center gap-2">
                                     <span className="text-xs text-muted-foreground">
-                                      {leaveData.leaveBreakdown ? 
-                                        Object.entries(leaveData.leaveBreakdown)
-                                          .filter(([_, days]) => days && days > 0)
-                                          .map(([type, days]) => `${type}: ${days}d`)
-                                          .join(", ") 
-                                        : `${leaveData.leaveDays}d`}
+                                      {leaveData.leaveBreakdown ? Object.entries(leaveData.leaveBreakdown).filter(([_, days]) => days && days > 0).map(([type, days]) => `${type}: ${days}d`).join(", ") : `${leaveData.leaveDays}d`}
                                     </span>
-                                    {leaveData.hasPendingLeave && (
-                                      <TooltipProvider>
+                                    {leaveData.hasPendingLeave && <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger>
                                             <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
@@ -2253,10 +2209,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                             <p className="text-xs">Pending leave approval</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {leaveData.hasMissingAttendance && (
-                                      <TooltipProvider>
+                                      </TooltipProvider>}
+                                    {leaveData.hasMissingAttendance && <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger>
                                             <Clock className="h-3.5 w-3.5 text-amber-600" />
@@ -2265,26 +2219,19 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                             <p className="text-xs">Missing timesheet data</p>
                                           </TooltipContent>
                                         </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedWorkerForLeave(contractor);
-                                        setLeaveDetailsDrawerOpen(true);
-                                      }}
-                                      className="text-xs text-primary hover:underline"
-                                    >
+                                      </TooltipProvider>}
+                                    <button onClick={e => {
+                                  e.stopPropagation();
+                                  setSelectedWorkerForLeave(contractor);
+                                  setLeaveDetailsDrawerOpen(true);
+                                }} className="text-xs text-primary hover:underline">
                                       View details
                                     </button>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">—</span>
-                                )}
+                                  </div> : <span className="text-xs text-muted-foreground">—</span>}
                               </TableCell>
                               {/* Net Payable Days */}
                               <TableCell className="text-right text-sm font-medium text-accent-green-text min-w-[100px]">
-                                {leaveData?.actualDays ? (leaveData.actualDays - (leaveData.leaveDays || 0)) : 22}d
+                                {leaveData?.actualDays ? leaveData.actualDays - (leaveData.leaveDays || 0) : 22}d
                               </TableCell>
                               {/* Start Date */}
                               <TableCell className="text-sm text-muted-foreground min-w-[110px]">
@@ -2401,9 +2348,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{contractorsList.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
+                                    const additionalFee = additionalFees[c.id];
+                                    return sum + getPaymentDue(c) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                  }, 0).toLocaleString()}
                                   </p>
                                   <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
                                     {contractorsList.length} worker{contractorsList.length !== 1 ? "s" : ""}
@@ -2414,14 +2361,14 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{employeesList.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                      const grossPay = c.baseSalary * phMultiplier;
-                                      const deductions = 0; // Placeholder
-                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                      return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
+                                    const additionalFee = additionalFees[c.id];
+                                    const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                    const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                    const grossPay = c.baseSalary * phMultiplier;
+                                    const deductions = 0; // Placeholder
+                                    const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                    return sum + netPay + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                  }, 0).toLocaleString()}
                                   </p>
                                   <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
                                     {employeesList.length} worker{employeesList.length !== 1 ? "s" : ""}
@@ -2432,14 +2379,14 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                   <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Total FX Exposure</p>
                                   <p className="text-base font-semibold text-foreground leading-tight">
                                     {symbol}{contractors.reduce((sum, c) => {
-                                      const additionalFee = additionalFees[c.id];
-                                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                                      const grossPay = c.baseSalary * phMultiplier;
-                                      const deductions = 0;
-                                      const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
-                                      return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                                    }, 0).toLocaleString()}
+                                    const additionalFee = additionalFees[c.id];
+                                    const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                    const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                    const grossPay = c.baseSalary * phMultiplier;
+                                    const deductions = 0;
+                                    const netPay = isPHEmployee ? grossPay - deductions : getPaymentDue(c);
+                                    return sum + (c.employmentType === "employee" ? netPay : getPaymentDue(c)) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                  }, 0).toLocaleString()}
                                   </p>
                                   <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
                                     {contractors.length} total worker{contractors.length !== 1 ? "s" : ""}
@@ -2465,10 +2412,10 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => {
-                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                        const phMultiplier = isPHEmployee ? 0.5 : 1;
-                        return sum + (c.baseSalary * phMultiplier);
-                      }, 0) / 1000).toFixed(1)}K
+                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                      const phMultiplier = isPHEmployee ? 0.5 : 1;
+                      return sum + c.baseSalary * phMultiplier;
+                    }, 0) / 1000).toFixed(1)}K
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
                   </div>
@@ -2477,20 +2424,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
                     </p>
-                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
-                      <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>
-                    )}
-                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && (
-                      <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
-                    )}
+                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>}
+                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-muted-foreground mt-1">After adjustments</p>}
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${allContractors.reduce((sum, c) => {
-                        const additionalFee = additionalFees[c.id];
-                        return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                      }, 0).toLocaleString()}
+                      const additionalFee = additionalFees[c.id];
+                      return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0).toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
                   </div>
@@ -2498,11 +2441,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
                     <p className="text-2xl font-bold text-foreground">
                       ${(allContractors.reduce((sum, c) => {
-                        const additionalFee = additionalFees[c.id];
-                        const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                        const phMultiplier = isPHEmployee ? 0.5 : 1;
-                        return sum + (c.baseSalary * phMultiplier) + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                      }, 0) / 1000).toFixed(1)}K
+                      const additionalFee = additionalFees[c.id];
+                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                      const phMultiplier = isPHEmployee ? 0.5 : 1;
+                      return sum + c.baseSalary * phMultiplier + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                    }, 0) / 1000).toFixed(1)}K
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
                   </div>
@@ -2587,11 +2530,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
 
             {/* Footer Navigation - Single CTA */}
             <div className="pt-6 flex flex-col items-end gap-2">
-              <Button 
-                className="h-10 px-6 text-sm bg-gradient-primary hover:opacity-90 shadow-md" 
-                onClick={() => setCurrentStep("exceptions")} 
-                disabled={selectedCycle === "previous"}
-              >
+              <Button className="h-10 px-6 text-sm bg-gradient-primary hover:opacity-90 shadow-md" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
                 Continue to Exceptions →
               </Button>
               <p className="text-xs text-muted-foreground">
@@ -2627,25 +2566,19 @@ const CompanyAdminDashboardV2: React.FC = () => {
           "adjustment-exceeds-cap": "Adjustment Exceeds Cap",
           "contribution-table-year-missing": "Contribution Table Year Missing"
         };
-        
+
         // Filter exceptions by fixability
         const fixableExceptions = activeExceptions.filter(e => e.canFixInPayroll);
         const nonFixableExceptions = activeExceptions.filter(e => !e.canFixInPayroll);
-        const displayedExceptions = exceptionGroupFilter === "fixable" 
-          ? fixableExceptions 
-          : exceptionGroupFilter === "non-fixable" 
-            ? nonFixableExceptions 
-            : activeExceptions;
-        
+        const displayedExceptions = exceptionGroupFilter === "fixable" ? fixableExceptions : exceptionGroupFilter === "non-fixable" ? nonFixableExceptions : activeExceptions;
+
         // Count blocking exceptions
         const blockingCount = activeExceptions.filter(e => e.isBlocking && !e.overrideInfo).length;
-        
         return <div className="space-y-6">
             <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
 
             {/* Execution Status Banner */}
-            {blockingCount > 0 && (
-              <Card className="border-amber-500/30 bg-amber-500/5">
+            {blockingCount > 0 && <Card className="border-amber-500/30 bg-amber-500/5">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20">
@@ -2662,19 +2595,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Filter Tabs */}
-            {activeExceptions.length > 0 && (
-              <Tabs value={exceptionGroupFilter} onValueChange={(v) => setExceptionGroupFilter(v as typeof exceptionGroupFilter)}>
+            {activeExceptions.length > 0 && <Tabs value={exceptionGroupFilter} onValueChange={v => setExceptionGroupFilter(v as typeof exceptionGroupFilter)}>
                 <TabsList className="grid w-full grid-cols-3 mb-4">
                   <TabsTrigger value="all">All ({activeExceptions.length})</TabsTrigger>
                   <TabsTrigger value="fixable">Fixable in Payroll ({fixableExceptions.length})</TabsTrigger>
                   <TabsTrigger value="non-fixable">Must Fix Outside ({nonFixableExceptions.length})</TabsTrigger>
                 </TabsList>
-              </Tabs>
-            )}
+              </Tabs>}
 
             {allExceptionsResolved && <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10 animate-fade-in">
                 <CardContent className="p-4">
@@ -3225,12 +3155,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
             </Card>
             
             {/* Execution Log - Shows results from last batch execution */}
-            {executionLog && (
-              <ExecutionLog 
-                logData={executionLog} 
-                onViewException={handleViewException}
-              />
-            )}
+            {executionLog && <ExecutionLog logData={executionLog} onViewException={handleViewException} />}
           </div>;
       case "track":
         const totalGrossPay = filteredContractors.reduce((sum, c) => sum + c.baseSalary, 0);
@@ -3241,25 +3166,20 @@ const CompanyAdminDashboardV2: React.FC = () => {
         }, 0);
         const totalNetPay = filteredContractors.reduce((sum, c) => sum + getPaymentDue(c), 0);
         const grandTotal = totalGrossPay + totalTaxesAndFees;
-        
+
         // Calculate cohort-specific totals
         const employees = allContractors.filter(c => c.employmentType === "employee");
         const contractors = allContractors.filter(c => c.employmentType === "contractor");
-        
         const employeeTotal = employees.reduce((sum, e) => sum + e.netPay, 0);
         const contractorTotal = contractors.reduce((sum, c) => sum + getPaymentDue(c), 0);
-        
         const employeePosted = employees.length;
         const contractorsPaid = contractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
         const contractorsPending = contractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
         const contractorsFailed = contractors.filter(c => getPaymentStatus(c.id) === "Failed").length;
-        
+
         // Determine employee and contractor status
         const employeeStatus = employeePosted === employees.length ? "Posted" : "Partially Posted";
-        const contractorStatus = contractorsPaid === contractors.length ? "Paid" : 
-                                 contractorsPaid > 0 ? "Partially Paid" : 
-                                 contractorsFailed > 0 ? "Failed" : "Pending";
-        
+        const contractorStatus = contractorsPaid === contractors.length ? "Paid" : contractorsPaid > 0 ? "Partially Paid" : contractorsFailed > 0 ? "Failed" : "Pending";
         return <div className="space-y-6">
             {/* Header Context Bar */}
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/20 bg-card/30 backdrop-blur-sm">
@@ -3329,13 +3249,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                       <Briefcase className="h-5 w-5 text-primary" />
                       <h3 className="text-base font-semibold text-foreground">Contractors</h3>
                     </div>
-                    <Badge className={cn(
-                      "border",
-                      contractorStatus === "Paid" && "bg-green-500/20 text-green-700 border-green-500/30",
-                      contractorStatus === "Partially Paid" && "bg-amber-500/20 text-amber-700 border-amber-500/30",
-                      contractorStatus === "Failed" && "bg-red-500/20 text-red-700 border-red-500/30",
-                      contractorStatus === "Pending" && "bg-blue-500/20 text-blue-700 border-blue-500/30"
-                    )}>
+                    <Badge className={cn("border", contractorStatus === "Paid" && "bg-green-500/20 text-green-700 border-green-500/30", contractorStatus === "Partially Paid" && "bg-amber-500/20 text-amber-700 border-amber-500/30", contractorStatus === "Failed" && "bg-red-500/20 text-red-700 border-red-500/30", contractorStatus === "Pending" && "bg-blue-500/20 text-blue-700 border-blue-500/30")}>
                       {contractorStatus}
                     </Badge>
                   </div>
@@ -3395,7 +3309,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
             {/* Tabbed Detail View - Employees vs Contractors */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
               <CardContent className="p-6">
-                <Tabs value={workerTypeFilter} onValueChange={(v) => setWorkerTypeFilter(v as typeof workerTypeFilter)}>
+                <Tabs value={workerTypeFilter} onValueChange={v => setWorkerTypeFilter(v as typeof workerTypeFilter)}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-semibold text-foreground">Payment Details</h3>
                     <TabsList className="grid w-auto grid-cols-3">
@@ -3407,14 +3321,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
                   
                   <div className="overflow-x-auto">
                     {/* Employees Table */}
-                    {(workerTypeFilter === "all" || workerTypeFilter === "employee") && employees.length > 0 && (
-                      <div className="mb-6">
-                        {workerTypeFilter === "all" && (
-                          <div className="flex items-center gap-2 mb-3">
+                    {(workerTypeFilter === "all" || workerTypeFilter === "employee") && employees.length > 0 && <div className="mb-6">
+                        {workerTypeFilter === "all" && <div className="flex items-center gap-2 mb-3">
                             <Users className="h-4 w-4 text-blue-600" />
                             <h4 className="text-sm font-semibold text-blue-600">Employees ({employees.length})</h4>
-                          </div>
-                        )}
+                          </div>}
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-blue-500/5">
@@ -3425,8 +3336,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {employees.map(employee => (
-                              <TableRow key={employee.id} className="hover:bg-blue-500/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(employee)}>
+                            {employees.map(employee => <TableRow key={employee.id} className="hover:bg-blue-500/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(employee)}>
                                 <TableCell>
                                   <div className="flex items-center gap-2">
                                     <span className="font-medium text-foreground">{employee.name}</span>
@@ -3447,22 +3357,17 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                     {employee.id ? `PR-${employee.id.substring(0, 8)}` : "—"}
                                   </span>
                                 </TableCell>
-                              </TableRow>
-                            ))}
+                              </TableRow>)}
                           </TableBody>
                         </Table>
-                      </div>
-                    )}
+                      </div>}
 
                     {/* Contractors Table */}
-                    {(workerTypeFilter === "all" || workerTypeFilter === "contractor") && contractors.length > 0 && (
-                      <div>
-                        {workerTypeFilter === "all" && (
-                          <div className="flex items-center gap-2 mb-3">
+                    {(workerTypeFilter === "all" || workerTypeFilter === "contractor") && contractors.length > 0 && <div>
+                        {workerTypeFilter === "all" && <div className="flex items-center gap-2 mb-3">
                             <Briefcase className="h-4 w-4 text-primary" />
                             <h4 className="text-sm font-semibold text-primary">Contractors ({contractors.length})</h4>
-                          </div>
-                        )}
+                          </div>}
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-primary/5">
@@ -3475,12 +3380,10 @@ const CompanyAdminDashboardV2: React.FC = () => {
                           </TableHeader>
                           <TableBody>
                             {contractors.map(contractor => {
-                              const status = getPaymentStatus(contractor.id);
-                              const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
-                              const netPay = getPaymentDue(contractor);
-                              
-                              return (
-                                <TableRow key={contractor.id} className="hover:bg-primary/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(contractor)}>
+                          const status = getPaymentStatus(contractor.id);
+                          const receipt = paymentReceipts.find(r => r.payeeId === contractor.id);
+                          const netPay = getPaymentDue(contractor);
+                          return <TableRow key={contractor.id} className="hover:bg-primary/5 cursor-pointer transition-colors" onClick={() => handleOpenPaymentDetail(contractor)}>
                                   <TableCell>
                                     <div className="flex items-center gap-2">
                                       <span className="font-medium text-foreground">{contractor.name}</span>
@@ -3504,24 +3407,20 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                     </span>
                                   </TableCell>
                                   <TableCell className="text-center">
-                                    {receipt && (
-                                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => {
-                                        e.stopPropagation();
-                                        handleViewReceipt(receipt);
-                                      }}>
+                                    {receipt && <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => {
+                                e.stopPropagation();
+                                handleViewReceipt(receipt);
+                              }}>
                                         <Receipt className="h-3 w-3 mr-1" />
                                         View
-                                      </Button>
-                                    )}
+                                      </Button>}
                                     {!receipt && <span className="text-xs text-muted-foreground">—</span>}
                                   </TableCell>
-                                </TableRow>
-                              );
-                            })}
+                                </TableRow>;
+                        })}
                           </TableBody>
                         </Table>
-                      </div>
-                    )}
+                      </div>}
                   </div>
                 </Tabs>
 
@@ -3631,84 +3530,110 @@ You can ask me about:
                   />
 
                     {/* View Mode Switch - only show when not in batch review */}
-                    {viewMode !== "batch-review" && (
-                      <div className="flex items-center justify-center py-2">
+                    {viewMode !== "batch-review" && <div className="flex items-center justify-center py-2">
                         <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
                           <TabsList className="grid w-[280px] grid-cols-2">
                             <TabsTrigger value="workers">Workers</TabsTrigger>
                             <TabsTrigger value="payroll">Payroll</TabsTrigger>
                           </TabsList>
                         </Tabs>
-                      </div>
-                    )}
+                      </div>}
                     
                     {/* Breadcrumb for Batch Review */}
-                    {viewMode === "batch-review" && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                    {viewMode === "batch-review" && <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                         <Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={handleBackToPayroll}>
                           Payroll
                         </Button>
                         <span>›</span>
                         <span className="text-foreground font-medium">Payment Batch Review (Nov 2025)</span>
-                      </div>
-                    )}
+                      </div>}
 
                     {/* Conditional View */}
                     <div className="pt-6">
-                      {viewMode === "workers" ? (
-                        /* Certified Workers List */
-                        <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+                      {viewMode === "workers" ? (/* Certified Workers List */
+                    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                           <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
                             <div className="flex items-center justify-between">
                               <div>
                                 <h3 className="text-lg font-semibold">Certified workers</h3>
                                 <p className="text-sm text-muted-foreground">
                                   {(() => {
-                                    const certifiedWorkers = [
-                                      { id: "1", name: "Maria Santos", role: "Senior Backend Engineer", country: "Philippines", countryFlag: "🇵🇭", employmentType: "Contractor" as const, salary: "PHP 85,000/mo", status: "Certified" },
-                                      { id: "2", name: "John Chen", role: "Product Designer", country: "Singapore", countryFlag: "🇸🇬", employmentType: "Employee" as const, salary: "SGD 6,500/mo", status: "Certified" },
-                                      { id: "3", name: "Sarah Williams", role: "Frontend Developer", country: "United Kingdom", countryFlag: "🇬🇧", employmentType: "Contractor" as const, salary: "GBP 4,800/mo", status: "Certified" }
-                                    ];
-                                    const filtered = workersSearchQuery.trim() 
-                                      ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase()))
-                                      : certifiedWorkers;
-                                    return filtered.length === 0 && workersSearchQuery 
-                                      ? "No workers match your search" 
-                                      : `${filtered.length} certified worker${filtered.length !== 1 ? "s" : ""}`;
-                                  })()}
+                                const certifiedWorkers = [{
+                                  id: "1",
+                                  name: "Maria Santos",
+                                  role: "Senior Backend Engineer",
+                                  country: "Philippines",
+                                  countryFlag: "🇵🇭",
+                                  employmentType: "Contractor" as const,
+                                  salary: "PHP 85,000/mo",
+                                  status: "Certified"
+                                }, {
+                                  id: "2",
+                                  name: "John Chen",
+                                  role: "Product Designer",
+                                  country: "Singapore",
+                                  countryFlag: "🇸🇬",
+                                  employmentType: "Employee" as const,
+                                  salary: "SGD 6,500/mo",
+                                  status: "Certified"
+                                }, {
+                                  id: "3",
+                                  name: "Sarah Williams",
+                                  role: "Frontend Developer",
+                                  country: "United Kingdom",
+                                  countryFlag: "🇬🇧",
+                                  employmentType: "Contractor" as const,
+                                  salary: "GBP 4,800/mo",
+                                  status: "Certified"
+                                }];
+                                const filtered = workersSearchQuery.trim() ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase())) : certifiedWorkers;
+                                return filtered.length === 0 && workersSearchQuery ? "No workers match your search" : `${filtered.length} certified worker${filtered.length !== 1 ? "s" : ""}`;
+                              })()}
                                 </p>
                               </div>
                               <div className="relative w-64">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input 
-                                  placeholder="Search workers..." 
-                                  value={workersSearchQuery} 
-                                  onChange={e => setWorkersSearchQuery(e.target.value)} 
-                                  className="pl-9 bg-background/60" 
-                                />
+                                <Input placeholder="Search workers..." value={workersSearchQuery} onChange={e => setWorkersSearchQuery(e.target.value)} className="pl-9 bg-background/60" />
                               </div>
                             </div>
                           </CardHeader>
                           <CardContent className="p-6">
                             {(() => {
-                              const certifiedWorkers = [
-                                { id: "1", name: "Maria Santos", role: "Senior Backend Engineer", country: "Philippines", countryFlag: "🇵🇭", employmentType: "Contractor" as const, salary: "PHP 85,000/mo", status: "Certified" },
-                                { id: "2", name: "John Chen", role: "Product Designer", country: "Singapore", countryFlag: "🇸🇬", employmentType: "Employee" as const, salary: "SGD 6,500/mo", status: "Certified" },
-                                { id: "3", name: "Sarah Williams", role: "Frontend Developer", country: "United Kingdom", countryFlag: "🇬🇧", employmentType: "Contractor" as const, salary: "GBP 4,800/mo", status: "Certified" }
-                              ];
-                              const filteredWorkers = workersSearchQuery.trim() 
-                                ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase()))
-                                : certifiedWorkers;
-                              
-                              const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase();
-                              
-                              const handleDownloadContract = (workerName: string) => {
-                                toast.info(`Downloading contract bundle for ${workerName}...`);
-                              };
-                              
-                              if (certifiedWorkers.length === 0) {
-                                return (
-                                  <div className="flex flex-col items-center justify-center py-16 px-6">
+                          const certifiedWorkers = [{
+                            id: "1",
+                            name: "Maria Santos",
+                            role: "Senior Backend Engineer",
+                            country: "Philippines",
+                            countryFlag: "🇵🇭",
+                            employmentType: "Contractor" as const,
+                            salary: "PHP 85,000/mo",
+                            status: "Certified"
+                          }, {
+                            id: "2",
+                            name: "John Chen",
+                            role: "Product Designer",
+                            country: "Singapore",
+                            countryFlag: "🇸🇬",
+                            employmentType: "Employee" as const,
+                            salary: "SGD 6,500/mo",
+                            status: "Certified"
+                          }, {
+                            id: "3",
+                            name: "Sarah Williams",
+                            role: "Frontend Developer",
+                            country: "United Kingdom",
+                            countryFlag: "🇬🇧",
+                            employmentType: "Contractor" as const,
+                            salary: "GBP 4,800/mo",
+                            status: "Certified"
+                          }];
+                          const filteredWorkers = workersSearchQuery.trim() ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase())) : certifiedWorkers;
+                          const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase();
+                          const handleDownloadContract = (workerName: string) => {
+                            toast.info(`Downloading contract bundle for ${workerName}...`);
+                          };
+                          if (certifiedWorkers.length === 0) {
+                            return <div className="flex flex-col items-center justify-center py-16 px-6">
                                     <div className="rounded-full bg-primary/5 p-5 mb-5">
                                       <Users className="h-10 w-10 text-primary/40" />
                                     </div>
@@ -3719,25 +3644,18 @@ You can ask me about:
                                       Once Fronted completes contracting and certification for your hires,
                                       they'll appear here automatically.
                                     </p>
-                                  </div>
-                                );
-                              }
-                              
-                              if (filteredWorkers.length === 0) {
-                                return (
-                                  <div className="flex flex-col items-center justify-center py-12 px-6">
+                                  </div>;
+                          }
+                          if (filteredWorkers.length === 0) {
+                            return <div className="flex flex-col items-center justify-center py-12 px-6">
                                     <Search className="h-10 w-10 text-muted-foreground/40 mb-4" />
                                     <p className="text-sm text-muted-foreground text-center">
                                       No workers found matching "{workersSearchQuery}"
                                     </p>
-                                  </div>
-                                );
-                              }
-                              
-                              return (
-                                <div className="space-y-3">
-                                  {filteredWorkers.map(worker => (
-                                    <div key={worker.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+                                  </div>;
+                          }
+                          return <div className="space-y-3">
+                                  {filteredWorkers.map(worker => <div key={worker.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
                                       <div className="flex items-center gap-4 flex-1">
                                         {/* Avatar */}
                                         <Avatar className="h-10 w-10">
@@ -3783,46 +3701,27 @@ You can ask me about:
                                           </TooltipContent>
                                         </Tooltip>
                                       </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            })()}
+                                    </div>)}
+                                </div>;
+                        })()}
                           </CardContent>
-                        </Card>
-                      ) : viewMode === "payroll" ? (
-                        /* Payroll with Period-Based States */
-                        <div className="space-y-6">
+                        </Card>) : viewMode === "payroll" ? (/* Payroll with Period-Based States */
+                    <div className="space-y-6">
                           {/* Period Selector */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <Badge 
-                                variant={selectedCycle === "next" ? "outline" : "default"}
-                                className={cn(
-                                  "text-xs font-medium",
-                                  selectedCycle === "previous" && "bg-muted text-muted-foreground border-transparent",
-                                  selectedCycle === "current" && "bg-primary/15 text-primary border-primary/30",
-                                  selectedCycle === "next" && "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30"
-                                )}
-                              >
-                                {selectedCycle === "previous" ? "Past" : 
-                                 selectedCycle === "current" ? "Current" : 
-                                 "Upcoming"}
+                              <Badge variant={selectedCycle === "next" ? "outline" : "default"} className={cn("text-xs font-medium", selectedCycle === "previous" && "bg-muted text-muted-foreground border-transparent", selectedCycle === "current" && "bg-primary/15 text-primary border-primary/30", selectedCycle === "next" && "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30")}>
+                                {selectedCycle === "previous" ? "Past" : selectedCycle === "current" ? "Current" : "Upcoming"}
                               </Badge>
                               <h2 className="text-lg font-semibold text-foreground">
                                 {payrollCycleData[selectedCycle].label}
                               </h2>
                             </div>
-                            <CA_PayPeriodDropdown
-                              value={selectedCycle}
-                              onValueChange={(val) => setSelectedCycle(val)}
-                              periods={payrollCycleData}
-                            />
+                            <CA_PayPeriodDropdown value={selectedCycle} onValueChange={val => setSelectedCycle(val)} periods={payrollCycleData} />
                           </div>
 
                           {/* NEXT Period - Upcoming State */}
-                          {selectedCycle === "next" && (
-                            <Card className="border-border/40 bg-card/30 backdrop-blur-sm">
+                          {selectedCycle === "next" && <Card className="border-border/40 bg-card/30 backdrop-blur-sm">
                               <CardContent className="py-12 px-6">
                                 <div className="flex flex-col items-center justify-center text-center space-y-4">
                                   <div className="p-4 rounded-full bg-blue-500/10">
@@ -3858,23 +3757,12 @@ You can ask me about:
                                   </Badge>
                                 </div>
                               </CardContent>
-                            </Card>
-                          )}
+                            </Card>}
 
                           {/* PREVIOUS Period - Read-only Completed View */}
-                          {selectedCycle === "previous" && (
-                            <div className="space-y-6">
+                          {selectedCycle === "previous" && <div className="space-y-6">
                               {/* Payroll Run Summary Card */}
-                              <CA_PayrollRunSummaryCard
-                                grossPay="$48.2K"
-                                netPay="$42.8K"
-                                frontedFees="$1,450"
-                                totalCost="$49.7K"
-                                employeeCount={allContractors.filter(c => c.employmentType === "employee").length}
-                                contractorCount={allContractors.filter(c => c.employmentType === "contractor").length}
-                                currencyCount={3}
-                                paidPercentage={100}
-                              />
+                              <CA_PayrollRunSummaryCard grossPay="$48.2K" netPay="$42.8K" frontedFees="$1,450" totalCost="$49.7K" employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} currencyCount={3} paidPercentage={100} />
                               
                               {/* Track & Reconcile Card */}
                               <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
@@ -3899,114 +3787,39 @@ You can ask me about:
                               </Card>
 
                               {/* Payment Details Table */}
-                              <CA_CompletedPaymentDetailsCard
-                                employees={allContractors.filter(c => c.employmentType === "employee")}
-                                contractors={allContractors.filter(c => c.employmentType === "contractor")}
-                                workerTypeFilter={workerTypeFilter}
-                                onWorkerTypeFilterChange={(v) => setWorkerTypeFilter(v as typeof workerTypeFilter)}
-                                onOpenPaymentDetail={handleOpenPaymentDetail}
-                                getPaymentStatus={getPaymentStatus}
-                                getPaymentDue={getPaymentDue}
-                                paymentReceipts={paymentReceipts}
-                                onViewReceipt={handleViewReceipt}
-                              />
-                            </div>
-                          )}
+                              <CA_CompletedPaymentDetailsCard employees={allContractors.filter(c => c.employmentType === "employee")} contractors={allContractors.filter(c => c.employmentType === "contractor")} workerTypeFilter={workerTypeFilter} onWorkerTypeFilterChange={v => setWorkerTypeFilter(v as typeof workerTypeFilter)} onOpenPaymentDetail={handleOpenPaymentDetail} getPaymentStatus={getPaymentStatus} getPaymentDue={getPaymentDue} paymentReceipts={paymentReceipts} onViewReceipt={handleViewReceipt} />
+                            </div>}
 
                           {/* CURRENT Period - In Review or In Batch */}
-                          {selectedCycle === "current" && !currentBatch && (
-                            <div className="space-y-6">
+                          {selectedCycle === "current" && !currentBatch && <div className="space-y-6">
                               {/* Card A: Payroll Overview & Actions */}
-                              <CA_PayrollOverviewCard
-                                payPeriod={payrollCycleData.current.label}
-                                primaryCurrency="USD"
-                                countries="Philippines, Norway, Portugal, France, Italy"
-                                employeeCount={3}
-                                contractorCount={6}
-                                status="in_review"
-                                adjustments={caAdjustments}
-                                leaveChanges={caLeaveChanges}
-                                autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
-                                blockingAlerts={mockBlockingAlerts}
-                                onResolveItems={() => setResolveDrawerOpen(true)}
-                                onCreateBatch={handleCreateBatch}
-                                onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                                onPeriodChange={() => {}}
-                                selectedPeriod="current"
-                              />
+                              <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={() => {}} selectedPeriod="current" />
 
                               {/* Issues Bar */}
-                              <CA_IssuesBar
-                                pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length}
-                                pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length}
-                                autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length}
-                                onResolveClick={() => handleResolveWithCurrency()}
-                              />
+                              <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />
 
                               {/* Card B: Review FX & Totals */}
-                              <CA_ReviewFXTotalsCard
-                                data={mockFXTotalsData}
-                                hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
-                                onResolveClick={handleResolveWithCurrency}
-                                employmentFilter={caFxFilter}
-                                onEmploymentFilterChange={setCaFxFilter}
-                                selectedCountries={caSelectedCountries}
-                                onCountriesChange={setCaSelectedCountries}
-                                allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
-                                onNetToPayClick={handleNetToPayClick}
-                              />
+                              <CA_ReviewFXTotalsCard data={mockFXTotalsData} hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")} onResolveClick={handleResolveWithCurrency} employmentFilter={caFxFilter} onEmploymentFilterChange={setCaFxFilter} selectedCountries={caSelectedCountries} onCountriesChange={setCaSelectedCountries} allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]} onNetToPayClick={handleNetToPayClick} />
 
                               {/* Resolve Items Drawer */}
-                              <CA_ResolveItemsDrawer
-                                open={resolveDrawerOpen}
-                                onClose={() => {
-                                  setResolveDrawerOpen(false);
-                                  setResolveDrawerPreSelectedCurrency(undefined);
-                                }}
-                                adjustments={caAdjustments}
-                                leaveChanges={caLeaveChanges}
-                                onApproveAdjustment={handleApproveAdjustment}
-                                onRejectAdjustment={handleRejectAdjustment}
-                                onApproveLeave={handleApproveLeave}
-                                onRejectLeave={handleRejectLeave}
-                                onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                                autoApproveThreshold={500}
-                                preSelectedCurrency={resolveDrawerPreSelectedCurrency}
-                                onCreateBatch={handleCreateBatch}
-                              />
+                              <CA_ResolveItemsDrawer open={resolveDrawerOpen} onClose={() => {
+                          setResolveDrawerOpen(false);
+                          setResolveDrawerPreSelectedCurrency(undefined);
+                        }} adjustments={caAdjustments} leaveChanges={caLeaveChanges} onApproveAdjustment={handleApproveAdjustment} onRejectAdjustment={handleRejectAdjustment} onApproveLeave={handleApproveLeave} onRejectLeave={handleRejectLeave} onViewWorker={id => toast.info(`View worker ${id}`)} autoApproveThreshold={500} preSelectedCurrency={resolveDrawerPreSelectedCurrency} onCreateBatch={handleCreateBatch} />
 
                               {/* Currency Workers Drawer */}
-                              <CA_CurrencyWorkersDrawer
-                                open={currencyWorkersDrawerOpen}
-                                onClose={() => setCurrencyWorkersDrawerOpen(false)}
-                                currency={currencyWorkersDrawerCurrency}
-                                employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees}
-                                contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors}
-                                onViewPayrollPreview={(id) => toast.info(`View payroll preview for ${id}`)}
-                                onViewInvoicePreview={(id) => toast.info(`View invoice preview for ${id}`)}
-                              />
-                            </div>
-                          )}
+                              <CA_CurrencyWorkersDrawer open={currencyWorkersDrawerOpen} onClose={() => setCurrencyWorkersDrawerOpen(false)} currency={currencyWorkersDrawerCurrency} employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees} contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors} onViewPayrollPreview={id => toast.info(`View payroll preview for ${id}`)} onViewInvoicePreview={id => toast.info(`View invoice preview for ${id}`)} />
+                            </div>}
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
-                          {selectedCycle === "current" && currentBatch && (
-                            <div className="space-y-6">
+                          {selectedCycle === "current" && currentBatch && <div className="space-y-6">
                               {/* Batch Summary Header */}
                               <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur-sm">
                                 <CardContent className="py-4 px-5">
                                   <div className="flex items-start justify-between">
                                     <div className="space-y-3">
                                       <div className="flex items-center gap-3">
-                                        <Badge className={cn(
-                                          "text-xs",
-                                          currentBatch.status === "draft" && "bg-muted text-muted-foreground",
-                                          currentBatch.status === "awaiting_approval" && "bg-amber-500/10 text-amber-600 border-amber-500/30",
-                                          currentBatch.status === "client_approved" && "bg-green-500/10 text-green-600 border-green-500/30"
-                                        )}>
-                                          {currentBatch.status === "draft" ? "Draft" : 
-                                           currentBatch.status === "awaiting_approval" ? "In Review" : 
-                                           currentBatch.status === "client_approved" ? "Approved" : "Processing"}
-                                        </Badge>
+                                        
                                         <h3 className="text-lg font-semibold text-foreground">
                                           Payment Batch – {currentBatch.payoutDate}
                                         </h3>
@@ -4038,73 +3851,51 @@ You can ask me about:
                               </Card>
 
                               {/* Styled Progress Stepper */}
-                              <CA_FXReviewStepper
-                                currentStep={currentStep as FXReviewStep}
-                                completedSteps={(() => {
-                                  const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
-                                  const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
-                                  return stepOrder.slice(0, currentIndex);
-                                })()}
-                              />
+                              <CA_FXReviewStepper currentStep={currentStep as FXReviewStep} completedSteps={(() => {
+                          const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
+                          const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
+                          return stepOrder.slice(0, currentIndex);
+                        })()} />
 
                               {/* Step Content (Flow 7 v1 content) */}
                               {renderStepContent()}
 
                               {/* Step Navigation */}
                               <div className="flex items-center justify-between pt-4 border-t border-border/40">
-                                <Button 
-                                  variant="outline" 
-                                  onClick={() => {
-                                    const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
-                                    const currentIndex = stepOrder.indexOf(currentStep);
-                                    if (currentIndex > 0) {
-                                      setCurrentStep(stepOrder[currentIndex - 1]);
-                                    } else {
-                                      handleBackToPayroll();
-                                    }
-                                  }}
-                                >
+                                <Button variant="outline" onClick={() => {
+                            const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
+                            const currentIndex = stepOrder.indexOf(currentStep);
+                            if (currentIndex > 0) {
+                              setCurrentStep(stepOrder[currentIndex - 1]);
+                            } else {
+                              handleBackToPayroll();
+                            }
+                          }}>
                                   {currentStep === "review-fx" ? "← Back to Overview" : "← Previous"}
                                 </Button>
                                 
-                                {currentStep !== "track" ? (
-                                  <Button 
-                                    onClick={() => {
-                                      const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
-                                      const currentIndex = stepOrder.indexOf(currentStep);
-                                      if (currentIndex < stepOrder.length - 1) {
-                                        setCurrentStep(stepOrder[currentIndex + 1]);
-                                      }
-                                    }}
-                                  >
-                                    Continue to {
-                                      currentStep === "review-fx" ? "Exceptions" :
-                                      currentStep === "exceptions" ? "Execute" :
-                                      "Track & Reconcile"
-                                    } →
-                                  </Button>
-                                ) : (
-                                  <div className="flex items-center gap-2">
+                                {currentStep !== "track" ? <Button onClick={() => {
+                            const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
+                            const currentIndex = stepOrder.indexOf(currentStep);
+                            if (currentIndex < stepOrder.length - 1) {
+                              setCurrentStep(stepOrder[currentIndex + 1]);
+                            }
+                          }}>
+                                    Continue to {currentStep === "review-fx" ? "Exceptions" : currentStep === "exceptions" ? "Execute" : "Track & Reconcile"} →
+                                  </Button> : <div className="flex items-center gap-2">
                                     <Button variant="outline" onClick={() => setRequestChangesModalOpen(true)}>
                                       Request Changes
                                     </Button>
                                     <Button onClick={handleApproveBatch}>
                                       Approve Batch
                                     </Button>
-                                  </div>
-                                )}
+                                  </div>}
                               </div>
 
                               {/* Request Changes Modal */}
-                              <CA_RequestChangesModal
-                                open={requestChangesModalOpen}
-                                onOpenChange={setRequestChangesModalOpen}
-                                onSubmit={handleRequestChanges}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ) : null}
+                              <CA_RequestChangesModal open={requestChangesModalOpen} onOpenChange={setRequestChangesModalOpen} onSubmit={handleRequestChanges} />
+                            </div>}
+                        </div>) : null}
                     </div>
 
                     {/* Payment Detail Drawer */}
@@ -4988,78 +4779,38 @@ You can ask me about:
             <FloatingKurtButton />
             <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
             <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={handleSaveEmployeePayroll} />
-      <OverrideExceptionModal
-        open={overrideModalOpen}
-        onOpenChange={setOverrideModalOpen}
-        exception={exceptionToOverride}
-        justification={overrideJustification}
-        onJustificationChange={setOverrideJustification}
-        onConfirm={handleConfirmOverride}
-      />
+      <OverrideExceptionModal open={overrideModalOpen} onOpenChange={setOverrideModalOpen} exception={exceptionToOverride} justification={overrideJustification} onJustificationChange={setOverrideJustification} onConfirm={handleConfirmOverride} />
 
-      <ExecutionConfirmationDialog
-        open={executionConfirmOpen}
-        onOpenChange={setExecutionConfirmOpen}
-        onConfirm={handleConfirmExecution}
-        cohort={pendingExecutionCohort || "all"}
-        employeeCount={allContractors.filter(c => c.employmentType === "employee").length}
-        contractorCount={allContractors.filter(c => c.employmentType === "contractor").length}
-        employeeTotal={allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.baseSalary, 0)}
-        contractorTotal={allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + c.baseSalary, 0)}
-        currency="USD"
-      />
-            <LeaveAttendanceExceptionDrawer
-              open={leaveAttendanceDrawerOpen}
-              onOpenChange={setLeaveAttendanceDrawerOpen}
-              exception={selectedLeaveException}
-              worker={selectedLeaveException ? allContractors.find(c => c.id === selectedLeaveException.contractorId) : undefined}
-              onResolve={handleResolveLeaveAttendance}
-            />
-            <LeaveDetailsDrawer 
-              open={leaveDetailsDrawerOpen} 
-              onOpenChange={setLeaveDetailsDrawerOpen}
-              workerName={selectedWorkerForLeave?.name || ""}
-              workerRole={selectedWorkerForLeave?.role}
-              country={selectedWorkerForLeave?.country || ""}
-              employmentType={selectedWorkerForLeave?.employmentType || "contractor"}
-              ftePercent={selectedWorkerForLeave?.ftePercent || 100}
-              scheduledDays={selectedWorkerForLeave?.leaveData?.scheduledDays || 22}
-              actualDays={selectedWorkerForLeave?.leaveData?.actualDays || 22}
-              leaveEntries={selectedWorkerForLeave ? [
-                {
-                  id: "leave-1",
-                  requestDate: "Nov 1, 2025",
-                  leaveStartDate: "Nov 5, 2025",
-                  leaveEndDate: "Nov 7, 2025",
-                  leaveType: "Annual",
-                  daysCount: 3,
-                  status: selectedWorkerForLeave.leaveData?.hasPendingLeave ? "Pending" : "Approved",
-                  approvedBy: "Jane Smith",
-                  recordedInFronted: true,
-                  notes: "Pre-approved family vacation"
-                },
-                {
-                  id: "leave-2",
-                  requestDate: "Oct 28, 2025",
-                  leaveStartDate: "Nov 12, 2025",
-                  leaveEndDate: "Nov 12, 2025",
-                  leaveType: "Sick",
-                  daysCount: 1,
-                  status: "Approved",
-                  approvedBy: "Company HR System",
-                  recordedInFronted: false
-                }
-              ] : []}
-              attendanceAnomalies={selectedWorkerForLeave?.leaveData?.hasMissingAttendance ? [
-                {
-                  id: "anomaly-1",
-                  date: "Nov 8, 2025",
-                  type: "Missing timesheet",
-                  description: "No timesheet submitted for this date",
-                  severity: "high"
-                }
-              ] : []}
-            />
+      <ExecutionConfirmationDialog open={executionConfirmOpen} onOpenChange={setExecutionConfirmOpen} onConfirm={handleConfirmExecution} cohort={pendingExecutionCohort || "all"} employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} employeeTotal={allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.baseSalary, 0)} contractorTotal={allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + c.baseSalary, 0)} currency="USD" />
+            <LeaveAttendanceExceptionDrawer open={leaveAttendanceDrawerOpen} onOpenChange={setLeaveAttendanceDrawerOpen} exception={selectedLeaveException} worker={selectedLeaveException ? allContractors.find(c => c.id === selectedLeaveException.contractorId) : undefined} onResolve={handleResolveLeaveAttendance} />
+            <LeaveDetailsDrawer open={leaveDetailsDrawerOpen} onOpenChange={setLeaveDetailsDrawerOpen} workerName={selectedWorkerForLeave?.name || ""} workerRole={selectedWorkerForLeave?.role} country={selectedWorkerForLeave?.country || ""} employmentType={selectedWorkerForLeave?.employmentType || "contractor"} ftePercent={selectedWorkerForLeave?.ftePercent || 100} scheduledDays={selectedWorkerForLeave?.leaveData?.scheduledDays || 22} actualDays={selectedWorkerForLeave?.leaveData?.actualDays || 22} leaveEntries={selectedWorkerForLeave ? [{
+            id: "leave-1",
+            requestDate: "Nov 1, 2025",
+            leaveStartDate: "Nov 5, 2025",
+            leaveEndDate: "Nov 7, 2025",
+            leaveType: "Annual",
+            daysCount: 3,
+            status: selectedWorkerForLeave.leaveData?.hasPendingLeave ? "Pending" : "Approved",
+            approvedBy: "Jane Smith",
+            recordedInFronted: true,
+            notes: "Pre-approved family vacation"
+          }, {
+            id: "leave-2",
+            requestDate: "Oct 28, 2025",
+            leaveStartDate: "Nov 12, 2025",
+            leaveEndDate: "Nov 12, 2025",
+            leaveType: "Sick",
+            daysCount: 1,
+            status: "Approved",
+            approvedBy: "Company HR System",
+            recordedInFronted: false
+          }] : []} attendanceAnomalies={selectedWorkerForLeave?.leaveData?.hasMissingAttendance ? [{
+            id: "anomaly-1",
+            date: "Nov 8, 2025",
+            type: "Missing timesheet",
+            description: "No timesheet submitted for this date",
+            severity: "high"
+          }] : []} />
 
             {/* Leave Record Selector Dialog */}
             <Dialog open={leaveSelectorOpen} onOpenChange={open => {
@@ -5165,69 +4916,45 @@ You can ask me about:
                     {hasUnresolvedIssues ? "Unresolved issues remain for this payroll run" : "Complete this payroll run?"}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    {hasUnresolvedIssues ? (
-                      <div className="space-y-4">
+                    {hasUnresolvedIssues ? <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">
                           The following issues have not been resolved:
                         </p>
                         <div className="space-y-2 text-sm">
-                          {unresolvedIssues.blockingExceptions > 0 && (
-                            <div className="flex items-center gap-2 text-destructive">
+                          {unresolvedIssues.blockingExceptions > 0 && <div className="flex items-center gap-2 text-destructive">
                               <AlertCircle className="h-4 w-4" />
                               <span>Blocking exceptions: {unresolvedIssues.blockingExceptions}</span>
-                            </div>
-                          )}
-                          {unresolvedIssues.failedPostings > 0 && (
-                            <div className="flex items-center gap-2 text-destructive">
+                            </div>}
+                          {unresolvedIssues.failedPostings > 0 && <div className="flex items-center gap-2 text-destructive">
                               <XCircle className="h-4 w-4" />
                               <span>Failed employee postings: {unresolvedIssues.failedPostings}</span>
-                            </div>
-                          )}
-                          {unresolvedIssues.failedPayouts > 0 && (
-                            <div className="flex items-center gap-2 text-destructive">
+                            </div>}
+                          {unresolvedIssues.failedPayouts > 0 && <div className="flex items-center gap-2 text-destructive">
                               <XCircle className="h-4 w-4" />
                               <span>Failed contractor payouts: {unresolvedIssues.failedPayouts}</span>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                         <div className="space-y-2 pt-2">
                           <label htmlFor="justification" className="text-sm font-medium">
                             Please provide a reason for completing this run with unresolved issues:
                           </label>
-                          <Textarea
-                            id="justification"
-                            value={forceCompleteJustification}
-                            onChange={(e) => setForceCompleteJustification(e.target.value)}
-                            placeholder="Enter your justification here..."
-                            className="min-h-[80px]"
-                          />
+                          <Textarea id="justification" value={forceCompleteJustification} onChange={e => setForceCompleteJustification(e.target.value)} placeholder="Enter your justification here..." className="min-h-[80px]" />
                         </div>
-                      </div>
-                    ) : (
-                      "All blocking exceptions are resolved and all payouts/postings have completed. Once you mark this run as complete, it will be locked and become read-only."
-                    )}
+                      </div> : "All blocking exceptions are resolved and all payouts/postings have completed. Once you mark this run as complete, it will be locked and become read-only."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel onClick={() => setForceCompleteJustification("")}>Cancel</AlertDialogCancel>
-                  {hasUnresolvedIssues ? (
-                    <>
+                  {hasUnresolvedIssues ? <>
                       <Button variant="outline" onClick={handleGoBackToFix}>
                         Go back to fix issues
                       </Button>
-                      <AlertDialogAction 
-                        onClick={() => confirmMarkComplete(true)}
-                        disabled={!forceCompleteJustification.trim()}
-                        className="bg-destructive hover:bg-destructive/90"
-                      >
+                      <AlertDialogAction onClick={() => confirmMarkComplete(true)} disabled={!forceCompleteJustification.trim()} className="bg-destructive hover:bg-destructive/90">
                         Force complete with issues
                       </AlertDialogAction>
-                    </>
-                  ) : (
-                    <AlertDialogAction onClick={() => confirmMarkComplete(false)}>
+                    </> : <AlertDialogAction onClick={() => confirmMarkComplete(false)}>
                       Mark as complete
-                    </AlertDialogAction>
-                  )}
+                    </AlertDialogAction>}
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
