@@ -25,7 +25,7 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
   paidPercentage = 100,
 }) => {
   return (
-    <Card className="border-border/20 bg-foreground/[0.015] backdrop-blur-sm shadow-sm">
+    <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
       <CardContent className="py-5 px-6">
         {/* Header with title and completed badge */}
         <div className="flex items-start justify-between mb-2">
