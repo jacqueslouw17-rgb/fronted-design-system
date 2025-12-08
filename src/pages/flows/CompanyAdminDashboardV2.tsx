@@ -3772,11 +3772,15 @@ You can ask me about:
                               </Card>
 
                               {/* Styled Progress Stepper */}
-                              <CA_FXReviewStepper currentStep={currentStep as FXReviewStep} completedSteps={(() => {
-                          const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
-                          const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
-                          return stepOrder.slice(0, currentIndex);
-                        })()} />
+                              <CA_FXReviewStepper 
+                                currentStep={currentStep as FXReviewStep} 
+                                completedSteps={(() => {
+                                  const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
+                                  const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
+                                  return stepOrder.slice(0, currentIndex);
+                                })()} 
+                                onStepClick={(step) => setCurrentStep(step as PayrollStep)}
+                              />
 
                               {/* Step Content (Flow 7 v1 content) */}
                               {renderStepContent()}
