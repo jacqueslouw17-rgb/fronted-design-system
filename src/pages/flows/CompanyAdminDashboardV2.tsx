@@ -1741,33 +1741,88 @@ const CompanyAdminDashboardV2: React.FC = () => {
     switch (currentStep) {
       case "review-fx":
         return <div className="space-y-3">
-            {/* Status Bar */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                
-                {selectedCycle === "previous" && <Badge variant="outline" className="text-xs bg-muted/30">
-                    Read-Only Mode
-                  </Badge>}
-                {fxRatesLocked && lockedAt && <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 gap-1.5">
-                    <Lock className="h-3 w-3" />
-                    Locked at {lockedAt}
-                  </Badge>}
-              </div>
-              <div className="flex items-center gap-2">
-                {/* Refresh Quote button temporarily hidden - logic preserved for future reactivation */}
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefreshQuote}
-                  disabled={isRefreshing || fxRatesLocked}
-                  className="gap-2"
-                 >
-                  <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
-                  Refresh Quote
-                 </Button> */}
-                {/* Lock Rate button temporarily hidden - logic preserved for future reactivation */}
-              </div>
-            </div>
+            {/* Payroll Run Summary Header */}
+            <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur-sm">
+              <CardContent className="py-4 px-5">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        Payroll Run Summary
+                      </h3>
+                      {fxRatesLocked && lockedAt && <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 gap-1.5">
+                          <Lock className="h-3 w-3" />
+                          Locked at {lockedAt}
+                        </Badge>}
+                      {selectedCycle === "previous" && <Badge variant="outline" className="text-xs bg-muted/30">
+                          Read-Only Mode
+                        </Badge>}
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-muted-foreground">Gross Pay: </span>
+                          <span className="font-semibold text-foreground">
+                            ${(allContractors.reduce((sum, c) => {
+                              const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                              const phMultiplier = isPHEmployee ? 0.5 : 1;
+                              return sum + c.baseSalary * phMultiplier;
+                            }, 0) / 1000).toFixed(1)}K
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">•</span>
+                        <div>
+                          <span className="text-muted-foreground">Net Pay: </span>
+                          <span className="font-semibold text-foreground">
+                            ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">•</span>
+                        <div>
+                          <span className="text-muted-foreground">Fees: </span>
+                          <span className="font-semibold text-foreground">
+                            ${allContractors.reduce((sum, c) => {
+                              const additionalFee = additionalFees[c.id];
+                              return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                            }, 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">•</span>
+                        <div>
+                          <span className="text-muted-foreground">Total: </span>
+                          <span className="font-semibold text-foreground">
+                            ${(allContractors.reduce((sum, c) => {
+                              const additionalFee = additionalFees[c.id];
+                              const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                              const phMultiplier = isPHEmployee ? 0.5 : 1;
+                              return sum + c.baseSalary * phMultiplier + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                            }, 0) / 1000).toFixed(1)}K
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5" />
+                        <span>{allContractors.filter(c => c.employmentType === "employee").length} EOR</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Briefcase className="h-3.5 w-3.5" />
+                        <span>{allContractors.filter(c => c.employmentType === "contractor").length} COR</span>
+                      </div>
+                      <span>•</span>
+                      <span>{Object.keys(groupedByCurrency).length} currencies</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
+                      <Settings className="h-3.5 w-3.5" />
+                      Country Rules
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Employment Type Filter */}
             <div className="flex justify-start mb-4 mt-6 py-0">
@@ -2345,80 +2400,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
             <p className="text-xs text-muted-foreground text-center mt-4 mb-2">
               Net payable days already include approved leave and pay adjustments.
             </p>
-
-            {/* Payroll Totals Summary */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              <CardContent className="p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-6">Payroll Run Totals</h3>
-                <div className="grid grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
-                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                      return sum + c.baseSalary * phMultiplier;
-                    }, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
-                    </p>
-                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>}
-                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-muted-foreground mt-1">After adjustments</p>}
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${allContractors.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                      return sum + c.baseSalary * phMultiplier + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
-                  </div>
-                </div>
-                <div className="mt-6 pt-6 border-t border-border/30">
-                  <div className="flex items-center justify-center gap-8 text-sm">
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Employees: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "employee").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Contractors: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "contractor").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Currencies: </span>
-                      <span className="font-semibold text-foreground">
-                        {Object.keys(groupedByCurrency).length}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Snoozed Workers Section */}
             {snoozedContractorsList.length > 0 && <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
