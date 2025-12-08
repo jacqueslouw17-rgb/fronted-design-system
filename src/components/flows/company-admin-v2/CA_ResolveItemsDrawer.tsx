@@ -373,13 +373,6 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                                     </div>
                                   )}
 
-                                  {/* Hide details link */}
-                                  <button 
-                                    onClick={() => toggleAdjustmentExpanded(adj.id)}
-                                    className="text-xs text-primary hover:underline"
-                                  >
-                                    Hide details
-                                  </button>
                                 </div>
                               )}
 
@@ -566,13 +559,6 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                                     </p>
                                   </div>
 
-                                  {/* Hide details link */}
-                                  <button 
-                                    onClick={() => toggleLeaveExpanded(leave.id)}
-                                    className="text-xs text-primary hover:underline"
-                                  >
-                                    Hide details
-                                  </button>
                                 </div>
                               )}
 
