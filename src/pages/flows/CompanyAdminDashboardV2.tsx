@@ -3762,7 +3762,6 @@ You can ask me about:
                               <div className="flex items-start justify-between">
                                 <div>
                                   <h2 className="text-xl font-semibold text-foreground">Payroll run</h2>
-                                  <p className="text-sm text-muted-foreground font-mono mt-0.5">ID: {currentBatch.id}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
@@ -3778,7 +3777,10 @@ You can ask me about:
                               {/* Payroll Run Totals Card */}
                               <Card className="border-border/20 bg-card/40 backdrop-blur-sm">
                                 <CardContent className="py-5 px-6">
-                                  <h3 className="text-base font-semibold text-foreground mb-5">Payroll Run Totals</h3>
+                                  <div className="mb-5">
+                                    <h3 className="text-base font-semibold text-foreground">Payroll Run Totals</h3>
+                                    <p className="text-xs text-muted-foreground font-mono mt-0.5">ID: {currentBatch.id}</p>
+                                  </div>
                                   
                                   {/* Metric Cards Grid */}
                                   <div className="grid grid-cols-4 gap-4 mb-5">
