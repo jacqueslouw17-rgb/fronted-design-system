@@ -4116,6 +4116,7 @@ You can ask me about:
                                 onViewWorker={(id) => toast.info(`View worker ${id}`)}
                                 autoApproveThreshold={500}
                                 preSelectedCurrency={resolveDrawerPreSelectedCurrency}
+                                onCreateBatch={handleCreateBatch}
                               />
 
                               {/* Currency Workers Drawer */}
