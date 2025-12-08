@@ -14,3 +14,16 @@ export * from "./CA_AllItemsSection";
 export * from "./CA_BatchSidebar";
 export * from "./CA_RequestChangesModal";
 export * from "./CA_ItemDetailDrawer";
+// In-place batch workflow
+export * from "./CA_InPlaceTypes";
+export * from "./CA_InPlaceData";
+export * from "./CA_OverviewCard";
+export * from "./CA_PendingReviewCards";
+export * from "./CA_BatchSummaryCard";
+export * from "./CA_InPlaceStepper";
+export * from "./CA_ReviewStep";
+export * from "./CA_ExceptionsStep";
+export * from "./CA_ExecuteStep";
+export * from "./CA_LeaveDetailDrawer";
+export * from "./CA_AdjustmentDetailDrawer";
+export * from "./CA_WorkerDetailDrawer";
