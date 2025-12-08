@@ -3938,16 +3938,18 @@ You can ask me about:
                           {/* Period Selector */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <Badge className={cn(
-                                "text-xs",
-                                selectedCycle === "previous" && "bg-muted text-muted-foreground",
-                                selectedCycle === "current" && !currentBatch && "bg-amber-500/10 text-amber-600 border-amber-500/30",
-                                selectedCycle === "current" && currentBatch && "bg-blue-500/10 text-blue-600 border-blue-500/30",
-                                selectedCycle === "next" && "bg-blue-500/10 text-blue-600 border-blue-500/30"
-                              )}>
-                                {selectedCycle === "previous" ? "Completed" : 
-                                 selectedCycle === "next" ? "Upcoming" : 
-                                 currentBatch ? "In Batch" : "In Review"}
+                              <Badge 
+                                variant={selectedCycle === "next" ? "outline" : "default"}
+                                className={cn(
+                                  "text-xs font-medium",
+                                  selectedCycle === "previous" && "bg-muted text-muted-foreground border-transparent",
+                                  selectedCycle === "current" && "bg-primary/15 text-primary border-primary/30",
+                                  selectedCycle === "next" && "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30"
+                                )}
+                              >
+                                {selectedCycle === "previous" ? "Past" : 
+                                 selectedCycle === "current" ? "Current" : 
+                                 "Upcoming"}
                               </Badge>
                               <h2 className="text-lg font-semibold text-foreground">
                                 {payrollCycleData[selectedCycle].label}
