@@ -182,19 +182,6 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/pages/flows/CompanyAdminDashboard.tsx'
     ]
   },
-  'f6-company-admin-dashboard-v2': {
-    id: 'f6-company-admin-dashboard-v2',
-    title: 'Flow 6 — Company Admin Dashboard v2',
-    path: '/flows/company-admin-dashboard-v2',
-    locked: false,
-    lockedDate: undefined,
-    lockedReason: undefined,
-    filePaths: [
-      'src/pages/flows/CompanyAdminDashboardV2.tsx',
-      'src/components/flows/admin-profile-v2/Flow6v2_ProfileDetails.tsx',
-      'src/components/flows/admin-profile-v2/Flow6v2_ChangePassword.tsx'
-    ]
-  },
   'f1.1-fronted-admin-v3': {
     id: 'f1.1-fronted-admin-v3',
     title: 'Flow 1 — Fronted Admin Dashboard v3',

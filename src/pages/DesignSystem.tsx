@@ -287,7 +287,6 @@ const DesignSystem = () => {
       'flow-4.2-contractor-dashboard-v3',
       'flow-5-company-admin-onboarding',
       'flow-6-company-admin-dashboard',
-      'flow-6-company-admin-dashboard-v2',
       'flow-1.1-fronted-admin',
       'flow-1.1-fronted-admin-v3',
       'flow-2.1-admin-payroll',
