@@ -2348,76 +2348,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
 
             {/* Payroll Totals Summary */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              <CardContent className="p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-6">Payroll Run Totals</h3>
-                <div className="grid grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
-                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                      return sum + c.baseSalary * phMultiplier;
-                    }, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => sum + getPaymentDue(c), 0) / 1000).toFixed(1)}K
-                    </p>
-                    {Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-amber-600 mt-1">Includes pro-rated adjustments</p>}
-                    {!Object.keys(leaveRecords).some(id => leaveRecords[id]?.leaveDays > 0) && <p className="text-xs text-muted-foreground mt-1">After adjustments</p>}
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${allContractors.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      return sum + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${(allContractors.reduce((sum, c) => {
-                      const additionalFee = additionalFees[c.id];
-                      const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
-                      const phMultiplier = isPHEmployee ? 0.5 : 1;
-                      return sum + c.baseSalary * phMultiplier + c.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                    }, 0) / 1000).toFixed(1)}K
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
-                  </div>
-                </div>
-                <div className="mt-6 pt-6 border-t border-border/30">
-                  <div className="flex items-center justify-center gap-8 text-sm">
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Employees: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "employee").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Contractors: </span>
-                      <span className="font-semibold text-foreground">
-                        {allContractors.filter(c => c.employmentType === "contractor").length}
-                      </span>
-                    </div>
-                    <span className="text-muted-foreground">·</span>
-                    <div className="text-center">
-                      <span className="text-muted-foreground">Currencies: </span>
-                      <span className="font-semibold text-foreground">
-                        {Object.keys(groupedByCurrency).length}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
+              
             </Card>
 
             {/* Snoozed Workers Section */}
@@ -3739,9 +3670,7 @@ You can ask me about:
                               <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={() => {}} selectedPeriod="current" />
 
                               {/* Issues Bar - only show when there are pending items */}
-                              {(caAdjustments.filter(a => a.status === "pending").length > 0 || caLeaveChanges.filter(l => l.status === "pending").length > 0) && (
-                                <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />
-                              )}
+                              {(caAdjustments.filter(a => a.status === "pending").length > 0 || caLeaveChanges.filter(l => l.status === "pending").length > 0) && <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />}
 
                               {/* Card B: Review FX & Totals */}
                               <CA_ReviewFXTotalsCard data={mockFXTotalsData} hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")} onResolveClick={handleResolveWithCurrency} employmentFilter={caFxFilter} onEmploymentFilterChange={setCaFxFilter} selectedCountries={caSelectedCountries} onCountriesChange={setCaSelectedCountries} allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]} onNetToPayClick={handleNetToPayClick} />
