@@ -228,8 +228,8 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
             </div>
           ) : (
             <>
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col">
-                <TabsList className="mx-6 mt-4 grid w-auto grid-cols-2">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <TabsList className="mx-6 mt-4 grid w-auto grid-cols-2 flex-shrink-0">
                   <TabsTrigger value="adjustments" className="gap-2">
                     Adjustments
                     {filteredAdjustments.length > 0 && (
@@ -248,7 +248,7 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                   </TabsTrigger>
                 </TabsList>
 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                   {/* Adjustments Tab */}
                   <TabsContent value="adjustments" className="px-6 py-4 space-y-3 m-0">
                     {filteredAdjustments.length === 0 ? (
