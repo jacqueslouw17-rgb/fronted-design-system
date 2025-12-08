@@ -31,6 +31,7 @@ interface CA_ResolveItemsDrawerProps {
   onViewWorker: (workerId: string) => void;
   autoApproveThreshold: number;
   preSelectedCurrency?: string;
+  onCreateBatch?: () => void;
 }
 
 export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
@@ -44,7 +45,8 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
   onRejectLeave,
   onViewWorker,
   autoApproveThreshold,
-  preSelectedCurrency
+  preSelectedCurrency,
+  onCreateBatch
 }) => {
   const [activeTab, setActiveTab] = useState<"adjustments" | "leave">("adjustments");
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
@@ -220,10 +222,24 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                 <CheckCircle2 className="h-10 w-10 text-accent-green-text" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">All caught up!</h3>
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-sm text-muted-foreground text-center mb-6">
                 {selectedCurrency 
                   ? `No pending items for ${selectedCurrency}. Select another currency or create the payment batch.`
-                  : "You can create the payment batch."}
+                  : "You're ready to create the payment batch."}
+              </p>
+              {onCreateBatch && (
+                <Button 
+                  onClick={() => {
+                    onCreateBatch();
+                    onClose();
+                  }}
+                  className="bg-gradient-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Create payment batch
+                </Button>
+              )}
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Or close this panel to review FX & totals first.
               </p>
             </div>
           ) : (
