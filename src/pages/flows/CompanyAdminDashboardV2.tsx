@@ -375,6 +375,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const [selectedPayAdjustment, setSelectedPayAdjustment] = useState<CA_PayAdjustment | null>(null);
   const [workerDetailDrawerOpen, setWorkerDetailDrawerOpen] = useState(false);
   const [selectedInPlaceWorker, setSelectedInPlaceWorker] = useState<CA_InPlaceWorker | null>(null);
+  const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
   
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
@@ -4004,9 +4005,13 @@ You can ask me about:
                                 totalPayrollCost={247500}
                                 nextPayrollRun="Nov 30"
                                 status={hasPendingItems ? "in_progress" : "ready"}
+                                pendingAdjustments={payAdjustments.filter(a => a.status === "pending").length}
+                                pendingLeave={leaveRequests.filter(l => l.status === "pending").length}
+                                autoApproved={payAdjustments.filter(a => a.status === "approved").length}
                                 hasPendingItems={hasPendingItems}
                                 onCountryRules={() => setCountryRulesDrawerOpen(true)}
                                 onDownloadSummary={() => toast.info("Downloading summary...")}
+                                onResolveItems={() => setResolveDrawerOpen(true)}
                                 onCreateBatch={handleCreateInPlaceBatch}
                                 onKurtHelp={() => toast.info("Kurt can help...")}
                               />
