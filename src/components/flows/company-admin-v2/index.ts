@@ -18,6 +18,7 @@ export * from "./CA_ItemDetailDrawer";
 export * from "./CA_InPlaceTypes";
 export * from "./CA_InPlaceData";
 export * from "./CA_OverviewCard";
+export * from "./CA_FXTotalsTable";
 export * from "./CA_PendingReviewCards";
 export * from "./CA_BatchSummaryCard";
 export * from "./CA_InPlaceStepper";
