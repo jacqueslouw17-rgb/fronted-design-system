@@ -3780,7 +3780,7 @@ You can ask me about:
                                   {/* Metric Cards Grid */}
                                   <div className="grid grid-cols-4 gap-4 mb-5">
                                     {/* Gross Pay */}
-                                    <div className="bg-foreground/[0.02] rounded-xl p-4">
+                                    <div className="bg-violet-500/[0.04] rounded-xl p-4">
                                       <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                                         <DollarSign className="h-4 w-4 text-primary" />
                                         <span className="text-sm">Gross Pay</span>
@@ -3792,7 +3792,7 @@ You can ask me about:
                                     </div>
 
                                     {/* Net Pay */}
-                                    <div className="bg-foreground/[0.02] rounded-xl p-4">
+                                    <div className="bg-violet-500/[0.04] rounded-xl p-4">
                                       <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                                         <Receipt className="h-4 w-4 text-primary" />
                                         <span className="text-sm">Net Pay</span>
@@ -3804,7 +3804,7 @@ You can ask me about:
                                     </div>
 
                                     {/* Fronted Fees */}
-                                    <div className="bg-foreground/[0.02] rounded-xl p-4">
+                                    <div className="bg-violet-500/[0.04] rounded-xl p-4">
                                       <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                                         <Building2 className="h-4 w-4 text-primary" />
                                         <span className="text-sm">Fronted Fees (Est.)</span>
@@ -3816,7 +3816,7 @@ You can ask me about:
                                     </div>
 
                                     {/* Total Cost */}
-                                    <div className="bg-foreground/[0.02] rounded-xl p-4">
+                                    <div className="bg-violet-500/[0.04] rounded-xl p-4">
                                       <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                                         <TrendingUp className="h-4 w-4 text-primary" />
                                         <span className="text-sm">Total Cost</span>
