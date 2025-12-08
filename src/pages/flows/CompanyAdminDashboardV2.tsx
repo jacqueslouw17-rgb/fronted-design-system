@@ -3909,136 +3909,421 @@ You can ask me about:
                           </CardContent>
                         </Card>
                       ) : viewMode === "payroll" ? (
-                        /* Payroll Batch Workflow - Enhanced with 3 Cards */
+                        /* Payroll with Period-Based States */
                         <div className="space-y-6">
-                          {/* Card A: Payroll Overview & Actions */}
-                          <CA_PayrollOverviewCard
-                            payPeriod="November 2025"
-                            primaryCurrency="USD"
-                            countries="Philippines, Norway, Portugal, France, Italy"
-                            employeeCount={3}
-                            contractorCount={6}
-                            status="in_review"
-                            adjustments={caAdjustments}
-                            leaveChanges={caLeaveChanges}
-                            autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
-                            blockingAlerts={mockBlockingAlerts}
-                            onResolveItems={() => setResolveDrawerOpen(true)}
-                            onCreateBatch={handleCreateBatch}
-                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                            onPeriodChange={() => {}}
-                            selectedPeriod="current"
-                          />
-
-                          {/* Card B: Review FX & Totals */}
-                          <CA_ReviewFXTotalsCard
-                            data={mockFXTotalsData}
-                            hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
-                            onResolveClick={() => setResolveDrawerOpen(true)}
-                            employmentFilter={caFxFilter}
-                            onEmploymentFilterChange={setCaFxFilter}
-                            selectedCountries={caSelectedCountries}
-                            onCountriesChange={setCaSelectedCountries}
-                            allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
-                          />
-
-                          {/* Card C: Previews (Employees + Contractors) */}
-                          <CA_PayrollPreviewsCard
-                            employeeData={mockEmployeePreviewData}
-                            contractorData={mockContractorPreviewData}
-                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                            onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
-                            onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
-                          />
-
-                          {/* Resolve Items Drawer */}
-                          <CA_ResolveItemsDrawer
-                            open={resolveDrawerOpen}
-                            onClose={() => setResolveDrawerOpen(false)}
-                            adjustments={caAdjustments}
-                            leaveChanges={caLeaveChanges}
-                            onApproveAdjustment={handleApproveAdjustment}
-                            onRejectAdjustment={handleRejectAdjustment}
-                            onApproveLeave={handleApproveLeave}
-                            onRejectLeave={handleRejectLeave}
-                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                            autoApproveThreshold={500}
-                          />
-                        </div>
-                      ) : (
-                        /* Payment Batch Review View */
-                        <div className="space-y-6">
-                          {/* Batch Review Header */}
-                          <CA_BatchReviewHeader
-                            period={currentBatch?.period || "November 2025"}
-                            payoutDate={currentBatch?.payoutDate || "November 30, 2025"}
-                            status={currentBatch?.status || "awaiting_approval"}
-                            executionMode={currentBatch?.executionMode || "fronted"}
-                            autoApproveTime={currentBatch?.autoApproveTime}
-                            clientReviewCount={batchClientReviewItems.filter(i => i.status === "client_review").length}
-                            hasBlockers={currentBatch?.blockers?.length ? currentBatch.blockers.length > 0 : false}
-                            onApproveBatch={handleApproveBatch}
-                            onRequestChanges={() => setRequestChangesModalOpen(true)}
-                            onExport={() => toast.info("Exporting batch summary...")}
-                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                          />
-
-                          {/* Two Column Layout */}
-                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left: Review Sections (2/3) */}
-                            <div className="lg:col-span-2 space-y-6">
-                              {/* Section A: Adjustments requiring approval */}
-                              <CA_ClientReviewSection
-                                items={batchClientReviewItems}
-                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
-                                onApprove={handleApproveBatchItem}
-                                onReject={handleRejectBatchItem}
-                                onView={handleViewBatchItem}
-                                onApproveAll={handleApproveAllBatchItems}
-                              />
-
-                              {/* Section B: All Items */}
-                              <CA_AllItemsSection
-                                workers={mockBatchWorkers}
-                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
-                                onViewDetails={(workerId) => {
-                                  const worker = mockBatchWorkers.find(w => w.id === workerId);
-                                  if (worker) {
-                                    toast.info(`Viewing details for ${worker.name}`);
-                                  }
-                                }}
-                              />
+                          {/* Period Selector */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Badge className={cn(
+                                "text-xs",
+                                selectedCycle === "previous" && "bg-muted text-muted-foreground",
+                                selectedCycle === "current" && !currentBatch && "bg-amber-500/10 text-amber-600 border-amber-500/30",
+                                selectedCycle === "current" && currentBatch && "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                                selectedCycle === "next" && "bg-blue-500/10 text-blue-600 border-blue-500/30"
+                              )}>
+                                {selectedCycle === "previous" ? "Completed" : 
+                                 selectedCycle === "next" ? "Upcoming" : 
+                                 currentBatch ? "In Batch" : "In Review"}
+                              </Badge>
+                              <h2 className="text-lg font-semibold text-foreground">
+                                {payrollCycleData[selectedCycle].label}
+                              </h2>
                             </div>
-
-                            {/* Right: Sidebar (1/3) */}
-                            <div className="lg:col-span-1">
-                              <CA_BatchSidebar
-                                summaryByCurrency={mockBatchSummary}
-                                employeeCount={currentBatch?.employeeCount || 4}
-                                contractorCount={currentBatch?.contractorCount || 4}
-                                blockers={currentBatch?.blockers || []}
-                                auditLog={mockAuditLog}
-                                autoApproveLabel={currentBatch?.autoApproveTime ? `Auto-approve on ${new Date(currentBatch.autoApproveTime).toLocaleDateString()} if no action.` : undefined}
-                                onBlockerClick={(id) => toast.info(`Navigate to blocker ${id}`)}
-                              />
-                            </div>
+                            <Select value={selectedCycle} onValueChange={(val) => setSelectedCycle(val as "previous" | "current" | "next")}>
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="previous">{payrollCycleData.previous.label}</SelectItem>
+                                <SelectItem value="current">{payrollCycleData.current.label}</SelectItem>
+                                <SelectItem value="next">{payrollCycleData.next.label}</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
-                          {/* Request Changes Modal */}
-                          <CA_RequestChangesModal
-                            open={requestChangesModalOpen}
-                            onOpenChange={setRequestChangesModalOpen}
-                            onSubmit={handleRequestChanges}
-                          />
+                          {/* NEXT Period - Upcoming State */}
+                          {selectedCycle === "next" && (
+                            <Card className="border-border/40 bg-card/30 backdrop-blur-sm">
+                              <CardContent className="py-12 px-6">
+                                <div className="flex flex-col items-center justify-center text-center space-y-4">
+                                  <div className="p-4 rounded-full bg-blue-500/10">
+                                    <Clock className="h-8 w-8 text-blue-600" />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <h3 className="text-lg font-semibold text-foreground">
+                                      Upcoming Payroll: {payrollCycleData.next.label}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                      This payroll period is not yet open for review
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-6 pt-4">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                                      <div className="text-left">
+                                        <p className="text-xs text-muted-foreground">Opens on</p>
+                                        <p className="text-sm font-medium text-foreground">{payrollCycleData.next.opensOn}</p>
+                                      </div>
+                                    </div>
+                                    <div className="w-px h-10 bg-border" />
+                                    <div className="flex items-center gap-2">
+                                      <Lock className="h-4 w-4 text-muted-foreground" />
+                                      <div className="text-left">
+                                        <p className="text-xs text-muted-foreground">Payout date</p>
+                                        <p className="text-sm font-medium text-foreground">{payrollCycleData.next.nextPayrollRun}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Badge variant="outline" className="mt-4 bg-blue-500/10 text-blue-600 border-blue-500/30">
+                                    Opens T-7
+                                  </Badge>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
 
-                          {/* Item Detail Drawer */}
-                          <CA_ItemDetailDrawer
-                            open={itemDetailDrawerOpen}
-                            onOpenChange={setItemDetailDrawerOpen}
-                            item={selectedBatchItem}
-                            onApprove={handleApproveBatchItem}
-                            onReject={handleRejectBatchItem}
-                          />
+                          {/* PREVIOUS Period - Read-only Flow 7 Clone */}
+                          {selectedCycle === "previous" && (
+                            <div className="space-y-6">
+                              {/* Read-only Banner */}
+                              <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/10">
+                                <Info className="h-4 w-4 text-amber-600" />
+                                <p className="text-sm text-amber-900 dark:text-amber-200">
+                                  This is a completed payroll cycle. Actions are disabled.
+                                </p>
+                              </div>
+                              
+                              {/* Post-run Summary (Flow 7 v1 style) */}
+                              {renderStepContent()}
+                            </div>
+                          )}
+
+                          {/* CURRENT Period - In Review or In Batch */}
+                          {selectedCycle === "current" && !currentBatch && (
+                            <div className="space-y-6">
+                              {/* Card A: Payroll Overview & Actions */}
+                              <CA_PayrollOverviewCard
+                                payPeriod={payrollCycleData.current.label}
+                                primaryCurrency="USD"
+                                countries="Philippines, Norway, Portugal, France, Italy"
+                                employeeCount={3}
+                                contractorCount={6}
+                                status="in_review"
+                                adjustments={caAdjustments}
+                                leaveChanges={caLeaveChanges}
+                                autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
+                                blockingAlerts={mockBlockingAlerts}
+                                onResolveItems={() => setResolveDrawerOpen(true)}
+                                onCreateBatch={handleCreateBatch}
+                                onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                                onPeriodChange={() => {}}
+                                selectedPeriod="current"
+                              />
+
+                              {/* Review Cards Row */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Leave Requests Card */}
+                                <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+                                  <CardHeader className="py-3 px-5 border-b border-border/40">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium text-foreground">Leave requests</span>
+                                        {caLeaveChanges.filter(l => l.status === "pending").length > 0 && (
+                                          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                            {caLeaveChanges.filter(l => l.status === "pending").length} pending
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={() => setResolveDrawerOpen(true)}>
+                                        View all
+                                      </Button>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="p-4">
+                                    {caLeaveChanges.filter(l => l.status === "pending").length === 0 ? (
+                                      <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-green-500/10">
+                                          <Check className="h-4 w-4 text-green-600" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">All clear - no pending requests</p>
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-2">
+                                        {caLeaveChanges.slice(0, 3).map((leave) => (
+                                          <div key={leave.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30">
+                                            <div className="flex items-center gap-2">
+                                              <Avatar className="h-6 w-6">
+                                                <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                                  {leave.workerName.split(" ").map(n => n[0]).join("")}
+                                                </AvatarFallback>
+                                              </Avatar>
+                                              <span className="text-sm">{leave.workerName}</span>
+                                              <Badge variant="outline" className="text-[10px]">{leave.days}d</Badge>
+                                            </div>
+                                            <div className="flex gap-1">
+                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-green-600" onClick={() => handleApproveLeave(leave.id)}>
+                                                <Check className="h-3 w-3" />
+                                              </Button>
+                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => handleRejectLeave(leave.id)}>
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+
+                                {/* Pay Adjustments Card */}
+                                <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
+                                  <CardHeader className="py-3 px-5 border-b border-border/40">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium text-foreground">Pay adjustments</span>
+                                        {caAdjustments.filter(a => a.status === "pending").length > 0 && (
+                                          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                            {caAdjustments.filter(a => a.status === "pending").length} pending
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={() => setResolveDrawerOpen(true)}>
+                                        View all
+                                      </Button>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="p-4">
+                                    {caAdjustments.filter(a => a.status === "pending").length === 0 ? (
+                                      <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-green-500/10">
+                                          <Check className="h-4 w-4 text-green-600" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">All clear - no pending adjustments</p>
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-2">
+                                        {caAdjustments.filter(a => a.status === "pending").slice(0, 3).map((adj) => (
+                                          <div key={adj.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30">
+                                            <div className="flex items-center gap-2">
+                                              <Avatar className="h-6 w-6">
+                                                <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                                  {adj.workerName.split(" ").map(n => n[0]).join("")}
+                                                </AvatarFallback>
+                                              </Avatar>
+                                              <span className="text-sm">{adj.workerName}</span>
+                                              <Badge variant="outline" className="text-[10px]">{adj.type}</Badge>
+                                              <span className="text-xs font-medium text-green-600">+{adj.currency}{adj.amount}</span>
+                                            </div>
+                                            <div className="flex gap-1">
+                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-green-600" onClick={() => handleApproveAdjustment(adj.id)}>
+                                                <Check className="h-3 w-3" />
+                                              </Button>
+                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => handleRejectAdjustment(adj.id)}>
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              </div>
+
+                              <p className="text-xs text-muted-foreground text-center">
+                                Approvals update totals below in real time.
+                              </p>
+
+                              {/* Card B: Review FX & Totals */}
+                              <CA_ReviewFXTotalsCard
+                                data={mockFXTotalsData}
+                                hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
+                                onResolveClick={() => setResolveDrawerOpen(true)}
+                                employmentFilter={caFxFilter}
+                                onEmploymentFilterChange={setCaFxFilter}
+                                selectedCountries={caSelectedCountries}
+                                onCountriesChange={setCaSelectedCountries}
+                                allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
+                              />
+
+                              {/* Card C: Previews */}
+                              <CA_PayrollPreviewsCard
+                                employeeData={mockEmployeePreviewData}
+                                contractorData={mockContractorPreviewData}
+                                onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                                onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
+                                onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
+                              />
+
+                              {/* Resolve Items Drawer */}
+                              <CA_ResolveItemsDrawer
+                                open={resolveDrawerOpen}
+                                onClose={() => setResolveDrawerOpen(false)}
+                                adjustments={caAdjustments}
+                                leaveChanges={caLeaveChanges}
+                                onApproveAdjustment={handleApproveAdjustment}
+                                onRejectAdjustment={handleRejectAdjustment}
+                                onApproveLeave={handleApproveLeave}
+                                onRejectLeave={handleRejectLeave}
+                                onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                                autoApproveThreshold={500}
+                              />
+                            </div>
+                          )}
+
+                          {/* CURRENT Period - In Batch (4-Step Flow) */}
+                          {selectedCycle === "current" && currentBatch && (
+                            <div className="space-y-6">
+                              {/* Batch Summary Header */}
+                              <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur-sm">
+                                <CardContent className="py-4 px-5">
+                                  <div className="flex items-start justify-between">
+                                    <div className="space-y-3">
+                                      <div className="flex items-center gap-3">
+                                        <Badge className={cn(
+                                          "text-xs",
+                                          currentBatch.status === "draft" && "bg-muted text-muted-foreground",
+                                          currentBatch.status === "awaiting_approval" && "bg-amber-500/10 text-amber-600 border-amber-500/30",
+                                          currentBatch.status === "client_approved" && "bg-green-500/10 text-green-600 border-green-500/30"
+                                        )}>
+                                          {currentBatch.status === "draft" ? "Draft" : 
+                                           currentBatch.status === "awaiting_approval" ? "In Review" : 
+                                           currentBatch.status === "client_approved" ? "Approved" : "Processing"}
+                                        </Badge>
+                                        <h3 className="text-lg font-semibold text-foreground">
+                                          Payment Batch – {currentBatch.payoutDate}
+                                        </h3>
+                                      </div>
+                                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                        <span className="font-mono text-xs">ID: {currentBatch.id}</span>
+                                        <span>•</span>
+                                        <div className="flex items-center gap-1">
+                                          <Users className="h-3.5 w-3.5" />
+                                          <span>{currentBatch.employeeCount} EOR</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <Briefcase className="h-3.5 w-3.5" />
+                                          <span>{currentBatch.contractorCount} COR</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
+                                        <Settings className="h-3.5 w-3.5" />
+                                        Country Rules
+                                      </Button>
+                                      <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground" onClick={handleBackToPayroll}>
+                                        <X className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              {/* Progress Pills */}
+                              <div className="flex items-center justify-center gap-2 py-4">
+                                {[
+                                  { id: "review-fx" as const, label: "Review", number: 1 },
+                                  { id: "exceptions" as const, label: "Exceptions", number: 2 },
+                                  { id: "execute" as const, label: "Execute", number: 3 },
+                                  { id: "track" as const, label: "Track & Reconcile", number: 4 },
+                                ].map((step, index) => {
+                                  const stepOrder = ["review-fx", "exceptions", "execute", "track"];
+                                  const currentIndex = stepOrder.indexOf(currentStep);
+                                  const stepIndex = stepOrder.indexOf(step.id);
+                                  const state = stepIndex < currentIndex ? "done" : stepIndex === currentIndex ? "active" : "todo";
+                                  
+                                  return (
+                                    <React.Fragment key={step.id}>
+                                      <button
+                                        onClick={() => state !== "todo" && setCurrentStep(step.id)}
+                                        disabled={state === "todo"}
+                                        className={cn(
+                                          "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                                          state === "active" && "bg-primary text-primary-foreground shadow-md",
+                                          state === "done" && "bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer",
+                                          state === "todo" && "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                                        )}
+                                      >
+                                        <span className={cn(
+                                          "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold",
+                                          state === "active" && "bg-primary-foreground/20",
+                                          state === "done" && "bg-primary/30",
+                                          state === "todo" && "bg-muted"
+                                        )}>
+                                          {state === "done" ? <Check className="h-3 w-3" /> : step.number}
+                                        </span>
+                                        <span>{step.label}</span>
+                                      </button>
+                                      {index < 3 && (
+                                        <div className={cn(
+                                          "w-8 h-0.5 rounded-full",
+                                          stepIndex < currentIndex ? "bg-primary/40" : "bg-muted"
+                                        )} />
+                                      )}
+                                    </React.Fragment>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Step Content (Flow 7 v1 content) */}
+                              {renderStepContent()}
+
+                              {/* Step Navigation */}
+                              <div className="flex items-center justify-between pt-4 border-t border-border/40">
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => {
+                                    const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
+                                    const currentIndex = stepOrder.indexOf(currentStep);
+                                    if (currentIndex > 0) {
+                                      setCurrentStep(stepOrder[currentIndex - 1]);
+                                    } else {
+                                      handleBackToPayroll();
+                                    }
+                                  }}
+                                >
+                                  {currentStep === "review-fx" ? "← Back to Overview" : "← Previous"}
+                                </Button>
+                                
+                                {currentStep !== "track" ? (
+                                  <Button 
+                                    onClick={() => {
+                                      const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
+                                      const currentIndex = stepOrder.indexOf(currentStep);
+                                      if (currentIndex < stepOrder.length - 1) {
+                                        setCurrentStep(stepOrder[currentIndex + 1]);
+                                      }
+                                    }}
+                                  >
+                                    Continue to {
+                                      currentStep === "review-fx" ? "Exceptions" :
+                                      currentStep === "exceptions" ? "Execute" :
+                                      "Track & Reconcile"
+                                    } →
+                                  </Button>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <Button variant="outline" onClick={() => setRequestChangesModalOpen(true)}>
+                                      Request Changes
+                                    </Button>
+                                    <Button onClick={handleApproveBatch}>
+                                      Approve Batch
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Request Changes Modal */}
+                              <CA_RequestChangesModal
+                                open={requestChangesModalOpen}
+                                onOpenChange={setRequestChangesModalOpen}
+                                onSubmit={handleRequestChanges}
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
