@@ -43,22 +43,22 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-4 gap-4 mt-6">
-          <div className="p-4 rounded-lg bg-violet-500/[0.04]">
+          <div className="p-4 rounded-lg bg-primary/[0.04]">
             <p className="text-xs text-muted-foreground mb-1">Gross Pay</p>
             <p className="text-2xl font-bold text-foreground">{grossPay}</p>
             <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
           </div>
-          <div className="p-4 rounded-lg bg-violet-500/[0.04]">
+          <div className="p-4 rounded-lg bg-primary/[0.04]">
             <p className="text-xs text-muted-foreground mb-1">Net Pay</p>
             <p className="text-2xl font-bold text-foreground">{netPay}</p>
             <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
           </div>
-          <div className="p-4 rounded-lg bg-violet-500/[0.04]">
+          <div className="p-4 rounded-lg bg-primary/[0.04]">
             <p className="text-xs text-muted-foreground mb-1">Fronted Fees (Est.)</p>
             <p className="text-2xl font-bold text-foreground">{frontedFees}</p>
             <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
           </div>
-          <div className="p-4 rounded-lg bg-violet-500/[0.04]">
+          <div className="p-4 rounded-lg bg-primary/[0.04]">
             <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
             <p className="text-2xl font-bold text-foreground">{totalCost}</p>
             <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
