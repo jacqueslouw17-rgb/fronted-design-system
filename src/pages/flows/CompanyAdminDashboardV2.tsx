@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, XCircle, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check, Search, Users, Briefcase, Send } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, CheckSquare, Play, TrendingUp, RefreshCw, Lock, Info, Clock, X, XCircle, AlertCircle, Download, FileText, Building2, Receipt, Activity, Settings, Plus, Check, Search, Users, Briefcase, Send, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -4325,11 +4325,11 @@ You can ask me about:
                             </div>
                           )}
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
-                      {/* Payment Detail Drawer */}
-                      <Sheet open={paymentDetailDrawerOpen} onOpenChange={setPaymentDetailDrawerOpen}>
+                    {/* Payment Detail Drawer */}
+                    <Sheet open={paymentDetailDrawerOpen} onOpenChange={setPaymentDetailDrawerOpen}>
                         <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
                           {selectedPaymentDetail && <>
                               <SheetHeader>
