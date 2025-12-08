@@ -26,6 +26,7 @@ import { CA_ItemDetailDrawer } from "@/components/flows/company-admin-v2/CA_Item
 import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
 import { CA_WorkerPreviewRow } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PayPeriodDropdown } from "@/components/flows/company-admin-v2/CA_PayPeriodDropdown";
+import { CA_CompletedPaymentDetailsCard } from "@/components/flows/company-admin-v2/CA_CompletedPaymentDetailsCard";
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
@@ -4006,7 +4007,7 @@ You can ask me about:
                           {/* PREVIOUS Period - Read-only Flow 7 Clone */}
                           {selectedCycle === "previous" && (
                             <div className="space-y-6">
-                              {/* Read-only Banner */}
+                              {/* Single Info Banner */}
                               <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/10">
                                 <Info className="h-4 w-4 text-amber-600" />
                                 <p className="text-sm text-amber-900 dark:text-amber-200">
@@ -4014,8 +4015,40 @@ You can ask me about:
                                 </p>
                               </div>
                               
-                              {/* Post-run Summary (Flow 7 v1 style) */}
-                              {renderStepContent()}
+                              {/* Track & Reconcile Header Card */}
+                              <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+                                <CardContent className="p-6">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h3 className="text-base font-semibold text-foreground">Track & Reconcile: October 2025</h3>
+                                      <p className="text-sm text-muted-foreground mt-1">Review completed employee postings and contractor payouts</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-2">
+                                        <Download className="h-3.5 w-3.5" />
+                                        Export CSV
+                                      </Button>
+                                      <Button variant="outline" size="sm" onClick={handleDownloadAuditPDF} className="gap-2">
+                                        <FileText className="h-3.5 w-3.5" />
+                                        Audit PDF
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              {/* Payment Details Table */}
+                              <CA_CompletedPaymentDetailsCard
+                                employees={allContractors.filter(c => c.employmentType === "employee")}
+                                contractors={allContractors.filter(c => c.employmentType === "contractor")}
+                                workerTypeFilter={workerTypeFilter}
+                                onWorkerTypeFilterChange={(v) => setWorkerTypeFilter(v as typeof workerTypeFilter)}
+                                onOpenPaymentDetail={handleOpenPaymentDetail}
+                                getPaymentStatus={getPaymentStatus}
+                                getPaymentDue={getPaymentDue}
+                                paymentReceipts={paymentReceipts}
+                                onViewReceipt={handleViewReceipt}
+                              />
                             </div>
                           )}
 
