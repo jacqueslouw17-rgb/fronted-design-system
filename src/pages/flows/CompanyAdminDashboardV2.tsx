@@ -14,8 +14,9 @@ import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_PayrollOverviewCard";
 import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
-import { CA_PayrollPreviewsCard } from "@/components/flows/company-admin-v2/CA_PayrollPreviewsCard";
 import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
+import { CA_IssuesBar } from "@/components/flows/company-admin-v2/CA_IssuesBar";
+import { CA_CurrencyWorkersDrawer } from "@/components/flows/company-admin-v2/CA_CurrencyWorkersDrawer";
 import { CA_BatchReviewHeader } from "@/components/flows/company-admin-v2/CA_BatchReviewHeader";
 import { CA_ClientReviewSection } from "@/components/flows/company-admin-v2/CA_ClientReviewSection";
 import { CA_AllItemsSection } from "@/components/flows/company-admin-v2/CA_AllItemsSection";
@@ -23,6 +24,7 @@ import { CA_BatchSidebar } from "@/components/flows/company-admin-v2/CA_BatchSid
 import { CA_RequestChangesModal } from "@/components/flows/company-admin-v2/CA_RequestChangesModal";
 import { CA_ItemDetailDrawer } from "@/components/flows/company-admin-v2/CA_ItemDetailDrawer";
 import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
+import { CA_WorkerPreviewRow } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
@@ -461,10 +463,31 @@ const CompanyAdminDashboardV2: React.FC = () => {
 
   // Flow 6 v2 - Enhanced Payroll State
   const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
+  const [resolveDrawerPreSelectedCurrency, setResolveDrawerPreSelectedCurrency] = useState<string | undefined>(undefined);
+  const [currencyWorkersDrawerOpen, setCurrencyWorkersDrawerOpen] = useState(false);
+  const [currencyWorkersDrawerCurrency, setCurrencyWorkersDrawerCurrency] = useState<string>("");
   const [caAdjustments, setCaAdjustments] = useState<CA_Adjustment[]>(mockAdjustments);
   const [caLeaveChanges, setCaLeaveChanges] = useState<CA_LeaveChange[]>(mockLeaveChanges);
   const [caFxFilter, setCaFxFilter] = useState<"all" | "employees" | "contractors">("all");
   const [caSelectedCountries, setCaSelectedCountries] = useState<string[]>([]);
+
+  // Handlers for FX table row clicks
+  const handleResolveWithCurrency = (currency?: string) => {
+    setResolveDrawerPreSelectedCurrency(currency);
+    setResolveDrawerOpen(true);
+  };
+
+  const handleNetToPayClick = (currency: string) => {
+    setCurrencyWorkersDrawerCurrency(currency);
+    setCurrencyWorkersDrawerOpen(true);
+  };
+
+  // Get workers by currency for the drawer
+  const getWorkersByCurrency = (currency: string): { employees: CA_WorkerPreviewRow[], contractors: CA_WorkerPreviewRow[] } => {
+    const employees = mockEmployeePreviewData.filter(e => e.currency === currency);
+    const contractors = mockContractorPreviewData.filter(c => c.currency === currency);
+    return { employees, contractors };
+  };
 
   const handleApproveAdjustment = (id: string) => {
     setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
@@ -4020,147 +4043,34 @@ You can ask me about:
                                 selectedPeriod="current"
                               />
 
-                              {/* Review Cards Row */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Leave Requests Card */}
-                                <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-                                  <CardHeader className="py-3 px-5 border-b border-border/40">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium text-foreground">Leave requests</span>
-                                        {caLeaveChanges.filter(l => l.status === "pending").length > 0 && (
-                                          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
-                                            {caLeaveChanges.filter(l => l.status === "pending").length} pending
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={() => setResolveDrawerOpen(true)}>
-                                        View all
-                                      </Button>
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent className="p-4">
-                                    {caLeaveChanges.filter(l => l.status === "pending").length === 0 ? (
-                                      <div className="flex items-center gap-3">
-                                        <div className="p-2 rounded-lg bg-green-500/10">
-                                          <Check className="h-4 w-4 text-green-600" />
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">All clear - no pending requests</p>
-                                      </div>
-                                    ) : (
-                                      <div className="space-y-2">
-                                        {caLeaveChanges.slice(0, 3).map((leave) => (
-                                          <div key={leave.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30">
-                                            <div className="flex items-center gap-2">
-                                              <Avatar className="h-6 w-6">
-                                                <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                                  {leave.workerName.split(" ").map(n => n[0]).join("")}
-                                                </AvatarFallback>
-                                              </Avatar>
-                                              <span className="text-sm">{leave.workerName}</span>
-                                              <Badge variant="outline" className="text-[10px]">{leave.days}d</Badge>
-                                            </div>
-                                            <div className="flex gap-1">
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-green-600" onClick={() => handleApproveLeave(leave.id)}>
-                                                <Check className="h-3 w-3" />
-                                              </Button>
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => handleRejectLeave(leave.id)}>
-                                                <X className="h-3 w-3" />
-                                              </Button>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </CardContent>
-                                </Card>
-
-                                {/* Pay Adjustments Card */}
-                                <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-                                  <CardHeader className="py-3 px-5 border-b border-border/40">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium text-foreground">Pay adjustments</span>
-                                        {caAdjustments.filter(a => a.status === "pending").length > 0 && (
-                                          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
-                                            {caAdjustments.filter(a => a.status === "pending").length} pending
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      <Button variant="link" size="sm" className="text-xs h-auto p-0" onClick={() => setResolveDrawerOpen(true)}>
-                                        View all
-                                      </Button>
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent className="p-4">
-                                    {caAdjustments.filter(a => a.status === "pending").length === 0 ? (
-                                      <div className="flex items-center gap-3">
-                                        <div className="p-2 rounded-lg bg-green-500/10">
-                                          <Check className="h-4 w-4 text-green-600" />
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">All clear - no pending adjustments</p>
-                                      </div>
-                                    ) : (
-                                      <div className="space-y-2">
-                                        {caAdjustments.filter(a => a.status === "pending").slice(0, 3).map((adj) => (
-                                          <div key={adj.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30">
-                                            <div className="flex items-center gap-2">
-                                              <Avatar className="h-6 w-6">
-                                                <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                                  {adj.workerName.split(" ").map(n => n[0]).join("")}
-                                                </AvatarFallback>
-                                              </Avatar>
-                                              <span className="text-sm">{adj.workerName}</span>
-                                              <Badge variant="outline" className="text-[10px]">{adj.type}</Badge>
-                                              <span className="text-xs font-medium text-green-600">+{adj.currency}{adj.amount}</span>
-                                            </div>
-                                            <div className="flex gap-1">
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-green-600" onClick={() => handleApproveAdjustment(adj.id)}>
-                                                <Check className="h-3 w-3" />
-                                              </Button>
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => handleRejectAdjustment(adj.id)}>
-                                                <X className="h-3 w-3" />
-                                              </Button>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </CardContent>
-                                </Card>
-                              </div>
-
-                              <p className="text-xs text-muted-foreground text-center">
-                                Approvals update totals below in real time.
-                              </p>
+                              {/* Issues Bar */}
+                              <CA_IssuesBar
+                                pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length}
+                                pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length}
+                                autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length}
+                                onResolveClick={() => handleResolveWithCurrency()}
+                              />
 
                               {/* Card B: Review FX & Totals */}
                               <CA_ReviewFXTotalsCard
                                 data={mockFXTotalsData}
                                 hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
-                                onResolveClick={() => setResolveDrawerOpen(true)}
+                                onResolveClick={handleResolveWithCurrency}
                                 employmentFilter={caFxFilter}
                                 onEmploymentFilterChange={setCaFxFilter}
                                 selectedCountries={caSelectedCountries}
                                 onCountriesChange={setCaSelectedCountries}
                                 allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
-                              />
-
-                              {/* Card C: Previews */}
-                              <CA_PayrollPreviewsCard
-                                employeeData={mockEmployeePreviewData}
-                                contractorData={mockContractorPreviewData}
-                                onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                                onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
-                                onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
+                                onNetToPayClick={handleNetToPayClick}
                               />
 
                               {/* Resolve Items Drawer */}
                               <CA_ResolveItemsDrawer
                                 open={resolveDrawerOpen}
-                                onClose={() => setResolveDrawerOpen(false)}
+                                onClose={() => {
+                                  setResolveDrawerOpen(false);
+                                  setResolveDrawerPreSelectedCurrency(undefined);
+                                }}
                                 adjustments={caAdjustments}
                                 leaveChanges={caLeaveChanges}
                                 onApproveAdjustment={handleApproveAdjustment}
@@ -4169,6 +4079,18 @@ You can ask me about:
                                 onRejectLeave={handleRejectLeave}
                                 onViewWorker={(id) => toast.info(`View worker ${id}`)}
                                 autoApproveThreshold={500}
+                                preSelectedCurrency={resolveDrawerPreSelectedCurrency}
+                              />
+
+                              {/* Currency Workers Drawer */}
+                              <CA_CurrencyWorkersDrawer
+                                open={currencyWorkersDrawerOpen}
+                                onClose={() => setCurrencyWorkersDrawerOpen(false)}
+                                currency={currencyWorkersDrawerCurrency}
+                                employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees}
+                                contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors}
+                                onViewPayrollPreview={(id) => toast.info(`View payroll preview for ${id}`)}
+                                onViewInvoicePreview={(id) => toast.info(`View invoice preview for ${id}`)}
                               />
                             </div>
                           )}
