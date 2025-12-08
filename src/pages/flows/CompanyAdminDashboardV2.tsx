@@ -14,17 +14,21 @@ import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 // In-place batch workflow components
 import { CA_OverviewCard } from "@/components/flows/company-admin-v2/CA_OverviewCard";
+import { CA_FXTotalsTable } from "@/components/flows/company-admin-v2/CA_FXTotalsTable";
 import { CA_LeaveReviewCard, CA_AdjustmentReviewCard } from "@/components/flows/company-admin-v2/CA_PendingReviewCards";
 import { CA_BatchSummaryCard } from "@/components/flows/company-admin-v2/CA_BatchSummaryCard";
 import { CA_InPlaceStepper } from "@/components/flows/company-admin-v2/CA_InPlaceStepper";
 import { CA_ReviewStep } from "@/components/flows/company-admin-v2/CA_ReviewStep";
 import { CA_ExceptionsStep } from "@/components/flows/company-admin-v2/CA_ExceptionsStep";
 import { CA_ExecuteStep } from "@/components/flows/company-admin-v2/CA_ExecuteStep";
+import { CA_TrackReconcileStep } from "@/components/flows/company-admin-v2/CA_TrackReconcileStep";
 import { CA_LeaveDetailDrawer } from "@/components/flows/company-admin-v2/CA_LeaveDetailDrawer";
 import { CA_AdjustmentDetailDrawer } from "@/components/flows/company-admin-v2/CA_AdjustmentDetailDrawer";
 import { CA_WorkerDetailDrawer } from "@/components/flows/company-admin-v2/CA_WorkerDetailDrawer";
+import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
 import { mockLeaveRequests, mockPayAdjustments, mockInPlaceWorkers, mockCurrencyTotals, mockInPlaceExceptions, createMockInPlaceBatch } from "@/components/flows/company-admin-v2/CA_InPlaceData";
 import { CA_InPlaceStep, CA_InPlaceBatch, CA_LeaveRequest, CA_PayAdjustment, CA_InPlaceException, CA_InPlaceWorker } from "@/components/flows/company-admin-v2/CA_InPlaceTypes";
+import { mockAdjustments, mockLeaveChanges } from "@/components/flows/company-admin-v2/CA_PayrollData";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
@@ -376,6 +380,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const [workerDetailDrawerOpen, setWorkerDetailDrawerOpen] = useState(false);
   const [selectedInPlaceWorker, setSelectedInPlaceWorker] = useState<CA_InPlaceWorker | null>(null);
   const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
+  const [adjustments, setAdjustments] = useState(mockAdjustments);
+  const [leaveChanges, setLeaveChanges] = useState(mockLeaveChanges);
   
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
@@ -567,6 +573,31 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setInPlaceBatch({ ...inPlaceBatch, status: "requires_changes" });
     toast.success("Request sent. We'll notify you when it's resolved.");
     setInPlaceBatch(null);
+  };
+
+  // Resolve drawer handlers
+  const handleApproveResolveAdjustment = (id: string) => {
+    setAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
+    toast.success("Adjustment approved - totals updated");
+  };
+
+  const handleRejectResolveAdjustment = (id: string) => {
+    setAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
+    toast.info("Adjustment rejected");
+  };
+
+  const handleApproveResolveLeave = (id: string) => {
+    setLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
+    toast.success("Leave approved - totals updated");
+  };
+
+  const handleRejectResolveLeave = (id: string) => {
+    setLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
+    toast.info("Leave rejected");
+  };
+
+  const handleViewResolveWorker = (workerId: string) => {
+    toast.info(`Opening worker ${workerId} details...`);
   };
 
   // Filter allContractors based on employment type filter
@@ -2536,8 +2567,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             </TableRow>;
                         })}
                           </>}
-                        
-                        
+
+
                         {/* Per-type Subtotals Row */}
                         <TableRow className="bg-muted/30 border-t border-border">
                           <TableCell colSpan={22} className="p-0">
@@ -3998,41 +4029,37 @@ You can ask me about:
                                 payPeriod="November 2025"
                                 countries="Philippines, Norway, Portugal, France, Italy"
                                 employeeCount={3}
-                                contractorCount={5}
+                                contractorCount={6}
                                 primaryCurrency="USD"
-                                salaryCost={245000}
-                                frontedFees={2500}
-                                totalPayrollCost={247500}
-                                nextPayrollRun="Nov 30"
-                                status={hasPendingItems ? "in_progress" : "ready"}
-                                pendingAdjustments={payAdjustments.filter(a => a.status === "pending").length}
-                                pendingLeave={leaveRequests.filter(l => l.status === "pending").length}
-                                autoApproved={payAdjustments.filter(a => a.status === "approved").length}
-                                hasPendingItems={hasPendingItems}
+                                pendingAdjustments={adjustments.filter(a => a.status === "pending").length}
+                                pendingLeave={leaveChanges.filter(l => l.status === "pending").length}
+                                autoApproved={adjustments.filter(a => a.status === "auto_approved").length}
+                                hasPendingItems={adjustments.filter(a => a.status === "pending").length + leaveChanges.filter(l => l.status === "pending").length > 0}
                                 onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                                onDownloadSummary={() => toast.info("Downloading summary...")}
                                 onResolveItems={() => setResolveDrawerOpen(true)}
                                 onCreateBatch={handleCreateInPlaceBatch}
-                                onKurtHelp={() => toast.info("Kurt can help...")}
                               />
 
-                              {/* Pre-Batch: Pending Review Cards */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <CA_LeaveReviewCard
-                                  requests={leaveRequests}
-                                  onApprove={handleApproveLeaveRequest}
-                                  onReject={handleRejectLeaveRequest}
-                                  onView={handleViewLeaveRequest}
-                                  onViewAll={() => toast.info("View all leave requests")}
-                                />
-                                <CA_AdjustmentReviewCard
-                                  adjustments={payAdjustments}
-                                  onApprove={handleApprovePayAdjustment}
-                                  onReject={handleRejectPayAdjustment}
-                                  onView={handleViewPayAdjustment}
-                                  onViewAll={() => toast.info("View all adjustments")}
-                                />
-                              </div>
+                              {/* Review FX & Totals Table */}
+                              <CA_FXTotalsTable
+                                currencyTotals={mockCurrencyTotals}
+                                hasPendingItems={adjustments.filter(a => a.status === "pending").length + leaveChanges.filter(l => l.status === "pending").length > 0}
+                                onResolve={() => setResolveDrawerOpen(true)}
+                              />
+
+                              {/* Resolve Items Drawer */}
+                              <CA_ResolveItemsDrawer
+                                open={resolveDrawerOpen}
+                                onClose={() => setResolveDrawerOpen(false)}
+                                adjustments={adjustments}
+                                leaveChanges={leaveChanges}
+                                onApproveAdjustment={handleApproveResolveAdjustment}
+                                onRejectAdjustment={handleRejectResolveAdjustment}
+                                onApproveLeave={handleApproveResolveLeave}
+                                onRejectLeave={handleRejectResolveLeave}
+                                onViewWorker={handleViewResolveWorker}
+                                autoApproveThreshold={500}
+                              />
                             </>
                           )}
 
