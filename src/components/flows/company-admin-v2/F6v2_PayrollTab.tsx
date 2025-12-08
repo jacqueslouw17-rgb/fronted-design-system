@@ -451,6 +451,11 @@ export const F6v2_PayrollTab = () => {
     return "InTransit";
   };
 
+  // Leave & Attendance state
+  const [showLeaveSection, setShowLeaveSection] = useState(false);
+  const [leaveRecords, setLeaveRecords] = useState<Record<string, { leaveDays: number; clientConfirmed: boolean }>>({});
+  const [phPayrollHalf, setPhPayrollHalf] = useState<"1st" | "2nd">("1st");
+
   // Render step content
   const renderStepContent = () => {
     switch (currentStep) {
@@ -491,8 +496,145 @@ export const F6v2_PayrollTab = () => {
               Lock FX Rates
             </Button>
           )}
+          <Button variant="outline" size="sm" onClick={() => setCountryRulesDrawerOpen(true)} className="gap-2">
+            <Settings className="h-3.5 w-3.5" />
+            Country Rules
+          </Button>
         </div>
       </div>
+
+      {/* Leave & Attendance Section */}
+      <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+        <CardContent className="p-4">
+          <button onClick={() => setShowLeaveSection(!showLeaveSection)} className="w-full flex items-center justify-between group">
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
+              <Badge variant="outline" className="text-xs">
+                {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {showLeaveSection ? "Hide details" : "View details"}
+              </span>
+              <div className={cn("transition-transform duration-200", showLeaveSection && "rotate-180")}>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </button>
+
+          {showLeaveSection && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-4"
+            >
+              {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-6">
+                  <div className="text-center space-y-2 mb-4">
+                    <h4 className="text-base font-medium text-foreground">Track Leave & Absences</h4>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      Add employees or contractors who took leave this cycle. Their salaries will be automatically pro-rated based on working days.
+                    </p>
+                  </div>
+                  <Button size="default" onClick={() => {
+                    // Add first worker as example
+                    if (contractors.length > 0) {
+                      setLeaveRecords({ [contractors[0].id]: { leaveDays: 2, clientConfirmed: false } });
+                    }
+                  }} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Workers with Leave
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs">Name</TableHead>
+                        <TableHead className="text-xs text-right">Leave Days</TableHead>
+                        <TableHead className="text-xs text-right">Deduction</TableHead>
+                        <TableHead className="text-xs text-center">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contractors.filter(c => leaveRecords[c.id]?.leaveDays > 0).map(contractor => {
+                        const leaveData = leaveRecords[contractor.id];
+                        const dailyRate = contractor.baseSalary / 22;
+                        const deduction = dailyRate * (leaveData?.leaveDays || 0);
+                        return (
+                          <TableRow key={contractor.id}>
+                            <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
+                            <TableCell className="text-right">
+                              <input
+                                type="number"
+                                min="0"
+                                max="31"
+                                value={leaveData?.leaveDays || 0}
+                                onChange={e => setLeaveRecords(prev => ({
+                                  ...prev,
+                                  [contractor.id]: { ...prev[contractor.id], leaveDays: parseFloat(e.target.value) || 0 }
+                                }))}
+                                className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
+                              />
+                            </TableCell>
+                            <TableCell className="text-right text-sm text-amber-600 font-medium">
+                              -{contractor.currency} {Math.round(deduction).toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <button
+                                onClick={() => setLeaveRecords(prev => ({
+                                  ...prev,
+                                  [contractor.id]: { ...prev[contractor.id], clientConfirmed: !prev[contractor.id]?.clientConfirmed }
+                                }))}
+                                className="text-xs text-primary hover:underline"
+                              >
+                                {leaveData?.clientConfirmed ? "Confirmed" : "Confirm"}
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* PH Bi-Monthly Toggle */}
+      {Object.keys(contractorsByCurrencyV2).includes("PHP") && (
+        <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium text-muted-foreground">Philippines Payout Half:</span>
+              <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 gap-1">
+                <button
+                  onClick={() => setPhPayrollHalf("1st")}
+                  className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", 
+                    phPayrollHalf === "1st" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  1st Half (1st-15th)
+                </button>
+                <button
+                  onClick={() => setPhPayrollHalf("2nd")}
+                  className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", 
+                    phPayrollHalf === "2nd" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  2nd Half (16th-End)
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Employment Type Filter */}
       <div className="flex items-center gap-2">
