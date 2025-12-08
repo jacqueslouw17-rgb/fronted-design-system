@@ -3802,18 +3802,18 @@ You can ask me about:
                               {renderStepContent()}
 
                               {/* Step Navigation */}
-                              <div className="flex items-center justify-between pt-4 border-t border-border/40">
-                                <Button variant="outline" onClick={() => {
-                            const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
-                            const currentIndex = stepOrder.indexOf(currentStep);
-                            if (currentIndex > 0) {
-                              setCurrentStep(stepOrder[currentIndex - 1]);
-                            } else {
-                              handleBackToPayroll();
-                            }
-                          }}>
-                                  {currentStep === "review-fx" ? "← Back to Overview" : "← Previous"}
-                                </Button>
+                              <div className="flex items-center justify-end pt-4 border-t border-border/40">
+                                {currentStep !== "review-fx" && (
+                                  <Button variant="outline" className="mr-auto" onClick={() => {
+                                    const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
+                                    const currentIndex = stepOrder.indexOf(currentStep);
+                                    if (currentIndex > 0) {
+                                      setCurrentStep(stepOrder[currentIndex - 1]);
+                                    }
+                                  }}>
+                                    ← Previous
+                                  </Button>
+                                )}
                                 
                                 {currentStep !== "track" ? <Button onClick={() => {
                             const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
