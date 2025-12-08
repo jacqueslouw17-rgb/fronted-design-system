@@ -25,6 +25,7 @@ import { CA_RequestChangesModal } from "@/components/flows/company-admin-v2/CA_R
 import { CA_ItemDetailDrawer } from "@/components/flows/company-admin-v2/CA_ItemDetailDrawer";
 import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
 import { CA_WorkerPreviewRow } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
+import { CA_PayPeriodDropdown } from "@/components/flows/company-admin-v2/CA_PayPeriodDropdown";
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
@@ -3952,16 +3953,11 @@ You can ask me about:
                                 {payrollCycleData[selectedCycle].label}
                               </h2>
                             </div>
-                            <Select value={selectedCycle} onValueChange={(val) => setSelectedCycle(val as "previous" | "current" | "next")}>
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="previous">{payrollCycleData.previous.label}</SelectItem>
-                                <SelectItem value="current">{payrollCycleData.current.label}</SelectItem>
-                                <SelectItem value="next">{payrollCycleData.next.label}</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <CA_PayPeriodDropdown
+                              value={selectedCycle}
+                              onValueChange={(val) => setSelectedCycle(val)}
+                              periods={payrollCycleData}
+                            />
                           </div>
 
                           {/* NEXT Period - Upcoming State */}

@@ -34,3 +34,4 @@ export * from "./CA_LeaveRequestsCard";
 export * from "./CA_PayAdjustmentsCard";
 export * from "./CA_UpcomingPayrollCard";
 export * from "./CA_BatchSummaryHeader";
+export * from "./CA_PayPeriodDropdown";
