@@ -4,12 +4,12 @@ import React from "react";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import * as SelectPrimitive from "@radix-ui/react-select";
 
 export type PeriodType = "previous" | "current" | "next";
 
@@ -62,34 +62,39 @@ export const CA_PayPeriodDropdown: React.FC<CA_PayPeriodDropdownProps> = ({
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="bg-popover border-border min-w-[200px]">
-        {periodOptions.map((option) => (
-          <SelectItem
-            key={option.value}
-            value={option.value}
-            className={cn(
-              "py-2.5 px-3 cursor-pointer",
-              "focus:bg-primary/10 data-[highlighted]:bg-primary/10",
-              value === option.value && "bg-primary/5"
-            )}
-          >
-            <div className="flex items-start gap-3">
-              <div className={cn(
-                "w-4 h-4 mt-0.5 flex items-center justify-center flex-shrink-0",
-                value === option.value ? "text-primary" : "text-transparent"
-              )}>
-                <Check className="h-4 w-4" strokeWidth={2.5} />
+        {periodOptions.map((option) => {
+          const isSelected = value === option.value;
+          return (
+            <SelectPrimitive.Item
+              key={option.value}
+              value={option.value}
+              className={cn(
+                "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2.5 pl-3 pr-8 text-sm outline-none",
+                "focus:bg-primary/10 data-[highlighted]:bg-primary/10",
+                isSelected && "bg-primary/5"
+              )}
+            >
+              <div className="flex items-start gap-3 w-full">
+                <div className={cn(
+                  "w-4 h-4 mt-0.5 flex items-center justify-center flex-shrink-0",
+                  isSelected ? "text-primary" : "text-transparent"
+                )}>
+                  <Check className="h-4 w-4" strokeWidth={2.5} />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <SelectPrimitive.ItemText>
+                    <span className="text-sm font-medium text-foreground">
+                      {option.label}
+                    </span>
+                  </SelectPrimitive.ItemText>
+                  <span className="text-xs text-muted-foreground">
+                    {option.subLabel}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-foreground">
-                  {option.label}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {option.subLabel}
-                </span>
-              </div>
-            </div>
-          </SelectItem>
-        ))}
+            </SelectPrimitive.Item>
+          );
+        })}
       </SelectContent>
     </Select>
   );
