@@ -1742,7 +1742,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
             {/* Status Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-foreground">FX Review</h3>
+                
                 {selectedCycle === "previous" && <Badge variant="outline" className="text-xs bg-muted/30">
                     Read-Only Mode
                   </Badge>}
