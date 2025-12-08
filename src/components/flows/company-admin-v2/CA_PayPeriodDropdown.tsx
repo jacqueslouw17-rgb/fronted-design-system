@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -17,8 +16,7 @@ export type PeriodType = "previous" | "current" | "next";
 interface PeriodOption {
   value: PeriodType;
   label: string;
-  status: "past" | "current" | "upcoming";
-  subLabel?: string;
+  subLabel: string;
 }
 
 interface CA_PayPeriodDropdownProps {
@@ -40,101 +38,55 @@ export const CA_PayPeriodDropdown: React.FC<CA_PayPeriodDropdownProps> = ({
     {
       value: "previous",
       label: periods.previous.label,
-      status: "past",
       subLabel: "Paid",
     },
     {
       value: "current",
       label: periods.current.label,
-      status: "current",
       subLabel: "In review",
     },
     {
       value: "next",
       label: periods.next.label,
-      status: "upcoming",
       subLabel: "Scheduled",
     },
   ];
-
-  const getStatusPillStyles = (status: PeriodOption["status"]) => {
-    switch (status) {
-      case "past":
-        return "bg-muted text-muted-foreground border-transparent";
-      case "current":
-        return "bg-primary/15 text-primary border-primary/30";
-      case "upcoming":
-        return "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30";
-      default:
-        return "bg-muted text-muted-foreground border-transparent";
-    }
-  };
-
-  const getStatusLabel = (status: PeriodOption["status"]) => {
-    switch (status) {
-      case "past":
-        return "Past";
-      case "current":
-        return "Current";
-      case "upcoming":
-        return "Upcoming";
-      default:
-        return "";
-    }
-  };
 
   const selectedOption = periodOptions.find((p) => p.value === value);
 
   return (
     <Select value={value} onValueChange={(val) => onValueChange(val as PeriodType)}>
-      <SelectTrigger className="w-[200px] bg-background/80 backdrop-blur-sm">
+      <SelectTrigger className="w-[180px] bg-background border-border">
         <SelectValue>
-          <span className="flex items-center gap-2">
-            <span>{selectedOption?.label}</span>
-          </span>
+          <span>{selectedOption?.label}</span>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-popover/95 backdrop-blur-sm border-border/50 min-w-[240px]">
+      <SelectContent className="bg-popover border-border min-w-[200px]">
         {periodOptions.map((option) => (
           <SelectItem
             key={option.value}
             value={option.value}
             className={cn(
-              "flex items-center py-3 px-3 cursor-pointer focus:bg-accent/50",
-              value === option.value && "bg-accent/30"
+              "py-2.5 px-3 cursor-pointer",
+              "focus:bg-primary/10 data-[highlighted]:bg-primary/10",
+              value === option.value && "bg-primary/5"
             )}
           >
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  {value === option.value && (
-                    <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                  )}
-                  <span className={cn(
-                    "text-sm font-medium",
-                    value === option.value ? "text-foreground" : "text-foreground/90"
-                  )}>
-                    {option.label}
-                  </span>
-                </div>
-                {option.subLabel && (
-                  <span className={cn(
-                    "text-[11px] text-muted-foreground/70 ml-5",
-                    value !== option.value && "ml-0"
-                  )}>
-                    {option.subLabel}
-                  </span>
-                )}
+            <div className="flex items-start gap-3">
+              <div className={cn(
+                "w-4 h-4 mt-0.5 flex items-center justify-center flex-shrink-0",
+                value === option.value ? "text-primary" : "text-transparent"
+              )}>
+                <Check className="h-4 w-4" strokeWidth={2.5} />
               </div>
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-[10px] font-medium px-2 py-0.5 h-5 flex-shrink-0",
-                  getStatusPillStyles(option.status)
-                )}
-              >
-                {getStatusLabel(option.status)}
-              </Badge>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium text-foreground">
+                  {option.label}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {option.subLabel}
+                </span>
+              </div>
             </div>
           </SelectItem>
         ))}
