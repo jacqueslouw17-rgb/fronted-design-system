@@ -490,8 +490,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
     const batch = createMockBatch();
     setCurrentBatch(batch);
     setBatchClientReviewItems(mockClientReviewItems);
+    setCurrentStep("review-fx"); // Reset to first step when creating batch
     toast.success("Payment batch created.");
-    setViewMode("batch-review");
   };
 
   const handleApproveBatchItem = (id: string) => {
