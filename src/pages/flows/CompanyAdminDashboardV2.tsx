@@ -1767,9 +1767,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
               </div>
             </div>
 
-            {/* Leave & Attendance - Compact Info Row */}
-            <CA_LeaveAttendanceInfoRow trackedChanges={Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} isLocked={true} onViewDetails={() => setLeaveSelectorOpen(true)} />
-
             {/* Employment Type Filter */}
             <div className="flex justify-start mb-4 mt-6 py-0">
               <Tabs value={employmentTypeFilter} onValueChange={v => setEmploymentTypeFilter(v as any)}>
@@ -2341,6 +2338,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
                   </CardContent>
                 </Card>;
           })}
+
+            {/* Caption for FX Review context */}
+            <p className="text-xs text-muted-foreground text-center mt-4 mb-2">
+              Net payable days already include approved leave and pay adjustments.
+            </p>
 
             {/* Payroll Totals Summary */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
