@@ -1,6 +1,6 @@
 // Flow 6 v2 - Company Admin Dashboard - Resolve Items Drawer (Local to this flow only)
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, X, Eye, Clock, CheckCircle2, Paperclip, Sparkles } from "lucide-react";
+import { Check, X, Eye, CheckCircle2, Paperclip, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CA_Adjustment, CA_LeaveChange } from "./CA_PayrollTypes";
 import { toast } from "sonner";
@@ -23,7 +23,8 @@ interface CA_ResolveItemsDrawerProps {
   onApproveLeave: (id: string) => void;
   onRejectLeave: (id: string) => void;
   onViewWorker: (workerId: string) => void;
-  autoApproveThreshold: number; // Amount threshold for auto-approve
+  autoApproveThreshold: number;
+  preSelectedCurrency?: string;
 }
 
 export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
@@ -36,13 +37,40 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
   onApproveLeave,
   onRejectLeave,
   onViewWorker,
-  autoApproveThreshold
+  autoApproveThreshold,
+  preSelectedCurrency
 }) => {
   const [activeTab, setActiveTab] = useState<"adjustments" | "leave">("adjustments");
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+
+  // Set pre-selected currency when drawer opens
+  useEffect(() => {
+    if (open && preSelectedCurrency) {
+      setSelectedCurrency(preSelectedCurrency);
+    } else if (!open) {
+      setSelectedCurrency(null);
+    }
+  }, [open, preSelectedCurrency]);
 
   const pendingAdjustments = adjustments.filter(a => a.status === "pending");
   const pendingLeave = leaveChanges.filter(l => l.status === "pending");
-  const autoApprovableAdjustments = pendingAdjustments.filter(a => Math.abs(a.amount) <= autoApproveThreshold);
+
+  // Get unique currencies
+  const allCurrencies = Array.from(new Set([
+    ...pendingAdjustments.map(a => a.currency),
+    ...pendingLeave.map(l => l.currency)
+  ]));
+
+  // Filter by selected currency
+  const filteredAdjustments = selectedCurrency 
+    ? pendingAdjustments.filter(a => a.currency === selectedCurrency)
+    : pendingAdjustments;
+  
+  const filteredLeave = selectedCurrency
+    ? pendingLeave.filter(l => l.currency === selectedCurrency)
+    : pendingLeave;
+
+  const autoApprovableAdjustments = filteredAdjustments.filter(a => Math.abs(a.amount) <= autoApproveThreshold);
 
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase();
 
@@ -80,7 +108,7 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
     toast.success(`Auto-approved ${autoApprovableAdjustments.length} items within policy threshold`);
   };
 
-  const allClear = pendingAdjustments.length === 0 && pendingLeave.length === 0;
+  const allClear = filteredAdjustments.length === 0 && filteredLeave.length === 0;
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -88,7 +116,30 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/30">
           <SheetTitle className="text-lg font-semibold">Resolve items</SheetTitle>
           
-          {/* Top bar actions */}
+          {/* Currency Filter Pills */}
+          {allCurrencies.length > 1 && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <Badge
+                variant={selectedCurrency === null ? "default" : "outline"}
+                className="text-xs cursor-pointer"
+                onClick={() => setSelectedCurrency(null)}
+              >
+                All
+              </Badge>
+              {allCurrencies.map(currency => (
+                <Badge
+                  key={currency}
+                  variant={selectedCurrency === currency ? "default" : "outline"}
+                  className="text-xs cursor-pointer"
+                  onClick={() => setSelectedCurrency(currency)}
+                >
+                  {currency}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Auto-approve button */}
           {autoApprovableAdjustments.length > 0 && (
             <Button
               variant="outline"
@@ -103,14 +154,15 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
         </SheetHeader>
 
         {allClear ? (
-          /* Empty State */
           <div className="flex-1 flex flex-col items-center justify-center px-6">
             <div className="rounded-full bg-accent-green-fill/20 p-4 mb-4">
               <CheckCircle2 className="h-10 w-10 text-accent-green-text" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">All caught up!</h3>
             <p className="text-sm text-muted-foreground text-center">
-              You can create the payment batch.
+              {selectedCurrency 
+                ? `No pending items for ${selectedCurrency}. Select another currency or create the payment batch.`
+                : "You can create the payment batch."}
             </p>
           </div>
         ) : (
@@ -119,17 +171,17 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
               <TabsList className="mx-6 mt-4 grid w-auto grid-cols-2">
                 <TabsTrigger value="adjustments" className="gap-2">
                   Adjustments
-                  {pendingAdjustments.length > 0 && (
+                  {filteredAdjustments.length > 0 && (
                     <Badge variant="destructive" className="text-[10px] h-5 min-w-5 px-1">
-                      {pendingAdjustments.length}
+                      {filteredAdjustments.length}
                     </Badge>
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="leave" className="gap-2">
                   Leave
-                  {pendingLeave.length > 0 && (
+                  {filteredLeave.length > 0 && (
                     <Badge variant="destructive" className="text-[10px] h-5 min-w-5 px-1">
-                      {pendingLeave.length}
+                      {filteredLeave.length}
                     </Badge>
                   )}
                 </TabsTrigger>
@@ -138,23 +190,21 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
               <ScrollArea className="flex-1">
                 {/* Adjustments Tab */}
                 <TabsContent value="adjustments" className="px-6 py-4 space-y-3 m-0">
-                  {pendingAdjustments.length === 0 ? (
+                  {filteredAdjustments.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground text-sm">
                       No pending adjustments
                     </div>
                   ) : (
-                    pendingAdjustments.map(adj => (
+                    filteredAdjustments.map(adj => (
                       <Card key={adj.id} className="border-border/30 bg-card/50">
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
-                            {/* Avatar */}
                             <Avatar className="h-9 w-9 flex-shrink-0">
                               <AvatarFallback className="bg-primary/10 text-primary text-xs">
                                 {getInitials(adj.workerName)}
                               </AvatarFallback>
                             </Avatar>
 
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="text-sm font-medium truncate">{adj.workerName}</span>
@@ -185,7 +235,6 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                             </div>
                           </div>
 
-                          {/* Actions */}
                           <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border/30">
                             <Button
                               variant="ghost"
@@ -222,23 +271,21 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
 
                 {/* Leave Tab */}
                 <TabsContent value="leave" className="px-6 py-4 space-y-3 m-0">
-                  {pendingLeave.length === 0 ? (
+                  {filteredLeave.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground text-sm">
                       No pending leave requests
                     </div>
                   ) : (
-                    pendingLeave.map(leave => (
+                    filteredLeave.map(leave => (
                       <Card key={leave.id} className="border-border/30 bg-card/50">
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
-                            {/* Avatar */}
                             <Avatar className="h-9 w-9 flex-shrink-0">
                               <AvatarFallback className="bg-primary/10 text-primary text-xs">
                                 {getInitials(leave.workerName)}
                               </AvatarFallback>
                             </Avatar>
 
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="text-sm font-medium truncate">{leave.workerName}</span>
@@ -276,7 +323,6 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                             </div>
                           </div>
 
-                          {/* Actions */}
                           <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border/30">
                             <Button
                               variant="ghost"

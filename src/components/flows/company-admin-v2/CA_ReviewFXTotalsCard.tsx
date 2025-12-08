@@ -6,20 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CA_FXTotalsRow } from "./CA_PayrollTypes";
 
 interface CA_ReviewFXTotalsCardProps {
   data: CA_FXTotalsRow[];
   hasPendingItems: boolean;
-  onResolveClick: () => void;
+  onResolveClick: (currency?: string) => void;
   employmentFilter: "all" | "employees" | "contractors";
   onEmploymentFilterChange: (filter: "all" | "employees" | "contractors") => void;
   selectedCountries: string[];
   onCountriesChange: (countries: string[]) => void;
   allCountries: string[];
+  onNetToPayClick?: (currency: string) => void;
 }
 
 export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
@@ -30,7 +30,8 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
   onEmploymentFilterChange,
   selectedCountries,
   onCountriesChange,
-  allCountries
+  allCountries,
+  onNetToPayClick
 }) => {
   const formatCurrency = (amount: number, currency: string) => {
     return `${currency} ${amount.toLocaleString()}`;
@@ -110,19 +111,6 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Pending Items Badge */}
-        {hasPendingItems && (
-          <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0" />
-            <span className="text-xs text-foreground flex-1">
-              Pending items will change totals
-            </span>
-            <Button variant="link" size="sm" className="h-auto p-0 text-xs text-primary" onClick={onResolveClick}>
-              Resolve →
-            </Button>
-          </div>
-        )}
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -165,12 +153,19 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={cn(
-                        "text-sm font-medium",
-                        row.adjustmentsTotal > 0 ? "text-accent-green-text" : row.adjustmentsTotal < 0 ? "text-destructive" : "text-muted-foreground"
-                      )}>
-                        {row.adjustmentsTotal !== 0 ? formatCurrency(row.adjustmentsTotal, row.currency) : "—"}
-                      </span>
+                      {row.adjustmentsTotal !== 0 ? (
+                        <button
+                          onClick={() => onResolveClick(row.currency)}
+                          className={cn(
+                            "text-sm font-medium hover:underline cursor-pointer",
+                            row.adjustmentsTotal > 0 ? "text-accent-green-text" : "text-destructive"
+                          )}
+                        >
+                          {formatCurrency(row.adjustmentsTotal, row.currency)}
+                        </button>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="text-sm font-medium">
@@ -178,9 +173,12 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className="text-sm font-semibold text-foreground">
+                      <button
+                        onClick={() => onNetToPayClick?.(row.currency)}
+                        className="text-sm font-semibold text-foreground hover:underline cursor-pointer"
+                      >
                         {formatCurrency(row.netToPay, row.currency)}
-                      </span>
+                      </button>
                     </TableCell>
                   </TableRow>
                 );
