@@ -132,8 +132,31 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
                 const showEmployees = employmentFilter !== "contractors";
                 const showContractors = employmentFilter !== "employees";
                 
+                const handleRowClick = () => {
+                  onResolveClick(row.currency);
+                };
+
+                const handleKeyDown = (e: React.KeyboardEvent) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleRowClick();
+                  }
+                };
+                
                 return (
-                  <TableRow key={row.currency} className={cn(idx % 2 === 0 && "bg-muted/10")}>
+                  <TableRow 
+                    key={row.currency} 
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View adjustments for ${row.currency}`}
+                    onClick={handleRowClick}
+                    onKeyDown={handleKeyDown}
+                    className={cn(
+                      "cursor-pointer transition-colors",
+                      "hover:bg-primary/5 focus-visible:bg-primary/5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
+                      idx % 2 === 0 && "bg-muted/10"
+                    )}
+                  >
                     <TableCell className="font-medium text-sm">{row.currency}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {row.countries.join(", ")}
@@ -154,15 +177,14 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
                     </TableCell>
                     <TableCell className="text-right">
                       {row.adjustmentsTotal !== 0 ? (
-                        <button
-                          onClick={() => onResolveClick(row.currency)}
+                        <span
                           className={cn(
-                            "text-sm font-medium hover:underline cursor-pointer",
+                            "text-sm font-medium",
                             row.adjustmentsTotal > 0 ? "text-accent-green-text" : "text-destructive"
                           )}
                         >
                           {formatCurrency(row.adjustmentsTotal, row.currency)}
-                        </button>
+                        </span>
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>
                       )}
@@ -174,7 +196,10 @@ export const CA_ReviewFXTotalsCard: React.FC<CA_ReviewFXTotalsCardProps> = ({
                     </TableCell>
                     <TableCell className="text-right">
                       <button
-                        onClick={() => onNetToPayClick?.(row.currency)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNetToPayClick?.(row.currency);
+                        }}
                         className="text-sm font-semibold text-foreground hover:underline cursor-pointer"
                       >
                         {formatCurrency(row.netToPay, row.currency)}
