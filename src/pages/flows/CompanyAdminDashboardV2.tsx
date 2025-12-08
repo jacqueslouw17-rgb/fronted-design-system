@@ -2342,9 +2342,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
           })}
 
             {/* Caption for FX Review context */}
-            <p className="text-xs text-muted-foreground text-center mt-4 mb-2">
-              Net payable days already include approved leave and pay adjustments.
-            </p>
+            
 
             {/* Payroll Totals Summary */}
             
