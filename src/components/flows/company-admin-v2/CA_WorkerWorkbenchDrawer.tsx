@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   DollarSign, 
   Briefcase, 
@@ -29,7 +30,11 @@ import {
   Calculator,
   X,
   AlertCircle,
-  Plus
+  Plus,
+  Edit2,
+  Trash2,
+  Check,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -68,6 +73,28 @@ interface LeaveAdjustmentSummary {
   status: "approved" | "pending" | "rejected";
 }
 
+// Types for adjustments
+type AdjustmentType = "earning" | "deduction" | "reimbursement";
+
+interface OneOffAdjustment {
+  id: string;
+  label: string;
+  type: AdjustmentType;
+  amount: number;
+  notes?: string;
+}
+
+interface RecurringAdjustment {
+  id: string;
+  label: string;
+  type: AdjustmentType;
+  amount: number;
+  frequency: "every_pay_run" | "monthly";
+  startFrom: string;
+  endAfter?: string;
+  noEndDate: boolean;
+}
+
 interface CA_WorkerWorkbenchDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -100,6 +127,35 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
   const [overrideBaseFeeAmount, setOverrideBaseFeeAmount] = useState("");
   const [overrideDeductions, setOverrideDeductions] = useState(false);
   const [overrideDeductionsAmount, setOverrideDeductionsAmount] = useState("");
+
+  // One-off adjustments state
+  const [oneOffAdjustments, setOneOffAdjustments] = useState<OneOffAdjustment[]>([]);
+  const [showAddOneOff, setShowAddOneOff] = useState(false);
+  const [editingOneOffId, setEditingOneOffId] = useState<string | null>(null);
+  const [oneOffForm, setOneOffForm] = useState<{
+    label: string;
+    type: AdjustmentType;
+    amount: string;
+    notes: string;
+  }>({ label: "", type: "earning", amount: "", notes: "" });
+
+  // Recurring adjustments state
+  const [recurringAdjustments, setRecurringAdjustments] = useState<RecurringAdjustment[]>([]);
+  const [showAddRecurring, setShowAddRecurring] = useState(false);
+  const [editingRecurringId, setEditingRecurringId] = useState<string | null>(null);
+  const [recurringForm, setRecurringForm] = useState<{
+    label: string;
+    type: AdjustmentType;
+    amount: string;
+    frequency: "every_pay_run" | "monthly";
+    startFrom: string;
+    endAfter: string;
+    noEndDate: boolean;
+  }>({ label: "", type: "earning", amount: "", frequency: "every_pay_run", startFrom: "", endAfter: "", noEndDate: true });
+
+  // Confirmation states
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmType, setDeleteConfirmType] = useState<"oneoff" | "recurring" | null>(null);
 
   if (!worker) return null;
 
@@ -143,6 +199,134 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
     { id: "la2", type: "adjustment", label: "Overtime bonus", amount: 5000, currency: worker.currency, status: "approved" }
   ];
 
+  // Calculate totals including custom adjustments
+  const totalEarnings = mockEarnings.reduce((sum, e) => sum + e.amount, 0);
+  const totalDeductions = mockDeductions.reduce((sum, d) => sum + d.amount, 0);
+  const adjustmentsTotal = mockLeaveAdjustments.filter(a => a.status === "approved").reduce((sum, a) => sum + a.amount, 0);
+  
+  // Add one-off adjustments to calculation
+  const oneOffTotal = oneOffAdjustments.reduce((sum, adj) => {
+    if (adj.type === "earning" || adj.type === "reimbursement") return sum + adj.amount;
+    if (adj.type === "deduction") return sum - adj.amount;
+    return sum;
+  }, 0);
+
+  // Add recurring adjustments to calculation
+  const recurringTotal = recurringAdjustments.reduce((sum, adj) => {
+    if (adj.type === "earning" || adj.type === "reimbursement") return sum + adj.amount;
+    if (adj.type === "deduction") return sum - adj.amount;
+    return sum;
+  }, 0);
+
+  const calculatedNetPay = totalEarnings - totalDeductions + adjustmentsTotal + oneOffTotal + recurringTotal;
+  const totalPayable = calculatedNetPay + worker.estFees;
+
+  // One-off adjustment handlers
+  const resetOneOffForm = () => {
+    setOneOffForm({ label: "", type: "earning", amount: "", notes: "" });
+    setShowAddOneOff(false);
+    setEditingOneOffId(null);
+  };
+
+  const handleAddOneOffAdjustment = () => {
+    if (!oneOffForm.label.trim() || !oneOffForm.amount) {
+      toast.error("Please fill in label and amount");
+      return;
+    }
+
+    const newAdjustment: OneOffAdjustment = {
+      id: editingOneOffId || `oneoff-${Date.now()}`,
+      label: oneOffForm.label.trim(),
+      type: oneOffForm.type,
+      amount: parseFloat(oneOffForm.amount),
+      notes: oneOffForm.notes.trim() || undefined
+    };
+
+    if (editingOneOffId) {
+      setOneOffAdjustments(prev => prev.map(a => a.id === editingOneOffId ? newAdjustment : a));
+      toast.success("Adjustment updated");
+    } else {
+      setOneOffAdjustments(prev => [...prev, newAdjustment]);
+      toast.success("Adjustment added to this cycle");
+    }
+
+    resetOneOffForm();
+  };
+
+  const handleEditOneOff = (adjustment: OneOffAdjustment) => {
+    setOneOffForm({
+      label: adjustment.label,
+      type: adjustment.type,
+      amount: adjustment.amount.toString(),
+      notes: adjustment.notes || ""
+    });
+    setEditingOneOffId(adjustment.id);
+    setShowAddOneOff(true);
+  };
+
+  const handleRemoveOneOff = (id: string) => {
+    setOneOffAdjustments(prev => prev.filter(a => a.id !== id));
+    setDeleteConfirmId(null);
+    setDeleteConfirmType(null);
+    toast.success("Adjustment removed");
+  };
+
+  // Recurring adjustment handlers
+  const resetRecurringForm = () => {
+    setRecurringForm({ label: "", type: "earning", amount: "", frequency: "every_pay_run", startFrom: "", endAfter: "", noEndDate: true });
+    setShowAddRecurring(false);
+    setEditingRecurringId(null);
+  };
+
+  const handleAddRecurringAdjustment = () => {
+    if (!recurringForm.label.trim() || !recurringForm.amount) {
+      toast.error("Please fill in label and amount");
+      return;
+    }
+
+    const newAdjustment: RecurringAdjustment = {
+      id: editingRecurringId || `recurring-${Date.now()}`,
+      label: recurringForm.label.trim(),
+      type: recurringForm.type,
+      amount: parseFloat(recurringForm.amount),
+      frequency: recurringForm.frequency,
+      startFrom: recurringForm.startFrom || payrollPeriod,
+      endAfter: recurringForm.noEndDate ? undefined : recurringForm.endAfter || undefined,
+      noEndDate: recurringForm.noEndDate
+    };
+
+    if (editingRecurringId) {
+      setRecurringAdjustments(prev => prev.map(a => a.id === editingRecurringId ? newAdjustment : a));
+      toast.success("Recurring adjustment updated");
+    } else {
+      setRecurringAdjustments(prev => [...prev, newAdjustment]);
+      toast.success("Recurring adjustment saved");
+    }
+
+    resetRecurringForm();
+  };
+
+  const handleEditRecurring = (adjustment: RecurringAdjustment) => {
+    setRecurringForm({
+      label: adjustment.label,
+      type: adjustment.type,
+      amount: adjustment.amount.toString(),
+      frequency: adjustment.frequency,
+      startFrom: adjustment.startFrom,
+      endAfter: adjustment.endAfter || "",
+      noEndDate: adjustment.noEndDate
+    });
+    setEditingRecurringId(adjustment.id);
+    setShowAddRecurring(true);
+  };
+
+  const handleRemoveRecurring = (id: string) => {
+    setRecurringAdjustments(prev => prev.filter(a => a.id !== id));
+    setDeleteConfirmId(null);
+    setDeleteConfirmType(null);
+    toast.success("Recurring adjustment removed");
+  };
+
   const handleSave = () => {
     const updates = {
       overrideEmploymentDates,
@@ -152,7 +336,15 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
       overrideBaseFee,
       overrideBaseFeeAmount: overrideBaseFee ? parseFloat(overrideBaseFeeAmount) : null,
       overrideDeductions,
-      overrideDeductionsAmount: overrideDeductions ? parseFloat(overrideDeductionsAmount) : null
+      overrideDeductionsAmount: overrideDeductions ? parseFloat(overrideDeductionsAmount) : null,
+      oneOffAdjustments,
+      recurringAdjustments,
+      calculatedTotals: {
+        netPay: calculatedNetPay,
+        totalPayable,
+        oneOffTotal,
+        recurringTotal
+      }
     };
     
     onSaveAndRecalculate?.(worker.id, updates);
@@ -170,14 +362,270 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
     setOverrideBaseFeeAmount("");
     setOverrideDeductions(false);
     setOverrideDeductionsAmount("");
+    resetOneOffForm();
+    resetRecurringForm();
     onOpenChange(false);
   };
 
-  const totalEarnings = mockEarnings.reduce((sum, e) => sum + e.amount, 0);
-  const totalDeductions = mockDeductions.reduce((sum, d) => sum + d.amount, 0);
-  const adjustmentsTotal = mockLeaveAdjustments.filter(a => a.status === "approved").reduce((sum, a) => sum + a.amount, 0);
-  const calculatedNetPay = totalEarnings - totalDeductions + adjustmentsTotal;
-  const totalPayable = calculatedNetPay + worker.estFees;
+  const getTypeLabel = (type: AdjustmentType) => {
+    switch (type) {
+      case "earning": return "Earning";
+      case "deduction": return "Deduction";
+      case "reimbursement": return "Reimbursement";
+    }
+  };
+
+  const getTypeBadgeClass = (type: AdjustmentType) => {
+    switch (type) {
+      case "earning": return "bg-green-500/10 text-green-600 border-green-500/30";
+      case "deduction": return "bg-red-500/10 text-red-600 border-red-500/30";
+      case "reimbursement": return "bg-blue-500/10 text-blue-600 border-blue-500/30";
+    }
+  };
+
+  const getAmountDisplay = (type: AdjustmentType, amount: number) => {
+    const sign = type === "deduction" ? "-" : "+";
+    const colorClass = type === "deduction" ? "text-red-600" : "text-green-600";
+    return <span className={cn("font-medium", colorClass)}>{sign} {formatCurrency(amount, worker.currency)}</span>;
+  };
+
+  // Adjustment Form Mini-Card Component
+  const AdjustmentFormCard = ({ 
+    isRecurring = false, 
+    onCancel, 
+    onSave 
+  }: { 
+    isRecurring?: boolean; 
+    onCancel: () => void; 
+    onSave: () => void; 
+  }) => {
+    const form = isRecurring ? recurringForm : oneOffForm;
+    const setForm = isRecurring 
+      ? (updates: Partial<typeof recurringForm>) => setRecurringForm(prev => ({ ...prev, ...updates }))
+      : (updates: Partial<typeof oneOffForm>) => setOneOffForm(prev => ({ ...prev, ...updates }));
+    const isEditing = isRecurring ? !!editingRecurringId : !!editingOneOffId;
+
+    return (
+      <Card className="border-primary/20 bg-primary/[0.02] mt-2">
+        <CardContent className="p-3 space-y-3">
+          {/* Label */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Label / Description</Label>
+            <Input
+              value={form.label}
+              onChange={(e) => setForm({ label: e.target.value })}
+              placeholder={isRecurring ? "Monthly housing allowance" : "Q4 bonus, Commission, Expense reimbursement"}
+              className="mt-1 h-8 text-sm"
+            />
+          </div>
+
+          {/* Type */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Type</Label>
+            <div className="flex gap-2 mt-1">
+              {(["earning", "deduction", "reimbursement"] as AdjustmentType[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setForm({ type: t })}
+                  className={cn(
+                    "px-3 py-1.5 text-xs rounded-full border transition-colors",
+                    form.type === t
+                      ? t === "earning" ? "bg-green-500/20 text-green-700 border-green-500/40"
+                        : t === "deduction" ? "bg-red-500/20 text-red-700 border-red-500/40"
+                        : "bg-blue-500/20 text-blue-700 border-blue-500/40"
+                      : "bg-muted/30 text-muted-foreground border-border/40 hover:bg-muted/50"
+                  )}
+                >
+                  {t === "earning" ? "Earning (+)" : t === "deduction" ? "Deduction (−)" : "Reimbursement"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Amount ({worker.currency})</Label>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm font-medium text-muted-foreground">{worker.currency}</span>
+              <Input
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm({ amount: e.target.value })}
+                placeholder="0"
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Recurring-specific fields */}
+          {isRecurring && (
+            <>
+              <div>
+                <Label className="text-xs text-muted-foreground">Frequency</Label>
+                <Select 
+                  value={(form as typeof recurringForm).frequency} 
+                  onValueChange={(v) => setForm({ frequency: v as "every_pay_run" | "monthly" })}
+                >
+                  <SelectTrigger className="mt-1 h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="every_pay_run">Every pay run</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Start from</Label>
+                  <Input
+                    value={(form as typeof recurringForm).startFrom}
+                    onChange={(e) => setForm({ startFrom: e.target.value })}
+                    placeholder={payrollPeriod}
+                    className="mt-1 h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">End after</Label>
+                  <Input
+                    value={(form as typeof recurringForm).endAfter}
+                    onChange={(e) => setForm({ endAfter: e.target.value })}
+                    placeholder="No end date"
+                    disabled={(form as typeof recurringForm).noEndDate}
+                    className="mt-1 h-8 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch 
+                  id="noEndDate"
+                  checked={(form as typeof recurringForm).noEndDate} 
+                  onCheckedChange={(checked) => setForm({ noEndDate: checked })} 
+                />
+                <Label htmlFor="noEndDate" className="text-xs">No end date</Label>
+              </div>
+
+              <p className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
+                These adjustments are automatically applied to each monthly pay run for this worker.
+              </p>
+            </>
+          )}
+
+          {/* Notes (one-off only) */}
+          {!isRecurring && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Notes (optional)</Label>
+              <Textarea
+                value={(form as typeof oneOffForm).notes}
+                onChange={(e) => setForm({ notes: e.target.value })}
+                placeholder="Additional notes..."
+                className="mt-1 text-sm min-h-[60px]"
+              />
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+            <Button variant="outline" size="sm" onClick={onCancel} className="flex-1 h-8">
+              Cancel
+            </Button>
+            <Button size="sm" onClick={onSave} className="flex-1 h-8 bg-primary hover:bg-primary/90">
+              {isEditing ? "Update" : isRecurring ? "Save recurring adjustment" : "Add to this cycle"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Adjustment Row Component
+  const AdjustmentRow = ({ 
+    adjustment, 
+    isRecurring = false,
+    onEdit,
+    onRemove
+  }: { 
+    adjustment: OneOffAdjustment | RecurringAdjustment;
+    isRecurring?: boolean;
+    onEdit: () => void;
+    onRemove: () => void;
+  }) => {
+    const isDeleting = deleteConfirmId === adjustment.id && deleteConfirmType === (isRecurring ? "recurring" : "oneoff");
+
+    return (
+      <div className="flex items-start justify-between py-2 px-3 rounded bg-muted/20 group">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium truncate">{adjustment.label}</span>
+            <Badge variant="outline" className={cn("text-[10px]", getTypeBadgeClass(adjustment.type))}>
+              {getTypeLabel(adjustment.type)}
+            </Badge>
+          </div>
+          
+          {/* Notes for one-off */}
+          {!isRecurring && (adjustment as OneOffAdjustment).notes && (
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {(adjustment as OneOffAdjustment).notes}
+            </p>
+          )}
+          
+          {/* Frequency for recurring */}
+          {isRecurring && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {(adjustment as RecurringAdjustment).frequency === "every_pay_run" ? "Every pay run" : "Monthly"} from {(adjustment as RecurringAdjustment).startFrom}
+              {!(adjustment as RecurringAdjustment).noEndDate && (adjustment as RecurringAdjustment).endAfter && ` until ${(adjustment as RecurringAdjustment).endAfter}`}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 ml-2">
+          {getAmountDisplay(adjustment.type, adjustment.amount)}
+          
+          {isDeleting ? (
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-500/10"
+                onClick={onRemove}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                onClick={() => { setDeleteConfirmId(null); setDeleteConfirmType(null); }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                onClick={onEdit}
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-red-600"
+                onClick={() => { setDeleteConfirmId(adjustment.id); setDeleteConfirmType(isRecurring ? "recurring" : "oneoff"); }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -383,6 +831,60 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
                 </CardContent>
               </Card>
 
+              {/* Adjustment Lines (this cycle only) */}
+              <Card className="border-border/20 bg-card/30">
+                <CardHeader className="p-3 pb-2">
+                  <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                    <span>Adjustment Lines</span>
+                    {!showAddOneOff && !editingOneOffId && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 text-xs gap-1 text-primary hover:text-primary"
+                        onClick={() => setShowAddOneOff(true)}
+                      >
+                        <Plus className="h-3 w-3" />
+                        Add Adjustment
+                      </Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 pt-0 space-y-2">
+                  {oneOffAdjustments.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {oneOffAdjustments.map((adj) => (
+                        <AdjustmentRow 
+                          key={adj.id}
+                          adjustment={adj}
+                          isRecurring={false}
+                          onEdit={() => handleEditOneOff(adj)}
+                          onRemove={() => handleRemoveOneOff(adj.id)}
+                        />
+                      ))}
+                    </div>
+                  ) : !showAddOneOff && (
+                    <p className="text-xs text-muted-foreground">No one-off adjustments for this cycle.</p>
+                  )}
+
+                  {(showAddOneOff || editingOneOffId) && (
+                    <AdjustmentFormCard
+                      isRecurring={false}
+                      onCancel={resetOneOffForm}
+                      onSave={handleAddOneOffAdjustment}
+                    />
+                  )}
+
+                  {oneOffAdjustments.length > 0 && (
+                    <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                      <span className="text-xs font-medium">Adjustments Total</span>
+                      <span className={cn("text-sm font-semibold", oneOffTotal >= 0 ? "text-green-600" : "text-red-600")}>
+                        {oneOffTotal >= 0 ? "+" : ""}{formatCurrency(oneOffTotal, worker.currency)}
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Deductions (employees only) */}
               {worker.employmentType === "employee" && mockDeductions.length > 0 && (
                 <Card className="border-border/20 bg-card/30">
@@ -566,15 +1068,56 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
               <Card className="border-border/20 bg-card/30">
                 <CardHeader className="p-3 pb-2">
                   <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-                    <span>Recurring Adjustment Lines</span>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs gap-1">
-                      <Plus className="h-3 w-3" />
-                      Add Adjustment
-                    </Button>
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Recurring Adjustment Lines
+                    </span>
+                    {!showAddRecurring && !editingRecurringId && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 text-xs gap-1 text-primary hover:text-primary"
+                        onClick={() => setShowAddRecurring(true)}
+                      >
+                        <Plus className="h-3 w-3" />
+                        Add Adjustment
+                      </Button>
+                    )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-3 pt-0">
-                  <p className="text-xs text-muted-foreground">No recurring adjustments configured for this worker.</p>
+                <CardContent className="p-3 pt-0 space-y-2">
+                  {recurringAdjustments.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {recurringAdjustments.map((adj) => (
+                        <AdjustmentRow 
+                          key={adj.id}
+                          adjustment={adj}
+                          isRecurring={true}
+                          onEdit={() => handleEditRecurring(adj)}
+                          onRemove={() => handleRemoveRecurring(adj.id)}
+                        />
+                      ))}
+                    </div>
+                  ) : !showAddRecurring && (
+                    <p className="text-xs text-muted-foreground">No recurring adjustments configured for this worker.</p>
+                  )}
+
+                  {(showAddRecurring || editingRecurringId) && (
+                    <AdjustmentFormCard
+                      isRecurring={true}
+                      onCancel={resetRecurringForm}
+                      onSave={handleAddRecurringAdjustment}
+                    />
+                  )}
+
+                  {recurringAdjustments.length > 0 && (
+                    <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                      <span className="text-xs font-medium">Recurring Total (this cycle)</span>
+                      <span className={cn("text-sm font-semibold", recurringTotal >= 0 ? "text-green-600" : "text-red-600")}>
+                        {recurringTotal >= 0 ? "+" : ""}{formatCurrency(recurringTotal, worker.currency)}
+                      </span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </CollapsibleContent>
@@ -671,9 +1214,25 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
                     )}
                     {adjustmentsTotal !== 0 && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Adjustments</span>
+                        <span className="text-muted-foreground">Approved Adjustments</span>
                         <span className={adjustmentsTotal < 0 ? "text-red-600" : "text-green-600"}>
                           {adjustmentsTotal < 0 ? "-" : "+"}{formatCurrency(Math.abs(adjustmentsTotal), worker.currency)}
+                        </span>
+                      </div>
+                    )}
+                    {oneOffTotal !== 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">One-off Adjustments</span>
+                        <span className={oneOffTotal < 0 ? "text-red-600" : "text-green-600"}>
+                          {oneOffTotal < 0 ? "-" : "+"}{formatCurrency(Math.abs(oneOffTotal), worker.currency)}
+                        </span>
+                      </div>
+                    )}
+                    {recurringTotal !== 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Recurring Adjustments</span>
+                        <span className={recurringTotal < 0 ? "text-red-600" : "text-green-600"}>
+                          {recurringTotal < 0 ? "-" : "+"}{formatCurrency(Math.abs(recurringTotal), worker.currency)}
                         </span>
                       </div>
                     )}
