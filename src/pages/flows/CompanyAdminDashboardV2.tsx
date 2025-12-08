@@ -3783,55 +3783,55 @@ You can ask me about:
                                   {/* Metric Cards Grid */}
                                   <div className="grid grid-cols-4 gap-4 mb-5">
                                     {/* Gross Pay */}
-                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
-                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <DollarSign className="h-4 w-4 text-primary" />
-                                        <span className="text-sm text-muted-foreground">Gross Pay</span>
+                                    <div className="bg-card rounded-xl border border-border/30 p-4 pl-5 relative">
+                                      <div className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r" />
+                                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                                        <DollarSign className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs">Gross Pay</span>
                                       </div>
-                                      <p className="text-2xl font-bold text-foreground">
+                                      <p className="text-2xl font-semibold text-foreground">
                                         ${((currentBatch.employeeCount * 8500 + currentBatch.contractorCount * 5200) / 1000).toFixed(1)}K
                                       </p>
-                                      <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">Total base salaries</p>
                                     </div>
 
                                     {/* Net Pay */}
-                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
-                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <Receipt className="h-4 w-4 text-primary" />
-                                        <span className="text-sm text-muted-foreground">Net Pay</span>
+                                    <div className="bg-card rounded-xl border border-border/30 p-4 pl-5 relative">
+                                      <div className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r" />
+                                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                                        <Receipt className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs">Net Pay</span>
                                       </div>
-                                      <p className="text-2xl font-bold text-foreground">
+                                      <p className="text-2xl font-semibold text-foreground">
                                         ${((currentBatch.employeeCount * 6800 + currentBatch.contractorCount * 4800) / 1000).toFixed(1)}K
                                       </p>
-                                      <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">After adjustments</p>
                                     </div>
 
                                     {/* Fronted Fees */}
-                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
-                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <Building2 className="h-4 w-4 text-primary" />
-                                        <span className="text-sm text-muted-foreground">Fronted Fees (Est.)</span>
+                                    <div className="bg-card rounded-xl border border-border/30 p-4 pl-5 relative">
+                                      <div className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r" />
+                                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                                        <Building2 className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs">Fronted Fees (Est.)</span>
                                       </div>
-                                      <p className="text-2xl font-bold text-foreground">
+                                      <p className="text-2xl font-semibold text-foreground">
                                         ${((currentBatch.employeeCount + currentBatch.contractorCount) * 245).toLocaleString()}
                                       </p>
-                                      <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">Transaction + Service</p>
                                     </div>
 
                                     {/* Total Cost */}
-                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
-                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <TrendingUp className="h-4 w-4 text-primary" />
-                                        <span className="text-sm text-muted-foreground">Total Cost</span>
+                                    <div className="bg-card rounded-xl border border-border/30 p-4 pl-5 relative">
+                                      <div className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r" />
+                                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                                        <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                                        <span className="text-xs">Total Cost</span>
                                       </div>
-                                      <p className="text-2xl font-bold text-foreground">
+                                      <p className="text-2xl font-semibold text-foreground">
                                         ${((currentBatch.employeeCount * 9200 + currentBatch.contractorCount * 5600) / 1000).toFixed(1)}K
                                       </p>
-                                      <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">Pay + All Fees</p>
                                     </div>
                                   </div>
 
