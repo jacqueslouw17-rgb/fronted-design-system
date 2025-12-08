@@ -3686,7 +3686,7 @@ You can ask me about:
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
                           {selectedCycle === "current" && currentBatch && <div className="space-y-6">
                               {/* Payroll Run Totals Card */}
-                              <Card className="border-border/10 bg-foreground/[0.015] backdrop-blur-sm">
+                              <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                                 <CardContent className="py-5 px-6">
                                   <div className="flex items-start justify-between mb-5">
                                     <div>
