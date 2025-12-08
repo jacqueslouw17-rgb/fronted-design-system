@@ -34,7 +34,7 @@ export const CA_IssuesBar: React.FC<CA_IssuesBarProps> = ({
           <Badge 
             variant="outline" 
             className={cn(
-              "text-xs",
+              "text-xs pointer-events-none select-none",
               pendingAdjustments > 0 
                 ? "bg-destructive/10 text-destructive border-destructive/30" 
                 : "bg-muted/30 text-muted-foreground border-border/30"
@@ -45,7 +45,7 @@ export const CA_IssuesBar: React.FC<CA_IssuesBarProps> = ({
           <Badge 
             variant="outline" 
             className={cn(
-              "text-xs",
+              "text-xs pointer-events-none select-none",
               pendingLeave > 0 
                 ? "bg-destructive/10 text-destructive border-destructive/30" 
                 : "bg-muted/30 text-muted-foreground border-border/30"
@@ -55,7 +55,7 @@ export const CA_IssuesBar: React.FC<CA_IssuesBarProps> = ({
           </Badge>
           <Badge 
             variant="outline" 
-            className="text-xs bg-muted/30 text-muted-foreground border-border/30"
+            className="text-xs pointer-events-none select-none bg-muted/30 text-muted-foreground border-border/30"
           >
             Auto-approved · {autoApproved}
           </Badge>
