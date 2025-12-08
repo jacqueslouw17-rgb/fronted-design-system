@@ -12,23 +12,20 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
-// In-place batch workflow components
-import { CA_OverviewCard } from "@/components/flows/company-admin-v2/CA_OverviewCard";
-import { CA_FXTotalsTable } from "@/components/flows/company-admin-v2/CA_FXTotalsTable";
-import { CA_LeaveReviewCard, CA_AdjustmentReviewCard } from "@/components/flows/company-admin-v2/CA_PendingReviewCards";
-import { CA_BatchSummaryCard } from "@/components/flows/company-admin-v2/CA_BatchSummaryCard";
-import { CA_InPlaceStepper } from "@/components/flows/company-admin-v2/CA_InPlaceStepper";
-import { CA_ReviewStep } from "@/components/flows/company-admin-v2/CA_ReviewStep";
-import { CA_ExceptionsStep } from "@/components/flows/company-admin-v2/CA_ExceptionsStep";
-import { CA_ExecuteStep } from "@/components/flows/company-admin-v2/CA_ExecuteStep";
-import { CA_TrackReconcileStep } from "@/components/flows/company-admin-v2/CA_TrackReconcileStep";
-import { CA_LeaveDetailDrawer } from "@/components/flows/company-admin-v2/CA_LeaveDetailDrawer";
-import { CA_AdjustmentDetailDrawer } from "@/components/flows/company-admin-v2/CA_AdjustmentDetailDrawer";
-import { CA_WorkerDetailDrawer } from "@/components/flows/company-admin-v2/CA_WorkerDetailDrawer";
+import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_PayrollOverviewCard";
+import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
+import { CA_PayrollPreviewsCard } from "@/components/flows/company-admin-v2/CA_PayrollPreviewsCard";
 import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
-import { mockLeaveRequests, mockPayAdjustments, mockInPlaceWorkers, mockCurrencyTotals, mockInPlaceExceptions, createMockInPlaceBatch } from "@/components/flows/company-admin-v2/CA_InPlaceData";
-import { CA_InPlaceStep, CA_InPlaceBatch, CA_LeaveRequest, CA_PayAdjustment, CA_InPlaceException, CA_InPlaceWorker } from "@/components/flows/company-admin-v2/CA_InPlaceTypes";
-import { mockAdjustments, mockLeaveChanges } from "@/components/flows/company-admin-v2/CA_PayrollData";
+import { CA_BatchReviewHeader } from "@/components/flows/company-admin-v2/CA_BatchReviewHeader";
+import { CA_ClientReviewSection } from "@/components/flows/company-admin-v2/CA_ClientReviewSection";
+import { CA_AllItemsSection } from "@/components/flows/company-admin-v2/CA_AllItemsSection";
+import { CA_BatchSidebar } from "@/components/flows/company-admin-v2/CA_BatchSidebar";
+import { CA_RequestChangesModal } from "@/components/flows/company-admin-v2/CA_RequestChangesModal";
+import { CA_ItemDetailDrawer } from "@/components/flows/company-admin-v2/CA_ItemDetailDrawer";
+import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
+import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
+import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
+import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
@@ -361,28 +358,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const {
     getSettings
   } = useCountrySettings();
-  const [viewMode, setViewMode] = useState<"workers" | "payroll">("workers");
+  const [viewMode, setViewMode] = useState<"workers" | "payroll" | "batch-review">("workers");
   const [workersSearchQuery, setWorkersSearchQuery] = useState("");
   
-  // In-Place Batch Workflow State
-  const [inPlaceBatch, setInPlaceBatch] = useState<CA_InPlaceBatch | null>(null);
-  const [inPlaceStep, setInPlaceStep] = useState<CA_InPlaceStep>("review");
-  const [leaveRequests, setLeaveRequests] = useState<CA_LeaveRequest[]>(mockLeaveRequests);
-  const [payAdjustments, setPayAdjustments] = useState<CA_PayAdjustment[]>(mockPayAdjustments);
-  const [inPlaceWorkers, setInPlaceWorkers] = useState<CA_InPlaceWorker[]>(mockInPlaceWorkers);
-  const [inPlaceExceptions, setInPlaceExceptions] = useState<CA_InPlaceException[]>(mockInPlaceExceptions);
-  
-  // Drawer states for in-place workflow
-  const [leaveDetailDrawerOpen, setLeaveDetailDrawerOpen] = useState(false);
-  const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<CA_LeaveRequest | null>(null);
-  const [adjustmentDetailDrawerOpen, setAdjustmentDetailDrawerOpen] = useState(false);
-  const [selectedPayAdjustment, setSelectedPayAdjustment] = useState<CA_PayAdjustment | null>(null);
-  const [workerDetailDrawerOpen, setWorkerDetailDrawerOpen] = useState(false);
-  const [selectedInPlaceWorker, setSelectedInPlaceWorker] = useState<CA_InPlaceWorker | null>(null);
-  const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
-  const [adjustments, setAdjustments] = useState(mockAdjustments);
-  const [leaveChanges, setLeaveChanges] = useState(mockLeaveChanges);
-  
+  // Batch Review State
+  const [currentBatch, setCurrentBatch] = useState<CA_PaymentBatch | null>(null);
+  const [batchClientReviewItems, setBatchClientReviewItems] = useState<CA_BatchAdjustment[]>(mockClientReviewItems);
+  const [requestChangesModalOpen, setRequestChangesModalOpen] = useState(false);
+  const [itemDetailDrawerOpen, setItemDetailDrawerOpen] = useState(false);
+  const [selectedBatchItem, setSelectedBatchItem] = useState<CA_BatchAdjustment | undefined>(undefined);
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
@@ -475,129 +459,83 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const [unresolvedIssues, setUnresolvedIssues] = useState({ blockingExceptions: 0, failedPayouts: 0, failedPostings: 0 });
   const [forceCompleteJustification, setForceCompleteJustification] = useState("");
 
-  // In-Place Batch Handlers
-  const pendingLeaveCount = leaveRequests.filter(l => l.status === "pending").length;
-  const pendingAdjustmentCount = payAdjustments.filter(a => a.status === "pending").length;
-  const hasPendingItems = pendingLeaveCount > 0 || pendingAdjustmentCount > 0;
-  const hasBlockingExceptions = inPlaceExceptions.filter(e => e.isBlocking && !e.resolved).length > 0;
+  // Flow 6 v2 - Enhanced Payroll State
+  const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
+  const [caAdjustments, setCaAdjustments] = useState<CA_Adjustment[]>(mockAdjustments);
+  const [caLeaveChanges, setCaLeaveChanges] = useState<CA_LeaveChange[]>(mockLeaveChanges);
+  const [caFxFilter, setCaFxFilter] = useState<"all" | "employees" | "contractors">("all");
+  const [caSelectedCountries, setCaSelectedCountries] = useState<string[]>([]);
 
-  const handleApproveLeaveRequest = (id: string) => {
-    setLeaveRequests(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
-    toast.success("Leave approved");
-    setLeaveDetailDrawerOpen(false);
-  };
-
-  const handleRejectLeaveRequest = (id: string) => {
-    setLeaveRequests(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
-    toast.info("Leave rejected");
-    setLeaveDetailDrawerOpen(false);
-  };
-
-  const handleApprovePayAdjustment = (id: string) => {
-    setPayAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
+  const handleApproveAdjustment = (id: string) => {
+    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
     toast.success("Adjustment approved");
-    setAdjustmentDetailDrawerOpen(false);
   };
 
-  const handleRejectPayAdjustment = (id: string) => {
-    setPayAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
-    toast.info("Adjustment rejected");
-    setAdjustmentDetailDrawerOpen(false);
-  };
-
-  const handleViewLeaveRequest = (id: string) => {
-    const request = leaveRequests.find(l => l.id === id);
-    if (request) {
-      setSelectedLeaveRequest(request);
-      setLeaveDetailDrawerOpen(true);
-    }
-  };
-
-  const handleViewPayAdjustment = (id: string) => {
-    const adjustment = payAdjustments.find(a => a.id === id);
-    if (adjustment) {
-      setSelectedPayAdjustment(adjustment);
-      setAdjustmentDetailDrawerOpen(true);
-    }
-  };
-
-  const handleViewWorkerDetail = (workerId: string) => {
-    const worker = inPlaceWorkers.find(w => w.id === workerId);
-    if (worker) {
-      setSelectedInPlaceWorker(worker);
-      setWorkerDetailDrawerOpen(true);
-    }
-  };
-
-  const handleCreateInPlaceBatch = () => {
-    if (hasPendingItems) {
-      toast.error("Please resolve all pending items before creating a batch");
-      return;
-    }
-    const batch = createMockInPlaceBatch();
-    setInPlaceBatch(batch);
-    setInPlaceStep("review");
-    toast.success("Payment batch created.");
-  };
-
-  const handleDeleteBatch = () => {
-    setInPlaceBatch(null);
-    setInPlaceStep("review");
-    toast.info("Batch deleted");
-  };
-
-  const handleCloseBatch = () => {
-    setInPlaceBatch(null);
-    setInPlaceStep("review");
-  };
-
-  const handleResolveInPlaceException = (exceptionId: string) => {
-    setInPlaceExceptions(prev => prev.map(e => 
-      e.id === exceptionId ? { ...e, resolved: true } : e
-    ));
-    toast.success("Exception resolved");
-  };
-
-  const handleRecheckExceptions = () => {
-    toast.info("Re-checking exceptions...");
-  };
-
-  const handleApproveInPlaceBatch = () => {
-    if (!inPlaceBatch) return;
-    setInPlaceBatch({ ...inPlaceBatch, status: "client_approved" });
-    toast.success(`Batch approved. Fronted will execute on ${inPlaceBatch.payoutDate}.`);
-  };
-
-  const handleRequestBatchChanges = (reason: string) => {
-    if (!inPlaceBatch) return;
-    setInPlaceBatch({ ...inPlaceBatch, status: "requires_changes" });
-    toast.success("Request sent. We'll notify you when it's resolved.");
-    setInPlaceBatch(null);
-  };
-
-  // Resolve drawer handlers
-  const handleApproveResolveAdjustment = (id: string) => {
-    setAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
-    toast.success("Adjustment approved - totals updated");
-  };
-
-  const handleRejectResolveAdjustment = (id: string) => {
-    setAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
+  const handleRejectAdjustment = (id: string) => {
+    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
     toast.info("Adjustment rejected");
   };
 
-  const handleApproveResolveLeave = (id: string) => {
-    setLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
-    toast.success("Leave approved - totals updated");
+  const handleApproveLeave = (id: string) => {
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
+    toast.success("Leave approved");
   };
 
-  const handleRejectResolveLeave = (id: string) => {
-    setLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
+  const handleRejectLeave = (id: string) => {
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
     toast.info("Leave rejected");
   };
 
-  const handleViewResolveWorker = (workerId: string) => {
-    toast.info(`Opening worker ${workerId} details...`);
+  const handleCreateBatch = () => {
+    const batch = createMockBatch();
+    setCurrentBatch(batch);
+    setBatchClientReviewItems(mockClientReviewItems);
+    toast.success("Payment batch created.");
+    setViewMode("batch-review");
+  };
+
+  const handleApproveBatchItem = (id: string) => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.id === id ? { ...item, status: "approved" as const } : item
+    ));
+    toast.success("Adjustment approved");
+  };
+
+  const handleRejectBatchItem = (id: string) => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.id === id ? { ...item, status: "rejected" as const } : item
+    ));
+    toast.info("Adjustment rejected");
+  };
+
+  const handleApproveAllBatchItems = () => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.status === "client_review" ? { ...item, status: "approved" as const } : item
+    ));
+    toast.success("All adjustments approved");
+  };
+
+  const handleViewBatchItem = (id: string) => {
+    const item = batchClientReviewItems.find(i => i.id === id);
+    setSelectedBatchItem(item);
+    setItemDetailDrawerOpen(true);
+  };
+
+  const handleApproveBatch = () => {
+    if (!currentBatch) return;
+    setCurrentBatch({ ...currentBatch, status: "client_approved" });
+    toast.success(`Batch approved. Fronted will execute on ${currentBatch.payoutDate}.`);
+  };
+
+  const handleRequestChanges = (reason: string) => {
+    if (!currentBatch) return;
+    setCurrentBatch({ ...currentBatch, status: "requires_changes" });
+    toast.success("Request sent. We'll notify you when it's resolved.");
+    setViewMode("payroll");
+  };
+
+  const handleBackToPayroll = () => {
+    setViewMode("payroll");
   };
 
   // Filter allContractors based on employment type filter
@@ -2567,8 +2505,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             </TableRow>;
                         })}
                           </>}
-
-
+                        
+                        
                         {/* Per-type Subtotals Row */}
                         <TableRow className="bg-muted/30 border-t border-border">
                           <TableCell colSpan={22} className="p-0">
@@ -3810,8 +3748,8 @@ You can ask me about:
                   // }
                   />
 
-                    {/* View Mode Switch - always show (no batch-review navigation) */}
-                    {!inPlaceBatch && (
+                    {/* View Mode Switch - only show when not in batch review */}
+                    {viewMode !== "batch-review" && (
                       <div className="flex items-center justify-center py-2">
                         <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
                           <TabsList className="grid w-[280px] grid-cols-2">
@@ -3819,6 +3757,17 @@ You can ask me about:
                             <TabsTrigger value="payroll">Payroll</TabsTrigger>
                           </TabsList>
                         </Tabs>
+                      </div>
+                    )}
+                    
+                    {/* Breadcrumb for Batch Review */}
+                    {viewMode === "batch-review" && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={handleBackToPayroll}>
+                          Payroll
+                        </Button>
+                        <span>›</span>
+                        <span className="text-foreground font-medium">Payment Batch Review (Nov 2025)</span>
                       </div>
                     )}
 
@@ -3959,131 +3908,136 @@ You can ask me about:
                             })()}
                           </CardContent>
                         </Card>
-                      ) : (
-                        /* Payroll Tab - In-Place Batch Workflow */
+                      ) : viewMode === "payroll" ? (
+                        /* Payroll Batch Workflow - Enhanced with 3 Cards */
                         <div className="space-y-6">
-                          {/* Show Batch Summary Card if batch exists, otherwise Overview Card */}
-                          {inPlaceBatch ? (
-                            <>
-                              {/* Batch Summary Card (morphed from Overview) */}
-                              <CA_BatchSummaryCard
-                                batchId={inPlaceBatch.id}
-                                payoutDate={inPlaceBatch.payoutDate}
-                                status={inPlaceBatch.status}
-                                employeeCount={inPlaceBatch.employeeCount}
-                                contractorCount={inPlaceBatch.contractorCount}
-                                currencyTotals={mockCurrencyTotals}
-                                onDelete={handleDeleteBatch}
-                                onClose={handleCloseBatch}
-                              />
-
-                              {/* Sticky Stepper */}
-                              <CA_InPlaceStepper
-                                currentStep={inPlaceStep}
-                                onStepClick={setInPlaceStep}
-                                hasBlockingExceptions={hasBlockingExceptions}
-                                exceptionCount={inPlaceExceptions.filter(e => !e.resolved).length}
-                              />
-
-                              {/* Step Content */}
-                              {inPlaceStep === "review" && (
-                                <CA_ReviewStep
-                                  workers={inPlaceWorkers}
-                                  currencyTotals={mockCurrencyTotals}
-                                  onWorkerClick={handleViewWorkerDetail}
-                                  onContinue={() => setInPlaceStep("exceptions")}
-                                  onBack={handleCloseBatch}
-                                />
-                              )}
-
-                              {inPlaceStep === "exceptions" && (
-                                <CA_ExceptionsStep
-                                  exceptions={inPlaceExceptions}
-                                  onRecheck={handleRecheckExceptions}
-                                  onResolve={handleResolveInPlaceException}
-                                  onViewWorker={handleViewWorkerDetail}
-                                  onContinue={() => setInPlaceStep("execute")}
-                                  onBack={() => setInPlaceStep("review")}
-                                />
-                              )}
-
-                              {inPlaceStep === "execute" && (
-                                <CA_ExecuteStep
-                                  currencyTotals={mockCurrencyTotals}
-                                  employeeCount={inPlaceBatch.employeeCount}
-                                  contractorCount={inPlaceBatch.contractorCount}
-                                  payoutDate={inPlaceBatch.payoutDate}
-                                  feeEstimate={2500}
-                                  primaryCurrency="USD"
-                                  onApprove={handleApproveInPlaceBatch}
-                                  onRequestChanges={handleRequestBatchChanges}
-                                  onBack={() => setInPlaceStep("exceptions")}
-                                  batchStatus={inPlaceBatch.status}
-                                />
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              {/* Pre-Batch: Overview Card */}
-                              <CA_OverviewCard
-                                payPeriod="November 2025"
-                                countries="Philippines, Norway, Portugal, France, Italy"
-                                employeeCount={3}
-                                contractorCount={6}
-                                primaryCurrency="USD"
-                                pendingAdjustments={adjustments.filter(a => a.status === "pending").length}
-                                pendingLeave={leaveChanges.filter(l => l.status === "pending").length}
-                                autoApproved={adjustments.filter(a => a.status === "auto_approved").length}
-                                hasPendingItems={adjustments.filter(a => a.status === "pending").length + leaveChanges.filter(l => l.status === "pending").length > 0}
-                                onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                                onResolveItems={() => setResolveDrawerOpen(true)}
-                                onCreateBatch={handleCreateInPlaceBatch}
-                              />
-
-                              {/* Review FX & Totals Table */}
-                              <CA_FXTotalsTable
-                                currencyTotals={mockCurrencyTotals}
-                                hasPendingItems={adjustments.filter(a => a.status === "pending").length + leaveChanges.filter(l => l.status === "pending").length > 0}
-                                onResolve={() => setResolveDrawerOpen(true)}
-                              />
-
-                              {/* Resolve Items Drawer */}
-                              <CA_ResolveItemsDrawer
-                                open={resolveDrawerOpen}
-                                onClose={() => setResolveDrawerOpen(false)}
-                                adjustments={adjustments}
-                                leaveChanges={leaveChanges}
-                                onApproveAdjustment={handleApproveResolveAdjustment}
-                                onRejectAdjustment={handleRejectResolveAdjustment}
-                                onApproveLeave={handleApproveResolveLeave}
-                                onRejectLeave={handleRejectResolveLeave}
-                                onViewWorker={handleViewResolveWorker}
-                                autoApproveThreshold={500}
-                              />
-                            </>
-                          )}
-
-                          {/* Drawers */}
-                          <CA_LeaveDetailDrawer
-                            open={leaveDetailDrawerOpen}
-                            onOpenChange={setLeaveDetailDrawerOpen}
-                            request={selectedLeaveRequest}
-                            onApprove={handleApproveLeaveRequest}
-                            onReject={handleRejectLeaveRequest}
+                          {/* Card A: Payroll Overview & Actions */}
+                          <CA_PayrollOverviewCard
+                            payPeriod="November 2025"
+                            primaryCurrency="USD"
+                            countries="Philippines, Norway, Portugal, France, Italy"
+                            employeeCount={3}
+                            contractorCount={6}
+                            status="in_review"
+                            adjustments={caAdjustments}
+                            leaveChanges={caLeaveChanges}
+                            autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
+                            blockingAlerts={mockBlockingAlerts}
+                            onResolveItems={() => setResolveDrawerOpen(true)}
+                            onCreateBatch={handleCreateBatch}
+                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                            onPeriodChange={() => {}}
+                            selectedPeriod="current"
                           />
 
-                          <CA_AdjustmentDetailDrawer
-                            open={adjustmentDetailDrawerOpen}
-                            onOpenChange={setAdjustmentDetailDrawerOpen}
-                            adjustment={selectedPayAdjustment}
-                            onApprove={handleApprovePayAdjustment}
-                            onReject={handleRejectPayAdjustment}
+                          {/* Card B: Review FX & Totals */}
+                          <CA_ReviewFXTotalsCard
+                            data={mockFXTotalsData}
+                            hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
+                            onResolveClick={() => setResolveDrawerOpen(true)}
+                            employmentFilter={caFxFilter}
+                            onEmploymentFilterChange={setCaFxFilter}
+                            selectedCountries={caSelectedCountries}
+                            onCountriesChange={setCaSelectedCountries}
+                            allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
                           />
 
-                          <CA_WorkerDetailDrawer
-                            open={workerDetailDrawerOpen}
-                            onOpenChange={setWorkerDetailDrawerOpen}
-                            worker={selectedInPlaceWorker}
+                          {/* Card C: Previews (Employees + Contractors) */}
+                          <CA_PayrollPreviewsCard
+                            employeeData={mockEmployeePreviewData}
+                            contractorData={mockContractorPreviewData}
+                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                            onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
+                            onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
+                          />
+
+                          {/* Resolve Items Drawer */}
+                          <CA_ResolveItemsDrawer
+                            open={resolveDrawerOpen}
+                            onClose={() => setResolveDrawerOpen(false)}
+                            adjustments={caAdjustments}
+                            leaveChanges={caLeaveChanges}
+                            onApproveAdjustment={handleApproveAdjustment}
+                            onRejectAdjustment={handleRejectAdjustment}
+                            onApproveLeave={handleApproveLeave}
+                            onRejectLeave={handleRejectLeave}
+                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                            autoApproveThreshold={500}
+                          />
+                        </div>
+                      ) : (
+                        /* Payment Batch Review View */
+                        <div className="space-y-6">
+                          {/* Batch Review Header */}
+                          <CA_BatchReviewHeader
+                            period={currentBatch?.period || "November 2025"}
+                            payoutDate={currentBatch?.payoutDate || "November 30, 2025"}
+                            status={currentBatch?.status || "awaiting_approval"}
+                            executionMode={currentBatch?.executionMode || "fronted"}
+                            autoApproveTime={currentBatch?.autoApproveTime}
+                            clientReviewCount={batchClientReviewItems.filter(i => i.status === "client_review").length}
+                            hasBlockers={currentBatch?.blockers?.length ? currentBatch.blockers.length > 0 : false}
+                            onApproveBatch={handleApproveBatch}
+                            onRequestChanges={() => setRequestChangesModalOpen(true)}
+                            onExport={() => toast.info("Exporting batch summary...")}
+                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                          />
+
+                          {/* Two Column Layout */}
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Left: Review Sections (2/3) */}
+                            <div className="lg:col-span-2 space-y-6">
+                              {/* Section A: Adjustments requiring approval */}
+                              <CA_ClientReviewSection
+                                items={batchClientReviewItems}
+                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
+                                onApprove={handleApproveBatchItem}
+                                onReject={handleRejectBatchItem}
+                                onView={handleViewBatchItem}
+                                onApproveAll={handleApproveAllBatchItems}
+                              />
+
+                              {/* Section B: All Items */}
+                              <CA_AllItemsSection
+                                workers={mockBatchWorkers}
+                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
+                                onViewDetails={(workerId) => {
+                                  const worker = mockBatchWorkers.find(w => w.id === workerId);
+                                  if (worker) {
+                                    toast.info(`Viewing details for ${worker.name}`);
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            {/* Right: Sidebar (1/3) */}
+                            <div className="lg:col-span-1">
+                              <CA_BatchSidebar
+                                summaryByCurrency={mockBatchSummary}
+                                employeeCount={currentBatch?.employeeCount || 4}
+                                contractorCount={currentBatch?.contractorCount || 4}
+                                blockers={currentBatch?.blockers || []}
+                                auditLog={mockAuditLog}
+                                autoApproveLabel={currentBatch?.autoApproveTime ? `Auto-approve on ${new Date(currentBatch.autoApproveTime).toLocaleDateString()} if no action.` : undefined}
+                                onBlockerClick={(id) => toast.info(`Navigate to blocker ${id}`)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Request Changes Modal */}
+                          <CA_RequestChangesModal
+                            open={requestChangesModalOpen}
+                            onOpenChange={setRequestChangesModalOpen}
+                            onSubmit={handleRequestChanges}
+                          />
+
+                          {/* Item Detail Drawer */}
+                          <CA_ItemDetailDrawer
+                            open={itemDetailDrawerOpen}
+                            onOpenChange={setItemDetailDrawerOpen}
+                            item={selectedBatchItem}
+                            onApprove={handleApproveBatchItem}
+                            onReject={handleRejectBatchItem}
                           />
                         </div>
                       )}
@@ -4394,7 +4348,7 @@ You can ask me about:
                             <Button variant="outline" className="flex-1" onClick={() => setFixDrawerOpen(false)}>
                               Cancel
                             </Button>
-                            <Button className="flex-1" onClick={() => handleResolveException(selectedException?.id)} disabled={selectedException?.type === "missing-bank" && !bankAccountType}>
+                            <Button className="flex-1" onClick={() => handleResolveException()} disabled={selectedException?.type === "missing-bank" && !bankAccountType}>
                               Mark as Resolved
                             </Button>
                           </SheetFooter>
