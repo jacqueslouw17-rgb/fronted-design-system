@@ -2347,9 +2347,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
             </p>
 
             {/* Payroll Totals Summary */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-              
-            </Card>
+            
 
             {/* Snoozed Workers Section */}
             {snoozedContractorsList.length > 0 && <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
