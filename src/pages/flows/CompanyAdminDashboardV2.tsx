@@ -1,25 +1,22 @@
 /**
  * Flow 6 – Company Admin Dashboard v2
  * 
- * DUPLICATE of v1 — no functional or visual changes.
- * Single-tenant dashboard for company admins to view their certified workers
- * and access their contracts and certificates.
+ * Features:
+ * - Two-toggle header: Workers | Payroll
+ * - Workers tab: certified workers list (cloned from v1)
+ * - Payroll tab: payroll overview cloned from Flow 7 v1 with read-only Country Rules
  */
 
-import { useState, useMemo, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Users, Search, Download, Award } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Topbar from "@/components/dashboard/Topbar";
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { F6v2_WorkersTab } from "@/components/flows/company-admin-v2/F6v2_WorkersTab";
+import { F6v2_PayrollTab } from "@/components/flows/company-admin-v2/F6v2_PayrollTab";
 
 // Mock data for certified workers (v2-scoped copy)
 const mockCertifiedWorkersV2 = [{
@@ -50,7 +47,9 @@ const mockCertifiedWorkersV2 = [{
   salary: "GBP 4,800/mo",
   status: "Certified"
 }];
+
 const CompanyAdminDashboardV2 = () => {
+  const [viewMode, setViewMode] = useState<"workers" | "payroll">("workers");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Mock company data - in production, this would come from auth context
@@ -69,28 +68,16 @@ const CompanyAdminDashboardV2 = () => {
     }, 300);
   }, []);
 
-  // Filter workers based on search query
-  const filteredWorkers = useMemo(() => {
-    if (!searchQuery.trim()) return mockCertifiedWorkersV2;
-    const query = searchQuery.toLowerCase();
-    return mockCertifiedWorkersV2.filter(worker => worker.name.toLowerCase().includes(query) || worker.role.toLowerCase().includes(query));
-  }, [searchQuery]);
-  const handleViewCertificate = (workerName: string) => {
-    toast.success(`Opening certificate for ${workerName}...`);
-    // In production, this would open the actual certificate
-  };
-  const handleDownloadContract = (workerName: string) => {
-    toast.info(`Downloading contract bundle for ${workerName}...`);
-    // In production, this would trigger the actual download
-  };
-  const getInitials = (name: string) => {
-    return name.split(" ").map(n => n[0]).join("").toUpperCase();
-  };
-  return <RoleLensProvider initialRole="admin">
+  return (
+    <RoleLensProvider initialRole="admin">
       <TooltipProvider>
         <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
           {/* Top Header - No company dropdown for single-tenant */}
-          <Topbar userName="Admin User" profileSettingsUrl="/admin/profile-settings-v2" dashboardUrl="/flows/company-admin-dashboard-v2" />
+          <Topbar 
+            userName="Admin User" 
+            profileSettingsUrl="/admin/profile-settings-v2" 
+            dashboardUrl="/flows/company-admin-dashboard-v2" 
+          />
 
           {/* Main Content Area with Agent Layout */}
           <AgentLayout context="Company Admin Dashboard v2">
@@ -98,122 +85,65 @@ const CompanyAdminDashboardV2 = () => {
               {/* Static background */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
-                <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
-                background: "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))"
-              }} />
-                <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
-                background: "linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))"
-              }} />
+                <div 
+                  className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" 
+                  style={{
+                    background: "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))"
+                  }} 
+                />
+                <div 
+                  className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" 
+                  style={{
+                    background: "linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))"
+                  }} 
+                />
               </div>
 
-              <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-20 sm:pb-32 space-y-6 sm:space-y-8 relative z-10">
+              <div className="max-w-7xl mx-auto p-4 sm:p-8 pb-20 sm:pb-32 space-y-2 relative z-10">
                 {/* Agent Header */}
-                <AgentHeader title={`Welcome back, ${companyName}!`} subtitle="View your certified workers and access their contracts and certificates." showPulse={true} showInput={false} simplified={false} />
+                <AgentHeader 
+                  title={`Welcome back, ${companyName}!`} 
+                  subtitle={viewMode === "workers" 
+                    ? "View your certified workers and access their contracts and certificates." 
+                    : "Kurt can help with: FX rates, compliance checks, or payment execution."
+                  }
+                  showPulse={true} 
+                  showInput={false} 
+                  simplified={false} 
+                />
 
-                {/* Certified Workers Section */}
-                <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-                  <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg">Certified workers</CardTitle>
-                        <CardDescription>
-                          {filteredWorkers.length === 0 && searchQuery ? "No workers match your search" : `${filteredWorkers.length} certified worker${filteredWorkers.length !== 1 ? "s" : ""}`}
-                        </CardDescription>
-                      </div>
-                      <div className="relative w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search workers..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 bg-background/60" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    {mockCertifiedWorkersV2.length === 0 ?
-                  // Empty state - no certified workers yet
-                  <div className="flex flex-col items-center justify-center py-16 px-6">
-                        <div className="rounded-full bg-primary/5 p-5 mb-5">
-                          <Users className="h-10 w-10 text-primary/40" />
-                        </div>
-                        <h3 className="text-xl font-semibold mb-2 text-foreground">
-                          No certified workers yet
-                        </h3>
-                        <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
-                          Once Fronted completes contracting and certification for your hires,
-                          they'll appear here automatically.
-                        </p>
-                      </div> : filteredWorkers.length === 0 ?
-                  // No search results
-                  <div className="flex flex-col items-center justify-center py-12 px-6">
-                        <Search className="h-10 w-10 text-muted-foreground/40 mb-4" />
-                        <p className="text-sm text-muted-foreground text-center">
-                          No workers found matching "{searchQuery}"
-                        </p>
-                      </div> :
-                  // Worker list
-                  <div className="space-y-3">
-                        {filteredWorkers.map(worker => <div key={worker.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
-                            <div className="flex items-center gap-4 flex-1">
-                              {/* Avatar */}
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                                  {getInitials(worker.name)}
-                                </AvatarFallback>
-                              </Avatar>
+                {/* View Mode Toggle - Same style as Flow 7 */}
+                <div className="flex items-center justify-center py-2">
+                  <Tabs 
+                    value={viewMode} 
+                    onValueChange={value => setViewMode(value as "workers" | "payroll")}
+                  >
+                    <TabsList className="grid w-[280px] grid-cols-2">
+                      <TabsTrigger value="workers">Workers</TabsTrigger>
+                      <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
 
-                              {/* Worker info */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <p className="text-sm font-medium text-foreground">
-                                    {worker.name}
-                                  </p>
-                                  <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
-                                    {worker.status}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                  <span>{worker.role}</span>
-                                  <span className="flex items-center gap-1">
-                                    <span>{worker.countryFlag}</span>
-                                    <span>{worker.country}</span>
-                                  </span>
-                                  <Badge variant="secondary" className="text-xs">
-                                    {worker.employmentType}
-                                  </Badge>
-                                  {worker.salary && <span className="font-medium">{worker.salary}</span>}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Action buttons */}
-                            <div className="flex items-center gap-1 ml-4 flex-shrink-0">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>View certificate</p>
-                                </TooltipContent>
-                              </Tooltip>
-                              
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button size="sm" variant="ghost" onClick={() => handleDownloadContract(worker.name)} className="text-muted-foreground hover:text-foreground h-8 w-8 p-0">
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Download contract bundle</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </div>)}
-                      </div>}
-                  </CardContent>
-                </Card>
+                {/* Conditional View */}
+                <div className="pt-6">
+                  {viewMode === "workers" ? (
+                    <F6v2_WorkersTab 
+                      workers={mockCertifiedWorkersV2}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                    />
+                  ) : (
+                    <F6v2_PayrollTab />
+                  )}
+                </div>
               </div>
             </main>
           </AgentLayout>
         </div>
       </TooltipProvider>
-    </RoleLensProvider>;
+    </RoleLensProvider>
+  );
 };
+
 export default CompanyAdminDashboardV2;
