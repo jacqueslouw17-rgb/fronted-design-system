@@ -31,6 +31,7 @@ import { CA_PayrollRunSummaryCard } from "@/components/flows/company-admin-v2/CA
 import { CA_FXReviewStepper, FXReviewStep } from "@/components/flows/company-admin-v2/CA_FXReviewStepper";
 import { CA_LeaveAttendanceInfoRow } from "@/components/flows/company-admin-v2/CA_LeaveAttendanceInfoRow";
 import { CA_LeaveAttendanceDrawer } from "@/components/flows/company-admin-v2/CA_LeaveAttendanceDrawer";
+import { CA_WorkerWorkbenchDrawer, WorkbenchWorker } from "@/components/flows/company-admin-v2/CA_WorkerWorkbenchDrawer";
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
@@ -483,7 +484,46 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const [caFxFilter, setCaFxFilter] = useState<"all" | "employees" | "contractors">("all");
   const [caSelectedCountries, setCaSelectedCountries] = useState<string[]>([]);
 
-  // Handlers for FX table row clicks
+  // Worker Workbench Drawer state (FX Review step)
+  const [workerWorkbenchOpen, setWorkerWorkbenchOpen] = useState(false);
+  const [selectedWorkbenchWorker, setSelectedWorkbenchWorker] = useState<WorkbenchWorker | null>(null);
+
+  // Handler for opening Worker Workbench drawer from FX Review tables
+  const handleOpenWorkerWorkbench = (contractor: ContractorPayment) => {
+    const workbenchWorker: WorkbenchWorker = {
+      id: contractor.id,
+      name: contractor.name,
+      employmentType: contractor.employmentType,
+      country: contractor.country,
+      countryCode: contractor.countryCode,
+      currency: contractor.currency,
+      payFrequency: "Monthly",
+      baseSalary: contractor.baseSalary,
+      grossPay: contractor.baseSalary,
+      netPay: contractor.netPay || contractor.baseSalary,
+      estFees: contractor.estFees,
+      employerTaxes: contractor.employerTaxes,
+      deductions: contractor.withholdingTax,
+      startDate: contractor.startDate,
+      endDate: contractor.endDate,
+      status: contractor.status,
+      ftePercent: contractor.ftePercent,
+      compensationType: contractor.compensationType,
+      hourlyRate: contractor.hourlyRate,
+      hoursWorked: contractor.hoursWorked
+    };
+    setSelectedWorkbenchWorker(workbenchWorker);
+    setWorkerWorkbenchOpen(true);
+  };
+
+  // Handle save and recalculate from workbench drawer
+  const handleWorkbenchSaveAndRecalculate = (workerId: string, updates: any) => {
+    // In a real implementation, this would update the contractor data and recalculate totals
+    console.log("Recalculating for worker:", workerId, updates);
+    // For now, just show a toast - the mock data doesn't persist
+    toast.success("Payroll totals recalculated");
+  };
+
   const handleResolveWithCurrency = (currency?: string) => {
     setResolveDrawerPreSelectedCurrency(currency);
     setResolveDrawerOpen(true);
@@ -1864,13 +1904,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                           const netPay = paymentDue;
                           const additionalFee = additionalFees[contractor.id];
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          return <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
+                          return <TableRow key={contractor.id} className={cn("hover:bg-primary/5 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
                             if (selectedCycle === "previous") return;
-                            if (contractor.employmentType === "employee") {
-                              handleOpenEmployeePayroll(contractor);
-                            } else {
-                              handleOpenContractorDetail(contractor);
-                            }
+                            handleOpenWorkerWorkbench(contractor);
                           }}>
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
                                 <div className="flex items-center gap-2">
@@ -2137,13 +2173,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                           const netPay = isPHEmployee ? grossPay - deductions : paymentDue;
                           const additionalFee = additionalFees[contractor.id];
                           const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          return <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
+                          return <TableRow key={contractor.id} className={cn("hover:bg-primary/5 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => {
                             if (selectedCycle === "previous") return;
-                            if (contractor.employmentType === "employee") {
-                              handleOpenEmployeePayroll(contractor);
-                            } else {
-                              handleOpenContractorDetail(contractor);
-                            }
+                            handleOpenWorkerWorkbench(contractor);
                           }}>
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
                                 <div className="flex items-center gap-2">
@@ -3685,6 +3717,15 @@ You can ask me about:
 
                               {/* Currency Workers Drawer */}
                               <CA_CurrencyWorkersDrawer open={currencyWorkersDrawerOpen} onClose={() => setCurrencyWorkersDrawerOpen(false)} currency={currencyWorkersDrawerCurrency} employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees} contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors} onViewPayrollPreview={id => toast.info(`View payroll preview for ${id}`)} onViewInvoicePreview={id => toast.info(`View invoice preview for ${id}`)} />
+
+                              {/* Worker Workbench Drawer */}
+                              <CA_WorkerWorkbenchDrawer 
+                                open={workerWorkbenchOpen} 
+                                onOpenChange={setWorkerWorkbenchOpen} 
+                                worker={selectedWorkbenchWorker} 
+                                payrollPeriod="November 2025" 
+                                onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} 
+                              />
                             </div>}
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
