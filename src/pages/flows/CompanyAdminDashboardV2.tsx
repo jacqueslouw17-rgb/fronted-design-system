@@ -3758,11 +3758,6 @@ You can ask me about:
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
                           {selectedCycle === "current" && currentBatch && <div className="space-y-6">
-                              {/* Payroll Run Header */}
-                              <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-semibold text-foreground">Payroll run</h2>
-                              </div>
-
                               {/* Payroll Run Totals Card */}
                               <Card className="border-border/20 bg-card/40 backdrop-blur-sm">
                                 <CardContent className="py-5 px-6">
