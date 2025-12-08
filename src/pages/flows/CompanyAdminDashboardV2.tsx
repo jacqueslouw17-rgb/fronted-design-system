@@ -28,6 +28,9 @@ import { CA_WorkerPreviewRow } from "@/components/flows/company-admin-v2/CA_Payr
 import { CA_PayPeriodDropdown } from "@/components/flows/company-admin-v2/CA_PayPeriodDropdown";
 import { CA_CompletedPaymentDetailsCard } from "@/components/flows/company-admin-v2/CA_CompletedPaymentDetailsCard";
 import { CA_PayrollRunSummaryCard } from "@/components/flows/company-admin-v2/CA_PayrollRunSummaryCard";
+import { CA_FXReviewStepper, FXReviewStep } from "@/components/flows/company-admin-v2/CA_FXReviewStepper";
+import { CA_LeaveAttendanceInfoRow } from "@/components/flows/company-admin-v2/CA_LeaveAttendanceInfoRow";
+import { CA_LeaveAttendanceDrawer } from "@/components/flows/company-admin-v2/CA_LeaveAttendanceDrawer";
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
@@ -1781,163 +1784,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
               </div>
             </div>
 
-            {/* Leave & Attendance Section */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm mb-8">
-              <CardContent className="p-4">
-                <button onClick={() => setShowLeaveSection(!showLeaveSection)} className="w-full flex items-center justify-between group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
-                      <Badge variant="outline" className="text-xs">
-                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
-                    </Badge>
-                  </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {showLeaveSection ? "Hide details" : "View details"}
-                    </span>
-                    <div className={cn("transition-transform duration-200", showLeaveSection && "rotate-180")}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-muted-foreground">
-                        <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-                </button>
-
-                {showLeaveSection && <motion.div initial={{
-                height: 0,
-                opacity: 0
-              }} animate={{
-                height: "auto",
-                opacity: 1
-              }} exit={{
-                height: 0,
-                opacity: 0
-              }} transition={{
-                duration: 0.2
-              }} className="mt-4">
-                    {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? <div className="flex flex-col items-center justify-center py-16 px-6">
-                        <div className="text-center space-y-2 mb-6">
-                          <h4 className="text-base font-medium text-foreground">Track Leave & Absences</h4>
-                          <p className="text-sm text-muted-foreground max-w-md">
-                            Add employees or contractors who took leave this cycle. Their salaries will be automatically pro-rated based on working days.
-                          </p>
-                        </div>
-                        <Button size="default" onClick={() => setLeaveSelectorOpen(true)} className="gap-2">
-                          <Plus className="h-4 w-4" />
-                          Add Workers with Leave
-                        </Button>
-                      </div> : <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-muted-foreground">
-                            For payroll month: {selectedCycle === "current" ? "November 2025" : selectedCycle === "previous" ? "October 2025" : "December 2025"}
-                            <span className="ml-2">•</span>
-                            <span className="ml-2">Pro-rated: Base Pay ÷ Days Per Month × (Working Days - Leave Days)</span>
-                            <span className="ml-2 text-amber-600">*For hourly contractors, enter unpaid hours instead of days</span>
-                          </div>
-                          <Button size="sm" variant="ghost" onClick={() => setLeaveSelectorOpen(true)} className="h-8 text-xs gap-1.5 hover:bg-primary/10">
-                            <Plus className="h-3.5 w-3.5" />
-                            Add More
-                          </Button>
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="text-xs">Name</TableHead>
-                              <TableHead className="text-xs text-right">Leave Days / Unpaid Hours</TableHead>
-                              <TableHead className="text-xs text-right">Working Days</TableHead>
-                              <TableHead className="text-xs text-right">Unpaid Leave Amount</TableHead>
-                              <TableHead className="text-xs text-right">Payment Due</TableHead>
-                              <TableHead className="text-xs text-center">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {allContractors.filter(c => leaveRecords[c.id]?.leaveDays > 0).map(contractor => {
-                        const leaveData = leaveRecords[contractor.id];
-                        const hasLeave = leaveData && leaveData.leaveDays > 0;
-                        const leaveDays = leaveData?.leaveDays || 0;
-
-                        // Use country-specific divisor from Country Settings
-                        const isPHContractor = contractor.countryCode === "PH";
-                        const isNOContractor = contractor.countryCode === "NO";
-                        const phSettings = getSettings("PH");
-                        const noSettings = getSettings("NO");
-                        const daysPerMonth = isPHContractor ? phSettings.daysPerMonth : isNOContractor ? noSettings.daysPerMonth : 22;
-                        const workingDays = leaveData?.workingDays || daysPerMonth;
-
-                        // Calculate unpaid leave amount based on contractor type
-                        const isHourly = contractor.employmentType === "contractor" && contractor.compensationType === "Hourly";
-                        let unpaidLeaveAmount = 0;
-                        if (isHourly && contractor.hourlyRate) {
-                          // For hourly contractors: hourlyRate × unpaidHours (stored in leaveDays)
-                          unpaidLeaveAmount = contractor.hourlyRate * leaveDays;
-                        } else {
-                          // For monthly/daily contractors: baseSalary / daysPerMonth × leaveDays
-                          const dailyRate = contractor.baseSalary / daysPerMonth;
-                          unpaidLeaveAmount = dailyRate * leaveDays;
-                        }
-                        const paymentDue = getPaymentDue(contractor);
-                        return <TableRow key={contractor.id} className={cn("transition-colors hover:bg-muted/30", !leaveData?.clientConfirmed && "bg-amber-500/5")}>
-                                  <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
-                                  <TableCell className="text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <input type="number" min="0" max={isHourly ? "999" : "31"} step={isHourly ? "1" : "0.5"} value={leaveDays} onChange={e => handleUpdateLeave(contractor.id, {
-                                leaveDays: parseFloat(e.target.value) || 0
-                              })} className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background" placeholder={isHourly ? "hrs" : "days"} />
-                                      {isHourly && <TooltipProvider>
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p className="text-xs max-w-[200px]">For hourly contractors, enter unpaid hours that should not be billed</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </TooltipProvider>}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="text-right text-xs text-muted-foreground">
-                                    {workingDays.toFixed(2)}
-                                  </TableCell>
-                                  <TableCell className="text-right text-sm text-amber-600 font-medium">
-                                    -{contractor.currency} {Math.round(unpaidLeaveAmount).toLocaleString()}
-                                  </TableCell>
-                                  <TableCell className="text-right text-sm font-semibold">
-                                    {contractor.currency} {Math.round(paymentDue).toLocaleString()}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <div className="flex items-center justify-center gap-1">
-                                      {leaveData?.clientConfirmed && <TooltipProvider>
-                                          <Tooltip>
-                                            <TooltipTrigger>
-                                              <div className="w-5 h-5 rounded-full bg-accent-green-fill flex items-center justify-center">
-                                                <Check className="h-3 w-3 text-accent-green-text" />
-                                              </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p className="text-xs">Confirmed by client</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </TooltipProvider>}
-                                      <button onClick={() => handleUpdateLeave(contractor.id, {
-                                clientConfirmed: !leaveData?.clientConfirmed
-                              })} className="text-xs text-primary hover:underline">
-                                        {leaveData?.clientConfirmed ? "Confirmed" : "Confirm"}
-                                      </button>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>;
-                      })}
-                          </TableBody>
-                        </Table>
-                      </div>}
-                  </motion.div>}
-              </CardContent>
-            </Card>
+            {/* Leave & Attendance - Compact Info Row */}
+            <CA_LeaveAttendanceInfoRow
+              trackedChanges={Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length}
+              isLocked={true}
+              onViewDetails={() => setLeaveSelectorOpen(true)}
+            />
 
             {/* Employment Type Filter */}
-            <div className="flex justify-start mb-4 mt-8 my-8 py-0">
+            <div className="flex justify-start mb-4 mt-6 py-0">
               <Tabs value={employmentTypeFilter} onValueChange={v => setEmploymentTypeFilter(v as any)}>
                 <TabsList className="h-9">
                   <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
@@ -2730,17 +2585,18 @@ const CompanyAdminDashboardV2: React.FC = () => {
                 </Collapsible>
               </Card>}
 
-            {/* Footer Navigation */}
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              <Button variant="outline" className="h-9 px-4 text-sm" onClick={handleReturnToPayrollOverview}>
-                ← Previous
+            {/* Footer Navigation - Single CTA */}
+            <div className="pt-6 flex flex-col items-end gap-2">
+              <Button 
+                className="h-10 px-6 text-sm bg-gradient-primary hover:opacity-90 shadow-md" 
+                onClick={() => setCurrentStep("exceptions")} 
+                disabled={selectedCycle === "previous"}
+              >
+                Continue to Exceptions →
               </Button>
-              <div className="text-xs text-muted-foreground">
-                Step 1 of 4 – FX Review
-              </div>
-              <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                Next: Exceptions →
-              </Button>
+              <p className="text-xs text-muted-foreground">
+                You can still return to this step before executing the batch.
+              </p>
             </div>
           </div>;
       case "exceptions":
@@ -4181,51 +4037,15 @@ You can ask me about:
                                 </CardContent>
                               </Card>
 
-                              {/* Progress Pills */}
-                              <div className="flex items-center justify-center gap-2 py-4">
-                                {[
-                                  { id: "review-fx" as const, label: "Review", number: 1 },
-                                  { id: "exceptions" as const, label: "Exceptions", number: 2 },
-                                  { id: "execute" as const, label: "Execute", number: 3 },
-                                  { id: "track" as const, label: "Track & Reconcile", number: 4 },
-                                ].map((step, index) => {
-                                  const stepOrder = ["review-fx", "exceptions", "execute", "track"];
-                                  const currentIndex = stepOrder.indexOf(currentStep);
-                                  const stepIndex = stepOrder.indexOf(step.id);
-                                  const state = stepIndex < currentIndex ? "done" : stepIndex === currentIndex ? "active" : "todo";
-                                  
-                                  return (
-                                    <React.Fragment key={step.id}>
-                                      <button
-                                        onClick={() => state !== "todo" && setCurrentStep(step.id)}
-                                        disabled={state === "todo"}
-                                        className={cn(
-                                          "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                                          state === "active" && "bg-primary text-primary-foreground shadow-md",
-                                          state === "done" && "bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer",
-                                          state === "todo" && "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                                        )}
-                                      >
-                                        <span className={cn(
-                                          "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold",
-                                          state === "active" && "bg-primary-foreground/20",
-                                          state === "done" && "bg-primary/30",
-                                          state === "todo" && "bg-muted"
-                                        )}>
-                                          {state === "done" ? <Check className="h-3 w-3" /> : step.number}
-                                        </span>
-                                        <span>{step.label}</span>
-                                      </button>
-                                      {index < 3 && (
-                                        <div className={cn(
-                                          "w-8 h-0.5 rounded-full",
-                                          stepIndex < currentIndex ? "bg-primary/40" : "bg-muted"
-                                        )} />
-                                      )}
-                                    </React.Fragment>
-                                  );
-                                })}
-                              </div>
+                              {/* Styled Progress Stepper */}
+                              <CA_FXReviewStepper
+                                currentStep={currentStep as FXReviewStep}
+                                completedSteps={(() => {
+                                  const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
+                                  const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
+                                  return stepOrder.slice(0, currentIndex);
+                                })()}
+                              />
 
                               {/* Step Content (Flow 7 v1 content) */}
                               {renderStepContent()}
