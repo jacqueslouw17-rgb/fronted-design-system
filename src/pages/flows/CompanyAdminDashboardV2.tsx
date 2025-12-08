@@ -16,8 +16,16 @@ import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_P
 import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
 import { CA_PayrollPreviewsCard } from "@/components/flows/company-admin-v2/CA_PayrollPreviewsCard";
 import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
+import { CA_BatchReviewHeader } from "@/components/flows/company-admin-v2/CA_BatchReviewHeader";
+import { CA_ClientReviewSection } from "@/components/flows/company-admin-v2/CA_ClientReviewSection";
+import { CA_AllItemsSection } from "@/components/flows/company-admin-v2/CA_AllItemsSection";
+import { CA_BatchSidebar } from "@/components/flows/company-admin-v2/CA_BatchSidebar";
+import { CA_RequestChangesModal } from "@/components/flows/company-admin-v2/CA_RequestChangesModal";
+import { CA_ItemDetailDrawer } from "@/components/flows/company-admin-v2/CA_ItemDetailDrawer";
 import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
+import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
+import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
@@ -350,8 +358,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const {
     getSettings
   } = useCountrySettings();
-  const [viewMode, setViewMode] = useState<"workers" | "payroll">("workers");
+  const [viewMode, setViewMode] = useState<"workers" | "payroll" | "batch-review">("workers");
   const [workersSearchQuery, setWorkersSearchQuery] = useState("");
+  
+  // Batch Review State
+  const [currentBatch, setCurrentBatch] = useState<CA_PaymentBatch | null>(null);
+  const [batchClientReviewItems, setBatchClientReviewItems] = useState<CA_BatchAdjustment[]>(mockClientReviewItems);
+  const [requestChangesModalOpen, setRequestChangesModalOpen] = useState(false);
+  const [itemDetailDrawerOpen, setItemDetailDrawerOpen] = useState(false);
+  const [selectedBatchItem, setSelectedBatchItem] = useState<CA_BatchAdjustment | undefined>(undefined);
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
@@ -472,8 +487,55 @@ const CompanyAdminDashboardV2: React.FC = () => {
   };
 
   const handleCreateBatch = () => {
-    toast.success("Payment batch created successfully!");
-    // TODO: Navigate to batch review page
+    const batch = createMockBatch();
+    setCurrentBatch(batch);
+    setBatchClientReviewItems(mockClientReviewItems);
+    toast.success("Payment batch created.");
+    setViewMode("batch-review");
+  };
+
+  const handleApproveBatchItem = (id: string) => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.id === id ? { ...item, status: "approved" as const } : item
+    ));
+    toast.success("Adjustment approved");
+  };
+
+  const handleRejectBatchItem = (id: string) => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.id === id ? { ...item, status: "rejected" as const } : item
+    ));
+    toast.info("Adjustment rejected");
+  };
+
+  const handleApproveAllBatchItems = () => {
+    setBatchClientReviewItems(prev => prev.map(item => 
+      item.status === "client_review" ? { ...item, status: "approved" as const } : item
+    ));
+    toast.success("All adjustments approved");
+  };
+
+  const handleViewBatchItem = (id: string) => {
+    const item = batchClientReviewItems.find(i => i.id === id);
+    setSelectedBatchItem(item);
+    setItemDetailDrawerOpen(true);
+  };
+
+  const handleApproveBatch = () => {
+    if (!currentBatch) return;
+    setCurrentBatch({ ...currentBatch, status: "client_approved" });
+    toast.success(`Batch approved. Fronted will execute on ${currentBatch.payoutDate}.`);
+  };
+
+  const handleRequestChanges = (reason: string) => {
+    if (!currentBatch) return;
+    setCurrentBatch({ ...currentBatch, status: "requires_changes" });
+    toast.success("Request sent. We'll notify you when it's resolved.");
+    setViewMode("payroll");
+  };
+
+  const handleBackToPayroll = () => {
+    setViewMode("payroll");
   };
 
   // Filter allContractors based on employment type filter
