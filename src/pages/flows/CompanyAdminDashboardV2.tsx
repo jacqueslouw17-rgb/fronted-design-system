@@ -3738,8 +3738,10 @@ You can ask me about:
                               {/* Card A: Payroll Overview & Actions */}
                               <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={() => {}} selectedPeriod="current" />
 
-                              {/* Issues Bar */}
-                              <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />
+                              {/* Issues Bar - only show when there are pending items */}
+                              {(caAdjustments.filter(a => a.status === "pending").length > 0 || caLeaveChanges.filter(l => l.status === "pending").length > 0) && (
+                                <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />
+                              )}
 
                               {/* Card B: Review FX & Totals */}
                               <CA_ReviewFXTotalsCard data={mockFXTotalsData} hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")} onResolveClick={handleResolveWithCurrency} employmentFilter={caFxFilter} onEmploymentFilterChange={setCaFxFilter} selectedCountries={caSelectedCountries} onCountriesChange={setCaSelectedCountries} allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]} onNetToPayClick={handleNetToPayClick} />
