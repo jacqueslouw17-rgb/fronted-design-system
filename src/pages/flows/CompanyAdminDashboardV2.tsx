@@ -3758,39 +3758,90 @@ You can ask me about:
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
                           {selectedCycle === "current" && currentBatch && <div className="space-y-6">
-                              {/* Batch Summary Header */}
-                              <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur-sm">
-                                <CardContent className="py-4 px-5">
-                                  <div className="flex items-start justify-between">
-                                    <div className="space-y-3">
-                                      <div className="flex items-center gap-3">
-                                        
-                                        <h3 className="text-lg font-semibold text-foreground">
-                                          Payment Batch – {currentBatch.payoutDate}
-                                        </h3>
+                              {/* Payroll Run Header */}
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h2 className="text-xl font-semibold text-foreground">Payroll run</h2>
+                                  <p className="text-sm text-muted-foreground font-mono mt-0.5">ID: {currentBatch.id}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
+                                    <Settings className="h-3.5 w-3.5" />
+                                    Country Rules
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={handleBackToPayroll}>
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Payroll Run Totals Card */}
+                              <Card className="border-border/30 bg-gradient-to-r from-primary/5 via-secondary/5 to-background">
+                                <CardContent className="py-5 px-6">
+                                  <h3 className="text-base font-semibold text-foreground mb-5">Payroll Run Totals</h3>
+                                  
+                                  {/* Metric Cards Grid */}
+                                  <div className="grid grid-cols-4 gap-4 mb-5">
+                                    {/* Gross Pay */}
+                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
+                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <DollarSign className="h-4 w-4 text-primary" />
+                                        <span className="text-sm text-muted-foreground">Gross Pay</span>
                                       </div>
-                                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                        <span className="font-mono text-xs">ID: {currentBatch.id}</span>
-                                        <span>•</span>
-                                        <div className="flex items-center gap-1">
-                                          <Users className="h-3.5 w-3.5" />
-                                          <span>{currentBatch.employeeCount} EOR</span>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                          <Briefcase className="h-3.5 w-3.5" />
-                                          <span>{currentBatch.contractorCount} COR</span>
-                                        </div>
+                                      <p className="text-2xl font-bold text-foreground">
+                                        ${((currentBatch.employeeCount * 8500 + currentBatch.contractorCount * 5200) / 1000).toFixed(1)}K
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
+                                    </div>
+
+                                    {/* Net Pay */}
+                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
+                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Receipt className="h-4 w-4 text-primary" />
+                                        <span className="text-sm text-muted-foreground">Net Pay</span>
                                       </div>
+                                      <p className="text-2xl font-bold text-foreground">
+                                        ${((currentBatch.employeeCount * 6800 + currentBatch.contractorCount * 4800) / 1000).toFixed(1)}K
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-1">After adjustments</p>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
-                                        <Settings className="h-3.5 w-3.5" />
-                                        Country Rules
-                                      </Button>
-                                      <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground" onClick={handleBackToPayroll}>
-                                        <X className="h-3.5 w-3.5" />
-                                      </Button>
+
+                                    {/* Fronted Fees */}
+                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
+                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Building2 className="h-4 w-4 text-primary" />
+                                        <span className="text-sm text-muted-foreground">Fronted Fees (Est.)</span>
+                                      </div>
+                                      <p className="text-2xl font-bold text-foreground">
+                                        ${((currentBatch.employeeCount + currentBatch.contractorCount) * 245).toLocaleString()}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
                                     </div>
+
+                                    {/* Total Cost */}
+                                    <div className="bg-card/60 rounded-xl border border-border/40 p-4 relative overflow-hidden">
+                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 rounded-l-xl" />
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <TrendingUp className="h-4 w-4 text-primary" />
+                                        <span className="text-sm text-muted-foreground">Total Cost</span>
+                                      </div>
+                                      <p className="text-2xl font-bold text-foreground">
+                                        ${((currentBatch.employeeCount * 9200 + currentBatch.contractorCount * 5600) / 1000).toFixed(1)}K
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Footer Stats */}
+                                  <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-3 border-t border-border/30">
+                                    <span>Employees: <strong className="text-foreground">{currentBatch.employeeCount}</strong></span>
+                                    <span className="text-border">·</span>
+                                    <span>Contractors: <strong className="text-foreground">{currentBatch.contractorCount}</strong></span>
+                                    <span className="text-border">·</span>
+                                    <span>Currencies: <strong className="text-foreground">3</strong></span>
                                   </div>
                                 </CardContent>
                               </Card>
