@@ -1,9 +1,9 @@
-// Flow 6 v2 - Company Admin Dashboard - In-Place Sticky Stepper
+// Flow 6 v2 - Company Admin Dashboard - In-Place Sticky Stepper (4 stages)
 
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, FileText, AlertTriangle, Play } from "lucide-react";
+import { Check, FileText, AlertTriangle, Play, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CA_InPlaceStep } from "./CA_InPlaceTypes";
 
@@ -23,7 +23,8 @@ export const CA_InPlaceStepper: React.FC<CA_InPlaceStepperProps> = ({
   const steps: { id: CA_InPlaceStep; label: string; icon: React.ElementType }[] = [
     { id: "review", label: "Review", icon: FileText },
     { id: "exceptions", label: "Exceptions", icon: AlertTriangle },
-    { id: "execute", label: "Execute", icon: Play }
+    { id: "execute", label: "Execute", icon: Play },
+    { id: "track", label: "Track & Reconcile", icon: TrendingUp }
   ];
 
   const getStepIndex = (step: CA_InPlaceStep) => steps.findIndex(s => s.id === step);

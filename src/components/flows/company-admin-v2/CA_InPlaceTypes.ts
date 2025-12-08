@@ -2,7 +2,7 @@
 
 export type CA_InPlaceBatchStatus = "draft" | "in_review" | "client_approved" | "auto_approved" | "requires_changes";
 
-export type CA_InPlaceStep = "review" | "exceptions" | "execute";
+export type CA_InPlaceStep = "review" | "exceptions" | "execute" | "track";
 
 export interface CA_InPlaceWorker {
   id: string;

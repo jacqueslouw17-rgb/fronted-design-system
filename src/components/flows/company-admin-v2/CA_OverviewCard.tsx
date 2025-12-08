@@ -1,10 +1,10 @@
-// Flow 6 v2 - Company Admin Dashboard - Overview Card (Pre-Batch)
+// Flow 6 v2 - Company Admin Dashboard - Overview Card (Pre-Batch) with Pending Counters
 
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Download, HelpCircle, Users, Briefcase, DollarSign, Calendar, TrendingUp, Receipt } from "lucide-react";
+import { Settings, Download, HelpCircle, Users, Briefcase, DollarSign, Calendar, TrendingUp, Receipt, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +19,13 @@ interface CA_OverviewCardProps {
   totalPayrollCost: number;
   nextPayrollRun: string;
   status: "draft" | "in_progress" | "ready";
+  pendingAdjustments: number;
+  pendingLeave: number;
+  autoApproved: number;
   hasPendingItems: boolean;
   onCountryRules: () => void;
   onDownloadSummary: () => void;
+  onResolveItems: () => void;
   onCreateBatch: () => void;
   onKurtHelp: () => void;
 }
@@ -37,9 +41,13 @@ export const CA_OverviewCard: React.FC<CA_OverviewCardProps> = ({
   totalPayrollCost,
   nextPayrollRun,
   status,
+  pendingAdjustments,
+  pendingLeave,
+  autoApproved,
   hasPendingItems,
   onCountryRules,
   onDownloadSummary,
+  onResolveItems,
   onCreateBatch,
   onKurtHelp
 }) => {
@@ -61,6 +69,8 @@ export const CA_OverviewCard: React.FC<CA_OverviewCardProps> = ({
     }
   };
 
+  const totalPending = pendingAdjustments + pendingLeave;
+
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-primary/[0.03] to-secondary/[0.02] border-b border-border/40 pb-4">
@@ -80,6 +90,44 @@ export const CA_OverviewCard: React.FC<CA_OverviewCardProps> = ({
             <h3 className="text-lg font-semibold text-foreground">Payroll Overview</h3>
           </div>
           <div className="flex items-center gap-2">
+            {/* Pending Counters */}
+            <div className="flex items-center gap-3 mr-4">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">Adjustments:</span>
+                <Badge 
+                  variant="outline" 
+                  className={cn(
+                    "text-xs",
+                    pendingAdjustments > 0 
+                      ? "bg-red-500/10 text-red-600 border-red-500/30" 
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {pendingAdjustments} pending
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">Leave:</span>
+                <Badge 
+                  variant="outline" 
+                  className={cn(
+                    "text-xs",
+                    pendingLeave > 0 
+                      ? "bg-red-500/10 text-red-600 border-red-500/30" 
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {pendingLeave} pending
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">Auto-approved:</span>
+                <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
+                  {autoApproved}
+                </Badge>
+              </div>
+            </div>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -176,15 +224,37 @@ export const CA_OverviewCard: React.FC<CA_OverviewCardProps> = ({
           </div>
         </div>
 
-        {/* Footer with CTA */}
-        <div className="flex items-center justify-end mt-6 pt-4 border-t border-border/30">
-          <Button 
-            onClick={onCreateBatch} 
-            disabled={hasPendingItems}
-            className="h-10 px-6"
-          >
-            Create payment batch
-          </Button>
+        {/* Footer with CTAs */}
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/30">
+          <div>
+            {hasPendingItems && (
+              <Button variant="default" onClick={onResolveItems}>
+                <AlertCircle className="h-4 w-4 mr-1.5" />
+                Resolve items ({totalPending})
+              </Button>
+            )}
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button 
+                    variant="outline"
+                    onClick={onCreateBatch} 
+                    disabled={hasPendingItems}
+                    className="h-10 px-6"
+                  >
+                    Create payment batch
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {hasPendingItems && (
+                <TooltipContent>
+                  Resolve pending items first
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </CardContent>
     </Card>
