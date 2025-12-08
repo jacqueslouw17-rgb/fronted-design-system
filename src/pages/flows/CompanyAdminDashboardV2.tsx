@@ -584,6 +584,8 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setViewMode("payroll");
   };
   const handleBackToPayroll = () => {
+    setCurrentBatch(null);
+    setCurrentStep("review-fx");
     setViewMode("payroll");
   };
 
