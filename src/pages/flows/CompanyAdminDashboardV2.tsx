@@ -3776,7 +3776,7 @@ You can ask me about:
                               </div>
 
                               {/* Payroll Run Totals Card */}
-                              <Card className="border-border/30 bg-gradient-to-r from-primary/5 via-secondary/5 to-background">
+                              <Card className="border-border/20 bg-card/40 backdrop-blur-sm">
                                 <CardContent className="py-5 px-6">
                                   <h3 className="text-base font-semibold text-foreground mb-5">Payroll Run Totals</h3>
                                   
