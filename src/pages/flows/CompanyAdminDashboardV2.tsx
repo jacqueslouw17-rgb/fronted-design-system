@@ -3748,15 +3748,28 @@ You can ask me about:
                   // }
                   />
 
-                    {/* View Mode Switch */}
-                    <div className="flex items-center justify-center py-2">
-                      <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
-                        <TabsList className="grid w-[280px] grid-cols-2">
-                          <TabsTrigger value="workers">Workers</TabsTrigger>
-                          <TabsTrigger value="payroll">Payroll</TabsTrigger>
-                        </TabsList>
-                      </Tabs>
-                    </div>
+                    {/* View Mode Switch - only show when not in batch review */}
+                    {viewMode !== "batch-review" && (
+                      <div className="flex items-center justify-center py-2">
+                        <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
+                          <TabsList className="grid w-[280px] grid-cols-2">
+                            <TabsTrigger value="workers">Workers</TabsTrigger>
+                            <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                      </div>
+                    )}
+                    
+                    {/* Breadcrumb for Batch Review */}
+                    {viewMode === "batch-review" && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                        <Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={handleBackToPayroll}>
+                          Payroll
+                        </Button>
+                        <span>›</span>
+                        <span className="text-foreground font-medium">Payment Batch Review (Nov 2025)</span>
+                      </div>
+                    )}
 
                     {/* Conditional View */}
                     <div className="pt-6">
@@ -3895,62 +3908,138 @@ You can ask me about:
                             })()}
                           </CardContent>
                         </Card>
-                      ) : (/* Payroll Batch Workflow - Enhanced with 3 Cards */
-                    <div className="space-y-6">
-                        {/* Card A: Payroll Overview & Actions */}
-                        <CA_PayrollOverviewCard
-                          payPeriod="November 2025"
-                          primaryCurrency="USD"
-                          countries="Philippines, Norway, Portugal, France, Italy"
-                          employeeCount={3}
-                          contractorCount={6}
-                          status="in_review"
-                          adjustments={caAdjustments}
-                          leaveChanges={caLeaveChanges}
-                          autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
-                          blockingAlerts={mockBlockingAlerts}
-                          onResolveItems={() => setResolveDrawerOpen(true)}
-                          onCreateBatch={handleCreateBatch}
-                          onCountryRules={() => setCountryRulesDrawerOpen(true)}
-                          onPeriodChange={() => {}}
-                          selectedPeriod="current"
-                        />
+                      ) : viewMode === "payroll" ? (
+                        /* Payroll Batch Workflow - Enhanced with 3 Cards */
+                        <div className="space-y-6">
+                          {/* Card A: Payroll Overview & Actions */}
+                          <CA_PayrollOverviewCard
+                            payPeriod="November 2025"
+                            primaryCurrency="USD"
+                            countries="Philippines, Norway, Portugal, France, Italy"
+                            employeeCount={3}
+                            contractorCount={6}
+                            status="in_review"
+                            adjustments={caAdjustments}
+                            leaveChanges={caLeaveChanges}
+                            autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
+                            blockingAlerts={mockBlockingAlerts}
+                            onResolveItems={() => setResolveDrawerOpen(true)}
+                            onCreateBatch={handleCreateBatch}
+                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                            onPeriodChange={() => {}}
+                            selectedPeriod="current"
+                          />
 
-                        {/* Card B: Review FX & Totals */}
-                        <CA_ReviewFXTotalsCard
-                          data={mockFXTotalsData}
-                          hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
-                          onResolveClick={() => setResolveDrawerOpen(true)}
-                          employmentFilter={caFxFilter}
-                          onEmploymentFilterChange={setCaFxFilter}
-                          selectedCountries={caSelectedCountries}
-                          onCountriesChange={setCaSelectedCountries}
-                          allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
-                        />
+                          {/* Card B: Review FX & Totals */}
+                          <CA_ReviewFXTotalsCard
+                            data={mockFXTotalsData}
+                            hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
+                            onResolveClick={() => setResolveDrawerOpen(true)}
+                            employmentFilter={caFxFilter}
+                            onEmploymentFilterChange={setCaFxFilter}
+                            selectedCountries={caSelectedCountries}
+                            onCountriesChange={setCaSelectedCountries}
+                            allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
+                          />
 
-                        {/* Card C: Previews (Employees + Contractors) */}
-                        <CA_PayrollPreviewsCard
-                          employeeData={mockEmployeePreviewData}
-                          contractorData={mockContractorPreviewData}
-                          onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                          onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
-                          onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
-                        />
+                          {/* Card C: Previews (Employees + Contractors) */}
+                          <CA_PayrollPreviewsCard
+                            employeeData={mockEmployeePreviewData}
+                            contractorData={mockContractorPreviewData}
+                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                            onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
+                            onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
+                          />
 
-                        {/* Resolve Items Drawer */}
-                        <CA_ResolveItemsDrawer
-                          open={resolveDrawerOpen}
-                          onClose={() => setResolveDrawerOpen(false)}
-                          adjustments={caAdjustments}
-                          leaveChanges={caLeaveChanges}
-                          onApproveAdjustment={handleApproveAdjustment}
-                          onRejectAdjustment={handleRejectAdjustment}
-                          onApproveLeave={handleApproveLeave}
-                          onRejectLeave={handleRejectLeave}
-                          onViewWorker={(id) => toast.info(`View worker ${id}`)}
-                          autoApproveThreshold={500}
-                        />
-                      </div>
+                          {/* Resolve Items Drawer */}
+                          <CA_ResolveItemsDrawer
+                            open={resolveDrawerOpen}
+                            onClose={() => setResolveDrawerOpen(false)}
+                            adjustments={caAdjustments}
+                            leaveChanges={caLeaveChanges}
+                            onApproveAdjustment={handleApproveAdjustment}
+                            onRejectAdjustment={handleRejectAdjustment}
+                            onApproveLeave={handleApproveLeave}
+                            onRejectLeave={handleRejectLeave}
+                            onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                            autoApproveThreshold={500}
+                          />
+                        </div>
+                      ) : (
+                        /* Payment Batch Review View */
+                        <div className="space-y-6">
+                          {/* Batch Review Header */}
+                          <CA_BatchReviewHeader
+                            period={currentBatch?.period || "November 2025"}
+                            payoutDate={currentBatch?.payoutDate || "November 30, 2025"}
+                            status={currentBatch?.status || "awaiting_approval"}
+                            executionMode={currentBatch?.executionMode || "fronted"}
+                            autoApproveTime={currentBatch?.autoApproveTime}
+                            clientReviewCount={batchClientReviewItems.filter(i => i.status === "client_review").length}
+                            hasBlockers={currentBatch?.blockers?.length ? currentBatch.blockers.length > 0 : false}
+                            onApproveBatch={handleApproveBatch}
+                            onRequestChanges={() => setRequestChangesModalOpen(true)}
+                            onExport={() => toast.info("Exporting batch summary...")}
+                            onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                          />
+
+                          {/* Two Column Layout */}
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Left: Review Sections (2/3) */}
+                            <div className="lg:col-span-2 space-y-6">
+                              {/* Section A: Adjustments requiring approval */}
+                              <CA_ClientReviewSection
+                                items={batchClientReviewItems}
+                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
+                                onApprove={handleApproveBatchItem}
+                                onReject={handleRejectBatchItem}
+                                onView={handleViewBatchItem}
+                                onApproveAll={handleApproveAllBatchItems}
+                              />
+
+                              {/* Section B: All Items */}
+                              <CA_AllItemsSection
+                                workers={mockBatchWorkers}
+                                allCountries={["Philippines", "Singapore", "Portugal", "France", "Norway", "Italy"]}
+                                onViewDetails={(workerId) => {
+                                  const worker = mockBatchWorkers.find(w => w.id === workerId);
+                                  if (worker) {
+                                    toast.info(`Viewing details for ${worker.name}`);
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            {/* Right: Sidebar (1/3) */}
+                            <div className="lg:col-span-1">
+                              <CA_BatchSidebar
+                                summaryByCurrency={mockBatchSummary}
+                                employeeCount={currentBatch?.employeeCount || 4}
+                                contractorCount={currentBatch?.contractorCount || 4}
+                                blockers={currentBatch?.blockers || []}
+                                auditLog={mockAuditLog}
+                                autoApproveLabel={currentBatch?.autoApproveTime ? `Auto-approve on ${new Date(currentBatch.autoApproveTime).toLocaleDateString()} if no action.` : undefined}
+                                onBlockerClick={(id) => toast.info(`Navigate to blocker ${id}`)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Request Changes Modal */}
+                          <CA_RequestChangesModal
+                            open={requestChangesModalOpen}
+                            onOpenChange={setRequestChangesModalOpen}
+                            onSubmit={handleRequestChanges}
+                          />
+
+                          {/* Item Detail Drawer */}
+                          <CA_ItemDetailDrawer
+                            open={itemDetailDrawerOpen}
+                            onOpenChange={setItemDetailDrawerOpen}
+                            item={selectedBatchItem}
+                            onApprove={handleApproveBatchItem}
+                            onReject={handleRejectBatchItem}
+                          />
+                        </div>
                       )}
                     </div>
 
