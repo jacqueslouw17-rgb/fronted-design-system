@@ -31,7 +31,7 @@ export const CA_FXReviewStepper: React.FC<CA_FXReviewStepperProps> = ({
   return (
     <div className="space-y-3">
       {/* Stepper pills */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {stepConfig.map((step, index) => {
           const state = getStepState(step.id);
           
@@ -39,20 +39,20 @@ export const CA_FXReviewStepper: React.FC<CA_FXReviewStepperProps> = ({
             <React.Fragment key={step.id}>
               <div
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                  // Current step: white pill with brand gradient outline and shadow
-                  state === "active" && "bg-background border-2 border-primary shadow-md text-foreground",
-                  // Completed: soft gradient fill with check
-                  state === "done" && "bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/30",
-                  // Future: neutral grey pill
-                  state === "todo" && "bg-muted/40 text-muted-foreground border border-border/50"
+                  "flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm transition-all",
+                  // Current step: subtle gradient background with refined styling
+                  state === "active" && "bg-gradient-to-r from-accent/80 to-accent/40 text-accent-foreground font-semibold shadow-sm border border-accent/20",
+                  // Completed: muted success styling
+                  state === "done" && "bg-muted/60 text-foreground/80 font-medium",
+                  // Future: very subtle, neutral
+                  state === "todo" && "bg-muted/30 text-muted-foreground/70 font-normal"
                 )}
               >
                 <span className={cn(
-                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold",
-                  state === "active" && "bg-primary text-primary-foreground",
-                  state === "done" && "bg-primary/30 text-primary",
-                  state === "todo" && "bg-muted text-muted-foreground"
+                  "flex items-center justify-center w-5 h-5 rounded-md text-xs font-semibold transition-colors",
+                  state === "active" && "bg-foreground/10 text-foreground",
+                  state === "done" && "bg-primary/20 text-primary",
+                  state === "todo" && "bg-muted/60 text-muted-foreground/60"
                 )}>
                   {state === "done" ? (
                     <Check className="h-3 w-3" />
@@ -66,8 +66,8 @@ export const CA_FXReviewStepper: React.FC<CA_FXReviewStepperProps> = ({
               {/* Connector line */}
               {index < stepConfig.length - 1 && (
                 <div className={cn(
-                  "w-8 h-0.5 rounded-full transition-colors",
-                  completedSteps.includes(step.id) ? "bg-primary/40" : "bg-border/50"
+                  "w-6 h-px transition-colors",
+                  completedSteps.includes(step.id) ? "bg-primary/30" : "bg-border/40"
                 )} />
               )}
             </React.Fragment>
