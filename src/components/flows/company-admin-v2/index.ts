@@ -4,4 +4,3 @@
 
 export { F6v2_WorkersTab } from './F6v2_WorkersTab';
 export { F6v2_PayrollTab } from './F6v2_PayrollTab';
-export { F6v2_PayrollClone } from './F6v2_PayrollClone';
