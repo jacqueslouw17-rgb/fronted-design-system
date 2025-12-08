@@ -12,6 +12,12 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
+import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_PayrollOverviewCard";
+import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
+import { CA_PayrollPreviewsCard } from "@/components/flows/company-admin-v2/CA_PayrollPreviewsCard";
+import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
+import { mockAdjustments, mockLeaveChanges, mockBlockingAlerts, mockFXTotalsData, mockEmployeePreviewData, mockContractorPreviewData } from "@/components/flows/company-admin-v2/CA_PayrollData";
+import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
@@ -437,6 +443,38 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const [hasUnresolvedIssues, setHasUnresolvedIssues] = useState(false);
   const [unresolvedIssues, setUnresolvedIssues] = useState({ blockingExceptions: 0, failedPayouts: 0, failedPostings: 0 });
   const [forceCompleteJustification, setForceCompleteJustification] = useState("");
+
+  // Flow 6 v2 - Enhanced Payroll State
+  const [resolveDrawerOpen, setResolveDrawerOpen] = useState(false);
+  const [caAdjustments, setCaAdjustments] = useState<CA_Adjustment[]>(mockAdjustments);
+  const [caLeaveChanges, setCaLeaveChanges] = useState<CA_LeaveChange[]>(mockLeaveChanges);
+  const [caFxFilter, setCaFxFilter] = useState<"all" | "employees" | "contractors">("all");
+  const [caSelectedCountries, setCaSelectedCountries] = useState<string[]>([]);
+
+  const handleApproveAdjustment = (id: string) => {
+    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
+    toast.success("Adjustment approved");
+  };
+
+  const handleRejectAdjustment = (id: string) => {
+    setCaAdjustments(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
+    toast.info("Adjustment rejected");
+  };
+
+  const handleApproveLeave = (id: string) => {
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "approved" as const } : l));
+    toast.success("Leave approved");
+  };
+
+  const handleRejectLeave = (id: string) => {
+    setCaLeaveChanges(prev => prev.map(l => l.id === id ? { ...l, status: "rejected" as const } : l));
+    toast.info("Leave rejected");
+  };
+
+  const handleCreateBatch = () => {
+    toast.success("Payment batch created successfully!");
+    // TODO: Navigate to batch review page
+  };
 
   // Filter allContractors based on employment type filter
   const filteredContractors = allContractors.filter(c => {
@@ -3795,105 +3833,61 @@ You can ask me about:
                             })()}
                           </CardContent>
                         </Card>
-                      ) : (/* Payroll Batch Workflow */
+                      ) : (/* Payroll Batch Workflow - Enhanced with 3 Cards */
                     <div className="space-y-6">
-                        {/* Payroll Overview Section */}
-                        <motion.div initial={{
-                        y: -10,
-                        opacity: 0
-                      }} animate={{
-                        y: 0,
-                        opacity: 1
-                      }} transition={{
-                        duration: 0.3
-                      }}>
-                          <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between mb-6">
-                                <div className="space-y-4 flex-1">
-                                  {/* Title and Status */}
-                                  <div className="flex items-center gap-3">
-                                    <h3 className="text-xl font-semibold text-foreground">Payroll Overview</h3>
-                                    <Badge 
-                                      variant="outline" 
-                                      className={cn(
-                                        "text-xs font-medium px-2.5 py-0.5",
-                                        currentCycleData.status === "completed" && "bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline",
-                                        currentCycleData.status === "active" && "bg-blue-500/20 text-blue-600 border-blue-500/40",
-                                        currentCycleData.status === "upcoming" && "bg-amber-500/20 text-amber-600 border-amber-500/40"
-                                      )}
-                                    >
-                                      {currentCycleData.status === "completed" ? "Completed" : currentCycleData.status === "active" ? "In Progress" : "Upcoming"}
-                                    </Badge>
-                                  </div>
-                                  
-                                  {/* Run Details Grid */}
-                                  <div className="grid grid-cols-2 gap-x-8 gap-y-3 max-w-2xl">
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Pay Period</p>
-                                      <p className="text-sm font-medium text-foreground">{currentCycleData.label}</p>
-                                    </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Primary Currency</p>
-                                      <p className="text-sm font-medium text-foreground">USD</p>
-                                    </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Countries</p>
-                                      <p className="text-sm font-medium text-foreground">Philippines, Norway, Portugal, France, Italy</p>
-                                    </div>
-                                    
-                                    <div className="space-y-0.5">
-                                      <p className="text-xs text-muted-foreground">Workers Included</p>
-                                      <p className="text-sm font-medium text-foreground">
-                                        {allContractors.filter(c => c.employmentType === "employee").length} Employees, {allContractors.filter(c => c.employmentType === "contractor").length} Contractors
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Action Buttons */}
-                                <div className="flex items-center gap-2">
-                                  <Select value={selectedCycle} onValueChange={(value: "previous" | "current" | "next") => setSelectedCycle(value)}>
-                                    <SelectTrigger className="w-[160px] h-8 text-xs rounded-full border-border/50 bg-background/50 hover:bg-background/80 transition-colors">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="previous">October 2025</SelectItem>
-                                      <SelectItem value="current">November 2025 (Current)</SelectItem>
-                                      <SelectItem value="next">December 2025</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <Button variant="outline" size="sm" onClick={() => setCountryRulesDrawerOpen(true)} className="h-8 px-3 gap-2">
-                                    <Settings className="h-4 w-4" />
-                                    <span className="text-xs">Country Rules</span>
-                                  </Button>
-                                </div>
-                              </div>
+                        {/* Card A: Payroll Overview & Actions */}
+                        <CA_PayrollOverviewCard
+                          payPeriod="November 2025"
+                          primaryCurrency="USD"
+                          countries="Philippines, Norway, Portugal, France, Italy"
+                          employeeCount={3}
+                          contractorCount={6}
+                          status="in_review"
+                          adjustments={caAdjustments}
+                          leaveChanges={caLeaveChanges}
+                          autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length}
+                          blockingAlerts={mockBlockingAlerts}
+                          onResolveItems={() => setResolveDrawerOpen(true)}
+                          onCreateBatch={handleCreateBatch}
+                          onCountryRules={() => setCountryRulesDrawerOpen(true)}
+                          onPeriodChange={() => {}}
+                          selectedPeriod="current"
+                        />
 
-                              {/* Historical/Future Payroll Banner */}
-                              {currentCycleData.status !== "active" && <motion.div key={`banner-${selectedCycle}`} initial={{
-                              opacity: 0,
-                              y: -5
-                            }} animate={{
-                              opacity: 1,
-                              y: 0
-                            }} transition={{
-                              duration: 0.2
-                            }} className={cn("p-3 rounded-lg border mb-4 flex items-center gap-2", currentCycleData.status === "completed" ? "bg-accent-green-fill/10 border-accent-green-outline/20" : "bg-blue-500/10 border-blue-500/20")}>
-                                  {currentCycleData.status === "completed" ? <>
-                                      <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
-                                      <p className="text-xs text-foreground">
-                                        You're viewing <span className="font-semibold">{currentCycleData.label}</span> payroll — actions are limited to reconciliation.
-                                      </p>
-                                    </> : <>
-                                      <Clock className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                                      <p className="text-xs text-foreground">
-                                        🕒 You're viewing an upcoming payroll cycle. Preparation opens automatically 3 days before payout.
-                                      </p>
-                                    </>}
-                                </motion.div>}
+                        {/* Card B: Review FX & Totals */}
+                        <CA_ReviewFXTotalsCard
+                          data={mockFXTotalsData}
+                          hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")}
+                          onResolveClick={() => setResolveDrawerOpen(true)}
+                          employmentFilter={caFxFilter}
+                          onEmploymentFilterChange={setCaFxFilter}
+                          selectedCountries={caSelectedCountries}
+                          onCountriesChange={setCaSelectedCountries}
+                          allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]}
+                        />
+
+                        {/* Card C: Previews (Employees + Contractors) */}
+                        <CA_PayrollPreviewsCard
+                          employeeData={mockEmployeePreviewData}
+                          contractorData={mockContractorPreviewData}
+                          onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                          onEditWorker={(id) => toast.info(`Edit worker ${id}`)}
+                          onApplyToAll={(id, scope) => toast.info(`Apply to all in ${scope}`)}
+                        />
+
+                        {/* Resolve Items Drawer */}
+                        <CA_ResolveItemsDrawer
+                          open={resolveDrawerOpen}
+                          onClose={() => setResolveDrawerOpen(false)}
+                          adjustments={caAdjustments}
+                          leaveChanges={caLeaveChanges}
+                          onApproveAdjustment={handleApproveAdjustment}
+                          onRejectAdjustment={handleRejectAdjustment}
+                          onApproveLeave={handleApproveLeave}
+                          onRejectLeave={handleRejectLeave}
+                          onViewWorker={(id) => toast.info(`View worker ${id}`)}
+                          autoApproveThreshold={500}
+                        />
 
                               <motion.div key={selectedCycle} initial={{
                               opacity: 0,
