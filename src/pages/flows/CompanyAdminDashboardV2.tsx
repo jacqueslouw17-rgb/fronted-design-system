@@ -3577,30 +3577,36 @@ You can ask me about:
                           </CardContent>
                         </Card>) : viewMode === "payroll" ? (/* Payroll with Period-Based States */
                     <div className="space-y-6">
-                          {/* Period Selector */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Badge variant={selectedCycle === "next" ? "outline" : "default"} className={cn("text-xs font-medium", selectedCycle === "previous" && "bg-muted text-muted-foreground border-transparent", selectedCycle === "current" && "bg-primary/15 text-primary border-primary/30", selectedCycle === "next" && "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30")}>
-                                {selectedCycle === "previous" ? "Past" : selectedCycle === "current" ? "Current" : "Upcoming"}
-                              </Badge>
-                              <h2 className="text-lg font-semibold text-foreground">
-                                {payrollCycleData[selectedCycle].label}
-                              </h2>
-                            </div>
-                            <CA_PayPeriodDropdown value={selectedCycle} onValueChange={val => setSelectedCycle(val)} periods={payrollCycleData} />
-                          </div>
+                          {/* Period content removed - dropdown moved into cards */}
 
                           {/* NEXT Period - Upcoming State */}
                           {selectedCycle === "next" && <Card className="border-border/40 bg-card/30 backdrop-blur-sm">
-                              <CardContent className="py-12 px-6">
-                                <div className="flex flex-col items-center justify-center text-center space-y-4">
+                              <CardContent className="py-5 px-6">
+                                {/* Header with title, badge, and dropdown */}
+                                <div className="flex items-center justify-between mb-6">
+                                  <div className="flex items-center gap-2">
+                                    <h3 className="text-base font-semibold text-foreground">Upcoming Payroll</h3>
+                                    <Badge variant="outline" className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30">
+                                      Upcoming
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <CA_PayPeriodDropdown value={selectedCycle} onValueChange={val => setSelectedCycle(val)} periods={payrollCycleData} />
+                                    <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
+                                      <Settings className="h-3.5 w-3.5" />
+                                      Country Rules
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-col items-center justify-center text-center space-y-4 py-6">
                                   <div className="p-4 rounded-full bg-blue-500/10">
                                     <Clock className="h-8 w-8 text-blue-600" />
                                   </div>
                                   <div className="space-y-2">
-                                    <h3 className="text-lg font-semibold text-foreground">
-                                      Upcoming Payroll: {payrollCycleData.next.label}
-                                    </h3>
+                                    <p className="text-lg font-semibold text-foreground">
+                                      {payrollCycleData.next.label}
+                                    </p>
                                     <p className="text-sm text-muted-foreground">
                                       This payroll period is not yet open for review
                                     </p>
@@ -3632,7 +3638,7 @@ You can ask me about:
                           {/* PREVIOUS Period - Read-only Completed View */}
                           {selectedCycle === "previous" && <div className="space-y-6">
                               {/* Payroll Run Summary Card */}
-                              <CA_PayrollRunSummaryCard grossPay="$48.2K" netPay="$42.8K" frontedFees="$1,450" totalCost="$49.7K" employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} currencyCount={3} paidPercentage={100} />
+                              <CA_PayrollRunSummaryCard grossPay="$48.2K" netPay="$42.8K" frontedFees="$1,450" totalCost="$49.7K" employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} currencyCount={3} paidPercentage={100} selectedPeriod={selectedCycle} onPeriodChange={val => setSelectedCycle(val)} periods={payrollCycleData} onCountryRules={() => setCountryRulesDrawerOpen(true)} />
                               
                               {/* Track & Reconcile Card */}
                               <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
@@ -3663,7 +3669,7 @@ You can ask me about:
                           {/* CURRENT Period - In Review or In Batch */}
                           {selectedCycle === "current" && !currentBatch && <div className="space-y-6">
                               {/* Card A: Payroll Overview & Actions */}
-                              <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={() => {}} selectedPeriod="current" />
+                              <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={val => setSelectedCycle(val)} selectedPeriod={selectedCycle} periods={payrollCycleData} />
 
                               {/* Issues Bar - only show when there are pending items */}
                               {(caAdjustments.filter(a => a.status === "pending").length > 0 || caLeaveChanges.filter(l => l.status === "pending").length > 0) && <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />}
@@ -3687,11 +3693,12 @@ You can ask me about:
                               <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
                                 <CardContent className="py-5 px-6">
                                   <div className="flex items-start justify-between mb-5">
-                                    <div>
+                                    <div className="flex items-center gap-2">
                                       <h3 className="text-base font-semibold text-foreground">Payroll Run Totals</h3>
-                                      <p className="text-xs text-muted-foreground font-mono mt-0.5">ID: {currentBatch.id}</p>
+                                      <Badge className="text-xs font-medium bg-primary/15 text-primary border-primary/30">Current</Badge>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                      <CA_PayPeriodDropdown value={selectedCycle} onValueChange={val => setSelectedCycle(val)} periods={payrollCycleData} />
                                       <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCountryRulesDrawerOpen(true)}>
                                         <Settings className="h-3.5 w-3.5" />
                                         Country Rules

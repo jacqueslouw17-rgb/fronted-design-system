@@ -1,7 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, Settings } from "lucide-react";
+import { CA_PayPeriodDropdown, PeriodType } from "./CA_PayPeriodDropdown";
 
 interface CA_PayrollRunSummaryCardProps {
   grossPay: string;
@@ -12,6 +14,14 @@ interface CA_PayrollRunSummaryCardProps {
   contractorCount: number;
   currencyCount: number;
   paidPercentage?: number;
+  selectedPeriod: PeriodType;
+  onPeriodChange: (period: PeriodType) => void;
+  periods: {
+    previous: { label: string };
+    current: { label: string };
+    next: { label: string };
+  };
+  onCountryRules: () => void;
 }
 
 export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> = ({
@@ -23,23 +33,34 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
   contractorCount,
   currencyCount,
   paidPercentage = 100,
+  selectedPeriod,
+  onPeriodChange,
+  periods,
+  onCountryRules,
 }) => {
   return (
     <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
       <CardContent className="py-5 px-6">
-        {/* Header with title and completed badge */}
-        <div className="flex items-start justify-between mb-2">
-          <div>
+        {/* Header with title, badge, and actions */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold text-foreground">Payroll Run Totals</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              This cycle is read-only. Use Track & Reconcile to inspect payments.
-            </p>
+            <Badge className="bg-muted text-muted-foreground border-transparent">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Completed
+            </Badge>
           </div>
-          <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
-            Completed
-          </Badge>
+          <div className="flex items-center gap-2">
+            <CA_PayPeriodDropdown value={selectedPeriod} onValueChange={onPeriodChange} periods={periods} />
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={onCountryRules}>
+              <Settings className="h-3.5 w-3.5" />
+              Country Rules
+            </Button>
+          </div>
         </div>
+        <p className="text-xs text-muted-foreground mb-4">
+          This cycle is read-only. Use Track & Reconcile to inspect payments.
+        </p>
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-4 gap-4 mt-6">
