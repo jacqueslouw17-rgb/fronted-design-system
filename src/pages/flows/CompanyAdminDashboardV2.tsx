@@ -3802,36 +3802,7 @@ You can ask me about:
                               {renderStepContent()}
 
                               {/* Step Navigation */}
-                              <div className="flex items-center justify-end pt-4 border-t border-border/40">
-                                {currentStep !== "review-fx" && (
-                                  <Button variant="outline" className="mr-auto" onClick={() => {
-                                    const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
-                                    const currentIndex = stepOrder.indexOf(currentStep);
-                                    if (currentIndex > 0) {
-                                      setCurrentStep(stepOrder[currentIndex - 1]);
-                                    }
-                                  }}>
-                                    ← Previous
-                                  </Button>
-                                )}
-                                
-                                {currentStep !== "track" ? <Button onClick={() => {
-                            const stepOrder = ["review-fx", "exceptions", "execute", "track"] as const;
-                            const currentIndex = stepOrder.indexOf(currentStep);
-                            if (currentIndex < stepOrder.length - 1) {
-                              setCurrentStep(stepOrder[currentIndex + 1]);
-                            }
-                          }}>
-                                    Continue to {currentStep === "review-fx" ? "Exceptions" : currentStep === "exceptions" ? "Execute" : "Track & Reconcile"} →
-                                  </Button> : <div className="flex items-center gap-2">
-                                    <Button variant="outline" onClick={() => setRequestChangesModalOpen(true)}>
-                                      Request Changes
-                                    </Button>
-                                    <Button onClick={handleApproveBatch}>
-                                      Approve Batch
-                                    </Button>
-                                  </div>}
-                              </div>
+                              
 
                               {/* Request Changes Modal */}
                               <CA_RequestChangesModal open={requestChangesModalOpen} onOpenChange={setRequestChangesModalOpen} onSubmit={handleRequestChanges} />
