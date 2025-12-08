@@ -4,9 +4,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2, Clock, FileText, Calendar, Globe, Users, DollarSign } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Settings, Calendar, Globe, Users, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CA_Adjustment, CA_LeaveChange, CA_BlockingAlert } from "./CA_PayrollTypes";
+import { CA_PayPeriodDropdown, PeriodType } from "./CA_PayPeriodDropdown";
+
 interface CA_PayrollOverviewCardProps {
   payPeriod: string;
   primaryCurrency: string;
@@ -21,8 +23,13 @@ interface CA_PayrollOverviewCardProps {
   onResolveItems: () => void;
   onCreateBatch: () => void;
   onCountryRules: () => void;
-  onPeriodChange: (period: string) => void;
-  selectedPeriod: string;
+  onPeriodChange: (period: PeriodType) => void;
+  selectedPeriod: PeriodType;
+  periods: {
+    previous: { label: string };
+    current: { label: string };
+    next: { label: string };
+  };
 }
 export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
   payPeriod,
@@ -39,7 +46,8 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
   onCreateBatch,
   onCountryRules,
   onPeriodChange,
-  selectedPeriod
+  selectedPeriod,
+  periods
 }) => {
   const pendingAdjustments = adjustments.filter(a => a.status === "pending").length;
   const pendingLeave = leaveChanges.filter(l => l.status === "pending").length;
@@ -61,12 +69,26 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
   return <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-6">
-          {/* Left: Title and Key Facts */}
+          {/* Left: Title and Status Badge */}
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-foreground">Payroll Overview</h3>
+            <Badge className="text-xs font-medium bg-primary/15 text-primary border-primary/30">Current</Badge>
+            {getStatusBadge()}
+          </div>
+
+          {/* Right: Dropdown and Country Rules */}
+          <div className="flex items-center gap-2">
+            <CA_PayPeriodDropdown value={selectedPeriod} onValueChange={onPeriodChange} periods={periods} />
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={onCountryRules}>
+              <Settings className="h-3.5 w-3.5" />
+              Country Rules
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-start justify-between mb-6">
+          {/* Left: Key Facts */}
           <div className="space-y-4 flex-1">
-            <div className="flex items-center gap-3">
-              <h3 className="text-xl font-semibold text-foreground">Payroll Overview</h3>
-              {getStatusBadge()}
-            </div>
 
             {/* Key Facts Grid */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-3 max-w-2xl">
@@ -136,14 +158,7 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
           </div>}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-border/30">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={onCountryRules} className="h-8 px-3 gap-2">
-              <FileText className="h-4 w-4" />
-              <span className="text-xs">Country Rules</span>
-            </Button>
-          </div>
-
+        <div className="flex items-center justify-end pt-4 border-t border-border/30">
           <div className="flex items-center gap-3">
             {totalPending > 0 && <Button onClick={onResolveItems} className="h-9 gap-2">
                 <Clock className="h-4 w-4" />
