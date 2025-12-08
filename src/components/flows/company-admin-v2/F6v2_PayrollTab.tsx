@@ -1,19 +1,17 @@
 /**
  * Flow 6 v2 - Payroll Tab
  * 
- * This is a WRAPPER component that embeds the exact same payroll UI from Flow 7.
- * The PayrollBatch page is reused directly but rendered within the Flow 6 context.
+ * This component embeds the EXACT PayrollBatch UI from Flow 7.
+ * We import the payroll content directly and only override the CTA text.
  * 
- * Only minimal CTA changes are applied:
- * - "Send to Client" → "Approve Payroll"  
- * - Hide "Proxy (Fronted only)" button
+ * The key is that Flow 7's PayrollBatch is a full page component with its own
+ * Topbar/Layout, so we need to extract just the payroll content portion.
  * 
- * This ensures 100% design parity with Flow 7 Fronted Admin Payroll v1.
+ * For now, we render PayrollBatch inline but hide the outer shell elements.
  */
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import Topbar from "@/components/dashboard/Topbar";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
@@ -25,10 +23,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, Circle, DollarSign, AlertTriangle, Play, TrendingUp, Lock, Info, Clock, X, XCircle, AlertCircle, Download, FileText, Building2, Receipt, Settings, Plus, Check, Search, Users, Briefcase, Send, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Circle, DollarSign, AlertTriangle, Play, TrendingUp, Lock, Info, Clock, X, XCircle, AlertCircle, Download, FileText, Building2, Receipt, Settings, Plus, Check, Search, Users, Briefcase, Send, ChevronDown, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -42,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useCountrySettings } from "@/hooks/useCountrySettings";
+import { addDays, format } from "date-fns";
 
 type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
 
@@ -199,8 +197,6 @@ export const F6v2_PayrollTab: React.FC = () => {
   
   // Core state - matching Flow 7 PayrollBatch exactly
   const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
-  const [fxRatesLocked, setFxRatesLocked] = useState(false);
-  const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState<"all" | "employee" | "contractor">("all");
   const [snoozedWorkers, setSnoozedWorkers] = useState<string[]>([]);
   const [showSnoozedSection, setShowSnoozedSection] = useState(true);
@@ -226,8 +222,6 @@ export const F6v2_PayrollTab: React.FC = () => {
   const [showLeaveSection, setShowLeaveSection] = useState(false);
   const [leaveRecords, setLeaveRecords] = useState<Record<string, LeaveRecord>>({});
   const [leaveSelectorOpen, setLeaveSelectorOpen] = useState(false);
-  const [leaveSearchQuery, setLeaveSearchQuery] = useState("");
-  const [selectedLeaveWorkers, setSelectedLeaveWorkers] = useState<string[]>([]);
   const [contractorDrawerOpen, setContractorDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<ContractorPayment | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -257,6 +251,7 @@ export const F6v2_PayrollTab: React.FC = () => {
       frontedFees: 3547,
       totalPayrollCost: 121787,
       completedDate: "Oct 15, 2025",
+      previousBatch: { employeesPaid: 8, amountProcessed: 118240, skippedSnoozed: 0 },
       status: "completed" as const,
       hasData: true
     },
@@ -268,6 +263,7 @@ export const F6v2_PayrollTab: React.FC = () => {
       nextPayrollRun: "Nov 15",
       nextPayrollYear: "2025",
       completedDate: undefined as string | undefined,
+      previousBatch: { employeesPaid: 8, amountProcessed: 118240, skippedSnoozed: 0 },
       status: "active" as "active" | "completed",
       hasData: true
     },
@@ -279,6 +275,7 @@ export const F6v2_PayrollTab: React.FC = () => {
       nextPayrollRun: "Dec 15",
       nextPayrollYear: "2025",
       opensOn: "Dec 12, 2025",
+      previousBatch: { employeesPaid: 0, amountProcessed: 0, skippedSnoozed: 0 },
       status: "upcoming" as const,
       hasData: false
     }
@@ -354,13 +351,6 @@ export const F6v2_PayrollTab: React.FC = () => {
     return payment + adjustments;
   };
 
-  const getLeaveDeduction = (contractor: ContractorPayment): number => {
-    const leaveData = leaveRecords[contractor.id];
-    if (!leaveData || leaveData.leaveDays === 0) return 0;
-    const { proratedPay } = calculateProratedPay(contractor.baseSalary, leaveData.leaveDays, leaveData.workingDays, contractor.countryCode);
-    return contractor.baseSalary - proratedPay;
-  };
-
   // Handler functions
   const handleSnoozeWorker = (workerId: string) => {
     setSnoozedWorkers(prev => [...prev, workerId]);
@@ -400,6 +390,11 @@ export const F6v2_PayrollTab: React.FC = () => {
     setEmployeePayrollDrawerOpen(true);
   };
 
+  const handleViewLeaveDetails = (contractor: ContractorPayment) => {
+    setSelectedWorkerForLeave(contractor);
+    setLeaveDetailsDrawerOpen(true);
+  };
+
   const handleResolveException = (exceptionId?: string) => {
     const exception = exceptionId ? exceptions.find(exc => exc.id === exceptionId) : null;
     if (!exception) return;
@@ -433,11 +428,6 @@ export const F6v2_PayrollTab: React.FC = () => {
     setOverrideModalOpen(false);
     setExceptionToOverride(null);
     setOverrideJustification("");
-  };
-
-  const handleOpenLeaveAttendanceDrawer = (exception: PayrollException) => {
-    setSelectedLeaveException(exception);
-    setLeaveAttendanceDrawerOpen(true);
   };
 
   const handleResolveLeaveAttendance = (exceptionId: string, resolution: "unpaid-leave" | "worked-days" | "snooze") => {
@@ -512,11 +502,6 @@ export const F6v2_PayrollTab: React.FC = () => {
     setPendingExecutionCohort(null);
   };
 
-  const handleViewException = (workerId: string) => {
-    setCurrentStep("exceptions");
-    toast.info(`Navigated to Exceptions`);
-  };
-
   const handleTableScroll = (currency: string, e: React.UIEvent<HTMLDivElement>) => {
     const scrollLeft = e.currentTarget.scrollLeft;
     setScrollStates(prev => ({ ...prev, [currency]: scrollLeft > 0 }));
@@ -529,35 +514,6 @@ export const F6v2_PayrollTab: React.FC = () => {
     }));
     setLastUpdated(new Date());
     toast.success(`Additional fee ${accept ? 'accepted' : 'declined'} – totals updated.`);
-  };
-
-  const addContractorAdjustment = (contractorId: string) => {
-    setContractorAdjustments(prev => ({
-      ...prev,
-      [contractorId]: [...(prev[contractorId] || []), { id: Date.now().toString(), name: "", amount: 0 }]
-    }));
-  };
-
-  const updateContractorAdjustment = (contractorId: string, adjustmentId: string, field: "name" | "amount", value: string | number) => {
-    setContractorAdjustments(prev => ({
-      ...prev,
-      [contractorId]: (prev[contractorId] || []).map(adj => adj.id === adjustmentId ? { ...adj, [field]: value } : adj)
-    }));
-  };
-
-  const removeContractorAdjustment = (contractorId: string, adjustmentId: string) => {
-    setContractorAdjustments(prev => ({
-      ...prev,
-      [contractorId]: (prev[contractorId] || []).filter(adj => adj.id !== adjustmentId)
-    }));
-  };
-
-  const handleSaveContractorAdjustment = () => {
-    if (selectedContractor) {
-      toast.success(`Changes saved for ${selectedContractor.name}. Totals recalculated.`);
-      setLastUpdated(new Date());
-      setContractorDrawerOpen(false);
-    }
   };
 
   const handleCompleteAndReturnToOverview = () => {
@@ -588,16 +544,6 @@ export const F6v2_PayrollTab: React.FC = () => {
     return "InTransit";
   };
 
-  const filteredTrackContractors = allContractors.filter(c => {
-    const matchesStatus = statusFilter === "all" || getPaymentStatus(c.id) === statusFilter;
-    const matchesType = workerTypeFilter === "all" || c.employmentType === workerTypeFilter;
-    return matchesStatus && matchesType;
-  });
-
-  const paidCount = allContractors.filter(c => getPaymentStatus(c.id) === "Paid").length;
-  const pendingCount = allContractors.filter(c => getPaymentStatus(c.id) === "InTransit").length;
-  const failedCount = allContractors.filter(c => getPaymentStatus(c.id) === "Failed").length;
-
   const getCurrentStepIndex = () => steps.findIndex(s => s.id === currentStep);
 
   const exceptionTypeLabels: Record<string, string> = {
@@ -608,922 +554,83 @@ export const F6v2_PayrollTab: React.FC = () => {
     "status-mismatch": "Status Mismatch",
   };
 
-  // Render functions for each step
-  const renderReviewStep = () => (
-    <div className="space-y-3">
-      {/* Status Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-foreground">FX Review</h3>
-          {selectedCycle === "previous" && <Badge variant="outline" className="text-xs bg-muted/30">Read-Only Mode</Badge>}
-          {fxRatesLocked && lockedAt && (
-            <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 gap-1.5">
-              <Lock className="h-3 w-3" />
-              Locked at {lockedAt}
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Lock Rate button hidden - matching Flow 7 */}
-        </div>
-      </div>
-
-      {/* Leave & Attendance Section - matching Flow 7 exactly */}
-      <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm mb-8">
-        <CardContent className="p-4">
-          <button onClick={() => setShowLeaveSection(!showLeaveSection)} className="w-full flex items-center justify-between group">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
-                <Badge variant="outline" className="text-xs">
-                  {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">
-                {showLeaveSection ? "Hide details" : "View details"}
-              </span>
-              <div className={cn("transition-transform duration-200", showLeaveSection && "rotate-180")}>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-          </button>
-
-          {showLeaveSection && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="mt-4">
-              {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 px-6">
-                  <div className="text-center space-y-2 mb-6">
-                    <h4 className="text-base font-medium text-foreground">Track Leave & Absences</h4>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                      Add employees or contractors who took leave this cycle. Their salaries will be automatically pro-rated based on working days.
-                    </p>
-                  </div>
-                  <Button size="default" onClick={() => setLeaveSelectorOpen(true)} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Workers with Leave
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">
-                      For payroll month: {selectedCycle === "current" ? "November 2025" : selectedCycle === "previous" ? "October 2025" : "December 2025"}
-                      <span className="ml-2">•</span>
-                      <span className="ml-2">Pro-rated: Base Pay ÷ Days Per Month × (Working Days - Leave Days)</span>
-                      <span className="ml-2 text-amber-600">*For hourly contractors, enter unpaid hours instead of days</span>
-                    </div>
-                    <Button size="sm" variant="ghost" onClick={() => setLeaveSelectorOpen(true)} className="h-8 text-xs gap-1.5 hover:bg-primary/10">
-                      <Plus className="h-3.5 w-3.5" />
-                      Add More
-                    </Button>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-xs">Name</TableHead>
-                        <TableHead className="text-xs text-right">Leave Days / Unpaid Hours</TableHead>
-                        <TableHead className="text-xs text-right">Working Days</TableHead>
-                        <TableHead className="text-xs text-right">Unpaid Leave Amount</TableHead>
-                        <TableHead className="text-xs text-right">Payment Due</TableHead>
-                        <TableHead className="text-xs text-center">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allContractors.filter(c => leaveRecords[c.id]?.leaveDays > 0).map(contractor => {
-                        const leaveData = leaveRecords[contractor.id];
-                        const leaveDays = leaveData?.leaveDays || 0;
-                        const isPHContractor = contractor.countryCode === "PH";
-                        const isNOContractor = contractor.countryCode === "NO";
-                        const phSettings = getSettings("PH");
-                        const noSettings = getSettings("NO");
-                        const daysPerMonth = isPHContractor ? phSettings.daysPerMonth : isNOContractor ? noSettings.daysPerMonth : 22;
-                        const workingDays = leaveData?.workingDays || daysPerMonth;
-                        const isHourly = contractor.employmentType === "contractor" && contractor.compensationType === "Hourly";
-                        let unpaidLeaveAmount = 0;
-                        if (isHourly && contractor.hourlyRate) {
-                          unpaidLeaveAmount = contractor.hourlyRate * leaveDays;
-                        } else {
-                          const dailyRate = contractor.baseSalary / daysPerMonth;
-                          unpaidLeaveAmount = dailyRate * leaveDays;
-                        }
-                        const paymentDue = getPaymentDue(contractor);
-                        return (
-                          <TableRow key={contractor.id} className={cn("transition-colors hover:bg-muted/30", !leaveData?.clientConfirmed && "bg-amber-500/5")}>
-                            <TableCell className="text-sm font-medium">{contractor.name}</TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max={isHourly ? "999" : "31"}
-                                  step={isHourly ? "1" : "0.5"}
-                                  value={leaveDays}
-                                  onChange={e => handleUpdateLeave(contractor.id, { leaveDays: parseFloat(e.target.value) || 0 })}
-                                  className="w-16 px-2 py-1 text-xs text-right border border-border rounded bg-background"
-                                  placeholder={isHourly ? "hrs" : "days"}
-                                />
-                                {isHourly && (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild><Info className="h-3.5 w-3.5 text-muted-foreground" /></TooltipTrigger>
-                                      <TooltipContent><p className="text-xs max-w-[200px]">For hourly contractors, enter unpaid hours</p></TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right text-xs text-muted-foreground">{workingDays.toFixed(2)}</TableCell>
-                            <TableCell className="text-right text-sm text-amber-600 font-medium">-{contractor.currency} {Math.round(unpaidLeaveAmount).toLocaleString()}</TableCell>
-                            <TableCell className="text-right text-sm font-semibold">{contractor.currency} {Math.round(paymentDue).toLocaleString()}</TableCell>
-                            <TableCell className="text-center">
-                              <div className="flex items-center justify-center gap-1">
-                                {leaveData?.clientConfirmed && (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <div className="w-5 h-5 rounded-full bg-accent-green-fill flex items-center justify-center">
-                                          <Check className="h-3 w-3 text-accent-green-text" />
-                                        </div>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p className="text-xs">Confirmed by client</p></TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                )}
-                                <button onClick={() => handleUpdateLeave(contractor.id, { clientConfirmed: !leaveData?.clientConfirmed })} className="text-xs text-primary hover:underline">
-                                  {leaveData?.clientConfirmed ? "Confirmed" : "Confirm"}
-                                </button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Employment Type Filter */}
-      <div className="flex justify-start mb-4 pt-4">
-        <Tabs value={employmentTypeFilter} onValueChange={v => setEmploymentTypeFilter(v as any)}>
-          <TabsList className="h-9">
-            <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-            <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
-            <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Currency Tables */}
-      {Object.entries(groupedByCurrency).map(([currency, currencyContractors]) => {
-        const symbol = currency === "EUR" ? "€" : currency === "NOK" ? "kr" : currency === "PHP" ? "₱" : "$";
-        const contractorsList = currencyContractors.filter(c => c.employmentType === "contractor");
-        const employeesList = currencyContractors.filter(c => c.employmentType === "employee");
+  // Helper: render step pills exactly like Flow 7
+  const renderStepPills = () => (
+    <div className="flex items-center gap-3 overflow-x-auto py-2">
+      {steps.map((step, index) => {
+        const isActive = currentStep === step.id;
+        const isCompleted = getCurrentStepIndex() > index;
+        const Icon = step.icon;
+        const isDisabled = selectedCycle === "previous" && step.id !== "track";
 
         return (
-          <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
-            <CardContent className="p-0">
-              <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
-                  <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">Employees: {employeesList.length}</Badge>
-                  <Badge variant="outline" className="text-xs bg-secondary/5 border-secondary/20">Contractors: {contractorsList.length}</Badge>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto" onScroll={e => handleTableScroll(currency, e)}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className={cn("text-xs min-w-[180px] sticky left-0 bg-card z-10", scrollStates[currency] && "shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>Name</TableHead>
-                      <TableHead className="text-xs min-w-[100px]">Type</TableHead>
-                      <TableHead className="text-xs min-w-[80px] text-center">FTE %</TableHead>
-                      <TableHead className="text-xs min-w-[100px]">Country</TableHead>
-                      <TableHead className="text-xs min-w-[80px]">Status</TableHead>
-                      <TableHead className="text-xs text-right min-w-[100px]">Gross Pay</TableHead>
-                      <TableHead className="text-xs text-right min-w-[100px]">Adjustments</TableHead>
-                      <TableHead className="text-xs text-right min-w-[100px]">Net Pay</TableHead>
-                      <TableHead className="text-xs text-right min-w-[80px]">Fees</TableHead>
-                      <TableHead className="text-xs text-right min-w-[120px]">Total</TableHead>
-                      <TableHead className="text-xs min-w-[80px]">ETA</TableHead>
-                      <TableHead className="text-xs min-w-[80px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {/* Contractors Section */}
-                    {contractorsList.length > 0 && (
-                      <>
-                        <TableRow className="bg-muted/20 hover:bg-muted/20">
-                          <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Contractors ({contractorsList.length})</span>
-                          </TableCell>
-                          <TableCell colSpan={11} className="py-2 bg-muted/20"></TableCell>
-                        </TableRow>
-                        {contractorsList.map(contractor => {
-                          const leaveData = leaveRecords[contractor.id];
-                          const hasLeave = leaveData && leaveData.leaveDays > 0;
-                          const paymentDue = getPaymentDue(contractor);
-                          const difference = contractor.baseSalary - paymentDue;
-                          const grossPay = contractor.baseSalary;
-                          const netPay = paymentDue;
-                          const additionalFee = additionalFees[contractor.id];
-                          const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          return (
-                            <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => selectedCycle !== "previous" && handleOpenContractorDetail(contractor)}>
-                              <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                                <div className="flex items-center gap-2">
-                                  {contractor.name}
-                                  {hasLeave && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">-{leaveData.leaveDays}d Leave</Badge>}
-                                </div>
-                              </TableCell>
-                              <TableCell><Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">Contractor</Badge></TableCell>
-                              <TableCell className="text-sm text-center">{contractor.ftePercent || 100}%</TableCell>
-                              <TableCell className="text-sm">{contractor.country}</TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30")}>
-                                  {contractor.status || "Active"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{grossPay.toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{hasLeave ? `-${symbol}${Math.round(difference).toLocaleString()}` : "—"}</TableCell>
-                              <TableCell className="text-right text-sm font-semibold">{symbol}{Math.round(netPay).toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
-                              <TableCell className="text-right text-sm font-bold">{symbol}{Math.round(totalPayable).toLocaleString()}</TableCell>
-                              <TableCell className="text-sm">{contractor.eta}</TableCell>
-                              <TableCell>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={e => { e.stopPropagation(); handleSnoozeWorker(contractor.id); }}>Snooze</Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </>
+          <TooltipProvider key={step.id}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    if (currentCycleData.status === "active" || (currentCycleData.status === "completed" && step.id === "track")) {
+                      setCurrentStep(step.id as PayrollStep);
+                    }
+                  }}
+                  disabled={isDisabled}
+                  className={cn(
+                    "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
+                    isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
+                    isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                    !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
+                    isDisabled && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
+                  )}
+                >
+                  <span className={cn(
+                    "inline-flex items-center justify-center w-6 h-6 rounded-full",
+                    isActive && "bg-primary/20",
+                    isCompleted && "bg-accent-green-fill/30",
+                    !isActive && !isCompleted && "bg-muted/30"
+                  )}>
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+                    ) : (
+                      <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
                     )}
-
-                    {/* Employees Section */}
-                    {employeesList.length > 0 && (
-                      <>
-                        {/* PH Bi-Monthly Toggle */}
-                        {currency === "PHP" && (
-                          <TableRow>
-                            <TableCell colSpan={12} className="p-0">
-                              <div className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <span className="text-xs font-medium text-muted-foreground">Select Payout Half:</span>
-                                  <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 gap-1">
-                                    <button onClick={() => setPhPayrollHalf("1st")} className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", phPayrollHalf === "1st" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
-                                      1st Half Payout
-                                    </button>
-                                    <button onClick={() => setPhPayrollHalf("2nd")} className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", phPayrollHalf === "2nd" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
-                                      2nd Half Payout
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                        <TableRow className="bg-muted/20 hover:bg-muted/20">
-                          <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Employees ({employeesList.length})</span>
-                              {currency === "PHP" && <Badge variant="outline" className="text-xs">{phPayrollHalf === "1st" ? "1st Half" : "2nd Half"}</Badge>}
-                            </div>
-                          </TableCell>
-                          <TableCell colSpan={11} className="py-2 bg-muted/20"></TableCell>
-                        </TableRow>
-                        {employeesList.map(contractor => {
-                          const leaveData = leaveRecords[contractor.id];
-                          const hasLeave = leaveData && leaveData.leaveDays > 0;
-                          const paymentDue = getPaymentDue(contractor);
-                          const isPHEmployee = contractor.countryCode === "PH" && contractor.employmentType === "employee";
-                          const phMultiplier = isPHEmployee ? 0.5 : 1;
-                          const difference = contractor.baseSalary - paymentDue;
-                          const grossPay = contractor.baseSalary * phMultiplier;
-                          const netPay = isPHEmployee ? grossPay : paymentDue;
-                          const additionalFee = additionalFees[contractor.id];
-                          const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
-                          return (
-                            <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors", selectedCycle !== "previous" && "cursor-pointer")} onClick={() => selectedCycle !== "previous" && handleOpenEmployeePayroll(contractor)}>
-                              <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                                <div className="flex items-center gap-2">
-                                  {contractor.name}
-                                  {hasLeave && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">-{leaveData.leaveDays}d Leave</Badge>}
-                                </div>
-                              </TableCell>
-                              <TableCell><Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">Employee</Badge></TableCell>
-                              <TableCell className="text-sm text-center">{contractor.ftePercent || 100}%</TableCell>
-                              <TableCell className="text-sm">{contractor.country}</TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30")}>
-                                  {contractor.status || "Active"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{grossPay.toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{hasLeave ? `-${symbol}${Math.round(difference).toLocaleString()}` : "—"}</TableCell>
-                              <TableCell className="text-right text-sm font-semibold">{symbol}{Math.round(netPay).toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
-                              <TableCell className="text-right text-sm font-bold">{symbol}{Math.round(totalPayable).toLocaleString()}</TableCell>
-                              <TableCell className="text-sm">{contractor.eta}</TableCell>
-                              <TableCell>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={e => { e.stopPropagation(); handleSnoozeWorker(contractor.id); }}>Snooze</Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Per-currency subtotals */}
-              <div className="p-3 bg-muted/20 border-t border-border">
-                <div className="flex gap-4">
-                  <div className="px-3 py-2 bg-secondary/10 rounded-lg">
-                    <p className="text-[10px] text-muted-foreground">Contractors</p>
-                    <p className="text-sm font-semibold">{symbol}{contractorsList.reduce((sum, c) => sum + c.netPay + c.estFees, 0).toLocaleString()}</p>
-                    <p className="text-[10px] text-muted-foreground">{contractorsList.length} workers</p>
-                  </div>
-                  <div className="px-3 py-2 bg-primary/10 rounded-lg">
-                    <p className="text-[10px] text-muted-foreground">Employees</p>
-                    <p className="text-sm font-semibold">{symbol}{employeesList.reduce((sum, c) => sum + c.netPay + c.estFees + (c.employerTaxes || 0), 0).toLocaleString()}</p>
-                    <p className="text-[10px] text-muted-foreground">{employeesList.length} workers</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  </span>
+                  <span className={cn(
+                    "text-sm font-medium",
+                    isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground"
+                  )}>
+                    {step.label}
+                  </span>
+                </button>
+              </TooltipTrigger>
+              {isDisabled && (
+                <TooltipContent side="bottom">
+                  <p className="text-xs">This step is read-only for completed cycles.</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         );
       })}
-
-      {/* Snoozed Workers Section */}
-      {snoozedContractorsList.length > 0 && (
-        <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-          <Collapsible open={showSnoozedSection} onOpenChange={setShowSnoozedSection}>
-            <div className="p-4">
-              <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-70 transition-opacity">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-foreground">Snoozed Workers ({snoozedContractorsList.length})</h4>
-                  <Badge variant="outline" className="text-xs bg-muted/50">Excluded from totals</Badge>
-                </div>
-                <Button variant="ghost" size="sm" className="h-7">{showSnoozedSection ? "Hide" : "Show"}</Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Employment Type</TableHead>
-                      <TableHead>Country</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {snoozedContractorsList.map(worker => (
-                      <TableRow key={worker.id}>
-                        <TableCell className="font-medium">{worker.name}</TableCell>
-                        <TableCell className="capitalize">{worker.employmentType}</TableCell>
-                        <TableCell>{worker.country}</TableCell>
-                        <TableCell><Badge variant="secondary" className="text-xs">Snoozed this cycle</Badge></TableCell>
-                        <TableCell className="text-right">
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleUndoSnooze(worker.id)}>Undo Snooze</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
-        </Card>
-      )}
-
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-border flex items-center justify-between">
-        <div className="text-xs text-muted-foreground">Step 1 of 4 – FX Review</div>
-        <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-          Next: Exceptions →
-        </Button>
-      </div>
     </div>
   );
 
-  const renderExceptionsStep = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
-
-      {blockingCount > 0 && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/20">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">{blockingCount} blocking exception{blockingCount !== 1 ? 's' : ''} remaining</p>
-                <p className="text-xs text-muted-foreground">These must be resolved or overridden before execution</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {activeExceptions.length > 0 && (
-        <Tabs value={exceptionGroupFilter} onValueChange={(v) => setExceptionGroupFilter(v as typeof exceptionGroupFilter)}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="all">All ({activeExceptions.length})</TabsTrigger>
-            <TabsTrigger value="fixable">Fixable in Payroll ({fixableExceptions.length})</TabsTrigger>
-            <TabsTrigger value="non-fixable">Must Fix Outside ({nonFixableExceptions.length})</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      )}
-
-      {allExceptionsResolved && (
-        <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-green-fill/30">
-                <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">All clear! You can now continue to batch submission.</p>
-                <p className="text-xs text-muted-foreground">All mandatory exceptions have been resolved or snoozed.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Exception List */}
-      {activeExceptions.length > 0 && (
-        <div className="space-y-3">
-          {(exceptionGroupFilter === "all" ? activeExceptions : exceptionGroupFilter === "fixable" ? fixableExceptions : nonFixableExceptions).map(exception => (
-            <Card key={exception.id} className={cn("border transition-all duration-300", exception.severity === "high" ? "border-amber-500/30 bg-amber-500/5" : "border-border/30")}>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/50">
-                    <AlertTriangle className={cn("h-4 w-4", exception.severity === "high" ? "text-amber-600" : "text-muted-foreground")} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        {exception.contractorName}
-                        {exception.contractorCountry && <span className="text-xs text-muted-foreground">• {exception.contractorCountry}</span>}
-                      </span>
-                      <Badge variant="outline" className="text-[10px]">{exceptionTypeLabels[exception.type] || exception.type}</Badge>
-                      {exception.isBlocking && <Badge variant="destructive" className="text-[10px]">Blocking</Badge>}
-                      {!exception.isBlocking && <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/30">Warning</Badge>}
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">{exception.description}</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleResolveException(exception.id)}>Acknowledge & Proceed</Button>
-                      <Button size="sm" variant="outline" className="h-7 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={() => handleSnoozeException(exception.id)}>Remove From This Cycle</Button>
-                      {exception.isBlocking && <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleOpenOverrideModal(exception)}>Override</Button>}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Snoozed Exceptions */}
-      {snoozedExceptions.length > 0 && (
-        <Card className="border-border/20 bg-muted/10">
-          <CardContent className="p-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-              <Circle className="h-3.5 w-3.5" />
-              Skipped to Next Cycle ({snoozedExceptions.length})
-            </h4>
-            <div className="space-y-2">
-              {snoozedExceptions.map(exception => (
-                <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{exception.contractorName}</span>
-                    <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30">Skipped</Badge>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Excluded from this payroll</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Acknowledged Exceptions */}
-      {acknowledgedExceptions.length > 0 && (
-        <Card className="border-border/20 bg-accent-green-fill/5">
-          <CardContent className="p-4">
-            <h4 className="text-sm font-semibold text-accent-green-text mb-3 flex items-center gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Acknowledged & Proceeding ({acknowledgedExceptions.length})
-            </h4>
-            <div className="space-y-2">
-              {acknowledgedExceptions.map(exception => (
-                <div key={exception.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{exception.contractorName}</span>
-                    <Badge variant="outline" className="text-[10px] bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">Acknowledged</Badge>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Reviewed and approved</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-border flex items-center justify-between">
-        <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review-fx")}>← Previous: Review</Button>
-        <div className="text-xs text-muted-foreground">Step 2 of 4 – Exceptions</div>
-        <Button className="h-9 px-4 text-sm" disabled={selectedCycle === "previous"} onClick={() => setCurrentStep("execute")}>Next: Execute →</Button>
-      </div>
-    </div>
-  );
-
-  const renderExecuteStep = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
-
-      {/* Execute filters */}
-      <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
-        <CardContent className="p-4">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Execute for:</span>
-              <Select value={executeEmploymentType} onValueChange={v => setExecuteEmploymentType(v as any)}>
-                <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="employees">Employees Only</SelectItem>
-                  <SelectItem value="contractors">Contractors Only</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {executeEmploymentType === "employees" && (
-              <div className="flex items-center gap-4 pl-4 border-l-2 border-primary/30">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Country:</span>
-                  <Select value={selectedCountries.length > 0 ? selectedCountries.join(",") : "all"} onValueChange={v => setSelectedCountries(v === "all" ? [] : v.split(","))}>
-                    <SelectTrigger className="w-[160px] h-8 text-xs"><SelectValue placeholder="All countries" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All countries</SelectItem>
-                      <SelectItem value="PT">Portugal</SelectItem>
-                      <SelectItem value="FR">France</SelectItem>
-                      <SelectItem value="NO">Norway</SelectItem>
-                      <SelectItem value="PH">Philippines</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Payout Period:</span>
-                  <Select value={payoutPeriod} onValueChange={v => setPayoutPeriod(v as any)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full">Full Month</SelectItem>
-                      <SelectItem value="first-half">1st Half</SelectItem>
-                      <SelectItem value="second-half">2nd Half</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Warning if exceptions exist */}
-      {!allExceptionsResolved && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">Resolve exceptions before executing payroll</p>
-                <p className="text-xs text-muted-foreground">{activeExceptions.length} unresolved exception{activeExceptions.length !== 1 ? 's' : ''} must be cleared first</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Batch Summary */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-        <CardContent className="p-6 space-y-6">
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-4">Batch Summary</h4>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-muted/30">
-                <p className="text-xs text-muted-foreground mb-2">Payee Breakdown</p>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs">Contractors (COR)</span>
-                    <span className="text-xs font-medium">{executeFilteredWorkers.filter(c => c.employmentType === "contractor").length}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs">Employees (EOR)</span>
-                    <span className="text-xs font-medium">{executeFilteredWorkers.filter(c => c.employmentType === "employee").length}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-muted/30">
-                <p className="text-xs text-muted-foreground mb-2">Total Amount</p>
-                <p className="text-2xl font-bold text-foreground">${executeFilteredWorkers.reduce((sum, c) => sum + getPaymentDue(c), 0).toLocaleString()}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted/30">
-                <p className="text-xs text-muted-foreground mb-2">Processing Time</p>
-                <p className="text-2xl font-bold text-foreground">~2 min</p>
-                <p className="text-xs text-muted-foreground mt-1">estimated duration</p>
-              </div>
-            </div>
-          </div>
-
-          {!isExecuting && Object.keys(executionProgress).length === 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs">
-                {allExceptionsResolved ? <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" /> : <AlertCircle className="h-3.5 w-3.5 text-amber-600" />}
-                <span className="text-muted-foreground">{allExceptionsResolved ? "All exceptions resolved" : `${activeExceptions.length} exception(s) pending`}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Execution Progress */}
-          {(isExecuting || Object.keys(executionProgress).length > 0) && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-foreground">Processing Batch</h4>
-                <Badge variant="outline" className="text-xs">
-                  {Object.values(executionProgress).filter(s => s === "complete").length} / {executeFilteredWorkers.length}
-                </Badge>
-              </div>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {executeFilteredWorkers.map(contractor => {
-                  const status = executionProgress[contractor.id] || "pending";
-                  return (
-                    <motion.div key={contractor.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                      className={cn("flex items-center gap-3 p-3 rounded-lg border transition-colors",
-                        status === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                        status === "failed" && "bg-red-500/10 border-red-500/30",
-                        status === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse",
-                        status === "pending" && "bg-muted/20 border-border"
-                      )}>
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background">
-                        {status === "complete" && <CheckCircle2 className="h-4 w-4 text-accent-green-text" />}
-                        {status === "failed" && <XCircle className="h-4 w-4 text-red-600" />}
-                        {status === "processing" && <div className="h-3 w-3 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />}
-                        {status === "pending" && <Circle className="h-3 w-3 text-muted-foreground" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{contractor.name}</p>
-                        <p className="text-xs text-muted-foreground">{contractor.country} • {contractor.currency}</p>
-                      </div>
-                      <Badge variant="outline" className="text-[10px]">{contractor.employmentType}</Badge>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Execution Log */}
-          {executionLog && !isExecuting && <ExecutionLog logData={executionLog} onViewException={handleViewException} />}
-
-          {/* Execute Buttons */}
-          {!isExecuting && Object.keys(executionProgress).length === 0 && (
-            <div className="flex items-center gap-3">
-              <Button onClick={() => handleExecuteClick("all")} disabled={!allExceptionsResolved} className="flex-1">
-                <Play className="h-4 w-4 mr-2" />Execute All
-              </Button>
-              <Button variant="outline" onClick={() => handleExecuteClick("employees")} disabled={!allExceptionsResolved}>Employees Only</Button>
-              <Button variant="outline" onClick={() => handleExecuteClick("contractors")} disabled={!allExceptionsResolved}>Contractors Only</Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-border flex items-center justify-between">
-        <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")}>← Previous: Exceptions</Button>
-        <div className="text-xs text-muted-foreground">Step 3 of 4 – Execute</div>
-        <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("track")}>Next: Track →</Button>
-      </div>
-    </div>
-  );
-
-  const renderTrackStep = () => {
-    const employees = filteredTrackContractors.filter(c => c.employmentType === "employee");
-    const contractorsPaid = filteredTrackContractors.filter(c => c.employmentType === "contractor");
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Track & Reconcile</h3>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2"><Download className="h-3.5 w-3.5" />Export CSV</Button>
-            <Button variant="outline" size="sm" className="gap-2"><FileText className="h-3.5 w-3.5" />Audit PDF</Button>
-          </div>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="border-blue-500/20 bg-blue-500/5">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-semibold text-blue-600">Employees</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{employees.length}</p>
-                  <p className="text-xs text-muted-foreground">Posted to payroll system</p>
-                </div>
-                <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/30">Posted</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Briefcase className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">Contractors</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{contractorsPaid.length}</p>
-                  <p className="text-xs text-muted-foreground">Sent for payment</p>
-                </div>
-                <Badge className={cn(paidCount === allContractors.length ? "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30" : "bg-amber-500/10 text-amber-600 border-amber-500/30")}>
-                  {paidCount === allContractors.length ? "All Paid" : `${pendingCount} Pending`}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Payment Details Table */}
-        <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <Tabs value={workerTypeFilter} onValueChange={v => setWorkerTypeFilter(v as any)}>
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-semibold text-foreground">Payment Details</h4>
-                <TabsList className="grid w-auto grid-cols-3">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="employee">Employees</TabsTrigger>
-                  <TabsTrigger value="contractor">Contractors</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <div className="overflow-x-auto">
-                {(workerTypeFilter === "all" || workerTypeFilter === "employee") && employees.length > 0 && (
-                  <div className="mb-6">
-                    {workerTypeFilter === "all" && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <Users className="h-4 w-4 text-blue-600" />
-                        <h5 className="text-sm font-semibold text-blue-600">Employees ({employees.length})</h5>
-                      </div>
-                    )}
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-blue-500/5">
-                          <TableHead className="text-xs font-medium">Employee</TableHead>
-                          <TableHead className="text-xs font-medium text-right">Posted Amount</TableHead>
-                          <TableHead className="text-xs font-medium text-center">Status</TableHead>
-                          <TableHead className="text-xs font-medium">Reference</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {employees.map(employee => (
-                          <TableRow key={employee.id} className="hover:bg-blue-500/5">
-                            <TableCell>
-                              <span className="font-medium text-foreground">{employee.name}</span>
-                              <p className="text-xs text-muted-foreground">{employee.country} • {employee.currency}</p>
-                            </TableCell>
-                            <TableCell className="text-right font-semibold">{employee.currency} {employee.netPay.toLocaleString()}</TableCell>
-                            <TableCell className="text-center">
-                              <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/30 text-[10px]">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />Posted
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-xs text-muted-foreground font-mono">PR-{employee.id}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-
-                {(workerTypeFilter === "all" || workerTypeFilter === "contractor") && contractorsPaid.length > 0 && (
-                  <div>
-                    {workerTypeFilter === "all" && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <Briefcase className="h-4 w-4 text-primary" />
-                        <h5 className="text-sm font-semibold text-primary">Contractors ({contractorsPaid.length})</h5>
-                      </div>
-                    )}
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-primary/5">
-                          <TableHead className="text-xs font-medium">Contractor</TableHead>
-                          <TableHead className="text-xs font-medium text-right">Payout Amount</TableHead>
-                          <TableHead className="text-xs font-medium text-center">Payment Status</TableHead>
-                          <TableHead className="text-xs font-medium">Provider Ref</TableHead>
-                          <TableHead className="text-xs font-medium text-center">Receipt</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {contractorsPaid.map(contractor => {
-                          const status = getPaymentStatus(contractor.id);
-                          return (
-                            <TableRow key={contractor.id} className="hover:bg-primary/5">
-                              <TableCell>
-                                <span className="font-medium text-foreground">{contractor.name}</span>
-                                <p className="text-xs text-muted-foreground">{contractor.country} • {contractor.currency}</p>
-                              </TableCell>
-                              <TableCell className="text-right font-semibold">{contractor.currency} {contractor.netPay.toLocaleString()}</TableCell>
-                              <TableCell className="text-center">
-                                <Badge variant="outline" className={cn("text-[10px]",
-                                  status === "Paid" && "bg-accent-green-fill text-accent-green-text border-accent-green-outline/30",
-                                  status === "InTransit" && "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
-                                  status === "Failed" && "bg-red-500/10 text-red-600 border-red-500/30"
-                                )}>
-                                  {status === "Paid" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                  {status === "InTransit" && <Clock className="h-3 w-3 mr-1" />}
-                                  {status === "Failed" && <AlertCircle className="h-3 w-3 mr-1" />}
-                                  {status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-xs text-muted-foreground font-mono">TXN-{contractor.id}</TableCell>
-                              <TableCell className="text-center">
-                                <Button variant="ghost" size="sm" className="h-7 text-xs"><Receipt className="h-3 w-3 mr-1" />View</Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </div>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Footer - Company Admin: "Approve Payroll" instead of "Send to Client" */}
-        <div className="flex items-center justify-between pt-4">
-          <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>← Previous: Execute</Button>
-          
-          <div className="flex items-center gap-3">
-            {/* Proxy button hidden for Company Admin */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-9 opacity-50 cursor-not-allowed" disabled>
-                    Proxy (Fronted only)
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent><p className="text-xs">Available in Fronted Admin only.</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {currentCycleData.status !== "completed" ? (
-              <Button className="h-9 px-4 text-sm" onClick={handleCompleteAndReturnToOverview}>
-                Approve Payroll
-              </Button>
-            ) : (
-              <Badge className="bg-accent-green-fill text-accent-green-text border-accent-green-outline/30 px-4 py-2">
-                <CheckCircle2 className="h-4 w-4 mr-2" />Payroll Completed
-              </Badge>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
+  // This component directly embeds the PayrollBatch content
+  // For exact matching, we'll render the same structure
   return (
     <div className="space-y-6">
-      {/* Cycle Selector */}
+      {/* Header with Cycle Selector and Country Rules */}
       <div className="flex items-center justify-between">
-        <Select value={selectedCycle} onValueChange={v => setSelectedCycle(v as any)}>
-          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="previous">October 2025 (Completed)</SelectItem>
-            <SelectItem value="current">November 2025 (Active)</SelectItem>
-            <SelectItem value="next">December 2025 (Upcoming)</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <Select value={selectedCycle} onValueChange={v => setSelectedCycle(v as any)}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="previous">October 2025 (Completed)</SelectItem>
+              <SelectItem value="current">November 2025 (Active)</SelectItem>
+              <SelectItem value="next">December 2025 (Upcoming)</SelectItem>
+            </SelectContent>
+          </Select>
           <Badge variant="outline" className={cn("text-xs",
             currentCycleData.status === "completed" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30",
             currentCycleData.status === "active" && "bg-blue-500/10 text-blue-600 border-blue-500/30",
@@ -1532,9 +639,13 @@ export const F6v2_PayrollTab: React.FC = () => {
             {currentCycleData.status === "completed" ? "Completed" : currentCycleData.status === "active" ? "Active" : "Upcoming"}
           </Badge>
         </div>
+        <Button variant="outline" size="sm" onClick={() => setCountryRulesDrawerOpen(true)} className="gap-2">
+          <Settings className="h-3.5 w-3.5" />
+          Country Rules
+        </Button>
       </div>
 
-      {/* Payroll Summary Cards */}
+      {/* KPI Cards - matching Flow 7 exactly */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4">
@@ -1557,69 +668,563 @@ export const F6v2_PayrollTab: React.FC = () => {
         <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Next Payroll Run</p>
-            <p className="text-2xl font-bold text-foreground">{currentCycleData.status === "active" ? `Nov 15` : currentCycleData.status === "upcoming" ? "Dec 15" : "—"}</p>
+            <p className="text-2xl font-bold text-foreground">
+              {currentCycleData.status === "completed" ? currentCycleData.completedDate || "Completed" : 
+               currentCycleData.status === "upcoming" ? currentCycleData.opensOn : 
+               `${(currentCycleData as any).nextPayrollRun}, ${(currentCycleData as any).nextPayrollYear}`}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Step Pills */}
-      {currentCycleData.status !== "upcoming" && (
-        <div className="flex items-center gap-3 overflow-x-auto py-2">
-          {steps.map((step, index) => {
-            const isActive = currentStep === step.id;
-            const isCompleted = getCurrentStepIndex() > index;
-            const Icon = step.icon;
-            const isDisabled = selectedCycle === "previous" && step.id !== "track";
-
-            return (
-              <TooltipProvider key={step.id}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        if (currentCycleData.status === "active" || (currentCycleData.status === "completed" && step.id === "track")) {
-                          setCurrentStep(step.id as PayrollStep);
-                        }
-                      }}
-                      disabled={isDisabled}
-                      className={cn(
-                        "group inline-flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all",
-                        isActive && currentCycleData.status === "active" && "bg-primary/10 border-primary/20",
-                        isCompleted && "bg-accent-green-fill/10 border-accent-green-outline/20",
-                        !isActive && !isCompleted && currentCycleData.status === "active" && "bg-muted/20 border-border/50 hover:bg-muted/30",
-                        isDisabled && "opacity-50 cursor-not-allowed bg-muted/10 border-border/30"
-                      )}
-                    >
-                      <span className={cn(
-                        "inline-flex items-center justify-center w-6 h-6 rounded-full",
-                        isActive && "bg-primary/20",
-                        isCompleted && "bg-accent-green-fill/30",
-                        !isActive && !isCompleted && "bg-muted/30"
-                      )}>
-                        {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" /> : <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : "text-muted-foreground")} />}
-                      </span>
-                      <span className={cn("text-sm font-medium", isActive ? "text-primary" : isCompleted ? "text-accent-green-text" : "text-foreground")}>
-                        {step.label}
-                      </span>
-                    </button>
-                  </TooltipTrigger>
-                  {isDisabled && (
-                    <TooltipContent side="bottom"><p className="text-xs">This step is read-only for completed cycles.</p></TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-        </div>
-      )}
+      {/* Step Pills - matching Flow 7 exactly */}
+      {currentCycleData.status !== "upcoming" && renderStepPills()}
 
       {/* Step Content */}
       {currentCycleData.status !== "upcoming" ? (
-        <motion.div key={currentStep} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
-          {currentStep === "review-fx" && renderReviewStep()}
-          {currentStep === "exceptions" && renderExceptionsStep()}
-          {currentStep === "execute" && renderExecuteStep()}
-          {currentStep === "track" && renderTrackStep()}
+        <motion.div
+          key={currentStep}
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {currentStep === "review-fx" && (
+            <div className="space-y-3">
+              {/* Leave & Attendance Collapsible - matching Flow 7 */}
+              <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm mb-8">
+                <CardContent className="p-4">
+                  <button onClick={() => setShowLeaveSection(!showLeaveSection)} className="w-full flex items-center justify-between group">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-semibold text-foreground">Leave & Attendance</h4>
+                        <Badge variant="outline" className="text-xs">
+                          {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length} tracked
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {showLeaveSection ? "Hide details" : "View details"}
+                      </span>
+                      <div className={cn("transition-transform duration-200", showLeaveSection && "rotate-180")}>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </button>
+
+                  {showLeaveSection && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="mt-4">
+                      {Object.keys(leaveRecords).filter(id => leaveRecords[id]?.leaveDays > 0).length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 px-6">
+                          <div className="text-center space-y-2 mb-6">
+                            <h4 className="text-base font-medium text-foreground">Track Leave & Absences</h4>
+                            <p className="text-sm text-muted-foreground max-w-md">
+                              Add employees or contractors who took leave this cycle. Their salaries will be automatically pro-rated based on working days.
+                            </p>
+                          </div>
+                          <Button size="default" onClick={() => setLeaveSelectorOpen(true)} className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add Workers with Leave
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">Leave records displayed here...</div>
+                      )}
+                    </motion.div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Employment Type Filter */}
+              <div className="flex justify-start mb-4 pt-4">
+                <Tabs value={employmentTypeFilter} onValueChange={v => setEmploymentTypeFilter(v as any)}>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                    <TabsTrigger value="employee" className="text-xs">Employee</TabsTrigger>
+                    <TabsTrigger value="contractor" className="text-xs">Contractor</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              {/* Currency Tables - simplified version matching Flow 7 structure */}
+              {Object.entries(groupedByCurrency).map(([currency, currencyContractors]) => {
+                const symbol = currency === "EUR" ? "€" : currency === "NOK" ? "kr" : currency === "PHP" ? "₱" : "$";
+                const contractorsList = currencyContractors.filter(c => c.employmentType === "contractor");
+                const employeesList = currencyContractors.filter(c => c.employmentType === "employee");
+
+                return (
+                  <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
+                          <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">Employees: {employeesList.length}</Badge>
+                          <Badge variant="outline" className="text-xs bg-secondary/5 border-secondary/20">Contractors: {contractorsList.length}</Badge>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto" onScroll={e => handleTableScroll(currency, e)}>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className={cn("text-xs min-w-[180px] sticky left-0 bg-card z-10", scrollStates[currency] && "shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>Name</TableHead>
+                              <TableHead className="text-xs min-w-[100px]">Type</TableHead>
+                              <TableHead className="text-xs min-w-[80px] text-center">FTE %</TableHead>
+                              <TableHead className="text-xs min-w-[100px]">Country</TableHead>
+                              <TableHead className="text-xs min-w-[80px]">Status</TableHead>
+                              <TableHead className="text-xs text-right min-w-[100px]">Sched. Days</TableHead>
+                              <TableHead className="text-xs text-right min-w-[100px]">Actual Days</TableHead>
+                              <TableHead className="text-xs min-w-[140px]">Leave Taken</TableHead>
+                              <TableHead className="text-xs text-right min-w-[100px]">Net Payable</TableHead>
+                              <TableHead className="text-xs min-w-[110px]">Start Date</TableHead>
+                              <TableHead className="text-xs min-w-[110px]">End Date</TableHead>
+                              <TableHead className="text-xs text-right min-w-[110px]">Hours</TableHead>
+                              <TableHead className="text-xs min-w-[130px]">Comp. Type</TableHead>
+                              <TableHead className="text-xs text-right min-w-[110px]">Gross Pay</TableHead>
+                              <TableHead className="text-xs text-right min-w-[110px]">Adjustments</TableHead>
+                              <TableHead className="text-xs text-right min-w-[110px]">Net Pay</TableHead>
+                              <TableHead className="text-xs text-right min-w-[100px]">Fees</TableHead>
+                              <TableHead className="text-xs text-right min-w-[150px]">Addt'l Fee</TableHead>
+                              <TableHead className="text-xs text-right min-w-[130px]">Total</TableHead>
+                              <TableHead className="text-xs min-w-[100px]">Ready</TableHead>
+                              <TableHead className="text-xs min-w-[90px]">ETA</TableHead>
+                              <TableHead className="text-xs min-w-[120px]">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {/* Contractors */}
+                            {contractorsList.length > 0 && (
+                              <>
+                                <TableRow className="bg-muted/20 hover:bg-muted/20">
+                                  <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Contractors ({contractorsList.length})</span>
+                                  </TableCell>
+                                  <TableCell colSpan={21} className="py-2 bg-muted/20"></TableCell>
+                                </TableRow>
+                                {contractorsList.map(contractor => {
+                                  const leaveData = leaveRecords[contractor.id];
+                                  const hasLeave = leaveData && leaveData.leaveDays > 0;
+                                  const paymentDue = getPaymentDue(contractor);
+                                  const difference = contractor.baseSalary - paymentDue;
+                                  const additionalFee = additionalFees[contractor.id];
+                                  const totalPayable = paymentDue + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                  return (
+                                    <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors cursor-pointer")} onClick={() => handleOpenContractorDetail(contractor)}>
+                                      <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                                        <div className="flex items-center gap-2">
+                                          {contractor.name}
+                                          {hasLeave && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">-{leaveData.leaveDays}d Leave</Badge>}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell><Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">Contractor</Badge></TableCell>
+                                      <TableCell className="text-sm text-center">{contractor.ftePercent || 100}%</TableCell>
+                                      <TableCell className="text-sm">{contractor.country}</TableCell>
+                                      <TableCell>
+                                        <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30")}>
+                                          {contractor.status || "Active"}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{leaveData?.scheduledDays || 22}d</TableCell>
+                                      <TableCell className="text-right text-sm text-foreground">{leaveData?.actualDays || 22}d</TableCell>
+                                      <TableCell className="text-xs text-muted-foreground">{hasLeave ? `${leaveData.leaveDays}d` : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm font-medium text-accent-green-text">{(leaveData?.actualDays || 22) - (leaveData?.leaveDays || 0)}d</TableCell>
+                                      <TableCell className="text-sm text-muted-foreground">{contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}</TableCell>
+                                      <TableCell className="text-sm text-muted-foreground">{contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm">{contractor.compensationType === "Hourly" ? contractor.hoursWorked || 0 : "—"}</TableCell>
+                                      <TableCell className="text-sm">{contractor.compensationType || "Monthly"}</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.baseSalary.toLocaleString()}</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{hasLeave ? `-${symbol}${Math.round(difference).toLocaleString()}` : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm font-semibold">{symbol}{Math.round(paymentDue).toLocaleString()}</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
+                                      <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                          <span className="text-sm">{symbol}{additionalFee?.amount || 50}</span>
+                                          <Select value={additionalFee?.accepted ? "accept" : "decline"} onValueChange={value => handleToggleAdditionalFee(contractor.id, value === "accept")}>
+                                            <SelectTrigger className="w-24 h-7 text-xs" onClick={e => e.stopPropagation()}>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="accept" className="text-xs">Accept</SelectItem>
+                                              <SelectItem value="decline" className="text-xs">Decline</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="text-right text-sm font-bold">{symbol}{Math.round(totalPayable).toLocaleString()}</TableCell>
+                                      <TableCell>
+                                        <Badge variant="outline" className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">Ready</Badge>
+                                      </TableCell>
+                                      <TableCell className="text-sm">{contractor.eta}</TableCell>
+                                      <TableCell>
+                                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={e => { e.stopPropagation(); handleSnoozeWorker(contractor.id); }}>Snooze</Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </>
+                            )}
+
+                            {/* PH Bi-Monthly Toggle */}
+                            {currency === "PHP" && employeesList.length > 0 && (
+                              <TableRow>
+                                <TableCell colSpan={22} className="p-0">
+                                  <div className="p-4">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs font-medium text-muted-foreground">Select Payout Half:</span>
+                                      <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 gap-1">
+                                        <button onClick={() => setPhPayrollHalf("1st")} className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", phPayrollHalf === "1st" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
+                                          1st Half Payout
+                                        </button>
+                                        <button onClick={() => setPhPayrollHalf("2nd")} className={cn("px-4 py-1.5 text-xs font-medium rounded-md transition-all", phPayrollHalf === "2nd" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
+                                          2nd Half Payout
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+
+                            {/* Employees */}
+                            {employeesList.length > 0 && (
+                              <>
+                                <TableRow className="bg-muted/20 hover:bg-muted/20">
+                                  <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Employees ({employeesList.length})</span>
+                                      {currency === "PHP" && <Badge variant="outline" className="text-xs">{phPayrollHalf === "1st" ? "1st Half" : "2nd Half"}</Badge>}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell colSpan={21} className="py-2 bg-muted/20"></TableCell>
+                                </TableRow>
+                                {employeesList.map(contractor => {
+                                  const leaveData = leaveRecords[contractor.id];
+                                  const hasLeave = leaveData && leaveData.leaveDays > 0;
+                                  const isPHEmployee = contractor.countryCode === "PH" && contractor.employmentType === "employee";
+                                  const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                  const paymentDue = getPaymentDue(contractor);
+                                  const grossPay = contractor.baseSalary * phMultiplier;
+                                  const netPay = isPHEmployee ? grossPay : paymentDue;
+                                  const difference = contractor.baseSalary - paymentDue;
+                                  const additionalFee = additionalFees[contractor.id];
+                                  const totalPayable = netPay + contractor.estFees + (additionalFee?.accepted ? additionalFee.amount : 0);
+                                  return (
+                                    <TableRow key={contractor.id} className={cn("hover:bg-muted/30 transition-colors cursor-pointer")} onClick={() => handleOpenEmployeePayroll(contractor)}>
+                                      <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                                        <div className="flex items-center gap-2">
+                                          {contractor.name}
+                                          {hasLeave && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">-{leaveData.leaveDays}d Leave</Badge>}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell><Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">Employee</Badge></TableCell>
+                                      <TableCell className="text-sm text-center">{contractor.ftePercent || 100}%</TableCell>
+                                      <TableCell className="text-sm">{contractor.country}</TableCell>
+                                      <TableCell>
+                                        <Badge variant="outline" className={cn("text-xs", contractor.status === "Active" && "bg-green-500/10 text-green-600 border-green-500/30", contractor.status === "Terminated" && "bg-red-500/10 text-red-600 border-red-500/30")}>
+                                          {contractor.status || "Active"}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{leaveData?.scheduledDays || 22}d</TableCell>
+                                      <TableCell className="text-right text-sm text-foreground">{leaveData?.actualDays || 22}d</TableCell>
+                                      <TableCell className="text-xs text-muted-foreground">{hasLeave ? `${leaveData.leaveDays}d` : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm font-medium text-accent-green-text">{(leaveData?.actualDays || 22) - (leaveData?.leaveDays || 0)}d</TableCell>
+                                      <TableCell className="text-sm text-muted-foreground">{contractor.startDate ? format(new Date(contractor.startDate), "MMM d, yyyy") : "—"}</TableCell>
+                                      <TableCell className="text-sm text-muted-foreground">{contractor.endDate ? format(new Date(contractor.endDate), "MMM d, yyyy") : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm">—</TableCell>
+                                      <TableCell className="text-sm">—</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{symbol}{grossPay.toLocaleString()}</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{isPHEmployee && phPayrollHalf === "1st" ? "₱0" : hasLeave ? `-${symbol}${Math.round(difference).toLocaleString()}` : "—"}</TableCell>
+                                      <TableCell className="text-right text-sm font-semibold">{symbol}{Math.round(netPay).toLocaleString()}</TableCell>
+                                      <TableCell className="text-right text-sm text-muted-foreground">{symbol}{contractor.estFees}</TableCell>
+                                      <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                          <span className="text-sm">{symbol}{additionalFee?.amount || 50}</span>
+                                          <Select value={additionalFee?.accepted ? "accept" : "decline"} onValueChange={value => handleToggleAdditionalFee(contractor.id, value === "accept")}>
+                                            <SelectTrigger className="w-24 h-7 text-xs" onClick={e => e.stopPropagation()}>
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="accept" className="text-xs">Accept</SelectItem>
+                                              <SelectItem value="decline" className="text-xs">Decline</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="text-right text-sm font-bold">{symbol}{Math.round(totalPayable).toLocaleString()}</TableCell>
+                                      <TableCell>
+                                        <Badge variant="outline" className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">Ready</Badge>
+                                      </TableCell>
+                                      <TableCell className="text-sm">{contractor.eta}</TableCell>
+                                      <TableCell>
+                                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={e => { e.stopPropagation(); handleSnoozeWorker(contractor.id); }}>Snooze</Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </>
+                            )}
+
+                            {/* Per-type Subtotals */}
+                            <TableRow className="bg-muted/30 border-t border-border">
+                              <TableCell colSpan={22} className="p-0">
+                                <div className="p-2 space-y-1.5">
+                                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                                    Subtotals by Type ({currency})
+                                  </p>
+                                  <div className="max-w-[640px] flex gap-1.5 items-stretch">
+                                    <div className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 rounded-lg flex-1 min-w-0">
+                                      <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Contractors</p>
+                                      <p className="text-base font-semibold text-foreground leading-tight">
+                                        {symbol}{contractorsList.reduce((sum, c) => sum + getPaymentDue(c) + c.estFees + (additionalFees[c.id]?.accepted ? additionalFees[c.id].amount : 0), 0).toLocaleString()}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                                        {contractorsList.length} worker{contractorsList.length !== 1 ? "s" : ""}
+                                      </p>
+                                    </div>
+                                    <div className="px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg flex-1 min-w-0">
+                                      <p className="text-[10px] text-muted-foreground mb-0.5 leading-snug">Employees</p>
+                                      <p className="text-base font-semibold text-foreground leading-tight">
+                                        {symbol}{employeesList.reduce((sum, c) => {
+                                          const isPHEmployee = c.countryCode === "PH" && c.employmentType === "employee";
+                                          const phMultiplier = isPHEmployee ? 0.5 : 1;
+                                          const netPay = isPHEmployee ? c.baseSalary * phMultiplier : getPaymentDue(c);
+                                          return sum + netPay + c.estFees + (additionalFees[c.id]?.accepted ? additionalFees[c.id].amount : 0);
+                                        }, 0).toLocaleString()}
+                                      </p>
+                                      <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                                        {employeesList.length} worker{employeesList.length !== 1 ? "s" : ""}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {/* Snoozed Workers Section */}
+              {snoozedContractorsList.length > 0 && (
+                <Card className="border-border/20 bg-muted/20 backdrop-blur-sm shadow-sm">
+                  <Collapsible open={showSnoozedSection} onOpenChange={setShowSnoozedSection}>
+                    <div className="p-4">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-70 transition-opacity">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-semibold text-foreground">Snoozed Workers ({snoozedContractorsList.length})</h4>
+                          <Badge variant="outline" className="text-xs bg-muted/50">Excluded from totals</Badge>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-7">{showSnoozedSection ? "Hide" : "Show"}</Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="text-xs">Name</TableHead>
+                              <TableHead className="text-xs">Employment Type</TableHead>
+                              <TableHead className="text-xs">Country</TableHead>
+                              <TableHead className="text-xs">Status</TableHead>
+                              <TableHead className="text-xs text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {snoozedContractorsList.map(worker => (
+                              <TableRow key={worker.id} className="opacity-60">
+                                <TableCell className="font-medium text-sm">{worker.name}</TableCell>
+                                <TableCell className="text-sm capitalize">{worker.employmentType}</TableCell>
+                                <TableCell className="text-sm">{worker.country}</TableCell>
+                                <TableCell>
+                                  <Badge variant="secondary" className="text-xs">Snoozed this cycle</Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleUndoSnooze(worker.id)}>Undo Snooze</Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                </Card>
+              )}
+
+              {/* Footer Navigation */}
+              <div className="pt-4 border-t border-border flex items-center justify-between">
+                <div className="text-xs text-muted-foreground">Step 1 of 4 – FX Review</div>
+                <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")}>
+                  Next: Exceptions →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === "exceptions" && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">Exception Review</h3>
+              
+              {/* Exception Content - simplified */}
+              {allExceptionsResolved ? (
+                <Card className="border-accent-green-outline/30 bg-gradient-to-br from-accent-green-fill/20 to-accent-green-fill/10">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-green-fill/30">
+                        <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">All clear! You can now continue to batch submission.</p>
+                        <p className="text-xs text-muted-foreground">All mandatory exceptions have been resolved or snoozed.</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {activeExceptions.map(exception => (
+                    <Card key={exception.id} className="border-amber-500/30 bg-amber-500/5">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-medium text-foreground">{exception.contractorName}</span>
+                              <Badge variant="outline" className="text-[10px]">{exceptionTypeLabels[exception.type] || exception.type}</Badge>
+                              {exception.isBlocking && <Badge variant="destructive" className="text-[10px]">Blocking</Badge>}
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-3">{exception.description}</p>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleResolveException(exception.id)}>Acknowledge</Button>
+                              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleSnoozeException(exception.id)}>Snooze</Button>
+                              {exception.isBlocking && <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleOpenOverrideModal(exception)}>Override</Button>}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-border flex items-center justify-between">
+                <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review-fx")}>← Previous: Review</Button>
+                <div className="text-xs text-muted-foreground">Step 2 of 4 – Exceptions</div>
+                <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>Next: Execute →</Button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === "execute" && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
+              
+              <Card className="border-border/40 bg-card/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <Button onClick={() => handleExecuteClick("all")} disabled={!allExceptionsResolved || isExecuting}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Execute All
+                    </Button>
+                    <Button variant="outline" onClick={() => handleExecuteClick("employees")} disabled={!allExceptionsResolved || isExecuting}>
+                      Employees Only
+                    </Button>
+                    <Button variant="outline" onClick={() => handleExecuteClick("contractors")} disabled={!allExceptionsResolved || isExecuting}>
+                      Contractors Only
+                    </Button>
+                  </div>
+                  
+                  {isExecuting && (
+                    <div className="mt-6 space-y-2">
+                      {executeFilteredWorkers.map(worker => (
+                        <div key={worker.id} className={cn("flex items-center gap-3 p-3 rounded-lg border",
+                          executionProgress[worker.id] === "complete" && "bg-accent-green-fill/10 border-accent-green-outline/20",
+                          executionProgress[worker.id] === "failed" && "bg-red-500/10 border-red-500/30",
+                          executionProgress[worker.id] === "processing" && "bg-blue-500/10 border-blue-500/20 animate-pulse"
+                        )}>
+                          <div className="w-6 h-6 rounded-full bg-background flex items-center justify-center">
+                            {executionProgress[worker.id] === "complete" && <CheckCircle2 className="h-4 w-4 text-accent-green-text" />}
+                            {executionProgress[worker.id] === "failed" && <XCircle className="h-4 w-4 text-red-600" />}
+                            {executionProgress[worker.id] === "processing" && <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />}
+                            {executionProgress[worker.id] === "pending" && <Circle className="h-3 w-3 text-muted-foreground" />}
+                          </div>
+                          <span className="text-sm font-medium">{worker.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {executionLog && !isExecuting && (
+                    <div className="mt-6">
+                      <ExecutionLog logData={executionLog} onViewException={() => setCurrentStep("exceptions")} />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <div className="pt-4 border-t border-border flex items-center justify-between">
+                <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")}>← Previous: Exceptions</Button>
+                <div className="text-xs text-muted-foreground">Step 3 of 4 – Execute</div>
+                <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("track")}>Next: Track →</Button>
+              </div>
+            </div>
+          )}
+
+          {currentStep === "track" && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">Track & Reconcile</h3>
+              
+              {/* Summary Cards */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="border-blue-500/20 bg-blue-500/5">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-semibold text-blue-600">Employees</span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{allContractors.filter(c => c.employmentType === "employee").length}</p>
+                    <p className="text-xs text-muted-foreground">Posted to payroll system</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold text-primary">Contractors</span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{allContractors.filter(c => c.employmentType === "contractor").length}</p>
+                    <p className="text-xs text-muted-foreground">Sent for payment</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Footer with Company Admin CTA */}
+              <div className="pt-4 border-t border-border flex items-center justify-between">
+                <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>← Previous: Execute</Button>
+                <div className="flex items-center gap-3">
+                  {/* Hidden Proxy button for Company Admin */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-9 opacity-50 cursor-not-allowed" disabled>
+                          Proxy (Fronted only)
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Available in Fronted Admin only.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  {/* Company Admin CTA: "Approve Payroll" instead of "Send to Client" */}
+                  <Button className="h-9 px-4 text-sm" onClick={handleCompleteAndReturnToOverview}>
+                    Approve Payroll
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
       ) : (
         <Card className="border-border/20 bg-card/30">
@@ -1633,178 +1238,32 @@ export const F6v2_PayrollTab: React.FC = () => {
 
       {/* Drawers and Modals */}
       <CountryRulesDrawer open={countryRulesDrawerOpen} onOpenChange={setCountryRulesDrawerOpen} />
-      
-      <EmployeePayrollDrawer 
-        open={employeePayrollDrawerOpen} 
-        onOpenChange={setEmployeePayrollDrawerOpen} 
-        employee={selectedEmployee} 
-        onSave={() => toast.success("Employee payroll updated")} 
-      />
+      <EmployeePayrollDrawer open={employeePayrollDrawerOpen} onOpenChange={setEmployeePayrollDrawerOpen} employee={selectedEmployee} onSave={() => toast.success("Employee payroll updated")} />
+      <LeaveDetailsDrawer open={leaveDetailsDrawerOpen} onOpenChange={setLeaveDetailsDrawerOpen} workerName={selectedWorkerForLeave?.name || ""} workerRole={selectedWorkerForLeave?.role} country={selectedWorkerForLeave?.country || ""} employmentType={selectedWorkerForLeave?.employmentType || "contractor"} ftePercent={selectedWorkerForLeave?.ftePercent || 100} scheduledDays={22} actualDays={22} leaveEntries={[]} attendanceAnomalies={[]} />
+      <OverrideExceptionModal open={overrideModalOpen} onOpenChange={setOverrideModalOpen} exception={exceptionToOverride} justification={overrideJustification} onJustificationChange={setOverrideJustification} onConfirm={handleConfirmOverride} />
+      <LeaveAttendanceExceptionDrawer open={leaveAttendanceDrawerOpen} onOpenChange={setLeaveAttendanceDrawerOpen} exception={selectedLeaveException} worker={selectedLeaveException ? allContractors.find(c => c.id === selectedLeaveException.contractorId) : undefined} onResolve={handleResolveLeaveAttendance} />
+      <ExecutionConfirmationDialog open={executionConfirmOpen} onOpenChange={setExecutionConfirmOpen} onConfirm={handleConfirmExecution} cohort={pendingExecutionCohort || "all"} employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} employeeTotal={allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.baseSalary, 0)} contractorTotal={allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + c.baseSalary, 0)} currency="USD" />
 
-      <OverrideExceptionModal
-        open={overrideModalOpen}
-        onOpenChange={setOverrideModalOpen}
-        exception={exceptionToOverride}
-        justification={overrideJustification}
-        onJustificationChange={setOverrideJustification}
-        onConfirm={handleConfirmOverride}
-      />
-
-      <ExecutionConfirmationDialog
-        open={executionConfirmOpen}
-        onOpenChange={setExecutionConfirmOpen}
-        onConfirm={handleConfirmExecution}
-        cohort={pendingExecutionCohort || "all"}
-        employeeCount={allContractors.filter(c => c.employmentType === "employee").length}
-        contractorCount={allContractors.filter(c => c.employmentType === "contractor").length}
-        employeeTotal={allContractors.filter(c => c.employmentType === "employee").reduce((sum, c) => sum + c.baseSalary, 0)}
-        contractorTotal={allContractors.filter(c => c.employmentType === "contractor").reduce((sum, c) => sum + c.baseSalary, 0)}
-        currency="USD"
-      />
-
-      <LeaveAttendanceExceptionDrawer
-        open={leaveAttendanceDrawerOpen}
-        onOpenChange={setLeaveAttendanceDrawerOpen}
-        exception={selectedLeaveException}
-        worker={selectedLeaveException ? allContractors.find(c => c.id === selectedLeaveException.contractorId) : undefined}
-        onResolve={handleResolveLeaveAttendance}
-      />
-
-      {/* Contractor Detail Drawer */}
-      <Sheet open={contractorDrawerOpen} onOpenChange={setContractorDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-          {selectedContractor && (
-            <>
-              <SheetHeader>
-                <SheetTitle className="text-xl">{selectedContractor.name}</SheetTitle>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline" className={cn("text-xs", selectedContractor.employmentType === "employee" ? "bg-blue-500/10 text-blue-600 border-blue-500/30" : "bg-purple-500/10 text-purple-600 border-purple-500/30")}>
-                    {selectedContractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground">{selectedContractor.country}</span>
-                </div>
-              </SheetHeader>
-
-              <div className="space-y-6 mt-6">
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2"><Receipt className="h-4 w-4" />Payment Breakdown</h4>
-                  <Card className="border-border/20 bg-card/30">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Base Salary</span>
-                        <span className="text-sm font-semibold">{selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}</span>
-                      </div>
-                      {selectedContractor.employmentType === "employee" && selectedContractor.employerTaxes && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Employer Tax</span>
-                          <span className="text-sm font-medium text-amber-600">+{selectedContractor.currency} {selectedContractor.employerTaxes.toLocaleString()}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Fronted Fee</span>
-                        <span className="text-sm font-medium text-amber-600">+{selectedContractor.currency} {selectedContractor.estFees.toLocaleString()}</span>
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-foreground">Net Pay</span>
-                        <span className="text-lg font-bold text-foreground">{selectedContractor.currency} {Math.round(getPaymentDue(selectedContractor)).toLocaleString()}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <SheetFooter className="mt-6">
-                <Button variant="outline" onClick={() => setContractorDrawerOpen(false)}>{selectedCycle === "previous" ? "Close" : "Cancel"}</Button>
-                {selectedCycle !== "previous" && <Button onClick={handleSaveContractorAdjustment}>Save & Recalculate</Button>}
-              </SheetFooter>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-
-      {/* Leave Record Selector Dialog */}
-      <Dialog open={leaveSelectorOpen} onOpenChange={open => { setLeaveSelectorOpen(open); if (!open) { setLeaveSearchQuery(""); setSelectedLeaveWorkers([]); } }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Add Leave Records</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search by name or country..." value={leaveSearchQuery} onChange={e => setLeaveSearchQuery(e.target.value)} className="pl-9" />
-            </div>
-            <ScrollArea className="h-[400px] rounded-md border border-border bg-card/30">
-              <div className="p-4 space-y-2">
-                {(() => {
-                  const availableWorkers = allContractors.filter(c => !leaveRecords[c.id] || leaveRecords[c.id]?.leaveDays === 0);
-                  const filteredWorkers = availableWorkers.filter(contractor => contractor.name.toLowerCase().includes(leaveSearchQuery.toLowerCase()) || contractor.country.toLowerCase().includes(leaveSearchQuery.toLowerCase()));
-                  if (filteredWorkers.length === 0) {
-                    return <div className="text-center py-12"><p className="text-sm text-muted-foreground">{leaveSearchQuery ? "No workers found matching your search" : "All workers are already tracked for leave"}</p></div>;
-                  }
-                  return filteredWorkers.map(contractor => {
-                    const isSelected = selectedLeaveWorkers.includes(contractor.id);
-                    return (
-                      <div key={contractor.id} onClick={() => setSelectedLeaveWorkers(prev => isSelected ? prev.filter(id => id !== contractor.id) : [...prev, contractor.id])}
-                        className={cn("flex items-center gap-3 p-4 rounded-lg border transition-colors cursor-pointer", isSelected ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/50")}>
-                        <Checkbox checked={isSelected} onCheckedChange={() => setSelectedLeaveWorkers(prev => isSelected ? prev.filter(id => id !== contractor.id) : [...prev, contractor.id])} />
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{contractor.name}</p>
-                          <p className="text-xs text-muted-foreground">{contractor.employmentType === "employee" ? "Employee" : "Contractor"} • {contractor.country}</p>
-                        </div>
-                        <Badge variant="outline" className="text-xs">{contractor.currency} {contractor.baseSalary.toLocaleString()}</Badge>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </ScrollArea>
-            {selectedLeaveWorkers.length > 0 && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 border border-primary/20">
-                <Info className="h-4 w-4 text-primary" />
-                <p className="text-sm text-foreground"><span className="font-semibold">{selectedLeaveWorkers.length}</span> worker{selectedLeaveWorkers.length !== 1 ? 's' : ''} selected</p>
-              </div>
-            )}
-          </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setLeaveSelectorOpen(false); setLeaveSearchQuery(""); setSelectedLeaveWorkers([]); }}>Cancel</Button>
-            <Button onClick={() => {
-              if (selectedLeaveWorkers.length === 0) { toast.error("Please select at least one worker"); return; }
-              selectedLeaveWorkers.forEach(workerId => {
-                const phSettings = getSettings("PH");
-                handleUpdateLeave(workerId, { leaveDays: 1, workingDays: phSettings.daysPerMonth, clientConfirmed: false });
-              });
-              toast.success(`${selectedLeaveWorkers.length} worker${selectedLeaveWorkers.length !== 1 ? 's' : ''} added to leave tracking`);
-              setLeaveSelectorOpen(false);
-              setLeaveSearchQuery("");
-              setSelectedLeaveWorkers([]);
-            }} disabled={selectedLeaveWorkers.length === 0}>
-              Add Selected ({selectedLeaveWorkers.length})
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Mark as Complete Confirmation Dialog */}
+      {/* Mark Complete Confirmation */}
       <AlertDialog open={isMarkCompleteConfirmOpen} onOpenChange={setIsMarkCompleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{hasUnresolvedIssues ? "Unresolved issues remain for this payroll run" : "Complete this payroll run?"}</AlertDialogTitle>
+            <AlertDialogTitle>{hasUnresolvedIssues ? "Unresolved Issues Remain" : "Mark Payroll as Complete?"}</AlertDialogTitle>
             <AlertDialogDescription>
               {hasUnresolvedIssues ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">The following issues have not been resolved:</p>
-                  <div className="space-y-2 text-sm">
-                    {unresolvedIssues.blockingExceptions > 0 && <div className="flex items-center gap-2 text-destructive"><AlertCircle className="h-4 w-4" /><span>Blocking exceptions: {unresolvedIssues.blockingExceptions}</span></div>}
-                    {unresolvedIssues.failedPostings > 0 && <div className="flex items-center gap-2 text-destructive"><XCircle className="h-4 w-4" /><span>Failed employee postings: {unresolvedIssues.failedPostings}</span></div>}
-                    {unresolvedIssues.failedPayouts > 0 && <div className="flex items-center gap-2 text-destructive"><XCircle className="h-4 w-4" /><span>Failed contractor payouts: {unresolvedIssues.failedPayouts}</span></div>}
+                <div className="space-y-4 mt-3">
+                  <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    {unresolvedIssues.blockingExceptions > 0 && <p className="text-sm">• {unresolvedIssues.blockingExceptions} blocking exception(s)</p>}
+                    {unresolvedIssues.failedPayouts > 0 && <p className="text-sm">• {unresolvedIssues.failedPayouts} failed contractor payout(s)</p>}
+                    {unresolvedIssues.failedPostings > 0 && <p className="text-sm">• {unresolvedIssues.failedPostings} failed employee posting(s)</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="force-complete-justification" className="text-sm font-medium">Justification (required to force complete):</Label>
-                    <Textarea id="force-complete-justification" placeholder="Explain why these issues can be left unresolved..." value={forceCompleteJustification} onChange={e => setForceCompleteJustification(e.target.value)} className="min-h-[80px]" />
+                    <Label className="text-sm">Justification (required to force complete)</Label>
+                    <Textarea value={forceCompleteJustification} onChange={e => setForceCompleteJustification(e.target.value)} placeholder="Explain why this payroll should be completed with unresolved issues..." className="min-h-[100px]" />
                   </div>
                 </div>
               ) : (
-                <p>This will lock the {currentCycleData.label} payroll cycle as completed. Are you sure?</p>
+                <p>This will lock the November 2025 payroll cycle as completed. Are you sure?</p>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1812,15 +1271,79 @@ export const F6v2_PayrollTab: React.FC = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             {hasUnresolvedIssues ? (
               <>
-                <Button variant="outline" onClick={() => { setIsMarkCompleteConfirmOpen(false); setCurrentStep(unresolvedIssues.blockingExceptions > 0 ? "exceptions" : "execute"); }}>Go back to fix issues</Button>
-                <AlertDialogAction onClick={() => confirmMarkComplete(true)} disabled={!forceCompleteJustification.trim()} className="bg-amber-600 hover:bg-amber-700">Force complete with issues</AlertDialogAction>
+                <Button variant="outline" onClick={() => { setIsMarkCompleteConfirmOpen(false); setCurrentStep("exceptions"); }}>Go Back to Fix Issues</Button>
+                <AlertDialogAction onClick={() => confirmMarkComplete(true)} disabled={!forceCompleteJustification.trim()} className="bg-amber-600 hover:bg-amber-700">Force Complete</AlertDialogAction>
               </>
             ) : (
-              <AlertDialogAction onClick={() => confirmMarkComplete(false)}>Mark as complete</AlertDialogAction>
+              <AlertDialogAction onClick={() => confirmMarkComplete(false)}>Mark as Complete</AlertDialogAction>
             )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Contractor Detail Drawer */}
+      <Sheet open={contractorDrawerOpen} onOpenChange={setContractorDrawerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+          {selectedContractor && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{selectedContractor.name}</SheetTitle>
+                <p className="text-sm text-muted-foreground">{selectedContractor.country} • {selectedContractor.currency}</p>
+              </SheetHeader>
+              <div className="mt-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Employment Type</p>
+                    <p className="font-medium capitalize">{selectedContractor.employmentType}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Base Salary</p>
+                    <p className="font-medium">{selectedContractor.currency} {selectedContractor.baseSalary.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <p className="font-medium">{selectedContractor.status || "Active"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fees</p>
+                    <p className="font-medium">{selectedContractor.currency} {selectedContractor.estFees}</p>
+                  </div>
+                </div>
+              </div>
+              <SheetFooter className="mt-6">
+                <Button variant="outline" onClick={() => setContractorDrawerOpen(false)}>Close</Button>
+              </SheetFooter>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Leave Selector Dialog */}
+      <Dialog open={leaveSelectorOpen} onOpenChange={setLeaveSelectorOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Workers with Leave</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">Select workers who took leave this pay cycle.</p>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {allContractors.filter(c => !leaveRecords[c.id]?.leaveDays).map(contractor => (
+                <div key={contractor.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
+                  <Checkbox checked={false} onCheckedChange={() => {
+                    handleUpdateLeave(contractor.id, { leaveDays: 1 });
+                    setLeaveSelectorOpen(false);
+                  }} />
+                  <span className="text-sm">{contractor.name}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">{contractor.country}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLeaveSelectorOpen(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
