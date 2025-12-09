@@ -16,6 +16,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [fullName, setFullName] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,29 +35,47 @@ export default function Auth() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const validated = signInSchema.parse({ email, password });
+      if (isSignUp) {
+        const validated = authSchema.parse({ email, password });
+        const { error } = await supabase.auth.signUp({
+          email: validated.email,
+          password: validated.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { full_name: fullName }
+          }
+        });
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: validated.email,
-        password: validated.password,
-      });
-
-      if (error) {
-        toast.error(error.message);
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Account created! You can now sign in.");
+          navigate("/dashboard-admin");
+        }
       } else {
-        toast.success("Welcome back!");
-        navigate("/dashboard-admin");
+        const validated = signInSchema.parse({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: validated.email,
+          password: validated.password,
+        });
+
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Welcome back!");
+          navigate("/dashboard-admin");
+        }
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
-        toast.error("An error occurred during sign in");
+        toast.error("An error occurred");
       }
     }
     setLoading(false);
@@ -90,10 +110,12 @@ export default function Auth() {
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold text-foreground mb-1">
-                    Welcome back!
+                    {isSignUp ? "Create an account" : "Welcome back!"}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Sign in to continue managing your workforce and operations.
+                    {isSignUp 
+                      ? "Sign up to get started with workforce management."
+                      : "Sign in to continue managing your workforce and operations."}
                   </p>
                 </div>
               </div>
@@ -101,7 +123,24 @@ export default function Auth() {
 
             {/* Form */}
             <div className="p-6">
-              <form onSubmit={handleSignIn} className="space-y-5">
+              <form onSubmit={handleAuth} className="space-y-5">
+                {isSignUp && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="h-11 bg-background/50 border-border/50 focus:border-primary/50"
+                    />
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email Address
@@ -124,7 +163,7 @@ export default function Auth() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder={isSignUp ? "Min 8 chars, 1 uppercase, 1 number" : "Enter your password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -140,15 +179,27 @@ export default function Auth() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing In...
+                      {isSignUp ? "Creating Account..." : "Signing In..."}
                     </>
                   ) : (
                     <>
                       <Zap className="mr-2 h-4 w-4" />
-                      Sign In
+                      {isSignUp ? "Create Account" : "Sign In"}
                     </>
                   )}
                 </Button>
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {isSignUp 
+                      ? "Already have an account? Sign in" 
+                      : "Don't have an account? Sign up"}
+                  </button>
+                </div>
               </form>
             </div>
           </motion.div>
