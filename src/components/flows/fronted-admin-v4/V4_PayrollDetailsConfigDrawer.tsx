@@ -48,8 +48,7 @@ export interface PayrollFieldConfig {
   enabled: boolean;
   helperText?: string;
   filledBy: FilledBySource;
-  atsFieldName?: string;
-  atsExampleValue?: string;
+  adminValue?: string; // Value entered by admin when filledBy is "prefilled"
 }
 
 export type CustomFieldType = "short_text" | "long_text" | "number" | "date" | "single_select" | "file_upload";
@@ -62,6 +61,7 @@ export interface CustomPayrollField {
   enabled: boolean;
   options?: string[];
   filledBy: FilledBySource;
+  adminValue?: string; // Value entered by admin when filledBy is "prefilled"
 }
 
 export interface PayrollConfig {
@@ -79,8 +79,8 @@ interface V4_PayrollDetailsConfigDrawerProps {
 }
 
 const DEFAULT_FIELD_CONFIG: PayrollFieldConfig[] = [
-  { id: "bank_country", label: "Bank Country", required: true, enabled: true, helperText: "Country where bank account is held", filledBy: "candidate", atsFieldName: "payroll.bank_country", atsExampleValue: "Philippines" },
-  { id: "bank_name", label: "Bank Name", required: true, enabled: true, filledBy: "candidate", atsFieldName: "payroll.bank_name", atsExampleValue: "BDO Unibank" },
+  { id: "bank_country", label: "Bank Country", required: true, enabled: true, helperText: "Country where bank account is held", filledBy: "candidate" },
+  { id: "bank_name", label: "Bank Name", required: true, enabled: true, filledBy: "candidate" },
   { id: "account_holder_name", label: "Account Holder Name", required: true, enabled: true, filledBy: "candidate" },
   { id: "account_number", label: "Account Number / IBAN", required: true, enabled: true, filledBy: "candidate" },
   { id: "swift_bic", label: "SWIFT / BIC Code", required: false, enabled: true, helperText: "Required for international transfers", filledBy: "candidate" },
@@ -378,52 +378,25 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
 
   const isFormValid = formFieldName.trim() !== "" && formFieldType !== undefined;
 
-  // Render "Filled by" segmented control
-  const renderFilledByControl = (fieldId: string, filledBy: FilledBySource, onChange: (fieldId: string, value: FilledBySource) => void) => {
-    return (
-      <div className="mt-2">
-        <div className="flex items-center gap-1.5 mb-1">
-          <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
-        </div>
-        <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
-          <button
-            type="button"
-            onClick={() => onChange(fieldId, "candidate")}
-            className={cn(
-              "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
-              filledBy === "candidate" 
-                ? "bg-background text-foreground shadow-sm" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Candidate form
-          </button>
-          <button
-            type="button"
-            onClick={() => onChange(fieldId, "prefilled")}
-            className={cn(
-              "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
-              filledBy === "prefilled" 
-                ? "bg-background text-foreground shadow-sm" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Pre-filled (ATS / admin)
-          </button>
-        </div>
-        {filledBy === "prefilled" && (
-          <p className="text-[10px] text-muted-foreground mt-1.5">
-            Not shown on worker form. Pre-filled from ATS or by an admin.
-          </p>
-        )}
-      </div>
+  // Handle admin value change
+  const handleAdminValueChange = (fieldId: string, value: string) => {
+    setFieldConfig(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
+      )
+    );
+  };
+
+  const handleCustomFieldAdminValueChange = (fieldId: string, value: string) => {
+    setCustomFields(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
+      )
     );
   };
 
   // Render field row with "Filled by" control
   const renderFieldRow = (field: PayrollFieldConfig) => {
-    const hasATS = field.atsFieldName && hasATSProfile;
-    
     return (
       <div key={field.id} className="flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50">
         <div className="flex-1 min-w-0 pr-3">
@@ -438,42 +411,57 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
             <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
           )}
           
-          {/* Source indicator pill */}
-          <div className="mt-1.5">
-            {hasATS && field.filledBy === "prefilled" ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent-blue-fill/50 border border-accent-blue-outline/30 cursor-help">
-                      <Database className="h-3 w-3 text-accent-blue-text" />
-                      <span className="text-[10px] font-medium text-accent-blue-text">From ATS</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium">ATS Field: {field.atsFieldName}</p>
-                      {field.atsExampleValue && (
-                        <p className="text-xs text-muted-foreground">Example: {field.atsExampleValue}</p>
-                      )}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : field.filledBy === "candidate" ? (
-              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
-                <Edit3 className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
-              </div>
+          {/* Filled by selector */}
+          <div className="mt-2">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
+            </div>
+            <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+              <button
+                type="button"
+                onClick={() => handleFilledByChange(field.id, "candidate")}
+                className={cn(
+                  "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                  field.filledBy === "candidate" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Worker form
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFilledByChange(field.id, "prefilled")}
+                className={cn(
+                  "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                  field.filledBy === "prefilled" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Pre-filled by admin
+              </button>
+            </div>
+            
+            {/* Helper text and admin input based on selection */}
+            {field.filledBy === "candidate" ? (
+              <p className="text-[10px] text-muted-foreground mt-1.5">
+                To be filled by worker
+              </p>
             ) : (
-              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
-                <Database className="h-3 w-3 text-amber-600" />
-                <span className="text-[10px] font-medium text-amber-600">Pre-filled by admin</span>
+              <div className="mt-1.5 space-y-2">
+                <p className="text-[10px] text-muted-foreground">
+                  Not shown on worker form. Pre-filled in Fronted by an admin.
+                </p>
+                <Input
+                  placeholder={`Admin value for ${field.label}`}
+                  value={field.adminValue || ""}
+                  onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                  className="h-8 text-sm"
+                />
               </div>
             )}
           </div>
-          
-          {/* Filled by control */}
-          {renderFilledByControl(field.id, field.filledBy, handleFilledByChange)}
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
           <div className="flex items-center gap-1.5">
