@@ -3159,24 +3159,17 @@ const CompanyAdminDashboardV2: React.FC = () => {
                       </div>}
                   </div>}
 
-                {!isExecuting && Object.keys(executionProgress).length === 0 && <div className="space-y-4">
-                    <div className="flex items-center justify-center">
-                      <Button className="h-9 px-4 text-sm bg-primary hover:bg-primary/90" onClick={handleExecutePayroll} disabled={activeExceptions.length > 0 || selectedCycle === "previous"}>
-                        <Play className="h-4 w-4 mr-2" />
-                        Execute Payroll
-                      </Button>
+                {!isExecuting && Object.keys(executionProgress).length === 0 && <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+                    <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
+                      ← Back to Exceptions
+                    </Button>
+                    <div className="text-xs text-muted-foreground">
+                      Step 3 of 4 – Execute
                     </div>
-                    
-                    {/* Footer Navigation - Step 3 of 4 */}
-                    <div className="pt-4 border-t border-border/30 flex items-center justify-between">
-                      <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                        ← Back to Exceptions
-                      </Button>
-                      <div className="text-xs text-muted-foreground">
-                        Step 3 of 4 – Execute
-                      </div>
-                      <div className="w-[140px]"></div>
-                    </div>
+                    <Button className="h-9 px-4 text-sm bg-primary hover:bg-primary/90" onClick={handleExecutePayroll} disabled={activeExceptions.length > 0 || selectedCycle === "previous"}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Execute Payroll
+                    </Button>
                   </div>}
 
                 {!isExecuting && Object.keys(executionProgress).length > 0 && Object.values(executionProgress).every(s => s === "complete" || s === "failed") && <div className="space-y-3">
