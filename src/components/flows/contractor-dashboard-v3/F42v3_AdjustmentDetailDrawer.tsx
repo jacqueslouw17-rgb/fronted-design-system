@@ -1,6 +1,6 @@
 /**
  * Flow 4.2 — Contractor Dashboard v3
- * Adjustment Detail Drawer (read-only view, right-side)
+ * Adjustment Detail Drawer (read-only view with cancel option, right-side)
  */
 
 import {
@@ -10,13 +10,16 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { type F42v3_Adjustment } from '@/stores/F42v3_DashboardStore';
-import { FileText, Image, Clock } from 'lucide-react';
+import { FileText, Clock } from 'lucide-react';
 
 interface F42v3_AdjustmentDetailDrawerProps {
   adjustment: F42v3_Adjustment | null;
   onClose: () => void;
+  onCancelRequest?: (id: string) => void;
   currency: string;
+  isWindowOpen: boolean;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -40,26 +43,33 @@ const formatDate = (dateStr: string) => {
 const getStatusBadge = (status: F42v3_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
-      return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Pending</Badge>;
+      return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Pending</Badge>;
     case 'Admin approved':
-      return <Badge className="bg-accent-green/20 text-accent-green-text border-accent-green/30">Admin approved</Badge>;
+      return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Admin approved</Badge>;
     case 'Admin rejected':
-      return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Admin rejected</Badge>;
+      return <Badge className="bg-red-100 text-red-700 border-red-300 dark:bg-destructive/20 dark:text-destructive dark:border-destructive/30">Admin rejected</Badge>;
     case 'Queued for next cycle':
-      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Queued for next cycle</Badge>;
+      return <Badge className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30">Queued for next cycle</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
 };
 
-export const F42v3_AdjustmentDetailDrawer = ({ adjustment, onClose, currency }: F42v3_AdjustmentDetailDrawerProps) => {
+export const F42v3_AdjustmentDetailDrawer = ({ 
+  adjustment, 
+  onClose, 
+  onCancelRequest,
+  currency,
+  isWindowOpen,
+}: F42v3_AdjustmentDetailDrawerProps) => {
   if (!adjustment) return null;
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);
+  const canCancel = adjustment.status === 'Pending' && isWindowOpen && onCancelRequest;
 
   return (
     <Sheet open={!!adjustment} onOpenChange={() => onClose()}>
-      <SheetContent className="w-full sm:max-w-[480px] overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-[480px] overflow-y-auto flex flex-col">
         <SheetHeader className="pb-4 border-b border-border/40">
           <SheetTitle className="flex items-center gap-3">
             <span>{adjustment.type} Request</span>
@@ -67,7 +77,7 @@ export const F42v3_AdjustmentDetailDrawer = ({ adjustment, onClose, currency }: 
           </SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-4 py-6">
+        <div className="flex-1 space-y-4 py-6 overflow-y-auto">
           {/* Amount */}
           {adjustment.amount !== null && (
             <div className="space-y-1">
@@ -132,6 +142,19 @@ export const F42v3_AdjustmentDetailDrawer = ({ adjustment, onClose, currency }: 
             <span>Submitted {formatDate(adjustment.submittedAt)}</span>
           </div>
         </div>
+
+        {/* Cancel Request Button (only for pending + open window) */}
+        {canCancel && (
+          <div className="pt-4 border-t border-border/40 mt-auto">
+            <Button 
+              variant="outline"
+              className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => onCancelRequest(adjustment.id)}
+            >
+              Cancel request
+            </Button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

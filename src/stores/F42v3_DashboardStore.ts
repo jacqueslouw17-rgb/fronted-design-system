@@ -56,6 +56,7 @@ interface F42v3_DashboardActions {
   setLoading: (loading: boolean) => void;
   confirmInvoice: () => void;
   addAdjustment: (adjustment: Omit<F42v3_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
+  withdrawAdjustment: (id: string) => void;
   reset: () => void;
 }
 
@@ -96,6 +97,10 @@ export const useF42v3_DashboardStore = create<F42v3_DashboardState & F42v3_Dashb
         submittedAt: new Date().toISOString(),
       },
     ],
+  })),
+  
+  withdrawAdjustment: (id) => set((state) => ({
+    adjustments: state.adjustments.filter((adj) => adj.id !== id),
   })),
   
   reset: () => set(initialState),
