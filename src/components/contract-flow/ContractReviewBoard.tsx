@@ -44,7 +44,13 @@ export const ContractReviewBoard: React.FC<ContractReviewBoardProps> = ({
       />
 
       {/* Review cards */}
-      <div className={`grid gap-4 ${candidates.length <= 2 ? 'grid-cols-2 justify-center max-w-2xl mx-auto' : 'grid-cols-3'}`}>
+      <div className={`grid gap-4 ${
+        candidates.length === 1 
+          ? 'grid-cols-1 max-w-md mx-auto' 
+          : candidates.length === 2 
+            ? 'grid-cols-2 max-w-2xl mx-auto' 
+            : 'grid-cols-3'
+      }`}>
         {candidates.map((candidate, index) => {
           const isLoading = loadingCardIds.has(candidate.id);
           
