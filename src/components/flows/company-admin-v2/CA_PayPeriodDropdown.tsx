@@ -23,9 +23,9 @@ interface CA_PayPeriodDropdownProps {
   value: PeriodType;
   onValueChange: (value: PeriodType) => void;
   periods: {
-    previous: { label: string };
-    current: { label: string };
-    next: { label: string };
+    previous: { label: string; status?: string };
+    current: { label: string; status?: string };
+    next: { label: string; status?: string };
   };
 }
 
@@ -34,21 +34,29 @@ export const CA_PayPeriodDropdown: React.FC<CA_PayPeriodDropdownProps> = ({
   onValueChange,
   periods,
 }) => {
+  const getSubLabel = (periodType: PeriodType): string => {
+    if (periodType === "previous") return "Paid";
+    if (periodType === "current") {
+      return periods.current.status === "completed" ? "Paid" : "In review";
+    }
+    return "Scheduled";
+  };
+
   const periodOptions: PeriodOption[] = [
     {
       value: "previous",
       label: periods.previous.label,
-      subLabel: "Paid",
+      subLabel: getSubLabel("previous"),
     },
     {
       value: "current",
       label: periods.current.label,
-      subLabel: "In review",
+      subLabel: getSubLabel("current"),
     },
     {
       value: "next",
       label: periods.next.label,
-      subLabel: "Scheduled",
+      subLabel: getSubLabel("next"),
     },
   ];
 
