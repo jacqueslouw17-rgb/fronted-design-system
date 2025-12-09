@@ -10,8 +10,10 @@
  */
 
 import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
+import "./v4-pipeline-styles.css";
 import "./v4-pipeline-styles.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +84,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   onAddCandidate,
   onRemoveContractor
 }) => {
+  const navigate = useNavigate();
   // V4-specific state management
   const [v4Contractors, setV4Contractors] = useState<V4_Contractor[]>(initialContractors.map(c => ({
     ...c,
@@ -975,7 +978,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
               onboardingConfig: prev.find(p => p.id === c.id)?.onboardingConfig
             }))];
           });
-        }} onDraftContract={onDraftContract} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
+        }} onDraftContract={(ids) => {
+          // V4-specific: Navigate to v4 contract creation route instead of v3
+          const params = new URLSearchParams({ ids: ids.join(',') }).toString();
+          navigate(`/flows/fronted-admin-dashboard-v4/contract-creation?${params}`);
+        }} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
         </div>
 
         {/* Column 7: Certified */}
