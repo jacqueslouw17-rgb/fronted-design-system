@@ -2855,18 +2855,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
       case "execute":
         return <div className="space-y-6">
               {/* Info note for legacy batches or auto-approval context */}
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-border/20 bg-muted/20">
-                <div className="flex-shrink-0 mt-0.5">
-                  <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">
-                    Approvals are handled internally during the pilot. This batch moved directly to Execute.
-                  </p>
-                </div>
-              </div>
+              
             {/* Step Label - hidden to match Review FX style */}
             {/* <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
@@ -2874,7 +2863,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
               </Badge>
              </div> */}
 
-            <h3 className="text-lg font-semibold text-foreground">Execute Payroll</h3>
+            
 
             {/* Employment Type Selector */}
             <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
