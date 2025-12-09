@@ -558,7 +558,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
           <SheetHeader>
-            <SheetTitle className="text-base">Configure Onboarding Details Form</SheetTitle>
+            <SheetTitle className="text-base">Configure Contract Details</SheetTitle>
           </SheetHeader>
 
           {/* Candidate Summary (read-only) */}
