@@ -47,7 +47,7 @@ import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
 import FrontedAdminV4EmbeddedOnboarding from "@/components/flows/fronted-admin-v4/FrontedAdminV4EmbeddedOnboarding";
-import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
+import { V4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v4/V4_AddCandidateDrawer";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -5197,10 +5197,11 @@ You can ask me about:
             </AlertDialog>
             
             {/* Add Candidate Drawer (v4-specific) */}
-            <AddCandidateDrawer
+            <V4_AddCandidateDrawer
               open={isAddCandidateDrawerOpen}
               onOpenChange={setIsAddCandidateDrawerOpen}
               onSave={handleSaveCandidate}
+              hasATSConnected={true}
             />
           </AgentLayout>
           )}
