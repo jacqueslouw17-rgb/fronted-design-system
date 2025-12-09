@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +77,7 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 };
 
 export const F41v3_UpcomingPayCard = () => {
+  const navigate = useNavigate();
   const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
@@ -379,7 +381,11 @@ export const F41v3_UpcomingPayCard = () => {
 
           {/* View previous payslips link */}
           <div className="text-center">
-            <Button variant="link" className="text-sm text-muted-foreground hover:text-foreground">
+            <Button 
+              variant="link" 
+              onClick={() => navigate('/candidate-dashboard-employee-v3/payslips')}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               View previous payslips
             </Button>
           </div>
