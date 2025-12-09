@@ -893,35 +893,6 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
             </CardContent>
           </Card>
 
-          {/* Data Source Section */}
-          <div className="mt-4 p-4 rounded-lg border border-border/40 bg-muted/20 space-y-3">
-            <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-semibold">Data source</Label>
-            </div>
-            
-            {hasATSProfile ? (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border/40">
-                <Info className="h-4 w-4 text-primary shrink-0" />
-                <p className="text-xs text-muted-foreground">
-                  ATS profile connected – some fields can be pre-filled from ATS or by an admin.
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border/40">
-                <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-                <p className="text-xs text-muted-foreground">
-                  No ATS profile connected – pre-filled fields must be completed by an admin.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Compliance Badge */}
-          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <Shield className="h-4 w-4 text-primary" />
-            <span>GDPR & local employment regulations compliant</span>
-          </div>
 
           {/* Field Configuration */}
           <div className="mt-6 space-y-6">
