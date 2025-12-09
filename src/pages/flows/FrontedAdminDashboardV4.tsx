@@ -378,26 +378,142 @@ const V4_MOCK_COMPANIES = [
 // v4-specific per-company contractor data
 const V4_COMPANY_CONTRACTORS: Record<string, any[]> = {
   "1": [
+    // Offer Accepted
     { id: "c1-1", name: "Maria Santos", country: "Philippines", countryFlag: "🇵🇭", role: "Senior Developer", salary: "PHP 120,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "maria.santos@email.com" },
+    { id: "c1-8", name: "David Kim", country: "South Korea", countryFlag: "🇰🇷", role: "Mobile Developer", salary: "KRW 5,200,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "david.kim@email.com" },
+    // Data Pending
+    { id: "c1-9", name: "Elena Volkov", country: "Ukraine", countryFlag: "🇺🇦", role: "Full Stack Developer", salary: "USD 4,500/mo", status: "data-pending" as const, formSent: true, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "elena.volkov@email.com" },
+    // Drafting
     { id: "c1-2", name: "Liam Chen", country: "Singapore", countryFlag: "🇸🇬", role: "Frontend Developer", salary: "SGD 7,500/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "liam.chen@email.com" },
+    { id: "c1-10", name: "Fatima Al-Rashid", country: "UAE", countryFlag: "🇦🇪", role: "Solutions Architect", salary: "AED 28,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: false, email: "fatima.alrashid@email.com" },
+    // Awaiting Signature
     { id: "c1-3", name: "Sofia Rodriguez", country: "Mexico", countryFlag: "🇲🇽", role: "Marketing Manager", salary: "MXN 45,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: false, email: "sofia.rodriguez@email.com" },
+    { id: "c1-11", name: "Kenji Yamamoto", country: "Japan", countryFlag: "🇯🇵", role: "Security Engineer", salary: "JPY 720,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "kenji.yamamoto@email.com" },
+    // Certified
     { id: "c1-4", name: "James Wilson", country: "United States", countryFlag: "🇺🇸", role: "Sales Director", salary: "USD 9,500/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "james.wilson@email.com" },
+    { id: "c1-12", name: "Olivia Brown", country: "Australia", countryFlag: "🇦🇺", role: "HR Manager", salary: "AUD 8,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "olivia.brown@email.com" },
+    // Collecting Payroll
+    { id: "c1-13", name: "Lucas Müller", country: "Germany", countryFlag: "🇩🇪", role: "Backend Developer", salary: "EUR 5,800/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "lucas.muller@email.com", payrollFormStatus: "sent" as const, payrollFormLastSentAt: "2024-12-05" },
     // Done workers (payroll completed)
     { id: "c1-5", name: "Anna Kowalski", country: "Poland", countryFlag: "🇵🇱", role: "QA Engineer", salary: "PLN 18,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "anna.kowalski@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "Poland", bankName: "PKO Bank", accountHolderName: "Anna Kowalski", accountNumber: "****7823", swiftBic: "BPKOPLPW", payFrequency: "Monthly", submittedAt: "2024-12-02" } },
     { id: "c1-6", name: "Raj Patel", country: "India", countryFlag: "🇮🇳", role: "Tech Lead", salary: "INR 250,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "raj.patel@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "India", bankName: "HDFC Bank", accountHolderName: "Raj Patel", accountNumber: "****4521", swiftBic: "HDFCINBB", payFrequency: "Monthly", submittedAt: "2024-12-01" } },
     { id: "c1-7", name: "Chen Wei", country: "Taiwan", countryFlag: "🇹🇼", role: "Backend Engineer", salary: "TWD 95,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "chen.wei@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "Taiwan", bankName: "E.SUN Bank", accountHolderName: "Chen Wei", accountNumber: "****9012", swiftBic: "ESUNTWTP", payFrequency: "Monthly", submittedAt: "2024-11-28" } },
   ],
   "2": [
-    { id: "c2-1", name: "Ahmed Hassan", country: "Egypt", countryFlag: "🇪🇬", role: "Backend Developer", salary: "EGP 45,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "ahmed.hassan@email.com" },
+    // Offer Accepted
     { id: "c2-2", name: "Yuki Tanaka", country: "Japan", countryFlag: "🇯🇵", role: "UX Designer", salary: "JPY 650,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "employee" as const, hasATSData: false, email: "yuki.tanaka@email.com" },
+    { id: "c2-3", name: "Miguel Fernandez", country: "Spain", countryFlag: "🇪🇸", role: "UI Designer", salary: "EUR 4,200/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "miguel.fernandez@email.com" },
+    { id: "c2-4", name: "Priya Sharma", country: "India", countryFlag: "🇮🇳", role: "Product Designer", salary: "INR 180,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "employee" as const, hasATSData: true, email: "priya.sharma@email.com" },
+    // Drafting
+    { id: "c2-1", name: "Ahmed Hassan", country: "Egypt", countryFlag: "🇪🇬", role: "Backend Developer", salary: "EGP 45,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "ahmed.hassan@email.com" },
+    { id: "c2-5", name: "Natasha Ivanova", country: "Russia", countryFlag: "🇷🇺", role: "Data Scientist", salary: "USD 6,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "natasha.ivanova@email.com" },
+    // Awaiting Signature
+    { id: "c2-6", name: "Thomas Andersen", country: "Norway", countryFlag: "🇳🇴", role: "Cloud Architect", salary: "NOK 75,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "thomas.andersen@email.com" },
+    // Certified
+    { id: "c2-7", name: "Isabella Costa", country: "Brazil", countryFlag: "🇧🇷", role: "Scrum Master", salary: "BRL 22,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "isabella.costa@email.com" },
+    // Done
+    { id: "c2-8", name: "William Johansson", country: "Sweden", countryFlag: "🇸🇪", role: "DevOps Lead", salary: "SEK 68,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "william.johansson@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "Sweden", bankName: "Nordea", accountHolderName: "William Johansson", accountNumber: "****3456", swiftBic: "NDEASESS", payFrequency: "Monthly", submittedAt: "2024-12-01" } },
   ],
   "3": [
+    // Offer Accepted
+    { id: "c3-2", name: "Aisha Mohammed", country: "Nigeria", countryFlag: "🇳🇬", role: "Growth Hacker", salary: "NGN 850,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "aisha.mohammed@email.com" },
+    // Data Pending
+    { id: "c3-3", name: "Hans Weber", country: "Austria", countryFlag: "🇦🇹", role: "Systems Analyst", salary: "EUR 5,100/mo", status: "data-pending" as const, formSent: true, dataReceived: false, employmentType: "employee" as const, hasATSData: false, email: "hans.weber@email.com" },
+    // Drafting
+    { id: "c3-4", name: "Sophie Martin", country: "France", countryFlag: "🇫🇷", role: "ML Engineer", salary: "EUR 6,500/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "sophie.martin@email.com" },
+    // Awaiting Signature
+    { id: "c3-5", name: "Leo van der Berg", country: "Netherlands", countryFlag: "🇳🇱", role: "Platform Engineer", salary: "EUR 5,900/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "leo.vanderberg@email.com" },
+    // Certified
     { id: "c3-1", name: "Klaus Schmidt", country: "Germany", countryFlag: "🇩🇪", role: "DevOps Engineer", salary: "EUR 6,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "klaus.schmidt@email.com" },
+    { id: "c3-6", name: "Emma Larsson", country: "Sweden", countryFlag: "🇸🇪", role: "Technical Writer", salary: "SEK 48,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "emma.larsson@email.com" },
+    // Collecting Payroll
+    { id: "c3-7", name: "Marco Bianchi", country: "Italy", countryFlag: "🇮🇹", role: "iOS Developer", salary: "EUR 5,400/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "marco.bianchi@email.com", payrollFormStatus: "sent" as const, payrollFormLastSentAt: "2024-12-04" },
   ],
-  "4": [],
+  "4": [
+    // Offer Accepted
+    { id: "c4-1", name: "Sarah O'Connor", country: "Ireland", countryFlag: "🇮🇪", role: "Content Strategist", salary: "EUR 4,800/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "employee" as const, hasATSData: true, email: "sarah.oconnor@email.com" },
+    // Drafting
+    { id: "c4-2", name: "Dmitri Petrov", country: "Poland", countryFlag: "🇵🇱", role: "QA Lead", salary: "PLN 22,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "dmitri.petrov@email.com" },
+    // Awaiting Signature
+    { id: "c4-3", name: "Ana Pereira", country: "Portugal", countryFlag: "🇵🇹", role: "Frontend Developer", salary: "EUR 4,100/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "ana.pereira@email.com" },
+    { id: "c4-4", name: "Javier Gonzalez", country: "Argentina", countryFlag: "🇦🇷", role: "Backend Developer", salary: "USD 4,200/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "javier.gonzalez@email.com" },
+    // Certified
+    { id: "c4-5", name: "Lisa Chang", country: "Hong Kong", countryFlag: "🇭🇰", role: "Finance Manager", salary: "HKD 65,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "lisa.chang@email.com" },
+  ],
   "5": [
-    { id: "c5-1", name: "Emma Johnson", country: "United Kingdom", countryFlag: "🇬🇧", role: "Product Manager", salary: "GBP 5,800/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "emma.johnson@email.com" },
+    // Offer Accepted
+    { id: "c5-3", name: "Alexander Novak", country: "Czech Republic", countryFlag: "🇨🇿", role: "Game Developer", salary: "CZK 85,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "alexander.novak@email.com" },
+    // Data Pending
+    { id: "c5-4", name: "Mei Lin", country: "China", countryFlag: "🇨🇳", role: "AI Researcher", salary: "CNY 45,000/mo", status: "data-pending" as const, formSent: true, dataReceived: false, employmentType: "employee" as const, hasATSData: false, email: "mei.lin@email.com" },
+    // Drafting
     { id: "c5-2", name: "Pierre Dubois", country: "France", countryFlag: "🇫🇷", role: "Data Analyst", salary: "EUR 4,900/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "pierre.dubois@email.com" },
+    // Awaiting Signature
+    { id: "c5-1", name: "Emma Johnson", country: "United Kingdom", countryFlag: "🇬🇧", role: "Product Manager", salary: "GBP 5,800/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "emma.johnson@email.com" },
+    // Certified
+    { id: "c5-5", name: "Viktor Kozlov", country: "Ukraine", countryFlag: "🇺🇦", role: "DevOps Engineer", salary: "USD 5,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "viktor.kozlov@email.com" },
+    { id: "c5-6", name: "Camila Ruiz", country: "Colombia", countryFlag: "🇨🇴", role: "Support Lead", salary: "COP 12,000,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: false, email: "camila.ruiz@email.com" },
+    // Done
+    { id: "c5-7", name: "Oscar Lindqvist", country: "Finland", countryFlag: "🇫🇮", role: "Security Analyst", salary: "EUR 5,600/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "oscar.lindqvist@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "Finland", bankName: "OP Bank", accountHolderName: "Oscar Lindqvist", accountNumber: "****8901", swiftBic: "OKOYFIHH", payFrequency: "Monthly", submittedAt: "2024-12-03" } },
+  ],
+  "6": [
+    // Offer Accepted
+    { id: "c6-1", name: "Zara Ahmed", country: "Pakistan", countryFlag: "🇵🇰", role: "Mobile Developer", salary: "PKR 450,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "zara.ahmed@email.com" },
+    { id: "c6-2", name: "Nikolai Volkov", country: "Belarus", countryFlag: "🇧🇾", role: "Blockchain Developer", salary: "USD 4,800/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: false, email: "nikolai.volkov@email.com" },
+    // Drafting
+    { id: "c6-3", name: "Ingrid Nilsen", country: "Denmark", countryFlag: "🇩🇰", role: "Product Owner", salary: "DKK 55,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "ingrid.nilsen@email.com" },
+    // Certified
+    { id: "c6-4", name: "Carlos Mendoza", country: "Peru", countryFlag: "🇵🇪", role: "SRE Engineer", salary: "PEN 12,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "carlos.mendoza@email.com" },
+    // Collecting Payroll
+    { id: "c6-5", name: "Sven Eriksson", country: "Norway", countryFlag: "🇳🇴", role: "Data Engineer", salary: "NOK 72,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "sven.eriksson@email.com", payrollFormStatus: "sent" as const, payrollFormLastSentAt: "2024-12-06" },
+  ],
+  "7": [
+    // Offer Accepted
+    { id: "c7-1", name: "Amara Diallo", country: "Senegal", countryFlag: "🇸🇳", role: "Community Manager", salary: "XOF 1,200,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "amara.diallo@email.com" },
+    // Awaiting Signature
+    { id: "c7-2", name: "Elias Christodoulou", country: "Greece", countryFlag: "🇬🇷", role: "Network Engineer", salary: "EUR 3,800/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "elias.christodoulou@email.com" },
+    { id: "c7-3", name: "Valentina Rossi", country: "Italy", countryFlag: "🇮🇹", role: "UX Researcher", salary: "EUR 4,500/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "valentina.rossi@email.com" },
+    // Certified
+    { id: "c7-4", name: "Tomas Horvat", country: "Slovenia", countryFlag: "🇸🇮", role: "Full Stack Developer", salary: "EUR 4,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "tomas.horvat@email.com" },
+    // Done
+    { id: "c7-5", name: "Beatriz Santos", country: "Brazil", countryFlag: "🇧🇷", role: "Marketing Lead", salary: "BRL 18,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "beatriz.santos@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "Brazil", bankName: "Itaú", accountHolderName: "Beatriz Santos", accountNumber: "****2345", swiftBic: "ITAUBRSP", payFrequency: "Monthly", submittedAt: "2024-12-02" } },
+  ],
+  "8": [
+    // Offer Accepted
+    { id: "c8-1", name: "Kwame Asante", country: "Ghana", countryFlag: "🇬🇭", role: "Software Engineer", salary: "GHS 15,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "kwame.asante@email.com" },
+    // Data Pending
+    { id: "c8-2", name: "Luisa Herrera", country: "Chile", countryFlag: "🇨🇱", role: "Business Analyst", salary: "CLP 2,800,000/mo", status: "data-pending" as const, formSent: true, dataReceived: false, employmentType: "employee" as const, hasATSData: false, email: "luisa.herrera@email.com" },
+    // Drafting
+    { id: "c8-3", name: "Jan Kowalczyk", country: "Poland", countryFlag: "🇵🇱", role: "Android Developer", salary: "PLN 20,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "jan.kowalczyk@email.com" },
+    // Awaiting Signature
+    { id: "c8-4", name: "Freya Magnusson", country: "Iceland", countryFlag: "🇮🇸", role: "Technical Lead", salary: "ISK 950,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "freya.magnusson@email.com" },
+    // Certified
+    { id: "c8-5", name: "Omar Al-Farsi", country: "Oman", countryFlag: "🇴🇲", role: "Cloud Engineer", salary: "OMR 1,800/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "omar.alfarsi@email.com" },
+    { id: "c8-6", name: "Nina Petrova", country: "Bulgaria", countryFlag: "🇧🇬", role: "QA Engineer", salary: "BGN 5,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "nina.petrova@email.com" },
+  ],
+  "9": [
+    // Offer Accepted
+    { id: "c9-1", name: "Andrei Popescu", country: "Romania", countryFlag: "🇷🇴", role: "Backend Developer", salary: "RON 18,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "andrei.popescu@email.com" },
+    { id: "c9-2", name: "Jasmine Patel", country: "Singapore", countryFlag: "🇸🇬", role: "HR Specialist", salary: "SGD 6,500/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "employee" as const, hasATSData: true, email: "jasmine.patel@email.com" },
+    // Drafting
+    { id: "c9-3", name: "Erik Johansson", country: "Sweden", countryFlag: "🇸🇪", role: "Infrastructure Engineer", salary: "SEK 62,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: false, email: "erik.johansson@email.com" },
+    { id: "c9-4", name: "Marta Kowalska", country: "Poland", countryFlag: "🇵🇱", role: "Data Analyst", salary: "PLN 16,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "marta.kowalska@email.com" },
+    // Certified
+    { id: "c9-5", name: "Rafael Moreno", country: "Spain", countryFlag: "🇪🇸", role: "iOS Developer", salary: "EUR 4,800/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "rafael.moreno@email.com" },
+    // Collecting Payroll
+    { id: "c9-6", name: "Yolanda Nkosi", country: "South Africa", countryFlag: "🇿🇦", role: "Project Manager", salary: "ZAR 65,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "yolanda.nkosi@email.com", payrollFormStatus: "sent" as const, payrollFormLastSentAt: "2024-12-05" },
+  ],
+  "10": [
+    // Offer Accepted
+    { id: "c10-1", name: "Hassan Malik", country: "Malaysia", countryFlag: "🇲🇾", role: "DevOps Engineer", salary: "MYR 12,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "hassan.malik@email.com" },
+    // Drafting
+    { id: "c10-2", name: "Alicia Fernandez", country: "Mexico", countryFlag: "🇲🇽", role: "UX Designer", salary: "MXN 42,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "alicia.fernandez@email.com" },
+    // Awaiting Signature
+    { id: "c10-3", name: "Peter Nagy", country: "Hungary", countryFlag: "🇭🇺", role: "Security Engineer", salary: "HUF 1,200,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "peter.nagy@email.com" },
+    // Certified
+    { id: "c10-4", name: "Ananya Krishnan", country: "India", countryFlag: "🇮🇳", role: "Frontend Developer", salary: "INR 150,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "ananya.krishnan@email.com" },
+    // Done
+    { id: "c10-5", name: "Oliver Smith", country: "New Zealand", countryFlag: "🇳🇿", role: "Team Lead", salary: "NZD 9,500/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "oliver.smith@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "New Zealand", bankName: "ANZ NZ", accountHolderName: "Oliver Smith", accountNumber: "****6789", swiftBic: "ANZBNZ22", payFrequency: "Monthly", submittedAt: "2024-12-01" } },
+    { id: "c10-6", name: "Chen Xiaoming", country: "China", countryFlag: "🇨🇳", role: "ML Engineer", salary: "CNY 42,000/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "chen.xiaoming@email.com", payrollFormStatus: "completed" as const, payrollDetails: { bankCountry: "China", bankName: "ICBC", accountHolderName: "Chen Xiaoming", accountNumber: "****4567", swiftBic: "ICBKCNBJ", payFrequency: "Monthly", submittedAt: "2024-11-30" } },
   ],
 };
 
