@@ -35,93 +35,69 @@ type V4ContractPhase =
   | "drafting"            // Step 3: Review actual contract documents
   | "reviewing";          // Step 4: Final review before send for signature
 
-// V4-specific company contractors data
+// V4-specific company contractors data - must match IDs from FrontedAdminDashboardV4.tsx V4_COMPANY_CONTRACTORS
 const V4_MOCK_CANDIDATES: Candidate[] = [
-  {
-    id: "c1-1",
-    name: "Maria Santos",
-    email: "maria.santos@email.com",
-    role: "Senior Developer",
-    country: "Philippines",
-    countryCode: "PH",
-    flag: "🇵🇭",
-    currency: "PHP",
-    startDate: "2025-02-01",
-    salary: "PHP 120,000/mo",
-    noticePeriod: "30 days",
-    pto: "15 days",
-    signingPortal: "DocuSign",
-    employmentType: "contractor",
-    status: "Hired"
-  },
-  {
-    id: "c1-2",
-    name: "Liam Chen",
-    email: "liam.chen@email.com",
-    role: "Frontend Developer",
-    country: "Singapore",
-    countryCode: "SG",
-    flag: "🇸🇬",
-    currency: "SGD",
-    startDate: "2025-02-01",
-    salary: "SGD 7,500/mo",
-    noticePeriod: "30 days",
-    pto: "14 days",
-    signingPortal: "DocuSign",
-    employmentType: "contractor",
-    status: "Hired"
-  },
-  {
-    id: "c1-3",
-    name: "Sofia Rodriguez",
-    email: "sofia.rodriguez@email.com",
-    role: "Marketing Manager",
-    country: "Mexico",
-    countryCode: "MX",
-    flag: "🇲🇽",
-    currency: "MXN",
-    startDate: "2025-02-01",
-    salary: "MXN 45,000/mo",
-    noticePeriod: "15 days",
-    pto: "12 days",
-    signingPortal: "DocuSign",
-    employmentType: "employee",
-    status: "Hired"
-  },
-  {
-    id: "c2-1",
-    name: "Ahmed Hassan",
-    email: "ahmed.hassan@email.com",
-    role: "Backend Developer",
-    country: "Egypt",
-    countryCode: "EG",
-    flag: "🇪🇬",
-    currency: "EGP",
-    startDate: "2025-02-01",
-    salary: "EGP 45,000/mo",
-    noticePeriod: "30 days",
-    pto: "21 days",
-    signingPortal: "DocuSign",
-    employmentType: "contractor",
-    status: "Hired"
-  },
-  {
-    id: "c5-2",
-    name: "Pierre Dubois",
-    email: "pierre.dubois@email.com",
-    role: "Data Analyst",
-    country: "France",
-    countryCode: "FR",
-    flag: "🇫🇷",
-    currency: "EUR",
-    startDate: "2025-02-01",
-    salary: "EUR 4,900/mo",
-    noticePeriod: "60 days",
-    pto: "25 days",
-    signingPortal: "DocuSign",
-    employmentType: "contractor",
-    status: "Hired"
-  }
+  // Company 1 - TechCorp Global
+  { id: "c1-1", name: "Maria Santos", email: "maria.santos@email.com", role: "Senior Developer", country: "Philippines", countryCode: "PH", flag: "🇵🇭", currency: "PHP", startDate: "2025-02-01", salary: "PHP 120,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c1-2", name: "Liam Chen", email: "liam.chen@email.com", role: "Frontend Developer", country: "Singapore", countryCode: "SG", flag: "🇸🇬", currency: "SGD", startDate: "2025-02-01", salary: "SGD 7,500/mo", noticePeriod: "30 days", pto: "14 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c1-8", name: "David Kim", email: "david.kim@email.com", role: "Mobile Developer", country: "South Korea", countryCode: "KR", flag: "🇰🇷", currency: "KRW", startDate: "2025-02-01", salary: "KRW 5,200,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c1-9", name: "Elena Volkov", email: "elena.volkov@email.com", role: "Full Stack Developer", country: "Ukraine", countryCode: "UA", flag: "🇺🇦", currency: "USD", startDate: "2025-02-01", salary: "USD 4,500/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c1-10", name: "Fatima Al-Rashid", email: "fatima.alrashid@email.com", role: "Solutions Architect", country: "UAE", countryCode: "AE", flag: "🇦🇪", currency: "AED", startDate: "2025-02-01", salary: "AED 28,000/mo", noticePeriod: "30 days", pto: "22 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c1-3", name: "Sofia Rodriguez", email: "sofia.rodriguez@email.com", role: "Marketing Manager", country: "Mexico", countryCode: "MX", flag: "🇲🇽", currency: "MXN", startDate: "2025-02-01", salary: "MXN 45,000/mo", noticePeriod: "15 days", pto: "12 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c1-11", name: "Kenji Yamamoto", email: "kenji.yamamoto@email.com", role: "Security Engineer", country: "Japan", countryCode: "JP", flag: "🇯🇵", currency: "JPY", startDate: "2025-02-01", salary: "JPY 720,000/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  
+  // Company 2 - InnovateLabs Inc.
+  { id: "c2-1", name: "Ahmed Hassan", email: "ahmed.hassan@email.com", role: "Backend Developer", country: "Egypt", countryCode: "EG", flag: "🇪🇬", currency: "EGP", startDate: "2025-02-01", salary: "EGP 45,000/mo", noticePeriod: "30 days", pto: "21 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c2-2", name: "Yuki Tanaka", email: "yuki.tanaka@email.com", role: "UX Designer", country: "Japan", countryCode: "JP", flag: "🇯🇵", currency: "JPY", startDate: "2025-02-01", salary: "JPY 650,000/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c2-3", name: "Miguel Fernandez", email: "miguel.fernandez@email.com", role: "UI Designer", country: "Spain", countryCode: "ES", flag: "🇪🇸", currency: "EUR", startDate: "2025-02-01", salary: "EUR 4,200/mo", noticePeriod: "30 days", pto: "22 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c2-4", name: "Priya Sharma", email: "priya.sharma@email.com", role: "Product Designer", country: "India", countryCode: "IN", flag: "🇮🇳", currency: "INR", startDate: "2025-02-01", salary: "INR 180,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c2-5", name: "Natasha Ivanova", email: "natasha.ivanova@email.com", role: "Data Scientist", country: "Russia", countryCode: "RU", flag: "🇷🇺", currency: "USD", startDate: "2025-02-01", salary: "USD 6,000/mo", noticePeriod: "30 days", pto: "28 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c2-6", name: "Thomas Andersen", email: "thomas.andersen@email.com", role: "Cloud Architect", country: "Norway", countryCode: "NO", flag: "🇳🇴", currency: "NOK", startDate: "2025-02-01", salary: "NOK 75,000/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  
+  // Company 3 - Startup Ventures
+  { id: "c3-2", name: "Aisha Mohammed", email: "aisha.mohammed@email.com", role: "Growth Hacker", country: "Nigeria", countryCode: "NG", flag: "🇳🇬", currency: "NGN", startDate: "2025-02-01", salary: "NGN 850,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c3-3", name: "Hans Weber", email: "hans.weber@email.com", role: "Systems Analyst", country: "Austria", countryCode: "AT", flag: "🇦🇹", currency: "EUR", startDate: "2025-02-01", salary: "EUR 5,100/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c3-4", name: "Sophie Martin", email: "sophie.martin@email.com", role: "ML Engineer", country: "France", countryCode: "FR", flag: "🇫🇷", currency: "EUR", startDate: "2025-02-01", salary: "EUR 6,500/mo", noticePeriod: "60 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c3-5", name: "Leo van der Berg", email: "leo.vanderberg@email.com", role: "Platform Engineer", country: "Netherlands", countryCode: "NL", flag: "🇳🇱", currency: "EUR", startDate: "2025-02-01", salary: "EUR 5,900/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  
+  // Company 4 - Digital Dynamics Ltd.
+  { id: "c4-1", name: "Sarah O'Connor", email: "sarah.oconnor@email.com", role: "Content Strategist", country: "Ireland", countryCode: "IE", flag: "🇮🇪", currency: "EUR", startDate: "2025-02-01", salary: "EUR 4,800/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c4-2", name: "Dmitri Petrov", email: "dmitri.petrov@email.com", role: "QA Lead", country: "Poland", countryCode: "PL", flag: "🇵🇱", currency: "PLN", startDate: "2025-02-01", salary: "PLN 22,000/mo", noticePeriod: "30 days", pto: "26 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c4-3", name: "Ana Pereira", email: "ana.pereira@email.com", role: "Frontend Developer", country: "Portugal", countryCode: "PT", flag: "🇵🇹", currency: "EUR", startDate: "2025-02-01", salary: "EUR 4,100/mo", noticePeriod: "30 days", pto: "22 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c4-4", name: "Javier Gonzalez", email: "javier.gonzalez@email.com", role: "Backend Developer", country: "Argentina", countryCode: "AR", flag: "🇦🇷", currency: "USD", startDate: "2025-02-01", salary: "USD 4,200/mo", noticePeriod: "30 days", pto: "14 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  
+  // Company 5 - CloudScale Solutions
+  { id: "c5-1", name: "Emma Johnson", email: "emma.johnson@email.com", role: "Product Manager", country: "United Kingdom", countryCode: "GB", flag: "🇬🇧", currency: "GBP", startDate: "2025-02-01", salary: "GBP 5,800/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c5-2", name: "Pierre Dubois", email: "pierre.dubois@email.com", role: "Data Analyst", country: "France", countryCode: "FR", flag: "🇫🇷", currency: "EUR", startDate: "2025-02-01", salary: "EUR 4,900/mo", noticePeriod: "60 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c5-3", name: "Alexander Novak", email: "alexander.novak@email.com", role: "Game Developer", country: "Czech Republic", countryCode: "CZ", flag: "🇨🇿", currency: "CZK", startDate: "2025-02-01", salary: "CZK 85,000/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c5-4", name: "Mei Lin", email: "mei.lin@email.com", role: "AI Researcher", country: "China", countryCode: "CN", flag: "🇨🇳", currency: "CNY", startDate: "2025-02-01", salary: "CNY 45,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  
+  // Company 6 - NextGen Enterprises
+  { id: "c6-1", name: "Zara Ahmed", email: "zara.ahmed@email.com", role: "Mobile Developer", country: "Pakistan", countryCode: "PK", flag: "🇵🇰", currency: "PKR", startDate: "2025-02-01", salary: "PKR 450,000/mo", noticePeriod: "30 days", pto: "14 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c6-2", name: "Nikolai Volkov", email: "nikolai.volkov@email.com", role: "Blockchain Developer", country: "Belarus", countryCode: "BY", flag: "🇧🇾", currency: "USD", startDate: "2025-02-01", salary: "USD 4,800/mo", noticePeriod: "30 days", pto: "24 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c6-3", name: "Ingrid Nilsen", email: "ingrid.nilsen@email.com", role: "Product Owner", country: "Denmark", countryCode: "DK", flag: "🇩🇰", currency: "DKK", startDate: "2025-02-01", salary: "DKK 55,000/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  
+  // Company 7 - Quantum Systems Co.
+  { id: "c7-1", name: "Amara Diallo", email: "amara.diallo@email.com", role: "Community Manager", country: "Senegal", countryCode: "SN", flag: "🇸🇳", currency: "XOF", startDate: "2025-02-01", salary: "XOF 1,200,000/mo", noticePeriod: "30 days", pto: "18 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c7-2", name: "Elias Christodoulou", email: "elias.christodoulou@email.com", role: "Network Engineer", country: "Greece", countryCode: "GR", flag: "🇬🇷", currency: "EUR", startDate: "2025-02-01", salary: "EUR 3,800/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c7-3", name: "Valentina Rossi", email: "valentina.rossi@email.com", role: "UX Researcher", country: "Italy", countryCode: "IT", flag: "🇮🇹", currency: "EUR", startDate: "2025-02-01", salary: "EUR 4,500/mo", noticePeriod: "30 days", pto: "22 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  
+  // Company 8 - FutureWorks International
+  { id: "c8-1", name: "Kwame Asante", email: "kwame.asante@email.com", role: "Software Engineer", country: "Ghana", countryCode: "GH", flag: "🇬🇭", currency: "GHS", startDate: "2025-02-01", salary: "GHS 15,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c8-2", name: "Luisa Herrera", email: "luisa.herrera@email.com", role: "Business Analyst", country: "Chile", countryCode: "CL", flag: "🇨🇱", currency: "CLP", startDate: "2025-02-01", salary: "CLP 2,800,000/mo", noticePeriod: "30 days", pto: "15 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c8-3", name: "Jan Kowalczyk", email: "jan.kowalczyk@email.com", role: "Android Developer", country: "Poland", countryCode: "PL", flag: "🇵🇱", currency: "PLN", startDate: "2025-02-01", salary: "PLN 20,000/mo", noticePeriod: "30 days", pto: "26 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c8-4", name: "Freya Magnusson", email: "freya.magnusson@email.com", role: "Technical Lead", country: "Iceland", countryCode: "IS", flag: "🇮🇸", currency: "ISK", startDate: "2025-02-01", salary: "ISK 950,000/mo", noticePeriod: "30 days", pto: "24 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  
+  // Company 9 - Apex Technologies
+  { id: "c9-1", name: "Andrei Popescu", email: "andrei.popescu@email.com", role: "Backend Developer", country: "Romania", countryCode: "RO", flag: "🇷🇴", currency: "RON", startDate: "2025-02-01", salary: "RON 18,000/mo", noticePeriod: "30 days", pto: "21 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c9-2", name: "Jasmine Patel", email: "jasmine.patel@email.com", role: "HR Specialist", country: "Singapore", countryCode: "SG", flag: "🇸🇬", currency: "SGD", startDate: "2025-02-01", salary: "SGD 6,500/mo", noticePeriod: "30 days", pto: "14 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c9-3", name: "Erik Johansson", email: "erik.johansson@email.com", role: "Infrastructure Engineer", country: "Sweden", countryCode: "SE", flag: "🇸🇪", currency: "SEK", startDate: "2025-02-01", salary: "SEK 62,000/mo", noticePeriod: "30 days", pto: "25 days", signingPortal: "DocuSign", employmentType: "employee", status: "Hired" },
+  { id: "c9-4", name: "Marta Kowalska", email: "marta.kowalska@email.com", role: "Data Analyst", country: "Poland", countryCode: "PL", flag: "🇵🇱", currency: "PLN", startDate: "2025-02-01", salary: "PLN 16,000/mo", noticePeriod: "30 days", pto: "26 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  
+  // Company 10 - Horizon Group
+  { id: "c10-1", name: "Hassan Malik", email: "hassan.malik@email.com", role: "DevOps Engineer", country: "Malaysia", countryCode: "MY", flag: "🇲🇾", currency: "MYR", startDate: "2025-02-01", salary: "MYR 12,000/mo", noticePeriod: "30 days", pto: "14 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c10-2", name: "Alicia Fernandez", email: "alicia.fernandez@email.com", role: "UX Designer", country: "Mexico", countryCode: "MX", flag: "🇲🇽", currency: "MXN", startDate: "2025-02-01", salary: "MXN 42,000/mo", noticePeriod: "15 days", pto: "12 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
+  { id: "c10-3", name: "Peter Nagy", email: "peter.nagy@email.com", role: "Security Engineer", country: "Hungary", countryCode: "HU", flag: "🇭🇺", currency: "HUF", startDate: "2025-02-01", salary: "HUF 1,200,000/mo", noticePeriod: "30 days", pto: "20 days", signingPortal: "DocuSign", employmentType: "contractor", status: "Hired" },
 ];
 
 const V4_ContractFlow: React.FC = () => {
