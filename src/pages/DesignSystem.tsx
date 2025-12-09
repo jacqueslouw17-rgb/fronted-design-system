@@ -281,6 +281,7 @@ const DesignSystem = () => {
     'flow-3-candidate-data',         // Flow 2 Candidate Data Collection v1
     'flow-3-candidate-data-v2',      // Flow 2 Candidate Data Collection v2
     'flow-4-candidate-onboarding',   // Flow 3 Candidate Onboarding v1
+    'flow-3-candidate-onboarding-v2', // Flow 3 Candidate Onboarding v2
     'flow-5-candidate-dashboard',    // Flow 4 Candidate Dashboard v1
     'flow-5-candidate-dashboard-v2', // Flow 4 Candidate Dashboard v2
     'flow-4.1-employee-dashboard-v3',// Flow 4.1 Employee Dashboard v3

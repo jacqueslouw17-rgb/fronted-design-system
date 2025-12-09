@@ -99,6 +99,24 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 2,
       dataModel: "/docs/Flow4_Candidate_Onboarding_Data_Model.md"
     },
+    'flow-3-candidate-onboarding-v2': {
+      path: "/flows/worker-onboarding-v2",
+      iconColor: "emerald",
+      icon: UserCheck,
+      title: "Flow 3 Candidate Onboarding v2",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v1: Post-contract onboarding for workers with personal info verification, compliance docs, payroll setup, and work setup. This version is unlocked for development.",
+      steps: "7 steps",
+      patterns: "5 patterns",
+      badges: [
+        { label: "Step Card Stack + Progress Bar", path: "/onboarding" },
+        { label: "Compliance Checklist", path: "/compliance-checklist" },
+        { label: "Checklist Progress", path: "/smart-progress" }
+      ],
+      additionalCount: 2,
+      dataModel: null
+    },
     'flow-5-candidate-dashboard': {
       path: "/flows/candidate-dashboard",
       iconColor: "blue",
