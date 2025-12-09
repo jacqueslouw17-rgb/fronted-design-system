@@ -3828,7 +3828,7 @@ You can ask me about:
               }} className="flex-1 overflow-y-auto">
                   <div className="max-w-7xl mx-auto p-8 pb-32 space-y-2">
                     {/* Agent Header */}
-                    <AgentHeader title="Let's get to work!" subtitle="Kurt can help with: FX rates, compliance checks, or payment execution." showPulse={true} showInput={false} simplified={false}
+                    <AgentHeader title="Let's get to work!" subtitle="Monitor candidate signatures and complete certification to finalize contracts." showPulse={true} showInput={false} simplified={false}
                   // tags={
                   //   <AgentHeaderTags 
                   //     onAnyUpdates={() => handleKurtAction('any-updates')}
