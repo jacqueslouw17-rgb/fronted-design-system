@@ -164,6 +164,9 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
         <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0">
           <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/30">
             <SheetTitle className="text-lg font-semibold">Resolve items</SheetTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              The company admin approves leave and pay changes for this period.
+            </p>
             
             {/* Currency Filter Pills */}
             {allCurrencies.length > 1 && <div className="flex items-center gap-2 mt-3 flex-wrap">
@@ -187,16 +190,20 @@ export const CA_ResolveItemsDrawer: React.FC<CA_ResolveItemsDrawerProps> = ({
                 <CheckCircle2 className="h-10 w-10 text-accent-green-text" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">All caught up!</h3>
-              <p className="text-sm text-muted-foreground text-center mb-6">
-                {selectedCurrency ? `No pending items for ${selectedCurrency}. Select another currency or create the payment batch.` : "You're ready to create the payment batch."}
+              <p className="text-sm text-muted-foreground text-center mb-4">
+                You've completed admin approvals for this payroll period.
               </p>
-              {onCreateBatch && <Button onClick={() => {
-            onCreateBatch();
-            onClose();
-          }} className="bg-gradient-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-                  Create payment batch
-                </Button>}
-              
+              <div className="flex flex-col items-center gap-3">
+                {onCreateBatch && <Button onClick={() => {
+              onCreateBatch();
+              onClose();
+            }} className="bg-gradient-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                    Create payment batch
+                  </Button>}
+                <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground">
+                  Close
+                </Button>
+              </div>
             </div> : <>
               <Tabs value={activeTab} onValueChange={v => setActiveTab(v as any)} className="flex-1 flex flex-col min-h-0 overflow-hidden">
                 <TabsList className="mx-6 mt-4 grid w-auto grid-cols-2 flex-shrink-0">

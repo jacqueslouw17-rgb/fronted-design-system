@@ -1897,6 +1897,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
     switch (currentStep) {
       case "review-fx":
         return <div className="space-y-3">
+            {/* Admin Context Helper */}
+            <p className="text-xs text-muted-foreground">
+              Admin can adjust worker payroll values for this batch — no extra approvals are triggered.
+            </p>
+
             {/* Status Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2615,14 +2620,14 @@ const CompanyAdminDashboardV2: React.FC = () => {
                 </Collapsible>
               </Card>}
 
-            {/* Footer Navigation - Single CTA */}
-            <div className="pt-6 flex flex-col items-end gap-2">
-              <Button className="h-10 px-6 text-sm bg-gradient-primary hover:opacity-90 shadow-md" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
+            {/* Footer Navigation - Step 1 of 4 */}
+            <div className="pt-6 border-t border-border/30 flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Step 1 of 4 – FX Review
+              </div>
+              <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
                 Continue to Exceptions →
               </Button>
-              <p className="text-xs text-muted-foreground">
-                You can still return to this step before executing the batch.
-              </p>
             </div>
           </div>;
       case "exceptions":
@@ -2869,16 +2874,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
                 </CardContent>
               </Card>}
 
-            {/* Footer Navigation */}
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review-fx")} disabled={selectedCycle === "previous"}>
-                ← Previous: Review
+            {/* Footer Navigation - Step 2 of 4 */}
+            <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review-fx")} disabled={selectedCycle === "previous"}>
+                ← Back to Review
               </Button>
               <div className="text-xs text-muted-foreground">
                 Step 2 of 4 – Exceptions
               </div>
               <Button className="h-9 px-4 text-sm" disabled={selectedCycle === "previous"} onClick={() => setCurrentStep("execute")}>
-                Next: Execute →
+                Continue to Execute →
               </Button>
             </div>
           </div>;
@@ -3197,16 +3202,23 @@ const CompanyAdminDashboardV2: React.FC = () => {
                       </div>}
                   </div>}
 
-                {!isExecuting && Object.keys(executionProgress).length === 0 && <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                        ← Previous: Exceptions
-                      </Button>
-                      
+                {!isExecuting && Object.keys(executionProgress).length === 0 && <div className="space-y-4">
+                    <div className="flex items-center justify-center">
                       <Button className="h-9 px-4 text-sm bg-primary hover:bg-primary/90" onClick={handleExecutePayroll} disabled={activeExceptions.length > 0 || selectedCycle === "previous"}>
                         <Play className="h-4 w-4 mr-2" />
                         Execute Payroll
                       </Button>
+                    </div>
+                    
+                    {/* Footer Navigation - Step 3 of 4 */}
+                    <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+                      <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
+                        ← Back to Exceptions
+                      </Button>
+                      <div className="text-xs text-muted-foreground">
+                        Step 3 of 4 – Execute
+                      </div>
+                      <div className="w-[140px]"></div>
                     </div>
                   </div>}
 
@@ -3232,9 +3244,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-end">
+                    {/* Footer Navigation after success - Step 3 of 4 */}
+                    <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+                      <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
+                        ← Back to Exceptions
+                      </Button>
+                      <div className="text-xs text-muted-foreground">
+                        Step 3 of 4 – Execute
+                      </div>
                       <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("track")}>
-                        Next: Track & Reconcile →
+                        Continue to Track & Reconcile →
                       </Button>
                     </div>
                   </div>}
@@ -3520,14 +3539,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Navigation with Mark as Complete */}
-            <div className="flex items-center justify-between pt-4">
-              <Button variant="outline" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>
-                ← Previous: Execute
+            {/* Footer Navigation - Step 4 of 4 */}
+            <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>
+                ← Back to Execute
               </Button>
-              
-              <Button className="h-9 px-4 text-sm" onClick={handleCompleteAndReturnToOverview} disabled={currentCycleData.status === "completed"}>
-                {currentCycleData.status === "completed" ? "Already Completed" : "Mark as complete"}
+              <div className="text-xs text-muted-foreground">
+                Step 4 of 4 – Track & Reconcile
+              </div>
+              <Button className="h-9 px-4 text-sm" onClick={currentCycleData.status === "completed" ? handleBackToPayroll : handleCompleteAndReturnToOverview}>
+                {currentCycleData.status === "completed" ? "Finish & close" : "Finish & close"}
               </Button>
             </div>
           </div>;
