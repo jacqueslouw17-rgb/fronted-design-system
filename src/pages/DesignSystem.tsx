@@ -431,10 +431,9 @@ const DesignSystem = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const orderString = JSON.stringify(flowOrder, null, 2);
-                  navigator.clipboard.writeText(orderString);
-                  toast.success("Current flow order saved!", {
-                    description: "The order has been copied to your clipboard. Paste this as the defaultOrder array in DesignSystem.tsx"
+                  localStorage.setItem('flowOrder', JSON.stringify(flowOrder));
+                  toast.success("Flow order saved!", {
+                    description: "Your custom order will persist across sessions."
                   });
                 }}
                 className="gap-2"
