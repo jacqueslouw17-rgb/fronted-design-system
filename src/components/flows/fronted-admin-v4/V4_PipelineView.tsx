@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { V4_PayrollDetailsConfigDrawer } from "./V4_PayrollDetailsConfigDrawer";
+import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
+import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
 
 // V4-specific contractor type with payroll details status
 interface V4_Contractor {
@@ -36,6 +38,8 @@ interface V4_Contractor {
   checklistProgress?: number;
   payrollDetailsStatus?: "not-sent" | "sent" | "in-progress" | "completed";
   payrollFormConfig?: any;
+  onboardingConfig?: OnboardingConfig;
+  onboardingFormSent?: boolean;
 }
 
 type V4_ContractorStatus = 
@@ -124,6 +128,10 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   const [payrollConfigDrawerOpen, setPayrollConfigDrawerOpen] = useState(false);
   const [selectedForPayrollConfig, setSelectedForPayrollConfig] = useState<V4_Contractor | null>(null);
+  // V4 Candidate Details Drawers
+  const [candidateConfigDrawerOpen, setCandidateConfigDrawerOpen] = useState(false);
+  const [candidateSendFormDrawerOpen, setCandidateSendFormDrawerOpen] = useState(false);
+  const [selectedForCandidateConfig, setSelectedForCandidateConfig] = useState<V4_Contractor | null>(null);
   const notifiedCertifiedIds = React.useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -158,6 +166,35 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
 
   const getContractorsByStatus = (status: V4_ContractorStatus) => 
     contractors.filter(c => c.status === status);
+
+  // Candidate Details Config handlers
+  const handleConfigureCandidateForm = (contractor: V4_Contractor) => {
+    setSelectedForCandidateConfig(contractor);
+    setCandidateConfigDrawerOpen(true);
+  };
+
+  const handleOpenSendCandidateForm = (contractor: V4_Contractor) => {
+    setSelectedForCandidateConfig(contractor);
+    setCandidateSendFormDrawerOpen(true);
+  };
+
+  const handleSaveCandidateConfig = (candidateId: string, config: OnboardingConfig) => {
+    setContractors(prev => {
+      const updated = prev.map(c => c.id === candidateId ? { ...c, onboardingConfig: config } : c);
+      onContractorUpdate?.(updated);
+      return updated;
+    });
+  };
+
+  const handleSendCandidateForm = (candidateId: string) => {
+    setContractors(prev => {
+      const updated = prev.map(c => 
+        c.id === candidateId ? { ...c, status: "data-pending" as const, formSent: true, onboardingFormSent: true } : c
+      );
+      onContractorUpdate?.(updated);
+      return updated;
+    });
+  };
 
   const handleSendForm = (contractor: V4_Contractor) => {
     setSendingFormIds(prev => new Set([...prev, contractor.id]));
@@ -291,8 +328,8 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
               <div className="mb-4"><div className="flex justify-between text-xs mb-1"><span className="text-muted-foreground">Progress</span><span className="font-medium">{contractor.checklistProgress}%</span></div><Progress value={contractor.checklistProgress} className="h-1.5" /></div>
             )}
             <div className="flex gap-2">
-              {contractor.status === "offer-accepted" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => toast.info("Configure form")}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleSendForm(contractor)} disabled={sendingFormIds.has(contractor.id)}>{sendingFormIds.has(contractor.id) ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Send className="h-3 w-3 mr-1" />}Send Form</Button></>)}
-              {contractor.status === "data-pending" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => toast.info("Configure form")}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleMarkReceived(contractor)}><CheckCircle2 className="h-3 w-3 mr-1" />Mark Received</Button></>)}
+              {contractor.status === "offer-accepted" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleConfigureCandidateForm(contractor)}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleOpenSendCandidateForm(contractor)} disabled={sendingFormIds.has(contractor.id)}>{sendingFormIds.has(contractor.id) ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Send className="h-3 w-3 mr-1" />}Send Form</Button></>)}
+              {contractor.status === "data-pending" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleConfigureCandidateForm(contractor)}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleMarkReceived(contractor)}><CheckCircle2 className="h-3 w-3 mr-1" />Mark Received</Button></>)}
               {contractor.status === "drafting" && (<Button size="sm" className="w-full text-xs" onClick={() => handleDraftContract(contractor)}><FileEdit className="h-3 w-3 mr-1" />Send for Signature</Button>)}
               {contractor.status === "awaiting-signature" && (<Button size="sm" className="w-full text-xs" onClick={() => handleSignatureComplete(contractor)}><FileSignature className="h-3 w-3 mr-1" />Mark Signed</Button>)}
               {contractor.status === "trigger-onboarding" && (<Button size="sm" className="w-full text-xs" onClick={() => handleStartOnboarding(contractor)}><Sparkles className="h-3 w-3 mr-1" />Start Onboarding</Button>)}
@@ -335,6 +372,8 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
           })}
         </div>
         <V4_PayrollDetailsConfigDrawer open={payrollConfigDrawerOpen} onOpenChange={setPayrollConfigDrawerOpen} candidate={selectedForPayrollConfig} onSave={handleSavePayrollConfig} />
+        <V4_ConfigureCandidateDetailsDrawer open={candidateConfigDrawerOpen} onOpenChange={setCandidateConfigDrawerOpen} candidate={selectedForCandidateConfig} onSave={handleSaveCandidateConfig} initialConfig={selectedForCandidateConfig?.onboardingConfig} />
+        <V4_SendCandidateDetailsFormDrawer open={candidateSendFormDrawerOpen} onOpenChange={setCandidateSendFormDrawerOpen} candidate={selectedForCandidateConfig} config={selectedForCandidateConfig?.onboardingConfig} onSend={handleSendCandidateForm} />
       </div>
     </TooltipProvider>
   );

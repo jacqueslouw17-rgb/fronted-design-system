@@ -1,0 +1,722 @@
+/**
+ * Flow 1 – Fronted Admin Dashboard v4 Only
+ * Candidate Details Configuration Drawer
+ * 
+ * Opens from "Offer Accepted" column cards via "Configure" button
+ * Allows admin to configure which onboarding fields the candidate will complete
+ * Includes custom field creation for additional onboarding questions
+ * 
+ * Sections:
+ * 1. Identity & Documents (DOB, ID type, ID number)
+ * 2. Tax & Residency (Tax residence country, Tax residence city/region)
+ * 3. Address (Residential address, Nationality)
+ * 4. Custom fields
+ */
+
+import React, { useState, useEffect } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+interface V4_Candidate {
+  id: string;
+  name: string;
+  country: string;
+  countryFlag: string;
+  role: string;
+  salary: string;
+  email?: string;
+  startDate?: string;
+  employmentType?: "contractor" | "employee";
+}
+
+export interface OnboardingFieldConfig {
+  id: string;
+  label: string;
+  section: "identity" | "tax" | "address";
+  type: "text" | "date" | "select";
+  required: boolean;
+  enabled: boolean;
+  helperText?: string;
+}
+
+export type CustomOnboardingFieldType = "short_text" | "long_text" | "number" | "date" | "single_select" | "file_upload";
+
+export interface CustomOnboardingField {
+  id: string;
+  label: string;
+  type: CustomOnboardingFieldType;
+  required: boolean;
+  enabled: boolean;
+  options?: string[]; // For single_select type
+}
+
+export interface OnboardingConfig {
+  baseFields: OnboardingFieldConfig[];
+  customFields: CustomOnboardingField[];
+}
+
+interface V4_ConfigureCandidateDetailsDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  candidate: V4_Candidate | null;
+  onSave: (candidateId: string, config: OnboardingConfig) => void;
+  initialConfig?: OnboardingConfig;
+}
+
+const DEFAULT_FIELD_CONFIG: OnboardingFieldConfig[] = [
+  // Identity & Documents
+  { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID" },
+  { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc." },
+  { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID" },
+  // Tax & Residency
+  { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes" },
+  { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence" },
+  // Address
+  { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city" },
+  { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality" },
+];
+
+const FIELD_TYPE_LABELS: Record<CustomOnboardingFieldType, string> = {
+  short_text: "Short text",
+  long_text: "Long text",
+  number: "Number",
+  date: "Date",
+  single_select: "Dropdown",
+  file_upload: "File upload",
+};
+
+const FIELD_TYPE_ICONS: Record<CustomOnboardingFieldType, React.ElementType> = {
+  short_text: FileText,
+  long_text: FileText,
+  number: Hash,
+  date: CalendarDays,
+  single_select: List,
+  file_upload: Upload,
+};
+
+export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateDetailsDrawerProps> = ({
+  open,
+  onOpenChange,
+  candidate,
+  onSave,
+  initialConfig,
+}) => {
+  const [fieldConfig, setFieldConfig] = useState<OnboardingFieldConfig[]>(
+    initialConfig?.baseFields || DEFAULT_FIELD_CONFIG
+  );
+  const [customFields, setCustomFields] = useState<CustomOnboardingField[]>(
+    initialConfig?.customFields || []
+  );
+  
+  // Modal states
+  const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
+  const [editingField, setEditingField] = useState<CustomOnboardingField | null>(null);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
+  const [fieldToRemove, setFieldToRemove] = useState<CustomOnboardingField | null>(null);
+  
+  // Drag and drop state
+  const [draggedFieldId, setDraggedFieldId] = useState<string | null>(null);
+  const [dragOverFieldId, setDragOverFieldId] = useState<string | null>(null);
+  
+  // Form state for add/edit modal
+  const [formFieldName, setFormFieldName] = useState("");
+  const [formFieldType, setFormFieldType] = useState<CustomOnboardingFieldType>("short_text");
+  const [formFieldRequired, setFormFieldRequired] = useState(true);
+  const [formFieldEnabled, setFormFieldEnabled] = useState(true);
+  const [formFieldOptions, setFormFieldOptions] = useState<string[]>([""]);
+
+  // Reset fields when candidate changes
+  useEffect(() => {
+    if (candidate) {
+      setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
+      setCustomFields(initialConfig?.customFields || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidate?.id]);
+
+  const handleToggleEnabled = (fieldId: string) => {
+    setFieldConfig(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, enabled: !field.enabled } : field
+      )
+    );
+  };
+
+  const handleToggleRequired = (fieldId: string) => {
+    setFieldConfig(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, required: !field.required } : field
+      )
+    );
+  };
+
+  const handleCustomFieldToggleEnabled = (fieldId: string) => {
+    setCustomFields(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, enabled: !field.enabled } : field
+      )
+    );
+  };
+
+  const handleCustomFieldToggleRequired = (fieldId: string) => {
+    setCustomFields(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, required: !field.required } : field
+      )
+    );
+  };
+
+  const handleSave = () => {
+    if (!candidate) return;
+    onSave(candidate.id, { baseFields: fieldConfig, customFields });
+    toast.success("Onboarding form configuration saved");
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
+    setCustomFields(initialConfig?.customFields || []);
+    onOpenChange(false);
+  };
+
+  // Add/Edit Modal Handlers
+  const openAddModal = () => {
+    setEditingField(null);
+    setFormFieldName("");
+    setFormFieldType("short_text");
+    setFormFieldRequired(true);
+    setFormFieldEnabled(true);
+    setFormFieldOptions([""]);
+    setIsAddEditModalOpen(true);
+  };
+
+  const openEditModal = (field: CustomOnboardingField) => {
+    setEditingField(field);
+    setFormFieldName(field.label);
+    setFormFieldType(field.type);
+    setFormFieldRequired(field.required);
+    setFormFieldEnabled(field.enabled);
+    setFormFieldOptions(field.options && field.options.length > 0 ? field.options : [""]);
+    setIsAddEditModalOpen(true);
+  };
+
+  const handleSaveField = () => {
+    if (!formFieldName.trim()) return;
+
+    const filteredOptions = formFieldType === "single_select" 
+      ? formFieldOptions.filter(opt => opt.trim() !== "")
+      : undefined;
+
+    if (editingField) {
+      // Update existing field
+      setCustomFields(prev => 
+        prev.map(f => 
+          f.id === editingField.id 
+            ? { ...f, label: formFieldName.trim(), type: formFieldType, required: formFieldRequired, enabled: formFieldEnabled, options: filteredOptions }
+            : f
+        )
+      );
+      toast.success("Custom field updated");
+    } else {
+      // Add new field
+      const newField: CustomOnboardingField = {
+        id: `custom_onboarding_${Date.now()}`,
+        label: formFieldName.trim(),
+        type: formFieldType,
+        required: formFieldRequired,
+        enabled: formFieldEnabled,
+        options: filteredOptions,
+      };
+      setCustomFields(prev => [...prev, newField]);
+      toast.success("Custom field added");
+    }
+    
+    setIsAddEditModalOpen(false);
+  };
+
+  const handleAddOption = () => {
+    setFormFieldOptions(prev => [...prev, ""]);
+  };
+
+  const handleOptionChange = (index: number, value: string) => {
+    setFormFieldOptions(prev => prev.map((opt, i) => i === index ? value : opt));
+  };
+
+  const handleRemoveOption = (index: number) => {
+    if (formFieldOptions.length > 1) {
+      setFormFieldOptions(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  // Remove field handlers
+  const openRemoveDialog = (field: CustomOnboardingField) => {
+    setFieldToRemove(field);
+    setIsRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveField = () => {
+    if (fieldToRemove) {
+      setCustomFields(prev => prev.filter(f => f.id !== fieldToRemove.id));
+      toast.success("Custom field removed");
+    }
+    setIsRemoveDialogOpen(false);
+    setFieldToRemove(null);
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, fieldId: string) => {
+    e.dataTransfer.setData("text/plain", fieldId);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedFieldId(fieldId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, fieldId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (fieldId !== draggedFieldId) {
+      setDragOverFieldId(fieldId);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverFieldId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetFieldId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const draggedId = e.dataTransfer.getData("text/plain") || draggedFieldId;
+    
+    if (!draggedId || draggedId === targetFieldId) {
+      setDraggedFieldId(null);
+      setDragOverFieldId(null);
+      return;
+    }
+
+    const draggedIndex = customFields.findIndex(f => f.id === draggedId);
+    const targetIndex = customFields.findIndex(f => f.id === targetFieldId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedFieldId(null);
+      setDragOverFieldId(null);
+      return;
+    }
+    
+    const newFields = [...customFields];
+    const [draggedField] = newFields.splice(draggedIndex, 1);
+    newFields.splice(targetIndex, 0, draggedField);
+    
+    setCustomFields(newFields);
+    setDraggedFieldId(null);
+    setDragOverFieldId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedFieldId(null);
+    setDragOverFieldId(null);
+  };
+
+  if (!candidate) return null;
+
+  const identityFields = fieldConfig.filter(f => f.section === "identity");
+  const taxFields = fieldConfig.filter(f => f.section === "tax");
+  const addressFields = fieldConfig.filter(f => f.section === "address");
+
+  const isFormValid = formFieldName.trim() !== "" && formFieldType !== undefined;
+
+  const renderFieldRow = (field: OnboardingFieldConfig) => (
+    <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{field.label}</span>
+          {field.required && field.enabled && (
+            <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
+          )}
+        </div>
+        {field.helperText && (
+          <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Required</span>
+          <Switch 
+            checked={field.required} 
+            onCheckedChange={() => handleToggleRequired(field.id)}
+            disabled={!field.enabled}
+            className="scale-75"
+          />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Show</span>
+          <Switch 
+            checked={field.enabled} 
+            onCheckedChange={() => handleToggleEnabled(field.id)}
+            className="scale-75"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-base">Configure Onboarding Details Form</SheetTitle>
+          </SheetHeader>
+
+          {/* Candidate Summary (read-only) */}
+          <Card className="mt-6 border-border/40 bg-muted/30">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{candidate.countryFlag}</span>
+                <div>
+                  <p className="font-semibold text-foreground">{candidate.name}</p>
+                  <p className="text-sm text-muted-foreground">{candidate.role}</p>
+                </div>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Country</p>
+                  <p className="font-medium">{candidate.country}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Salary</p>
+                  <p className="font-medium">{candidate.salary}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Employment Type</p>
+                  <Badge variant="outline" className="capitalize mt-0.5">
+                    {candidate.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium text-sm truncate">{candidate.email || "Not provided"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Compliance Badge */}
+          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+            <Shield className="h-4 w-4 text-primary" />
+            <span>GDPR & local employment regulations compliant</span>
+          </div>
+
+          {/* Field Configuration */}
+          <div className="mt-6 space-y-6">
+            {/* Section 1: Identity & Documents */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Identity & Documents</Label>
+              </div>
+              <div className="space-y-3">
+                {identityFields.map(renderFieldRow)}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Section 2: Tax & Residency */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Tax & Residency</Label>
+              </div>
+              <div className="space-y-3">
+                {taxFields.map(renderFieldRow)}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Section 3: Address */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Address</Label>
+              </div>
+              <div className="space-y-3">
+                {addressFields.map(renderFieldRow)}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Custom Fields Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Custom Fields</Label>
+              </div>
+              <p className="text-xs text-muted-foreground -mt-2">
+                Add extra onboarding questions specific to this candidate or role.
+              </p>
+
+              {customFields.length === 0 ? (
+                /* Empty state */
+                <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-6 text-center">
+                  <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Plus className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">No custom fields yet</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Add extra questions if you need more details from this candidate.
+                  </p>
+                  <Button size="sm" onClick={openAddModal} className="gap-1.5">
+                    <Plus className="h-3.5 w-3.5" />
+                    Add custom field
+                  </Button>
+                </div>
+              ) : (
+                /* Non-empty state */
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Custom fields for this onboarding form</span>
+                    <Button variant="link" size="sm" className="h-auto p-0 text-xs gap-1" onClick={openAddModal}>
+                      <Plus className="h-3 w-3" />
+                      Add custom field
+                    </Button>
+                  </div>
+                  {customFields.map((field) => {
+                    const TypeIcon = FIELD_TYPE_ICONS[field.type];
+                    const isDragging = draggedFieldId === field.id;
+                    const isDragOver = dragOverFieldId === field.id;
+                    return (
+                      <div 
+                        key={field.id} 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, field.id)}
+                        onDragOver={(e) => handleDragOver(e, field.id)}
+                        onDragLeave={(e) => handleDragLeave(e)}
+                        onDrop={(e) => handleDrop(e, field.id)}
+                        onDragEnd={handleDragEnd}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border bg-card/50 transition-all",
+                          isDragging && "opacity-50 border-primary/50 bg-primary/5",
+                          isDragOver && "border-primary border-dashed bg-primary/10",
+                          !isDragging && !isDragOver && "border-border/40"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 flex-1">
+                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium truncate">{field.label}</span>
+                              {field.required && field.enabled && (
+                                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary shrink-0">Required</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <TypeIcon className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground">Required</span>
+                            <Switch 
+                              checked={field.required} 
+                              onCheckedChange={() => handleCustomFieldToggleRequired(field.id)}
+                              disabled={!field.enabled}
+                              className="scale-75"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground">Show</span>
+                            <Switch 
+                              checked={field.enabled} 
+                              onCheckedChange={() => handleCustomFieldToggleEnabled(field.id)}
+                              className="scale-75"
+                            />
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-popover border-border">
+                              <DropdownMenuItem onClick={() => openEditModal(field)} className="gap-2 cursor-pointer">
+                                <Pencil className="h-3.5 w-3.5" />
+                                Edit field
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => openRemoveDialog(field)} 
+                                className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Remove field
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <SheetFooter className="mt-8 gap-2">
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              Save & Close
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      {/* Add/Edit Custom Field Modal */}
+      <Dialog open={isAddEditModalOpen} onOpenChange={setIsAddEditModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingField ? "Edit custom field" : "Add custom field"}</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Configure a custom field that will appear on the candidate's onboarding form.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Field Name */}
+            <div className="space-y-2">
+              <Label htmlFor="fieldName" className="text-sm">Field name</Label>
+              <Input 
+                id="fieldName"
+                placeholder="e.g. Work permit number, Emergency contact"
+                value={formFieldName}
+                onChange={(e) => setFormFieldName(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Shown as the field label to the candidate.</p>
+            </div>
+
+            {/* Field Type */}
+            <div className="space-y-2">
+              <Label className="text-sm">Field type</Label>
+              <Select value={formFieldType} onValueChange={(v) => setFormFieldType(v as CustomOnboardingFieldType)}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="short_text">Short text</SelectItem>
+                  <SelectItem value="long_text">Long text</SelectItem>
+                  <SelectItem value="number">Number</SelectItem>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="single_select">Dropdown</SelectItem>
+                  <SelectItem value="file_upload">File upload</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Options for Single Select */}
+            {formFieldType === "single_select" && (
+              <div className="space-y-2">
+                <Label className="text-sm">Options</Label>
+                <div className="space-y-2">
+                  {formFieldOptions.map((option, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input 
+                        placeholder={`Option ${index + 1}`}
+                        value={option}
+                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      {formFieldOptions.length > 1 && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-10 w-10 shrink-0"
+                          onClick={() => handleRemoveOption(index)}
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={handleAddOption} className="gap-1.5">
+                    <Plus className="h-3.5 w-3.5" />
+                    Add option
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Toggles */}
+            <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30">
+              <div>
+                <p className="text-sm font-medium">Required field</p>
+                <p className="text-xs text-muted-foreground">Candidate must fill this field to submit</p>
+              </div>
+              <Switch checked={formFieldRequired} onCheckedChange={setFormFieldRequired} />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30">
+              <div>
+                <p className="text-sm font-medium">Show on candidate form</p>
+                <p className="text-xs text-muted-foreground">Field will be visible to the candidate</p>
+              </div>
+              <Switch checked={formFieldEnabled} onCheckedChange={setFormFieldEnabled} />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveField} disabled={!isFormValid}>
+              Save field
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Field Confirmation Dialog */}
+      <AlertDialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove custom field?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove this field from the onboarding form for this candidate. 
+              Previously submitted responses (if any) will remain in their history but can't be edited via this form.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRemoveField}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Remove field
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
+
+export default V4_ConfigureCandidateDetailsDrawer;
