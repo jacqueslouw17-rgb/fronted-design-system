@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Settings } from "lucide-react";
 import { CA_PayPeriodDropdown, PeriodType } from "./CA_PayPeriodDropdown";
-
 interface CA_PayrollRunSummaryCardProps {
   grossPay: string;
   netPay: string;
@@ -17,13 +16,18 @@ interface CA_PayrollRunSummaryCardProps {
   selectedPeriod: PeriodType;
   onPeriodChange: (period: PeriodType) => void;
   periods: {
-    previous: { label: string };
-    current: { label: string };
-    next: { label: string };
+    previous: {
+      label: string;
+    };
+    current: {
+      label: string;
+    };
+    next: {
+      label: string;
+    };
   };
   onCountryRules: () => void;
 }
-
 export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> = ({
   grossPay,
   netPay,
@@ -36,10 +40,9 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
   selectedPeriod,
   onPeriodChange,
   periods,
-  onCountryRules,
+  onCountryRules
 }) => {
-  return (
-    <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
+  return <Card className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm">
       <CardContent className="py-5 px-6">
         {/* Header with title, badge, and actions */}
         <div className="flex items-center justify-between mb-2">
@@ -58,9 +61,7 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
             </Button>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
-          This cycle is read-only. Use Track & Reconcile to inspect payments.
-        </p>
+        
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-4 gap-4 mt-6">
@@ -99,8 +100,6 @@ export const CA_PayrollRunSummaryCard: React.FC<CA_PayrollRunSummaryCardProps> =
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default CA_PayrollRunSummaryCard;
