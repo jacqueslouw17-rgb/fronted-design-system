@@ -272,47 +272,25 @@ const DesignSystem = () => {
   const tabParam = searchParams.get("tab");
   const defaultTab = tabParam === "flows" || tabParam === "components" ? tabParam : "patterns";
   
-  // Flow cards - automatic sequential ordering by flow number then version
+  // Flow cards - automatic sequential ordering by flow number (from title) then version
   const flowOrder = [
-    'flow-1-admin-onboarding',
-    'flow-2-admin-contracting',
-    'flow-3-candidate-data',
-    'flow-3-candidate-data-v2',
-    'flow-4-candidate-onboarding',
-    'flow-4.1-employee-dashboard-v3',
-    'flow-4.2-contractor-dashboard-v3',
-    'flow-5-candidate-dashboard',
-    'flow-5-candidate-dashboard-v2',
-    'flow-5-company-admin-onboarding',
-    'flow-6-company-admin-dashboard',
-    'flow-6-company-admin-dashboard-v2',
-    'flow-1.1-fronted-admin',
-    'flow-1.1-fronted-admin-v3',
-    'flow-1-fronted-admin-v4',
-    'flow-2.1-admin-payroll',
-  ].sort((a, b) => {
-    // Extract flow number (e.g., "1", "1.1", "4.2") and version (e.g., "v2", "v3", "v4")
-    const extractParts = (id: string) => {
-      // Match flow number like "1", "1.1", "4.2" after "flow-"
-      const flowNumMatch = id.match(/^flow-(\d+(?:\.\d+)?)/);
-      const flowNum = flowNumMatch ? parseFloat(flowNumMatch[1]) : 0;
-      
-      // Match version like "v2", "v3", "v4" at the end
-      const versionMatch = id.match(/v(\d+)$/);
-      const version = versionMatch ? parseInt(versionMatch[1], 10) : 1;
-      
-      return { flowNum, version };
-    };
-    
-    const partsA = extractParts(a);
-    const partsB = extractParts(b);
-    
-    // Sort by flow number first, then by version
-    if (partsA.flowNum !== partsB.flowNum) {
-      return partsA.flowNum - partsB.flowNum;
-    }
-    return partsA.version - partsB.version;
-  });
+    'flow-2-admin-contracting',      // Flow 1 Fronted Admin Dashboard v1 (deprecated)
+    'flow-1.1-fronted-admin',        // Flow 1 Fronted Admin Dashboard v2 (locked)
+    'flow-1.1-fronted-admin-v3',     // Flow 1 Fronted Admin Dashboard v3
+    'flow-1-fronted-admin-v4',       // Flow 1 Fronted Admin Dashboard v4
+    'flow-3-candidate-data',         // Flow 2 Candidate Data Collection v1
+    'flow-3-candidate-data-v2',      // Flow 2 Candidate Data Collection v2
+    'flow-4-candidate-onboarding',   // Flow 3 Candidate Onboarding v1
+    'flow-5-candidate-dashboard',    // Flow 4 Candidate Dashboard v1
+    'flow-5-candidate-dashboard-v2', // Flow 4 Candidate Dashboard v2
+    'flow-4.1-employee-dashboard-v3',// Flow 4.1 Employee Dashboard v3
+    'flow-4.2-contractor-dashboard-v3',// Flow 4.2 Contractor Dashboard v3
+    'flow-1-admin-onboarding',       // Flow 5 Company Admin Onboarding v1 (deprecated)
+    'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v2
+    'flow-6-company-admin-dashboard',// Flow 6 Company Admin Dashboard v1
+    'flow-6-company-admin-dashboard-v2',// Flow 6 Company Admin Dashboard v2
+    'flow-2.1-admin-payroll',        // Flow 7 Fronted Admin Payroll v1 (deprecated/locked)
+  ];
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
