@@ -516,7 +516,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Worker form
+                  Worker
                 </button>
                 <button
                   type="button"
@@ -528,7 +528,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Pre-filled
+                  Pre-fill
                 </button>
               </div>
 
@@ -718,7 +718,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    Worker form
+                    Worker
                   </button>
                   <button
                     type="button"
@@ -730,7 +730,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    Pre-filled
+                    Pre-fill
                   </button>
                 </div>
 
