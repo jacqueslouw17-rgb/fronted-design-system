@@ -360,7 +360,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                           onClick={() => handleSendPayrollForm(contractor.id)}
                         >
                           <Send className="h-3 w-3" />
-                          {isSending ? "Sending..." : "Send payroll form"}
+                          {isSending ? "Sending..." : "Send form"}
                         </Button>
                       </div>
                     </CardContent>
