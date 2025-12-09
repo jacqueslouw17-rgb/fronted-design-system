@@ -793,7 +793,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         <Checkbox
                           checked={selectedDraftingIds.has(contractor.id)}
                           onCheckedChange={(checked) => handleSelectDraftingContractor(contractor.id, checked as boolean)}
-                          className="h-4 w-4 mt-1 data-[state=checked]:bg-accent-blue-fill data-[state=checked]:border-accent-blue-outline"
+                          className="h-4 w-4 mt-1"
                           onClick={(e) => e.stopPropagation()}
                         />
                         <Avatar className="h-8 w-8 bg-accent-blue-fill/20 border border-accent-blue-outline/30">
