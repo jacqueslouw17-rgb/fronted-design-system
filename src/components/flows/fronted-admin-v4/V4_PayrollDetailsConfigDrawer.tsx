@@ -109,6 +109,10 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [fieldToRemove, setFieldToRemove] = useState<CustomPayrollField | null>(null);
   
+  // Drag and drop state
+  const [draggedFieldId, setDraggedFieldId] = useState<string | null>(null);
+  const [dragOverFieldId, setDragOverFieldId] = useState<string | null>(null);
+  
   // Form state for add/edit modal
   const [formFieldName, setFormFieldName] = useState("");
   const [formFieldType, setFormFieldType] = useState<CustomFieldType>("short_text");
@@ -250,6 +254,53 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     }
     setIsRemoveDialogOpen(false);
     setFieldToRemove(null);
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, fieldId: string) => {
+    setDraggedFieldId(fieldId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, fieldId: string) => {
+    e.preventDefault();
+    if (fieldId !== draggedFieldId) {
+      setDragOverFieldId(fieldId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverFieldId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetFieldId: string) => {
+    e.preventDefault();
+    if (!draggedFieldId || draggedFieldId === targetFieldId) {
+      setDraggedFieldId(null);
+      setDragOverFieldId(null);
+      return;
+    }
+
+    setCustomFields(prev => {
+      const newFields = [...prev];
+      const draggedIndex = newFields.findIndex(f => f.id === draggedFieldId);
+      const targetIndex = newFields.findIndex(f => f.id === targetFieldId);
+      
+      if (draggedIndex === -1 || targetIndex === -1) return prev;
+      
+      const [draggedField] = newFields.splice(draggedIndex, 1);
+      newFields.splice(targetIndex, 0, draggedField);
+      
+      return newFields;
+    });
+
+    setDraggedFieldId(null);
+    setDragOverFieldId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedFieldId(null);
+    setDragOverFieldId(null);
   };
 
   if (!candidate) return null;
@@ -476,10 +527,26 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                   </div>
                   {customFields.map((field) => {
                     const TypeIcon = FIELD_TYPE_ICONS[field.type];
+                    const isDragging = draggedFieldId === field.id;
+                    const isDragOver = dragOverFieldId === field.id;
                     return (
-                      <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+                      <div 
+                        key={field.id} 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, field.id)}
+                        onDragOver={(e) => handleDragOver(e, field.id)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, field.id)}
+                        onDragEnd={handleDragEnd}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border bg-card/50 transition-all",
+                          isDragging && "opacity-50 border-primary/50 bg-primary/5",
+                          isDragOver && "border-primary border-dashed bg-primary/10",
+                          !isDragging && !isDragOver && "border-border/40"
+                        )}
+                      >
                         <div className="flex items-center gap-3 flex-1">
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
+                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing" />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium truncate">{field.label}</span>
