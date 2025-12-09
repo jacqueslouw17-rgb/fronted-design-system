@@ -173,7 +173,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/company-admin-onboarding",
       iconColor: "blue",
       icon: Workflow,
-      title: "Flow 5 Company Admin Onboarding v1",
+      title: "Flow 5 Company Admin Onboarding v2",
       locked: false,
       deprecated: false,
       description: "Standalone onboarding flow for Company Admins accessed via email invite. Duplicated from Add Company flow with admin-focused messaging and no close button.",
