@@ -10,6 +10,8 @@ import { create } from 'zustand';
 export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
 export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
 export type AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
+export type LeaveType = 'Annual leave' | 'Sick leave' | 'Unpaid leave' | 'Other';
+export type LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 
 export interface LineItem {
   type: 'Earnings' | 'Deduction';
@@ -36,6 +38,17 @@ export interface Adjustment {
   submittedAt: string;
 }
 
+export interface LeaveRequest {
+  id: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason?: string;
+  status: LeaveStatus;
+  submittedAt: string;
+}
+
 interface F41v3_DashboardState {
   dashboard_context: 'employee_v3';
   isLoading: boolean;
@@ -51,6 +64,7 @@ interface F41v3_DashboardState {
   windowState: WindowState;
   confirmed: boolean;
   adjustments: Adjustment[];
+  leaveRequests: LeaveRequest[];
   
   // Computed
   daysUntilClose: number;
@@ -60,6 +74,7 @@ interface F41v3_DashboardActions {
   setLoading: (loading: boolean) => void;
   confirmPay: () => void;
   addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
+  addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
   reset: () => void;
 }
 
@@ -89,6 +104,7 @@ const initialState: F41v3_DashboardState = {
   windowState: 'OPEN',
   confirmed: false,
   adjustments: [],
+  leaveRequests: [],
   daysUntilClose: 3,
 };
 
@@ -105,6 +121,18 @@ export const useF41v3_DashboardStore = create<F41v3_DashboardState & F41v3_Dashb
       {
         ...adjustment,
         id: `adj-${Date.now()}`,
+        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+        submittedAt: new Date().toISOString(),
+      },
+    ],
+  })),
+  
+  addLeaveRequest: (leave) => set((state) => ({
+    leaveRequests: [
+      ...state.leaveRequests,
+      {
+        ...leave,
+        id: `leave-${Date.now()}`,
         status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
         submittedAt: new Date().toISOString(),
       },

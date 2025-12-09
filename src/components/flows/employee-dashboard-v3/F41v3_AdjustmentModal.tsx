@@ -1,9 +1,10 @@
 /**
  * Flow 4.1 — Employee Dashboard v3
- * Request Adjustment Drawer (right-side panel)
+ * Request Change Drawer (right-side panel)
+ * Supports both Pay Adjustments and Leave Requests via tabs
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -22,10 +23,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v3_DashboardStore, type AdjustmentType } from '@/stores/F41v3_DashboardStore';
+import { useF41v3_DashboardStore, type AdjustmentType, type LeaveType } from '@/stores/F41v3_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image } from 'lucide-react';
+import { Upload, X, FileText, Image, CalendarIcon } from 'lucide-react';
+import { format, differenceInBusinessDays, addDays } from 'date-fns';
 
 interface F41v3_AdjustmentModalProps {
   open: boolean;
@@ -33,27 +37,51 @@ interface F41v3_AdjustmentModalProps {
   currency: string;
 }
 
+type TabType = 'adjustment' | 'leave';
+
 const adjustmentTypes: AdjustmentType[] = ['Expense', 'Overtime', 'Bonus', 'Correction'];
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
+const leaveTypes: LeaveType[] = ['Annual leave', 'Sick leave', 'Unpaid leave', 'Other'];
 
 export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_AdjustmentModalProps) => {
-  const { addAdjustment } = useF41v3_DashboardStore();
+  const { addAdjustment, addLeaveRequest } = useF41v3_DashboardStore();
   
+  // Tab state
+  const [activeTab, setActiveTab] = useState<TabType>('adjustment');
+  
+  // Adjustment form state
   const [type, setType] = useState<AdjustmentType>('Expense');
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
   const [hours, setHours] = useState('');
   const [description, setDescription] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
+  
+  // Leave form state
+  const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [leaveReason, setLeaveReason] = useState('');
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Calculate total days
+  const totalDays = startDate && endDate 
+    ? Math.max(1, differenceInBusinessDays(endDate, startDate) + 1)
+    : 0;
+
   const resetForm = () => {
+    setActiveTab('adjustment');
     setType('Expense');
     setCategory('');
     setAmount('');
     setHours('');
     setDescription('');
     setReceipt(null);
+    setLeaveType('Annual leave');
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setLeaveReason('');
     setErrors({});
   };
 
@@ -62,7 +90,12 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
     onOpenChange(false);
   };
 
-  const validateForm = () => {
+  // Reset errors when switching tabs
+  useEffect(() => {
+    setErrors({});
+  }, [activeTab]);
+
+  const validateAdjustmentForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (type === 'Expense') {
@@ -83,6 +116,19 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
 
     if (type === 'Correction') {
       if (!description.trim()) newErrors.description = 'Requested change is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateLeaveForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!startDate) newErrors.startDate = 'Start date is required';
+    if (!endDate) newErrors.endDate = 'End date is required';
+    if (startDate && endDate && endDate < startDate) {
+      newErrors.endDate = 'End date must be after start date';
     }
 
     setErrors(newErrors);
@@ -113,8 +159,8 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
     });
   };
 
-  const handleSubmit = () => {
-    if (!validateForm()) return;
+  const handleSubmitAdjustment = () => {
+    if (!validateAdjustmentForm()) return;
 
     const label = type === 'Expense' ? category : 
                   type === 'Overtime' ? `${hours}h` :
@@ -134,246 +180,420 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
     handleClose();
   };
 
+  const handleSubmitLeave = () => {
+    if (!validateLeaveForm()) return;
+
+    addLeaveRequest({
+      leaveType,
+      startDate: startDate!.toISOString(),
+      endDate: endDate!.toISOString(),
+      totalDays,
+      reason: leaveReason.trim() || undefined,
+    });
+
+    toast.success("Leave request submitted. We'll notify you after review.");
+    handleClose();
+  };
+
+  const handleSubmit = () => {
+    if (activeTab === 'adjustment') {
+      handleSubmitAdjustment();
+    } else {
+      handleSubmitLeave();
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4 border-b border-border/40">
-          <SheetTitle>Request an adjustment</SheetTitle>
+          <SheetTitle>Request a change</SheetTitle>
           <SheetDescription>
-            Submit an adjustment for the current pay cycle.
+            Send a pay adjustment or leave request for this pay cycle.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-5 py-6">
-          {/* Type Selector */}
-          <div className="space-y-2">
-            <Label>Type</Label>
-            <div className="flex flex-wrap gap-2">
-              {adjustmentTypes.map((t) => (
-                <Button
-                  key={t}
-                  type="button"
-                  variant={type === t ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setType(t);
-                    setErrors({});
-                  }}
-                  className={cn(
-                    type === t && 'bg-primary text-primary-foreground'
-                  )}
-                >
-                  {t}
-                </Button>
-              ))}
-            </div>
+        <div className="py-6">
+          {/* Tab Switcher */}
+          <div className="flex gap-2 p-1 bg-muted/50 rounded-lg mb-6">
+            <button
+              type="button"
+              onClick={() => setActiveTab('adjustment')}
+              className={cn(
+                'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                activeTab === 'adjustment'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Pay adjustment
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('leave')}
+              className={cn(
+                'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                activeTab === 'leave'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Leave request
+            </button>
           </div>
 
-          {/* Expense Fields */}
-          {type === 'Expense' && (
-            <>
+          {/* Pay Adjustment Tab */}
+          {activeTab === 'adjustment' && (
+            <div className="space-y-5">
+              <p className="text-xs text-muted-foreground">
+                Use this tab to request an expense, overtime, bonus, or correction for this pay cycle.
+              </p>
+
+              {/* Type Selector */}
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className={cn(errors.category && 'border-destructive')}>
-                    <SelectValue placeholder="Select category" />
+                <Label>Type</Label>
+                <div className="flex flex-wrap gap-2">
+                  {adjustmentTypes.map((t) => (
+                    <Button
+                      key={t}
+                      type="button"
+                      variant={type === t ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setType(t);
+                        setErrors({});
+                      }}
+                      className={cn(
+                        type === t && 'bg-primary text-primary-foreground'
+                      )}
+                    >
+                      {t}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Expense Fields */}
+              {type === 'Expense' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className={cn(errors.category && 'border-destructive')}>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {expenseCategories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.category && <p className="text-xs text-destructive">{errors.category}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount ({currency})</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className={cn(errors.amount && 'border-destructive')}
+                    />
+                    {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Brief description of the expense"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className={cn(errors.description && 'border-destructive')}
+                    />
+                    {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Receipt (PDF/JPG/PNG)</Label>
+                    {receipt ? (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+                        {receipt.type === 'application/pdf' ? (
+                          <FileText className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <Image className="h-5 w-5 text-muted-foreground" />
+                        )}
+                        <span className="text-sm flex-1 truncate">{receipt.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => setReceipt(null)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className={cn(
+                        'flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors',
+                        errors.receipt ? 'border-destructive' : 'border-border hover:border-primary/50'
+                      )}>
+                        <Upload className="h-6 w-6 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Click to upload receipt</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    )}
+                    {errors.receipt && <p className="text-xs text-destructive">{errors.receipt}</p>}
+                    <p className="text-xs text-muted-foreground">Receipts are required for expenses.</p>
+                  </div>
+                </>
+              )}
+
+              {/* Overtime Fields */}
+              {type === 'Overtime' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="hours">Hours</Label>
+                    <Input
+                      id="hours"
+                      type="number"
+                      step="0.5"
+                      min="0.5"
+                      placeholder="0"
+                      value={hours}
+                      onChange={(e) => setHours(e.target.value)}
+                      className={cn(errors.hours && 'border-destructive')}
+                    />
+                    {errors.hours && <p className="text-xs text-destructive">{errors.hours}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="memo">Memo (optional)</Label>
+                    <Textarea
+                      id="memo"
+                      placeholder="Additional notes"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </div>
+
+                  <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    Rate per company policy; final amount will be calculated by payroll.
+                  </p>
+                </>
+              )}
+
+              {/* Bonus Fields */}
+              {type === 'Bonus' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount ({currency})</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className={cn(errors.amount && 'border-destructive')}
+                    />
+                    {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Reason for bonus request"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className={cn(errors.description && 'border-destructive')}
+                    />
+                    {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    Subject to admin approval.
+                  </p>
+                </>
+              )}
+
+              {/* Correction Fields */}
+              {type === 'Correction' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Requested change</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Describe the correction needed"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className={cn(errors.description && 'border-destructive')}
+                    />
+                    {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Attachment (optional)</Label>
+                    {receipt ? (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+                        {receipt.type === 'application/pdf' ? (
+                          <FileText className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <Image className="h-5 w-5 text-muted-foreground" />
+                        )}
+                        <span className="text-sm flex-1 truncate">{receipt.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => setReceipt(null)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
+                        <Upload className="h-6 w-6 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Click to upload (optional)</span>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Leave Request Tab */}
+          {activeTab === 'leave' && (
+            <div className="space-y-5">
+              {/* Leave Type */}
+              <div className="space-y-2">
+                <Label>Leave type</Label>
+                <Select value={leaveType} onValueChange={(v) => setLeaveType(v as LeaveType)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select leave type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {expenseCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    {leaveTypes.map((lt) => (
+                      <SelectItem key={lt} value={lt}>{lt}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.category && <p className="text-xs text-destructive">{errors.category}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount ({currency})</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className={cn(errors.amount && 'border-destructive')}
-                />
-                {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
+              {/* Date Range */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Start date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !startDate && 'text-muted-foreground',
+                          errors.startDate && 'border-destructive'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, 'MMM d, yyyy') : 'Select'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>End date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !endDate && 'text-muted-foreground',
+                          errors.endDate && 'border-destructive'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, 'MMM d, yyyy') : 'Select'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        disabled={(date) => startDate ? date < startDate : false}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Brief description of the expense"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className={cn(errors.description && 'border-destructive')}
-                />
-                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Receipt (PDF/JPG/PNG)</Label>
-                {receipt ? (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border">
-                    {receipt.type === 'application/pdf' ? (
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                    ) : (
-                      <Image className="h-5 w-5 text-muted-foreground" />
-                    )}
-                    <span className="text-sm flex-1 truncate">{receipt.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => setReceipt(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+              {/* Total Days (read-only) */}
+              {startDate && endDate && (
+                <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Total days</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {totalDays} {totalDays === 1 ? 'day' : 'days'}
+                    </span>
                   </div>
-                ) : (
-                  <label className={cn(
-                    'flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors',
-                    errors.receipt ? 'border-destructive' : 'border-border hover:border-primary/50'
-                  )}>
-                    <Upload className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Click to upload receipt</span>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                )}
-                {errors.receipt && <p className="text-xs text-destructive">{errors.receipt}</p>}
-                <p className="text-xs text-muted-foreground">Receipts are required for expenses.</p>
-              </div>
-            </>
-          )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This request covers {totalDays} working {totalDays === 1 ? 'day' : 'days'}.
+                  </p>
+                </div>
+              )}
 
-          {/* Overtime Fields */}
-          {type === 'Overtime' && (
-            <>
+              {/* Reason (optional) */}
               <div className="space-y-2">
-                <Label htmlFor="hours">Hours</Label>
-                <Input
-                  id="hours"
-                  type="number"
-                  step="0.5"
-                  min="0.5"
-                  placeholder="0"
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  className={cn(errors.hours && 'border-destructive')}
-                />
-                {errors.hours && <p className="text-xs text-destructive">{errors.hours}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="memo">Memo (optional)</Label>
+                <Label htmlFor="leaveReason">Reason (optional)</Label>
                 <Textarea
-                  id="memo"
-                  placeholder="Additional notes"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  id="leaveReason"
+                  placeholder="Additional details about your leave request"
+                  value={leaveReason}
+                  onChange={(e) => setLeaveReason(e.target.value)}
+                  rows={3}
                 />
               </div>
 
+              {/* Helper text */}
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Rate per company policy; final amount will be calculated by payroll.
+                Leave requests that fall inside this pay period may impact your pay. Your admin will review and confirm.
               </p>
-            </>
-          )}
-
-          {/* Bonus Fields */}
-          {type === 'Bonus' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount ({currency})</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className={cn(errors.amount && 'border-destructive')}
-                />
-                {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Reason for bonus request"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className={cn(errors.description && 'border-destructive')}
-                />
-                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
-              </div>
-
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Subject to admin approval.
-              </p>
-            </>
-          )}
-
-          {/* Correction Fields */}
-          {type === 'Correction' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="description">Requested change</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe the correction needed"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className={cn(errors.description && 'border-destructive')}
-                />
-                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Attachment (optional)</Label>
-                {receipt ? (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border">
-                    {receipt.type === 'application/pdf' ? (
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                    ) : (
-                      <Image className="h-5 w-5 text-muted-foreground" />
-                    )}
-                    <span className="text-sm flex-1 truncate">{receipt.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => setReceipt(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
-                    <Upload className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Click to upload (optional)</span>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                )}
-              </div>
-            </>
+            </div>
           )}
         </div>
 
@@ -383,7 +603,7 @@ export const F41v3_AdjustmentModal = ({ open, onOpenChange, currency }: F41v3_Ad
             Cancel
           </Button>
           <Button onClick={handleSubmit} className="flex-1">
-            Submit
+            {activeTab === 'adjustment' ? 'Submit' : 'Submit request'}
           </Button>
         </div>
       </SheetContent>
