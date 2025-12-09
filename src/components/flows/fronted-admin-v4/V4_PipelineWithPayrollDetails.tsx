@@ -23,7 +23,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Info, Settings, Send, Wallet, CheckCircle2, Clock, RefreshCw, Sparkles, Building2, Calendar, Eye, Award, Plus, Trash2, FileEdit, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig } from "./V4_PayrollDetailsConfigDrawer";
+import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig, PayrollConfig } from "./V4_PayrollDetailsConfigDrawer";
 import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
 import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
 import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
@@ -150,13 +150,13 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     setSelectedContractor(contractor);
     setConfigDrawerOpen(true);
   }, []);
-  const handleSaveConfig = useCallback((contractorId: string, fieldConfig: PayrollFieldConfig[], customFields: CustomPayrollField[]) => {
+  const handleSaveConfig = useCallback((contractorId: string, config: PayrollConfig) => {
     setV4Contractors(prev => prev.map(c => c.id === contractorId ? {
       ...c,
       payrollFormStatus: "configured" as const,
       payrollFormConfigured: true,
-      payrollFieldConfig: fieldConfig,
-      payrollCustomFields: customFields
+      payrollFieldConfig: config.baseFields,
+      payrollCustomFields: config.customFields
     } : c));
     toast.success("Payroll form configured");
     setConfigDrawerOpen(false);
@@ -1446,16 +1446,26 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       </div>
 
       {/* Payroll Config Drawer */}
-      <V4_PayrollDetailsConfigDrawer open={configDrawerOpen} onOpenChange={setConfigDrawerOpen} candidate={selectedContractor ? {
-      id: selectedContractor.id,
-      name: selectedContractor.name,
-      role: selectedContractor.role,
-      country: selectedContractor.country,
-      countryFlag: selectedContractor.countryFlag,
-      salary: selectedContractor.salary,
-      startDate: "TBD",
-      employmentType: selectedContractor.employmentType || "contractor"
-    } : null} onSave={handleSaveConfig} initialCustomFields={selectedContractor?.payrollCustomFields || []} />
+      <V4_PayrollDetailsConfigDrawer 
+        open={configDrawerOpen} 
+        onOpenChange={setConfigDrawerOpen} 
+        candidate={selectedContractor ? {
+          id: selectedContractor.id,
+          name: selectedContractor.name,
+          role: selectedContractor.role,
+          country: selectedContractor.country,
+          countryFlag: selectedContractor.countryFlag,
+          salary: selectedContractor.salary,
+          startDate: "TBD",
+          employmentType: selectedContractor.employmentType || "contractor",
+          hasATSData: selectedContractor.hasATSData
+        } : null} 
+        onSave={handleSaveConfig} 
+        initialConfig={selectedContractor ? {
+          baseFields: selectedContractor.payrollFieldConfig || [],
+          customFields: selectedContractor.payrollCustomFields || []
+        } : undefined} 
+      />
 
       {/* View Payroll Details Drawer */}
       <V4_ViewPayrollDetailsDrawer open={viewDetailsDrawerOpen} onOpenChange={setViewDetailsDrawerOpen} contractor={selectedContractor} />

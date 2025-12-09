@@ -5,6 +5,7 @@
  * Opens from "Collect Payroll Details" column cards
  * Allows admin to configure which payroll fields the candidate will complete
  * Includes custom field creation for additional payroll questions
+ * Includes "Filled by" control matching Configure Onboarding Details Form pattern
  */
 
 import React, { useState, useEffect } from "react";
@@ -20,7 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Shield, Building2, CreditCard, Phone, Calendar, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, FileText, Hash, CalendarDays, List, Upload } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Shield, Building2, CreditCard, Phone, Calendar, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, FileText, Hash, CalendarDays, List, Upload, Database, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +36,10 @@ interface V4_Candidate {
   email?: string;
   startDate?: string;
   employmentType?: "contractor" | "employee";
+  hasATSData?: boolean;
 }
+
+export type FilledBySource = "candidate" | "prefilled";
 
 export interface PayrollFieldConfig {
   id: string;
@@ -42,6 +47,9 @@ export interface PayrollFieldConfig {
   required: boolean;
   enabled: boolean;
   helperText?: string;
+  filledBy: FilledBySource;
+  atsFieldName?: string;
+  atsExampleValue?: string;
 }
 
 export type CustomFieldType = "short_text" | "long_text" | "number" | "date" | "single_select" | "file_upload";
@@ -52,27 +60,34 @@ export interface CustomPayrollField {
   type: CustomFieldType;
   required: boolean;
   enabled: boolean;
-  options?: string[]; // For single_select type
+  options?: string[];
+  filledBy: FilledBySource;
+}
+
+export interface PayrollConfig {
+  baseFields: PayrollFieldConfig[];
+  customFields: CustomPayrollField[];
 }
 
 interface V4_PayrollDetailsConfigDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   candidate: V4_Candidate | null;
-  onSave: (candidateId: string, config: PayrollFieldConfig[], customFields: CustomPayrollField[]) => void;
+  onSave: (candidateId: string, config: PayrollConfig) => void;
+  initialConfig?: PayrollConfig;
   initialCustomFields?: CustomPayrollField[];
 }
 
 const DEFAULT_FIELD_CONFIG: PayrollFieldConfig[] = [
-  { id: "bank_country", label: "Bank Country", required: true, enabled: true, helperText: "Country where bank account is held" },
-  { id: "bank_name", label: "Bank Name", required: true, enabled: true },
-  { id: "account_holder_name", label: "Account Holder Name", required: true, enabled: true },
-  { id: "account_number", label: "Account Number / IBAN", required: true, enabled: true },
-  { id: "swift_bic", label: "SWIFT / BIC Code", required: false, enabled: true, helperText: "Required for international transfers" },
-  { id: "routing_code", label: "Routing / Branch Code", required: false, enabled: true, helperText: "May be required depending on country" },
-  { id: "pay_frequency", label: "Pay Frequency", required: false, enabled: true, helperText: "Read-only if set in contract" },
-  { id: "emergency_contact_name", label: "Emergency Contact Name", required: false, enabled: true },
-  { id: "emergency_contact_phone", label: "Emergency Contact Phone", required: false, enabled: true },
+  { id: "bank_country", label: "Bank Country", required: true, enabled: true, helperText: "Country where bank account is held", filledBy: "candidate", atsFieldName: "payroll.bank_country", atsExampleValue: "Philippines" },
+  { id: "bank_name", label: "Bank Name", required: true, enabled: true, filledBy: "candidate", atsFieldName: "payroll.bank_name", atsExampleValue: "BDO Unibank" },
+  { id: "account_holder_name", label: "Account Holder Name", required: true, enabled: true, filledBy: "candidate" },
+  { id: "account_number", label: "Account Number / IBAN", required: true, enabled: true, filledBy: "candidate" },
+  { id: "swift_bic", label: "SWIFT / BIC Code", required: false, enabled: true, helperText: "Required for international transfers", filledBy: "candidate" },
+  { id: "routing_code", label: "Routing / Branch Code", required: false, enabled: true, helperText: "May be required depending on country", filledBy: "candidate" },
+  { id: "pay_frequency", label: "Pay Frequency", required: false, enabled: true, helperText: "Read-only if set in contract", filledBy: "candidate" },
+  { id: "emergency_contact_name", label: "Emergency Contact Name", required: false, enabled: true, filledBy: "candidate" },
+  { id: "emergency_contact_phone", label: "Emergency Contact Phone", required: false, enabled: true, filledBy: "candidate" },
 ];
 
 const FIELD_TYPE_LABELS: Record<CustomFieldType, string> = {
@@ -98,10 +113,15 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   onOpenChange,
   candidate,
   onSave,
+  initialConfig,
   initialCustomFields = [],
 }) => {
-  const [fieldConfig, setFieldConfig] = useState<PayrollFieldConfig[]>(DEFAULT_FIELD_CONFIG);
-  const [customFields, setCustomFields] = useState<CustomPayrollField[]>(initialCustomFields);
+  const [fieldConfig, setFieldConfig] = useState<PayrollFieldConfig[]>(
+    initialConfig?.baseFields || DEFAULT_FIELD_CONFIG
+  );
+  const [customFields, setCustomFields] = useState<CustomPayrollField[]>(
+    initialConfig?.customFields || initialCustomFields.map(f => ({ ...f, filledBy: f.filledBy || "candidate" }))
+  );
   
   // Modal states
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
@@ -119,11 +139,16 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   const [formFieldRequired, setFormFieldRequired] = useState(true);
   const [formFieldEnabled, setFormFieldEnabled] = useState(true);
   const [formFieldOptions, setFormFieldOptions] = useState<string[]>([""]);
+  const [formFieldFilledBy, setFormFieldFilledBy] = useState<FilledBySource>("candidate");
+
+  // Check if candidate has ATS data
+  const hasATSProfile = candidate?.hasATSData ?? false;
 
   // Reset custom fields only when candidate changes (not on every initialCustomFields change)
   useEffect(() => {
     if (candidate) {
-      setCustomFields(initialCustomFields);
+      setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
+      setCustomFields(initialConfig?.customFields || initialCustomFields.map(f => ({ ...f, filledBy: f.filledBy || "candidate" })));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidate?.id]);
@@ -144,6 +169,22 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     );
   };
 
+  const handleFilledByChange = (fieldId: string, filledBy: FilledBySource) => {
+    setFieldConfig(prev => 
+      prev.map(field => {
+        if (field.id === fieldId) {
+          // If changing to prefilled, automatically disable "Show" toggle
+          return { 
+            ...field, 
+            filledBy,
+            enabled: filledBy === "prefilled" ? false : field.enabled 
+          };
+        }
+        return field;
+      })
+    );
+  };
+
   const handleCustomFieldToggleEnabled = (fieldId: string) => {
     setCustomFields(prev => 
       prev.map(field => 
@@ -160,16 +201,31 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     );
   };
 
+  const handleCustomFieldFilledByChange = (fieldId: string, filledBy: FilledBySource) => {
+    setCustomFields(prev => 
+      prev.map(field => {
+        if (field.id === fieldId) {
+          return { 
+            ...field, 
+            filledBy,
+            enabled: filledBy === "prefilled" ? false : field.enabled 
+          };
+        }
+        return field;
+      })
+    );
+  };
+
   const handleSave = () => {
     if (!candidate) return;
-    onSave(candidate.id, fieldConfig, customFields);
+    onSave(candidate.id, { baseFields: fieldConfig, customFields });
     toast.success("Payroll form configuration saved");
     onOpenChange(false);
   };
 
   const handleCancel = () => {
-    setFieldConfig(DEFAULT_FIELD_CONFIG);
-    setCustomFields(initialCustomFields);
+    setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
+    setCustomFields(initialConfig?.customFields || initialCustomFields.map(f => ({ ...f, filledBy: f.filledBy || "candidate" })));
     onOpenChange(false);
   };
 
@@ -181,6 +237,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     setFormFieldRequired(true);
     setFormFieldEnabled(true);
     setFormFieldOptions([""]);
+    setFormFieldFilledBy("candidate");
     setIsAddEditModalOpen(true);
   };
 
@@ -191,6 +248,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     setFormFieldRequired(field.required);
     setFormFieldEnabled(field.enabled);
     setFormFieldOptions(field.options && field.options.length > 0 ? field.options : [""]);
+    setFormFieldFilledBy(field.filledBy || "candidate");
     setIsAddEditModalOpen(true);
   };
 
@@ -201,12 +259,15 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
       ? formFieldOptions.filter(opt => opt.trim() !== "")
       : undefined;
 
+    // If prefilled, ensure enabled is false
+    const effectiveEnabled = formFieldFilledBy === "prefilled" ? false : formFieldEnabled;
+
     if (editingField) {
       // Update existing field
       setCustomFields(prev => 
         prev.map(f => 
           f.id === editingField.id 
-            ? { ...f, label: formFieldName.trim(), type: formFieldType, required: formFieldRequired, enabled: formFieldEnabled, options: filteredOptions }
+            ? { ...f, label: formFieldName.trim(), type: formFieldType, required: formFieldRequired, enabled: effectiveEnabled, options: filteredOptions, filledBy: formFieldFilledBy }
             : f
         )
       );
@@ -218,8 +279,9 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
         label: formFieldName.trim(),
         type: formFieldType,
         required: formFieldRequired,
-        enabled: formFieldEnabled,
+        enabled: effectiveEnabled,
         options: filteredOptions,
+        filledBy: formFieldFilledBy,
       };
       setCustomFields(prev => [...prev, newField]);
       toast.success("Custom field added");
@@ -316,6 +378,224 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
 
   const isFormValid = formFieldName.trim() !== "" && formFieldType !== undefined;
 
+  // Render "Filled by" segmented control
+  const renderFilledByControl = (fieldId: string, filledBy: FilledBySource, onChange: (fieldId: string, value: FilledBySource) => void) => {
+    return (
+      <div className="mt-2">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
+        </div>
+        <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+          <button
+            type="button"
+            onClick={() => onChange(fieldId, "candidate")}
+            className={cn(
+              "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+              filledBy === "candidate" 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Candidate form
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(fieldId, "prefilled")}
+            className={cn(
+              "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+              filledBy === "prefilled" 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Pre-filled (ATS / admin)
+          </button>
+        </div>
+        {filledBy === "prefilled" && (
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            Not shown on worker form. Pre-filled from ATS or by an admin.
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // Render field row with "Filled by" control
+  const renderFieldRow = (field: PayrollFieldConfig) => {
+    const hasATS = field.atsFieldName && hasATSProfile;
+    
+    return (
+      <div key={field.id} className="flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+        <div className="flex-1 min-w-0 pr-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium">{field.label}</span>
+            {field.required && (
+              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
+            )}
+          </div>
+          
+          {field.helperText && (
+            <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
+          )}
+          
+          {/* Source indicator pill */}
+          <div className="mt-1.5">
+            {hasATS && field.filledBy === "prefilled" ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent-blue-fill/50 border border-accent-blue-outline/30 cursor-help">
+                      <Database className="h-3 w-3 text-accent-blue-text" />
+                      <span className="text-[10px] font-medium text-accent-blue-text">From ATS</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium">ATS Field: {field.atsFieldName}</p>
+                      {field.atsExampleValue && (
+                        <p className="text-xs text-muted-foreground">Example: {field.atsExampleValue}</p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : field.filledBy === "candidate" ? (
+              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
+                <Edit3 className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
+                <Database className="h-3 w-3 text-amber-600" />
+                <span className="text-[10px] font-medium text-amber-600">Pre-filled by admin</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Filled by control */}
+          {renderFilledByControl(field.id, field.filledBy, handleFilledByChange)}
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Required</span>
+            <Switch 
+              checked={field.required} 
+              onCheckedChange={() => handleToggleRequired(field.id)}
+              className="scale-75"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Show</span>
+            <Switch 
+              checked={field.enabled} 
+              onCheckedChange={() => handleToggleEnabled(field.id)}
+              disabled={field.filledBy === "prefilled"}
+              className="scale-75"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render custom field row with "Filled by" control
+  const renderCustomFieldRow = (field: CustomPayrollField) => {
+    const TypeIcon = FIELD_TYPE_ICONS[field.type];
+    const isDragging = draggedFieldId === field.id;
+    const isDragOver = dragOverFieldId === field.id;
+    
+    return (
+      <div 
+        key={field.id} 
+        draggable
+        onDragStart={(e) => handleDragStart(e, field.id)}
+        onDragOver={(e) => handleDragOver(e, field.id)}
+        onDragLeave={(e) => handleDragLeave(e)}
+        onDrop={(e) => handleDrop(e, field.id)}
+        onDragEnd={handleDragEnd}
+        className={cn(
+          "flex items-start justify-between p-3 rounded-lg border bg-card/50 transition-all",
+          isDragging && "opacity-50 border-primary/50 bg-primary/5",
+          isDragOver && "border-primary border-dashed bg-primary/10",
+          !isDragging && !isDragOver && "border-border/40"
+        )}
+      >
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing mt-1 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium truncate">{field.label}</span>
+              {field.required && (
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary shrink-0">Required</Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <TypeIcon className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
+            </div>
+            
+            {/* Source indicator pill */}
+            <div className="mt-1.5">
+              {field.filledBy === "candidate" ? (
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
+                  <Edit3 className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
+                  <Database className="h-3 w-3 text-amber-600" />
+                  <span className="text-[10px] font-medium text-amber-600">Pre-filled by admin</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Filled by control */}
+            {renderFilledByControl(field.id, field.filledBy, handleCustomFieldFilledByChange)}
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Required</span>
+            <Switch 
+              checked={field.required} 
+              onCheckedChange={() => handleCustomFieldToggleRequired(field.id)}
+              className="scale-75"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Show</span>
+            <Switch 
+              checked={field.enabled} 
+              onCheckedChange={() => handleCustomFieldToggleEnabled(field.id)}
+              disabled={field.filledBy === "prefilled"}
+              className="scale-75"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-popover border-border">
+              <DropdownMenuItem onClick={() => openEditModal(field)} className="gap-2 cursor-pointer">
+                <Pencil className="h-3.5 w-3.5" />
+                Edit field
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => openRemoveDialog(field)} 
+                className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove field
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -371,40 +651,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                 <Label className="text-sm font-semibold">Bank Details</Label>
               </div>
               <div className="space-y-3">
-                {fieldConfig.filter(f => f.id.startsWith("bank") || f.id.startsWith("account") || f.id.startsWith("swift") || f.id.startsWith("routing")).map(field => (
-                  <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{field.label}</span>
-                        {field.required && field.enabled && (
-                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
-                        )}
-                      </div>
-                      {field.helperText && (
-                        <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Required</span>
-                        <Switch 
-                          checked={field.required} 
-                          onCheckedChange={() => handleToggleRequired(field.id)}
-                          disabled={!field.enabled}
-                          className="scale-75"
-                        />
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Show</span>
-                        <Switch 
-                          checked={field.enabled} 
-                          onCheckedChange={() => handleToggleEnabled(field.id)}
-                          className="scale-75"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {fieldConfig.filter(f => f.id.startsWith("bank") || f.id.startsWith("account") || f.id.startsWith("swift") || f.id.startsWith("routing")).map(renderFieldRow)}
               </div>
             </div>
 
@@ -417,40 +664,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                 <Label className="text-sm font-semibold">Pay Frequency</Label>
               </div>
               <div className="space-y-3">
-                {fieldConfig.filter(f => f.id === "pay_frequency").map(field => (
-                  <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{field.label}</span>
-                        {field.required && field.enabled && (
-                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
-                        )}
-                      </div>
-                      {field.helperText && (
-                        <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Required</span>
-                        <Switch 
-                          checked={field.required} 
-                          onCheckedChange={() => handleToggleRequired(field.id)}
-                          disabled={!field.enabled}
-                          className="scale-75"
-                        />
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Show</span>
-                        <Switch 
-                          checked={field.enabled} 
-                          onCheckedChange={() => handleToggleEnabled(field.id)}
-                          className="scale-75"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {fieldConfig.filter(f => f.id === "pay_frequency").map(renderFieldRow)}
               </div>
             </div>
 
@@ -463,37 +677,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                 <Label className="text-sm font-semibold">Emergency Contact (Optional)</Label>
               </div>
               <div className="space-y-3">
-                {fieldConfig.filter(f => f.id.startsWith("emergency")).map(field => (
-                  <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{field.label}</span>
-                        {field.required && field.enabled && (
-                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Required</span>
-                        <Switch 
-                          checked={field.required} 
-                          onCheckedChange={() => handleToggleRequired(field.id)}
-                          disabled={!field.enabled}
-                          className="scale-75"
-                        />
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Show</span>
-                        <Switch 
-                          checked={field.enabled} 
-                          onCheckedChange={() => handleToggleEnabled(field.id)}
-                          className="scale-75"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {fieldConfig.filter(f => f.id.startsWith("emergency")).map(renderFieldRow)}
               </div>
             </div>
 
@@ -534,83 +718,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                       Add custom field
                     </Button>
                   </div>
-                  {customFields.map((field) => {
-                    const TypeIcon = FIELD_TYPE_ICONS[field.type];
-                    const isDragging = draggedFieldId === field.id;
-                    const isDragOver = dragOverFieldId === field.id;
-                    return (
-                      <div 
-                        key={field.id} 
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, field.id)}
-                        onDragOver={(e) => handleDragOver(e, field.id)}
-                        onDragLeave={(e) => handleDragLeave(e)}
-                        onDrop={(e) => handleDrop(e, field.id)}
-                        onDragEnd={handleDragEnd}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border bg-card/50 transition-all",
-                          isDragging && "opacity-50 border-primary/50 bg-primary/5",
-                          isDragOver && "border-primary border-dashed bg-primary/10",
-                          !isDragging && !isDragOver && "border-border/40"
-                        )}
-                      >
-                        <div className="flex items-center gap-3 flex-1">
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium truncate">{field.label}</span>
-                              {field.required && field.enabled && (
-                                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary shrink-0">Required</Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <TypeIcon className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs text-muted-foreground">Required</span>
-                            <Switch 
-                              checked={field.required} 
-                              onCheckedChange={() => handleCustomFieldToggleRequired(field.id)}
-                              disabled={!field.enabled}
-                              className="scale-75"
-                            />
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs text-muted-foreground">Show</span>
-                            <Switch 
-                              checked={field.enabled} 
-                              onCheckedChange={() => handleCustomFieldToggleEnabled(field.id)}
-                              className="scale-75"
-                            />
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-popover border-border">
-                              <DropdownMenuItem onClick={() => openEditModal(field)} className="gap-2 cursor-pointer">
-                                <Pencil className="h-3.5 w-3.5" />
-                                Edit field
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => openRemoveDialog(field)} 
-                                className="gap-2 cursor-pointer text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Remove field
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {customFields.map(renderCustomFieldRow)}
                 </div>
               )}
             </div>
@@ -701,6 +809,42 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
               </div>
             )}
 
+            {/* Filled by control */}
+            <div className="space-y-2">
+              <Label className="text-sm">Filled by</Label>
+              <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setFormFieldFilledBy("candidate")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium rounded-sm transition-all",
+                    formFieldFilledBy === "candidate" 
+                      ? "bg-background text-foreground shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Candidate form
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormFieldFilledBy("prefilled")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium rounded-sm transition-all",
+                    formFieldFilledBy === "prefilled" 
+                      ? "bg-background text-foreground shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Pre-filled (ATS / admin)
+                </button>
+              </div>
+              {formFieldFilledBy === "prefilled" && (
+                <p className="text-xs text-muted-foreground">
+                  Not shown on worker form. Pre-filled from ATS or by an admin.
+                </p>
+              )}
+            </div>
+
             {/* Toggles */}
             <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30">
               <div>
@@ -715,7 +859,11 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                 <p className="text-sm font-medium">Show on worker form</p>
                 <p className="text-xs text-muted-foreground">Field will be visible to the worker</p>
               </div>
-              <Switch checked={formFieldEnabled} onCheckedChange={setFormFieldEnabled} />
+              <Switch 
+                checked={formFieldFilledBy === "prefilled" ? false : formFieldEnabled} 
+                onCheckedChange={setFormFieldEnabled}
+                disabled={formFieldFilledBy === "prefilled"}
+              />
             </div>
           </div>
 
