@@ -75,6 +75,8 @@ interface F41v3_DashboardActions {
   confirmPay: () => void;
   addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
+  withdrawAdjustment: (id: string) => void;
+  withdrawLeaveRequest: (id: string) => void;
   reset: () => void;
 }
 
@@ -137,6 +139,14 @@ export const useF41v3_DashboardStore = create<F41v3_DashboardState & F41v3_Dashb
         submittedAt: new Date().toISOString(),
       },
     ],
+  })),
+  
+  withdrawAdjustment: (id) => set((state) => ({
+    adjustments: state.adjustments.filter((adj) => adj.id !== id),
+  })),
+  
+  withdrawLeaveRequest: (id) => set((state) => ({
+    leaveRequests: state.leaveRequests.filter((leave) => leave.id !== id),
   })),
   
   reset: () => set(initialState),
