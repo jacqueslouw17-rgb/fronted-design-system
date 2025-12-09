@@ -259,42 +259,50 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
 
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, fieldId: string) => {
-    setDraggedFieldId(fieldId);
+    e.dataTransfer.setData("text/plain", fieldId);
     e.dataTransfer.effectAllowed = "move";
+    setDraggedFieldId(fieldId);
   };
 
   const handleDragOver = (e: React.DragEvent, fieldId: string) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
     if (fieldId !== draggedFieldId) {
       setDragOverFieldId(fieldId);
     }
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
     setDragOverFieldId(null);
   };
 
   const handleDrop = (e: React.DragEvent, targetFieldId: string) => {
     e.preventDefault();
-    if (!draggedFieldId || draggedFieldId === targetFieldId) {
+    e.stopPropagation();
+    
+    const draggedId = e.dataTransfer.getData("text/plain") || draggedFieldId;
+    
+    if (!draggedId || draggedId === targetFieldId) {
       setDraggedFieldId(null);
       setDragOverFieldId(null);
       return;
     }
 
-    setCustomFields(prev => {
-      const newFields = [...prev];
-      const draggedIndex = newFields.findIndex(f => f.id === draggedFieldId);
-      const targetIndex = newFields.findIndex(f => f.id === targetFieldId);
-      
-      if (draggedIndex === -1 || targetIndex === -1) return prev;
-      
-      const [draggedField] = newFields.splice(draggedIndex, 1);
-      newFields.splice(targetIndex, 0, draggedField);
-      
-      return newFields;
-    });
-
+    const draggedIndex = customFields.findIndex(f => f.id === draggedId);
+    const targetIndex = customFields.findIndex(f => f.id === targetFieldId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedFieldId(null);
+      setDragOverFieldId(null);
+      return;
+    }
+    
+    const newFields = [...customFields];
+    const [draggedField] = newFields.splice(draggedIndex, 1);
+    newFields.splice(targetIndex, 0, draggedField);
+    
+    setCustomFields(newFields);
     setDraggedFieldId(null);
     setDragOverFieldId(null);
   };
@@ -536,7 +544,7 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                         draggable
                         onDragStart={(e) => handleDragStart(e, field.id)}
                         onDragOver={(e) => handleDragOver(e, field.id)}
-                        onDragLeave={handleDragLeave}
+                        onDragLeave={(e) => handleDragLeave(e)}
                         onDrop={(e) => handleDrop(e, field.id)}
                         onDragEnd={handleDragEnd}
                         className={cn(
