@@ -47,6 +47,7 @@ import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
 import FrontedAdminV4EmbeddedOnboarding from "@/components/flows/fronted-admin-v4/FrontedAdminV4EmbeddedOnboarding";
+import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
 import frontedLogo from "@/assets/fronted-logo.png";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -417,6 +418,10 @@ const FrontedAdminDashboardV4: React.FC = () => {
   const [companies, setCompanies] = useState(V4_MOCK_COMPANIES);
   const [selectedCompany, setSelectedCompany] = useState<string>(V4_MOCK_COMPANIES[0].id);
   const [isAddingNewCompany, setIsAddingNewCompany] = useState(false);
+  
+  // Add Candidate Drawer State (v4-specific)
+  const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
+  const [v4CompanyContractors, setV4CompanyContractors] = useState<Record<string, any[]>>(V4_COMPANY_CONTRACTORS);
 
   // Handler for company switching (v4-specific)
   const handleCompanyChange = (companyId: string) => {
@@ -446,9 +451,23 @@ const FrontedAdminDashboardV4: React.FC = () => {
     setIsAddingNewCompany(false);
   };
 
+  // Handler for opening add candidate drawer (v4-specific)
+  const handleAddCandidate = () => {
+    setIsAddCandidateDrawerOpen(true);
+  };
+
+  // Handler for saving a new candidate (v4-specific)
+  const handleSaveCandidate = (candidate: any) => {
+    setV4CompanyContractors(prev => ({
+      ...prev,
+      [selectedCompany]: [...(prev[selectedCompany] || []), candidate]
+    }));
+    toast.success(`${candidate.name} added to pipeline`);
+  };
+
   // Get contractors for selected company
   const getContractorsForCompany = (companyId: string): any[] => {
-    return V4_COMPANY_CONTRACTORS[companyId] || [];
+    return v4CompanyContractors[companyId] || [];
   };
 
   // Tracker contractors now derived from selected company
@@ -3724,7 +3743,7 @@ You can ask me about:
                       <V4_PipelineWithPayrollDetails 
                         key={selectedCompany}
                         contractors={trackerContractors}
-                        onAddCandidate={() => toast.info("Add candidate clicked")}
+                        onAddCandidate={handleAddCandidate}
                         onRemoveContractor={(contractorId) => {
                           toast.info("Remove candidate: " + contractorId);
                         }}
@@ -5056,6 +5075,13 @@ You can ask me about:
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            
+            {/* Add Candidate Drawer (v4-specific) */}
+            <AddCandidateDrawer
+              open={isAddCandidateDrawerOpen}
+              onOpenChange={setIsAddCandidateDrawerOpen}
+              onSave={handleSaveCandidate}
+            />
           </AgentLayout>
           )}
         </main>
