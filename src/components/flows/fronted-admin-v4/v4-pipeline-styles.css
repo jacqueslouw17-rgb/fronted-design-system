@@ -1,0 +1,80 @@
+/**
+ * V4-specific Pipeline Styling
+ * 
+ * Applies consistent column header/body styling pattern to PipelineView
+ * Only affects Flow 1 - Fronted Admin Dashboard v4
+ */
+
+/* Target all column headers within V4 pipeline wrapper */
+.v4-pipeline-wrapper > div > div > div > div:first-child {
+  /* Make headers darker with more opacity */
+  opacity: 1 !important;
+}
+
+/* Enhance column header backgrounds for better contrast */
+.v4-pipeline-wrapper > div > div > div > div:first-child {
+  background-color: hsl(var(--muted) / 0.6) !important;
+}
+
+/* Make column bodies lighter */
+.v4-pipeline-wrapper > div > div > div > div:last-child {
+  background-color: hsl(var(--muted) / 0.15) !important;
+}
+
+/* Offer Accepted column - muted styling */
+.v4-pipeline-wrapper > div > div > div:nth-child(1) > div:first-child {
+  background-color: hsl(var(--muted) / 0.5) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(1) > div:last-child {
+  background-color: hsl(var(--muted) / 0.15) !important;
+}
+
+/* Collect Candidate Details column - yellow accent */
+.v4-pipeline-wrapper > div > div > div:nth-child(2) > div:first-child {
+  background-color: hsl(var(--accent-yellow-fill) / 0.5) !important;
+  border-color: hsl(var(--accent-yellow-outline) / 0.3) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(2) > div:last-child {
+  background-color: hsl(var(--accent-yellow-fill) / 0.15) !important;
+  border-color: hsl(var(--accent-yellow-outline) / 0.2) !important;
+}
+
+/* Prepare Contract column - blue accent */
+.v4-pipeline-wrapper > div > div > div:nth-child(3) > div:first-child {
+  background-color: hsl(var(--accent-blue-fill) / 0.5) !important;
+  border-color: hsl(var(--accent-blue-outline) / 0.3) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(3) > div:last-child {
+  background-color: hsl(var(--accent-blue-fill) / 0.15) !important;
+  border-color: hsl(var(--accent-blue-outline) / 0.2) !important;
+}
+
+/* Waiting for Signature column - purple accent */
+.v4-pipeline-wrapper > div > div > div:nth-child(4) > div:first-child {
+  background-color: hsl(var(--accent-purple-fill) / 0.5) !important;
+  border-color: hsl(var(--accent-purple-outline) / 0.3) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(4) > div:last-child {
+  background-color: hsl(var(--accent-purple-fill) / 0.15) !important;
+  border-color: hsl(var(--accent-purple-outline) / 0.2) !important;
+}
+
+/* Onboard Candidate column - primary accent */
+.v4-pipeline-wrapper > div > div > div:nth-child(5) > div:first-child {
+  background-color: hsl(var(--primary) / 0.2) !important;
+  border-color: hsl(var(--primary) / 0.3) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(5) > div:last-child {
+  background-color: hsl(var(--primary) / 0.08) !important;
+  border-color: hsl(var(--primary) / 0.15) !important;
+}
+
+/* Track Candidate Progress column - blue accent */
+.v4-pipeline-wrapper > div > div > div:nth-child(6) > div:first-child {
+  background-color: hsl(var(--accent-blue-fill) / 0.5) !important;
+  border-color: hsl(var(--accent-blue-outline) / 0.3) !important;
+}
+.v4-pipeline-wrapper > div > div > div:nth-child(6) > div:last-child {
+  background-color: hsl(var(--accent-blue-fill) / 0.15) !important;
+  border-color: hsl(var(--accent-blue-outline) / 0.2) !important;
+}

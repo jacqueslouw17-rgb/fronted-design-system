@@ -12,6 +12,7 @@
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
+import "./v4-pipeline-styles.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -236,8 +237,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       transition={{ duration: 0.3 }}
       className="flex-shrink-0 w-[280px]"
     >
-      {/* Column Header */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-accent-green-fill/30 border-accent-green-outline/20">
+      {/* Column Header - darker */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-accent-green-fill/50 border-accent-green-outline/30">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1">
             <TooltipProvider>
@@ -264,8 +265,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         </div>
       </div>
 
-      {/* Column Body */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-green-fill/10 border-accent-green-outline/20">
+      {/* Column Body - lighter */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-green-fill/15 border-accent-green-outline/20">
         {certifiedContractors.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -374,8 +375,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       transition={{ duration: 0.3, delay: 0.1 }}
       className="flex-shrink-0 w-[280px]"
     >
-      {/* Column Header */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-accent-yellow-fill/30 border-accent-yellow-outline/20">
+      {/* Column Header - darker */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-accent-yellow-fill/50 border-accent-yellow-outline/30">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1">
             <TooltipProvider>
@@ -402,8 +403,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         </div>
       </div>
 
-      {/* Column Body */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-yellow-fill/10 border-accent-yellow-outline/20">
+      {/* Column Body - lighter */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-yellow-fill/15 border-accent-yellow-outline/20">
         {collectingPayrollContractors.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -533,8 +534,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       transition={{ duration: 0.3, delay: 0.2 }}
       className="flex-shrink-0 w-[280px]"
     >
-      {/* Column Header */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-primary/10 border-primary/20">
+      {/* Column Header - darker */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-primary/25 border-primary/30">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1">
             <TooltipProvider>
@@ -561,8 +562,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         </div>
       </div>
 
-      {/* Column Body */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-primary/5 border-primary/20">
+      {/* Column Body - lighter */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-primary/8 border-primary/15">
         {doneContractors.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -675,7 +676,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max items-start">
         {/* Original Pipeline - hide its Certified column (7th column) since we render our own */}
-        <div className="flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(7)]:!hidden">
+        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(7)]:!hidden">
           <PipelineView
             contractors={pipelineContractors as any}
             onContractorUpdate={(updated) => {
