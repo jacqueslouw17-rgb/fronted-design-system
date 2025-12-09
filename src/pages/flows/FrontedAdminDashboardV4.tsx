@@ -45,6 +45,7 @@ import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttend
 import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
+import { FrontedAdminV4NewCompanyDrawer } from "@/components/flows/fronted-admin-v4/FrontedAdminV4NewCompanyDrawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -357,6 +358,42 @@ const contractorsByCurrency: Record<string, ContractorPayment[]> = {
     expectedMonthlyHours: 160
   }]
 };
+// v4-specific mock companies data
+const V4_MOCK_COMPANIES = [
+  { id: "1", name: "TechCorp Global" },
+  { id: "2", name: "InnovateLabs Inc." },
+  { id: "3", name: "Startup Ventures" },
+  { id: "4", name: "Digital Dynamics Ltd." },
+  { id: "5", name: "CloudScale Solutions" },
+  { id: "6", name: "NextGen Enterprises" },
+  { id: "7", name: "Quantum Systems Co." },
+  { id: "8", name: "FutureWorks International" },
+  { id: "9", name: "Apex Technologies" },
+  { id: "10", name: "Horizon Group" },
+];
+
+// v4-specific per-company contractor data
+const V4_COMPANY_CONTRACTORS: Record<string, any[]> = {
+  "1": [
+    { id: "c1-1", name: "Maria Santos", country: "Philippines", countryFlag: "🇵🇭", role: "Senior Developer", salary: "PHP 120,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "contractor" as const, hasATSData: true, email: "maria.santos@email.com" },
+    { id: "c1-2", name: "Liam Chen", country: "Singapore", countryFlag: "🇸🇬", role: "Frontend Developer", salary: "SGD 7,500/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "liam.chen@email.com" },
+    { id: "c1-3", name: "Sofia Rodriguez", country: "Mexico", countryFlag: "🇲🇽", role: "Marketing Manager", salary: "MXN 45,000/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: false, email: "sofia.rodriguez@email.com" },
+    { id: "c1-4", name: "James Wilson", country: "United States", countryFlag: "🇺🇸", role: "Sales Director", salary: "USD 9,500/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "james.wilson@email.com" },
+  ],
+  "2": [
+    { id: "c2-1", name: "Ahmed Hassan", country: "Egypt", countryFlag: "🇪🇬", role: "Backend Developer", salary: "EGP 45,000/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "ahmed.hassan@email.com" },
+    { id: "c2-2", name: "Yuki Tanaka", country: "Japan", countryFlag: "🇯🇵", role: "UX Designer", salary: "JPY 650,000/mo", status: "offer-accepted" as const, formSent: false, dataReceived: false, employmentType: "employee" as const, hasATSData: false, email: "yuki.tanaka@email.com" },
+  ],
+  "3": [
+    { id: "c3-1", name: "Klaus Schmidt", country: "Germany", countryFlag: "🇩🇪", role: "DevOps Engineer", salary: "EUR 6,200/mo", status: "certified" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: true, email: "klaus.schmidt@email.com" },
+  ],
+  "4": [],
+  "5": [
+    { id: "c5-1", name: "Emma Johnson", country: "United Kingdom", countryFlag: "🇬🇧", role: "Product Manager", salary: "GBP 5,800/mo", status: "awaiting-signature" as const, formSent: true, dataReceived: true, employmentType: "employee" as const, hasATSData: true, email: "emma.johnson@email.com" },
+    { id: "c5-2", name: "Pierre Dubois", country: "France", countryFlag: "🇫🇷", role: "Data Analyst", salary: "EUR 4,900/mo", status: "drafting" as const, formSent: true, dataReceived: true, employmentType: "contractor" as const, hasATSData: false, email: "pierre.dubois@email.com" },
+  ],
+};
+
 const FrontedAdminDashboardV4: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -374,79 +411,35 @@ const FrontedAdminDashboardV4: React.FC = () => {
   } = useCountrySettings();
   const [viewMode, setViewMode] = useState<"tracker" | "payroll" | "batch-review">("tracker");
 
-  // Tracker (Pipeline) Data - cloned from Flow 1 v3
-  const [trackerContractors, setTrackerContractors] = useState<any[]>([
-    {
-      id: "contractor-1",
-      name: "Maria Santos",
-      country: "Philippines",
-      countryFlag: "🇵🇭",
-      role: "Senior Developer",
-      salary: "PHP 120,000/mo",
-      status: "offer-accepted" as const,
-      formSent: false,
-      dataReceived: false,
-      employmentType: "contractor" as const,
-      hasATSData: true,
-      email: "maria.santos@email.com",
-    },
-    {
-      id: "contractor-2",
-      name: "Liam Chen",
-      country: "Singapore",
-      countryFlag: "🇸🇬",
-      role: "Frontend Developer",
-      salary: "SGD 7,500/mo",
-      status: "drafting" as const,
-      formSent: true,
-      dataReceived: true,
-      employmentType: "contractor" as const,
-      hasATSData: true,
-      email: "liam.chen@email.com",
-    },
-    {
-      id: "contractor-1b",
-      name: "Ahmed Hassan",
-      country: "Egypt",
-      countryFlag: "🇪🇬",
-      role: "Backend Developer",
-      salary: "EGP 45,000/mo",
-      status: "drafting" as const,
-      formSent: true,
-      dataReceived: true,
-      employmentType: "contractor" as const,
-      hasATSData: true,
-      email: "ahmed.hassan@email.com",
-    },
-    {
-      id: "contractor-3",
-      name: "Sofia Rodriguez",
-      country: "Mexico",
-      countryFlag: "🇲🇽",
-      role: "Marketing Manager",
-      salary: "MXN 45,000/mo",
-      status: "awaiting-signature" as const,
-      formSent: true,
-      dataReceived: true,
-      employmentType: "employee" as const,
-      hasATSData: false,
-      email: "sofia.rodriguez@email.com",
-    },
-    {
-      id: "contractor-4",
-      name: "James Wilson",
-      country: "United States",
-      countryFlag: "🇺🇸",
-      role: "Sales Director",
-      salary: "USD 9,500/mo",
-      status: "certified" as const,
-      formSent: true,
-      dataReceived: true,
-      employmentType: "employee" as const,
-      hasATSData: true,
-      email: "james.wilson@email.com",
-    },
-  ]);
+  // Company Switcher State (v4-specific, detached from v3)
+  const [companies, setCompanies] = useState(V4_MOCK_COMPANIES);
+  const [selectedCompany, setSelectedCompany] = useState<string>(V4_MOCK_COMPANIES[0].id);
+  const [isAddCompanyDrawerOpen, setIsAddCompanyDrawerOpen] = useState(false);
+
+  // Handler for company switching (v4-specific)
+  const handleCompanyChange = (companyId: string) => {
+    if (companyId === "add-new") {
+      setIsAddCompanyDrawerOpen(true);
+      return;
+    }
+    setSelectedCompany(companyId);
+    const company = companies.find(c => c.id === companyId);
+    toast.success(`Switched to ${company?.name}`);
+  };
+
+  // Handler for adding new company (v4-specific)
+  const handleNewCompanyCreated = (company: { id: string; name: string; country: string; currency: string }) => {
+    setCompanies(prev => [...prev, { id: company.id, name: company.name }]);
+    setSelectedCompany(company.id);
+  };
+
+  // Get contractors for selected company
+  const getContractorsForCompany = (companyId: string): any[] => {
+    return V4_COMPANY_CONTRACTORS[companyId] || [];
+  };
+
+  // Tracker contractors now derived from selected company
+  const trackerContractors = getContractorsForCompany(selectedCompany);
 
   // Batch Review State
   const [currentBatch, setCurrentBatch] = useState<CA_PaymentBatch | null>(null);
@@ -3612,8 +3605,17 @@ You can ask me about:
   };
   return <RoleLensProvider initialRole="admin">
       <div className="flex flex-col h-screen">
-        {/* Topbar */}
-        <Topbar userName={`${userData.firstName} ${userData.lastName}`} isDrawerOpen={isDrawerOpen} onDrawerToggle={toggleDrawer} />
+        {/* Topbar with Company Switcher */}
+        <Topbar 
+          userName={`${userData.firstName} ${userData.lastName}`} 
+          isDrawerOpen={isDrawerOpen} 
+          onDrawerToggle={toggleDrawer}
+          companySwitcher={{
+            companies: companies,
+            selectedCompany: selectedCompany,
+            onCompanyChange: handleCompanyChange
+          }}
+        />
 
         {/* Main Content Area */}
         <main className="flex-1 flex overflow-hidden">
@@ -3676,11 +3678,11 @@ You can ask me about:
                       {viewMode === "tracker" ? (/* Pipeline Tracker - cloned from Flow 1 v3 */
                     <div className="mt-3">
                       <PipelineView 
+                        key={selectedCompany}
                         contractors={trackerContractors}
                         onAddCandidate={() => toast.info("Add candidate clicked")}
                         onRemoveContractor={(contractorId) => {
-                          setTrackerContractors(prev => prev.filter(c => c.id !== contractorId));
-                          toast.success("Candidate removed");
+                          toast.info("Remove candidate: " + contractorId);
                         }}
                         onDraftContract={(ids) => {
                           toast.info(`Draft contract for: ${ids.join(", ")}`);
@@ -5012,6 +5014,13 @@ You can ask me about:
             </AlertDialog>
           </AgentLayout>
         </main>
+
+        {/* Add New Company Drawer (v4-specific) */}
+        <FrontedAdminV4NewCompanyDrawer
+          open={isAddCompanyDrawerOpen}
+          onOpenChange={setIsAddCompanyDrawerOpen}
+          onCompanyCreated={handleNewCompanyCreated}
+        />
       </div>
     </RoleLensProvider>;
 };
