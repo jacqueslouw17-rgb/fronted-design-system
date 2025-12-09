@@ -14,11 +14,11 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PipelineView } from "@/components/contract-flow/PipelineView";
 import "./v4-pipeline-styles.css";
-import "./v4-pipeline-styles.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info, Settings, Send, Wallet, CheckCircle2, Clock, RefreshCw, Sparkles, Building2, Calendar, Eye, Award, Plus, Trash2, FileEdit, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -94,6 +94,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const [viewDetailsDrawerOpen, setViewDetailsDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<V4_Contractor | null>(null);
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
+  
+  // V4-specific multi-select state for Prepare Contract column
+  const [selectedDraftingIds, setSelectedDraftingIds] = useState<Set<string>>(new Set());
   
   // V4 Candidate Details Drawer state
   const [candidateConfigDrawerOpen, setCandidateConfigDrawerOpen] = useState(false);
@@ -243,6 +246,34 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     onRemoveContractor?.(contractorId);
     toast.success("Candidate removed");
   }, [onRemoveContractor]);
+
+  // V4-specific: Multi-select handlers for Prepare Contract column
+  const handleSelectDraftingContractor = useCallback((id: string, checked: boolean) => {
+    setSelectedDraftingIds(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const getDraftingSelectedCount = useCallback(() => {
+    return prepareContractContractors.filter(c => selectedDraftingIds.has(c.id)).length;
+  }, [prepareContractContractors, selectedDraftingIds]);
+
+  const handleBulkDraftContracts = useCallback(() => {
+    const selectedIds = Array.from(selectedDraftingIds).filter(id => 
+      prepareContractContractors.find(c => c.id === id)
+    );
+    if (selectedIds.length > 0) {
+      const params = new URLSearchParams({ ids: selectedIds.join(',') }).toString();
+      navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
+      setSelectedDraftingIds(new Set());
+    }
+  }, [selectedDraftingIds, prepareContractContractors, navigate]);
 
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
@@ -545,132 +576,169 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       </div>
     </motion.div>;
 
-  // V4-specific: Render Prepare Contract Column with v4 navigation
-  const renderPrepareContractColumn = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: 0.3
-  }} className="flex-shrink-0 w-[280px]">
-      {/* Column Header */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-accent-blue-fill/50 border-accent-blue-outline/30">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-medium text-sm text-foreground">
-                      Prepare Contract
-                    </h3>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-sm">
-                    Review candidate details and confirm terms before generating contract.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-accent-blue-fill/50 text-accent-blue-text">
-            {prepareContractContractors.length}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Column Body */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-blue-fill/15 border-accent-blue-outline/20">
-        {prepareContractContractors.length === 0 ? <motion.div initial={{
-        opacity: 0
+  // V4-specific: Render Prepare Contract Column with v4 navigation and multi-select
+  const renderPrepareContractColumn = () => {
+    const selectedCount = getDraftingSelectedCount();
+    
+    return (
+      <motion.div initial={{
+        opacity: 0,
+        y: 20
       }} animate={{
-        opacity: 1
-      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-accent-blue-fill/20 flex items-center justify-center mb-3">
-              <FileEdit className="h-6 w-6 text-accent-blue-text" />
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.3
+      }} className="flex-shrink-0 w-[280px]">
+        {/* Column Header */}
+        <div className="p-3 rounded-t-lg border-t border-x bg-accent-blue-fill/50 border-accent-blue-outline/30">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-medium text-sm text-foreground">
+                        Prepare Contract
+                      </h3>
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p className="text-sm">
+                      Review candidate details and confirm terms before generating contract.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              No contracts to prepare
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Candidates ready for contracts will appear here
-            </p>
-          </motion.div> : <AnimatePresence mode="popLayout">
-            {prepareContractContractors.map(contractor => (
-              <motion.div key={contractor.id} layout initial={{
-                opacity: 0,
-                scale: 0.8
-              }} animate={{
-                opacity: 1,
-                scale: 1
-              }} exit={{
-                opacity: 0,
-                scale: 0.8,
-                x: 100
-              }} transition={{
-                layout: { duration: 0.5, type: "spring" },
-                opacity: { duration: 0.2 }
-              }}>
-                <Card className="hover:shadow-card transition-shadow border border-accent-blue-outline/30 bg-card/50 backdrop-blur-sm">
-                  <CardContent className="p-3 space-y-2">
-                    {/* Worker Header */}
-                    <div className="flex items-start gap-2">
-                      <Avatar className="h-8 w-8 bg-accent-blue-fill/20 border border-accent-blue-outline/30">
-                        <AvatarFallback className="text-xs">
-                          {contractor.name.split(" ").map(n => n[0]).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium text-sm text-foreground truncate">
-                            {contractor.name}
-                          </span>
-                          <span className="text-base">{contractor.countryFlag}</span>
+            <div className="flex items-center gap-2">
+              {selectedCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {selectedCount} selected
+                </span>
+              )}
+              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-accent-blue-fill/50 text-accent-blue-text">
+                {prepareContractContractors.length}
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Bulk Action Button */}
+          {selectedCount > 0 && (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
+                onClick={handleBulkDraftContracts}
+              >
+                <FileEdit className="h-3 w-3" />
+                Draft Contracts ({selectedCount})
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Column Body */}
+        <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-blue-fill/15 border-accent-blue-outline/20">
+          {prepareContractContractors.length === 0 ? (
+            <motion.div initial={{
+              opacity: 0
+            }} animate={{
+              opacity: 1
+            }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="w-12 h-12 rounded-full bg-accent-blue-fill/20 flex items-center justify-center mb-3">
+                <FileEdit className="h-6 w-6 text-accent-blue-text" />
+              </div>
+              <h3 className="text-sm font-medium text-foreground mb-1">
+                No contracts to prepare
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Candidates ready for contracts will appear here
+              </p>
+            </motion.div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {prepareContractContractors.map(contractor => (
+                <motion.div key={contractor.id} layout initial={{
+                  opacity: 0,
+                  scale: 0.8
+                }} animate={{
+                  opacity: 1,
+                  scale: 1
+                }} exit={{
+                  opacity: 0,
+                  scale: 0.8,
+                  x: 100
+                }} transition={{
+                  layout: { duration: 0.5, type: "spring" },
+                  opacity: { duration: 0.2 }
+                }}>
+                  <Card className="hover:shadow-card transition-shadow border border-accent-blue-outline/30 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-3 space-y-2">
+                      {/* Worker Header with Checkbox */}
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          checked={selectedDraftingIds.has(contractor.id)}
+                          onCheckedChange={(checked) => handleSelectDraftingContractor(contractor.id, checked as boolean)}
+                          className="h-4 w-4 mt-1 data-[state=checked]:bg-accent-blue-fill data-[state=checked]:border-accent-blue-outline"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Avatar className="h-8 w-8 bg-accent-blue-fill/20 border border-accent-blue-outline/30">
+                          <AvatarFallback className="text-xs">
+                            {contractor.name.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm text-foreground truncate">
+                              {contractor.name}
+                            </span>
+                            <span className="text-base">{contractor.countryFlag}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {contractor.role}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {contractor.role}
-                        </p>
                       </div>
-                    </div>
 
-                    {/* Details */}
-                    <div className="flex flex-col gap-1.5 text-[11px]">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
-                        <span className="font-medium text-foreground">{contractor.salary}</span>
+                      {/* Details */}
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
+                          <span className="font-medium text-foreground">{contractor.salary}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium text-foreground">{contractor.country}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Country</span>
-                        <span className="font-medium text-foreground">{contractor.country}</span>
-                      </div>
-                    </div>
 
-                    {/* Action Button - V4 specific navigation */}
-                    <div className="pt-1">
-                      <Button 
-                        size="sm" 
-                        className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
-                        onClick={() => {
-                          // V4-specific: Navigate to v4 contract flow route
-                          const params = new URLSearchParams({ ids: contractor.id }).toString();
-                          navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
-                        }}
-                      >
-                        <FileEdit className="h-3 w-3" />
-                        Draft Contract
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>}
-      </div>
-    </motion.div>;
+                      {/* Action Button - V4 specific navigation */}
+                      <div className="pt-1">
+                        <Button 
+                          size="sm" 
+                          className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
+                          onClick={() => {
+                            // V4-specific: Navigate to v4 contract flow route
+                            const params = new URLSearchParams({ ids: contractor.id }).toString();
+                            navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
+                          }}
+                        >
+                          <FileEdit className="h-3 w-3" />
+                          Draft Contract
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
 
   // V4-specific: Render Waiting for Signature Column with v4 navigation
   const renderWaitingSignatureColumn = () => <motion.div initial={{
