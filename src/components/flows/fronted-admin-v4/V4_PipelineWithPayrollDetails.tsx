@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, Settings, Send, Wallet, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Info, Settings, Send, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { V4_PayrollDetailsConfigDrawer } from "./V4_PayrollDetailsConfigDrawer";
@@ -99,34 +99,6 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     toast.info("Payroll form resent");
   };
 
-  const getPayrollStatusBadge = (status?: string) => {
-    switch (status) {
-      case "sent":
-        return {
-          label: "Sent",
-          color: "bg-accent-blue-fill/20 text-accent-blue-text border-accent-blue-outline/30",
-          icon: Clock,
-        };
-      case "in-progress":
-        return {
-          label: "In Progress",
-          color: "bg-accent-yellow-fill/20 text-accent-yellow-text border-accent-yellow-outline/30",
-          icon: Clock,
-        };
-      case "completed":
-        return {
-          label: "Completed",
-          color: "bg-accent-green-fill/20 text-accent-green-text border-accent-green-outline/30",
-          icon: CheckCircle2,
-        };
-      default:
-        return {
-          label: "Not Sent",
-          color: "bg-muted text-muted-foreground",
-          icon: AlertCircle,
-        };
-    }
-  };
 
   // Render the payroll details column as JSX to inject into pipeline
   const renderPayrollColumn = () => (
@@ -136,7 +108,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       transition={{ duration: 0.3, delay: 0.1 }}
       className="flex-shrink-0 w-[280px]"
     >
-      {/* Column Header */}
+      {/* Column Header - matches PipelineView column header styling */}
       <div className="p-3 rounded-t-lg border-t border-x bg-accent-purple-fill/30 border-accent-purple-outline/20">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1">
@@ -158,14 +130,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
               </Tooltip>
             </TooltipProvider>
           </div>
-          <span className="text-xs font-medium text-muted-foreground">
+          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
             {certifiedNeedingPayroll.length}
-          </span>
+          </Badge>
         </div>
       </div>
 
-      {/* Column Content */}
-      <div className="p-2 rounded-b-lg border-b border-x border-border/40 bg-card/30 space-y-2 min-h-[400px]">
+      {/* Column Body - matches PipelineView column body styling */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-purple-fill/30 border-accent-purple-outline/20">
         {certifiedNeedingPayroll.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -185,8 +157,6 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         ) : (
           <AnimatePresence mode="popLayout">
             {certifiedNeedingPayroll.map((contractor) => {
-              const statusBadge = getPayrollStatusBadge(contractor.payrollFormStatus);
-              const StatusIcon = statusBadge.icon;
               const isSending = sendingFormIds.has(contractor.id);
 
               return (
@@ -241,17 +211,6 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                             {contractor.country}
                           </span>
                         </div>
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="flex items-center justify-center py-1">
-                        <Badge
-                          variant="secondary"
-                          className={cn("text-xs gap-1.5", statusBadge.color)}
-                        >
-                          <StatusIcon className="h-3 w-3" />
-                          {statusBadge.label}
-                        </Badge>
                       </div>
 
                       {/* Action Buttons */}
