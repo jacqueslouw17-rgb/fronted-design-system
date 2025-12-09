@@ -72,7 +72,6 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
           {/* Left: Title and Status Badge */}
           <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold text-foreground">Payroll Overview</h3>
-            <Badge className="text-xs font-medium bg-primary/15 text-primary border-primary/30">Current</Badge>
             {getStatusBadge()}
           </div>
 
