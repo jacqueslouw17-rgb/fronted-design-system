@@ -504,15 +504,12 @@ const CompanyAdminDashboardV2: React.FC = () => {
   const getSelectedWorkersForCurrency = (currency: string): string[] => {
     return Array.from(selectedWorkersByCurrency[currency] || new Set());
   };
-
   const getSelectedWorkersCount = (currency: string): number => {
     return selectedWorkersByCurrency[currency]?.size || 0;
   };
-
   const isWorkerSelected = (currency: string, workerId: string): boolean => {
     return selectedWorkersByCurrency[currency]?.has(workerId) || false;
   };
-
   const toggleWorkerSelection = (currency: string, workerId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setSelectedWorkersByCurrency(prev => {
@@ -522,46 +519,51 @@ const CompanyAdminDashboardV2: React.FC = () => {
       } else {
         currentSet.add(workerId);
       }
-      return { ...prev, [currency]: currentSet };
+      return {
+        ...prev,
+        [currency]: currentSet
+      };
     });
   };
-
   const toggleSelectAll = (currency: string, workerIds: string[], isAllSelected: boolean) => {
     setSelectedWorkersByCurrency(prev => {
       if (isAllSelected) {
-        return { ...prev, [currency]: new Set() };
+        return {
+          ...prev,
+          [currency]: new Set()
+        };
       } else {
-        return { ...prev, [currency]: new Set(workerIds) };
+        return {
+          ...prev,
+          [currency]: new Set(workerIds)
+        };
       }
     });
   };
-
   const clearSelection = (currency: string) => {
-    setSelectedWorkersByCurrency(prev => ({ ...prev, [currency]: new Set() }));
+    setSelectedWorkersByCurrency(prev => ({
+      ...prev,
+      [currency]: new Set()
+    }));
   };
-
   const handleBulkEdit = (currency: string) => {
     setCurrentBulkCurrency(currency);
     setBulkEditMode("edit");
     setBulkEditDrawerOpen(true);
   };
-
   const handleBulkAddAdjustment = (currency: string) => {
     setCurrentBulkCurrency(currency);
     setBulkEditMode("adjustment");
     setBulkEditDrawerOpen(true);
   };
-
   const handleBulkSkip = (currency: string) => {
     setCurrentBulkCurrency(currency);
     setSkipConfirmationOpen(true);
   };
-
   const handleBulkReset = (currency: string) => {
     setCurrentBulkCurrency(currency);
     setResetConfirmationOpen(true);
   };
-
   const confirmBulkSkip = () => {
     const selectedIds = getSelectedWorkersForCurrency(currentBulkCurrency);
     setSkippedWorkerIds(prev => {
@@ -573,7 +575,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setSkipConfirmationOpen(false);
     toast.success(`${selectedIds.length} worker${selectedIds.length !== 1 ? 's' : ''} skipped for this batch`);
   };
-
   const confirmBulkReset = () => {
     const selectedIds = getSelectedWorkersForCurrency(currentBulkCurrency);
     // In a real implementation, this would reset overrides
@@ -581,7 +582,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setResetConfirmationOpen(false);
     toast.success(`Reset payroll overrides for ${selectedIds.length} worker${selectedIds.length !== 1 ? 's' : ''}`);
   };
-
   const handleBulkEditApply = (data: any) => {
     const selectedIds = getSelectedWorkersForCurrency(currentBulkCurrency);
     // In a real implementation, this would apply the changes
@@ -589,19 +589,16 @@ const CompanyAdminDashboardV2: React.FC = () => {
     clearSelection(currentBulkCurrency);
     toast.success(`Applied changes to ${selectedIds.length} worker${selectedIds.length !== 1 ? 's' : ''}`);
   };
-
   const getSelectedWorkersData = (currency: string) => {
     const selectedIds = getSelectedWorkersForCurrency(currency);
     const currencyWorkers = contractorsByCurrency[currency] || [];
-    return currencyWorkers
-      .filter(w => selectedIds.includes(w.id))
-      .map(w => ({
-        id: w.id,
-        name: w.name,
-        country: w.country,
-        currency: w.currency,
-        employmentType: w.employmentType
-      }));
+    return currencyWorkers.filter(w => selectedIds.includes(w.id)).map(w => ({
+      id: w.id,
+      name: w.name,
+      country: w.country,
+      currency: w.currency,
+      employmentType: w.employmentType
+    }));
   };
 
   // Handler for opening Worker Workbench drawer from FX Review tables
@@ -639,7 +636,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
     // For now, just show a toast - the mock data doesn't persist
     toast.success("Payroll totals recalculated");
   };
-
   const handleResolveWithCurrency = (currency?: string) => {
     setResolveDrawerPreSelectedCurrency(currency);
     setResolveDrawerOpen(true);
@@ -1898,9 +1894,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
       case "review-fx":
         return <div className="space-y-3">
             {/* Admin Context Helper */}
-            <p className="text-xs text-muted-foreground">
-              Admin can adjust worker payroll values for this batch — no extra approvals are triggered.
-            </p>
+            
 
             {/* Status Bar */}
             <div className="flex items-center justify-between">
@@ -1959,7 +1953,6 @@ const CompanyAdminDashboardV2: React.FC = () => {
             const selectedCount = getSelectedWorkersCount(currency);
             const isAllSelected = selectedCount > 0 && selectedCount === allWorkerIdsInCurrency.length;
             const isSomeSelected = selectedCount > 0 && selectedCount < allWorkerIdsInCurrency.length;
-
             return <Card key={currency} className="border-border/20 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
                   <CardContent className="p-0">
                     <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
@@ -1975,16 +1968,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     </div>
                     
                     {/* Bulk Actions Bar */}
-                    {selectedCycle !== "previous" && (
-                      <CA_BulkActionsBar
-                        selectedCount={selectedCount}
-                        onClearSelection={() => clearSelection(currency)}
-                        onBulkEdit={() => handleBulkEdit(currency)}
-                        onAddAdjustment={() => handleBulkAddAdjustment(currency)}
-                        onSkipInBatch={() => handleBulkSkip(currency)}
-                        onResetToDefaults={() => handleBulkReset(currency)}
-                      />
-                    )}
+                    {selectedCycle !== "previous" && <CA_BulkActionsBar selectedCount={selectedCount} onClearSelection={() => clearSelection(currency)} onBulkEdit={() => handleBulkEdit(currency)} onAddAdjustment={() => handleBulkAddAdjustment(currency)} onSkipInBatch={() => handleBulkSkip(currency)} onResetToDefaults={() => handleBulkReset(currency)} />}
                     
                     {/* Horizontal Scroll Container */}
                     <div className="overflow-visible whitespace-nowrap">
@@ -1995,16 +1979,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                         <TableHeader>
                           <TableRow>
                             {/* Checkbox Column - Sticky */}
-                            {selectedCycle !== "previous" && (
-                              <TableHead className={cn("text-xs min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
-                                <Checkbox
-                                  checked={isAllSelected}
-                                  className={cn(isSomeSelected && "data-[state=checked]:bg-primary/50")}
-                                  onCheckedChange={() => toggleSelectAll(currency, allWorkerIdsInCurrency, isAllSelected)}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </TableHead>
-                            )}
+                            {selectedCycle !== "previous" && <TableHead className={cn("text-xs min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
+                                <Checkbox checked={isAllSelected} className={cn(isSomeSelected && "data-[state=checked]:bg-primary/50")} onCheckedChange={() => toggleSelectAll(currency, allWorkerIdsInCurrency, isAllSelected)} onClick={e => e.stopPropagation()} />
+                              </TableHead>}
                             <TableHead className={cn("text-xs sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")}>
                               Name
                             </TableHead>
@@ -2035,9 +2012,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                         {/* Contractors Sub-Group */}
                         {contractorsList.length > 0 && <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              {selectedCycle !== "previous" && (
-                                <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>
-                              )}
+                              {selectedCycle !== "previous" && <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>}
                               <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")} colSpan={selectedCycle === "previous" ? 1 : undefined}>
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -2064,23 +2039,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             handleOpenWorkerWorkbench(contractor);
                           }}>
                               {/* Checkbox Cell - Sticky */}
-                              {selectedCycle !== "previous" && (
-                                <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
-                                  <Checkbox
-                                    checked={isSelected}
-                                    onCheckedChange={() => {}}
-                                    onClick={(e) => toggleWorkerSelection(currency, contractor.id, e)}
-                                  />
-                                </TableCell>
-                              )}
+                              {selectedCycle !== "previous" && <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
+                                  <Checkbox checked={isSelected} onCheckedChange={() => {}} onClick={e => toggleWorkerSelection(currency, contractor.id, e)} />
+                                </TableCell>}
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")}>
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
-                                  {isSkipped && (
-                                    <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
+                                  {isSkipped && <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
                                       Skipped this batch
-                                    </Badge>
-                                  )}
+                                    </Badge>}
                                   {hasLeave && <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
@@ -2316,9 +2283,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                               </TableRow>}
                             
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
-                              {selectedCycle !== "previous" && (
-                                <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>
-                              )}
+                              {selectedCycle !== "previous" && <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>}
                               <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")}>
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -2353,23 +2318,15 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             handleOpenWorkerWorkbench(contractor);
                           }}>
                               {/* Checkbox Cell - Sticky */}
-                              {selectedCycle !== "previous" && (
-                                <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
-                                  <Checkbox
-                                    checked={isSelected}
-                                    onCheckedChange={() => {}}
-                                    onClick={(e) => toggleWorkerSelection(currency, contractor.id, e)}
-                                  />
-                                </TableCell>
-                              )}
+                              {selectedCycle !== "previous" && <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
+                                  <Checkbox checked={isSelected} onCheckedChange={() => {}} onClick={e => toggleWorkerSelection(currency, contractor.id, e)} />
+                                </TableCell>}
                               <TableCell className={cn("font-medium text-sm sticky left-0 z-30 min-w-[180px] bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")}>
                                 <div className="flex items-center gap-2">
                                   {contractor.name}
-                                  {isSkipped && (
-                                    <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
+                                  {isSkipped && <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">
                                       Skipped this batch
-                                    </Badge>
-                                  )}
+                                    </Badge>}
                                   {hasLeave && <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
@@ -3925,13 +3882,7 @@ You can ask me about:
                               <CA_CurrencyWorkersDrawer open={currencyWorkersDrawerOpen} onClose={() => setCurrencyWorkersDrawerOpen(false)} currency={currencyWorkersDrawerCurrency} employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees} contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors} onViewPayrollPreview={id => toast.info(`View payroll preview for ${id}`)} onViewInvoicePreview={id => toast.info(`View invoice preview for ${id}`)} />
 
                               {/* Worker Workbench Drawer */}
-                              <CA_WorkerWorkbenchDrawer 
-                                open={workerWorkbenchOpen} 
-                                onOpenChange={setWorkerWorkbenchOpen} 
-                                worker={selectedWorkbenchWorker} 
-                                payrollPeriod="November 2025" 
-                                onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} 
-                              />
+                              <CA_WorkerWorkbenchDrawer open={workerWorkbenchOpen} onOpenChange={setWorkerWorkbenchOpen} worker={selectedWorkbenchWorker} payrollPeriod="November 2025" onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} />
                             </div>}
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
@@ -4019,52 +3970,26 @@ You can ask me about:
                               </Card>
 
                               {/* Styled Progress Stepper */}
-                              <CA_FXReviewStepper 
-                                currentStep={currentStep as FXReviewStep} 
-                                completedSteps={(() => {
-                                  const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
-                                  const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
-                                  return stepOrder.slice(0, currentIndex);
-                                })()} 
-                                onStepClick={(step) => setCurrentStep(step as PayrollStep)}
-                              />
+                              <CA_FXReviewStepper currentStep={currentStep as FXReviewStep} completedSteps={(() => {
+                          const stepOrder: FXReviewStep[] = ["review-fx", "exceptions", "execute", "track"];
+                          const currentIndex = stepOrder.indexOf(currentStep as FXReviewStep);
+                          return stepOrder.slice(0, currentIndex);
+                        })()} onStepClick={step => setCurrentStep(step as PayrollStep)} />
 
                               {/* Step Content (Flow 7 v1 content) */}
                               {renderStepContent()}
 
                               {/* Worker Workbench Drawer (for FX Review step) */}
-                              <CA_WorkerWorkbenchDrawer 
-                                open={workerWorkbenchOpen} 
-                                onOpenChange={setWorkerWorkbenchOpen} 
-                                worker={selectedWorkbenchWorker} 
-                                payrollPeriod="November 2025" 
-                                onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} 
-                              />
+                              <CA_WorkerWorkbenchDrawer open={workerWorkbenchOpen} onOpenChange={setWorkerWorkbenchOpen} worker={selectedWorkbenchWorker} payrollPeriod="November 2025" onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} />
 
                               {/* Bulk Edit Drawer */}
-                              <CA_BulkEditDrawer
-                                open={bulkEditDrawerOpen}
-                                onOpenChange={setBulkEditDrawerOpen}
-                                selectedWorkers={getSelectedWorkersData(currentBulkCurrency)}
-                                mode={bulkEditMode}
-                                onApply={handleBulkEditApply}
-                              />
+                              <CA_BulkEditDrawer open={bulkEditDrawerOpen} onOpenChange={setBulkEditDrawerOpen} selectedWorkers={getSelectedWorkersData(currentBulkCurrency)} mode={bulkEditMode} onApply={handleBulkEditApply} />
 
                               {/* Skip Confirmation Modal */}
-                              <CA_SkipConfirmationModal
-                                open={skipConfirmationOpen}
-                                onOpenChange={setSkipConfirmationOpen}
-                                workerCount={getSelectedWorkersCount(currentBulkCurrency)}
-                                onConfirm={confirmBulkSkip}
-                              />
+                              <CA_SkipConfirmationModal open={skipConfirmationOpen} onOpenChange={setSkipConfirmationOpen} workerCount={getSelectedWorkersCount(currentBulkCurrency)} onConfirm={confirmBulkSkip} />
 
                               {/* Reset Confirmation Modal */}
-                              <CA_ResetConfirmationModal
-                                open={resetConfirmationOpen}
-                                onOpenChange={setResetConfirmationOpen}
-                                workerCount={getSelectedWorkersCount(currentBulkCurrency)}
-                                onConfirm={confirmBulkReset}
-                              />
+                              <CA_ResetConfirmationModal open={resetConfirmationOpen} onOpenChange={setResetConfirmationOpen} workerCount={getSelectedWorkersCount(currentBulkCurrency)} onConfirm={confirmBulkReset} />
 
                               {/* Step Navigation */}
                               
