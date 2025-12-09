@@ -4,7 +4,6 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +14,7 @@ import { useF41v3_DashboardStore, type WindowState, type Adjustment, type LeaveR
 import { F41v3_AdjustmentModal } from './F41v3_AdjustmentModal';
 import { F41v3_ConfirmPayDialog } from './F41v3_ConfirmPayDialog';
 import { F41v3_AdjustmentDetailModal } from './F41v3_AdjustmentDetailModal';
+import { F41v3_PayslipHistoryDrawer } from './F41v3_PayslipHistoryDrawer';
 import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -77,11 +77,11 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 };
 
 export const F41v3_UpcomingPayCard = () => {
-  const navigate = useNavigate();
   const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
 
   const {
@@ -383,7 +383,7 @@ export const F41v3_UpcomingPayCard = () => {
           <div className="text-center">
             <Button 
               variant="link" 
-              onClick={() => navigate('/candidate-dashboard-employee-v3/payslips')}
+              onClick={() => setPayslipDrawerOpen(true)}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               View previous payslips
@@ -392,7 +392,7 @@ export const F41v3_UpcomingPayCard = () => {
         </CardContent>
       </Card>
 
-      {/* Modals */}
+      {/* Modals & Drawers */}
       <F41v3_AdjustmentModal
         open={adjustmentModalOpen}
         onOpenChange={setAdjustmentModalOpen}
@@ -409,6 +409,11 @@ export const F41v3_UpcomingPayCard = () => {
         adjustment={selectedAdjustment}
         onClose={() => setSelectedAdjustment(null)}
         currency={currency}
+      />
+
+      <F41v3_PayslipHistoryDrawer
+        open={payslipDrawerOpen}
+        onOpenChange={setPayslipDrawerOpen}
       />
     </>
   );
