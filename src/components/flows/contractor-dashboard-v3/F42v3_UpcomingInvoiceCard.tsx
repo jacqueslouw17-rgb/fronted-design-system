@@ -1,6 +1,7 @@
 /**
  * Flow 4.2 — Contractor Dashboard v3
  * Upcoming Invoice Card with T-5 confirmation
+ * Aligned with Flow 4.1 Employee Dashboard patterns
  */
 
 import { useState } from 'react';
@@ -9,11 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronDown, ChevronUp, Lock, FileText } from 'lucide-react';
+import { ChevronDown, ChevronUp, Lock, FileText, X } from 'lucide-react';
 import { useF42v3_DashboardStore, type F42v3_WindowState, type F42v3_Adjustment } from '@/stores/F42v3_DashboardStore';
 import { F42v3_AdjustmentDrawer } from './F42v3_AdjustmentDrawer';
 import { F42v3_ConfirmInvoiceDialog } from './F42v3_ConfirmInvoiceDialog';
 import { F42v3_AdjustmentDetailDrawer } from './F42v3_AdjustmentDetailDrawer';
+import { F42v3_WithdrawDialog } from './F42v3_WithdrawDialog';
+import { F42v3_InvoiceHistoryDrawer } from './F42v3_InvoiceHistoryDrawer';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -31,7 +35,7 @@ const formatDate = (dateStr: string) => {
 
 const getStatusBadge = (windowState: F42v3_WindowState, confirmed: boolean) => {
   if (windowState === 'PAID') {
-    return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Paid</Badge>;
+    return <Badge className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">Paid</Badge>;
   }
   if (windowState === 'CLOSED') {
     return <Badge variant="secondary" className="bg-muted text-muted-foreground">Locked</Badge>;
@@ -40,21 +44,21 @@ const getStatusBadge = (windowState: F42v3_WindowState, confirmed: boolean) => {
     return <Badge variant="secondary">Pending</Badge>;
   }
   if (confirmed) {
-    return <Badge className="bg-accent-green/20 text-accent-green-text border-accent-green/30">Confirmed</Badge>;
+    return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Confirmed</Badge>;
   }
-  return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Action needed</Badge>;
+  return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
 };
 
 const getAdjustmentStatusColor = (status: F42v3_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
-      return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
     case 'Admin approved':
-      return 'bg-accent-green/20 text-accent-green-text border-accent-green/30';
+      return 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30';
     case 'Admin rejected':
-      return 'bg-destructive/20 text-destructive border-destructive/30';
+      return 'bg-red-100 text-red-700 border-red-300 dark:bg-destructive/20 dark:text-destructive dark:border-destructive/30';
     case 'Queued for next cycle':
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -64,7 +68,10 @@ export const F42v3_UpcomingInvoiceCard = () => {
   const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [invoiceHistoryOpen, setInvoiceHistoryOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<F42v3_Adjustment | null>(null);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
 
   const {
     nextInvoiceDate,
@@ -77,6 +84,7 @@ export const F42v3_UpcomingInvoiceCard = () => {
     confirmed,
     adjustments,
     daysUntilClose,
+    withdrawAdjustment,
   } = useF42v3_DashboardStore();
 
   const isWindowOpen = windowState === 'OPEN';
@@ -86,6 +94,35 @@ export const F42v3_UpcomingInvoiceCard = () => {
 
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const adjustmentItems = lineItems.filter(item => item.type === 'Adjustment');
+
+  // Check if a tag is removable (pending + window open)
+  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen;
+
+  // Handle withdraw click from chip
+  const handleWithdrawClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Don't trigger parent click (open detail drawer)
+    setWithdrawTargetId(id);
+    setWithdrawDialogOpen(true);
+  };
+
+  // Handle cancel request from detail drawer
+  const handleCancelFromDrawer = (id: string) => {
+    setSelectedAdjustment(null); // Close detail drawer first
+    setWithdrawTargetId(id);
+    setWithdrawDialogOpen(true);
+  };
+
+  // Confirm withdraw
+  const handleConfirmWithdraw = () => {
+    if (!withdrawTargetId) return;
+    withdrawAdjustment(withdrawTargetId);
+    toast.success('Request withdrawn.');
+    setWithdrawTargetId(null);
+  };
+
+  // Count pending adjustments
+  const pendingCount = adjustments.filter(a => a.status === 'Pending').length;
+  const approvedCount = adjustments.filter(a => a.status === 'Admin approved').length;
 
   // Empty state
   if (isNone) {
@@ -121,7 +158,7 @@ export const F42v3_UpcomingInvoiceCard = () => {
             {isWindowOpen && !confirmed && (
               <>
                 <span className="text-muted-foreground/60">•</span>
-                <span className="text-amber-400 flex items-center gap-1">
+                <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
                   Submission closes in {daysUntilClose} days
                   <span className="inline-flex">
                     <span className="animate-pulse">.</span>
@@ -256,34 +293,81 @@ export const F42v3_UpcomingInvoiceCard = () => {
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Adjustments Strip */}
+          {/* Your Changes (this cycle) - aligned with employee pattern */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Your adjustments (this cycle)
+              Your changes (this cycle)
             </p>
             {adjustments.length === 0 ? (
-              <p className="text-sm text-muted-foreground/60">No adjustments yet</p>
+              <p className="text-sm text-muted-foreground/60">
+                Invoice adjustments: 0 · No changes submitted yet
+              </p>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {adjustments.map((adj) => (
-                  <button
-                    key={adj.id}
-                    onClick={() => setSelectedAdjustment(adj)}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80',
-                      getAdjustmentStatusColor(adj.status)
-                    )}
-                  >
-                    <span>{adj.type}</span>
-                    {adj.amount !== null && (
-                      <span>{formatCurrency(adj.amount, currency)}</span>
-                    )}
-                    {adj.type === 'Additional hours' && adj.hours && (
-                      <span>{adj.hours}h</span>
-                    )}
-                    <span className="opacity-70">({adj.status})</span>
-                  </button>
-                ))}
+              <div className="space-y-3">
+                {/* Summary text */}
+                <p className="text-sm text-muted-foreground">
+                  Invoice adjustments: {pendingCount} pending
+                  {approvedCount > 0 && ` · ${approvedCount} approved`}
+                </p>
+
+                {/* All tags inline */}
+                <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
+                  {adjustments.map((adj) => (
+                    <div
+                      key={adj.id}
+                      className={cn(
+                        'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
+                        getAdjustmentStatusColor(adj.status),
+                        isRemovable(adj.status) ? 'pr-1.5' : ''
+                      )}
+                      role="listitem"
+                    >
+                      <button
+                        onClick={() => setSelectedAdjustment(adj)}
+                        aria-label={`${adj.type}${adj.category ? `, ${adj.category}` : ''}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Additional hours' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
+                        className="inline-flex items-center gap-1.5 focus:outline-none"
+                      >
+                        <span>{adj.type}</span>
+                        {adj.category && (
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span>{adj.category}</span>
+                          </>
+                        )}
+                        {adj.amount !== null && (
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span>{adj.amount < 0 ? '' : ''}{formatCurrency(adj.amount, currency)}</span>
+                          </>
+                        )}
+                        {adj.type === 'Additional hours' && adj.hours && (
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span>+{adj.hours}h</span>
+                          </>
+                        )}
+                        <span aria-hidden="true">·</span>
+                        <span className="opacity-70">{adj.status}</span>
+                      </button>
+                      {isRemovable(adj.status) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleWithdrawClick(e, adj.id)}
+                              className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
+                              aria-label="Cancel request"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Cancel request
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -309,7 +393,11 @@ export const F42v3_UpcomingInvoiceCard = () => {
 
           {/* View previous invoices link */}
           <div className="text-center">
-            <Button variant="link" className="text-sm text-muted-foreground hover:text-foreground">
+            <Button 
+              variant="link" 
+              onClick={() => setInvoiceHistoryOpen(true)}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               View previous invoices
             </Button>
           </div>
@@ -333,7 +421,20 @@ export const F42v3_UpcomingInvoiceCard = () => {
       <F42v3_AdjustmentDetailDrawer
         adjustment={selectedAdjustment}
         onClose={() => setSelectedAdjustment(null)}
+        onCancelRequest={handleCancelFromDrawer}
         currency={currency}
+        isWindowOpen={isWindowOpen}
+      />
+
+      <F42v3_WithdrawDialog
+        open={withdrawDialogOpen}
+        onOpenChange={setWithdrawDialogOpen}
+        onConfirm={handleConfirmWithdraw}
+      />
+
+      <F42v3_InvoiceHistoryDrawer
+        open={invoiceHistoryOpen}
+        onOpenChange={setInvoiceHistoryOpen}
       />
     </>
   );
