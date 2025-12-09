@@ -828,11 +828,6 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
             </CardContent>
           </Card>
 
-          {/* Compliance Badge */}
-          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <Shield className="h-4 w-4 text-primary" />
-            <span>GDPR & {candidate.country} Payment Regulations Compliant</span>
-          </div>
 
           {/* Field Configuration */}
           <div className="mt-6 space-y-6">
