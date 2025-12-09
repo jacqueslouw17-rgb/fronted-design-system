@@ -4,6 +4,8 @@
  * This component wraps the original PipelineView and adds
  * a "Collect Payroll Details" column after the Certified column.
  * Only used in Flow 1 - Fronted Admin Dashboard v4.
+ * 
+ * Updated: Forces cache refresh
  */
 
 import React, { useState } from "react";
