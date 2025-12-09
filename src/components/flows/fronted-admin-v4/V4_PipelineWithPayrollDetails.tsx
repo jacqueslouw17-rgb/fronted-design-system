@@ -50,6 +50,8 @@ interface V4_Contractor {
   employmentType?: "contractor" | "employee";
   email?: string;
   hasATSData?: boolean;
+  // V4-specific candidate details tracking
+  candidateFormLastSentAt?: string;
   // V4-specific payroll tracking
   payrollFormStatus?: "not-configured" | "configured" | "sent" | "completed";
   payrollFormLastSentAt?: string;
@@ -109,6 +111,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
          c.payrollFormStatus !== "completed"
   );
 
+  // Collect Candidate Details: status is data-pending (form sent, awaiting data)
+  const collectCandidateDetailsContractors = v4Contractors.filter(
+    c => c.status === "data-pending"
+  );
+
   // Collecting: payroll form sent but not completed
   const collectingPayrollContractors = v4Contractors.filter(
     c => c.payrollFormStatus === "sent"
@@ -119,10 +126,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     c => c.payrollFormStatus === "completed"
   );
 
-  // Contractors for main pipeline (exclude CERTIFIED status - we render those ourselves)
+  // Contractors for main pipeline (exclude statuses we render ourselves)
   const pipelineContractors = v4Contractors.filter(
     c => c.status !== "certified" && 
          c.status !== "CERTIFIED" && 
+         c.status !== "data-pending" &&
          c.payrollFormStatus !== "sent" && 
          c.payrollFormStatus !== "completed"
   );
@@ -199,6 +207,29 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     }, 600);
   }, []);
 
+  const handleResendCandidateDetailsForm = useCallback((contractorId: string) => {
+    setSendingFormIds(prev => new Set([...prev, contractorId]));
+    
+    setTimeout(() => {
+      setV4Contractors(prev => prev.map(c => 
+        c.id === contractorId 
+          ? { 
+              ...c, 
+              candidateFormLastSentAt: new Date().toLocaleString(),
+            }
+          : c
+      ));
+      
+      setSendingFormIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(contractorId);
+        return newSet;
+      });
+
+      toast.success("Candidate details form resent");
+    }, 600);
+  }, []);
+
   const handleViewDetails = useCallback((contractor: V4_Contractor) => {
     setSelectedContractor(contractor);
     setViewDetailsDrawerOpen(true);
@@ -228,6 +259,146 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       description: "Worker has completed their payroll form.",
     });
   }, []);
+
+  // Render Collect Candidate Details Column (custom V4 version)
+  const renderCollectCandidateDetailsColumn = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex-shrink-0 w-[280px]"
+    >
+      {/* Column Header - darker */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-accent-yellow-fill/50 border-accent-yellow-outline/30">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-medium text-sm text-foreground">
+                      Collect Candidate Details
+                    </h3>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-sm">
+                    Awaiting candidate to submit their details form.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+            {collectCandidateDetailsContractors.length}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Column Body - lighter */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-yellow-fill/15 border-accent-yellow-outline/20">
+        {collectCandidateDetailsContractors.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-12 px-4 text-center"
+          >
+            <div className="w-12 h-12 rounded-full bg-accent-yellow-fill/20 flex items-center justify-center mb-3">
+              <Clock className="h-6 w-6 text-accent-yellow-text" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              No pending forms
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Candidates awaiting details submission will appear here
+            </p>
+          </motion.div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {collectCandidateDetailsContractors.map((contractor) => {
+              const isSending = sendingFormIds.has(contractor.id);
+
+              return (
+                <motion.div
+                  key={contractor.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8, x: 100 }}
+                  transition={{
+                    layout: { duration: 0.5, type: "spring" },
+                    opacity: { duration: 0.2 },
+                  }}
+                >
+                  <Card className="hover:shadow-card transition-shadow border border-accent-yellow-outline/30 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-3 space-y-2">
+                      {/* Worker Header */}
+                      <div className="flex items-start gap-2">
+                        <Avatar className="h-8 w-8 bg-primary/10">
+                          <AvatarFallback className="text-xs">
+                            {contractor.name.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm text-foreground truncate">
+                              {contractor.name}
+                            </span>
+                            <span className="text-base">{contractor.countryFlag}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {contractor.role}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Salary</span>
+                          <span className="font-medium text-foreground">{contractor.salary}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium text-foreground">{contractor.country}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Context */}
+                      <div className="pt-1 pb-1 text-center">
+                        <p className="text-xs text-muted-foreground">
+                          Awaiting candidate details
+                        </p>
+                        {contractor.candidateFormLastSentAt && (
+                          <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                            Last sent: {contractor.candidateFormLastSentAt}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="pt-1">
+                        <Button
+                          size="sm"
+                          className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90"
+                          disabled={isSending}
+                          onClick={() => handleResendCandidateDetailsForm(contractor.id)}
+                        >
+                          <RefreshCw className={cn("h-3.5 w-3.5", isSending && "animate-spin")} />
+                          {isSending ? "Sending..." : "Resend"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
+      </div>
+    </motion.div>
+  );
 
   // Render Certified Column (custom V4 version with Configure & Send buttons)
   const renderCertifiedColumn = () => (
@@ -656,25 +827,27 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   return (
     <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max items-start">
-        {/* Original Pipeline - hide its Certified column (7th column) since we render our own */}
-        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(7)]:!hidden">
+        {/* Original Pipeline - hide columns we render ourselves: 2nd (data-pending) and 7th (CERTIFIED) */}
+        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(2)]:!hidden [&>div>div>div:nth-child(7)]:!hidden">
           <PipelineView
             contractors={pipelineContractors as any}
             onContractorUpdate={(updated) => {
-              // Merge updated contractors back, preserving payroll stages
+              // Merge updated contractors back, preserving custom stages
               setV4Contractors(prev => {
                 const updatedIds = new Set(updated.map((c: any) => c.id));
-                // Keep contractors that were not in the update (payroll stages)
-                const payrollStageContractors = prev.filter(
+                // Keep contractors that were not in the update (custom stages)
+                const customStageContractors = prev.filter(
                   c => c.payrollFormStatus === "sent" || 
                        c.payrollFormStatus === "completed" ||
+                       c.status === "data-pending" ||
                        ((c.status === "certified" || c.status === "CERTIFIED") && !updatedIds.has(c.id))
                 );
                 // Merge with updated pipeline contractors
-                return [...payrollStageContractors, ...updated.map((c: any) => ({
+                return [...customStageContractors, ...updated.map((c: any) => ({
                   ...c,
                   payrollFormStatus: prev.find(p => p.id === c.id)?.payrollFormStatus || "not-configured",
                   payrollFormConfigured: prev.find(p => p.id === c.id)?.payrollFormConfigured,
+                  candidateFormLastSentAt: prev.find(p => p.id === c.id)?.candidateFormLastSentAt,
                 }))];
               });
             }}
@@ -684,6 +857,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
             onRemoveContractor={onRemoveContractor}
           />
         </div>
+
+        {/* Custom Collect Candidate Details Column */}
+        {renderCollectCandidateDetailsColumn()}
 
         {/* Custom Certified Column */}
         {renderCertifiedColumn()}
