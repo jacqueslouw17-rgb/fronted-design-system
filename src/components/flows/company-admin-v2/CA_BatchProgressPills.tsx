@@ -35,19 +35,20 @@ export const CA_BatchProgressPills: React.FC<CA_BatchProgressPillsProps> = ({
     <div className="flex items-center justify-center gap-2 py-4">
       {stepConfig.map((step, index) => {
         const state = getStepState(step.id);
-        const isClickable = !disabled && (state === "done" || state === "active");
+        // Only allow clicking on completed steps (to go back), not future steps
+        const isClickable = !disabled && state === "done";
         
         return (
           <React.Fragment key={step.id}>
             <button
               onClick={() => isClickable && onStepClick(step.id)}
-              disabled={!isClickable}
+              disabled={!isClickable && state !== "active"}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
                 state === "active" && "bg-primary text-primary-foreground shadow-md",
                 state === "done" && "bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer",
                 state === "todo" && "bg-muted/50 text-muted-foreground cursor-not-allowed",
-                isClickable && state !== "active" && "hover:scale-105"
+                isClickable && "hover:scale-105"
               )}
             >
               <span className={cn(

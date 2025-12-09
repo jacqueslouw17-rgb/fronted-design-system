@@ -158,7 +158,12 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
           </div>}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end pt-4 border-t border-border/30">
+        <div className="flex items-center justify-between pt-4 border-t border-border/30">
+          {/* Admin-only helper text */}
+          <p className="text-xs text-muted-foreground">
+            Admin approvals only — no manager workflow yet.
+          </p>
+          
           <div className="flex items-center gap-3">
             {totalPending > 0 && <Button onClick={onResolveItems} className="h-9 gap-2">
                 <Clock className="h-4 w-4" />
@@ -175,9 +180,6 @@ export const CA_PayrollOverviewCard: React.FC<CA_PayrollOverviewCardProps> = ({
             </Button>
           </div>
         </div>
-
-        {/* Footer Hint */}
-        
       </CardContent>
     </Card>;
 };
