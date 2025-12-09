@@ -31,7 +31,7 @@ const formatDate = (dateStr: string) => {
 
 const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
   if (windowState === 'PAID') {
-    return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Paid</Badge>;
+    return <Badge className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">Paid</Badge>;
   }
   if (windowState === 'CLOSED') {
     return <Badge variant="secondary" className="bg-muted text-muted-foreground">Locked</Badge>;
@@ -40,9 +40,9 @@ const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
     return <Badge variant="secondary">Pending</Badge>;
   }
   if (confirmed) {
-    return <Badge className="bg-accent-green/20 text-accent-green-text border-accent-green/30">Confirmed</Badge>;
+    return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Confirmed</Badge>;
   }
-  return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Action needed</Badge>;
+  return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
 };
 
 const getAdjustmentStatusColor = (status: Adjustment['status']) => {
