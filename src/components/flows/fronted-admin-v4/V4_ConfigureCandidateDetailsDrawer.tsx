@@ -462,9 +462,29 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
     const showEditabilityControl = isPrefilled && field.enabled;
     // Get ATS value if available for pre-populating
     const atsValue = hasATS && field.atsExampleValue ? field.atsExampleValue : "";
+    // Use admin value or ATS value for prefilled fields
+    const currentValue = field.adminValue || atsValue;
+    
+    // Dynamic helper text based on state
+    const getHelperText = () => {
+      if (field.filledBy === "candidate") {
+        return "Shown as an empty field on the worker form.";
+      }
+      // Pre-filled states
+      if (!field.enabled) {
+        return "Pre-filled by admin. Hidden from worker, used only for contracts / payroll.";
+      }
+      if (field.editability === "readonly") {
+        return "Pre-filled before sending. Worker can see but not change this value.";
+      }
+      return "Pre-filled before sending. Worker can change this value.";
+    };
     
     return (
-      <div key={field.id} className="flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+      <div key={field.id} className={cn(
+        "flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50",
+        isHidden && "opacity-60"
+      )}>
         <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium">{field.label}</span>
@@ -473,36 +493,13 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
             )}
           </div>
           
-          {/* Helper text and filled-by controls - faded when hidden */}
+          {/* Helper text */}
+          {field.helperText && (
+            <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
+          )}
+          
+          {/* Controls - faded when hidden */}
           <div className={cn(isHidden && "opacity-50")}>
-            {field.helperText && (
-              <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
-            )}
-            
-            {/* ATS source indicator - only show when ATS data exists and is being used */}
-            {hasATS && (
-              <div className="mt-1.5">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent-blue-fill/50 border border-accent-blue-outline/30 cursor-help">
-                        <Database className="h-3 w-3 text-accent-blue-text" />
-                        <span className="text-[10px] font-medium text-accent-blue-text">ATS data available</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs">
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium">ATS Field: {field.atsFieldName}</p>
-                        {field.atsExampleValue && (
-                          <p className="text-xs text-muted-foreground">Example: {field.atsExampleValue}</p>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            
             {/* Filled by selector */}
             <div className="mt-2">
               <div className="flex items-center gap-1.5 mb-1">
@@ -519,7 +516,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Candidate form
+                  Worker form
                 </button>
                 <button
                   type="button"
@@ -534,23 +531,52 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   Pre-filled
                 </button>
               </div>
-              
-              {/* Helper text based on selection */}
-              {field.filledBy === "candidate" ? (
-                <p className="text-[10px] text-muted-foreground mt-1.5">
-                  To be filled by candidate
-                </p>
-              ) : (
-                <p className="text-[10px] text-muted-foreground mt-1.5">
-                  Not asked on candidate form. Pre-filled from ATS or by an admin.
-                </p>
+
+              {/* Pre-filled value input - only shown when Pre-filled is selected */}
+              {isPrefilled && (
+                <div className="mt-2 space-y-1.5">
+                  {/* From ATS pill when ATS value is available */}
+                  {hasATS && atsValue && !field.adminValue && (
+                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20">
+                      <Database className="h-3 w-3 text-primary" />
+                      <span className="text-[10px] font-medium text-primary">From ATS</span>
+                    </div>
+                  )}
+                  
+                  {/* Value input based on field type */}
+                  {field.type === "date" ? (
+                    <Input
+                      type="date"
+                      value={currentValue}
+                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                      className="h-8 text-xs bg-background"
+                      placeholder="Select date"
+                    />
+                  ) : field.type === "select" ? (
+                    <Input
+                      type="text"
+                      value={currentValue}
+                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                      className="h-8 text-xs bg-background"
+                      placeholder="Enter value..."
+                    />
+                  ) : (
+                    <Input
+                      type="text"
+                      value={currentValue}
+                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                      className="h-8 text-xs bg-background"
+                      placeholder="Enter value..."
+                    />
+                  )}
+                </div>
               )}
 
-              {/* Editability control - only for prefilled + shown fields */}
+              {/* Worker can edit? control - only for prefilled + shown fields */}
               {showEditabilityControl && (
                 <div className="mt-2">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[11px] text-muted-foreground font-medium">Candidate can edit?</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">Worker can edit?</span>
                   </div>
                   <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
                     <button
@@ -581,13 +607,18 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   </div>
                 </div>
               )}
+              
+              {/* Dynamic helper text */}
+              <p className="text-[10px] text-muted-foreground mt-1.5">
+                {getHelperText()}
+              </p>
             </div>
 
             {/* Hidden on form indicator */}
             {isHidden && (
               <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                 <EyeOff className="h-3 w-3" />
-                <span>Hidden on candidate form</span>
+                <span>Hidden on worker form. Value is used only in internal workflows / contracts.</span>
               </div>
             )}
           </div>
@@ -621,6 +652,22 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
     const isPrefilled = field.filledBy === "prefilled";
     const isHidden = !field.enabled;
     const showEditabilityControl = isPrefilled && field.enabled;
+    const currentValue = field.adminValue || "";
+    
+    // Dynamic helper text based on state
+    const getHelperText = () => {
+      if (field.filledBy === "candidate") {
+        return "Shown as an empty field on the worker form.";
+      }
+      // Pre-filled states
+      if (!field.enabled) {
+        return "Pre-filled by admin. Hidden from worker, used only for contracts / payroll.";
+      }
+      if (field.editability === "readonly") {
+        return "Pre-filled before sending. Worker can see but not change this value.";
+      }
+      return "Pre-filled before sending. Worker can change this value.";
+    };
     
     return (
       <div 
@@ -635,7 +682,8 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
           "flex items-start justify-between p-3 rounded-lg border bg-card/50 transition-all",
           isDragging && "opacity-50 border-primary/50 bg-primary/5",
           isDragOver && "border-primary border-dashed bg-primary/10",
-          !isDragging && !isDragOver && "border-border/40"
+          !isDragging && !isDragOver && "border-border/40",
+          isHidden && "opacity-60"
         )}
       >
         <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -670,7 +718,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    Candidate form
+                    Worker form
                   </button>
                   <button
                     type="button"
@@ -685,23 +733,35 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                     Pre-filled
                   </button>
                 </div>
-                
-                {/* Helper text based on selection */}
-                {field.filledBy === "candidate" ? (
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
-                    To be filled by candidate
-                  </p>
-                ) : (
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
-                    Not asked on candidate form. Pre-filled from ATS or by an admin.
-                  </p>
+
+                {/* Pre-filled value input - only shown when Pre-filled is selected */}
+                {isPrefilled && (
+                  <div className="mt-2">
+                    {field.type === "date" ? (
+                      <Input
+                        type="date"
+                        value={currentValue}
+                        onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                        placeholder="Select date"
+                      />
+                    ) : (
+                      <Input
+                        type="text"
+                        value={currentValue}
+                        onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                        placeholder="Enter value..."
+                      />
+                    )}
+                  </div>
                 )}
 
-                {/* Editability control - only for prefilled + shown fields */}
+                {/* Worker can edit? control - only for prefilled + shown fields */}
                 {showEditabilityControl && (
                   <div className="mt-2">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-[11px] text-muted-foreground font-medium">Candidate can edit?</span>
+                      <span className="text-[11px] text-muted-foreground font-medium">Worker can edit?</span>
                     </div>
                     <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
                       <button
@@ -732,13 +792,18 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                     </div>
                   </div>
                 )}
+                
+                {/* Dynamic helper text */}
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  {getHelperText()}
+                </p>
               </div>
 
               {/* Hidden on form indicator */}
               {isHidden && (
                 <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                   <EyeOff className="h-3 w-3" />
-                  <span>Hidden on candidate form</span>
+                  <span>Hidden on worker form. Value is used only in internal workflows / contracts.</span>
                 </div>
               )}
             </div>
