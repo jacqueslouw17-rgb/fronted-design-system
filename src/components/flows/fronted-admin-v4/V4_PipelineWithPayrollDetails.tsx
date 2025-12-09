@@ -827,22 +827,19 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   return (
     <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max items-start">
-        {/* Original Pipeline - hide columns we render ourselves: 2nd (data-pending) and 7th (CERTIFIED) */}
-        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(2)]:!hidden [&>div>div>div:nth-child(7)]:!hidden">
+        {/* Column 1: Offer Accepted - only show first column from PipelineView */}
+        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(n+2)]:!hidden">
           <PipelineView
             contractors={pipelineContractors as any}
             onContractorUpdate={(updated) => {
-              // Merge updated contractors back, preserving custom stages
               setV4Contractors(prev => {
                 const updatedIds = new Set(updated.map((c: any) => c.id));
-                // Keep contractors that were not in the update (custom stages)
                 const customStageContractors = prev.filter(
                   c => c.payrollFormStatus === "sent" || 
                        c.payrollFormStatus === "completed" ||
                        c.status === "data-pending" ||
                        ((c.status === "certified" || c.status === "CERTIFIED") && !updatedIds.has(c.id))
                 );
-                // Merge with updated pipeline contractors
                 return [...customStageContractors, ...updated.map((c: any) => ({
                   ...c,
                   payrollFormStatus: prev.find(p => p.id === c.id)?.payrollFormStatus || "not-configured",
@@ -858,16 +855,28 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
           />
         </div>
 
-        {/* Custom Collect Candidate Details Column */}
+        {/* Column 2: Collect Candidate Details */}
         {renderCollectCandidateDetailsColumn()}
 
-        {/* Custom Certified Column */}
+        {/* Columns 3-6: Pipeline middle columns */}
+        <div className="v4-pipeline-middle flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(1)]:!hidden [&>div>div>div:nth-child(2)]:!hidden [&>div>div>div:nth-child(7)]:!hidden">
+          <PipelineView
+            contractors={pipelineContractors as any}
+            onContractorUpdate={() => {}}
+            onDraftContract={onDraftContract}
+            onSignatureComplete={onSignatureComplete}
+            onAddCandidate={onAddCandidate}
+            onRemoveContractor={onRemoveContractor}
+          />
+        </div>
+
+        {/* Column 7: Certified */}
         {renderCertifiedColumn()}
 
-        {/* Collect Payroll Details Column */}
+        {/* Column 8: Collect Payroll Details */}
         {renderCollectPayrollColumn()}
 
-        {/* Done Column */}
+        {/* Column 9: Done */}
         {renderDoneColumn()}
       </div>
 
