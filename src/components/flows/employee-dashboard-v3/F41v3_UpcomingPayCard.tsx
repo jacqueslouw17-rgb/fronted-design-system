@@ -139,7 +139,7 @@ export const F41v3_UpcomingPayCard = () => {
             {isWindowOpen && !confirmed && (
               <>
                 <span className="text-muted-foreground/60">•</span>
-                <span className="text-amber-400 flex items-center gap-1">
+                <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
                   Confirmation closes in {daysUntilClose} days
                   <span className="inline-flex">
                     <span className="animate-pulse">.</span>
