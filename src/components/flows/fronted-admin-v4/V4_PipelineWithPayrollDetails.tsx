@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { V4_PayrollDetailsConfigDrawer } from "./V4_PayrollDetailsConfigDrawer";
+import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig } from "./V4_PayrollDetailsConfigDrawer";
 import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
 
 interface V4_Contractor {
@@ -57,6 +57,9 @@ interface V4_Contractor {
   payrollFormLastSentAt?: string;
   payrollFormResendCount?: number;
   payrollFormConfigured?: boolean;
+  // V4-specific custom payroll fields
+  payrollCustomFields?: CustomPayrollField[];
+  payrollFieldConfig?: PayrollFieldConfig[];
   payrollDetails?: {
     bankCountry?: string;
     bankName?: string;
@@ -68,6 +71,7 @@ interface V4_Contractor {
     emergencyContactName?: string;
     emergencyContactPhone?: string;
     submittedAt?: string;
+    customFieldResponses?: Record<string, any>;
   };
 }
 
@@ -146,10 +150,16 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     setConfigDrawerOpen(true);
   }, []);
 
-  const handleSaveConfig = useCallback((contractorId: string) => {
+  const handleSaveConfig = useCallback((contractorId: string, fieldConfig: PayrollFieldConfig[], customFields: CustomPayrollField[]) => {
     setV4Contractors(prev => prev.map(c => 
       c.id === contractorId 
-        ? { ...c, payrollFormStatus: "configured" as const, payrollFormConfigured: true }
+        ? { 
+            ...c, 
+            payrollFormStatus: "configured" as const, 
+            payrollFormConfigured: true,
+            payrollFieldConfig: fieldConfig,
+            payrollCustomFields: customFields,
+          }
         : c
     ));
     toast.success("Payroll form configured");
@@ -898,7 +908,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
               }
             : null
         }
-        onSave={(candidateId) => handleSaveConfig(candidateId)}
+        onSave={handleSaveConfig}
+        initialCustomFields={selectedContractor?.payrollCustomFields || []}
       />
 
       {/* View Details Drawer */}
