@@ -7,10 +7,11 @@
  * Includes custom field creation for additional onboarding questions
  * 
  * Sections:
- * 1. Identity & Documents (DOB, ID type, ID number)
- * 2. Tax & Residency (Tax residence country, Tax residence city/region)
- * 3. Address (Residential address, Nationality)
- * 4. Custom fields
+ * 1. Data Source (ATS toggle controls)
+ * 2. Identity & Documents (DOB, ID type, ID number)
+ * 3. Tax & Residency (Tax residence country, Tax residence city/region)
+ * 4. Address (Residential address, Nationality)
+ * 5. Custom fields
  */
 
 import React, { useState, useEffect } from "react";
@@ -26,7 +27,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload, Database, Info, Lock, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,7 @@ interface V4_Candidate {
   email?: string;
   startDate?: string;
   employmentType?: "contractor" | "employee";
+  hasATSData?: boolean;
 }
 
 export interface OnboardingFieldConfig {
@@ -50,6 +53,8 @@ export interface OnboardingFieldConfig {
   required: boolean;
   enabled: boolean;
   helperText?: string;
+  atsFieldName?: string; // Maps to ATS field if available
+  atsExampleValue?: string; // Example value from ATS for tooltip
 }
 
 export type CustomOnboardingFieldType = "short_text" | "long_text" | "number" | "date" | "single_select" | "file_upload";
@@ -66,6 +71,8 @@ export interface CustomOnboardingField {
 export interface OnboardingConfig {
   baseFields: OnboardingFieldConfig[];
   customFields: CustomOnboardingField[];
+  useATSData?: boolean;
+  allowCandidateEditATS?: boolean;
 }
 
 interface V4_ConfigureCandidateDetailsDrawerProps {
@@ -78,15 +85,15 @@ interface V4_ConfigureCandidateDetailsDrawerProps {
 
 const DEFAULT_FIELD_CONFIG: OnboardingFieldConfig[] = [
   // Identity & Documents
-  { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID" },
+  { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID", atsFieldName: "candidate.date_of_birth", atsExampleValue: "1992-03-15" },
   { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc." },
   { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID" },
   // Tax & Residency
-  { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes" },
+  { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes", atsFieldName: "candidate.tax_country", atsExampleValue: "Philippines" },
   { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence" },
   // Address
-  { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city" },
-  { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality" },
+  { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city", atsFieldName: "candidate.address", atsExampleValue: "123 Main St, Makati City 1200" },
+  { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality", atsFieldName: "candidate.nationality", atsExampleValue: "Filipino" },
 ];
 
 const FIELD_TYPE_LABELS: Record<CustomOnboardingFieldType, string> = {
@@ -121,6 +128,14 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
     initialConfig?.customFields || []
   );
   
+  // ATS data controls
+  const [useATSData, setUseATSData] = useState<boolean>(
+    initialConfig?.useATSData ?? true
+  );
+  const [allowCandidateEditATS, setAllowCandidateEditATS] = useState<boolean>(
+    initialConfig?.allowCandidateEditATS ?? true
+  );
+  
   // Modal states
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
   const [editingField, setEditingField] = useState<CustomOnboardingField | null>(null);
@@ -138,11 +153,16 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
   const [formFieldEnabled, setFormFieldEnabled] = useState(true);
   const [formFieldOptions, setFormFieldOptions] = useState<string[]>([""]);
 
+  // Check if candidate has ATS data
+  const hasATSProfile = candidate?.hasATSData ?? false;
+
   // Reset fields when candidate changes
   useEffect(() => {
     if (candidate) {
       setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
       setCustomFields(initialConfig?.customFields || []);
+      setUseATSData(initialConfig?.useATSData ?? (candidate.hasATSData ?? true));
+      setAllowCandidateEditATS(initialConfig?.allowCandidateEditATS ?? true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidate?.id]);
@@ -181,7 +201,12 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
 
   const handleSave = () => {
     if (!candidate) return;
-    onSave(candidate.id, { baseFields: fieldConfig, customFields });
+    onSave(candidate.id, { 
+      baseFields: fieldConfig, 
+      customFields,
+      useATSData: hasATSProfile ? useATSData : false,
+      allowCandidateEditATS 
+    });
     toast.success("Onboarding form configuration saved");
     onOpenChange(false);
   };
@@ -189,6 +214,8 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
   const handleCancel = () => {
     setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
     setCustomFields(initialConfig?.customFields || []);
+    setUseATSData(initialConfig?.useATSData ?? true);
+    setAllowCandidateEditATS(initialConfig?.allowCandidateEditATS ?? true);
     onOpenChange(false);
   };
 
@@ -339,40 +366,91 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
 
   const isFormValid = formFieldName.trim() !== "" && formFieldType !== undefined;
 
-  const renderFieldRow = (field: OnboardingFieldConfig) => (
-    <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{field.label}</span>
-          {field.required && field.enabled && (
-            <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
-          )}
+  // Get field source caption based on ATS toggles
+  const getFieldSourceCaption = (field: OnboardingFieldConfig): string => {
+    if (!field.atsFieldName || !hasATSProfile) {
+      return "To be filled by candidate";
+    }
+    if (!useATSData) {
+      return "Candidate will provide this";
+    }
+    if (allowCandidateEditATS) {
+      return "Prefilled from ATS • Candidate can edit";
+    }
+    return "Prefilled from ATS • Locked for candidate";
+  };
+
+  const renderFieldRow = (field: OnboardingFieldConfig) => {
+    const hasATS = field.atsFieldName && hasATSProfile;
+    const sourceCaption = getFieldSourceCaption(field);
+    
+    return (
+      <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+        <div className="flex-1 min-w-0 pr-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium">{field.label}</span>
+            {field.required && field.enabled && (
+              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
+            )}
+          </div>
+          
+          {/* Source indicator pill and caption */}
+          <div className="mt-1.5 space-y-0.5">
+            {hasATS ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent-blue-fill/50 border border-accent-blue-outline/30 cursor-help">
+                      <Database className="h-3 w-3 text-accent-blue-text" />
+                      <span className="text-[10px] font-medium text-accent-blue-text">From ATS</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium">ATS Field: {field.atsFieldName}</p>
+                      {field.atsExampleValue && (
+                        <p className="text-xs text-muted-foreground">Example: {field.atsExampleValue}</p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
+                <Edit3 className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+              </div>
+            )}
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+              {useATSData && hasATS && !allowCandidateEditATS && (
+                <Lock className="h-3 w-3" />
+              )}
+              {sourceCaption}
+            </p>
+          </div>
         </div>
-        {field.helperText && (
-          <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
-        )}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Required</span>
+            <Switch 
+              checked={field.required} 
+              onCheckedChange={() => handleToggleRequired(field.id)}
+              disabled={!field.enabled}
+              className="scale-75"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Show</span>
+            <Switch 
+              checked={field.enabled} 
+              onCheckedChange={() => handleToggleEnabled(field.id)}
+              className="scale-75"
+            />
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Required</span>
-          <Switch 
-            checked={field.required} 
-            onCheckedChange={() => handleToggleRequired(field.id)}
-            disabled={!field.enabled}
-            className="scale-75"
-          />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Show</span>
-          <Switch 
-            checked={field.enabled} 
-            onCheckedChange={() => handleToggleEnabled(field.id)}
-            className="scale-75"
-          />
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -415,6 +493,55 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
               </div>
             </CardContent>
           </Card>
+
+          {/* Data Source Section */}
+          <div className="mt-4 p-4 rounded-lg border border-border/40 bg-muted/20 space-y-3">
+            <div className="flex items-center gap-2">
+              <Database className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold">Data source</Label>
+            </div>
+            
+            {hasATSProfile ? (
+              <div className="space-y-3">
+                {/* Primary toggle: Use ATS data */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 pr-4">
+                    <p className="text-sm font-medium">Use ATS data for this candidate</p>
+                    <p className="text-xs text-muted-foreground">
+                      Where available, Kurt will pre-fill fields with data from your ATS for this candidate.
+                    </p>
+                  </div>
+                  <Switch 
+                    checked={useATSData} 
+                    onCheckedChange={setUseATSData}
+                  />
+                </div>
+                
+                {/* Secondary toggle: Allow candidate to edit ATS fields */}
+                {useATSData && (
+                  <div className="flex items-center justify-between pl-4 border-l-2 border-primary/30">
+                    <div className="flex-1 pr-4">
+                      <p className="text-sm font-medium">Allow candidate to edit ATS fields</p>
+                      <p className="text-xs text-muted-foreground">
+                        Turn off if contract-critical fields must match ATS exactly.
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={allowCandidateEditATS} 
+                      onCheckedChange={setAllowCandidateEditATS}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border/40">
+                <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  No ATS profile connected – all fields will be completed by the candidate or admin.
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Compliance Badge */}
           <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
@@ -518,22 +645,30 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                           !isDragging && !isDragOver && "border-border/40"
                         )}
                       >
-                        <div className="flex items-center gap-3 flex-1">
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing" />
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-medium truncate">{field.label}</span>
                               {field.required && field.enabled && (
                                 <Badge variant="secondary" className="text-xs bg-primary/10 text-primary shrink-0">Required</Badge>
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
+                            <div className="flex items-center gap-1.5 mt-1">
                               <TypeIcon className="h-3 w-3 text-muted-foreground" />
                               <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
                             </div>
+                            {/* Candidate fills pill for custom fields */}
+                            <div className="mt-1.5">
+                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
+                                <Edit3 className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">To be filled by candidate</p>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 shrink-0">
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs text-muted-foreground">Required</span>
                             <Switch 
