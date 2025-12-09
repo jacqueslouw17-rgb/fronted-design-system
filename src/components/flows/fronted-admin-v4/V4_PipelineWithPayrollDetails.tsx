@@ -334,14 +334,6 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         </div>
                       </div>
 
-                      {/* Certified Status */}
-                      <div className="flex justify-center py-1">
-                        <Badge className="bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 gap-1 text-xs">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Certified
-                        </Badge>
-                      </div>
-
                       {/* Action Buttons - Same style as Offer Accepted */}
                       <div className="flex gap-2 pt-1">
                         <Button
