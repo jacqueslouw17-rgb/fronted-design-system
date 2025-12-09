@@ -19,6 +19,7 @@ import ContractFlowDemo from "./pages/ContractFlowDemo";
 import AdminContractingMultiCompany from "./pages/AdminContractingMultiCompany";
 import AdminContractingMultiCompanyV3 from "./pages/AdminContractingMultiCompanyV3";
 import Flow1V3ProfileSettings from "./pages/Flow1V3ProfileSettings";
+import FrontedAdminV4ProfileSettings from "./pages/FrontedAdminV4ProfileSettings";
 import CompanyAdminV1 from "./pages/CompanyAdminV1";
 import ChangePassword from "./pages/ChangePassword";
 import ContractCreation from "./pages/ContractCreation";
@@ -138,6 +139,7 @@ const App = () => (
         <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/fronted-admin-dashboard-v4" element={<FrontedAdminDashboardV4 />} />
+        <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />

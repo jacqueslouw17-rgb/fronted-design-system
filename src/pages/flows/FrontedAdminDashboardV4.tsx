@@ -3623,6 +3623,8 @@ You can ask me about:
             userName={`${userData.firstName} ${userData.lastName}`} 
             isDrawerOpen={isDrawerOpen} 
             onDrawerToggle={toggleDrawer}
+            profileSettingsUrl="/flow-1-v4/profile-settings"
+            dashboardUrl="/flows/fronted-admin-dashboard-v4"
             companySwitcher={{
               companies: companies,
               selectedCompany: selectedCompany,
