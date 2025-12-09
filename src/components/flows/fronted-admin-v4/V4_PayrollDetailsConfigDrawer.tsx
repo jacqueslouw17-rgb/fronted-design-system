@@ -522,23 +522,57 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
               <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
             </div>
             
-            {/* Source indicator pill */}
-            <div className="mt-1.5">
+            {/* Filled by selector */}
+            <div className="mt-2">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
+              </div>
+              <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => handleCustomFieldFilledByChange(field.id, "candidate")}
+                  className={cn(
+                    "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                    field.filledBy === "candidate" 
+                      ? "bg-background text-foreground shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Worker form
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCustomFieldFilledByChange(field.id, "prefilled")}
+                  className={cn(
+                    "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                    field.filledBy === "prefilled" 
+                      ? "bg-background text-foreground shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Pre-filled by admin
+                </button>
+              </div>
+              
+              {/* Helper text and admin input based on selection */}
               {field.filledBy === "candidate" ? (
-                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
-                  <Edit3 className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
-                </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  To be filled by worker
+                </p>
               ) : (
-                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
-                  <Database className="h-3 w-3 text-amber-600" />
-                  <span className="text-[10px] font-medium text-amber-600">Pre-filled by admin</span>
+                <div className="mt-1.5 space-y-2">
+                  <p className="text-[10px] text-muted-foreground">
+                    Not shown on worker form. Pre-filled in Fronted by an admin.
+                  </p>
+                  <Input
+                    placeholder={`Admin value for ${field.label}`}
+                    value={field.adminValue || ""}
+                    onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                    className="h-8 text-sm"
+                  />
                 </div>
               )}
             </div>
-            
-            {/* Filled by control */}
-            {renderFilledByControl(field.id, field.filledBy, handleCustomFieldFilledByChange)}
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
