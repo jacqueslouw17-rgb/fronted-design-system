@@ -1989,9 +1989,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                   }}>
                         <TableHeader>
                           <TableRow>
-                            {/* Checkbox Column */}
+                            {/* Checkbox Column - Sticky */}
                             {selectedCycle !== "previous" && (
-                              <TableHead className="text-xs min-w-[40px] w-[40px]">
+                              <TableHead className={cn("text-xs min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]")}>
                                 <Checkbox
                                   checked={isAllSelected}
                                   className={cn(isSomeSelected && "data-[state=checked]:bg-primary/50")}
@@ -2031,7 +2031,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                         {contractorsList.length > 0 && <>
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
                               {selectedCycle !== "previous" && (
-                                <TableCell className="py-2 bg-muted/20"></TableCell>
+                                <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>
                               )}
                               <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")} colSpan={selectedCycle === "previous" ? 1 : undefined}>
                                 <div className="flex items-center gap-2">
@@ -2058,9 +2058,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             if (selectedCycle === "previous") return;
                             handleOpenWorkerWorkbench(contractor);
                           }}>
-                              {/* Checkbox Cell */}
+                              {/* Checkbox Cell - Sticky */}
                               {selectedCycle !== "previous" && (
-                                <TableCell className="min-w-[40px] w-[40px]">
+                                <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => {}}
@@ -2312,7 +2312,7 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             
                             <TableRow className="bg-muted/20 hover:bg-muted/20">
                               {selectedCycle !== "previous" && (
-                                <TableCell className="py-2 bg-muted/20"></TableCell>
+                                <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20 min-w-[40px] w-[40px]", scrollStates[currency] && "backdrop-blur-md")}></TableCell>
                               )}
                               <TableCell className={cn("py-2 sticky left-0 z-30 bg-muted/20", scrollStates[currency] && "backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", selectedCycle !== "previous" && "left-[40px]")}>
                                 <div className="flex items-center gap-2">
@@ -2347,8 +2347,9 @@ const CompanyAdminDashboardV2: React.FC = () => {
                             if (selectedCycle === "previous") return;
                             handleOpenWorkerWorkbench(contractor);
                           }}>
+                              {/* Checkbox Cell - Sticky */}
                               {selectedCycle !== "previous" && (
-                                <TableCell className="min-w-[40px] w-[40px]">
+                                <TableCell className={cn("min-w-[40px] w-[40px] sticky left-0 z-30 bg-transparent transition-all duration-200", scrollStates[currency] && "bg-card/40 backdrop-blur-md shadow-[2px_0_6px_0px_rgba(0,0,0,0.06)]", isSelected && "bg-primary/10", !isSelected && "bg-card/30")}>
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => {}}
