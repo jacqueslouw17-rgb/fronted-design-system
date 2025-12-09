@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronDown, ChevronUp, Lock, Info, FileText } from 'lucide-react';
-import { useF41v3_DashboardStore, type WindowState, type Adjustment } from '@/stores/F41v3_DashboardStore';
+import { useF41v3_DashboardStore, type WindowState, type Adjustment, type LeaveRequest } from '@/stores/F41v3_DashboardStore';
 import { F41v3_AdjustmentModal } from './F41v3_AdjustmentModal';
 import { F41v3_ConfirmPayDialog } from './F41v3_ConfirmPayDialog';
 import { F41v3_AdjustmentDetailModal } from './F41v3_AdjustmentDetailModal';
@@ -60,6 +60,21 @@ const getAdjustmentStatusColor = (status: Adjustment['status']) => {
   }
 };
 
+const getLeaveStatusColor = (status: LeaveRequest['status']) => {
+  switch (status) {
+    case 'Pending':
+      return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    case 'Admin approved':
+      return 'bg-accent-green/20 text-accent-green-text border-accent-green/30';
+    case 'Admin rejected':
+      return 'bg-destructive/20 text-destructive border-destructive/30';
+    case 'Queued for next cycle':
+      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    default:
+      return 'bg-muted text-muted-foreground';
+  }
+};
+
 export const F41v3_UpcomingPayCard = () => {
   const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
@@ -77,6 +92,7 @@ export const F41v3_UpcomingPayCard = () => {
     windowState,
     confirmed,
     adjustments,
+    leaveRequests,
     daysUntilClose,
   } = useF41v3_DashboardStore();
 
@@ -254,34 +270,77 @@ export const F41v3_UpcomingPayCard = () => {
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Adjustments Strip */}
+          {/* Changes Summary Strip */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Your adjustments (this cycle)
+              Your changes (this cycle)
             </p>
-            {adjustments.length === 0 ? (
-              <p className="text-sm text-muted-foreground/60">No adjustments yet</p>
+            {adjustments.length === 0 && leaveRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground/60">No changes yet</p>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {adjustments.map((adj) => (
-                  <button
-                    key={adj.id}
-                    onClick={() => setSelectedAdjustment(adj)}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80',
-                      getAdjustmentStatusColor(adj.status)
-                    )}
-                  >
-                    <span>{adj.type}</span>
-                    {adj.amount !== null && (
-                      <span>{formatCurrency(adj.amount, currency)}</span>
-                    )}
-                    {adj.type === 'Overtime' && adj.hours && (
-                      <span>{adj.hours}h</span>
-                    )}
-                    <span className="opacity-70">({adj.status})</span>
-                  </button>
-                ))}
+              <div className="space-y-3">
+                {/* Summary text */}
+                <p className="text-sm text-muted-foreground">
+                  {adjustments.length > 0 && (
+                    <span>
+                      Pay adjustments: {adjustments.filter(a => a.status === 'Pending').length} pending
+                      {adjustments.filter(a => a.status === 'Admin approved').length > 0 && 
+                        ` · ${adjustments.filter(a => a.status === 'Admin approved').length} approved`}
+                    </span>
+                  )}
+                  {adjustments.length > 0 && leaveRequests.length > 0 && ' · '}
+                  {leaveRequests.length > 0 && (
+                    <span>
+                      Leave: {leaveRequests.filter(l => l.status === 'Pending').length} pending
+                      {leaveRequests.filter(l => l.status === 'Admin approved').length > 0 && 
+                        ` · ${leaveRequests.filter(l => l.status === 'Admin approved').length} approved`}
+                    </span>
+                  )}
+                </p>
+
+                {/* Adjustment chips */}
+                {adjustments.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {adjustments.map((adj) => (
+                      <button
+                        key={adj.id}
+                        onClick={() => setSelectedAdjustment(adj)}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80',
+                          getAdjustmentStatusColor(adj.status)
+                        )}
+                      >
+                        <span>{adj.type}</span>
+                        {adj.amount !== null && (
+                          <span>{formatCurrency(adj.amount, currency)}</span>
+                        )}
+                        {adj.type === 'Overtime' && adj.hours && (
+                          <span>{adj.hours}h</span>
+                        )}
+                        <span className="opacity-70">({adj.status})</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Leave chips */}
+                {leaveRequests.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {leaveRequests.map((leave) => (
+                      <span
+                        key={leave.id}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
+                          getLeaveStatusColor(leave.status)
+                        )}
+                      >
+                        <span>{leave.leaveType}</span>
+                        <span>{leave.totalDays}d</span>
+                        <span className="opacity-70">({leave.status})</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -301,7 +360,7 @@ export const F41v3_UpcomingPayCard = () => {
               disabled={isWindowClosed || isPaid}
               className="flex-1"
             >
-              Request adjustment
+              Request change
             </Button>
           </div>
 
