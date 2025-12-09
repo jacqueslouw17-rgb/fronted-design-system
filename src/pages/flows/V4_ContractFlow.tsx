@@ -419,8 +419,9 @@ const V4_ContractFlow: React.FC = () => {
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }} 
-                    className="flex flex-col min-h-full"
+                    className="flex flex-col min-h-screen"
                   >
+                    {/* Header row with back and close buttons */}
                     <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
                       <Button 
                         variant="ghost" 
@@ -440,11 +441,15 @@ const V4_ContractFlow: React.FC = () => {
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="flex-1 p-8">
-                      <ContractReviewBoard 
-                        candidates={selectedCandidates} 
-                        onStartSigning={handleSendForSignature}
-                      />
+                    {/* Centered content area */}
+                    <div className="flex-1 flex items-center justify-center p-8">
+                      <div className={`w-full ${selectedCandidates.length === 1 ? 'max-w-lg' : 'max-w-4xl'}`}>
+                        <ContractReviewBoard 
+                          candidates={selectedCandidates} 
+                          onStartSigning={handleSendForSignature}
+                          onBack={goBackToDrafting}
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 )}
