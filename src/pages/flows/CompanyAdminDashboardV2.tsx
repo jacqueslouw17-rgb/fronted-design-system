@@ -1850,8 +1850,11 @@ const CompanyAdminDashboardV2: React.FC = () => {
     setIsMarkCompleteConfirmOpen(false);
     setForceCompleteJustification("");
 
-    // Navigate back to overview and scroll to top
-    navigate("/payroll-batch");
+    // Reset batch state to show completed view (like October/previous)
+    setCurrentBatch(null);
+    setCurrentStep("review-fx");
+    
+    // Scroll to top
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -3843,8 +3846,39 @@ You can ask me about:
                               <CA_CompletedPaymentDetailsCard employees={allContractors.filter(c => c.employmentType === "employee")} contractors={allContractors.filter(c => c.employmentType === "contractor")} workerTypeFilter={workerTypeFilter} onWorkerTypeFilterChange={v => setWorkerTypeFilter(v as typeof workerTypeFilter)} onOpenPaymentDetail={handleOpenPaymentDetail} getPaymentStatus={getPaymentStatus} getPaymentDue={getPaymentDue} paymentReceipts={paymentReceipts} onViewReceipt={handleViewReceipt} />
                             </div>}
 
-                          {/* CURRENT Period - In Review or In Batch */}
-                          {selectedCycle === "current" && !currentBatch && <div className="space-y-6">
+                          {/* CURRENT Period - Completed View (same as Previous) */}
+                          {selectedCycle === "current" && !currentBatch && payrollCycleData.current.status === "completed" && <div className="space-y-6">
+                              {/* Payroll Run Summary Card */}
+                              <CA_PayrollRunSummaryCard grossPay="$52.1K" netPay="$45.3K" frontedFees="$1,580" totalCost="$53.7K" employeeCount={allContractors.filter(c => c.employmentType === "employee").length} contractorCount={allContractors.filter(c => c.employmentType === "contractor").length} currencyCount={3} paidPercentage={100} selectedPeriod={selectedCycle} onPeriodChange={val => setSelectedCycle(val)} periods={payrollCycleData} onCountryRules={() => setCountryRulesDrawerOpen(true)} />
+                              
+                              {/* Track & Reconcile Card */}
+                              <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+                                <CardContent className="p-6">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h3 className="text-base font-semibold text-foreground">Track & Reconcile: {payrollCycleData.current.label}</h3>
+                                      <p className="text-sm text-muted-foreground mt-1">Review completed employee postings and contractor payouts</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                                        <Download className="h-3.5 w-3.5" />
+                                        Export
+                                      </Button>
+                                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                                        <FileText className="h-3.5 w-3.5" />
+                                        Audit Log
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              {/* Payment Details Table */}
+                              <CA_CompletedPaymentDetailsCard employees={allContractors.filter(c => c.employmentType === "employee")} contractors={allContractors.filter(c => c.employmentType === "contractor")} workerTypeFilter={workerTypeFilter} onWorkerTypeFilterChange={v => setWorkerTypeFilter(v as typeof workerTypeFilter)} onOpenPaymentDetail={handleOpenPaymentDetail} getPaymentStatus={getPaymentStatus} getPaymentDue={getPaymentDue} paymentReceipts={paymentReceipts} onViewReceipt={handleViewReceipt} />
+                            </div>}
+
+                          {/* CURRENT Period - In Review (not completed, no batch) */}
+                          {selectedCycle === "current" && !currentBatch && payrollCycleData.current.status !== "completed" && <div className="space-y-6">
                               {/* Card A: Payroll Overview & Actions */}
                               <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={val => setSelectedCycle(val)} selectedPeriod={selectedCycle} periods={payrollCycleData} />
 
