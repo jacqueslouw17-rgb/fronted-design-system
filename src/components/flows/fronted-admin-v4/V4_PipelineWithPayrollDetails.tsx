@@ -95,6 +95,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const [selectedContractor, setSelectedContractor] = useState<V4_Contractor | null>(null);
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
   
+  // V4-specific multi-select state for Offer Accepted column
+  const [selectedOfferAcceptedIds, setSelectedOfferAcceptedIds] = useState<Set<string>>(new Set());
+  
   // V4-specific multi-select state for Prepare Contract column
   const [selectedDraftingIds, setSelectedDraftingIds] = useState<Set<string>>(new Set());
   
@@ -247,6 +250,55 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     toast.success("Candidate removed");
   }, [onRemoveContractor]);
 
+  // V4-specific: Multi-select handlers for Offer Accepted column
+  const handleSelectOfferAcceptedContractor = useCallback((id: string, checked: boolean) => {
+    setSelectedOfferAcceptedIds(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const areAllOfferAcceptedSelected = useCallback(() => {
+    if (offerAcceptedContractors.length === 0) return false;
+    return offerAcceptedContractors.every(c => selectedOfferAcceptedIds.has(c.id));
+  }, [offerAcceptedContractors, selectedOfferAcceptedIds]);
+
+  const handleSelectAllOfferAccepted = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedOfferAcceptedIds(new Set(offerAcceptedContractors.map(c => c.id)));
+    } else {
+      setSelectedOfferAcceptedIds(new Set());
+    }
+  }, [offerAcceptedContractors]);
+
+  const getOfferAcceptedSelectedCount = useCallback(() => {
+    return offerAcceptedContractors.filter(c => selectedOfferAcceptedIds.has(c.id)).length;
+  }, [offerAcceptedContractors, selectedOfferAcceptedIds]);
+
+  const handleBulkSendCandidateForms = useCallback(() => {
+    const selectedIds = Array.from(selectedOfferAcceptedIds).filter(id => 
+      offerAcceptedContractors.find(c => c.id === id)
+    );
+    if (selectedIds.length > 0) {
+      setV4Contractors(prev => prev.map(c => 
+        selectedIds.includes(c.id) ? {
+          ...c,
+          status: "data-pending",
+          formSent: true,
+          onboardingFormSent: true,
+          candidateFormLastSentAt: new Date().toLocaleString()
+        } : c
+      ));
+      setSelectedOfferAcceptedIds(new Set());
+      toast.success(`Forms sent to ${selectedIds.length} candidates`);
+    }
+  }, [selectedOfferAcceptedIds, offerAcceptedContractors]);
+
   // V4-specific: Multi-select handlers for Prepare Contract column
   const handleSelectDraftingContractor = useCallback((id: string, checked: boolean) => {
     setSelectedDraftingIds(prev => {
@@ -259,6 +311,19 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       return newSet;
     });
   }, []);
+
+  const areAllDraftingSelected = useCallback(() => {
+    if (prepareContractContractors.length === 0) return false;
+    return prepareContractContractors.every(c => selectedDraftingIds.has(c.id));
+  }, [prepareContractContractors, selectedDraftingIds]);
+
+  const handleSelectAllDrafting = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedDraftingIds(new Set(prepareContractContractors.map(c => c.id)));
+    } else {
+      setSelectedDraftingIds(new Set());
+    }
+  }, [prepareContractContractors]);
 
   const getDraftingSelectedCount = useCallback(() => {
     return prepareContractContractors.filter(c => selectedDraftingIds.has(c.id)).length;
@@ -274,6 +339,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       setSelectedDraftingIds(new Set());
     }
   }, [selectedDraftingIds, prepareContractContractors, navigate]);
+
 
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
@@ -296,149 +362,187 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   }, []);
 
   // Render Offer Accepted Column (custom V4 version with candidate details config)
-  const renderOfferAcceptedColumn = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: 0.3
-  }} className="flex-shrink-0 w-[280px]">
-      {/* Column Header */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-muted/50 border-border">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-medium text-sm text-foreground">
-                      Offer Accepted
-                    </h3>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-sm">
-                    Candidate has accepted the offer. Configure and send the onboarding form.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+  const renderOfferAcceptedColumn = () => {
+    const selectedCount = getOfferAcceptedSelectedCount();
+    
+    return (
+      <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.3
+      }} className="flex-shrink-0 w-[280px]">
+        {/* Column Header */}
+        <div className="p-3 rounded-t-lg border-t border-x bg-muted/50 border-border">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1">
+              {/* Select All Checkbox */}
+              {offerAcceptedContractors.length > 0 && (
+                <Checkbox
+                  checked={areAllOfferAcceptedSelected()}
+                  onCheckedChange={(checked) => handleSelectAllOfferAccepted(checked as boolean)}
+                  className="h-4 w-4"
+                />
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-medium text-sm text-foreground">
+                        Offer Accepted
+                      </h3>
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p className="text-sm">
+                      Candidate has accepted the offer. Configure and send the onboarding form.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-2">
+              {selectedCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {selectedCount} selected
+                </span>
+              )}
+              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                {offerAcceptedContractors.length}
+              </Badge>
+              {onAddCandidate && (
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAddCandidate}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
-          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-            {offerAcceptedContractors.length}
-          </Badge>
-          {onAddCandidate && (
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAddCandidate}>
-              <Plus className="h-4 w-4" />
-            </Button>
+          
+          {/* Bulk Action Button */}
+          {selectedCount > 0 && (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                className="w-full text-xs h-7"
+                onClick={handleBulkSendCandidateForms}
+              >
+                <Send className="h-3 w-3 mr-1" />
+                Send Forms ({selectedCount})
+              </Button>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Column Body */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-muted/20 border-border/50">
-        {offerAcceptedContractors.length === 0 ? <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-muted/40 flex items-center justify-center mb-3">
-              <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              No new offers
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Candidates who accept offers will appear here
-            </p>
-          </motion.div> : <AnimatePresence mode="popLayout">
-            {offerAcceptedContractors.map(contractor => {
-          const isSending = sendingFormIds.has(contractor.id);
-          return <motion.div key={contractor.id} layout initial={{
-            opacity: 0,
-            scale: 0.8
-          }} animate={{
-            opacity: 1,
-            scale: 1
-          }} exit={{
-            opacity: 0,
-            scale: 0.8,
-            x: 100
-          }} transition={{
-            layout: {
-              duration: 0.5,
-              type: "spring"
-            },
-            opacity: {
-              duration: 0.2
-            }
-          }}>
-                  <Card className="hover:shadow-card transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
-                    <CardContent className="p-3 space-y-2">
-                      {/* Worker Header */}
-                      <div className="flex items-start gap-2">
-                        <Avatar className="h-8 w-8 bg-primary/10">
-                          <AvatarFallback className="text-xs">
-                            {contractor.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium text-sm text-foreground truncate">
-                              {contractor.name}
-                            </span>
-                            <span className="text-base">{contractor.countryFlag}</span>
+        {/* Column Body */}
+        <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-muted/20 border-border/50">
+          {offerAcceptedContractors.length === 0 ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="w-12 h-12 rounded-full bg-muted/40 flex items-center justify-center mb-3">
+                <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-sm font-medium text-foreground mb-1">
+                No new offers
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Candidates who accept offers will appear here
+              </p>
+            </motion.div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {offerAcceptedContractors.map(contractor => {
+                const isSending = sendingFormIds.has(contractor.id);
+                return (
+                  <motion.div key={contractor.id} layout initial={{
+                    opacity: 0,
+                    scale: 0.8
+                  }} animate={{
+                    opacity: 1,
+                    scale: 1
+                  }} exit={{
+                    opacity: 0,
+                    scale: 0.8,
+                    x: 100
+                  }} transition={{
+                    layout: { duration: 0.5, type: "spring" },
+                    opacity: { duration: 0.2 }
+                  }}>
+                    <Card className="hover:shadow-card transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
+                      <CardContent className="p-3 space-y-2">
+                        {/* Worker Header with Checkbox */}
+                        <div className="flex items-start gap-2">
+                          <Checkbox
+                            checked={selectedOfferAcceptedIds.has(contractor.id)}
+                            onCheckedChange={(checked) => handleSelectOfferAcceptedContractor(contractor.id, checked as boolean)}
+                            className="h-4 w-4 mt-1"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <Avatar className="h-8 w-8 bg-primary/10">
+                            <AvatarFallback className="text-xs">
+                              {contractor.name.split(" ").map(n => n[0]).join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-sm text-foreground truncate">
+                                {contractor.name}
+                              </span>
+                              <span className="text-base">{contractor.countryFlag}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {contractor.role}
+                            </p>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {contractor.role}
-                          </p>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveContractor(contractor.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveContractor(contractor.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
 
-                      {/* Details */}
-                      <div className="flex flex-col gap-1.5 text-[11px]">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
-                          <span className="font-medium text-foreground">{contractor.salary}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Country</span>
-                          <span className="font-medium text-foreground">{contractor.country}</span>
-                        </div>
-                        {contractor.employmentType && (
+                        {/* Details */}
+                        <div className="flex flex-col gap-1.5 text-[11px]">
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Type</span>
-                            <Badge variant="outline" className="text-[10px] h-4 capitalize">
-                              {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
-                            </Badge>
+                            <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
+                            <span className="font-medium text-foreground">{contractor.salary}</span>
                           </div>
-                        )}
-                      </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Country</span>
+                            <span className="font-medium text-foreground">{contractor.country}</span>
+                          </div>
+                          {contractor.employmentType && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-muted-foreground">Type</span>
+                              <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                                {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 pt-1">
-                        <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground" onClick={() => handleOpenCandidateConfig(contractor)}>
-                          <Settings className="h-3 w-3" />
-                          Configure
-                        </Button>
-                        <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={isSending} onClick={() => handleOpenSendCandidateForm(contractor)}>
-                          <Send className="h-3 w-3" />
-                          {isSending ? "Sending..." : "Send Form"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>;
-        })}
-          </AnimatePresence>}
-      </div>
-    </motion.div>;
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 pt-1">
+                          <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground" onClick={() => handleOpenCandidateConfig(contractor)}>
+                            <Settings className="h-3 w-3" />
+                            Configure
+                          </Button>
+                          <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={isSending} onClick={() => handleOpenSendCandidateForm(contractor)}>
+                            <Send className="h-3 w-3" />
+                            {isSending ? "Sending..." : "Send Form"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
 
 
   // Render Collect Candidate Details Column (custom V4 version)
@@ -594,6 +698,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         <div className="p-3 rounded-t-lg border-t border-x bg-accent-blue-fill/50 border-accent-blue-outline/30">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-1">
+              {/* Select All Checkbox */}
+              {prepareContractContractors.length > 0 && (
+                <Checkbox
+                  checked={areAllDraftingSelected()}
+                  onCheckedChange={(checked) => handleSelectAllDrafting(checked as boolean)}
+                  className="h-4 w-4"
+                />
+              )}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
