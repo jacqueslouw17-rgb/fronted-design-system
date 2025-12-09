@@ -427,20 +427,10 @@ const DesignSystem = () => {
 
           <TabsContent value="flows" className="mt-8">
             <div className="flex justify-end mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  localStorage.setItem('flowOrder', JSON.stringify(flowOrder));
-                  toast.success("Flow order saved!", {
-                    description: "Your custom order will persist across sessions."
-                  });
-                }}
-                className="gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save Current Order
-              </Button>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Save className="h-3.5 w-3.5" />
+                Drag to reorder · Changes save automatically
+              </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {flowOrder.map((flowId) => {
