@@ -3860,13 +3860,13 @@ You can ask me about:
                                       <p className="text-sm text-muted-foreground mt-1">Review completed employee postings and contractor payouts</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                                      <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-2">
                                         <Download className="h-3.5 w-3.5" />
-                                        Export
+                                        Export CSV
                                       </Button>
-                                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                                      <Button variant="outline" size="sm" onClick={handleDownloadAuditPDF} className="gap-2">
                                         <FileText className="h-3.5 w-3.5" />
-                                        Audit Log
+                                        Audit PDF
                                       </Button>
                                     </div>
                                   </div>
