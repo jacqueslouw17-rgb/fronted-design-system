@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronDown, ChevronUp, Lock, Info, FileText } from 'lucide-react';
+import { ChevronDown, ChevronUp, Lock, Info, FileText, X } from 'lucide-react';
 import { useF41v3_DashboardStore, type WindowState, type Adjustment, type LeaveRequest } from '@/stores/F41v3_DashboardStore';
 import { F41v3_AdjustmentModal } from './F41v3_AdjustmentModal';
 import { F41v3_ConfirmPayDialog } from './F41v3_ConfirmPayDialog';
 import { F41v3_AdjustmentDetailModal } from './F41v3_AdjustmentDetailModal';
 import { F41v3_PayslipHistoryDrawer } from './F41v3_PayslipHistoryDrawer';
+import { F41v3_WithdrawDialog } from './F41v3_WithdrawDialog';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -83,6 +85,8 @@ export const F41v3_UpcomingPayCard = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
 
   const {
     nextPayoutDate,
@@ -96,6 +100,8 @@ export const F41v3_UpcomingPayCard = () => {
     adjustments,
     leaveRequests,
     daysUntilClose,
+    withdrawAdjustment,
+    withdrawLeaveRequest,
   } = useF41v3_DashboardStore();
 
   const isWindowOpen = windowState === 'OPEN';
@@ -106,6 +112,30 @@ export const F41v3_UpcomingPayCard = () => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalEmployerCosts = employerCosts.reduce((sum, cost) => sum + cost.amount, 0);
+
+  // Check if a tag is removable (pending + window open)
+  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen;
+
+  // Handle withdraw click
+  const handleWithdrawClick = (e: React.MouseEvent, type: 'adjustment' | 'leave', id: string) => {
+    e.stopPropagation(); // Don't trigger parent click
+    setWithdrawTarget({ type, id });
+    setWithdrawDialogOpen(true);
+  };
+
+  // Confirm withdraw
+  const handleConfirmWithdraw = () => {
+    if (!withdrawTarget) return;
+    
+    if (withdrawTarget.type === 'adjustment') {
+      withdrawAdjustment(withdrawTarget.id);
+    } else {
+      withdrawLeaveRequest(withdrawTarget.id);
+    }
+    
+    toast.success('Request withdrawn.');
+    setWithdrawTarget(null);
+  };
 
   // Empty state
   if (isNone) {
@@ -300,19 +330,23 @@ export const F41v3_UpcomingPayCard = () => {
                   )}
                 </p>
 
-                {/* Adjustment chips */}
-                {adjustments.length > 0 && (
-                  <div className="flex flex-wrap gap-2" role="list" aria-label="Pay adjustments">
-                    {adjustments.map((adj) => (
+                {/* All tags inline - adjustments and leave together */}
+                <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
+                  {/* Adjustment chips */}
+                  {adjustments.map((adj) => (
+                    <div
+                      key={adj.id}
+                      className={cn(
+                        'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
+                        getAdjustmentStatusColor(adj.status),
+                        isRemovable(adj.status) ? 'pr-1.5' : ''
+                      )}
+                      role="listitem"
+                    >
                       <button
-                        key={adj.id}
                         onClick={() => setSelectedAdjustment(adj)}
                         aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
-                        className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1',
-                          getAdjustmentStatusColor(adj.status)
-                        )}
-                        role="listitem"
+                        className="inline-flex items-center gap-1.5 focus:outline-none"
                       >
                         <span>{adj.type}</span>
                         {adj.amount !== null && (
@@ -330,22 +364,39 @@ export const F41v3_UpcomingPayCard = () => {
                         <span aria-hidden="true">·</span>
                         <span className="opacity-70">{adj.status}</span>
                       </button>
-                    ))}
-                  </div>
-                )}
+                      {isRemovable(adj.status) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleWithdrawClick(e, 'adjustment', adj.id)}
+                              className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
+                              aria-label="Withdraw request"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Withdraw request
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ))}
 
-                {/* Leave chips */}
-                {leaveRequests.length > 0 && (
-                  <div className="flex flex-wrap gap-2" role="list" aria-label="Leave requests">
-                    {leaveRequests.map((leave) => (
+                  {/* Leave chips */}
+                  {leaveRequests.map((leave) => (
+                    <div
+                      key={leave.id}
+                      className={cn(
+                        'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
+                        getLeaveStatusColor(leave.status),
+                        isRemovable(leave.status) ? 'pr-1.5' : ''
+                      )}
+                      role="listitem"
+                    >
                       <span
-                        key={leave.id}
                         aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`}
-                        className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
-                          getLeaveStatusColor(leave.status)
-                        )}
-                        role="listitem"
+                        className="inline-flex items-center gap-1.5"
                       >
                         <span>{leave.leaveType}</span>
                         <span aria-hidden="true">·</span>
@@ -353,9 +404,25 @@ export const F41v3_UpcomingPayCard = () => {
                         <span aria-hidden="true">·</span>
                         <span className="opacity-70">{leave.status}</span>
                       </span>
-                    ))}
-                  </div>
-                )}
+                      {isRemovable(leave.status) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleWithdrawClick(e, 'leave', leave.id)}
+                              className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
+                              aria-label="Withdraw request"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Withdraw request
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -414,6 +481,13 @@ export const F41v3_UpcomingPayCard = () => {
       <F41v3_PayslipHistoryDrawer
         open={payslipDrawerOpen}
         onOpenChange={setPayslipDrawerOpen}
+      />
+
+      <F41v3_WithdrawDialog
+        open={withdrawDialogOpen}
+        onOpenChange={setWithdrawDialogOpen}
+        onConfirm={handleConfirmWithdraw}
+        requestType={withdrawTarget?.type || 'adjustment'}
       />
     </>
   );
