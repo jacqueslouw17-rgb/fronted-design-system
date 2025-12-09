@@ -120,12 +120,13 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   const [formFieldEnabled, setFormFieldEnabled] = useState(true);
   const [formFieldOptions, setFormFieldOptions] = useState<string[]>([""]);
 
-  // Reset custom fields when candidate changes
+  // Reset custom fields only when candidate changes (not on every initialCustomFields change)
   useEffect(() => {
     if (candidate) {
       setCustomFields(initialCustomFields);
     }
-  }, [candidate?.id, initialCustomFields]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidate?.id]);
 
   const handleToggleEnabled = (fieldId: string) => {
     setFieldConfig(prev => 
