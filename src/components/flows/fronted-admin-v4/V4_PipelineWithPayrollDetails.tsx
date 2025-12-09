@@ -655,9 +655,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         size="sm" 
                         className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
                         onClick={() => {
-                          // V4-specific: Navigate to v4 contract creation route
-                          const params = new URLSearchParams({ ids: contractor.id, mode: "single" }).toString();
-                          navigate(`/flows/fronted-admin-dashboard-v4/contract-creation?${params}`);
+                          // V4-specific: Navigate to v4 contract flow route
+                          const params = new URLSearchParams({ ids: contractor.id }).toString();
+                          navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
                         }}
                       >
                         <FileEdit className="h-3 w-3" />
@@ -1249,9 +1249,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
             }))];
           });
         }} onDraftContract={(ids) => {
-          // V4-specific: Navigate to v4 contract creation route instead of v3
+          // V4-specific: Navigate to v4 contract flow route instead of v3
           const params = new URLSearchParams({ ids: ids.join(',') }).toString();
-          navigate(`/flows/fronted-admin-dashboard-v4/contract-creation?${params}`);
+          navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
         }} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
         </div>
 

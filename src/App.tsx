@@ -37,8 +37,7 @@ import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
 import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
 import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
-import V4_ContractCreation from "./pages/flows/V4_ContractCreation";
-import V4_BundleCreation from "./pages/flows/V4_BundleCreation";
+import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -142,8 +141,7 @@ const App = () => (
         <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/fronted-admin-dashboard-v4" element={<FrontedAdminDashboardV4 />} />
-        <Route path="/flows/fronted-admin-dashboard-v4/contract-creation" element={<V4_ContractCreation />} />
-        <Route path="/flows/fronted-admin-dashboard-v4/bundle-creation" element={<V4_BundleCreation />} />
+        <Route path="/flows/fronted-admin-dashboard-v4/contract-flow" element={<V4_ContractFlow />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
         <Route path="/flow-1-v4/payroll-details/:candidateId?" element={<V4_PayrollDetailsForm />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
