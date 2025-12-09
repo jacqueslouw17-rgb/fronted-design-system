@@ -18,11 +18,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, Settings, Send, Wallet, CheckCircle2, Clock, RefreshCw, Sparkles, Building2, Calendar, Eye, Award } from "lucide-react";
+import { Info, Settings, Send, Wallet, CheckCircle2, Clock, RefreshCw, Sparkles, Building2, Calendar, Eye, Award, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig } from "./V4_PayrollDetailsConfigDrawer";
 import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
+import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
+import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
 interface V4_Contractor {
   id: string;
   name: string;
@@ -38,6 +40,8 @@ interface V4_Contractor {
   hasATSData?: boolean;
   // V4-specific candidate details tracking
   candidateFormLastSentAt?: string;
+  onboardingConfig?: OnboardingConfig;
+  onboardingFormSent?: boolean;
   // V4-specific payroll tracking
   payrollFormStatus?: "not-configured" | "configured" | "sent" | "completed";
   payrollFormLastSentAt?: string;
@@ -87,8 +91,16 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const [viewDetailsDrawerOpen, setViewDetailsDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<V4_Contractor | null>(null);
   const [sendingFormIds, setSendingFormIds] = useState<Set<string>>(new Set());
+  
+  // V4 Candidate Details Drawer state
+  const [candidateConfigDrawerOpen, setCandidateConfigDrawerOpen] = useState(false);
+  const [candidateSendFormDrawerOpen, setCandidateSendFormDrawerOpen] = useState(false);
+  const [selectedCandidateForConfig, setSelectedCandidateForConfig] = useState<V4_Contractor | null>(null);
 
   // Filter contractors by their payroll stage
+  // Offer Accepted: status is offer-accepted
+  const offerAcceptedContractors = v4Contractors.filter(c => c.status === "offer-accepted");
+
   // Certified: status is CERTIFIED and payroll form not yet sent
   const certifiedContractors = v4Contractors.filter(c => (c.status === "certified" || c.status === "CERTIFIED") && c.payrollFormStatus !== "sent" && c.payrollFormStatus !== "completed");
 
@@ -101,8 +113,15 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // Done: payroll form completed
   const doneContractors = v4Contractors.filter(c => c.payrollFormStatus === "completed");
 
-  // Contractors for main pipeline (exclude statuses we render ourselves)
-  const pipelineContractors = v4Contractors.filter(c => c.status !== "certified" && c.status !== "CERTIFIED" && c.status !== "data-pending" && c.payrollFormStatus !== "sent" && c.payrollFormStatus !== "completed");
+  // Contractors for main pipeline (exclude statuses we render ourselves: offer-accepted, data-pending, certified, and payroll stages)
+  const pipelineContractors = v4Contractors.filter(c => 
+    c.status !== "offer-accepted" && 
+    c.status !== "certified" && 
+    c.status !== "CERTIFIED" && 
+    c.status !== "data-pending" && 
+    c.payrollFormStatus !== "sent" && 
+    c.payrollFormStatus !== "completed"
+  );
 
   // Update parent when v4 contractors change
   React.useEffect(() => {
@@ -180,6 +199,40 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     setViewDetailsDrawerOpen(true);
   }, []);
 
+  // V4 Candidate Details Handlers
+  const handleOpenCandidateConfig = useCallback((contractor: V4_Contractor) => {
+    setSelectedCandidateForConfig(contractor);
+    setCandidateConfigDrawerOpen(true);
+  }, []);
+
+  const handleOpenSendCandidateForm = useCallback((contractor: V4_Contractor) => {
+    setSelectedCandidateForConfig(contractor);
+    setCandidateSendFormDrawerOpen(true);
+  }, []);
+
+  const handleSaveCandidateConfig = useCallback((candidateId: string, config: OnboardingConfig) => {
+    setV4Contractors(prev => prev.map(c => c.id === candidateId ? {
+      ...c,
+      onboardingConfig: config
+    } : c));
+  }, []);
+
+  const handleSendCandidateForm = useCallback((candidateId: string) => {
+    setV4Contractors(prev => prev.map(c => c.id === candidateId ? {
+      ...c,
+      status: "data-pending",
+      formSent: true,
+      onboardingFormSent: true,
+      candidateFormLastSentAt: new Date().toLocaleString()
+    } : c));
+  }, []);
+
+  const handleRemoveContractor = useCallback((contractorId: string) => {
+    setV4Contractors(prev => prev.filter(c => c.id !== contractorId));
+    onRemoveContractor?.(contractorId);
+    toast.success("Candidate removed");
+  }, [onRemoveContractor]);
+
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
     setV4Contractors(prev => prev.map(c => c.id === contractorId ? {
@@ -199,6 +252,152 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       description: "Worker has completed their payroll form."
     });
   }, []);
+
+  // Render Offer Accepted Column (custom V4 version with candidate details config)
+  const renderOfferAcceptedColumn = () => <motion.div initial={{
+    opacity: 0,
+    y: 20
+  }} animate={{
+    opacity: 1,
+    y: 0
+  }} transition={{
+    duration: 0.3
+  }} className="flex-shrink-0 w-[280px]">
+      {/* Column Header */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-muted/50 border-border">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-medium text-sm text-foreground">
+                      Offer Accepted
+                    </h3>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-sm">
+                    Candidate has accepted the offer. Configure and send the onboarding form.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+            {offerAcceptedContractors.length}
+          </Badge>
+          {onAddCandidate && (
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAddCandidate}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Column Body */}
+      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-muted/20 border-border/50">
+        {offerAcceptedContractors.length === 0 ? <motion.div initial={{
+        opacity: 0
+      }} animate={{
+        opacity: 1
+      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-muted/40 flex items-center justify-center mb-3">
+              <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              No new offers
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Candidates who accept offers will appear here
+            </p>
+          </motion.div> : <AnimatePresence mode="popLayout">
+            {offerAcceptedContractors.map(contractor => {
+          const isSending = sendingFormIds.has(contractor.id);
+          return <motion.div key={contractor.id} layout initial={{
+            opacity: 0,
+            scale: 0.8
+          }} animate={{
+            opacity: 1,
+            scale: 1
+          }} exit={{
+            opacity: 0,
+            scale: 0.8,
+            x: 100
+          }} transition={{
+            layout: {
+              duration: 0.5,
+              type: "spring"
+            },
+            opacity: {
+              duration: 0.2
+            }
+          }}>
+                  <Card className="hover:shadow-card transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-3 space-y-2">
+                      {/* Worker Header */}
+                      <div className="flex items-start gap-2">
+                        <Avatar className="h-8 w-8 bg-primary/10">
+                          <AvatarFallback className="text-xs">
+                            {contractor.name.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm text-foreground truncate">
+                              {contractor.name}
+                            </span>
+                            <span className="text-base">{contractor.countryFlag}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {contractor.role}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveContractor(contractor.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Salary</span>
+                          <span className="font-medium text-foreground">{contractor.salary}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium text-foreground">{contractor.country}</span>
+                        </div>
+                        {contractor.employmentType && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
+                            <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                              {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-1">
+                        <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground" onClick={() => handleOpenCandidateConfig(contractor)}>
+                          <Settings className="h-3 w-3" />
+                          Configure
+                        </Button>
+                        <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={isSending} onClick={() => handleOpenSendCandidateForm(contractor)}>
+                          <Send className="h-3 w-3" />
+                          {isSending ? "Sending..." : "Send Form"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>;
+        })}
+          </AnimatePresence>}
+      </div>
+    </motion.div>;
+
 
   // Render Collect Candidate Details Column (custom V4 version)
   const renderCollectCandidateDetailsColumn = () => <motion.div initial={{
@@ -750,28 +949,33 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     </motion.div>;
   return <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max items-start">
-        {/* Column 1: Offer Accepted - only show first column from PipelineView */}
-        <div className="v4-pipeline-wrapper flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(n+2)]:!hidden">
-          <PipelineView contractors={pipelineContractors as any} onContractorUpdate={updated => {
-          setV4Contractors(prev => {
-            const updatedIds = new Set(updated.map((c: any) => c.id));
-            const customStageContractors = prev.filter(c => c.payrollFormStatus === "sent" || c.payrollFormStatus === "completed" || c.status === "data-pending" || (c.status === "certified" || c.status === "CERTIFIED") && !updatedIds.has(c.id));
-            return [...customStageContractors, ...updated.map((c: any) => ({
-              ...c,
-              payrollFormStatus: prev.find(p => p.id === c.id)?.payrollFormStatus || "not-configured",
-              payrollFormConfigured: prev.find(p => p.id === c.id)?.payrollFormConfigured,
-              candidateFormLastSentAt: prev.find(p => p.id === c.id)?.candidateFormLastSentAt
-            }))];
-          });
-        }} onDraftContract={onDraftContract} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
-        </div>
+        {/* Column 1: Offer Accepted (custom V4 version with candidate details config) */}
+        {renderOfferAcceptedColumn()}
 
         {/* Column 2: Collect Candidate Details */}
         {renderCollectCandidateDetailsColumn()}
 
-        {/* Columns 3-6: Pipeline middle columns */}
+        {/* Columns 3-6: Pipeline middle columns (Prepare Contract, Waiting for Signature, etc.) */}
         <div className="v4-pipeline-middle flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(1)]:!hidden [&>div>div>div:nth-child(2)]:!hidden [&>div>div>div:nth-child(7)]:!hidden">
-          <PipelineView contractors={pipelineContractors as any} onContractorUpdate={() => {}} onDraftContract={onDraftContract} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
+          <PipelineView contractors={pipelineContractors as any} onContractorUpdate={updated => {
+          setV4Contractors(prev => {
+            const updatedIds = new Set(updated.map((c: any) => c.id));
+            const customStageContractors = prev.filter(c => 
+              c.status === "offer-accepted" || 
+              c.payrollFormStatus === "sent" || 
+              c.payrollFormStatus === "completed" || 
+              c.status === "data-pending" || 
+              ((c.status === "certified" || c.status === "CERTIFIED") && !updatedIds.has(c.id))
+            );
+            return [...customStageContractors, ...updated.map((c: any) => ({
+              ...c,
+              payrollFormStatus: prev.find(p => p.id === c.id)?.payrollFormStatus || "not-configured",
+              payrollFormConfigured: prev.find(p => p.id === c.id)?.payrollFormConfigured,
+              candidateFormLastSentAt: prev.find(p => p.id === c.id)?.candidateFormLastSentAt,
+              onboardingConfig: prev.find(p => p.id === c.id)?.onboardingConfig
+            }))];
+          });
+        }} onDraftContract={onDraftContract} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
         </div>
 
         {/* Column 7: Certified */}
@@ -784,7 +988,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         {renderDoneColumn()}
       </div>
 
-      {/* Config Drawer */}
+      {/* Payroll Config Drawer */}
       <V4_PayrollDetailsConfigDrawer open={configDrawerOpen} onOpenChange={setConfigDrawerOpen} candidate={selectedContractor ? {
       id: selectedContractor.id,
       name: selectedContractor.name,
@@ -796,8 +1000,44 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       employmentType: selectedContractor.employmentType || "contractor"
     } : null} onSave={handleSaveConfig} initialCustomFields={selectedContractor?.payrollCustomFields || []} />
 
-      {/* View Details Drawer */}
+      {/* View Payroll Details Drawer */}
       <V4_ViewPayrollDetailsDrawer open={viewDetailsDrawerOpen} onOpenChange={setViewDetailsDrawerOpen} contractor={selectedContractor} />
+
+      {/* Candidate Details Config Drawer */}
+      <V4_ConfigureCandidateDetailsDrawer 
+        open={candidateConfigDrawerOpen} 
+        onOpenChange={setCandidateConfigDrawerOpen} 
+        candidate={selectedCandidateForConfig ? {
+          id: selectedCandidateForConfig.id,
+          name: selectedCandidateForConfig.name,
+          role: selectedCandidateForConfig.role,
+          country: selectedCandidateForConfig.country,
+          countryFlag: selectedCandidateForConfig.countryFlag,
+          salary: selectedCandidateForConfig.salary,
+          email: selectedCandidateForConfig.email,
+          employmentType: selectedCandidateForConfig.employmentType || "contractor"
+        } : null} 
+        onSave={handleSaveCandidateConfig} 
+        initialConfig={selectedCandidateForConfig?.onboardingConfig} 
+      />
+
+      {/* Send Candidate Details Form Drawer */}
+      <V4_SendCandidateDetailsFormDrawer 
+        open={candidateSendFormDrawerOpen} 
+        onOpenChange={setCandidateSendFormDrawerOpen} 
+        candidate={selectedCandidateForConfig ? {
+          id: selectedCandidateForConfig.id,
+          name: selectedCandidateForConfig.name,
+          role: selectedCandidateForConfig.role,
+          country: selectedCandidateForConfig.country,
+          countryFlag: selectedCandidateForConfig.countryFlag,
+          salary: selectedCandidateForConfig.salary,
+          email: selectedCandidateForConfig.email,
+          employmentType: selectedCandidateForConfig.employmentType || "contractor"
+        } : null} 
+        config={selectedCandidateForConfig?.onboardingConfig} 
+        onSend={handleSendCandidateForm} 
+      />
     </div>;
 };
 export default V4_PipelineWithPayrollDetails;
