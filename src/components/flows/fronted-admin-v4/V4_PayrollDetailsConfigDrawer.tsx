@@ -404,14 +404,50 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
 
   const isFormValid = formFieldName.trim() !== "" && formFieldType !== undefined;
 
+  // Handler for admin value changes
+  const handleAdminValueChange = (fieldId: string, value: string) => {
+    setFieldConfig(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
+      )
+    );
+  };
+
+  const handleCustomFieldAdminValueChange = (fieldId: string, value: string) => {
+    setCustomFields(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
+      )
+    );
+  };
+
   // Render field row with "Filled by" control
   const renderFieldRow = (field: PayrollFieldConfig) => {
     const isPrefilled = field.filledBy === "prefilled";
     const isHidden = !field.enabled;
     const showEditabilityControl = isPrefilled && field.enabled;
+    const currentValue = field.adminValue || "";
+    
+    // Dynamic helper text based on state
+    const getHelperText = () => {
+      if (field.filledBy === "candidate") {
+        return "Shown as an empty field on the worker form.";
+      }
+      // Pre-filled states
+      if (!field.enabled) {
+        return "Pre-filled by admin. Hidden from worker, used only for contracts / payroll.";
+      }
+      if (field.editability === "readonly") {
+        return "Pre-filled before sending. Worker can see but not change this value.";
+      }
+      return "Pre-filled before sending. Worker can change this value.";
+    };
     
     return (
-      <div key={field.id} className="flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+      <div key={field.id} className={cn(
+        "flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50",
+        isHidden && "opacity-60"
+      )}>
         <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium">{field.label}</span>
@@ -420,12 +456,13 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
             )}
           </div>
           
-          {/* Helper text and controls - faded when hidden */}
+          {/* Helper text */}
+          {field.helperText && (
+            <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
+          )}
+          
+          {/* Controls - faded when hidden */}
           <div className={cn(isHidden && "opacity-50")}>
-            {field.helperText && (
-              <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
-            )}
-            
             {/* Filled by selector */}
             <div className="mt-2">
               <div className="flex items-center gap-1.5 mb-1">
@@ -457,19 +494,21 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                   Pre-filled
                 </button>
               </div>
-              
-              {/* Helper text based on selection */}
-              {field.filledBy === "candidate" ? (
-                <p className="text-[10px] text-muted-foreground mt-1.5">
-                  To be filled by worker
-                </p>
-              ) : (
-                <p className="text-[10px] text-muted-foreground mt-1.5">
-                  Not asked on worker form. Pre-filled by an admin.
-                </p>
+
+              {/* Pre-filled value input - only shown when Pre-filled is selected */}
+              {isPrefilled && (
+                <div className="mt-2">
+                  <Input
+                    type="text"
+                    value={currentValue}
+                    onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                    className="h-8 text-xs bg-background"
+                    placeholder="Enter value..."
+                  />
+                </div>
               )}
 
-              {/* Editability control - only for prefilled + shown fields */}
+              {/* Worker can edit? control - only for prefilled + shown fields */}
               {showEditabilityControl && (
                 <div className="mt-2">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -504,13 +543,18 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                   </div>
                 </div>
               )}
+              
+              {/* Dynamic helper text */}
+              <p className="text-[10px] text-muted-foreground mt-1.5">
+                {getHelperText()}
+              </p>
             </div>
 
             {/* Hidden on form indicator */}
             {isHidden && (
               <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                 <EyeOff className="h-3 w-3" />
-                <span>Hidden on worker form</span>
+                <span>Hidden on worker form. Value is used only in internal workflows / contracts.</span>
               </div>
             )}
           </div>
@@ -545,6 +589,22 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
     const isPrefilled = field.filledBy === "prefilled";
     const isHidden = !field.enabled;
     const showEditabilityControl = isPrefilled && field.enabled;
+    const currentValue = field.adminValue || "";
+    
+    // Dynamic helper text based on state
+    const getHelperText = () => {
+      if (field.filledBy === "candidate") {
+        return "Shown as an empty field on the worker form.";
+      }
+      // Pre-filled states
+      if (!field.enabled) {
+        return "Pre-filled by admin. Hidden from worker, used only for contracts / payroll.";
+      }
+      if (field.editability === "readonly") {
+        return "Pre-filled before sending. Worker can see but not change this value.";
+      }
+      return "Pre-filled before sending. Worker can change this value.";
+    };
     
     return (
       <div 
@@ -559,7 +619,8 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
           "flex items-start justify-between p-3 rounded-lg border bg-card/50 transition-all",
           isDragging && "opacity-50 border-primary/50 bg-primary/5",
           isDragOver && "border-primary border-dashed bg-primary/10",
-          !isDragging && !isDragOver && "border-border/40"
+          !isDragging && !isDragOver && "border-border/40",
+          isHidden && "opacity-60"
         )}
       >
         <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -609,19 +670,31 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                     Pre-filled
                   </button>
                 </div>
-                
-                {/* Helper text based on selection */}
-                {field.filledBy === "candidate" ? (
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
-                    To be filled by worker
-                  </p>
-                ) : (
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
-                    Not asked on worker form. Pre-filled by an admin.
-                  </p>
+
+                {/* Pre-filled value input - only shown when Pre-filled is selected */}
+                {isPrefilled && (
+                  <div className="mt-2">
+                    {field.type === "date" ? (
+                      <Input
+                        type="date"
+                        value={currentValue}
+                        onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                        placeholder="Select date"
+                      />
+                    ) : (
+                      <Input
+                        type="text"
+                        value={currentValue}
+                        onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                        placeholder="Enter value..."
+                      />
+                    )}
+                  </div>
                 )}
 
-                {/* Editability control - only for prefilled + shown fields */}
+                {/* Worker can edit? control - only for prefilled + shown fields */}
                 {showEditabilityControl && (
                   <div className="mt-2">
                     <div className="flex items-center gap-1.5 mb-1">
@@ -656,13 +729,18 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
                     </div>
                   </div>
                 )}
+                
+                {/* Dynamic helper text */}
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  {getHelperText()}
+                </p>
               </div>
 
               {/* Hidden on form indicator */}
               {isHidden && (
                 <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                   <EyeOff className="h-3 w-3" />
-                  <span>Hidden on worker form</span>
+                  <span>Hidden on worker form. Value is used only in internal workflows / contracts.</span>
                 </div>
               )}
             </div>
