@@ -116,9 +116,10 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   initialConfig,
   initialCustomFields = [],
 }) => {
-  const [fieldConfig, setFieldConfig] = useState<PayrollFieldConfig[]>(
-    initialConfig?.baseFields || DEFAULT_FIELD_CONFIG
-  );
+  const [fieldConfig, setFieldConfig] = useState<PayrollFieldConfig[]>(() => {
+    const baseFields = initialConfig?.baseFields;
+    return (baseFields && baseFields.length > 0) ? baseFields : DEFAULT_FIELD_CONFIG;
+  });
   const [customFields, setCustomFields] = useState<CustomPayrollField[]>(
     initialConfig?.customFields || initialCustomFields.map(f => ({ ...f, filledBy: f.filledBy || "candidate" }))
   );
@@ -144,10 +145,11 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
   // Check if candidate has ATS data
   const hasATSProfile = candidate?.hasATSData ?? false;
 
-  // Reset custom fields only when candidate changes (not on every initialCustomFields change)
+  // Reset fields only when candidate changes
   useEffect(() => {
     if (candidate) {
-      setFieldConfig(initialConfig?.baseFields || DEFAULT_FIELD_CONFIG);
+      const baseFields = initialConfig?.baseFields;
+      setFieldConfig((baseFields && baseFields.length > 0) ? baseFields : DEFAULT_FIELD_CONFIG);
       setCustomFields(initialConfig?.customFields || initialCustomFields.map(f => ({ ...f, filledBy: f.filledBy || "candidate" })));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
