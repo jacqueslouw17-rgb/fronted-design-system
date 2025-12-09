@@ -300,24 +300,33 @@ export const F41v3_UpcomingPayCard = () => {
 
                 {/* Adjustment chips */}
                 {adjustments.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2" role="list" aria-label="Pay adjustments">
                     {adjustments.map((adj) => (
                       <button
                         key={adj.id}
                         onClick={() => setSelectedAdjustment(adj)}
+                        aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
                         className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80',
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer transition-colors hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1',
                           getAdjustmentStatusColor(adj.status)
                         )}
+                        role="listitem"
                       >
                         <span>{adj.type}</span>
                         {adj.amount !== null && (
-                          <span>{formatCurrency(adj.amount, currency)}</span>
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span>{formatCurrency(adj.amount, currency)}</span>
+                          </>
                         )}
                         {adj.type === 'Overtime' && adj.hours && (
-                          <span>{adj.hours}h</span>
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span>{adj.hours}h</span>
+                          </>
                         )}
-                        <span className="opacity-70">({adj.status})</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="opacity-70">{adj.status}</span>
                       </button>
                     ))}
                   </div>
@@ -325,18 +334,22 @@ export const F41v3_UpcomingPayCard = () => {
 
                 {/* Leave chips */}
                 {leaveRequests.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2" role="list" aria-label="Leave requests">
                     {leaveRequests.map((leave) => (
                       <span
                         key={leave.id}
+                        aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`}
                         className={cn(
                           'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
                           getLeaveStatusColor(leave.status)
                         )}
+                        role="listitem"
                       >
                         <span>{leave.leaveType}</span>
+                        <span aria-hidden="true">·</span>
                         <span>{leave.totalDays}d</span>
-                        <span className="opacity-70">({leave.status})</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="opacity-70">{leave.status}</span>
                       </span>
                     ))}
                   </div>
