@@ -62,9 +62,8 @@ const WorkerStep1Welcome_v2 = ({ formData, onComplete, isProcessing = false, isL
             {[
               "Verify and confirm your personal information",
               "Upload compliance and identity documents",
-              "Set up payroll and banking details",
-              "Configure work setup preferences",
-              "Review your onboarding checklist"
+              "Review your employment agreement and work setup preferences",
+              "Complete your onboarding checklist"
             ].map((item, idx) => (
               <li key={idx} className="flex items-center gap-2.5 text-sm">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />

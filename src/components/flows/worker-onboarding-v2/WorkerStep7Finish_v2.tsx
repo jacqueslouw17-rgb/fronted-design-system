@@ -7,7 +7,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Loader2, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { motion } from "framer-motion";
@@ -32,10 +32,10 @@ const WorkerStep7Finish_v2 = ({ formData, onComplete, isProcessing: externalProc
     navigate('/flows/candidate-dashboard', { state: { fromOnboarding: true } });
   }, [navigate, onComplete]);
 
+  // v2: Payroll details removed - collected later via separate secure form
   const completedItems = [
     { label: "Personal information", icon: CheckCircle2, done: !!formData.fullName },
     { label: "Compliance documents", icon: CheckCircle2, done: !!formData.taxNumber },
-    { label: "Payroll details", icon: CheckCircle2, done: !!formData.bankAccount },
     { label: "Work setup", icon: CheckCircle2, done: !!formData.startDate },
     { label: "Profile ready", icon: CheckCircle2, done: true }
   ];
@@ -85,6 +85,14 @@ const WorkerStep7Finish_v2 = ({ formData, onComplete, isProcessing: externalProc
               );
             })}
           </div>
+        </div>
+
+        {/* Payroll details info note */}
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-[#EAF3FF] dark:bg-primary/10 border border-primary/20">
+          <Info className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-foreground/90 leading-relaxed">
+            <span className="font-medium">Next step:</span> You'll receive a separate secure form to provide your bank details before your first payment.
+          </p>
         </div>
 
         {/* CTA */}
