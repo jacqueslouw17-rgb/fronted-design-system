@@ -48,13 +48,13 @@ const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
 const getAdjustmentStatusColor = (status: Adjustment['status']) => {
   switch (status) {
     case 'Pending':
-      return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
     case 'Admin approved':
-      return 'bg-accent-green/20 text-accent-green-text border-accent-green/30';
+      return 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30';
     case 'Admin rejected':
-      return 'bg-destructive/20 text-destructive border-destructive/30';
+      return 'bg-red-100 text-red-700 border-red-300 dark:bg-destructive/20 dark:text-destructive dark:border-destructive/30';
     case 'Queued for next cycle':
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -63,13 +63,13 @@ const getAdjustmentStatusColor = (status: Adjustment['status']) => {
 const getLeaveStatusColor = (status: LeaveRequest['status']) => {
   switch (status) {
     case 'Pending':
-      return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
     case 'Admin approved':
-      return 'bg-accent-green/20 text-accent-green-text border-accent-green/30';
+      return 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30';
     case 'Admin rejected':
-      return 'bg-destructive/20 text-destructive border-destructive/30';
+      return 'bg-red-100 text-red-700 border-red-300 dark:bg-destructive/20 dark:text-destructive dark:border-destructive/30';
     case 'Queued for next cycle':
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30';
     default:
       return 'bg-muted text-muted-foreground';
   }
