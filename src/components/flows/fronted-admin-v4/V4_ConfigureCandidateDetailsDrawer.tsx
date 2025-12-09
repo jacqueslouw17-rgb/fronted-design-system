@@ -45,6 +45,8 @@ interface V4_Candidate {
   hasATSData?: boolean;
 }
 
+export type FilledBySource = "candidate" | "prefilled";
+
 export interface OnboardingFieldConfig {
   id: string;
   label: string;
@@ -55,6 +57,8 @@ export interface OnboardingFieldConfig {
   helperText?: string;
   atsFieldName?: string; // Maps to ATS field if available
   atsExampleValue?: string; // Example value from ATS for tooltip
+  filledBy: FilledBySource;
+  adminValue?: string; // Value entered by admin when filledBy is "prefilled"
 }
 
 export type CustomOnboardingFieldType = "short_text" | "long_text" | "number" | "date" | "single_select" | "file_upload";
@@ -66,6 +70,8 @@ export interface CustomOnboardingField {
   required: boolean;
   enabled: boolean;
   options?: string[]; // For single_select type
+  filledBy: FilledBySource;
+  adminValue?: string; // Value entered by admin when filledBy is "prefilled"
 }
 
 export interface OnboardingConfig {
@@ -85,15 +91,15 @@ interface V4_ConfigureCandidateDetailsDrawerProps {
 
 const DEFAULT_FIELD_CONFIG: OnboardingFieldConfig[] = [
   // Identity & Documents
-  { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID", atsFieldName: "candidate.date_of_birth", atsExampleValue: "1992-03-15" },
-  { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc." },
-  { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID" },
+  { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID", atsFieldName: "candidate.date_of_birth", atsExampleValue: "1992-03-15", filledBy: "candidate" },
+  { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc.", filledBy: "candidate" },
+  { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID", filledBy: "candidate" },
   // Tax & Residency
-  { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes", atsFieldName: "candidate.tax_country", atsExampleValue: "Philippines" },
-  { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence" },
+  { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes", atsFieldName: "candidate.tax_country", atsExampleValue: "Philippines", filledBy: "candidate" },
+  { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence", filledBy: "candidate" },
   // Address
-  { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city", atsFieldName: "candidate.address", atsExampleValue: "123 Main St, Makati City 1200" },
-  { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality", atsFieldName: "candidate.nationality", atsExampleValue: "Filipino" },
+  { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city", atsFieldName: "candidate.address", atsExampleValue: "123 Main St, Makati City 1200", filledBy: "candidate" },
+  { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality", atsFieldName: "candidate.nationality", atsExampleValue: "Filipino", filledBy: "candidate" },
 ];
 
 const FIELD_TYPE_LABELS: Record<CustomOnboardingFieldType, string> = {
@@ -183,6 +189,30 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
     );
   };
 
+  const handleFilledByChange = (fieldId: string, filledBy: FilledBySource) => {
+    setFieldConfig(prev => 
+      prev.map(field => {
+        if (field.id === fieldId) {
+          // If changing to prefilled, automatically disable "Show" toggle
+          return { 
+            ...field, 
+            filledBy,
+            enabled: filledBy === "prefilled" ? false : field.enabled 
+          };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleAdminValueChange = (fieldId: string, value: string) => {
+    setFieldConfig(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
+      )
+    );
+  };
+
   const handleCustomFieldToggleEnabled = (fieldId: string) => {
     setCustomFields(prev => 
       prev.map(field => 
@@ -195,6 +225,29 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
     setCustomFields(prev => 
       prev.map(field => 
         field.id === fieldId ? { ...field, required: !field.required } : field
+      )
+    );
+  };
+
+  const handleCustomFieldFilledByChange = (fieldId: string, filledBy: FilledBySource) => {
+    setCustomFields(prev => 
+      prev.map(field => {
+        if (field.id === fieldId) {
+          return { 
+            ...field, 
+            filledBy,
+            enabled: filledBy === "prefilled" ? false : field.enabled 
+          };
+        }
+        return field;
+      })
+    );
+  };
+
+  const handleCustomFieldAdminValueChange = (fieldId: string, value: string) => {
+    setCustomFields(prev => 
+      prev.map(field => 
+        field.id === fieldId ? { ...field, adminValue: value } : field
       )
     );
   };
@@ -252,7 +305,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
       setCustomFields(prev => 
         prev.map(f => 
           f.id === editingField.id 
-            ? { ...f, label: formFieldName.trim(), type: formFieldType, required: formFieldRequired, enabled: formFieldEnabled, options: filteredOptions }
+            ? { ...f, label: formFieldName.trim(), type: formFieldType, required: formFieldRequired, enabled: formFieldEnabled, options: filteredOptions, filledBy: f.filledBy }
             : f
         )
       );
@@ -266,6 +319,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
         required: formFieldRequired,
         enabled: formFieldEnabled,
         options: filteredOptions,
+        filledBy: "candidate",
       };
       setCustomFields(prev => [...prev, newField]);
       toast.success("Custom field added");
@@ -381,22 +435,28 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
   };
 
   const renderFieldRow = (field: OnboardingFieldConfig) => {
-    const hasATS = field.atsFieldName && hasATSProfile;
-    const sourceCaption = getFieldSourceCaption(field);
+    const hasATS = field.atsFieldName && hasATSProfile && useATSData;
+    const isPrefilled = field.filledBy === "prefilled";
+    // Get ATS value if available for pre-populating
+    const atsValue = hasATS && field.atsExampleValue ? field.atsExampleValue : "";
     
     return (
-      <div key={field.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+      <div key={field.id} className="flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50">
         <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium">{field.label}</span>
-            {field.required && field.enabled && (
+            {field.required && (
               <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
             )}
           </div>
           
-          {/* Source indicator pill and caption */}
-          <div className="mt-1.5 space-y-0.5">
-            {hasATS ? (
+          {field.helperText && (
+            <p className="text-xs text-muted-foreground mt-1">{field.helperText}</p>
+          )}
+          
+          {/* ATS source indicator - only show when prefilled and ATS data exists */}
+          {isPrefilled && hasATS && (
+            <div className="mt-1.5">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -415,27 +475,67 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+            </div>
+          )}
+          
+          {/* Filled by selector */}
+          <div className="mt-2">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
+            </div>
+            <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+              <button
+                type="button"
+                onClick={() => handleFilledByChange(field.id, "candidate")}
+                className={cn(
+                  "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                  field.filledBy === "candidate" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Candidate form
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFilledByChange(field.id, "prefilled")}
+                className={cn(
+                  "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                  field.filledBy === "prefilled" 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Pre-filled (ATS / admin)
+              </button>
+            </div>
+            
+            {/* Helper text and admin input based on selection */}
+            {field.filledBy === "candidate" ? (
+              <p className="text-[10px] text-muted-foreground mt-1.5">
+                To be filled by candidate
+              </p>
             ) : (
-              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
-                <Edit3 className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+              <div className="mt-1.5 space-y-2">
+                <p className="text-[10px] text-muted-foreground">
+                  Not shown on candidate form. Pre-filled from ATS or by an admin.
+                </p>
+                <Input
+                  placeholder={`Admin value for ${field.label}`}
+                  value={field.adminValue || (hasATS ? atsValue : "")}
+                  onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                  className="h-8 text-sm"
+                />
               </div>
             )}
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-              {useATSData && hasATS && !allowCandidateEditATS && (
-                <Lock className="h-3 w-3" />
-              )}
-              {sourceCaption}
-            </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">Required</span>
             <Switch 
               checked={field.required} 
               onCheckedChange={() => handleToggleRequired(field.id)}
-              disabled={!field.enabled}
               className="scale-75"
             />
           </div>
@@ -444,6 +544,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
             <Switch 
               checked={field.enabled} 
               onCheckedChange={() => handleToggleEnabled(field.id)}
+              disabled={field.filledBy === "prefilled"}
               className="scale-75"
             />
           </div>
@@ -629,6 +730,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                     const TypeIcon = FIELD_TYPE_ICONS[field.type];
                     const isDragging = draggedFieldId === field.id;
                     const isDragOver = dragOverFieldId === field.id;
+                    const isPrefilled = field.filledBy === "prefilled";
                     return (
                       <div 
                         key={field.id} 
@@ -639,18 +741,18 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                         onDrop={(e) => handleDrop(e, field.id)}
                         onDragEnd={handleDragEnd}
                         className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border bg-card/50 transition-all",
+                          "flex items-start justify-between p-3 rounded-lg border bg-card/50 transition-all",
                           isDragging && "opacity-50 border-primary/50 bg-primary/5",
                           isDragOver && "border-primary border-dashed bg-primary/10",
                           !isDragging && !isDragOver && "border-border/40"
                         )}
                       >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0" />
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 mt-1" />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-medium truncate">{field.label}</span>
-                              {field.required && field.enabled && (
+                              {field.required && (
                                 <Badge variant="secondary" className="text-xs bg-primary/10 text-primary shrink-0">Required</Badge>
                               )}
                             </div>
@@ -658,23 +760,66 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                               <TypeIcon className="h-3 w-3 text-muted-foreground" />
                               <span className="text-xs text-muted-foreground">{FIELD_TYPE_LABELS[field.type]}</span>
                             </div>
-                            {/* Candidate fills pill for custom fields */}
-                            <div className="mt-1.5">
-                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50 border border-border/40">
-                                <Edit3 className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-[10px] font-medium text-muted-foreground">Candidate fills</span>
+                            
+                            {/* Filled by selector */}
+                            <div className="mt-2">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
                               </div>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">To be filled by candidate</p>
+                              <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCustomFieldFilledByChange(field.id, "candidate")}
+                                  className={cn(
+                                    "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                                    field.filledBy === "candidate" 
+                                      ? "bg-background text-foreground shadow-sm" 
+                                      : "text-muted-foreground hover:text-foreground"
+                                  )}
+                                >
+                                  Candidate form
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCustomFieldFilledByChange(field.id, "prefilled")}
+                                  className={cn(
+                                    "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
+                                    field.filledBy === "prefilled" 
+                                      ? "bg-background text-foreground shadow-sm" 
+                                      : "text-muted-foreground hover:text-foreground"
+                                  )}
+                                >
+                                  Pre-filled (ATS / admin)
+                                </button>
+                              </div>
+                              
+                              {/* Helper text and admin input based on selection */}
+                              {field.filledBy === "candidate" ? (
+                                <p className="text-[10px] text-muted-foreground mt-1.5">
+                                  To be filled by candidate
+                                </p>
+                              ) : (
+                                <div className="mt-1.5 space-y-2">
+                                  <p className="text-[10px] text-muted-foreground">
+                                    Not shown on candidate form. Pre-filled from ATS or by an admin.
+                                  </p>
+                                  <Input
+                                    placeholder={`Admin value for ${field.label}`}
+                                    value={field.adminValue || ""}
+                                    onChange={(e) => handleCustomFieldAdminValueChange(field.id, e.target.value)}
+                                    className="h-8 text-sm"
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex flex-col items-end gap-2 shrink-0">
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs text-muted-foreground">Required</span>
                             <Switch 
                               checked={field.required} 
                               onCheckedChange={() => handleCustomFieldToggleRequired(field.id)}
-                              disabled={!field.enabled}
                               className="scale-75"
                             />
                           </div>
@@ -683,6 +828,7 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                             <Switch 
                               checked={field.enabled} 
                               onCheckedChange={() => handleCustomFieldToggleEnabled(field.id)}
+                              disabled={isPrefilled}
                               className="scale-75"
                             />
                           </div>

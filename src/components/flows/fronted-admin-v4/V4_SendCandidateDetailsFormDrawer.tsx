@@ -48,13 +48,13 @@ interface V4_SendCandidateDetailsFormDrawerProps {
 // Default config if none provided
 const DEFAULT_CONFIG: OnboardingConfig = {
   baseFields: [
-    { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID" },
-    { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc." },
-    { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID" },
-    { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes" },
-    { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence" },
-    { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city" },
-    { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality" },
+    { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID", filledBy: "candidate" },
+    { id: "id_type", label: "ID type", section: "identity", type: "select", required: true, enabled: true, helperText: "Passport, National ID, etc.", filledBy: "candidate" },
+    { id: "id_number", label: "ID number", section: "identity", type: "text", required: true, enabled: true, helperText: "Document number from selected ID", filledBy: "candidate" },
+    { id: "tax_residence_country", label: "Tax residence country", section: "tax", type: "select", required: true, enabled: true, helperText: "Country where you pay taxes", filledBy: "candidate" },
+    { id: "tax_residence_city", label: "Tax residence city / region", section: "tax", type: "text", required: true, enabled: true, helperText: "City or region of tax residence", filledBy: "candidate" },
+    { id: "residential_address", label: "Residential address", section: "address", type: "text", required: true, enabled: true, helperText: "Full street address incl. postal code and city", filledBy: "candidate" },
+    { id: "nationality", label: "Nationality", section: "address", type: "select", required: true, enabled: true, helperText: "Your citizenship / nationality", filledBy: "candidate" },
   ],
   customFields: [],
 };
