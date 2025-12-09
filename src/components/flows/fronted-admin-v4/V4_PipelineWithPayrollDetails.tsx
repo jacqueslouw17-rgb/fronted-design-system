@@ -488,32 +488,13 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       <div className="flex gap-2 pt-1">
                         <Button
                           size="sm"
-                          variant="outline"
-                          className="flex-1 text-xs h-7 gap-1"
+                          className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
                           disabled={isSending}
                           onClick={() => handleResendPayrollForm(contractor.id)}
                         >
                           <RefreshCw className={cn("h-3 w-3", isSending && "animate-spin")} />
-                          {isSending ? "Sending..." : "Resend form"}
+                          {isSending ? "Sending..." : "Resend"}
                         </Button>
-                        {/* Demo: Simulate completion */}
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
-                                onClick={() => handleSimulateCompletion(contractor.id)}
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs">Simulate form completion (demo)</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
                       </div>
                     </CardContent>
                   </Card>
