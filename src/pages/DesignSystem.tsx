@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { componentsRegistry, ComponentReference } from "@/data/componentsRegistry";
 import { ComponentDetailDrawer } from "@/components/design-system/ComponentDetailDrawer";
 import { PatternDetailDrawer } from "@/components/design-system/PatternDetailDrawer";
-import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow, Lock, Save } from "lucide-react";
+import { ArrowRight, LayoutDashboard, UserPlus, ListChecks, PanelRightOpen, MousePointerClick, Tags, Shield as ShieldIcon, MessageSquare, ScrollText, CheckSquare, ToggleLeft, Link2, BarChart3, ClipboardCheck, Mic, Bell, LayoutGrid, FileText, DollarSign, Inbox, ShieldCheck, Sparkles as SparklesIcon, Brain, ListTodo, Clock, Activity, RefreshCw, Smile, Shield, Eye, UserCheck, History, Timer, Presentation, Gauge, CheckCircle, GitBranch, Lightbulb, RotateCcw, Workflow, Lock } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getComponentsByPattern } from "@/data/componentsRegistry";
@@ -272,80 +272,47 @@ const DesignSystem = () => {
   const tabParam = searchParams.get("tab");
   const defaultTab = tabParam === "flows" || tabParam === "components" ? tabParam : "patterns";
   
-  // Flow cards drag and drop state
-  const [flowOrder, setFlowOrder] = useState<string[]>(() => {
-    const saved = localStorage.getItem('flowOrder');
-    const defaultOrder = [
-      'flow-1-admin-onboarding',
-      'flow-2-admin-contracting',
-      'flow-3-candidate-data',
-      'flow-3-candidate-data-v2',
-      'flow-4-candidate-onboarding',
-      'flow-5-candidate-dashboard',
-      'flow-5-candidate-dashboard-v2',
-      'flow-4.1-employee-dashboard-v3',
-      'flow-4.2-contractor-dashboard-v3',
-      'flow-5-company-admin-onboarding',
-      'flow-6-company-admin-dashboard',
-      'flow-6-company-admin-dashboard-v2',
-      'flow-1.1-fronted-admin',
-      'flow-1.1-fronted-admin-v3',
-      'flow-1-fronted-admin-v4',
-      'flow-2.1-admin-payroll',
-    ];
-
-    if (saved) {
-      try {
-        const parsed: string[] = JSON.parse(saved);
-        // Ensure hidden flows (5.1, 5.2, 2.1-company-admin) never appear even from old saved state
-        const cleaned = parsed.filter(
-          (id) => id !== 'flow-5.1-employee-payroll' && id !== 'flow-5.2-contractor-payroll' && id !== 'flow-2.1-company-admin'
-        );
-        // Preserve user's custom order and append any new flows from the default order
-        const merged = [...cleaned, ...defaultOrder.filter((id) => !cleaned.includes(id))];
-        return merged;
-      } catch {
-        return defaultOrder;
-      }
+  // Flow cards - automatic sequential ordering by flow number then version
+  const flowOrder = [
+    'flow-1-admin-onboarding',
+    'flow-2-admin-contracting',
+    'flow-3-candidate-data',
+    'flow-3-candidate-data-v2',
+    'flow-4-candidate-onboarding',
+    'flow-4.1-employee-dashboard-v3',
+    'flow-4.2-contractor-dashboard-v3',
+    'flow-5-candidate-dashboard',
+    'flow-5-candidate-dashboard-v2',
+    'flow-5-company-admin-onboarding',
+    'flow-6-company-admin-dashboard',
+    'flow-6-company-admin-dashboard-v2',
+    'flow-1.1-fronted-admin',
+    'flow-1.1-fronted-admin-v3',
+    'flow-1-fronted-admin-v4',
+    'flow-2.1-admin-payroll',
+  ].sort((a, b) => {
+    // Extract flow number (e.g., "1", "1.1", "4.2") and version (e.g., "v2", "v3", "v4")
+    const extractParts = (id: string) => {
+      // Match flow number like "1", "1.1", "4.2" after "flow-"
+      const flowNumMatch = id.match(/^flow-(\d+(?:\.\d+)?)/);
+      const flowNum = flowNumMatch ? parseFloat(flowNumMatch[1]) : 0;
+      
+      // Match version like "v2", "v3", "v4" at the end
+      const versionMatch = id.match(/v(\d+)$/);
+      const version = versionMatch ? parseInt(versionMatch[1], 10) : 1;
+      
+      return { flowNum, version };
+    };
+    
+    const partsA = extractParts(a);
+    const partsB = extractParts(b);
+    
+    // Sort by flow number first, then by version
+    if (partsA.flowNum !== partsB.flowNum) {
+      return partsA.flowNum - partsB.flowNum;
     }
-
-    return defaultOrder;
+    return partsA.version - partsB.version;
   });
-  const [draggedFlowId, setDraggedFlowId] = useState<string | null>(null);
-
-  // Save flow order to localStorage
-  useEffect(() => {
-    localStorage.setItem('flowOrder', JSON.stringify(flowOrder));
-  }, [flowOrder]);
-
-  const handleFlowDragStart = (e: React.DragEvent, flowId: string) => {
-    setDraggedFlowId(flowId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleFlowDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleFlowDrop = (e: React.DragEvent, targetFlowId: string) => {
-    e.preventDefault();
-    if (!draggedFlowId || draggedFlowId === targetFlowId) return;
-
-    const newOrder = [...flowOrder];
-    const draggedIndex = newOrder.indexOf(draggedFlowId);
-    const targetIndex = newOrder.indexOf(targetFlowId);
-
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(targetIndex, 0, draggedFlowId);
-
-    setFlowOrder(newOrder);
-    setDraggedFlowId(null);
-  };
-
-  const handleFlowDragEnd = () => {
-    setDraggedFlowId(null);
-  };
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
     if (component) {
@@ -427,28 +394,12 @@ const DesignSystem = () => {
           </TabsContent>
 
           <TabsContent value="flows" className="mt-8">
-            <div className="flex justify-end mb-4">
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Save className="h-3.5 w-3.5" />
-                Drag to reorder · Changes save automatically
-              </p>
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {flowOrder.map((flowId) => {
-                return (
-                  <div
-                    key={flowId}
-                    draggable
-                    onDragStart={(e) => handleFlowDragStart(e, flowId)}
-                    onDragOver={handleFlowDragOver}
-                    onDrop={(e) => handleFlowDrop(e, flowId)}
-                    onDragEnd={handleFlowDragEnd}
-                    className={`transition-opacity ${draggedFlowId === flowId ? 'opacity-50' : 'opacity-100'} cursor-move`}
-                  >
-                    <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
-                  </div>
-                );
-              })}
+              {flowOrder.map((flowId) => (
+                <div key={flowId}>
+                  <FlowCard flowId={flowId} onPatternClick={handlePatternClickWrapper} />
+                </div>
+              ))}
             </div>
           </TabsContent>
 
