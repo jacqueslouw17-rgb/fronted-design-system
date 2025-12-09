@@ -45,7 +45,8 @@ import { LeaveAttendanceExceptionDrawer } from "@/components/payroll/LeaveAttend
 import { ExecutionMonitor } from "@/components/payroll/ExecutionMonitor";
 import { ExecutionConfirmationDialog } from "@/components/payroll/ExecutionConfirmationDialog";
 import { ExecutionLog, ExecutionLogData, ExecutionLogWorker } from "@/components/payroll/ExecutionLog";
-import { FrontedAdminV4NewCompanyDrawer } from "@/components/flows/fronted-admin-v4/FrontedAdminV4NewCompanyDrawer";
+import FrontedAdminV4EmbeddedOnboarding from "@/components/flows/fronted-admin-v4/FrontedAdminV4EmbeddedOnboarding";
+import frontedLogo from "@/assets/fronted-logo.png";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -414,12 +415,12 @@ const FrontedAdminDashboardV4: React.FC = () => {
   // Company Switcher State (v4-specific, detached from v3)
   const [companies, setCompanies] = useState(V4_MOCK_COMPANIES);
   const [selectedCompany, setSelectedCompany] = useState<string>(V4_MOCK_COMPANIES[0].id);
-  const [isAddCompanyDrawerOpen, setIsAddCompanyDrawerOpen] = useState(false);
+  const [isAddingNewCompany, setIsAddingNewCompany] = useState(false);
 
   // Handler for company switching (v4-specific)
   const handleCompanyChange = (companyId: string) => {
     if (companyId === "add-new") {
-      setIsAddCompanyDrawerOpen(true);
+      setIsAddingNewCompany(true);
       return;
     }
     setSelectedCompany(companyId);
@@ -427,10 +428,21 @@ const FrontedAdminDashboardV4: React.FC = () => {
     toast.success(`Switched to ${company?.name}`);
   };
 
-  // Handler for adding new company (v4-specific)
-  const handleNewCompanyCreated = (company: { id: string; name: string; country: string; currency: string }) => {
-    setCompanies(prev => [...prev, { id: company.id, name: company.name }]);
-    setSelectedCompany(company.id);
+  // Handler for completing new company onboarding (v4-specific)
+  const handleNewCompanyComplete = (companyName: string) => {
+    const newCompany = {
+      id: `company-${Date.now()}`,
+      name: companyName
+    };
+    setCompanies(prev => [...prev, newCompany]);
+    setSelectedCompany(newCompany.id);
+    setIsAddingNewCompany(false);
+    toast.success(`${companyName} has been added and selected`);
+  };
+
+  // Handler for cancelling add company flow (v4-specific)
+  const handleCancelAddCompany = () => {
+    setIsAddingNewCompany(false);
   };
 
   // Get contractors for selected company
@@ -3605,24 +3617,53 @@ You can ask me about:
   };
   return <RoleLensProvider initialRole="admin">
       <div className="flex flex-col h-screen">
-        {/* Topbar with Company Switcher */}
-        <Topbar 
-          userName={`${userData.firstName} ${userData.lastName}`} 
-          isDrawerOpen={isDrawerOpen} 
-          onDrawerToggle={toggleDrawer}
-          companySwitcher={{
-            companies: companies,
-            selectedCompany: selectedCompany,
-            onCompanyChange: handleCompanyChange
-          }}
-        />
+        {/* Topbar - hidden during Add New Company flow */}
+        {!isAddingNewCompany && (
+          <Topbar 
+            userName={`${userData.firstName} ${userData.lastName}`} 
+            isDrawerOpen={isDrawerOpen} 
+            onDrawerToggle={toggleDrawer}
+            companySwitcher={{
+              companies: companies,
+              selectedCompany: selectedCompany,
+              onCompanyChange: handleCompanyChange
+            }}
+          />
+        )}
+
+        {/* Logo and Close Button for Add New Company - fixed overlay */}
+        {isAddingNewCompany && (
+          <>
+            <img 
+              src={frontedLogo}
+              alt="Fronted"
+              className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleCancelAddCompany}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCancelAddCompany}
+              className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+            >
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+          </>
+        )}
 
         {/* Main Content Area */}
-        <main className="flex-1 flex overflow-hidden">
-          {/* Dashboard Drawer */}
-          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+        <main className="flex-1 flex overflow-hidden relative">
+          {/* Dashboard Drawer - hidden during Add New Company flow */}
+          {!isAddingNewCompany && <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />}
 
-          {/* Payroll Pipeline Main Area with Agent Layout */}
+          {/* Full-screen Add New Company flow (v4-specific) */}
+          {isAddingNewCompany ? (
+            <FrontedAdminV4EmbeddedOnboarding
+              onComplete={handleNewCompanyComplete}
+              onCancel={handleCancelAddCompany}
+            />
+          ) : (
+          /* Payroll Pipeline Main Area with Agent Layout */
           <AgentLayout context="Payroll Pipeline">
             <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
               {/* Static background */}
@@ -5013,14 +5054,9 @@ You can ask me about:
               </AlertDialogContent>
             </AlertDialog>
           </AgentLayout>
+          )}
         </main>
 
-        {/* Add New Company Drawer (v4-specific) */}
-        <FrontedAdminV4NewCompanyDrawer
-          open={isAddCompanyDrawerOpen}
-          onOpenChange={setIsAddCompanyDrawerOpen}
-          onCompanyCreated={handleNewCompanyCreated}
-        />
       </div>
     </RoleLensProvider>;
 };
