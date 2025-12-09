@@ -340,7 +340,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80"
+                          className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground"
                           onClick={() => handleOpenConfig(contractor)}
                         >
                           <Settings className="h-3 w-3" />
