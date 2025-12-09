@@ -86,6 +86,7 @@ import PayrollBatch from "./pages/PayrollBatch";
 import PayrollBatchCurrent from "./pages/PayrollBatchCurrent";
 import CandidateDataCollection from "./pages/CandidateDataCollection";
 import CandidateDataCollectionV2 from "./pages/CandidateDataCollectionV2";
+import V4_PayrollDetailsForm from "./pages/flows/V4_PayrollDetailsForm";
 
 // Flow 2 v2 single-page form (no multi-step needed)
 
@@ -140,6 +141,7 @@ const App = () => (
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
         <Route path="/flows/fronted-admin-dashboard-v4" element={<FrontedAdminDashboardV4 />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
+        <Route path="/flow-1-v4/payroll-details/:candidateId?" element={<V4_PayrollDetailsForm />} />
         <Route path="/candidate/profile-settings" element={<CandidateProfileSettings />} />
         <Route path="/admin/profile-settings" element={<AdminProfileSettings />} />
           <Route path="/step-card-pattern" element={<StepCardPattern />} />

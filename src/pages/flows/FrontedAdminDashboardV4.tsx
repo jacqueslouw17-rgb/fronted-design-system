@@ -8,7 +8,7 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { useAgentState } from "@/hooks/useAgentState";
-import { PipelineView } from "@/components/contract-flow/PipelineView";
+import { V4_PipelineView } from "@/components/flows/fronted-admin-v4/V4_PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
@@ -3720,7 +3720,7 @@ You can ask me about:
                     <div className="pt-6">
                       {viewMode === "tracker" ? (/* Pipeline Tracker - cloned from Flow 1 v3 */
                     <div className="mt-3">
-                      <PipelineView 
+                      <V4_PipelineView 
                         key={selectedCompany}
                         contractors={trackerContractors}
                         onAddCandidate={() => toast.info("Add candidate clicked")}
