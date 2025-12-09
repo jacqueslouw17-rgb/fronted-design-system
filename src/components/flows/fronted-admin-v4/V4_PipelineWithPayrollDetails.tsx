@@ -128,185 +128,196 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     }
   };
 
-  return (
-    <div className={cn("flex gap-4", className)}>
-      {/* Original Pipeline */}
-      <div className="flex-1 overflow-x-auto">
-        <PipelineView
-          contractors={contractors as any}
-          onContractorUpdate={onContractorUpdate as any}
-          onDraftContract={onDraftContract}
-          onSignatureComplete={onSignatureComplete}
-          onAddCandidate={onAddCandidate}
-          onRemoveContractor={onRemoveContractor}
-        />
+  // Render the payroll details column as JSX to inject into pipeline
+  const renderPayrollColumn = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.1 }}
+      className="flex-shrink-0 w-[280px]"
+    >
+      {/* Column Header */}
+      <div className="p-3 rounded-t-lg border-t border-x bg-accent-purple-fill/30 border-accent-purple-outline/20">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-medium text-sm text-foreground">
+                      Collect Payroll Details
+                    </h3>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-sm">
+                    Get bank and payout details so we can run payroll.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <span className="text-xs font-medium text-muted-foreground">
+            {certifiedNeedingPayroll.length}
+          </span>
+        </div>
       </div>
 
-      {/* Collect Payroll Details Column - Added after Pipeline */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex-shrink-0 w-[280px]"
-      >
-        {/* Column Header */}
-        <div className="p-3 rounded-t-lg border-t border-x bg-accent-purple-fill/30 border-accent-purple-outline/20">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-medium text-sm text-foreground">
-                        Collect Payroll Details
-                      </h3>
-                      <Info className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <p className="text-sm">
-                      Get bank and payout details so we can run payroll.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+      {/* Column Content */}
+      <div className="p-2 rounded-b-lg border-b border-x border-border/40 bg-card/30 space-y-2 min-h-[400px]">
+        {certifiedNeedingPayroll.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-12 px-4 text-center"
+          >
+            <div className="w-12 h-12 rounded-full bg-accent-purple-fill/20 flex items-center justify-center mb-3">
+              <Wallet className="h-6 w-6 text-accent-purple-text" />
             </div>
-            <span className="text-xs font-medium text-muted-foreground">
-              {certifiedNeedingPayroll.length}
-            </span>
-          </div>
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              No payroll details pending
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Certified candidates needing payroll setup will appear here
+            </p>
+          </motion.div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {certifiedNeedingPayroll.map((contractor) => {
+              const statusBadge = getPayrollStatusBadge(contractor.payrollFormStatus);
+              const StatusIcon = statusBadge.icon;
+              const isSending = sendingFormIds.has(contractor.id);
+
+              return (
+                <motion.div
+                  key={contractor.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{
+                    layout: { duration: 0.5, type: "spring" },
+                    opacity: { duration: 0.2 },
+                    scale: { duration: 0.2 },
+                  }}
+                >
+                  <Card className="hover:shadow-card transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-3 space-y-2">
+                      {/* Contractor Header */}
+                      <div className="flex items-start gap-2">
+                        <Avatar className="h-8 w-8 bg-primary/10">
+                          <AvatarFallback className="text-xs">
+                            {contractor.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm text-foreground truncate">
+                              {contractor.name}
+                            </span>
+                            <span className="text-base">{contractor.countryFlag}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {contractor.role}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Contractor Details */}
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Salary</span>
+                          <span className="font-medium text-foreground">
+                            {contractor.salary}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium text-foreground">
+                            {contractor.country}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className="flex items-center justify-center py-1">
+                        <Badge
+                          variant="secondary"
+                          className={cn("text-xs gap-1.5", statusBadge.color)}
+                        >
+                          <StatusIcon className="h-3 w-3" />
+                          {statusBadge.label}
+                        </Badge>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground"
+                          onClick={() => handleOpenConfig(contractor)}
+                        >
+                          <Settings className="h-3 w-3" />
+                          Configure
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
+                          disabled={isSending}
+                          onClick={() => {
+                            if (contractor.payrollFormStatus === "sent") {
+                              handleResendPayrollForm(contractor.id);
+                            } else {
+                              handleSendPayrollForm(contractor.id);
+                            }
+                          }}
+                        >
+                          <Send className="h-3 w-3" />
+                          {isSending
+                            ? "Sending..."
+                            : contractor.payrollFormStatus === "sent"
+                            ? "Resend"
+                            : "Send Form"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className={cn("overflow-x-auto pb-4", className)}>
+      <div className="flex gap-4 min-w-max items-start">
+        {/* 
+          Original Pipeline - renders with its own overflow-x-auto.
+          We render it inline and let it take as much width as needed.
+          Since PipelineView uses min-w-max internally, it will expand.
+        */}
+        <div className="flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0">
+          <PipelineView
+            contractors={contractors as any}
+            onContractorUpdate={onContractorUpdate as any}
+            onDraftContract={onDraftContract}
+            onSignatureComplete={onSignatureComplete}
+            onAddCandidate={onAddCandidate}
+            onRemoveContractor={onRemoveContractor}
+          />
         </div>
 
-        {/* Column Content */}
-        <div className="p-2 rounded-b-lg border-b border-x border-border/40 bg-card/30 space-y-2 min-h-[200px]">
-          {certifiedNeedingPayroll.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-12 px-4 text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-accent-purple-fill/20 flex items-center justify-center mb-3">
-                <Wallet className="h-6 w-6 text-accent-purple-text" />
-              </div>
-              <h3 className="text-sm font-medium text-foreground mb-1">
-                No payroll details pending
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Certified candidates needing payroll setup will appear here
-              </p>
-            </motion.div>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              {certifiedNeedingPayroll.map((contractor) => {
-                const statusBadge = getPayrollStatusBadge(contractor.payrollFormStatus);
-                const StatusIcon = statusBadge.icon;
-                const isSending = sendingFormIds.has(contractor.id);
-
-                return (
-                  <motion.div
-                    key={contractor.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{
-                      layout: { duration: 0.5, type: "spring" },
-                      opacity: { duration: 0.2 },
-                      scale: { duration: 0.2 },
-                    }}
-                  >
-                    <Card className="hover:shadow-card transition-shadow border border-border/40 bg-card/50 backdrop-blur-sm">
-                      <CardContent className="p-3 space-y-2">
-                        {/* Contractor Header */}
-                        <div className="flex items-start gap-2">
-                          <Avatar className="h-8 w-8 bg-primary/10">
-                            <AvatarFallback className="text-xs">
-                              {contractor.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1">
-                              <span className="font-medium text-sm text-foreground truncate">
-                                {contractor.name}
-                              </span>
-                              <span className="text-base">{contractor.countryFlag}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {contractor.role}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Contractor Details */}
-                        <div className="flex flex-col gap-1.5 text-[11px]">
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Salary</span>
-                            <span className="font-medium text-foreground">
-                              {contractor.salary}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Country</span>
-                            <span className="font-medium text-foreground">
-                              {contractor.country}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Status Badge */}
-                        <div className="flex items-center justify-center py-1">
-                          <Badge
-                            variant="secondary"
-                            className={cn("text-xs gap-1.5", statusBadge.color)}
-                          >
-                            <StatusIcon className="h-3 w-3" />
-                            {statusBadge.label}
-                          </Badge>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 pt-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground"
-                            onClick={() => handleOpenConfig(contractor)}
-                          >
-                            <Settings className="h-3 w-3" />
-                            Configure
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
-                            disabled={isSending}
-                            onClick={() => {
-                              if (contractor.payrollFormStatus === "sent") {
-                                handleResendPayrollForm(contractor.id);
-                              } else {
-                                handleSendPayrollForm(contractor.id);
-                              }
-                            }}
-                          >
-                            <Send className="h-3 w-3" />
-                            {isSending
-                              ? "Sending..."
-                              : contractor.payrollFormStatus === "sent"
-                              ? "Resend"
-                              : "Send Form"}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          )}
-        </div>
-      </motion.div>
+        {/* Collect Payroll Details Column */}
+        {renderPayrollColumn()}
+      </div>
 
       {/* Payroll Details Config Drawer */}
       <V4_PayrollDetailsConfigDrawer
