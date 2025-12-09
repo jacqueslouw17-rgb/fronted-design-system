@@ -318,7 +318,7 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
             </div>
             <div className="space-y-2 mb-4 text-xs">
               <div className="flex justify-between"><span className="text-muted-foreground">Country</span><span className="font-medium">{contractor.country}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Salary</span><span className="font-medium">{contractor.salary}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span><span className="font-medium">{contractor.salary}</span></div>
               {contractor.employmentType && <div className="flex justify-between"><span className="text-muted-foreground">Type</span><Badge variant="outline" className="text-xs capitalize">{contractor.employmentType}</Badge></div>}
             </div>
             {contractor.status === "collect-payroll-details" && (

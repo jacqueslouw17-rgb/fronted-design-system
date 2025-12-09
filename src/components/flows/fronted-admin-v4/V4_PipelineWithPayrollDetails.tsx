@@ -362,7 +362,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       {/* Details */}
                       <div className="flex flex-col gap-1.5 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Salary</span>
+                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
                           <span className="font-medium text-foreground">{contractor.salary}</span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -500,7 +500,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       {/* Details */}
                       <div className="flex flex-col gap-1.5 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Salary</span>
+                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
                           <span className="font-medium text-foreground">{contractor.salary}</span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -636,7 +636,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       {/* Details */}
                       <div className="flex flex-col gap-1.5 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Salary</span>
+                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
                           <span className="font-medium text-foreground">{contractor.salary}</span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -766,7 +766,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       {/* Details */}
                       <div className="flex flex-col gap-1.5 text-[11px]">
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Salary</span>
+                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
                           <span className="font-medium text-foreground">{contractor.salary}</span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -901,7 +901,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                     {/* Details */}
                     <div className="flex flex-col gap-1.5 text-[11px]">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Salary</span>
+                        <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
                         <span className="font-medium text-foreground">{contractor.salary}</span>
                       </div>
                       <div className="flex justify-between items-center">
