@@ -11,42 +11,57 @@ import { CheckCircle2, ArrowRight, Sparkles, Loader2, Info } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { motion } from "framer-motion";
-
 interface Step7Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
   isLoadingFields?: boolean;
 }
-
 const cn = (...classes: (string | boolean | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
 };
-
-const WorkerStep7Finish_v2 = ({ formData, onComplete, isProcessing: externalProcessing }: Step7Props) => {
+const WorkerStep7Finish_v2 = ({
+  formData,
+  onComplete,
+  isProcessing: externalProcessing
+}: Step7Props) => {
   const navigate = useNavigate();
-
   const handleFinish = useCallback(() => {
     onComplete("finish");
     // Navigate to dashboard - stays within v2 context
-    navigate('/flows/candidate-dashboard', { state: { fromOnboarding: true } });
+    navigate('/flows/candidate-dashboard', {
+      state: {
+        fromOnboarding: true
+      }
+    });
   }, [navigate, onComplete]);
 
   // v2: Payroll details removed - collected later via separate secure form
-  const completedItems = [
-    { label: "Personal information", icon: CheckCircle2, done: !!formData.fullName },
-    { label: "Compliance documents", icon: CheckCircle2, done: !!formData.taxNumber },
-    { label: "Work setup", icon: CheckCircle2, done: !!formData.startDate },
-    { label: "Profile ready", icon: CheckCircle2, done: true }
-  ];
-
-  return (
-    <div className="max-w-xl mx-auto space-y-6 relative">
-      <motion.div
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+  const completedItems = [{
+    label: "Personal information",
+    icon: CheckCircle2,
+    done: !!formData.fullName
+  }, {
+    label: "Compliance documents",
+    icon: CheckCircle2,
+    done: !!formData.taxNumber
+  }, {
+    label: "Work setup",
+    icon: CheckCircle2,
+    done: !!formData.startDate
+  }, {
+    label: "Profile ready",
+    icon: CheckCircle2,
+    done: true
+  }];
+  return <div className="max-w-xl mx-auto space-y-6 relative">
+      <motion.div initial={{
+      opacity: 1
+    }} exit={{
+      opacity: 0
+    }} transition={{
+      duration: 0.3
+    }}>
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-3">
@@ -65,63 +80,45 @@ const WorkerStep7Finish_v2 = ({ formData, onComplete, isProcessing: externalProc
           <Label className="text-sm font-medium">What We've Completed</Label>
           <div className="grid grid-cols-2 gap-2">
             {completedItems.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.3 }}
-                  className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors"
-                >
-                  <Icon className={cn(
-                    "h-3 w-3 flex-shrink-0",
-                    item.done ? "text-green-600" : "text-muted-foreground"
-                  )} />
+            const Icon = item.icon;
+            return <motion.div key={idx} initial={{
+              opacity: 0,
+              y: 10
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              delay: idx * 0.05,
+              duration: 0.3
+            }} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-card border border-border/30 hover:border-primary/20 transition-colors">
+                  <Icon className={cn("h-3 w-3 flex-shrink-0", item.done ? "text-green-600" : "text-muted-foreground")} />
                   <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
                     {item.label}
                   </span>
-                </motion.div>
-              );
-            })}
+                </motion.div>;
+          })}
           </div>
         </div>
 
         {/* Payroll details info note */}
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-[#EAF3FF] dark:bg-primary/10 border border-primary/20">
-          <Info className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-foreground/90 leading-relaxed">
-            <span className="font-medium">Next step:</span> You'll receive a separate secure form to provide your bank details before your first payment.
-          </p>
-        </div>
+        
 
         {/* CTA */}
         <div className="space-y-3">
-          <Button 
-            size="lg" 
-            className="w-full" 
-            disabled={externalProcessing}
-            onClick={handleFinish}
-          >
-            {externalProcessing ? (
-              <>
+          <Button size="lg" className="w-full" disabled={externalProcessing} onClick={handleFinish}>
+            {externalProcessing ? <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Launching...
-              </>
-            ) : (
-              <>
+              </> : <>
                 Finish & Launch
                 <ArrowRight className="h-4 w-4 ml-2" />
-              </>
-            )}
+              </>}
           </Button>
           <p className="text-xs text-center text-muted-foreground">
             Your dashboard is ready to view
           </p>
         </div>
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default WorkerStep7Finish_v2;
