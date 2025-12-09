@@ -90,6 +90,28 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     ...c,
     payrollFormStatus: c.payrollFormStatus || "not-configured"
   })));
+
+  // Sync v4Contractors when initialContractors changes (e.g., new candidate added from parent)
+  React.useEffect(() => {
+    // Merge incoming contractors with existing ones (preserve local state for existing contractors)
+    setV4Contractors(prev => {
+      const existingIds = new Set(prev.map(c => c.id));
+      const incomingIds = new Set(initialContractors.map(c => c.id));
+      
+      // Keep existing contractors that are still in initial list (preserve their local state)
+      const kept = prev.filter(c => incomingIds.has(c.id));
+      
+      // Add new contractors from initial list that don't exist yet
+      const newContractors = initialContractors
+        .filter(c => !existingIds.has(c.id))
+        .map(c => ({
+          ...c,
+          payrollFormStatus: c.payrollFormStatus || "not-configured" as const
+        }));
+      
+      return [...kept, ...newContractors];
+    });
+  }, [initialContractors]);
   const [configDrawerOpen, setConfigDrawerOpen] = useState(false);
   const [viewDetailsDrawerOpen, setViewDetailsDrawerOpen] = useState(false);
   const [selectedContractor, setSelectedContractor] = useState<V4_Contractor | null>(null);
