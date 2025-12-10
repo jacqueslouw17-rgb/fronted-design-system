@@ -39,6 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { CA_PayrollModeInfoBanner, getPayrollModeForCountry } from "./CA_PayrollModeIndicator";
 
 // Types for the workbench drawer
 export interface WorkbenchWorker {
@@ -673,6 +674,13 @@ export const CA_WorkerWorkbenchDrawer: React.FC<CA_WorkerWorkbenchDrawerProps> =
               This cycle only
             </Badge>
           </div>
+          
+          {/* Payroll Mode Info Banner */}
+          <CA_PayrollModeInfoBanner 
+            mode={getPayrollModeForCountry(worker.countryCode)} 
+            context="drawer"
+            className="mt-3"
+          />
         </SheetHeader>
 
         {/* Scrollable Content */}
