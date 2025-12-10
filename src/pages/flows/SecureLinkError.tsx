@@ -9,6 +9,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, HelpCircle, CheckCircle2 } from 'lucide-react';
 import secureLinkExpiredIllustration from '@/assets/secure-link-expired.png';
+import frontedLogo from '@/assets/fronted-logo.png';
 
 const SecureLinkError: React.FC = () => {
   return (
@@ -20,10 +21,11 @@ const SecureLinkError: React.FC = () => {
       {/* Header with logo */}
       <header className="p-6 relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md shadow-primary/20">
-            <span className="text-primary-foreground font-bold text-base">F</span>
-          </div>
-          <span className="font-semibold text-foreground text-lg tracking-tight">Fronted</span>
+          <img 
+            src={frontedLogo} 
+            alt="Fronted" 
+            className="h-8 w-auto"
+          />
         </div>
       </header>
 
