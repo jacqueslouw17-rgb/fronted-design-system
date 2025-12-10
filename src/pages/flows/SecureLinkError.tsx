@@ -6,12 +6,14 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, HelpCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import secureLinkExpiredIllustration from '@/assets/secure-link-expired.png';
 import frontedLogo from '@/assets/fronted-logo.png';
 
 const SecureLinkError: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/[0.06] via-background to-secondary/[0.04] flex flex-col relative overflow-hidden">
       {/* Subtle background pattern */}
@@ -20,11 +22,19 @@ const SecureLinkError: React.FC = () => {
       
       {/* Header with logo */}
       <header className="p-6 relative z-10">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate("/?tab=flows")} 
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors" 
+            aria-label="Back to flows"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground/70" />
+          </button>
           <img 
             src={frontedLogo} 
             alt="Fronted" 
-            className="h-8 w-auto"
+            className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate("/?tab=flows")}
           />
         </div>
       </header>
