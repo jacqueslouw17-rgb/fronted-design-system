@@ -291,6 +291,7 @@ const DesignSystem = () => {
     'flow-6-company-admin-dashboard',// Flow 6 Company Admin Dashboard v1
     'flow-6-company-admin-dashboard-v2',// Flow 6 Company Admin Dashboard v2
     'flow-2.1-admin-payroll',        // Flow 7 Fronted Admin Payroll v1 (deprecated/locked)
+    'shared-secure-link-error',      // Shared – Secure Link Error (403)
   ];
   const handleComponentClick = (componentId: string) => {
     const component = componentsRegistry.find(c => c.id === componentId);
