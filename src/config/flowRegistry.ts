@@ -233,6 +233,17 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/pages/flows/F42v3_ContractorDashboardPage.tsx',
       'src/stores/F42v3_DashboardStore.ts'
     ]
+  },
+  'shared-secure-link-error': {
+    id: 'shared-secure-link-error',
+    title: 'Shared – Secure Link Error (403)',
+    path: '/secure-link-error',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/SecureLinkError.tsx'
+    ]
   }
 };
 

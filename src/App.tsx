@@ -39,6 +39,7 @@ import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
 import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
+import SecureLinkError from "./pages/flows/SecureLinkError";
 import CandidateProfileSettings from "./pages/CandidateProfileSettings";
 import AdminProfileSettings from "./pages/AdminProfileSettings";
 import StepCardPattern from "./pages/StepCardPattern";
@@ -200,6 +201,9 @@ const App = () => (
         <Route path="/flows/candidate-data-collection-v2" element={<CandidateDataCollectionV2 />} />
         {/* Redirect old multi-step routes to single-page form */}
         <Route path="/candidate-data-collection-v2/*" element={<CandidateDataCollectionV2 />} />
+        
+        {/* Shared error pages */}
+        <Route path="/secure-link-error" element={<SecureLinkError />} />
         
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
