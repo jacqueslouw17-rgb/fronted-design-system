@@ -38,6 +38,7 @@ import { CA_SkipConfirmationModal, CA_ResetConfirmationModal } from "@/component
 import { createMockBatch, mockClientReviewItems, mockBatchWorkers, mockBatchSummary, mockAuditLog } from "@/components/flows/company-admin-v2/CA_BatchData";
 import { CA_Adjustment, CA_LeaveChange } from "@/components/flows/company-admin-v2/CA_PayrollTypes";
 import { CA_PaymentBatch, CA_BatchAdjustment } from "@/components/flows/company-admin-v2/CA_BatchTypes";
+import { CA_PayrollModePill, CA_PayrollModeTableBadge, CA_PayrollModeWorkerTag, getPayrollModeForCountry } from "@/components/flows/company-admin-v2/CA_PayrollModeIndicator";
 import EmployeePayrollDrawer from "@/components/payroll/EmployeePayrollDrawer";
 import LeaveDetailsDrawer from "@/components/payroll/LeaveDetailsDrawer";
 import { OverrideExceptionModal } from "@/components/payroll/OverrideExceptionModal";
@@ -1902,7 +1903,17 @@ const CompanyAdminDashboardV2: React.FC = () => {
             {/* Status Bar */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                
+                {/* Payroll Mode Pills - show modes for all countries in current batch */}
+                {(() => {
+                  const phWorkers = allContractors.filter(c => c.countryCode === "PH");
+                  const noWorkers = allContractors.filter(c => c.countryCode === "NO");
+                  return (
+                    <>
+                      {phWorkers.length > 0 && <CA_PayrollModePill mode="automated" size="sm" />}
+                      {noWorkers.length > 0 && <CA_PayrollModePill mode="manual" size="sm" />}
+                    </>
+                  );
+                })()}
                 {selectedCycle === "previous" && <Badge variant="outline" className="text-xs bg-muted/30">
                     Read-Only Mode
                   </Badge>}
@@ -1961,6 +1972,12 @@ const CompanyAdminDashboardV2: React.FC = () => {
                     <div className="p-4 bg-muted/30 border-b border-border flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-foreground">{currency} Payments</span>
+                        {/* Payroll Mode Badge - based on country for this currency */}
+                        {(() => {
+                          const countryCode = contractors[0]?.countryCode || "";
+                          const mode = getPayrollModeForCountry(countryCode);
+                          return <CA_PayrollModeTableBadge mode={mode} />;
+                        })()}
                         <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">
                           Employees: {employeesList.length}
                         </Badge>
@@ -2212,9 +2229,12 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                 {symbol}{Math.round(totalPayable).toLocaleString()}
                               </TableCell>
                               <TableCell className="min-w-[100px]">
-                                <Badge variant="outline" className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">
-                                  Ready
-                                </Badge>
+                                <div className="flex items-center gap-1.5">
+                                  <Badge variant="outline" className="text-xs bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/30">
+                                    Ready
+                                  </Badge>
+                                  <CA_PayrollModeWorkerTag mode={getPayrollModeForCountry(contractor.countryCode)} />
+                                </div>
                               </TableCell>
                               <TableCell className="text-sm min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
@@ -2498,9 +2518,12 @@ const CompanyAdminDashboardV2: React.FC = () => {
                                 {symbol}{Math.round(totalPayable).toLocaleString()}
                               </TableCell>
                               <TableCell className="min-w-[100px]">
-                                <Badge variant="outline" className="text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
-                                  Ready
-                                </Badge>
+                                <div className="flex items-center gap-1.5">
+                                  <Badge variant="outline" className="text-xs bg-accent-green-fill text-accent-green-text border-accent-green-outline/30">
+                                    Ready
+                                  </Badge>
+                                  <CA_PayrollModeWorkerTag mode={getPayrollModeForCountry(contractor.countryCode)} />
+                                </div>
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground min-w-[90px]">{contractor.eta}</TableCell>
                               <TableCell className="text-xs text-right min-w-[120px]">
