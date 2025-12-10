@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, FileText, Workflow, UserCheck } from "lucide-react";
+import { ArrowRight, FileText, Workflow, UserCheck, ShieldAlert } from "lucide-react";
 
 interface FlowCardProps {
   flowId: string;
@@ -357,6 +357,22 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
         { label: "FX Review", path: "/payroll-batch" }
       ],
       additionalCount: 4,
+      dataModel: null
+    },
+    'shared-secure-link-error': {
+      path: "/secure-link-error",
+      iconColor: "amber",
+      icon: ShieldAlert,
+      title: "Shared – Secure Link Error (403)",
+      locked: false,
+      deprecated: false,
+      description: "Full-screen error state shown when a secure data collection link is invalid, expired, or cannot be accessed. Reusable pattern for payroll/onboarding forms.",
+      steps: "1 screen",
+      patterns: "1 pattern",
+      badges: [
+        { label: "Error State", path: "/empty-state" }
+      ],
+      additionalCount: 0,
       dataModel: null
     }
   };
