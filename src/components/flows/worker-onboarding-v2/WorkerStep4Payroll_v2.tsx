@@ -97,11 +97,6 @@ const WorkerStep4Payroll_v2 = ({ formData, onComplete, isProcessing, isLoadingFi
           </label>
         </div>
 
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-          <p className="text-sm text-blue-600 dark:text-blue-400">
-            💡 <strong>Kurt says:</strong> You'll receive an invoice template via email. Keep track of your submission deadlines!
-          </p>
-        </div>
 
         <Button
           onClick={handleContinue}
@@ -180,11 +175,6 @@ const WorkerStep4Payroll_v2 = ({ formData, onComplete, isProcessing, isLoadingFi
         </label>
       </div>
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-600 dark:text-blue-400">
-          💡 <strong>Kurt says:</strong> Double-check your bank details! Incorrect information can delay your first payment.
-        </p>
-      </div>
 
       <Button
         onClick={handleContinue}

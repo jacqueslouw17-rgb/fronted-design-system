@@ -192,16 +192,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         </label>
       </div>
 
-      {data.deviceProvided !== undefined && (
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-          <p className="text-sm text-blue-600 dark:text-blue-400">
-            💡 <strong>Kurt says:</strong> {data.deviceProvided 
-              ? "Make sure to keep your company device secure and report any issues immediately."
-              : "If you need equipment support, reach out to your manager or HR team."
-            }
-          </p>
-        </div>
-      )}
 
       <Button
         onClick={handleContinue}

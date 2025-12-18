@@ -200,12 +200,6 @@ const WorkerStep3Compliance_v2 = ({ formData, onComplete, isProcessing, isLoadin
         )}
       </div>
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-600 dark:text-blue-400">
-          💡 <strong>Kurt says:</strong> These documents are required for compliance in {country}. 
-          All uploads are encrypted and stored securely.
-        </p>
-      </div>
 
       <Button
         onClick={handleContinue}

@@ -248,12 +248,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
         </div>
       </div>
 
-      {/* Info banner about contract-linked fields */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-        <p className="text-sm text-blue-600 dark:text-blue-400">
-          💡 <strong>Kurt says:</strong> Some details like your name, date of birth, or nationality are linked to your contract. To update these, please contact your HR representative so your contract stays accurate.
-        </p>
-      </div>
 
       <Button
         onClick={handleContinue}
