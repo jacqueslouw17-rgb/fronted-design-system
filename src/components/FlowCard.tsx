@@ -342,11 +342,11 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
-    'flow-1-fronted-admin-v4': {
+    'flow-1-fronted-admin-v3': {
       path: "/flows/fronted-admin-dashboard-v4",
       iconColor: "cyan",
       icon: Workflow,
-      title: "Flow 1 Fronted Admin Dashboard v4",
+      title: "Flow 1 Fronted Admin Dashboard v3",
       locked: false,
       deprecated: false,
       description: "Fronted internal admin dashboard: Clone of Flow 6 v2 with full payroll workbench, Workers/Payroll tabs, self-service capabilities. Decoupled from company admin context.",
