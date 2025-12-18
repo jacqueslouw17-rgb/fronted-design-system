@@ -69,14 +69,12 @@ const V4_ATS_CANDIDATES = [
 ];
 
 const COUNTRY_OPTIONS = [
-  { value: "Philippines", flag: "🇵🇭" },
-  { value: "Singapore", flag: "🇸🇬" },
-  { value: "United States", flag: "🇺🇸" },
-  { value: "Mexico", flag: "🇲🇽" },
   { value: "India", flag: "🇮🇳" },
-  { value: "United Kingdom", flag: "🇬🇧" },
-  { value: "Germany", flag: "🇩🇪" },
-  { value: "Australia", flag: "🇦🇺" },
+  { value: "Philippines", flag: "🇵🇭" },
+  { value: "Sweden", flag: "🇸🇪" },
+  { value: "Norway", flag: "🇳🇴" },
+  { value: "Denmark", flag: "🇩🇰" },
+  { value: "Kosovo", flag: "🇽🇰" },
 ];
 
 export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
@@ -464,13 +462,76 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                     <Label htmlFor="v4-startDate" className="text-sm">
                       Start date <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      id="v4-startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                      className="bg-background"
-                    />
+                    {(() => {
+                      // Parse existing value into day/month/year
+                      const dateParts = formData.startDate ? formData.startDate.split("-") : ["", "", ""];
+                      const [yearVal, monthVal, dayVal] = dateParts;
+                      
+                      const handleDatePartChange = (part: "day" | "month" | "year", value: string) => {
+                        let newYear = yearVal || "";
+                        let newMonth = monthVal || "";
+                        let newDay = dayVal || "";
+                        
+                        if (part === "day") newDay = value;
+                        if (part === "month") newMonth = value;
+                        if (part === "year") newYear = value;
+                        
+                        setFormData(prev => ({ ...prev, startDate: `${newYear}-${newMonth}-${newDay}` }));
+                      };
+                      
+                      const currentYear = new Date().getFullYear();
+                      const years = [currentYear, currentYear + 1, currentYear + 2];
+                      const months = [
+                        { value: "01", label: "January" },
+                        { value: "02", label: "February" },
+                        { value: "03", label: "March" },
+                        { value: "04", label: "April" },
+                        { value: "05", label: "May" },
+                        { value: "06", label: "June" },
+                        { value: "07", label: "July" },
+                        { value: "08", label: "August" },
+                        { value: "09", label: "September" },
+                        { value: "10", label: "October" },
+                        { value: "11", label: "November" },
+                        { value: "12", label: "December" },
+                      ];
+                      const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
+                      
+                      return (
+                        <div className="flex gap-2">
+                          <Select value={dayVal} onValueChange={(v) => handleDatePartChange("day", v)}>
+                            <SelectTrigger className="bg-background flex-1">
+                              <SelectValue placeholder="Day" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover max-h-[200px]">
+                              {days.map((d) => (
+                                <SelectItem key={d} value={d}>{parseInt(d)}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={monthVal} onValueChange={(v) => handleDatePartChange("month", v)}>
+                            <SelectTrigger className="bg-background flex-[2]">
+                              <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover max-h-[200px]">
+                              {months.map((m) => (
+                                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={yearVal} onValueChange={(v) => handleDatePartChange("year", v)}>
+                            <SelectTrigger className="bg-background flex-1">
+                              <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover">
+                              {years.map((y) => (
+                                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
