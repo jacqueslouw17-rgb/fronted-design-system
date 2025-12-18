@@ -1112,10 +1112,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       </div>
     </motion.div>;
 
-  // Render Onboard Candidate Column (V4-specific with checkbox support)
+  // Render Onboard Candidate Column (V4-specific - single candidate onboarding only)
   const renderOnboardCandidateColumn = () => {
-    const selectedCount = getOnboardSelectedCount();
-    
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -1126,58 +1124,27 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         {/* Column Header */}
         <div className="p-3 rounded-t-lg border-t border-x bg-primary/10 border-primary/20">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1">
-              {/* Select All Checkbox */}
-              {onboardCandidateContractors.length > 0 && (
-                <Checkbox
-                  checked={getOnboardCheckboxState()}
-                  onCheckedChange={(checked) => handleSelectAllOnboard(checked as boolean | "indeterminate")}
-                  className="h-4 w-4"
-                />
-              )}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-medium text-sm text-foreground">
-                        Onboard Candidate
-                      </h3>
-                      <Info className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <p className="text-sm">
-                      Start the candidate onboarding process with checklist and tracking.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedCount > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {selectedCount} selected
-                </span>
-              )}
-              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                {onboardCandidateContractors.length}
-              </Badge>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-medium text-sm text-foreground">
+                      Onboard Candidate
+                    </h3>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-sm">
+                    Start the candidate onboarding process with checklist and tracking.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+              {onboardCandidateContractors.length}
+            </Badge>
           </div>
-          
-          {/* Bulk Action Button */}
-          {selectedCount > 0 && (
-            <div className="mt-2">
-              <Button 
-                size="sm" 
-                className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30"
-                onClick={handleBulkStartOnboarding}
-              >
-                <Sparkles className="h-3 w-3 mr-1" />
-                Start Onboarding ({selectedCount})
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Column Body */}
@@ -1207,12 +1174,6 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                     <CardContent className="p-3 space-y-2">
                       {/* Contractor Header */}
                       <div className="flex items-start gap-2">
-                        <Checkbox
-                          checked={selectedOnboardIds.has(contractor.id)}
-                          onCheckedChange={(checked) => handleSelectOnboardContractor(contractor.id, checked as boolean)}
-                          className="h-4 w-4 mt-1"
-                          onClick={(e) => e.stopPropagation()}
-                        />
                         <Avatar className="h-8 w-8 bg-primary/10">
                           <AvatarFallback className="text-xs">
                             {contractor.name.split(' ').map(n => n[0]).join('')}
