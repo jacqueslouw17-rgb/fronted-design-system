@@ -52,7 +52,7 @@ const WorkerStep1Welcome_v2 = ({
       {/* Sign In Header */}
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-foreground">Sign in</h2>
-        <p className="text-sm text-muted-foreground">Choose how you'd like to sign in to continue</p>
+        <p className="text-sm text-muted-foreground">Use your default credentials from the email.</p>
       </div>
 
       {/* Account Setup Section */}
