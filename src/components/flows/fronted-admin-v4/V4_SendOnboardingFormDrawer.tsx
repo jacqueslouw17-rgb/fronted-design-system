@@ -50,20 +50,86 @@ const FIELD_TYPE_ICONS: Record<CustomOnboardingFieldType, React.ElementType> = {
   file_upload: Upload,
 };
 
-// Default base fields for config
-const getDefaultConfig = (candidate: V4_Candidate): OnboardingFormConfig => ({
-  baseFields: [
-    { id: "full_name", label: "Full Name", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "As per contract" },
-    { id: "email", label: "Email Address", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "prefilled", helperText: "Primary email" },
-    { id: "phone", label: "Phone Number", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "candidate", helperText: "Include country code" },
-    { id: "date_of_birth", label: "Date of Birth", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "DD/MM/YYYY" },
-    { id: "nationality", label: "Nationality", section: "personal", type: "select", required: true, enabled: true, locked: true, filledBy: "prefilled", options: ["United States", "Philippines", "India", "Germany", "Sweden", "Norway", "Denmark", "Kosovo"] },
-    { id: "residential_address", label: "Residential Address", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "Full address" },
-  ],
-  customFields: [],
-  country: candidate.country,
-  employmentType: candidate.employmentType || "contractor",
-});
+// Personal fields
+const getPersonalFields = (): OnboardingFieldConfig[] => [
+  { id: "full_name", label: "Full Name", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "As per contract" },
+  { id: "email", label: "Email Address", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "prefilled", helperText: "Primary email" },
+  { id: "phone", label: "Phone Number", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "candidate", helperText: "Include country code" },
+  { id: "date_of_birth", label: "Date of Birth", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "DD/MM/YYYY" },
+  { id: "nationality", label: "Nationality", section: "personal", type: "select", required: true, enabled: true, locked: true, filledBy: "prefilled", options: ["United States", "Philippines", "India", "Germany", "Sweden", "Norway", "Denmark", "Kosovo"] },
+  { id: "residential_address", label: "Residential Address", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "Full address" },
+];
+
+// Country-specific Compliance fields
+const getComplianceFields = (country: string): OnboardingFieldConfig[] => {
+  switch (country) {
+    case "Sweden":
+      return [
+        { id: "personalIdNumber", label: "Personal identity number (Personnummer)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident in Sweden", "Non-resident (SINK)"], filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+      ];
+    case "Norway":
+      return [
+        { id: "norwegianId", label: "Norwegian ID (Fødselsnummer or D-number)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident (PAYE scheme)"], filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+      ];
+    case "Denmark":
+      return [
+        { id: "cprNumber", label: "CPR number (Civil registration number)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident"], filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+      ];
+    case "Philippines":
+      return [
+        { id: "tinNumber", label: "Tax Identification Number (TIN)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "nationalId", label: "National ID / Government ID number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "governmentIdUpload", label: "Government ID upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Philippine ID, passport, etc.", filledBy: "candidate" },
+      ];
+    case "Kosovo":
+      return [
+        { id: "invoicingAs", label: "Invoicing as", section: "compliance", type: "select", required: true, enabled: true, options: ["Individual", "Company"], filledBy: "candidate" },
+        { id: "personalNumber", label: "Personal number (10-digit ID)", section: "compliance", type: "text", required: false, enabled: true, filledBy: "candidate" },
+        { id: "idUpload", label: "ID upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+      ];
+    default:
+      return [
+        { id: "nationalId", label: "National ID / Passport number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxId", label: "Tax ID / Registration number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, filledBy: "candidate" },
+      ];
+  }
+};
+
+// Payroll fields
+const getPayrollFields = (employmentType: "contractor" | "employee"): OnboardingFieldConfig[] => {
+  if (employmentType === "contractor") {
+    return [
+      { id: "invoiceRuleConfirmed", label: "Invoice Rules Acknowledgment", section: "payroll", type: "checkbox", required: true, enabled: true, helperText: "Worker confirms understanding of invoice submission rules", filledBy: "candidate" },
+    ];
+  }
+  return [
+    { id: "bankName", label: "Bank Name", section: "payroll", type: "text", required: true, enabled: true, helperText: "e.g., BDO, BPI, Wells Fargo", filledBy: "candidate" },
+    { id: "accountNumber", label: "Account Number / IBAN", section: "payroll", type: "text", required: true, enabled: true, filledBy: "candidate" },
+    { id: "swiftBic", label: "SWIFT / BIC Code", section: "payroll", type: "text", required: false, enabled: true, helperText: "For international payments", filledBy: "candidate" },
+  ];
+};
+
+// Default base fields for config - includes all three sections by default
+const getDefaultConfig = (candidate: V4_Candidate): OnboardingFormConfig => {
+  const employmentType = candidate.employmentType || "contractor";
+  return {
+    baseFields: [
+      ...getPersonalFields(),
+      ...getComplianceFields(candidate.country),
+      ...getPayrollFields(employmentType),
+    ],
+    customFields: [],
+    country: candidate.country,
+    employmentType,
+  };
+};
 
 export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerProps> = ({
   open,
