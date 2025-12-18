@@ -166,15 +166,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
         )}
       </div>
 
-      <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-3">
-        <h4 className="font-semibold text-sm">Employment Agreement</h4>
-        <p className="text-sm text-muted-foreground">
-          Please review your employment agreement which covers your role, compensation, and company policies.
-        </p>
-        <Button variant="outline" size="sm" className="w-full">
-          📄 View Employment Agreement
-        </Button>
-      </div>
 
       <div className="flex items-start space-x-2">
         <Checkbox
