@@ -4,7 +4,7 @@
  * 
  * Opens from "Onboard Candidate" column cards via "Onboard" button
  * Shows preview of the onboarding form the candidate will receive
- * Matches Flow 3 structure: Personal Info, Compliance, Payroll
+ * Matches Flow 3 structure: Personal Info, Compliance, Payroll, Custom Fields
  */
 
 import React, { useState } from "react";
@@ -17,10 +17,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Shield, Send, Mail, User, CreditCard, FileUp, AlertCircle, Lock } from "lucide-react";
+import { Shield, Send, Mail, User, CreditCard, FileUp, AlertCircle, Lock, Plus, FileText, Hash, CalendarDays, List, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { OnboardingFormConfig, OnboardingFieldConfig } from "./V4_ConfigureOnboardingDrawer";
+import { OnboardingFormConfig, OnboardingFieldConfig, CustomOnboardingField, CustomOnboardingFieldType } from "./V4_ConfigureOnboardingDrawer";
 
 interface V4_Candidate {
   id: string;
@@ -40,6 +40,15 @@ interface V4_SendOnboardingFormDrawerProps {
   config?: OnboardingFormConfig;
   onSend: (candidateId: string) => void;
 }
+
+const FIELD_TYPE_ICONS: Record<CustomOnboardingFieldType, React.ElementType> = {
+  short_text: FileText,
+  long_text: FileText,
+  number: Hash,
+  date: CalendarDays,
+  single_select: List,
+  file_upload: Upload,
+};
 
 export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerProps> = ({
   open,
@@ -68,13 +77,15 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
 
   // Filter visible fields
   const visibleFields = config?.baseFields.filter(f => f.enabled) || [];
+  const visibleCustomFields = config?.customFields?.filter(f => f.enabled) || [];
   
   // Group by section - matching Flow 3 structure
   const personalFields = visibleFields.filter(f => f.section === "personal");
   const complianceFields = visibleFields.filter(f => f.section === "compliance");
   const payrollFields = visibleFields.filter(f => f.section === "payroll");
 
-  const hasNoVisibleFields = visibleFields.length === 0;
+  const totalVisibleFields = visibleFields.length + visibleCustomFields.length;
+  const hasNoVisibleFields = totalVisibleFields === 0;
 
   const renderField = (field: OnboardingFieldConfig) => {
     const isRequired = field.required;
@@ -127,6 +138,53 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
         )}
         {field.helperText && field.type !== "checkbox" && (
           <p className="text-xs text-muted-foreground">{field.helperText}</p>
+        )}
+      </div>
+    );
+  };
+
+  const renderCustomField = (field: CustomOnboardingField) => {
+    const isRequired = field.required;
+    const isPrefilled = field.filledBy === "prefilled";
+    const TypeIcon = FIELD_TYPE_ICONS[field.type];
+    
+    return (
+      <div key={field.id} className="space-y-1.5">
+        <Label className="text-sm flex items-center gap-1.5">
+          <TypeIcon className="h-3 w-3 text-muted-foreground" />
+          {field.label}
+          {isRequired && <span className="text-destructive">*</span>}
+        </Label>
+        {field.type === "file_upload" ? (
+          <div className="border border-dashed border-border/60 rounded-lg p-4 text-center bg-muted/20">
+            <FileUp className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+            <p className="text-xs text-muted-foreground">Upload area (preview)</p>
+          </div>
+        ) : field.type === "single_select" && field.options ? (
+          <Select disabled value={isPrefilled ? field.adminValue : undefined}>
+            <SelectTrigger className={cn(
+              "bg-background text-muted-foreground",
+              isPrefilled && field.adminValue && "text-foreground"
+            )}>
+              <SelectValue placeholder={isPrefilled && field.adminValue ? field.adminValue : `Select ${field.label.toLowerCase()}`} />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              {field.options.map(opt => (
+                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input 
+            placeholder={`Enter ${field.label.toLowerCase()}`} 
+            disabled 
+            className={cn(
+              "bg-muted/30",
+              isPrefilled && field.adminValue && "text-foreground"
+            )}
+            value={isPrefilled ? field.adminValue : ""}
+            type={field.type === "number" ? "number" : "text"}
+          />
         )}
       </div>
     );
@@ -191,7 +249,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-foreground">Form Preview</p>
             <Badge variant="secondary" className="text-xs">
-              {visibleFields.length} fields
+              {totalVisibleFields} fields
             </Badge>
           </div>
 
@@ -214,7 +272,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">Confirm Personal Information</Label>
+                    <Label className="text-sm font-semibold">Personal Information</Label>
                   </div>
                   <p className="text-xs text-muted-foreground -mt-2 pl-6">
                     Details pre-filled from contract. Some fields locked.
@@ -263,6 +321,25 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
                     </p>
                     <div className="space-y-4 pl-6">
                       {payrollFields.map(renderField)}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Section 4: Custom Fields */}
+              {visibleCustomFields.length > 0 && (
+                <>
+                  {(personalFields.length > 0 || complianceFields.length > 0 || payrollFields.length > 0) && <Separator />}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">Additional Information</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground -mt-2 pl-6">
+                      Custom fields for this candidate.
+                    </p>
+                    <div className="space-y-4 pl-6">
+                      {visibleCustomFields.map(renderCustomField)}
                     </div>
                   </div>
                 </>
