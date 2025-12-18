@@ -19,7 +19,7 @@ import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
-import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
+import V4_Step2OrgProfile from "@/components/flows/fronted-admin-v4/V4_Step2OrgProfile";
 import Step3Localization from "@/components/flows/onboarding/Step3Localization";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
@@ -144,7 +144,7 @@ const FrontedAdminV4EmbeddedOnboarding = ({ onComplete, onCancel }: FrontedAdmin
 
     switch (stepId) {
       case "org_profile":
-        return <Step2OrgProfileSimplified {...stepProps} />;
+        return <V4_Step2OrgProfile {...stepProps} />;
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
       case "finish_dashboard_transition":
