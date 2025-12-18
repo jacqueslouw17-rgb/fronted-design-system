@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, Info, Circle, Send } from "lucide-react";
+import { CheckCircle2, Clock, Info, Circle, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -76,6 +76,7 @@ export const V4_SignatureWorkflowDrawer: React.FC<V4_SignatureWorkflowDrawerProp
 }) => {
   const [signingStatus, setSigningStatus] = useState<SigningStatus>("sent_to_candidate");
   const [contractItems, setContractItems] = useState<ContractItem[]>([]);
+  const [isResending, setIsResending] = useState(false);
 
   // Initialize with "Send to Candidate" already completed
   useEffect(() => {
@@ -112,7 +113,12 @@ export const V4_SignatureWorkflowDrawer: React.FC<V4_SignatureWorkflowDrawerProp
   }, [candidate]);
 
   // Handle resending to candidate
-  const handleResendToCandidate = () => {
+  const handleResendToCandidate = async () => {
+    setIsResending(true);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
     setContractItems(prev => prev.map(item => {
       if (item.id === "send_to_candidate") {
         return {
@@ -122,6 +128,8 @@ export const V4_SignatureWorkflowDrawer: React.FC<V4_SignatureWorkflowDrawerProp
       }
       return item;
     }));
+    
+    setIsResending(false);
     toast.success(`Contract resent to ${candidate?.name} for signature.`);
   };
 
@@ -256,11 +264,25 @@ export const V4_SignatureWorkflowDrawer: React.FC<V4_SignatureWorkflowDrawerProp
                         </p>
                       )}
                     </div>
-                    {/* Send Again button - primary styled */}
+                    {/* Send Again button - primary styled with loading state */}
                     {item.id === "send_to_candidate" && item.status === "complete" && (
-                      <Button size="sm" onClick={handleResendToCandidate} className="flex-shrink-0">
-                        <Send className="h-3 w-3 mr-1.5" />
-                        Send Again
+                      <Button 
+                        size="sm" 
+                        onClick={handleResendToCandidate} 
+                        disabled={isResending}
+                        className="flex-shrink-0 min-w-[100px]"
+                      >
+                        {isResending ? (
+                          <>
+                            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-3 w-3 mr-1.5" />
+                            Send Again
+                          </>
+                        )}
                       </Button>
                     )}
                   </motion.div>
