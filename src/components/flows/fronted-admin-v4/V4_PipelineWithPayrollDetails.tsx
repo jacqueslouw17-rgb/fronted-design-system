@@ -48,6 +48,7 @@ interface V4_Contractor {
   candidateFormLastSentAt?: string;
   onboardingConfig?: OnboardingConfig;
   onboardingFormSent?: boolean;
+  onboardingFormLastSentAt?: string;
   // V4-specific onboarding form config (for Onboard Candidate column)
   onboardingFormConfig?: OnboardingFormConfig;
   onboardingFormConfigured?: boolean;
@@ -155,17 +156,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // Offer Accepted: status is offer-accepted
   const offerAcceptedContractors = v4Contractors.filter(c => c.status === "offer-accepted");
 
-  // Certified: status is CERTIFIED and payroll form not yet sent
-  const certifiedContractors = v4Contractors.filter(c => (c.status === "certified" || c.status === "CERTIFIED") && c.payrollFormStatus !== "sent" && c.payrollFormStatus !== "completed");
-
   // Collect Candidate Details: status is data-pending (form sent, awaiting data)
   const collectCandidateDetailsContractors = v4Contractors.filter(c => c.status === "data-pending");
 
-  // Collecting: payroll form sent but not completed
-  const collectingPayrollContractors = v4Contractors.filter(c => c.payrollFormStatus === "sent");
-
-  // Done: payroll form completed
-  const doneContractors = v4Contractors.filter(c => c.payrollFormStatus === "completed");
+  // Done: candidates who have been sent onboarding form (awaiting or completed)
+  // Two states: onboardingFormSent but not completed = awaiting, payrollFormStatus === "completed" = done
+  const doneContractors = v4Contractors.filter(c => 
+    c.onboardingFormSent === true || c.payrollFormStatus === "completed"
+  );
 
   // V4-specific: Prepare Contract (drafting) - rendered by v4 with v4 navigation
   const prepareContractContractors = v4Contractors.filter(c => c.status === "drafting");
@@ -176,16 +174,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // V4-specific: Onboard Candidate - rendered by v4 with checkbox support
   const onboardCandidateContractors = v4Contractors.filter(c => c.status === "trigger-onboarding");
 
-  // Contractors for main pipeline (exclude statuses we render ourselves: offer-accepted, data-pending, drafting, awaiting-signature, trigger-onboarding, certified, and payroll stages)
+  // Contractors for main pipeline (exclude statuses we render ourselves)
   const pipelineContractors = v4Contractors.filter(c => 
     c.status !== "offer-accepted" && 
-    c.status !== "certified" && 
-    c.status !== "CERTIFIED" && 
     c.status !== "data-pending" && 
     c.status !== "drafting" &&
     c.status !== "awaiting-signature" &&
     c.status !== "trigger-onboarding" &&
-    c.payrollFormStatus !== "sent" && 
+    c.onboardingFormSent !== true &&
     c.payrollFormStatus !== "completed"
   );
 
@@ -509,7 +505,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const handleSendOnboardingForm = useCallback((candidateId: string) => {
     setV4Contractors(prev => prev.map(c => c.id === candidateId ? {
       ...c,
-      status: "certified"
+      onboardingFormSent: true,
+      onboardingFormLastSentAt: new Date().toLocaleString()
     } : c));
   }, []);
 
@@ -1270,419 +1267,234 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     );
   };
 
-  // Render Certified Column (custom V4 version with Configure & Send buttons)
-  const renderCertifiedColumn = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: 0.3
-  }} className="flex-shrink-0 w-[280px]">
-      {/* Column Header - darker */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-accent-green-fill/50 border-accent-green-outline/30">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-medium text-sm text-foreground">
-                      Certified
-                    </h3>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-sm">
-                    Contracts & compliance completed. Configure and send payroll details form.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-accent-green-fill/50 text-accent-green-text">
-            {certifiedContractors.length}
-          </Badge>
-        </div>
-      </div>
+  // Handler for resending onboarding form
+  const handleResendOnboardingForm = useCallback((contractorId: string) => {
+    setSendingFormIds(prev => new Set([...prev, contractorId]));
+    setTimeout(() => {
+      setV4Contractors(prev => prev.map(c => c.id === contractorId ? {
+        ...c,
+        onboardingFormLastSentAt: new Date().toLocaleString()
+      } : c));
+      setSendingFormIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(contractorId);
+        return newSet;
+      });
+      toast.success("Onboarding form resent");
+    }, 600);
+  }, []);
 
-      {/* Column Body - lighter */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-green-fill/15 border-accent-green-outline/20">
-        {certifiedContractors.length === 0 ? <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-accent-green-fill/20 flex items-center justify-center mb-3">
-              <Award className="h-6 w-6 text-accent-green-text" />
+  // Render Done Column - with two states: awaiting onboarding vs completed
+  const renderDoneColumn = () => {
+    const isOnboardingComplete = (contractor: V4_Contractor) => contractor.payrollFormStatus === "completed";
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="flex-shrink-0 w-[280px]"
+      >
+        {/* Column Header - darker */}
+        <div className="p-3 rounded-t-lg border-t border-x bg-primary/25 border-primary/30">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-medium text-sm text-foreground">Done</h3>
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p className="text-sm">
+                      Candidates with onboarding forms sent or completed.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              No certified workers
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Workers completing onboarding will appear here
-            </p>
-          </motion.div> : <AnimatePresence mode="popLayout">
-            {certifiedContractors.map(contractor => {
-          const isSending = sendingFormIds.has(contractor.id);
-          const isConfigured = contractor.payrollFormConfigured || contractor.payrollFormStatus === "configured";
-          return <motion.div key={contractor.id} layout initial={{
-            opacity: 0,
-            scale: 0.8
-          }} animate={{
-            opacity: 1,
-            scale: 1
-          }} exit={{
-            opacity: 0,
-            scale: 0.8,
-            x: 100
-          }} transition={{
-            layout: {
-              duration: 0.5,
-              type: "spring"
-            },
-            opacity: {
-              duration: 0.2
-            }
-          }}>
-                  <Card className="hover:shadow-card transition-shadow border border-accent-green-outline/30 bg-card/50 backdrop-blur-sm">
-                    <CardContent className="p-3 space-y-2">
-                      {/* Worker Header */}
-                      <div className="flex items-start gap-2">
-                        <Avatar className="h-8 w-8 bg-accent-green-fill/20 border border-accent-green-outline/30">
-                          <AvatarFallback className="text-xs">
-                            {contractor.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium text-sm text-foreground truncate">
-                              {contractor.name}
-                            </span>
-                            <span className="text-base">{contractor.countryFlag}</span>
+            <Badge
+              variant="secondary"
+              className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/20 text-primary"
+            >
+              {doneContractors.length}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Column Body - lighter */}
+        <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-primary/8 border-primary/15">
+          {doneContractors.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-12 px-4 text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-sm font-medium text-foreground mb-1">No candidates yet</h3>
+              <p className="text-xs text-muted-foreground">
+                Candidates with onboarding forms will appear here
+              </p>
+            </motion.div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {doneContractors.map((contractor) => {
+                const isComplete = isOnboardingComplete(contractor);
+                const isSending = sendingFormIds.has(contractor.id);
+
+                return (
+                  <motion.div
+                    key={contractor.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8, x: -50 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{
+                      layout: { duration: 0.5, type: "spring" },
+                      opacity: { duration: 0.3 },
+                    }}
+                  >
+                    <Card
+                      className={cn(
+                        "hover:shadow-card transition-all border backdrop-blur-sm",
+                        isComplete
+                          ? "cursor-pointer border-primary/20 bg-gradient-to-br from-card/80 to-primary/5 group"
+                          : "border-accent-yellow-outline/30 bg-card/50"
+                      )}
+                      onClick={isComplete ? () => handleViewDetails(contractor) : undefined}
+                    >
+                      <CardContent className="p-3 space-y-2">
+                        {/* Worker Header */}
+                        <div className="flex items-start gap-2">
+                          <Avatar
+                            className={cn(
+                              "h-8 w-8",
+                              isComplete
+                                ? "bg-primary/10 border border-primary/20"
+                                : "bg-accent-yellow-fill/20"
+                            )}
+                          >
+                            <AvatarFallback
+                              className={cn(
+                                "text-xs",
+                                isComplete ? "text-primary" : "text-foreground"
+                              )}
+                            >
+                              {contractor.name.split(" ").map((n) => n[0]).join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-sm text-foreground truncate">
+                                {contractor.name}
+                              </span>
+                              <span className="text-base">{contractor.countryFlag}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {contractor.role}
+                            </p>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {contractor.role}
-                          </p>
                         </div>
-                      </div>
 
-                      {/* Details */}
-                      <div className="flex flex-col gap-1.5 text-[11px]">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
-                          <span className="font-medium text-foreground">{contractor.salary}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Country</span>
-                          <span className="font-medium text-foreground">{contractor.country}</span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons - Same style as Offer Accepted */}
-                      <div className="flex gap-2 pt-1">
-                        <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground" onClick={() => handleOpenConfig(contractor)}>
-                          <Settings className="h-3 w-3" />
-                          Configure
-                        </Button>
-                        <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={isSending} onClick={() => handleSendPayrollForm(contractor.id)}>
-                          <Send className="h-3 w-3" />
-                          {isSending ? "Sending..." : "Send form"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>;
-        })}
-          </AnimatePresence>}
-      </div>
-    </motion.div>;
-
-  // Render Collect Payroll Details Column
-  const renderCollectPayrollColumn = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: 0.3,
-    delay: 0.1
-  }} className="flex-shrink-0 w-[280px]">
-      {/* Column Header - darker */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-accent-yellow-fill/50 border-accent-yellow-outline/30">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-medium text-sm text-foreground">
-                      Collect Payroll Details
-                    </h3>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-sm">
-                    Waiting for workers to submit their bank and payout details.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-            {collectingPayrollContractors.length}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Column Body - lighter */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-accent-yellow-fill/15 border-accent-yellow-outline/20">
-        {collectingPayrollContractors.length === 0 ? <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-accent-yellow-fill/20 flex items-center justify-center mb-3">
-              <Clock className="h-6 w-6 text-accent-yellow-text" />
-            </div>
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              No pending payroll forms
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Workers awaiting payroll form completion will appear here
-            </p>
-          </motion.div> : <AnimatePresence mode="popLayout">
-            {collectingPayrollContractors.map(contractor => {
-          const isSending = sendingFormIds.has(contractor.id);
-          return <motion.div key={contractor.id} layout initial={{
-            opacity: 0,
-            scale: 0.8
-          }} animate={{
-            opacity: 1,
-            scale: 1
-          }} exit={{
-            opacity: 0,
-            scale: 0.8,
-            x: 100
-          }} transition={{
-            layout: {
-              duration: 0.5,
-              type: "spring"
-            },
-            opacity: {
-              duration: 0.2
-            }
-          }}>
-                  <Card className="hover:shadow-card transition-shadow border border-accent-yellow-outline/30 bg-card/50 backdrop-blur-sm">
-                    <CardContent className="p-3 space-y-2">
-                      {/* Worker Header */}
-                      <div className="flex items-start gap-2">
-                        <Avatar className="h-8 w-8 bg-primary/10">
-                          <AvatarFallback className="text-xs">
-                            {contractor.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium text-sm text-foreground truncate">
-                              {contractor.name}
+                        {/* Details */}
+                        <div className="flex flex-col gap-1.5 text-[11px]">
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">
+                              {contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}
                             </span>
-                            <span className="text-base">{contractor.countryFlag}</span>
+                            <span className="font-medium text-foreground">{contractor.salary}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {contractor.role}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Country</span>
+                            <span className="font-medium text-foreground">{contractor.country}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Details */}
-                      <div className="flex flex-col gap-1.5 text-[11px]">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
-                          <span className="font-medium text-foreground">{contractor.salary}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Country</span>
-                          <span className="font-medium text-foreground">{contractor.country}</span>
-                        </div>
-                      </div>
+                        {isComplete ? (
+                          <>
+                            {/* Payroll Ready Badge */}
+                            <div className="flex justify-center pt-1">
+                              <Badge className="bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 gap-1">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Payroll ready
+                              </Badge>
+                            </div>
 
-                      {/* Status Context */}
-                      <div className="pt-1 pb-1 text-center">
-                        <p className="text-xs text-muted-foreground">
-                          Awaiting payroll details from worker
-                        </p>
-                        {contractor.payrollFormLastSentAt && <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                            Last sent: {contractor.payrollFormLastSentAt}
-                          </p>}
-                      </div>
+                            {/* Payroll Summary */}
+                            <div className="pt-1 space-y-1 border-t border-border/30 mt-2">
+                              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                <span>
+                                  Pay frequency: {contractor.payrollDetails?.payFrequency || "Monthly"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                <Building2 className="h-3 w-3" />
+                                <span>
+                                  Bank: {contractor.payrollDetails?.bankName || "Verified"},{" "}
+                                  {contractor.country}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                <Wallet className="h-3 w-3" />
+                                <span>Aligned with company payroll</span>
+                              </div>
+                            </div>
 
-                      {/* Action Button */}
-                      <div className="flex gap-2 pt-1">
-                        <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" disabled={isSending} onClick={() => handleResendPayrollForm(contractor.id)}>
-                          <RefreshCw className={cn("h-3 w-3", isSending && "animate-spin")} />
-                          {isSending ? "Sending..." : "Resend"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>;
-        })}
-          </AnimatePresence>}
-      </div>
-    </motion.div>;
+                            {/* View Details hint */}
+                            <div className="flex justify-center pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <span className="text-[10px] text-primary flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                View details
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Awaiting Onboarding State */}
+                            <div className="pt-1 pb-1 text-center">
+                              <p className="text-xs text-muted-foreground">
+                                Awaiting response from worker
+                              </p>
+                              {contractor.onboardingFormLastSentAt && (
+                                <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                                  Sent: {contractor.onboardingFormLastSentAt}
+                                </p>
+                              )}
+                            </div>
 
-  // Render Done Column
-  const renderDoneColumn = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: 0.3,
-    delay: 0.2
-  }} className="flex-shrink-0 w-[280px]">
-      {/* Column Header - darker */}
-      <div className="p-3 rounded-t-lg border-t border-x bg-primary/25 border-primary/30">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-medium text-sm text-foreground">
-                      Done
-                    </h3>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-sm">
-                    Payroll details completed and ready for payroll.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-primary/20 text-primary">
-            {doneContractors.length}
-          </Badge>
+                            {/* Resend Button */}
+                            <div className="flex gap-2 pt-1">
+                              <Button
+                                size="sm"
+                                className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90"
+                                disabled={isSending}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleResendOnboardingForm(contractor.id);
+                                }}
+                              >
+                                <RefreshCw className={cn("h-3 w-3", isSending && "animate-spin")} />
+                                {isSending ? "Sending..." : "Resend"}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
         </div>
-      </div>
-
-      {/* Column Body - lighter */}
-      <div className="min-h-[400px] p-3 space-y-3 border-x border-b rounded-b-lg bg-primary/8 border-primary/15">
-        {doneContractors.length === 0 ? <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-              <Sparkles className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              No completed workers yet
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Workers with completed payroll details will appear here
-            </p>
-          </motion.div> : <AnimatePresence mode="popLayout">
-            {doneContractors.map(contractor => <motion.div key={contractor.id} layout initial={{
-          opacity: 0,
-          scale: 0.8,
-          x: -50
-        }} animate={{
-          opacity: 1,
-          scale: 1,
-          x: 0
-        }} exit={{
-          opacity: 0,
-          scale: 0.8
-        }} transition={{
-          layout: {
-            duration: 0.5,
-            type: "spring"
-          },
-          opacity: {
-            duration: 0.3
-          }
-        }}>
-                <Card className="hover:shadow-card transition-all cursor-pointer border border-primary/20 bg-gradient-to-br from-card/80 to-primary/5 backdrop-blur-sm group" onClick={() => handleViewDetails(contractor)}>
-                  <CardContent className="p-3 space-y-2">
-                    {/* Worker Header */}
-                    <div className="flex items-start gap-2">
-                      <Avatar className="h-8 w-8 bg-primary/10 border border-primary/20">
-                        <AvatarFallback className="text-xs text-primary">
-                          {contractor.name.split(" ").map(n => n[0]).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium text-sm text-foreground truncate">
-                            {contractor.name}
-                          </span>
-                          <span className="text-base">{contractor.countryFlag}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {contractor.role}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex flex-col gap-1.5 text-[11px]">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{contractor.employmentType === "contractor" ? "Consultancy fee" : "Salary"}</span>
-                        <span className="font-medium text-foreground">{contractor.salary}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Country</span>
-                        <span className="font-medium text-foreground">{contractor.country}</span>
-                      </div>
-                    </div>
-
-                    {/* Payroll Ready Badge */}
-                    <div className="flex justify-center pt-1">
-                      <Badge className="bg-accent-green-fill/20 text-accent-green-text border border-accent-green-outline/30 gap-1">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Payroll ready
-                      </Badge>
-                    </div>
-
-                    {/* Payroll Summary */}
-                    <div className="pt-1 space-y-1 border-t border-border/30 mt-2">
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        <span>Pay frequency: {contractor.payrollDetails?.payFrequency || "Monthly"}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        <span>Bank: {contractor.payrollDetails?.bankName || "Verified"}, {contractor.country}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <Wallet className="h-3 w-3" />
-                        <span>Aligned with company payroll</span>
-                      </div>
-                    </div>
-
-                    {/* View Details hint */}
-                    <div className="flex justify-center pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] text-primary flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        View details
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>)}
-          </AnimatePresence>}
-      </div>
-    </motion.div>;
+      </motion.div>
+    );
+  };
   return <div className={cn("overflow-x-auto pb-4", className)}>
       <div className="flex gap-4 min-w-max items-start">
         {/* Column 1: Offer Accepted (custom V4 version with candidate details config) */}
@@ -1700,13 +1512,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         {/* Column 5: Onboard Candidate (V4-specific with checkbox support) */}
         {renderOnboardCandidateColumn()}
 
-        {/* Column 7: Certified */}
-        {renderCertifiedColumn()}
-
-        {/* Column 8: Collect Payroll Details */}
-        {renderCollectPayrollColumn()}
-
-        {/* Column 9: Done */}
+        {/* Column 6: Done */}
         {renderDoneColumn()}
       </div>
 
