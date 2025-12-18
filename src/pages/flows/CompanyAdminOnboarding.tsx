@@ -1,5 +1,5 @@
 /**
- * Flow 5 — Company Admin Onboarding v1
+ * Flow 5 — Company Admin Onboarding v1 (updated)
  * 
  * Standalone onboarding flow for Company Admins accessed via email invite link.
  * Duplicated from the Add Company flow used in Flow 1.1 Fronted Admin Dashboard v2.
