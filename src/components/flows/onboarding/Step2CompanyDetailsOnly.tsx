@@ -95,14 +95,6 @@ const Step2CompanyDetailsOnly = ({
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
-      {/* Helper message about prefilled data */}
-      <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
-        <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-muted-foreground flex-1">
-          Some company details were pre-filled by Fronted. Please confirm they're correct or update where needed.
-        </p>
-      </div>
-
       {/* Company Information */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
@@ -113,6 +105,14 @@ const Step2CompanyDetailsOnly = ({
         </div>
         
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+          {/* Helper message about prefilled data */}
+          <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+            <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground flex-1">
+              Some company details were pre-filled by Fronted. Please confirm they're correct or update where needed.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm">
               Company Name <span className="text-destructive">*</span>
