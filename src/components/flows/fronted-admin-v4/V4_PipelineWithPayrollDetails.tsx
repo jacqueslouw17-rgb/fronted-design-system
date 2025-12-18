@@ -27,6 +27,7 @@ import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig, 
 import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
 import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
 import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
+import { SignatureWorkflowDrawer } from "@/components/contract-flow/SignatureWorkflowDrawer";
 interface V4_Contractor {
   id: string;
   name: string;
@@ -130,6 +131,10 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const [candidateConfigDrawerOpen, setCandidateConfigDrawerOpen] = useState(false);
   const [candidateSendFormDrawerOpen, setCandidateSendFormDrawerOpen] = useState(false);
   const [selectedCandidateForConfig, setSelectedCandidateForConfig] = useState<V4_Contractor | null>(null);
+
+  // V4 Signature Workflow Drawer state (copied from Flow 1 v2 pattern)
+  const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
+  const [selectedForSignature, setSelectedForSignature] = useState<V4_Contractor | null>(null);
 
   // Filter contractors by their payroll stage
   // Offer Accepted: status is offer-accepted
@@ -278,6 +283,25 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     onRemoveContractor?.(contractorId);
     toast.success("Candidate removed");
   }, [onRemoveContractor]);
+
+  // V4-specific: Signature workflow drawer handler (copied from Flow 1 v2)
+  const handleOpenSignatureWorkflow = useCallback((contractor: V4_Contractor) => {
+    setSelectedForSignature(contractor);
+    setSignatureDrawerOpen(true);
+  }, []);
+
+  const handleSignatureComplete = useCallback(() => {
+    if (selectedForSignature) {
+      // Move contractor to trigger-onboarding status
+      setV4Contractors(prev => prev.map(c => 
+        c.id === selectedForSignature.id 
+          ? { ...c, status: "trigger-onboarding" } 
+          : c
+      ));
+      setSignatureDrawerOpen(false);
+      setSelectedForSignature(null);
+    }
+  }, [selectedForSignature]);
 
   // V4-specific: Multi-select handlers for Offer Accepted column
   const handleSelectOfferAcceptedContractor = useCallback((id: string, checked: boolean) => {
@@ -1039,18 +1063,13 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                       </div>
                     </div>
 
-                    {/* Action Button - V4 specific (Track Progress stays in v4) */}
+                    {/* Action Button - V4 specific (Track Progress opens signature workflow drawer) */}
                     <div className="pt-1">
                       <Button 
                         size="sm" 
                         variant="outline"
                         className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground"
-                        onClick={() => {
-                          // TODO: Open v4-specific signature progress drawer
-                          toast.success("Tracking signature progress", {
-                            description: `${contractor.name}'s contract is awaiting signature.`
-                          });
-                        }}
+                        onClick={() => handleOpenSignatureWorkflow(contractor)}
                       >
                         <Eye className="h-3 w-3" />
                         Track Progress
@@ -1587,6 +1606,30 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         } : null} 
         config={selectedCandidateForConfig?.onboardingConfig} 
         onSend={handleSendCandidateForm} 
+      />
+
+      {/* Signature Workflow Drawer - V4 copy from Flow 1 v2 */}
+      <SignatureWorkflowDrawer 
+        open={signatureDrawerOpen} 
+        onOpenChange={setSignatureDrawerOpen} 
+        candidate={selectedForSignature ? {
+          id: selectedForSignature.id,
+          name: selectedForSignature.name,
+          role: selectedForSignature.role,
+          country: selectedForSignature.country,
+          countryCode: selectedForSignature.countryFlag?.replace(/[^\w]/g, "") || "XX",
+          flag: selectedForSignature.countryFlag || "🏳️",
+          salary: selectedForSignature.salary,
+          startDate: "TBD",
+          noticePeriod: "30 days",
+          pto: "15 days/year",
+          currency: "USD",
+          signingPortal: `${selectedForSignature.country} eSign Portal`,
+          status: "Hired" as const,
+          email: selectedForSignature.email,
+          employmentType: selectedForSignature.employmentType
+        } : null}
+        onComplete={handleSignatureComplete}
       />
     </div>;
 };
