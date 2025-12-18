@@ -21,6 +21,7 @@ export interface FlowMetadata {
   lockedDate?: string;
   lockedReason?: string;
   filePaths: string[];
+  hidden?: boolean;
 }
 
 export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
@@ -169,7 +170,8 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/components/flows/onboarding/Step2OrgProfileSimplified.tsx',
       'src/components/flows/onboarding/Step3Localization.tsx',
       'src/components/flows/onboarding/Step7Finish.tsx'
-    ]
+    ],
+    hidden: true
   },
   'f6-company-admin-dashboard': {
     id: 'f6-company-admin-dashboard',
