@@ -4,7 +4,7 @@
  * 
  * Opens from "Onboard Candidate" column cards via "Onboard" button
  * Shows preview of the onboarding form the candidate will receive
- * Country-specific compliance fields based on configuration
+ * SAME EXACT STYLE as V4_SendCandidateDetailsFormDrawer
  */
 
 import React, { useState } from "react";
@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Send, Mail, User, Globe, Receipt, Briefcase, Upload, FileUp, AlertCircle } from "lucide-react";
+import { Shield, Send, Mail, User, Receipt, Briefcase, Upload, FileUp, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { OnboardingFormConfig, OnboardingFieldConfig } from "./V4_ConfigureOnboardingDrawer";
@@ -40,26 +40,6 @@ interface V4_SendOnboardingFormDrawerProps {
   onSend: (candidateId: string) => void;
 }
 
-const getSectionIcon = (section: string) => {
-  switch (section) {
-    case "identity": return User;
-    case "tax": return Receipt;
-    case "invoicing": return Briefcase;
-    case "uploads": return Upload;
-    default: return User;
-  }
-};
-
-const getSectionLabel = (section: string) => {
-  switch (section) {
-    case "identity": return "Identity & Documents";
-    case "tax": return "Tax & Compliance";
-    case "invoicing": return "Invoicing Details";
-    case "uploads": return "Document Uploads";
-    default: return section;
-  }
-};
-
 export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
@@ -73,7 +53,6 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
     if (!candidate) return;
     setIsSending(true);
     
-    // Simulate sending
     setTimeout(() => {
       onSend(candidate.id);
       setIsSending(false);
@@ -90,15 +69,12 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
   const visibleFields = config?.baseFields.filter(f => f.enabled) || [];
   
   // Group by section
-  const sections = ["identity", "tax", "invoicing", "uploads"];
-  const fieldsBySection = sections.reduce((acc, section) => {
-    acc[section] = visibleFields.filter(f => f.section === section);
-    return acc;
-  }, {} as Record<string, OnboardingFieldConfig[]>);
+  const identityFields = visibleFields.filter(f => f.section === "identity");
+  const taxFields = visibleFields.filter(f => f.section === "tax");
+  const invoicingFields = visibleFields.filter(f => f.section === "invoicing");
+  const uploadFields = visibleFields.filter(f => f.section === "uploads");
 
   const hasNoVisibleFields = visibleFields.length === 0;
-  const countryLabel = candidate.country || "Unknown Country";
-  const employmentLabel = candidate.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)";
 
   const renderField = (field: OnboardingFieldConfig) => {
     const isRequired = field.required;
@@ -109,9 +85,6 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
         <Label className="text-sm flex items-center gap-1">
           {field.label}
           {isRequired && <span className="text-destructive">*</span>}
-          {isPrefilled && (
-            <Badge variant="secondary" className="text-[10px] ml-1">Pre-filled</Badge>
-          )}
         </Label>
         {field.type === "upload" ? (
           <div className="border border-dashed border-border/60 rounded-lg p-4 text-center bg-muted/20">
@@ -143,7 +116,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             value={isPrefilled ? field.adminValue : ""}
           />
         )}
-        {field.helperText && field.type !== "text" && (
+        {field.helperText && (
           <p className="text-xs text-muted-foreground">{field.helperText}</p>
         )}
       </div>
@@ -171,9 +144,9 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
               </div>
             </div>
             <Separator />
-            {/* Prefilled context */}
+            {/* Prefilled from contract - read-only context */}
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contract Details</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Prefilled from contract</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Role:</span>
@@ -181,7 +154,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Country:</span>
-                  <span className="font-medium">{candidate.countryFlag} {countryLabel}</span>
+                  <span className="font-medium">{candidate.countryFlag} {candidate.country}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Salary:</span>
@@ -190,7 +163,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Type:</span>
                   <Badge variant="outline" className="text-xs capitalize">
-                    {employmentLabel}
+                    {candidate.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
                   </Badge>
                 </div>
               </div>
@@ -201,7 +174,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
         {/* Compliance Badge */}
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Shield className="h-4 w-4 text-primary" />
-          <span>GDPR & local employment regulations compliant for {countryLabel}</span>
+          <span>GDPR & local employment regulations compliant</span>
         </div>
 
         {/* Form Preview */}
@@ -227,28 +200,66 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             </div>
           ) : (
             <div className="space-y-6 opacity-80">
-              {sections.map(section => {
-                const sectionFields = fieldsBySection[section];
-                if (!sectionFields || sectionFields.length === 0) return null;
+              {/* Section 1: Identity & Documents */}
+              {identityFields.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">Identity & Documents</Label>
+                  </div>
+                  <div className="space-y-4 pl-6">
+                    {identityFields.map(renderField)}
+                  </div>
+                </div>
+              )}
 
-                const SectionIcon = getSectionIcon(section);
-                const sectionLabel = getSectionLabel(section);
-
-                return (
-                  <div key={section}>
-                    {section !== "identity" && <Separator className="mb-4" />}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <SectionIcon className="h-4 w-4 text-primary" />
-                        <Label className="text-sm font-semibold">{sectionLabel}</Label>
-                      </div>
-                      <div className="space-y-4 pl-6">
-                        {sectionFields.map(renderField)}
-                      </div>
+              {/* Section 2: Tax & Compliance */}
+              {taxFields.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Receipt className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">Tax & Compliance</Label>
+                    </div>
+                    <div className="space-y-4 pl-6">
+                      {taxFields.map(renderField)}
                     </div>
                   </div>
-                );
-              })}
+                </>
+              )}
+
+              {/* Section 3: Invoicing Details */}
+              {invoicingFields.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">Invoicing Details</Label>
+                    </div>
+                    <div className="space-y-4 pl-6">
+                      {invoicingFields.map(renderField)}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Section 4: Document Uploads */}
+              {uploadFields.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Upload className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">Document Uploads</Label>
+                    </div>
+                    <div className="space-y-4 pl-6">
+                      {uploadFields.map(renderField)}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -263,7 +274,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             className="gap-2"
           >
             <Send className="h-4 w-4" />
-            {isSending ? "Sending..." : "Send Onboarding Form"}
+            {isSending ? "Sending..." : "Send Form"}
           </Button>
         </SheetFooter>
       </SheetContent>
