@@ -59,7 +59,7 @@ const F41v3_EmployeeDashboardPage = () => {
   return <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
         <div className="flex flex-col min-h-screen bg-background">
-          <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2" dashboardUrl="/candidate-dashboard-employee-v3" />
+          <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2?returnUrl=/candidate-dashboard-employee-v3" dashboardUrl="/candidate-dashboard-employee-v3" />
 
           <div className="flex-1">
             <AgentLayout context="Employee Dashboard v3">
