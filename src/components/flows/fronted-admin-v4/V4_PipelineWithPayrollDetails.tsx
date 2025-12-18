@@ -1,10 +1,13 @@
 /**
  * V4-specific Pipeline Wrapper
  * 
- * This component wraps the original PipelineView and adds custom payroll stages:
- * - Custom Certified column with Configure & Send payroll form actions
- * - Collect Payroll Details column (waiting state with Resend only)
- * - Done column (payroll completed with summary)
+ * This component renders the pipeline with these columns:
+ * - Offer Accepted: Configure and send candidate details form
+ * - Collect Candidate Details: Waiting for candidate to submit
+ * - Prepare Contract: Draft and review contract
+ * - Waiting for Signature: Track signature progress
+ * - Onboard Candidate: Configure and send onboarding form
+ * - Done: Awaiting onboarding response or completed
  * 
  * Only used in Flow 1 - Fronted Admin Dashboard v4.
  */
