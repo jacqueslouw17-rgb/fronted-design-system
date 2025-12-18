@@ -160,7 +160,7 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
   },
   'f5-company-admin-onboarding': {
     id: 'f5-company-admin-onboarding',
-    title: 'Flow 5 — Company Admin Onboarding v1',
+    title: 'Flow 5 — Company Admin Onboarding v1 - old',
     path: '/flows/company-admin-onboarding',
     locked: false,
     lockedDate: undefined,
