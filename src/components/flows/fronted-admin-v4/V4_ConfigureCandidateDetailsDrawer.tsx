@@ -92,14 +92,42 @@ interface V4_ConfigureCandidateDetailsDrawerProps {
   initialConfig?: OnboardingConfig;
 }
 
-// Countries supported by Fronted
+// Countries supported by Fronted (for tax residence, work location)
 const SUPPORTED_COUNTRIES = [
-  { value: "India", flag: "🇮🇳", nationality: "Indian" },
-  { value: "Philippines", flag: "🇵🇭", nationality: "Filipino" },
-  { value: "Sweden", flag: "🇸🇪", nationality: "Swedish" },
-  { value: "Norway", flag: "🇳🇴", nationality: "Norwegian" },
-  { value: "Denmark", flag: "🇩🇰", nationality: "Danish" },
-  { value: "Kosovo", flag: "🇽🇰", nationality: "Kosovar" },
+  { value: "India", flag: "🇮🇳" },
+  { value: "Philippines", flag: "🇵🇭" },
+  { value: "Sweden", flag: "🇸🇪" },
+  { value: "Norway", flag: "🇳🇴" },
+  { value: "Denmark", flag: "🇩🇰" },
+  { value: "Kosovo", flag: "🇽🇰" },
+];
+
+// All nationalities (citizenship can be from anywhere)
+const NATIONALITIES = [
+  { value: "NO", label: "🇳🇴 Norwegian" },
+  { value: "PH", label: "🇵🇭 Filipino" },
+  { value: "IN", label: "🇮🇳 Indian" },
+  { value: "US", label: "🇺🇸 American" },
+  { value: "GB", label: "🇬🇧 British" },
+  { value: "SE", label: "🇸🇪 Swedish" },
+  { value: "DK", label: "🇩🇰 Danish" },
+  { value: "FI", label: "🇫🇮 Finnish" },
+  { value: "DE", label: "🇩🇪 German" },
+  { value: "FR", label: "🇫🇷 French" },
+  { value: "XK", label: "🇽🇰 Kosovar" },
+  { value: "ES", label: "🇪🇸 Spanish" },
+  { value: "IT", label: "🇮🇹 Italian" },
+  { value: "NL", label: "🇳🇱 Dutch" },
+  { value: "PL", label: "🇵🇱 Polish" },
+  { value: "PT", label: "🇵🇹 Portuguese" },
+  { value: "AU", label: "🇦🇺 Australian" },
+  { value: "CA", label: "🇨🇦 Canadian" },
+  { value: "JP", label: "🇯🇵 Japanese" },
+  { value: "KR", label: "🇰🇷 South Korean" },
+  { value: "CN", label: "🇨🇳 Chinese" },
+  { value: "BR", label: "🇧🇷 Brazilian" },
+  { value: "MX", label: "🇲🇽 Mexican" },
+  { value: "SG", label: "🇸🇬 Singaporean" },
 ];
 
 // ID Types
@@ -672,10 +700,10 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                         <SelectTrigger className="h-8 text-xs bg-background">
                           <SelectValue placeholder="Select nationality" />
                         </SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {SUPPORTED_COUNTRIES.map((country) => (
-                            <SelectItem key={country.nationality} value={country.nationality} className="text-xs">
-                              {country.flag} {country.nationality}
+                        <SelectContent className="bg-background z-50 max-h-[200px]">
+                          {NATIONALITIES.map((nat) => (
+                            <SelectItem key={nat.value} value={nat.value} className="text-xs">
+                              {nat.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
