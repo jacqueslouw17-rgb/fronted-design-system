@@ -27,7 +27,7 @@ import { V4_PayrollDetailsConfigDrawer, CustomPayrollField, PayrollFieldConfig, 
 import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
 import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
 import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
-import { SignatureWorkflowDrawer } from "@/components/contract-flow/SignatureWorkflowDrawer";
+import { V4_SignatureWorkflowDrawer } from "./V4_SignatureWorkflowDrawer";
 interface V4_Contractor {
   id: string;
   name: string;
@@ -1608,8 +1608,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         onSend={handleSendCandidateForm} 
       />
 
-      {/* Signature Workflow Drawer - V4 copy from Flow 1 v2 */}
-      <SignatureWorkflowDrawer 
+      {/* Signature Workflow Drawer - V4 version with Send to Candidate already completed */}
+      <V4_SignatureWorkflowDrawer 
         open={signatureDrawerOpen} 
         onOpenChange={setSignatureDrawerOpen} 
         candidate={selectedForSignature ? {
@@ -1618,16 +1618,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
           role: selectedForSignature.role,
           country: selectedForSignature.country,
           countryCode: selectedForSignature.countryFlag?.replace(/[^\w]/g, "") || "XX",
-          flag: selectedForSignature.countryFlag || "🏳️",
-          salary: selectedForSignature.salary,
-          startDate: "TBD",
-          noticePeriod: "30 days",
-          pto: "15 days/year",
-          currency: "USD",
-          signingPortal: `${selectedForSignature.country} eSign Portal`,
-          status: "Hired" as const,
-          email: selectedForSignature.email,
-          employmentType: selectedForSignature.employmentType
+          salary: selectedForSignature.salary
         } : null}
         onComplete={handleSignatureComplete}
       />
