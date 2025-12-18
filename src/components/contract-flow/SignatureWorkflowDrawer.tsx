@@ -285,7 +285,7 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
             <div className="space-y-3">
               
               <div className="space-y-2">
-                {documents.map(doc => {})}
+                {documents.map(doc => null)}
               </div>
             </div>
 
