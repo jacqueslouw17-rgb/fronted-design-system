@@ -28,9 +28,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload, Database, Info, Lock, Eye, EyeOff } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload, Database, Info, Lock, Eye, EyeOff, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { format, parse } from "date-fns";
 
 interface V4_Candidate {
   id: string;
@@ -545,13 +548,30 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   
                   {/* Value input based on field type */}
                   {field.type === "date" ? (
-                    <Input
-                      type="date"
-                      value={currentValue}
-                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
-                      className="h-8 text-xs bg-background"
-                      placeholder="Select date"
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "h-8 w-full justify-start text-left text-xs font-normal bg-background",
+                            !currentValue && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                          {currentValue ? format(parse(currentValue, "yyyy-MM-dd", new Date()), "PPP") : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={currentValue ? parse(currentValue, "yyyy-MM-dd", new Date()) : undefined}
+                          onSelect={(date) => handleAdminValueChange(field.id, date ? format(date, "yyyy-MM-dd") : "")}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   ) : field.type === "select" ? (
                     <Input
                       type="text"
