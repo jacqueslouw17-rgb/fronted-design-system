@@ -222,8 +222,8 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
           <DrawerToggle isOpen={isDrawerOpen || false} onClick={onDrawerToggle} />
         )}
         
-        {/* Notifications */}
-        <NotificationCenter />
+        {/* Notifications - hidden */}
+        {/* <NotificationCenter /> */}
 
         {/* User Menu */}
         <DropdownMenu>
