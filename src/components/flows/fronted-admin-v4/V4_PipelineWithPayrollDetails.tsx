@@ -28,6 +28,7 @@ import { V4_ViewPayrollDetailsDrawer } from "./V4_ViewPayrollDetailsDrawer";
 import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_ConfigureCandidateDetailsDrawer";
 import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
 import { V4_SignatureWorkflowDrawer } from "./V4_SignatureWorkflowDrawer";
+import { V4_StartOnboardingConfirmation } from "./V4_StartOnboardingConfirmation";
 interface V4_Contractor {
   id: string;
   name: string;
@@ -135,6 +136,10 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // V4 Signature Workflow Drawer state (copied from Flow 1 v2 pattern)
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false);
   const [selectedForSignature, setSelectedForSignature] = useState<V4_Contractor | null>(null);
+
+  // V4 Onboarding Confirmation Dialog state
+  const [onboardingConfirmOpen, setOnboardingConfirmOpen] = useState(false);
+  const [selectedForOnboarding, setSelectedForOnboarding] = useState<V4_Contractor | null>(null);
 
   // Filter contractors by their payroll stage
   // Offer Accepted: status is offer-accepted
@@ -447,6 +452,28 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       toast.success(`Onboarding started for ${selectedIds.length} candidates`);
     }
   }, [selectedOnboardIds, onboardCandidateContractors]);
+
+  // V4-specific: Individual onboarding handlers
+  const handleStartOnboardingClick = useCallback((contractor: V4_Contractor) => {
+    setSelectedForOnboarding(contractor);
+    setOnboardingConfirmOpen(true);
+  }, []);
+
+  const handleConfirmStartOnboarding = useCallback(() => {
+    if (!selectedForOnboarding) return;
+    setOnboardingConfirmOpen(false);
+    
+    setV4Contractors(prev => prev.map(c => 
+      c.id === selectedForOnboarding.id 
+        ? { ...c, status: "onboarding-pending", checklistProgress: 0 } 
+        : c
+    ));
+    
+    toast.success(`Onboarding started for ${selectedForOnboarding.name}`, {
+      description: "They'll receive an email with their personalized onboarding link."
+    });
+    setSelectedForOnboarding(null);
+  }, [selectedForOnboarding]);
 
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
@@ -1083,6 +1110,161 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       </div>
     </motion.div>;
 
+  // Render Onboard Candidate Column (V4-specific with checkbox support)
+  const renderOnboardCandidateColumn = () => {
+    const selectedCount = getOnboardSelectedCount();
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex-shrink-0 w-[280px]"
+      >
+        {/* Column Header */}
+        <div className="p-3 rounded-t-lg border-t border-x bg-primary/10 border-primary/20">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1">
+              {/* Select All Checkbox */}
+              {onboardCandidateContractors.length > 0 && (
+                <Checkbox
+                  checked={getOnboardCheckboxState()}
+                  onCheckedChange={(checked) => handleSelectAllOnboard(checked as boolean | "indeterminate")}
+                  className="h-4 w-4"
+                />
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-medium text-sm text-foreground">
+                        Onboard Candidate
+                      </h3>
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p className="text-sm">
+                      Start the candidate onboarding process with checklist and tracking.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-2">
+              {selectedCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {selectedCount} selected
+                </span>
+              )}
+              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                {onboardCandidateContractors.length}
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Bulk Action Button */}
+          {selectedCount > 0 && (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30"
+                onClick={handleBulkStartOnboarding}
+              >
+                <Sparkles className="h-3 w-3 mr-1" />
+                Start Onboarding ({selectedCount})
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Column Body */}
+        <div className="p-2 rounded-b-lg border-x border-b bg-card/30 border-border min-h-[200px] space-y-2">
+          {onboardCandidateContractors.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Sparkles className="h-8 w-8 text-muted-foreground/50 mb-2" />
+              <p className="text-xs text-muted-foreground">
+                Candidates ready for onboarding will appear here
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {onboardCandidateContractors.map((contractor) => (
+                <motion.div
+                  key={contractor.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  layout
+                >
+                  <Card className="hover:shadow-card transition-shadow cursor-pointer border border-border/40 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-3 space-y-2">
+                      {/* Contractor Header */}
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          checked={selectedOnboardIds.has(contractor.id)}
+                          onCheckedChange={(checked) => handleSelectOnboardContractor(contractor.id, checked as boolean)}
+                          className="h-4 w-4 mt-1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Avatar className="h-8 w-8 bg-primary/10">
+                          <AvatarFallback className="text-xs">
+                            {contractor.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm text-foreground truncate">
+                              {contractor.name}
+                            </span>
+                            <span className="text-base">{contractor.countryFlag}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {contractor.role}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Contractor Details */}
+                      <div className="flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">
+                            {contractor.employmentType === "employee" ? "Salary" : "Consultancy fee"}
+                          </span>
+                          <span className="font-medium text-foreground">{contractor.salary}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium text-foreground">{contractor.country}</span>
+                        </div>
+                      </div>
+
+                      {/* Start Onboarding Button */}
+                      <div className="pt-1">
+                        <Button 
+                          size="sm" 
+                          className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartOnboardingClick(contractor);
+                          }}
+                        >
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Start Onboarding
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
   // Render Certified Column (custom V4 version with Configure & Send buttons)
   const renderCertifiedColumn = () => <motion.div initial={{
     opacity: 0,
@@ -1510,32 +1692,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         {/* Column 4: Waiting for Signature (V4-specific with v4 navigation) */}
         {renderWaitingSignatureColumn()}
 
-        {/* Columns 5-6: Pipeline remaining columns (Onboard Candidate, etc.) - exclude drafting & awaiting-signature */}
-        <div className="v4-pipeline-middle flex-shrink-0 [&>div]:!overflow-visible [&>div]:!pb-0 [&>div>div>div:nth-child(1)]:!hidden [&>div>div>div:nth-child(2)]:!hidden [&>div>div>div:nth-child(3)]:!hidden [&>div>div>div:nth-child(4)]:!hidden [&>div>div>div:nth-child(7)]:!hidden">
-          <PipelineView contractors={pipelineContractors as any} onContractorUpdate={updated => {
-          setV4Contractors(prev => {
-            const updatedIds = new Set(updated.map((c: any) => c.id));
-            const customStageContractors = prev.filter(c => 
-              c.status === "offer-accepted" || 
-              c.payrollFormStatus === "sent" || 
-              c.payrollFormStatus === "completed" || 
-              c.status === "data-pending" || 
-              ((c.status === "certified" || c.status === "CERTIFIED") && !updatedIds.has(c.id))
-            );
-            return [...customStageContractors, ...updated.map((c: any) => ({
-              ...c,
-              payrollFormStatus: prev.find(p => p.id === c.id)?.payrollFormStatus || "not-configured",
-              payrollFormConfigured: prev.find(p => p.id === c.id)?.payrollFormConfigured,
-              candidateFormLastSentAt: prev.find(p => p.id === c.id)?.candidateFormLastSentAt,
-              onboardingConfig: prev.find(p => p.id === c.id)?.onboardingConfig
-            }))];
-          });
-        }} onDraftContract={(ids) => {
-          // V4-specific: Navigate to v4 contract flow route instead of v3
-          const params = new URLSearchParams({ ids: ids.join(',') }).toString();
-          navigate(`/flows/fronted-admin-dashboard-v4/contract-flow?${params}`);
-        }} onSignatureComplete={onSignatureComplete} onAddCandidate={onAddCandidate} onRemoveContractor={onRemoveContractor} />
-        </div>
+        {/* Column 5: Onboard Candidate (V4-specific with checkbox support) */}
+        {renderOnboardCandidateColumn()}
 
         {/* Column 7: Certified */}
         {renderCertifiedColumn()}
@@ -1621,6 +1779,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
           salary: selectedForSignature.salary
         } : null}
         onComplete={handleSignatureComplete}
+      />
+
+      {/* Start Onboarding Confirmation Dialog - V4 version */}
+      <V4_StartOnboardingConfirmation
+        open={onboardingConfirmOpen}
+        onOpenChange={setOnboardingConfirmOpen}
+        contractor={selectedForOnboarding}
+        onConfirm={handleConfirmStartOnboarding}
       />
     </div>;
 };
