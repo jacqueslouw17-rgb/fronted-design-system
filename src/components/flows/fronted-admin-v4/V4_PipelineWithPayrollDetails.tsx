@@ -833,6 +833,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                           <span className="text-muted-foreground">Country</span>
                           <span className="font-medium text-foreground">{contractor.country}</span>
                         </div>
+                        {contractor.employmentType && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
+                            <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                              {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
 
                       {/* Status Context */}
@@ -1004,6 +1012,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                           <span className="text-muted-foreground">Country</span>
                           <span className="font-medium text-foreground">{contractor.country}</span>
                         </div>
+                        {contractor.employmentType && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
+                            <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                              {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Button - V4 specific navigation */}
@@ -1134,6 +1150,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         <span className="text-muted-foreground">Country</span>
                         <span className="font-medium text-foreground">{contractor.country}</span>
                       </div>
+                      {contractor.employmentType && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Type</span>
+                          <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                            {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
 
                     {/* Action Button - V4 specific (Track Progress opens signature workflow drawer) */}
@@ -1248,6 +1272,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                           <span className="text-muted-foreground">Country</span>
                           <span className="font-medium text-foreground">{contractor.country}</span>
                         </div>
+                        {contractor.employmentType && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
+                            <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                              {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Buttons - Configure & Onboard (same style as Certified) */}
@@ -1423,6 +1455,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                             <span className="text-muted-foreground">Country</span>
                             <span className="font-medium text-foreground">{contractor.country}</span>
                           </div>
+                          {contractor.employmentType && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-muted-foreground">Type</span>
+                              <Badge variant="outline" className="text-[10px] h-4 capitalize">
+                                {contractor.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)"}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
 
                         {isComplete ? (
