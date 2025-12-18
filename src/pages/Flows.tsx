@@ -254,17 +254,8 @@ const Flows = () => {
       path: "/flows/contractor-payroll",
       comingSoon: false,
       locked: false
-    },
-    {
-      id: "f1.1-fronted-admin-v3",
-      title: "Flow 1 — Fronted Admin Dashboard v3",
-      description: "Editable version of v2: Multi-company admin dashboard with pipeline, company switcher, add new company flow, and contractor management. This version is unlocked for development.",
-      steps: 7,
-      patterns: ["genie-onboarding", "inline-edit", "contract-preview", "compliance-checklist", "audit-trail"],
-      path: "/flows/contract-flow-multi-company-v3",
-      comingSoon: false,
-      locked: false
     }
+    // Flow 1 Fronted Admin Dashboard v3 hidden from view
   ];
 
   const getPatternById = (id: string) => patterns.find(p => p.id === id);

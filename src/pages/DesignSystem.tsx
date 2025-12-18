@@ -276,7 +276,7 @@ const DesignSystem = () => {
   const flowOrder = [
     'flow-2-admin-contracting',      // Flow 1 Fronted Admin Dashboard v1 (deprecated)
     'flow-1.1-fronted-admin',        // Flow 1 Fronted Admin Dashboard v2 (locked)
-    'flow-1.1-fronted-admin-v3',     // Flow 1 Fronted Admin Dashboard v3
+    // 'flow-1.1-fronted-admin-v3',  // Flow 1 Fronted Admin Dashboard v3 (hidden)
     'flow-1-fronted-admin-v4',       // Flow 1 Fronted Admin Dashboard v4
     'flow-3-candidate-data',         // Flow 2 Candidate Data Collection v1
     'flow-3-candidate-data-v2',      // Flow 2 Candidate Data Collection v2
