@@ -4,7 +4,7 @@
  * 
  * Opens from "Onboard Candidate" column cards via "Onboard" button
  * Shows preview of the onboarding form the candidate will receive
- * SAME EXACT STYLE as V4_SendCandidateDetailsFormDrawer
+ * Matches Flow 3 structure: Personal Info, Compliance, Payroll
  */
 
 import React, { useState } from "react";
@@ -16,7 +16,8 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Send, Mail, User, Receipt, Briefcase, Upload, FileUp, AlertCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Shield, Send, Mail, User, CreditCard, FileUp, AlertCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { OnboardingFormConfig, OnboardingFieldConfig } from "./V4_ConfigureOnboardingDrawer";
@@ -68,34 +69,41 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
   // Filter visible fields
   const visibleFields = config?.baseFields.filter(f => f.enabled) || [];
   
-  // Group by section
-  const identityFields = visibleFields.filter(f => f.section === "identity");
-  const taxFields = visibleFields.filter(f => f.section === "tax");
-  const invoicingFields = visibleFields.filter(f => f.section === "invoicing");
-  const uploadFields = visibleFields.filter(f => f.section === "uploads");
+  // Group by section - matching Flow 3 structure
+  const personalFields = visibleFields.filter(f => f.section === "personal");
+  const complianceFields = visibleFields.filter(f => f.section === "compliance");
+  const payrollFields = visibleFields.filter(f => f.section === "payroll");
 
   const hasNoVisibleFields = visibleFields.length === 0;
 
   const renderField = (field: OnboardingFieldConfig) => {
     const isRequired = field.required;
     const isPrefilled = field.filledBy === "prefilled";
+    const isLocked = field.locked;
     
     return (
       <div key={field.id} className="space-y-1.5">
-        <Label className="text-sm flex items-center gap-1">
+        <Label className="text-sm flex items-center gap-1.5">
           {field.label}
           {isRequired && <span className="text-destructive">*</span>}
+          {isLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
         </Label>
         {field.type === "upload" ? (
           <div className="border border-dashed border-border/60 rounded-lg p-4 text-center bg-muted/20">
             <FileUp className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
             <p className="text-xs text-muted-foreground">Upload area (preview)</p>
           </div>
+        ) : field.type === "checkbox" ? (
+          <div className="flex items-center gap-2">
+            <Checkbox disabled checked={false} />
+            <span className="text-sm text-muted-foreground">{field.helperText || "Confirmation required"}</span>
+          </div>
         ) : field.type === "select" && field.options ? (
           <Select disabled value={isPrefilled ? field.adminValue : undefined}>
             <SelectTrigger className={cn(
               "bg-background text-muted-foreground",
-              isPrefilled && field.adminValue && "text-foreground"
+              isPrefilled && field.adminValue && "text-foreground",
+              isLocked && "bg-muted/50"
             )}>
               <SelectValue placeholder={isPrefilled && field.adminValue ? field.adminValue : `Select ${field.label.toLowerCase()}`} />
             </SelectTrigger>
@@ -111,12 +119,13 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             disabled 
             className={cn(
               "bg-muted/30",
-              isPrefilled && field.adminValue && "text-foreground"
+              isPrefilled && field.adminValue && "text-foreground",
+              isLocked && "bg-muted/50 cursor-not-allowed"
             )}
             value={isPrefilled ? field.adminValue : ""}
           />
         )}
-        {field.helperText && (
+        {field.helperText && field.type !== "checkbox" && (
           <p className="text-xs text-muted-foreground">{field.helperText}</p>
         )}
       </div>
@@ -200,62 +209,60 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             </div>
           ) : (
             <div className="space-y-6 opacity-80">
-              {/* Section 1: Identity & Documents */}
-              {identityFields.length > 0 && (
+              {/* Section 1: Confirm Personal Information */}
+              {personalFields.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">Identity & Documents</Label>
+                    <Label className="text-sm font-semibold">Confirm Personal Information</Label>
                   </div>
+                  <p className="text-xs text-muted-foreground -mt-2 pl-6">
+                    Details pre-filled from contract. Some fields locked.
+                  </p>
                   <div className="space-y-4 pl-6">
-                    {identityFields.map(renderField)}
+                    {personalFields.map(renderField)}
                   </div>
                 </div>
               )}
 
-              {/* Section 2: Tax & Compliance */}
-              {taxFields.length > 0 && (
+              {/* Section 2: Compliance Requirements */}
+              {complianceFields.length > 0 && (
                 <>
-                  <Separator />
+                  {personalFields.length > 0 && <Separator />}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Receipt className="h-4 w-4 text-primary" />
-                      <Label className="text-sm font-semibold">Tax & Compliance</Label>
+                      <Shield className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">Compliance Requirements</Label>
                     </div>
+                    <p className="text-xs text-muted-foreground -mt-2 pl-6">
+                      Country-specific documents for {candidate.country}.
+                    </p>
                     <div className="space-y-4 pl-6">
-                      {taxFields.map(renderField)}
+                      {complianceFields.map(renderField)}
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Section 3: Invoicing Details */}
-              {invoicingFields.length > 0 && (
+              {/* Section 3: Payroll Details / Invoice Rules */}
+              {payrollFields.length > 0 && (
                 <>
-                  <Separator />
+                  {(personalFields.length > 0 || complianceFields.length > 0) && <Separator />}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-primary" />
-                      <Label className="text-sm font-semibold">Invoicing Details</Label>
+                      <CreditCard className="h-4 w-4 text-primary" />
+                      <Label className="text-sm font-semibold">
+                        {candidate.employmentType === "contractor" ? "Invoice Rules" : "Payroll Details"}
+                      </Label>
                     </div>
+                    <p className="text-xs text-muted-foreground -mt-2 pl-6">
+                      {candidate.employmentType === "contractor" 
+                        ? "Contractor confirms invoice submission rules."
+                        : "Bank details for salary payments."
+                      }
+                    </p>
                     <div className="space-y-4 pl-6">
-                      {invoicingFields.map(renderField)}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Section 4: Document Uploads */}
-              {uploadFields.length > 0 && (
-                <>
-                  <Separator />
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Upload className="h-4 w-4 text-primary" />
-                      <Label className="text-sm font-semibold">Document Uploads</Label>
-                    </div>
-                    <div className="space-y-4 pl-6">
-                      {uploadFields.map(renderField)}
+                      {payrollFields.map(renderField)}
                     </div>
                   </div>
                 </>
