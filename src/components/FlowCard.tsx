@@ -157,7 +157,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/flows/contract-flow-multi-company",
       iconColor: "cyan",
       icon: Workflow,
-      title: "Flow 1 Fronted Admin Dashboard v3",
+      title: "Flow 1 Fronted Admin Dashboard v2",
       locked: true,
       deprecated: false,
       description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
