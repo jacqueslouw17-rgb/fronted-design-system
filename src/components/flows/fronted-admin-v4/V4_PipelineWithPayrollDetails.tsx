@@ -123,6 +123,9 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // V4-specific multi-select state for Prepare Contract column
   const [selectedDraftingIds, setSelectedDraftingIds] = useState<Set<string>>(new Set());
   
+  // V4-specific multi-select state for Onboard Candidate column
+  const [selectedOnboardIds, setSelectedOnboardIds] = useState<Set<string>>(new Set());
+  
   // V4 Candidate Details Drawer state
   const [candidateConfigDrawerOpen, setCandidateConfigDrawerOpen] = useState(false);
   const [candidateSendFormDrawerOpen, setCandidateSendFormDrawerOpen] = useState(false);
@@ -150,7 +153,10 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // V4-specific: Waiting for Signature - rendered by v4 with v4 navigation  
   const waitingSignatureContractors = v4Contractors.filter(c => c.status === "awaiting-signature");
 
-  // Contractors for main pipeline (exclude statuses we render ourselves: offer-accepted, data-pending, drafting, awaiting-signature, certified, and payroll stages)
+  // V4-specific: Onboard Candidate - rendered by v4 with checkbox support
+  const onboardCandidateContractors = v4Contractors.filter(c => c.status === "trigger-onboarding");
+
+  // Contractors for main pipeline (exclude statuses we render ourselves: offer-accepted, data-pending, drafting, awaiting-signature, trigger-onboarding, certified, and payroll stages)
   const pipelineContractors = v4Contractors.filter(c => 
     c.status !== "offer-accepted" && 
     c.status !== "certified" && 
@@ -158,6 +164,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     c.status !== "data-pending" && 
     c.status !== "drafting" &&
     c.status !== "awaiting-signature" &&
+    c.status !== "trigger-onboarding" &&
     c.payrollFormStatus !== "sent" && 
     c.payrollFormStatus !== "completed"
   );
@@ -285,16 +292,20 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     });
   }, []);
 
-  const areAllOfferAcceptedSelected = useCallback(() => {
+  const getOfferAcceptedCheckboxState = useCallback((): boolean | "indeterminate" => {
     if (offerAcceptedContractors.length === 0) return false;
-    return offerAcceptedContractors.every(c => selectedOfferAcceptedIds.has(c.id));
+    const selectedCount = offerAcceptedContractors.filter(c => selectedOfferAcceptedIds.has(c.id)).length;
+    if (selectedCount === 0) return false;
+    if (selectedCount === offerAcceptedContractors.length) return true;
+    return "indeterminate";
   }, [offerAcceptedContractors, selectedOfferAcceptedIds]);
 
-  const handleSelectAllOfferAccepted = useCallback((checked: boolean) => {
-    if (checked) {
-      setSelectedOfferAcceptedIds(new Set(offerAcceptedContractors.map(c => c.id)));
-    } else {
+  const handleSelectAllOfferAccepted = useCallback((checked: boolean | "indeterminate") => {
+    // When clicking indeterminate or unchecked, select all; when clicking checked, deselect all
+    if (checked === true) {
       setSelectedOfferAcceptedIds(new Set());
+    } else {
+      setSelectedOfferAcceptedIds(new Set(offerAcceptedContractors.map(c => c.id)));
     }
   }, [offerAcceptedContractors]);
 
@@ -334,16 +345,20 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     });
   }, []);
 
-  const areAllDraftingSelected = useCallback(() => {
+  const getDraftingCheckboxState = useCallback((): boolean | "indeterminate" => {
     if (prepareContractContractors.length === 0) return false;
-    return prepareContractContractors.every(c => selectedDraftingIds.has(c.id));
+    const selectedCount = prepareContractContractors.filter(c => selectedDraftingIds.has(c.id)).length;
+    if (selectedCount === 0) return false;
+    if (selectedCount === prepareContractContractors.length) return true;
+    return "indeterminate";
   }, [prepareContractContractors, selectedDraftingIds]);
 
-  const handleSelectAllDrafting = useCallback((checked: boolean) => {
-    if (checked) {
-      setSelectedDraftingIds(new Set(prepareContractContractors.map(c => c.id)));
-    } else {
+  const handleSelectAllDrafting = useCallback((checked: boolean | "indeterminate") => {
+    // When clicking indeterminate or unchecked, select all; when clicking checked, deselect all
+    if (checked === true) {
       setSelectedDraftingIds(new Set());
+    } else {
+      setSelectedDraftingIds(new Set(prepareContractContractors.map(c => c.id)));
     }
   }, [prepareContractContractors]);
 
@@ -362,6 +377,51 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     }
   }, [selectedDraftingIds, prepareContractContractors, navigate]);
 
+  // V4-specific: Multi-select handlers for Onboard Candidate column
+  const handleSelectOnboardContractor = useCallback((id: string, checked: boolean) => {
+    setSelectedOnboardIds(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const getOnboardCheckboxState = useCallback((): boolean | "indeterminate" => {
+    if (onboardCandidateContractors.length === 0) return false;
+    const selectedCount = onboardCandidateContractors.filter(c => selectedOnboardIds.has(c.id)).length;
+    if (selectedCount === 0) return false;
+    if (selectedCount === onboardCandidateContractors.length) return true;
+    return "indeterminate";
+  }, [onboardCandidateContractors, selectedOnboardIds]);
+
+  const handleSelectAllOnboard = useCallback((checked: boolean | "indeterminate") => {
+    if (checked === true) {
+      setSelectedOnboardIds(new Set());
+    } else {
+      setSelectedOnboardIds(new Set(onboardCandidateContractors.map(c => c.id)));
+    }
+  }, [onboardCandidateContractors]);
+
+  const getOnboardSelectedCount = useCallback(() => {
+    return onboardCandidateContractors.filter(c => selectedOnboardIds.has(c.id)).length;
+  }, [onboardCandidateContractors, selectedOnboardIds]);
+
+  const handleBulkStartOnboarding = useCallback(() => {
+    const selectedIds = Array.from(selectedOnboardIds).filter(id => 
+      onboardCandidateContractors.find(c => c.id === id)
+    );
+    if (selectedIds.length > 0) {
+      setV4Contractors(prev => prev.map(c => 
+        selectedIds.includes(c.id) ? { ...c, status: "onboarding-pending", checklistProgress: 0 } : c
+      ));
+      setSelectedOnboardIds(new Set());
+      toast.success(`Onboarding started for ${selectedIds.length} candidates`);
+    }
+  }, [selectedOnboardIds, onboardCandidateContractors]);
 
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
@@ -404,8 +464,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
               {/* Select All Checkbox */}
               {offerAcceptedContractors.length > 0 && (
                 <Checkbox
-                  checked={areAllOfferAcceptedSelected()}
-                  onCheckedChange={(checked) => handleSelectAllOfferAccepted(checked as boolean)}
+                  checked={getOfferAcceptedCheckboxState()}
+                  onCheckedChange={(checked) => handleSelectAllOfferAccepted(checked as boolean | "indeterminate")}
                   className="h-4 w-4"
                 />
               )}
@@ -723,8 +783,8 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
               {/* Select All Checkbox */}
               {prepareContractContractors.length > 0 && (
                 <Checkbox
-                  checked={areAllDraftingSelected()}
-                  onCheckedChange={(checked) => handleSelectAllDrafting(checked as boolean)}
+                  checked={getDraftingCheckboxState()}
+                  onCheckedChange={(checked) => handleSelectAllDrafting(checked as boolean | "indeterminate")}
                   className="h-4 w-4"
                 />
               )}
