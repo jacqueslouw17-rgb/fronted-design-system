@@ -155,6 +155,14 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   const [onboardingSendDrawerOpen, setOnboardingSendDrawerOpen] = useState(false);
   const [selectedForOnboardingConfig, setSelectedForOnboardingConfig] = useState<V4_Contractor | null>(null);
 
+  // Get current contractor from v4Contractors (for live config updates)
+  const currentCandidateForConfig = selectedCandidateForConfig 
+    ? v4Contractors.find(c => c.id === selectedCandidateForConfig.id) || selectedCandidateForConfig
+    : null;
+  const currentOnboardingConfig = selectedForOnboardingConfig 
+    ? v4Contractors.find(c => c.id === selectedForOnboardingConfig.id) || selectedForOnboardingConfig
+    : null;
+
   // Filter contractors by their payroll stage
   // Offer Accepted: status is offer-accepted
   const offerAcceptedContractors = v4Contractors.filter(c => c.status === "offer-accepted");
@@ -1565,17 +1573,17 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       <V4_SendCandidateDetailsFormDrawer 
         open={candidateSendFormDrawerOpen} 
         onOpenChange={setCandidateSendFormDrawerOpen} 
-        candidate={selectedCandidateForConfig ? {
-          id: selectedCandidateForConfig.id,
-          name: selectedCandidateForConfig.name,
-          role: selectedCandidateForConfig.role,
-          country: selectedCandidateForConfig.country,
-          countryFlag: selectedCandidateForConfig.countryFlag,
-          salary: selectedCandidateForConfig.salary,
-          email: selectedCandidateForConfig.email,
-          employmentType: selectedCandidateForConfig.employmentType || "contractor"
+        candidate={currentCandidateForConfig ? {
+          id: currentCandidateForConfig.id,
+          name: currentCandidateForConfig.name,
+          role: currentCandidateForConfig.role,
+          country: currentCandidateForConfig.country,
+          countryFlag: currentCandidateForConfig.countryFlag,
+          salary: currentCandidateForConfig.salary,
+          email: currentCandidateForConfig.email,
+          employmentType: currentCandidateForConfig.employmentType || "contractor"
         } : null} 
-        config={selectedCandidateForConfig?.onboardingConfig} 
+        config={currentCandidateForConfig?.onboardingConfig} 
         onSend={handleSendCandidateForm} 
       />
 
@@ -1624,17 +1632,17 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
       <V4_SendOnboardingFormDrawer
         open={onboardingSendDrawerOpen}
         onOpenChange={setOnboardingSendDrawerOpen}
-        candidate={selectedForOnboardingConfig ? {
-          id: selectedForOnboardingConfig.id,
-          name: selectedForOnboardingConfig.name,
-          role: selectedForOnboardingConfig.role,
-          country: selectedForOnboardingConfig.country,
-          countryFlag: selectedForOnboardingConfig.countryFlag,
-          salary: selectedForOnboardingConfig.salary,
-          email: selectedForOnboardingConfig.email,
-          employmentType: selectedForOnboardingConfig.employmentType || "contractor"
+        candidate={currentOnboardingConfig ? {
+          id: currentOnboardingConfig.id,
+          name: currentOnboardingConfig.name,
+          role: currentOnboardingConfig.role,
+          country: currentOnboardingConfig.country,
+          countryFlag: currentOnboardingConfig.countryFlag,
+          salary: currentOnboardingConfig.salary,
+          email: currentOnboardingConfig.email,
+          employmentType: currentOnboardingConfig.employmentType || "contractor"
         } : null}
-        config={selectedForOnboardingConfig?.onboardingFormConfig}
+        config={currentOnboardingConfig?.onboardingFormConfig}
         onSend={handleSendOnboardingForm}
       />
     </div>;
