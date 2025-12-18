@@ -261,6 +261,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       title: "Flow 7 Fronted Admin Payroll v1",
       locked: true,
       deprecated: true,
+      hidden: true,
       description: "From compliance review to payroll execution: Kurt guides through payroll batch creation, FX rate review, CFO approval workflow, and batch execution with real-time monitoring and conversational guidance",
       steps: "6 steps",
       patterns: "5 patterns",
