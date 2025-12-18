@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Bot } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { CompliancePreviewCard } from "./CompliancePreviewCard";
@@ -514,38 +515,19 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
           </div>
 
           <div className="space-y-2">
-            <Label>Country of Employment</Label>
-            <Input value={contractData.country} disabled />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Work Location</Label>
-            <Input
-              value={contractData.workLocation}
-              onChange={(e) => setContractData({ ...contractData, workLocation: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Work Hours {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">Optional</Badge>}</Label>
-            <Input
-              value={contractData.workHours}
-              onChange={(e) => setContractData({ ...contractData, workHours: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Social ID / Tax ID {employmentType === "contractor" && <Badge variant="secondary" className="ml-2 text-xs">If provided</Badge>}</Label>
-            <Input
-              value={contractData.socialId}
-              onChange={(e) => setContractData({ ...contractData, socialId: e.target.value })}
-              placeholder="Optional"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Employer Legal Entity</Label>
-            <Input value={contractData.employerEntity} disabled />
+            <Label>Employment Type</Label>
+            <Select
+              value={employmentType}
+              onValueChange={(value: "employee" | "contractor") => setEmploymentType(value)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="employee">Employee</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
