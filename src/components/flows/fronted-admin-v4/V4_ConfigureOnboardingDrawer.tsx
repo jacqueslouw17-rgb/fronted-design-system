@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, Shield, CreditCard, Upload, EyeOff, Plus, MoreVertical, Pencil, Trash2, GripVertical, FileText, Hash, CalendarDays, List } from "lucide-react";
+import { User, Shield, CreditCard, Upload, EyeOff, Plus, MoreVertical, Pencil, Trash2, ChevronUp, ChevronDown, FileText, Hash, CalendarDays, List } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -426,7 +426,25 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
     setFieldToRemove(null);
   };
 
-  // Drag and drop handlers
+  // Drag and drop handlers - using mouse events for more reliable reordering
+  const handleMoveUp = (fieldId: string) => {
+    const index = customFields.findIndex(f => f.id === fieldId);
+    if (index <= 0) return;
+    
+    const newFields = [...customFields];
+    [newFields[index - 1], newFields[index]] = [newFields[index], newFields[index - 1]];
+    setCustomFields(newFields);
+  };
+
+  const handleMoveDown = (fieldId: string) => {
+    const index = customFields.findIndex(f => f.id === fieldId);
+    if (index === -1 || index >= customFields.length - 1) return;
+    
+    const newFields = [...customFields];
+    [newFields[index], newFields[index + 1]] = [newFields[index + 1], newFields[index]];
+    setCustomFields(newFields);
+  };
+
   const handleDragStart = (e: React.DragEvent, fieldId: string) => {
     e.dataTransfer.setData("text/plain", fieldId);
     e.dataTransfer.effectAllowed = "move";
@@ -667,12 +685,13 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
       return "Pre-filled before sending. Worker can change this value.";
     };
     
+    const fieldIndex = customFields.findIndex(f => f.id === field.id);
+    const isFirst = fieldIndex === 0;
+    const isLast = fieldIndex === customFields.length - 1;
+    
     return (
       <div 
         key={field.id} 
-        onDragOver={(e) => handleDragOver(e, field.id)}
-        onDragLeave={(e) => handleDragLeave(e)}
-        onDrop={(e) => handleDrop(e, field.id)}
         className={cn(
           "flex items-start justify-between p-3 rounded-lg border bg-card/50 transition-all",
           isDragging && "opacity-50 border-primary/50 bg-primary/5",
@@ -682,13 +701,26 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
         )}
       >
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div
-            draggable
-            onDragStart={(e) => handleDragStart(e, field.id)}
-            onDragEnd={handleDragEnd}
-            className="cursor-grab active:cursor-grabbing shrink-0 mt-1 p-1 -m-1 hover:bg-muted/50 rounded"
-          >
-            <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+          {/* Up/Down reorder buttons */}
+          <div className="flex flex-col gap-0.5 shrink-0 mt-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 p-0"
+              onClick={() => handleMoveUp(field.id)}
+              disabled={isFirst}
+            >
+              <ChevronUp className={cn("h-3.5 w-3.5", isFirst ? "text-muted-foreground/30" : "text-muted-foreground")} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 p-0"
+              onClick={() => handleMoveDown(field.id)}
+              disabled={isLast}
+            >
+              <ChevronDown className={cn("h-3.5 w-3.5", isLast ? "text-muted-foreground/30" : "text-muted-foreground")} />
+            </Button>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
