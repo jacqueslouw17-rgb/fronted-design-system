@@ -21,7 +21,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
 import V4_Step2OrgProfile from "@/components/flows/fronted-admin-v4/V4_Step2OrgProfile";
-import Step3Localization from "@/components/flows/onboarding/Step3Localization";
+import Step3HiringLocationsV2 from "@/components/flows/onboarding/Step3HiringLocationsV2";
 import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
@@ -147,7 +147,7 @@ const FrontedAdminV4EmbeddedOnboarding = ({ onComplete, onCancel }: FrontedAdmin
       case "org_profile":
         return <V4_Step2OrgProfile {...stepProps} />;
       case "localization_country_blocks":
-        return <Step3Localization {...stepProps} />;
+        return <Step3HiringLocationsV2 {...stepProps} />;
       case "finish_dashboard_transition":
         return <Step7Finish {...stepProps} />;
       default:
