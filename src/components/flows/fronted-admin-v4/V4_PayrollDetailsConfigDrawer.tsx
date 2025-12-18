@@ -80,6 +80,24 @@ interface V4_PayrollDetailsConfigDrawerProps {
   initialCustomFields?: CustomPayrollField[];
 }
 
+// Countries supported by Fronted
+const SUPPORTED_COUNTRIES = [
+  { value: "India", flag: "🇮🇳" },
+  { value: "Philippines", flag: "🇵🇭" },
+  { value: "Sweden", flag: "🇸🇪" },
+  { value: "Norway", flag: "🇳🇴" },
+  { value: "Denmark", flag: "🇩🇰" },
+  { value: "Kosovo", flag: "🇽🇰" },
+];
+
+// Pay frequency options
+const PAY_FREQUENCY_OPTIONS = [
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Bi-weekly" },
+  { value: "semimonthly", label: "Semi-monthly" },
+  { value: "monthly", label: "Monthly" },
+];
+
 const DEFAULT_FIELD_CONFIG: PayrollFieldConfig[] = [
   { id: "bank_country", label: "Bank Country", required: true, enabled: true, helperText: "Country where bank account is held", filledBy: "candidate", editability: "editable" },
   { id: "bank_name", label: "Bank Name", required: true, enabled: true, filledBy: "candidate", editability: "editable" },
@@ -498,13 +516,41 @@ export const V4_PayrollDetailsConfigDrawer: React.FC<V4_PayrollDetailsConfigDraw
               {/* Pre-filled value input - only shown when Pre-filled is selected */}
               {isPrefilled && (
                 <div className="mt-2">
-                  <Input
-                    type="text"
-                    value={currentValue}
-                    onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
-                    className="h-8 text-xs bg-background"
-                    placeholder="Enter value..."
-                  />
+                  {field.id === "bank_country" ? (
+                    <Select value={currentValue} onValueChange={(v) => handleAdminValueChange(field.id, v)}>
+                      <SelectTrigger className="h-8 text-xs bg-background">
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {SUPPORTED_COUNTRIES.map((country) => (
+                          <SelectItem key={country.value} value={country.value} className="text-xs">
+                            {country.flag} {country.value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : field.id === "pay_frequency" ? (
+                    <Select value={currentValue} onValueChange={(v) => handleAdminValueChange(field.id, v)}>
+                      <SelectTrigger className="h-8 text-xs bg-background">
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {PAY_FREQUENCY_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      type="text"
+                      value={currentValue}
+                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                      className="h-8 text-xs bg-background"
+                      placeholder="Enter value..."
+                    />
+                  )}
                 </div>
               )}
 

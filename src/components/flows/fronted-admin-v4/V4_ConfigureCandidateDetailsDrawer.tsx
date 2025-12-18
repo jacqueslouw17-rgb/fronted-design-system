@@ -92,6 +92,24 @@ interface V4_ConfigureCandidateDetailsDrawerProps {
   initialConfig?: OnboardingConfig;
 }
 
+// Countries supported by Fronted
+const SUPPORTED_COUNTRIES = [
+  { value: "India", flag: "🇮🇳", nationality: "Indian" },
+  { value: "Philippines", flag: "🇵🇭", nationality: "Filipino" },
+  { value: "Sweden", flag: "🇸🇪", nationality: "Swedish" },
+  { value: "Norway", flag: "🇳🇴", nationality: "Norwegian" },
+  { value: "Denmark", flag: "🇩🇰", nationality: "Danish" },
+  { value: "Kosovo", flag: "🇽🇰", nationality: "Kosovar" },
+];
+
+// ID Types
+const ID_TYPES = [
+  { value: "passport", label: "Passport" },
+  { value: "national_id", label: "National ID" },
+  { value: "drivers_license", label: "Driver's License" },
+  { value: "residence_permit", label: "Residence Permit" },
+];
+
 const DEFAULT_FIELD_CONFIG: OnboardingFieldConfig[] = [
   // Identity & Documents
   { id: "date_of_birth", label: "Date of birth", section: "identity", type: "date", required: true, enabled: true, helperText: "As shown on government ID", atsFieldName: "candidate.date_of_birth", atsExampleValue: "1992-03-15", filledBy: "candidate", editability: "editable" },
@@ -622,13 +640,55 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                       );
                     })()
                   ) : field.type === "select" ? (
-                    <Input
-                      type="text"
-                      value={currentValue}
-                      onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
-                      className="h-8 text-xs bg-background"
-                      placeholder="Enter value..."
-                    />
+                    // Render field-specific dropdowns
+                    field.id === "id_type" ? (
+                      <Select value={currentValue} onValueChange={(v) => handleAdminValueChange(field.id, v)}>
+                        <SelectTrigger className="h-8 text-xs bg-background">
+                          <SelectValue placeholder="Select ID type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {ID_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value} className="text-xs">
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : field.id === "tax_residence_country" ? (
+                      <Select value={currentValue} onValueChange={(v) => handleAdminValueChange(field.id, v)}>
+                        <SelectTrigger className="h-8 text-xs bg-background">
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {SUPPORTED_COUNTRIES.map((country) => (
+                            <SelectItem key={country.value} value={country.value} className="text-xs">
+                              {country.flag} {country.value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : field.id === "nationality" ? (
+                      <Select value={currentValue} onValueChange={(v) => handleAdminValueChange(field.id, v)}>
+                        <SelectTrigger className="h-8 text-xs bg-background">
+                          <SelectValue placeholder="Select nationality" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {SUPPORTED_COUNTRIES.map((country) => (
+                            <SelectItem key={country.nationality} value={country.nationality} className="text-xs">
+                              {country.flag} {country.nationality}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        type="text"
+                        value={currentValue}
+                        onChange={(e) => handleAdminValueChange(field.id, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                        placeholder="Enter value..."
+                      />
+                    )
                   ) : (
                     <Input
                       type="text"
