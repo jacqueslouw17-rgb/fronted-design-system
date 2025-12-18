@@ -28,12 +28,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload, Database, Info, Lock, Eye, EyeOff, CalendarIcon } from "lucide-react";
+import { Shield, FileText, MapPin, Globe, User, Plus, MoreVertical, Pencil, Trash2, GripVertical, Hash, CalendarDays, List, Upload, Database, Info, Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { format, parse } from "date-fns";
 
 interface V4_Candidate {
   id: string;
@@ -548,30 +545,82 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   
                   {/* Value input based on field type */}
                   {field.type === "date" ? (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "h-8 w-full justify-start text-left text-xs font-normal bg-background",
-                            !currentValue && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                          {currentValue ? format(parse(currentValue, "yyyy-MM-dd", new Date()), "PPP") : "Select date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={currentValue ? parse(currentValue, "yyyy-MM-dd", new Date()) : undefined}
-                          onSelect={(date) => handleAdminValueChange(field.id, date ? format(date, "yyyy-MM-dd") : "")}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    (() => {
+                      // Parse existing value into day/month/year
+                      const dateParts = currentValue ? currentValue.split("-") : ["", "", ""];
+                      const [yearVal, monthVal, dayVal] = dateParts;
+                      
+                      const handleDatePartChange = (part: "day" | "month" | "year", value: string) => {
+                        let newYear = yearVal || "";
+                        let newMonth = monthVal || "";
+                        let newDay = dayVal || "";
+                        
+                        if (part === "day") newDay = value;
+                        if (part === "month") newMonth = value;
+                        if (part === "year") newYear = value;
+                        
+                        // Only construct date if all parts are present
+                        if (newYear && newMonth && newDay) {
+                          handleAdminValueChange(field.id, `${newYear}-${newMonth}-${newDay}`);
+                        } else {
+                          // Store partial value
+                          handleAdminValueChange(field.id, `${newYear}-${newMonth}-${newDay}`);
+                        }
+                      };
+                      
+                      const currentYear = new Date().getFullYear();
+                      const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+                      const months = [
+                        { value: "01", label: "January" },
+                        { value: "02", label: "February" },
+                        { value: "03", label: "March" },
+                        { value: "04", label: "April" },
+                        { value: "05", label: "May" },
+                        { value: "06", label: "June" },
+                        { value: "07", label: "July" },
+                        { value: "08", label: "August" },
+                        { value: "09", label: "September" },
+                        { value: "10", label: "October" },
+                        { value: "11", label: "November" },
+                        { value: "12", label: "December" },
+                      ];
+                      const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
+                      
+                      return (
+                        <div className="flex gap-2">
+                          <Select value={dayVal} onValueChange={(v) => handleDatePartChange("day", v)}>
+                            <SelectTrigger className="h-8 text-xs bg-background flex-1">
+                              <SelectValue placeholder="Day" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50 max-h-[200px]">
+                              {days.map((d) => (
+                                <SelectItem key={d} value={d} className="text-xs">{parseInt(d)}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={monthVal} onValueChange={(v) => handleDatePartChange("month", v)}>
+                            <SelectTrigger className="h-8 text-xs bg-background flex-[2]">
+                              <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50 max-h-[200px]">
+                              {months.map((m) => (
+                                <SelectItem key={m.value} value={m.value} className="text-xs">{m.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={yearVal} onValueChange={(v) => handleDatePartChange("year", v)}>
+                            <SelectTrigger className="h-8 text-xs bg-background flex-1">
+                              <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50 max-h-[200px]">
+                              {years.map((y) => (
+                                <SelectItem key={y} value={String(y)} className="text-xs">{y}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    })()
                   ) : field.type === "select" ? (
                     <Input
                       type="text"
