@@ -274,7 +274,7 @@ const DesignSystem = () => {
   
   // Flow cards - automatic sequential ordering by flow number (from title) then version
   const flowOrder = [
-    // 'flow-2-admin-contracting',   // Flow 1 Fronted Admin Dashboard v1 (deprecated/hidden)
+    'flow-2-admin-contracting',      // Flow 1 Fronted Admin Dashboard v1 (deprecated/locked)
     'flow-1.1-fronted-admin',        // Flow 1 Fronted Admin Dashboard v2 (locked)
     // 'flow-1.1-fronted-admin-v3',  // Flow 1 Fronted Admin Dashboard v3 (hidden)
     'flow-1-fronted-admin-v3',       // Flow 1 Fronted Admin Dashboard v3
