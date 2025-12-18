@@ -2,9 +2,10 @@
  * Flow 1 – Fronted Admin Dashboard v4 Only
  * Configure Onboarding Form Drawer
  * 
- * Opens from "Onboard Candidate" column cards via "Configure" button
- * Shows country-specific compliance fields based on the candidate's country
- * SAME EXACT STYLE as V4_ConfigureCandidateDetailsDrawer
+ * Matches Flow 3 Candidate Onboarding v2 structure:
+ * - Section 1: Personal Information (Step 2)
+ * - Section 2: Compliance Requirements (Step 3) - country-specific
+ * - Section 3: Payroll Details (Step 4)
  */
 
 import React, { useState, useEffect } from "react";
@@ -17,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Globe, Receipt, Briefcase, Upload, MapPin, EyeOff } from "lucide-react";
+import { User, Shield, CreditCard, Upload, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +38,11 @@ export type FilledBySource = "candidate" | "prefilled";
 export interface OnboardingFieldConfig {
   id: string;
   label: string;
-  section: "identity" | "tax" | "invoicing" | "uploads";
-  type: "text" | "select" | "upload";
+  section: "personal" | "compliance" | "payroll";
+  type: "text" | "select" | "upload" | "checkbox";
   required: boolean;
   enabled: boolean;
+  locked?: boolean; // Read-only field linked to contract
   helperText?: string;
   filledBy: FilledBySource;
   adminValue?: string;
@@ -61,79 +63,103 @@ interface V4_ConfigureOnboardingDrawerProps {
   initialConfig?: OnboardingFormConfig;
 }
 
-// Country-specific field configurations
-const getFieldsForCountry = (country: string, employmentType: "contractor" | "employee"): OnboardingFieldConfig[] => {
+// Personal Information fields - from WorkerStep2Personal_v2
+const getPersonalFields = (): OnboardingFieldConfig[] => [
+  { id: "fullName", label: "Full Name", section: "personal", type: "text", required: true, enabled: true, locked: true, helperText: "Linked to contract", filledBy: "prefilled" },
+  { id: "email", label: "Email Address", section: "personal", type: "text", required: true, enabled: true, filledBy: "candidate" },
+  { id: "phone", label: "Phone Number", section: "personal", type: "text", required: true, enabled: true, filledBy: "candidate" },
+  { id: "dateOfBirth", label: "Date of Birth", section: "personal", type: "text", required: true, enabled: true, locked: true, helperText: "Linked to contract", filledBy: "prefilled" },
+  { id: "nationality", label: "Nationality", section: "personal", type: "text", required: true, enabled: true, locked: true, helperText: "Linked to contract", filledBy: "prefilled" },
+  { id: "address", label: "Residential Address", section: "personal", type: "text", required: true, enabled: true, locked: true, helperText: "Linked to contract", filledBy: "prefilled" },
+];
+
+// Country-specific Compliance fields - from WorkerStep3Compliance_v2
+const getComplianceFields = (country: string, employmentType: "contractor" | "employee"): OnboardingFieldConfig[] => {
   switch (country) {
     case "Sweden":
       return [
-        { id: "personal_id_number", label: "Personal identity number (Personnummer / samordningsnummer)", section: "identity", type: "text", required: true, enabled: true, helperText: "Swedish personal ID number", filledBy: "candidate" },
-        { id: "tax_residency", label: "Tax residency", section: "tax", type: "select", required: true, enabled: true, options: ["Resident in Sweden", "Non-resident (SINK)"], filledBy: "candidate" },
-        { id: "municipality", label: "Municipality of taxation", section: "tax", type: "text", required: false, enabled: true, helperText: "If not clear from address", filledBy: "candidate" },
-        { id: "id_document", label: "ID document upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Passport or National ID", filledBy: "candidate" },
-        { id: "work_permit", label: "Residence / work permit upload", section: "uploads", type: "upload", required: false, enabled: true, helperText: "Only if non-EU/EEA", filledBy: "candidate" },
+        { id: "personalIdNumber", label: "Personal identity number (Personnummer / samordningsnummer)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident in Sweden", "Non-resident (SINK)"], filledBy: "candidate" },
+        { id: "municipality", label: "Municipality of taxation", section: "compliance", type: "text", required: false, enabled: true, helperText: "If not already clear from address", filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+        { id: "workPermitUpload", label: "Residence / work permit upload", section: "compliance", type: "upload", required: false, enabled: true, helperText: "Only if non-EU/EEA", filledBy: "candidate" },
       ];
 
     case "Norway":
       return [
-        { id: "norwegian_id", label: "Norwegian ID (Fødselsnummer or D-number)", section: "identity", type: "text", required: true, enabled: true, helperText: "National identity number for foreign workers", filledBy: "candidate" },
-        { id: "tax_residency", label: "Tax residency", section: "tax", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident (PAYE scheme)"], filledBy: "candidate" },
-        { id: "tax_card_status", label: "Tax card status", section: "tax", type: "select", required: true, enabled: true, options: ["I have ordered my tax card", "I have not ordered my tax card"], helperText: "Actual tax card is pulled by payroll", filledBy: "candidate" },
-        { id: "id_document", label: "ID document upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Passport or National ID", filledBy: "candidate" },
-        { id: "work_permit", label: "Residence / work permit upload", section: "uploads", type: "upload", required: false, enabled: true, helperText: "If required", filledBy: "candidate" },
+        { id: "norwegianId", label: "Norwegian ID (Fødselsnummer or D-number)", section: "compliance", type: "text", required: true, enabled: true, helperText: "National identity number for foreign workers", filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident (PAYE scheme)"], filledBy: "candidate" },
+        { id: "taxCardStatus", label: "Tax card status", section: "compliance", type: "select", required: true, enabled: true, options: ["I have ordered my tax card", "I have not ordered my tax card"], helperText: "Actual tax card is pulled by payroll, not uploaded", filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+        { id: "workPermitUpload", label: "Residence / work permit upload", section: "compliance", type: "upload", required: false, enabled: true, helperText: "If required", filledBy: "candidate" },
       ];
 
     case "Denmark":
       return [
-        { id: "cpr_number", label: "CPR number (Civil registration number)", section: "identity", type: "text", required: true, enabled: true, helperText: "Danish civil registration number", filledBy: "candidate" },
-        { id: "tax_residency", label: "Tax residency", section: "tax", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident"], filledBy: "candidate" },
-        { id: "tax_card_status", label: "Tax card status", section: "tax", type: "select", required: true, enabled: true, options: ["Main tax card is registered with Danish Tax Agency", "Tax card not yet registered"], filledBy: "candidate" },
-        { id: "id_document", label: "ID document upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Passport or National ID", filledBy: "candidate" },
-        { id: "work_permit", label: "Residence / work permit upload", section: "uploads", type: "upload", required: false, enabled: true, helperText: "If required", filledBy: "candidate" },
+        { id: "cprNumber", label: "CPR number (Civil registration number)", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxResidency", label: "Tax residency", section: "compliance", type: "select", required: true, enabled: true, options: ["Resident", "Non-resident"], filledBy: "candidate" },
+        { id: "taxCardStatus", label: "Tax card status", section: "compliance", type: "select", required: true, enabled: true, options: ["Main tax card is registered with Danish Tax Agency", "Tax card not yet registered"], filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+        { id: "workPermitUpload", label: "Residence / work permit upload", section: "compliance", type: "upload", required: false, enabled: true, helperText: "If required", filledBy: "candidate" },
       ];
 
     case "India":
       return [
-        { id: "name_per_pan", label: "Name as per PAN", section: "identity", type: "text", required: true, enabled: true, helperText: "Exactly as shown on PAN card", filledBy: "candidate" },
-        { id: "pan_number", label: "PAN (Permanent Account Number)", section: "tax", type: "text", required: true, enabled: true, helperText: "Required for tax reporting", filledBy: "candidate" },
-        { id: "gst_registered", label: "Are you registered for GST?", section: "tax", type: "select", required: true, enabled: true, options: ["Yes", "No"], filledBy: "candidate" },
-        { id: "gstin", label: "GSTIN", section: "tax", type: "text", required: false, enabled: true, helperText: "Required if GST registered", filledBy: "candidate" },
-        { id: "invoicing_as", label: "Invoicing as", section: "invoicing", type: "select", required: true, enabled: true, options: ["Individual", "Proprietorship", "Company"], filledBy: "candidate" },
-        { id: "legal_entity_name", label: "Legal entity name", section: "invoicing", type: "text", required: false, enabled: true, helperText: "If invoicing as company", filledBy: "candidate" },
-        { id: "cin", label: "Corporate Identification Number (CIN)", section: "invoicing", type: "text", required: false, enabled: true, helperText: "Optional for companies", filledBy: "candidate" },
-        { id: "pan_card_upload", label: "PAN card upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Required", filledBy: "candidate" },
-        { id: "gst_certificate", label: "GST registration certificate", section: "uploads", type: "upload", required: false, enabled: true, helperText: "If GST registered", filledBy: "candidate" },
+        { id: "nameAsPerPan", label: "Name as per PAN", section: "compliance", type: "text", required: true, enabled: true, helperText: "Exactly as shown on PAN card", filledBy: "candidate" },
+        { id: "panNumber", label: "PAN (Permanent Account Number)", section: "compliance", type: "text", required: true, enabled: true, helperText: "Required for tax reporting", filledBy: "candidate" },
+        { id: "gstRegistered", label: "Are you registered for GST?", section: "compliance", type: "select", required: true, enabled: true, options: ["Yes", "No"], filledBy: "candidate" },
+        { id: "gstin", label: "GSTIN", section: "compliance", type: "text", required: false, enabled: true, helperText: "Required if GST registered", filledBy: "candidate" },
+        { id: "invoicingAs", label: "Invoicing as", section: "compliance", type: "select", required: true, enabled: true, options: ["Individual", "Proprietorship", "Company"], filledBy: "candidate" },
+        { id: "legalEntityName", label: "Legal entity name", section: "compliance", type: "text", required: false, enabled: true, helperText: "If invoicing as company", filledBy: "candidate" },
+        { id: "cin", label: "Corporate Identification Number (CIN)", section: "compliance", type: "text", required: false, enabled: true, helperText: "Optional for companies", filledBy: "candidate" },
+        { id: "panCardUpload", label: "PAN card upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Required", filledBy: "candidate" },
+        { id: "gstCertificateUpload", label: "GST registration certificate", section: "compliance", type: "upload", required: false, enabled: true, helperText: "If GST registered", filledBy: "candidate" },
       ];
 
     case "Philippines":
       return [
-        { id: "tin_number", label: "TIN (Tax Identification Number)", section: "tax", type: "text", required: true, enabled: true, helperText: "Required for tax reporting", filledBy: "candidate" },
-        { id: "invoicing_as", label: "Invoicing as", section: "invoicing", type: "select", required: true, enabled: true, options: ["Individual", "Sole proprietor", "Company"], filledBy: "candidate" },
-        { id: "business_name", label: "Registered business name", section: "invoicing", type: "text", required: false, enabled: true, helperText: "If company or sole proprietor", filledBy: "candidate" },
-        { id: "bir_number", label: "BIR registration number", section: "invoicing", type: "text", required: false, enabled: true, helperText: "If available", filledBy: "candidate" },
-        { id: "national_id", label: "National ID / Government ID number", section: "identity", type: "text", required: true, enabled: true, filledBy: "candidate" },
-        { id: "government_id_upload", label: "Government ID upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Philippine ID, passport, driver's license, etc.", filledBy: "candidate" },
-        { id: "bir_registration_doc", label: "BIR registration document", section: "uploads", type: "upload", required: false, enabled: true, helperText: "If invoicing as a business", filledBy: "candidate" },
+        { id: "tinNumber", label: "TIN (Tax Identification Number)", section: "compliance", type: "text", required: true, enabled: true, helperText: "Required for tax reporting", filledBy: "candidate" },
+        { id: "invoicingAs", label: "Invoicing as", section: "compliance", type: "select", required: true, enabled: true, options: ["Individual", "Sole proprietor", "Company"], filledBy: "candidate" },
+        { id: "businessName", label: "Registered business name", section: "compliance", type: "text", required: false, enabled: true, helperText: "If company or sole proprietor", filledBy: "candidate" },
+        { id: "birNumber", label: "BIR registration number", section: "compliance", type: "text", required: false, enabled: true, helperText: "If available", filledBy: "candidate" },
+        { id: "nationalId", label: "National ID / Government ID number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "governmentIdUpload", label: "Government ID upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Philippine ID, passport, driver's license, etc.", filledBy: "candidate" },
+        { id: "birRegistrationUpload", label: "BIR registration document", section: "compliance", type: "upload", required: false, enabled: true, helperText: "Optional: If invoicing as a business", filledBy: "candidate" },
       ];
 
     case "Kosovo":
       return [
-        { id: "invoicing_as", label: "Invoicing as", section: "invoicing", type: "select", required: true, enabled: true, options: ["Individual", "Company"], filledBy: "candidate" },
-        { id: "personal_number", label: "Personal number (10-digit ID)", section: "identity", type: "text", required: false, enabled: true, helperText: "For individual contractors", filledBy: "candidate" },
-        { id: "local_tax_number", label: "Local tax number", section: "tax", type: "text", required: false, enabled: true, helperText: "If different from personal number", filledBy: "candidate" },
-        { id: "legal_entity_name", label: "Legal entity name", section: "invoicing", type: "text", required: false, enabled: true, helperText: "For company contractors", filledBy: "candidate" },
-        { id: "fiscal_number", label: "Tax / Fiscal number", section: "tax", type: "text", required: false, enabled: true, helperText: "If available", filledBy: "candidate" },
-        { id: "vat_number", label: "VAT number", section: "tax", type: "text", required: false, enabled: true, helperText: "If VAT registered", filledBy: "candidate" },
-        { id: "id_upload", label: "ID upload", section: "uploads", type: "upload", required: true, enabled: true, helperText: "Passport or National ID", filledBy: "candidate" },
-        { id: "company_registration", label: "Company registration certificate", section: "uploads", type: "upload", required: false, enabled: true, helperText: "For companies", filledBy: "candidate" },
+        { id: "invoicingAs", label: "Invoicing as", section: "compliance", type: "select", required: true, enabled: true, options: ["Individual", "Company"], filledBy: "candidate" },
+        { id: "personalNumber", label: "Personal number (10-digit ID)", section: "compliance", type: "text", required: false, enabled: true, helperText: "For individual contractors", filledBy: "candidate" },
+        { id: "localTaxNumber", label: "Local tax number", section: "compliance", type: "text", required: false, enabled: true, helperText: "If different from personal number", filledBy: "candidate" },
+        { id: "legalEntityName", label: "Legal entity name", section: "compliance", type: "text", required: false, enabled: true, helperText: "For company contractors", filledBy: "candidate" },
+        { id: "fiscalNumber", label: "Tax / Fiscal number", section: "compliance", type: "text", required: false, enabled: true, helperText: "If available", filledBy: "candidate" },
+        { id: "vatNumber", label: "VAT number", section: "compliance", type: "text", required: false, enabled: true, helperText: "If VAT registered", filledBy: "candidate" },
+        { id: "idUpload", label: "ID upload", section: "compliance", type: "upload", required: true, enabled: true, helperText: "Passport / National ID", filledBy: "candidate" },
+        { id: "companyRegistrationUpload", label: "Company registration certificate", section: "compliance", type: "upload", required: false, enabled: true, helperText: "For companies", filledBy: "candidate" },
       ];
 
     default:
       return [
-        { id: "national_id", label: "National ID / Passport number", section: "identity", type: "text", required: true, enabled: true, filledBy: "candidate" },
-        { id: "tax_id", label: "Tax ID / Registration number", section: "tax", type: "text", required: true, enabled: true, filledBy: "candidate" },
-        { id: "id_document", label: "ID document upload", section: "uploads", type: "upload", required: true, enabled: true, filledBy: "candidate" },
+        { id: "nationalId", label: "National ID / Passport number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "taxId", label: "Tax ID / Registration number", section: "compliance", type: "text", required: true, enabled: true, filledBy: "candidate" },
+        { id: "idDocumentUpload", label: "ID document upload", section: "compliance", type: "upload", required: true, enabled: true, filledBy: "candidate" },
       ];
   }
+};
+
+// Payroll Details fields - from WorkerStep4Payroll_v2
+const getPayrollFields = (employmentType: "contractor" | "employee"): OnboardingFieldConfig[] => {
+  if (employmentType === "contractor") {
+    return [
+      { id: "invoiceRuleConfirmed", label: "Invoice Rules Acknowledgment", section: "payroll", type: "checkbox", required: true, enabled: true, helperText: "Worker confirms understanding of invoice submission rules", filledBy: "candidate" },
+    ];
+  }
+  return [
+    { id: "bankName", label: "Bank Name", section: "payroll", type: "text", required: true, enabled: true, helperText: "e.g., BDO, BPI, Wells Fargo", filledBy: "candidate" },
+    { id: "accountNumber", label: "Account Number / IBAN", section: "payroll", type: "text", required: true, enabled: true, filledBy: "candidate" },
+    { id: "swiftBic", label: "SWIFT / BIC Code", section: "payroll", type: "text", required: false, enabled: true, helperText: "For international payments", filledBy: "candidate" },
+  ];
 };
 
 export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawerProps> = ({
@@ -149,15 +175,20 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
     if (candidate) {
       const country = candidate.country || "Philippines";
       const employmentType = candidate.employmentType || "contractor";
-      const defaultFields = getFieldsForCountry(country, employmentType);
-      setFieldConfig(initialConfig?.baseFields || defaultFields);
+      
+      const personalFields = getPersonalFields();
+      const complianceFields = getComplianceFields(country, employmentType);
+      const payrollFields = getPayrollFields(employmentType);
+      
+      const allFields = [...personalFields, ...complianceFields, ...payrollFields];
+      setFieldConfig(initialConfig?.baseFields || allFields);
     }
   }, [candidate?.id, candidate?.country, candidate?.employmentType, initialConfig]);
 
   const handleToggleEnabled = (fieldId: string) => {
     setFieldConfig(prev => 
       prev.map(field => 
-        field.id === fieldId ? { ...field, enabled: !field.enabled } : field
+        field.id === fieldId && !field.locked ? { ...field, enabled: !field.enabled } : field
       )
     );
   };
@@ -165,7 +196,7 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
   const handleToggleRequired = (fieldId: string) => {
     setFieldConfig(prev => 
       prev.map(field => 
-        field.id === fieldId ? { ...field, required: !field.required } : field
+        field.id === fieldId && !field.locked ? { ...field, required: !field.required } : field
       )
     );
   };
@@ -173,7 +204,7 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
   const handleFilledByChange = (fieldId: string, filledBy: FilledBySource) => {
     setFieldConfig(prev => 
       prev.map(field => 
-        field.id === fieldId ? { ...field, filledBy } : field
+        field.id === fieldId && !field.locked ? { ...field, filledBy } : field
       )
     );
   };
@@ -201,7 +232,10 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
     if (candidate) {
       const country = candidate.country || "Philippines";
       const employmentType = candidate.employmentType || "contractor";
-      setFieldConfig(initialConfig?.baseFields || getFieldsForCountry(country, employmentType));
+      const personalFields = getPersonalFields();
+      const complianceFields = getComplianceFields(country, employmentType);
+      const payrollFields = getPayrollFields(employmentType);
+      setFieldConfig(initialConfig?.baseFields || [...personalFields, ...complianceFields, ...payrollFields]);
     }
     onOpenChange(false);
   };
@@ -209,13 +243,14 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
   if (!candidate) return null;
 
   // Group fields by section
-  const identityFields = fieldConfig.filter(f => f.section === "identity");
-  const taxFields = fieldConfig.filter(f => f.section === "tax");
-  const invoicingFields = fieldConfig.filter(f => f.section === "invoicing");
-  const uploadFields = fieldConfig.filter(f => f.section === "uploads");
+  const personalFields = fieldConfig.filter(f => f.section === "personal");
+  const complianceFields = fieldConfig.filter(f => f.section === "compliance");
+  const payrollFields = fieldConfig.filter(f => f.section === "payroll");
 
-  // Dynamic helper text based on state
   const getHelperText = (field: OnboardingFieldConfig) => {
+    if (field.locked) {
+      return "Read-only. Linked to contract details.";
+    }
     if (field.filledBy === "candidate") {
       return "Shown as an empty field on the worker form.";
     }
@@ -228,18 +263,23 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
   const renderFieldRow = (field: OnboardingFieldConfig) => {
     const isPrefilled = field.filledBy === "prefilled";
     const isHidden = !field.enabled;
+    const isLocked = field.locked;
     const currentValue = field.adminValue || "";
     
     return (
       <div key={field.id} className={cn(
         "flex items-start justify-between p-3 rounded-lg border border-border/40 bg-card/50",
-        isHidden && "opacity-60"
+        isHidden && "opacity-60",
+        isLocked && "bg-muted/30"
       )}>
         <div className="flex-1 min-w-0 pr-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium">{field.label}</span>
             {field.required && (
               <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Required</Badge>
+            )}
+            {isLocked && (
+              <Badge variant="outline" className="text-xs">Locked</Badge>
             )}
           </div>
           
@@ -248,8 +288,8 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
           )}
           
           <div className={cn(isHidden && "opacity-50")}>
-            {/* Filled by selector */}
-            {field.type !== "upload" && (
+            {/* Filled by selector - not for uploads or locked fields */}
+            {field.type !== "upload" && field.type !== "checkbox" && !isLocked && (
               <div className="mt-2">
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-[11px] text-muted-foreground font-medium">Filled by</span>
@@ -316,8 +356,23 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
               </div>
             )}
 
+            {/* Upload field indicator */}
+            {field.type === "upload" && (
+              <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <Upload className="h-3 w-3" />
+                <span>Worker will upload this document</span>
+              </div>
+            )}
+
+            {/* Checkbox field indicator */}
+            {field.type === "checkbox" && (
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                Worker must check this to proceed
+              </div>
+            )}
+
             {/* Hidden on form indicator */}
-            {isHidden && (
+            {isHidden && !isLocked && (
               <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                 <EyeOff className="h-3 w-3" />
                 <span>Hidden on worker form. Value is used only in internal workflows / contracts.</span>
@@ -325,24 +380,28 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
             )}
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground">Required</span>
-            <Switch 
-              checked={field.required} 
-              onCheckedChange={() => handleToggleRequired(field.id)}
-              className="scale-75"
-            />
+        
+        {/* Controls - disabled for locked fields */}
+        {!isLocked && (
+          <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">Required</span>
+              <Switch 
+                checked={field.required} 
+                onCheckedChange={() => handleToggleRequired(field.id)}
+                className="scale-75"
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">Show</span>
+              <Switch 
+                checked={field.enabled} 
+                onCheckedChange={() => handleToggleEnabled(field.id)}
+                className="scale-75"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground">Show</span>
-            <Switch 
-              checked={field.enabled} 
-              onCheckedChange={() => handleToggleEnabled(field.id)}
-              className="scale-75"
-            />
-          </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -354,7 +413,7 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
           <SheetTitle className="text-base">Configure Onboarding Form</SheetTitle>
         </SheetHeader>
 
-        {/* Candidate Info Card - Same as Offer Accepted */}
+        {/* Candidate Info Card */}
         <Card className="mt-6 border-border/40 bg-muted/30">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-3">
@@ -388,65 +447,59 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
           </CardContent>
         </Card>
 
-        {/* Field Configuration */}
+        {/* Field Configuration - 3 Sections matching Flow 3 */}
         <div className="mt-6 space-y-6">
-          {/* Section 1: Identity & Documents */}
-          {identityFields.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-semibold">Identity & Documents</Label>
-              </div>
-              <div className="space-y-3">
-                {identityFields.map(renderFieldRow)}
-              </div>
+          {/* Section 1: Personal Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold">Confirm Personal Information</Label>
             </div>
-          )}
-
-          {identityFields.length > 0 && (taxFields.length > 0 || invoicingFields.length > 0) && <Separator />}
-
-          {/* Section 2: Tax & Compliance */}
-          {taxFields.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Receipt className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-semibold">Tax & Compliance</Label>
-              </div>
-              <div className="space-y-3">
-                {taxFields.map(renderFieldRow)}
-              </div>
+            <p className="text-xs text-muted-foreground -mt-2">
+              These details are pre-filled from the contract. Some fields are locked.
+            </p>
+            <div className="space-y-3">
+              {personalFields.map(renderFieldRow)}
             </div>
-          )}
+          </div>
 
-          {taxFields.length > 0 && invoicingFields.length > 0 && <Separator />}
+          <Separator />
 
-          {/* Section 3: Invoicing Details */}
-          {invoicingFields.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-semibold">Invoicing Details</Label>
-              </div>
-              <div className="space-y-3">
-                {invoicingFields.map(renderFieldRow)}
-              </div>
+          {/* Section 2: Compliance Requirements */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold">Compliance Requirements</Label>
             </div>
-          )}
-
-          {(taxFields.length > 0 || invoicingFields.length > 0 || identityFields.length > 0) && uploadFields.length > 0 && <Separator />}
-
-          {/* Section 4: Document Uploads */}
-          {uploadFields.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Upload className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-semibold">Document Uploads</Label>
-              </div>
-              <div className="space-y-3">
-                {uploadFields.map(renderFieldRow)}
-              </div>
+            <p className="text-xs text-muted-foreground -mt-2">
+              Country-specific documents required for {candidate.country}.
+              {candidate.employmentType === "contractor" && " Contractor-specific fields."}
+            </p>
+            <div className="space-y-3">
+              {complianceFields.map(renderFieldRow)}
             </div>
-          )}
+          </div>
+
+          <Separator />
+
+          {/* Section 3: Payroll Details */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold">
+                {candidate.employmentType === "contractor" ? "Invoice Rules" : "Payroll Details"}
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground -mt-2">
+              {candidate.employmentType === "contractor" 
+                ? "Contractor will confirm understanding of invoice submission rules."
+                : "Bank details to receive salary payments."
+              }
+            </p>
+            <div className="space-y-3">
+              {payrollFields.map(renderFieldRow)}
+            </div>
+          </div>
         </div>
 
         <SheetFooter className="mt-8 gap-2">
