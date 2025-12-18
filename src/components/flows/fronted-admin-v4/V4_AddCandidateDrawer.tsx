@@ -69,12 +69,23 @@ const V4_ATS_CANDIDATES = [
 ];
 
 const COUNTRY_OPTIONS = [
-  { value: "India", flag: "🇮🇳" },
-  { value: "Philippines", flag: "🇵🇭" },
-  { value: "Sweden", flag: "🇸🇪" },
-  { value: "Norway", flag: "🇳🇴" },
-  { value: "Denmark", flag: "🇩🇰" },
-  { value: "Kosovo", flag: "🇽🇰" },
+  { value: "India", flag: "🇮🇳", currency: "INR" },
+  { value: "Philippines", flag: "🇵🇭", currency: "PHP" },
+  { value: "Sweden", flag: "🇸🇪", currency: "SEK" },
+  { value: "Norway", flag: "🇳🇴", currency: "NOK" },
+  { value: "Denmark", flag: "🇩🇰", currency: "DKK" },
+  { value: "Kosovo", flag: "🇽🇰", currency: "EUR" },
+];
+
+const CURRENCY_OPTIONS = [
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "EUR", label: "EUR - Euro" },
+  { value: "GBP", label: "GBP - British Pound" },
+  { value: "NOK", label: "NOK - Norwegian Krone" },
+  { value: "SEK", label: "SEK - Swedish Krona" },
+  { value: "DKK", label: "DKK - Danish Krone" },
+  { value: "PHP", label: "PHP - Philippine Peso" },
+  { value: "INR", label: "INR - Indian Rupee" },
 ];
 
 export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
@@ -91,6 +102,7 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
     countryFlag: "",
     role: "",
     compensation: "",
+    currency: "USD",
     startDate: "",
     employmentType: "contractor" as "contractor" | "employee",
   });
@@ -106,6 +118,7 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
         countryFlag: "",
         role: "",
         compensation: "",
+        currency: "USD",
         startDate: "",
         employmentType: "contractor",
       });
@@ -124,6 +137,7 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
         countryFlag: "",
         role: "",
         compensation: "",
+        currency: "USD",
         startDate: "",
         employmentType: "contractor",
       });
@@ -131,6 +145,10 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
       // Pre-fill from ATS candidate
       const candidate = V4_ATS_CANDIDATES.find(c => c.id === value);
       if (candidate) {
+        // Get default currency based on country
+        const countryData = COUNTRY_OPTIONS.find(c => c.value === candidate.country);
+        const defaultCurrency = countryData?.currency || "USD";
+        
         setFormData({
           name: candidate.name,
           email: candidate.email,
@@ -138,6 +156,7 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
           countryFlag: candidate.countryFlag,
           role: candidate.role,
           compensation: candidate.compensation || "",
+          currency: candidate.employmentType === "contractor" ? defaultCurrency : "USD",
           startDate: "",
           employmentType: candidate.employmentType,
         });
@@ -151,6 +170,8 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
       ...prev,
       country: value,
       countryFlag: country?.flag || "",
+      // Auto-set currency based on country for contractors
+      ...(prev.employmentType === "contractor" && country?.currency ? { currency: country.currency } : {}),
     }));
   };
 
@@ -422,9 +443,14 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                     </Label>
                     <Select 
                       value={formData.employmentType} 
-                      onValueChange={(value: "contractor" | "employee") => 
-                        setFormData(prev => ({ ...prev, employmentType: value }))
-                      }
+                      onValueChange={(value: "contractor" | "employee") => {
+                        // When switching to contractor, set currency based on country
+                        const countryData = COUNTRY_OPTIONS.find(c => c.value === formData.country);
+                        const defaultCurrency = value === "contractor" && countryData?.currency 
+                          ? countryData.currency 
+                          : formData.currency;
+                        setFormData(prev => ({ ...prev, employmentType: value, currency: defaultCurrency }));
+                      }}
                     >
                       <SelectTrigger id="v4-employmentType" className="bg-background">
                         <SelectValue />
@@ -438,6 +464,33 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                       <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
                     )}
                   </div>
+
+                  {/* Currency field - only for contractors */}
+                  {formData.employmentType === "contractor" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="v4-currency" className="text-sm">
+                        Currency <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={formData.currency} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
+                      >
+                        <SelectTrigger id="v4-currency" className="bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover">
+                          {CURRENCY_OPTIONS.map((curr) => (
+                            <SelectItem key={curr.value} value={curr.value}>
+                              {curr.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        Defaulted based on country, but can be changed
+                      </p>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="v4-compensation" className="text-sm">
