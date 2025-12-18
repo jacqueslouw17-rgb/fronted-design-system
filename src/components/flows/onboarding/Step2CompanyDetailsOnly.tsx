@@ -136,28 +136,57 @@ const Step2CompanyDetailsOnly = ({
 
           <div className="space-y-2">
             <Label htmlFor="hqCountry" className="text-sm">
-              HQ Country <span className="text-destructive">*</span>
+              Primary Legal Entity Country <span className="text-destructive">*</span>
             </Label>
             <Select value={data.hqCountry} onValueChange={(val) => handleFieldChange('hqCountry', val)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[280px]">
+                {/* Nordic */}
                 <SelectItem value="NO">🇳🇴 Norway</SelectItem>
                 <SelectItem value="DK">🇩🇰 Denmark</SelectItem>
                 <SelectItem value="SE">🇸🇪 Sweden</SelectItem>
-                <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
-                <SelectItem value="IN">🇮🇳 India</SelectItem>
-                <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
-                <SelectItem value="US">🇺🇸 United States</SelectItem>
+                <SelectItem value="FI">🇫🇮 Finland</SelectItem>
+                <SelectItem value="IS">🇮🇸 Iceland</SelectItem>
+                {/* Europe */}
                 <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                <SelectItem value="DE">🇩🇪 Germany</SelectItem>
+                <SelectItem value="FR">🇫🇷 France</SelectItem>
+                <SelectItem value="NL">🇳🇱 Netherlands</SelectItem>
+                <SelectItem value="BE">🇧🇪 Belgium</SelectItem>
+                <SelectItem value="IE">🇮🇪 Ireland</SelectItem>
+                <SelectItem value="ES">🇪🇸 Spain</SelectItem>
+                <SelectItem value="PT">🇵🇹 Portugal</SelectItem>
+                <SelectItem value="IT">🇮🇹 Italy</SelectItem>
+                <SelectItem value="CH">🇨🇭 Switzerland</SelectItem>
+                <SelectItem value="AT">🇦🇹 Austria</SelectItem>
+                <SelectItem value="PL">🇵🇱 Poland</SelectItem>
+                <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
+                {/* Americas */}
+                <SelectItem value="US">🇺🇸 United States</SelectItem>
+                <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                <SelectItem value="MX">🇲🇽 Mexico</SelectItem>
+                <SelectItem value="BR">🇧🇷 Brazil</SelectItem>
+                {/* Asia & Pacific */}
+                <SelectItem value="IN">🇮🇳 India</SelectItem>
+                <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
+                <SelectItem value="SG">🇸🇬 Singapore</SelectItem>
+                <SelectItem value="AU">🇦🇺 Australia</SelectItem>
+                <SelectItem value="NZ">🇳🇿 New Zealand</SelectItem>
+                <SelectItem value="JP">🇯🇵 Japan</SelectItem>
+                <SelectItem value="KR">🇰🇷 South Korea</SelectItem>
+                {/* Middle East & Africa */}
+                <SelectItem value="AE">🇦🇪 United Arab Emirates</SelectItem>
+                <SelectItem value="ZA">🇿🇦 South Africa</SelectItem>
+                <SelectItem value="IL">🇮🇱 Israel</SelectItem>
               </SelectContent>
             </Select>
             {errors.hqCountry && (
               <p className="text-xs text-destructive">{errors.hqCountry}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Legal headquarters of your company. This does not limit where you can hire employees or contractors.
+              Where your company is legally registered. You can add additional legal entities in other countries later during country setup.
             </p>
           </div>
 
