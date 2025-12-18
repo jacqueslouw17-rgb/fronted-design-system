@@ -88,9 +88,10 @@ export const V4_SendCandidateDetailsFormDrawer: React.FC<V4_SendCandidateDetails
 
   if (!candidate) return null;
 
-  // Filter visible fields
-  const visibleBaseFields = config.baseFields.filter(f => f.enabled);
-  const visibleCustomFields = config.customFields.filter(f => f.enabled);
+  // Use config or default, filter visible fields
+  const activeConfig = config || DEFAULT_CONFIG;
+  const visibleBaseFields = activeConfig.baseFields.filter(f => f.enabled);
+  const visibleCustomFields = activeConfig.customFields.filter(f => f.enabled);
 
   const identityFields = visibleBaseFields.filter(f => f.section === "identity");
   const taxFields = visibleBaseFields.filter(f => f.section === "tax");
@@ -194,7 +195,7 @@ export const V4_SendCandidateDetailsFormDrawer: React.FC<V4_SendCandidateDetails
     );
   };
 
-  const hasNoVisibleFields = visibleBaseFields.length === 0 && visibleCustomFields.length === 0;
+  // Always show form preview with default fields
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -259,20 +260,7 @@ export const V4_SendCandidateDetailsFormDrawer: React.FC<V4_SendCandidateDetails
             </Badge>
           </div>
 
-          {hasNoVisibleFields ? (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">No fields configured</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Please configure the form first by clicking "Configure" on the candidate card.
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6 opacity-80">
+          <div className="space-y-6 opacity-80">
               {/* Section 1: Identity & Documents */}
               {identityFields.length > 0 && (
                 <div className="space-y-4">
@@ -333,8 +321,7 @@ export const V4_SendCandidateDetailsFormDrawer: React.FC<V4_SendCandidateDetails
                   </div>
                 </>
               )}
-            </div>
-          )}
+          </div>
         </div>
 
         <SheetFooter className="mt-8 gap-2">
@@ -343,7 +330,7 @@ export const V4_SendCandidateDetailsFormDrawer: React.FC<V4_SendCandidateDetails
           </Button>
           <Button 
             onClick={handleSend} 
-            disabled={isSending || hasNoVisibleFields || !candidate.email}
+            disabled={isSending || !candidate.email}
             className="gap-2"
           >
             <Send className="h-4 w-4" />

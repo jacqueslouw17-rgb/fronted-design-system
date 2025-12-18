@@ -50,6 +50,21 @@ const FIELD_TYPE_ICONS: Record<CustomOnboardingFieldType, React.ElementType> = {
   file_upload: Upload,
 };
 
+// Default base fields for config
+const getDefaultConfig = (candidate: V4_Candidate): OnboardingFormConfig => ({
+  baseFields: [
+    { id: "full_name", label: "Full Name", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "As per contract" },
+    { id: "email", label: "Email Address", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "prefilled", helperText: "Primary email" },
+    { id: "phone", label: "Phone Number", section: "personal", type: "text", required: true, enabled: true, locked: false, filledBy: "candidate", helperText: "Include country code" },
+    { id: "date_of_birth", label: "Date of Birth", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "DD/MM/YYYY" },
+    { id: "nationality", label: "Nationality", section: "personal", type: "select", required: true, enabled: true, locked: true, filledBy: "prefilled", options: ["United States", "Philippines", "India", "Germany", "Sweden", "Norway", "Denmark", "Kosovo"] },
+    { id: "residential_address", label: "Residential Address", section: "personal", type: "text", required: true, enabled: true, locked: true, filledBy: "prefilled", helperText: "Full address" },
+  ],
+  customFields: [],
+  country: candidate.country,
+  employmentType: candidate.employmentType || "contractor",
+});
+
 export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerProps> = ({
   open,
   onOpenChange,
@@ -75,9 +90,10 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
 
   if (!candidate) return null;
 
-  // Filter visible fields
-  const visibleFields = config?.baseFields.filter(f => f.enabled) || [];
-  const visibleCustomFields = config?.customFields?.filter(f => f.enabled) || [];
+  // Use config or default, filter visible fields
+  const activeConfig = config || getDefaultConfig(candidate);
+  const visibleFields = activeConfig.baseFields.filter(f => f.enabled);
+  const visibleCustomFields = activeConfig.customFields?.filter(f => f.enabled) || [];
   
   // Group by section - matching Flow 3 structure
   const personalFields = visibleFields.filter(f => f.section === "personal");
@@ -85,7 +101,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
   const payrollFields = visibleFields.filter(f => f.section === "payroll");
 
   const totalVisibleFields = visibleFields.length + visibleCustomFields.length;
-  const hasNoVisibleFields = totalVisibleFields === 0;
+  // Always show form preview with default fields
 
   const renderField = (field: OnboardingFieldConfig) => {
     const isRequired = field.required;
@@ -253,20 +269,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
             </Badge>
           </div>
 
-          {hasNoVisibleFields ? (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">No fields configured</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Please configure the form first by clicking "Configure" on the candidate card.
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6 opacity-80">
+          <div className="space-y-6 opacity-80">
               {/* Section 1: Confirm Personal Information */}
               {personalFields.length > 0 && (
                 <div className="space-y-4">
@@ -344,8 +347,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
                   </div>
                 </>
               )}
-            </div>
-          )}
+          </div>
         </div>
 
         <SheetFooter className="mt-8 gap-2">
@@ -354,7 +356,7 @@ export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerPr
           </Button>
           <Button 
             onClick={handleSend} 
-            disabled={isSending || hasNoVisibleFields || !candidate.email}
+            disabled={isSending || !candidate.email}
             className="gap-2"
           >
             <Send className="h-4 w-4" />
