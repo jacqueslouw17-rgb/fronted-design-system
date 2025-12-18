@@ -29,7 +29,7 @@ const WorkerStep7Finish_v2 = ({
   const handleFinish = useCallback(() => {
     onComplete("finish");
     // Navigate to dashboard - stays within v2 context
-    navigate('/flows/candidate-dashboard', {
+    navigate('/flows/candidate-dashboard-v2', {
       state: {
         fromOnboarding: true
       }
