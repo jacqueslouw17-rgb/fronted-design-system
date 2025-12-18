@@ -49,16 +49,10 @@ const WorkerStep1Welcome_v2 = ({
     });
   };
   return <div className="space-y-6 max-w-xl mx-auto">
-      {/* What We'll Set Up Section */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
-          What We'll Set Up
-        </h3>
-        
-        
-
-        {/* Kurt Assistant Callout */}
-        
+      {/* Sign In Header */}
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold text-foreground">Sign in</h2>
+        <p className="text-sm text-muted-foreground">Choose how you'd like to sign in to continue</p>
       </div>
 
       {/* Account Setup Section */}
