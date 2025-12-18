@@ -64,7 +64,8 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     lockedReason: undefined,
     filePaths: [
       'src/pages/CandidateDataCollectionV2.tsx'
-    ]
+    ],
+    hidden: true
   },
   'f4-candidate-onboarding-flow': {
     id: 'f4-candidate-onboarding-flow',
