@@ -453,7 +453,7 @@ export const V4_ConfigureOnboardingDrawer: React.FC<V4_ConfigureOnboardingDrawer
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-semibold">Confirm Personal Information</Label>
+              <Label className="text-sm font-semibold">Personal Information</Label>
             </div>
             <p className="text-xs text-muted-foreground -mt-2">
               These details are pre-filled from the contract. Some fields are locked.
