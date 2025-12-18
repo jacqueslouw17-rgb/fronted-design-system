@@ -301,11 +301,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   }, [offerAcceptedContractors, selectedOfferAcceptedIds]);
 
   const handleSelectAllOfferAccepted = useCallback((checked: boolean | "indeterminate") => {
-    // When clicking indeterminate or unchecked, select all; when clicking checked, deselect all
-    if (checked === true) {
-      setSelectedOfferAcceptedIds(new Set());
-    } else {
+    // checked=true means user wants to select all, checked=false means deselect all
+    if (checked) {
       setSelectedOfferAcceptedIds(new Set(offerAcceptedContractors.map(c => c.id)));
+    } else {
+      setSelectedOfferAcceptedIds(new Set());
     }
   }, [offerAcceptedContractors]);
 
@@ -354,11 +354,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   }, [prepareContractContractors, selectedDraftingIds]);
 
   const handleSelectAllDrafting = useCallback((checked: boolean | "indeterminate") => {
-    // When clicking indeterminate or unchecked, select all; when clicking checked, deselect all
-    if (checked === true) {
-      setSelectedDraftingIds(new Set());
-    } else {
+    // checked=true means user wants to select all, checked=false means deselect all
+    if (checked) {
       setSelectedDraftingIds(new Set(prepareContractContractors.map(c => c.id)));
+    } else {
+      setSelectedDraftingIds(new Set());
     }
   }, [prepareContractContractors]);
 
@@ -399,10 +399,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   }, [onboardCandidateContractors, selectedOnboardIds]);
 
   const handleSelectAllOnboard = useCallback((checked: boolean | "indeterminate") => {
-    if (checked === true) {
-      setSelectedOnboardIds(new Set());
-    } else {
+    // checked=true means user wants to select all, checked=false means deselect all
+    if (checked) {
       setSelectedOnboardIds(new Set(onboardCandidateContractors.map(c => c.id)));
+    } else {
+      setSelectedOnboardIds(new Set());
     }
   }, [onboardCandidateContractors]);
 
