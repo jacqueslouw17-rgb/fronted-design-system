@@ -134,38 +134,6 @@ const WorkerStep3Compliance_v2 = ({ formData, onComplete, isProcessing, isLoadin
   const requiredDocs = getRequiredDocs();
   const isValid = data.identityDocUploaded || data.tinNumber;
 
-  if (isAutoFilling) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4 p-6">
-        <AudioWaveVisualizer isActive={true} />
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
-        >
-          <h3 className="text-lg font-semibold">Retrieving your details...</h3>
-          <p className="text-sm text-muted-foreground">Please wait a moment</p>
-        </motion.div>
-        
-        <div className="space-y-4 w-full max-w-md">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoadingFields) {
-    return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 p-6">
@@ -180,19 +148,7 @@ const WorkerStep3Compliance_v2 = ({ formData, onComplete, isProcessing, isLoadin
       <div className="space-y-4">
         {requiredDocs.map((doc) => (
           <div key={doc.id} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor={doc.id}>{doc.label}</Label>
-              {autoFilledFields.has(doc.field) && (
-                <motion.span
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Auto-filled by Kurt
-                </motion.span>
-              )}
-            </div>
+            <Label htmlFor={doc.id}>{doc.label}</Label>
             <Input
               id={doc.id}
               value={data[doc.field as keyof typeof data] as string}
