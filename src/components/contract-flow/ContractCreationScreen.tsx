@@ -47,6 +47,7 @@ export const ContractCreationScreen: React.FC<ContractCreationScreenProps> = ({
     startDate: candidate.startDate || "",
     salary: candidate.salary,
     country: candidate.country,
+    currency: "USD",
     workLocation: "Remote",
     workHours: employmentType === "employee" ? "40 hours/week" : "Flexible",
     socialId: "",
@@ -529,6 +530,28 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               </SelectContent>
             </Select>
           </div>
+
+          {employmentType === "contractor" && (
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Select
+                value={contractData.currency || "USD"}
+                onValueChange={(value) => setContractData({ ...contractData, currency: value })}
+              >
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  <SelectItem value="USD">USD - US Dollar</SelectItem>
+                  <SelectItem value="EUR">EUR - Euro</SelectItem>
+                  <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                  <SelectItem value="PHP">PHP - Philippine Peso</SelectItem>
+                  <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                  <SelectItem value="NOK">NOK - Norwegian Krone</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>ID Type</Label>
