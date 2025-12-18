@@ -446,10 +446,12 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     );
     if (selectedIds.length > 0) {
       setV4Contractors(prev => prev.map(c => 
-        selectedIds.includes(c.id) ? { ...c, status: "onboarding-pending", checklistProgress: 0 } : c
+        selectedIds.includes(c.id) ? { ...c, status: "certified" } : c
       ));
       setSelectedOnboardIds(new Set());
-      toast.success(`Onboarding started for ${selectedIds.length} candidates`);
+      toast.success(`Onboarding sent to ${selectedIds.length} candidates`, {
+        description: "They'll receive emails with their personalized onboarding links."
+      });
     }
   }, [selectedOnboardIds, onboardCandidateContractors]);
 
@@ -465,11 +467,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     
     setV4Contractors(prev => prev.map(c => 
       c.id === selectedForOnboarding.id 
-        ? { ...c, status: "onboarding-pending", checklistProgress: 0 } 
+        ? { ...c, status: "certified" } 
         : c
     ));
     
-    toast.success(`Onboarding started for ${selectedForOnboarding.name}`, {
+    toast.success(`Onboarding sent to ${selectedForOnboarding.name}`, {
       description: "They'll receive an email with their personalized onboarding link."
     });
     setSelectedForOnboarding(null);
