@@ -407,7 +407,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
             )}
             {flow.locked && !flow.deprecated && (
               <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30">
-                Current
+                Live
               </Badge>
             )}
             {flow.deprecated && (
