@@ -1,0 +1,274 @@
+/**
+ * Flow 1 – Fronted Admin Dashboard v4 Only
+ * Send Onboarding Form Drawer
+ * 
+ * Opens from "Onboard Candidate" column cards via "Onboard" button
+ * Shows preview of the onboarding form the candidate will receive
+ * Country-specific compliance fields based on configuration
+ */
+
+import React, { useState } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Shield, Send, Mail, User, Globe, Receipt, Briefcase, Upload, FileUp, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { OnboardingFormConfig, OnboardingFieldConfig } from "./V4_ConfigureOnboardingDrawer";
+
+interface V4_Candidate {
+  id: string;
+  name: string;
+  country: string;
+  countryFlag: string;
+  role: string;
+  salary: string;
+  email?: string;
+  employmentType?: "contractor" | "employee";
+}
+
+interface V4_SendOnboardingFormDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  candidate: V4_Candidate | null;
+  config?: OnboardingFormConfig;
+  onSend: (candidateId: string) => void;
+}
+
+const getSectionIcon = (section: string) => {
+  switch (section) {
+    case "identity": return User;
+    case "tax": return Receipt;
+    case "invoicing": return Briefcase;
+    case "uploads": return Upload;
+    default: return User;
+  }
+};
+
+const getSectionLabel = (section: string) => {
+  switch (section) {
+    case "identity": return "Identity & Documents";
+    case "tax": return "Tax & Compliance";
+    case "invoicing": return "Invoicing Details";
+    case "uploads": return "Document Uploads";
+    default: return section;
+  }
+};
+
+export const V4_SendOnboardingFormDrawer: React.FC<V4_SendOnboardingFormDrawerProps> = ({
+  open,
+  onOpenChange,
+  candidate,
+  config,
+  onSend,
+}) => {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSend = () => {
+    if (!candidate) return;
+    setIsSending(true);
+    
+    // Simulate sending
+    setTimeout(() => {
+      onSend(candidate.id);
+      setIsSending(false);
+      toast.success("Onboarding form sent", {
+        description: `${candidate.name} will receive an email with the form link.`
+      });
+      onOpenChange(false);
+    }, 800);
+  };
+
+  if (!candidate) return null;
+
+  // Filter visible fields
+  const visibleFields = config?.baseFields.filter(f => f.enabled) || [];
+  
+  // Group by section
+  const sections = ["identity", "tax", "invoicing", "uploads"];
+  const fieldsBySection = sections.reduce((acc, section) => {
+    acc[section] = visibleFields.filter(f => f.section === section);
+    return acc;
+  }, {} as Record<string, OnboardingFieldConfig[]>);
+
+  const hasNoVisibleFields = visibleFields.length === 0;
+  const countryLabel = candidate.country || "Unknown Country";
+  const employmentLabel = candidate.employmentType === "employee" ? "Employee (EOR)" : "Contractor (COR)";
+
+  const renderField = (field: OnboardingFieldConfig) => {
+    const isRequired = field.required;
+    const isPrefilled = field.filledBy === "prefilled";
+    
+    return (
+      <div key={field.id} className="space-y-1.5">
+        <Label className="text-sm flex items-center gap-1">
+          {field.label}
+          {isRequired && <span className="text-destructive">*</span>}
+          {isPrefilled && (
+            <Badge variant="secondary" className="text-[10px] ml-1">Pre-filled</Badge>
+          )}
+        </Label>
+        {field.type === "upload" ? (
+          <div className="border border-dashed border-border/60 rounded-lg p-4 text-center bg-muted/20">
+            <FileUp className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+            <p className="text-xs text-muted-foreground">Upload area (preview)</p>
+          </div>
+        ) : field.type === "select" && field.options ? (
+          <Select disabled value={isPrefilled ? field.adminValue : undefined}>
+            <SelectTrigger className={cn(
+              "bg-background text-muted-foreground",
+              isPrefilled && field.adminValue && "text-foreground"
+            )}>
+              <SelectValue placeholder={isPrefilled && field.adminValue ? field.adminValue : `Select ${field.label.toLowerCase()}`} />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              {field.options.map(opt => (
+                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input 
+            placeholder={field.helperText || `Enter ${field.label.toLowerCase()}`} 
+            disabled 
+            className={cn(
+              "bg-muted/30",
+              isPrefilled && field.adminValue && "text-foreground"
+            )}
+            value={isPrefilled ? field.adminValue : ""}
+          />
+        )}
+        {field.helperText && field.type !== "text" && (
+          <p className="text-xs text-muted-foreground">{field.helperText}</p>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-base">Send Onboarding Form</SheetTitle>
+        </SheetHeader>
+
+        {/* Recipient Info Card */}
+        <Card className="mt-6 border-border/40 bg-muted/30">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Mail className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">This form will be sent to:</p>
+                <p className="font-semibold text-foreground">{candidate.name}</p>
+                <p className="text-sm text-primary">{candidate.email || "No email provided"}</p>
+              </div>
+            </div>
+            <Separator />
+            {/* Prefilled context */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contract Details</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Role:</span>
+                  <span className="font-medium">{candidate.role}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Country:</span>
+                  <span className="font-medium">{candidate.countryFlag} {countryLabel}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Salary:</span>
+                  <span className="font-medium">{candidate.salary}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Type:</span>
+                  <Badge variant="outline" className="text-xs capitalize">
+                    {employmentLabel}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Compliance Badge */}
+        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+          <Shield className="h-4 w-4 text-primary" />
+          <span>GDPR & local employment regulations compliant for {countryLabel}</span>
+        </div>
+
+        {/* Form Preview */}
+        <div className="mt-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-foreground">Form Preview</p>
+            <Badge variant="secondary" className="text-xs">
+              {visibleFields.length} fields
+            </Badge>
+          </div>
+
+          {hasNoVisibleFields ? (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">No fields configured</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Please configure the form first by clicking "Configure" on the candidate card.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 opacity-80">
+              {sections.map(section => {
+                const sectionFields = fieldsBySection[section];
+                if (!sectionFields || sectionFields.length === 0) return null;
+
+                const SectionIcon = getSectionIcon(section);
+                const sectionLabel = getSectionLabel(section);
+
+                return (
+                  <div key={section}>
+                    {section !== "identity" && <Separator className="mb-4" />}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <SectionIcon className="h-4 w-4 text-primary" />
+                        <Label className="text-sm font-semibold">{sectionLabel}</Label>
+                      </div>
+                      <div className="space-y-4 pl-6">
+                        {sectionFields.map(renderField)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <SheetFooter className="mt-8 gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSend} 
+            disabled={isSending || hasNoVisibleFields || !candidate.email}
+            className="gap-2"
+          >
+            <Send className="h-4 w-4" />
+            {isSending ? "Sending..." : "Send Onboarding Form"}
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+export default V4_SendOnboardingFormDrawer;

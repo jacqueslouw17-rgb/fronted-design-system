@@ -29,6 +29,8 @@ import { V4_ConfigureCandidateDetailsDrawer, OnboardingConfig } from "./V4_Confi
 import { V4_SendCandidateDetailsFormDrawer } from "./V4_SendCandidateDetailsFormDrawer";
 import { V4_SignatureWorkflowDrawer } from "./V4_SignatureWorkflowDrawer";
 import { V4_StartOnboardingConfirmation } from "./V4_StartOnboardingConfirmation";
+import { V4_ConfigureOnboardingDrawer, OnboardingFormConfig } from "./V4_ConfigureOnboardingDrawer";
+import { V4_SendOnboardingFormDrawer } from "./V4_SendOnboardingFormDrawer";
 interface V4_Contractor {
   id: string;
   name: string;
@@ -46,6 +48,9 @@ interface V4_Contractor {
   candidateFormLastSentAt?: string;
   onboardingConfig?: OnboardingConfig;
   onboardingFormSent?: boolean;
+  // V4-specific onboarding form config (for Onboard Candidate column)
+  onboardingFormConfig?: OnboardingFormConfig;
+  onboardingFormConfigured?: boolean;
   // V4-specific payroll tracking
   payrollFormStatus?: "not-configured" | "configured" | "sent" | "completed";
   payrollFormLastSentAt?: string;
@@ -140,6 +145,11 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
   // V4 Onboarding Confirmation Dialog state
   const [onboardingConfirmOpen, setOnboardingConfirmOpen] = useState(false);
   const [selectedForOnboarding, setSelectedForOnboarding] = useState<V4_Contractor | null>(null);
+
+  // V4 Onboarding Form Configure/Send Drawer state (for Onboard Candidate column)
+  const [onboardingConfigDrawerOpen, setOnboardingConfigDrawerOpen] = useState(false);
+  const [onboardingSendDrawerOpen, setOnboardingSendDrawerOpen] = useState(false);
+  const [selectedForOnboardingConfig, setSelectedForOnboardingConfig] = useState<V4_Contractor | null>(null);
 
   // Filter contractors by their payroll stage
   // Offer Accepted: status is offer-accepted
@@ -476,6 +486,32 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
     });
     setSelectedForOnboarding(null);
   }, [selectedForOnboarding]);
+
+  // V4 Onboarding Form Configure/Send Handlers (for Onboard Candidate column)
+  const handleOpenOnboardingConfig = useCallback((contractor: V4_Contractor) => {
+    setSelectedForOnboardingConfig(contractor);
+    setOnboardingConfigDrawerOpen(true);
+  }, []);
+
+  const handleOpenSendOnboardingForm = useCallback((contractor: V4_Contractor) => {
+    setSelectedForOnboardingConfig(contractor);
+    setOnboardingSendDrawerOpen(true);
+  }, []);
+
+  const handleSaveOnboardingConfig = useCallback((candidateId: string, config: OnboardingFormConfig) => {
+    setV4Contractors(prev => prev.map(c => c.id === candidateId ? {
+      ...c,
+      onboardingFormConfig: config,
+      onboardingFormConfigured: true
+    } : c));
+  }, []);
+
+  const handleSendOnboardingForm = useCallback((candidateId: string) => {
+    setV4Contractors(prev => prev.map(c => c.id === candidateId ? {
+      ...c,
+      status: "certified"
+    } : c));
+  }, []);
 
   // Simulate worker completing payroll form (for demo purposes)
   const handleSimulateCompletion = useCallback((contractorId: string) => {
@@ -1206,18 +1242,21 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                         </div>
                       </div>
 
-                      {/* Start Onboarding Button */}
-                      <div className="pt-1">
-                        <Button 
-                          size="sm" 
-                          className="w-full text-xs h-7 bg-accent-green-fill hover:bg-accent-green-fill/80 text-accent-green-text border border-accent-green-outline/30 font-medium"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartOnboardingClick(contractor);
-                          }}
-                        >
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Start Onboarding
+                      {/* Action Buttons - Configure & Onboard (same style as Certified) */}
+                      <div className="flex gap-2 pt-1">
+                        <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-muted/80 hover:text-foreground" onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenOnboardingConfig(contractor);
+                        }}>
+                          <Settings className="h-3 w-3" />
+                          Configure
+                        </Button>
+                        <Button size="sm" className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenSendOnboardingForm(contractor);
+                        }}>
+                          <Send className="h-3 w-3" />
+                          Onboard
                         </Button>
                       </div>
                     </CardContent>
@@ -1753,6 +1792,42 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         onOpenChange={setOnboardingConfirmOpen}
         contractor={selectedForOnboarding}
         onConfirm={handleConfirmStartOnboarding}
+      />
+
+      {/* Configure Onboarding Form Drawer - V4 (Onboard Candidate column) */}
+      <V4_ConfigureOnboardingDrawer
+        open={onboardingConfigDrawerOpen}
+        onOpenChange={setOnboardingConfigDrawerOpen}
+        candidate={selectedForOnboardingConfig ? {
+          id: selectedForOnboardingConfig.id,
+          name: selectedForOnboardingConfig.name,
+          role: selectedForOnboardingConfig.role,
+          country: selectedForOnboardingConfig.country,
+          countryFlag: selectedForOnboardingConfig.countryFlag,
+          salary: selectedForOnboardingConfig.salary,
+          email: selectedForOnboardingConfig.email,
+          employmentType: selectedForOnboardingConfig.employmentType || "contractor"
+        } : null}
+        onSave={handleSaveOnboardingConfig}
+        initialConfig={selectedForOnboardingConfig?.onboardingFormConfig}
+      />
+
+      {/* Send Onboarding Form Drawer - V4 (Onboard Candidate column) */}
+      <V4_SendOnboardingFormDrawer
+        open={onboardingSendDrawerOpen}
+        onOpenChange={setOnboardingSendDrawerOpen}
+        candidate={selectedForOnboardingConfig ? {
+          id: selectedForOnboardingConfig.id,
+          name: selectedForOnboardingConfig.name,
+          role: selectedForOnboardingConfig.role,
+          country: selectedForOnboardingConfig.country,
+          countryFlag: selectedForOnboardingConfig.countryFlag,
+          salary: selectedForOnboardingConfig.salary,
+          email: selectedForOnboardingConfig.email,
+          employmentType: selectedForOnboardingConfig.employmentType || "contractor"
+        } : null}
+        config={selectedForOnboardingConfig?.onboardingFormConfig}
+        onSend={handleSendOnboardingForm}
       />
     </div>;
 };
