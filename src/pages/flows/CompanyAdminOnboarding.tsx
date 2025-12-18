@@ -28,7 +28,7 @@ import frontedLogo from "@/assets/fronted-logo.png";
 // Step components
 import Step1AdminAccount from "@/components/flows/onboarding/Step1AdminAccount";
 import Step2CompanyDetailsOnly from "@/components/flows/onboarding/Step2CompanyDetailsOnly";
-import Step3Localization from "@/components/flows/onboarding/Step3Localization";
+import Step3HiringLocationsV2 from "@/components/flows/onboarding/Step3HiringLocationsV2";
 import Step4FinishAdminOnboarding from "@/components/flows/onboarding/Step4FinishAdminOnboarding";
 const FLOW_STEPS = [{
   id: "admin_account",
@@ -167,7 +167,7 @@ const CompanyAdminOnboarding = () => {
       case "company_details":
         return <Step2CompanyDetailsOnly {...commonProps} />;
       case "localization_country_blocks":
-        return <Step3Localization {...commonProps} showSkipButton={false} />;
+        return <Step3HiringLocationsV2 {...commonProps} showSkipButton={false} />;
       case "finish_dashboard_transition":
         return <Step4FinishAdminOnboarding {...commonProps} />;
       default:
