@@ -1181,12 +1181,17 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
         {/* Column Body */}
         <div className="p-2 rounded-b-lg border-x border-b bg-card/30 border-border min-h-[200px] space-y-2">
           {onboardCandidateContractors.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Sparkles className="h-8 w-8 text-muted-foreground/50 mb-2" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-sm font-medium text-foreground mb-1">
+                No candidates to onboard
+              </h3>
               <p className="text-xs text-muted-foreground">
                 Candidates ready for onboarding will appear here
               </p>
-            </div>
+            </motion.div>
           ) : (
             <AnimatePresence mode="popLayout">
               {onboardCandidateContractors.map((contractor) => (
