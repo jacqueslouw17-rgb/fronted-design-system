@@ -45,6 +45,12 @@ const Step1AdminAccount = ({ formData, onComplete, isProcessing = false, isLoadi
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
+      {/* Sign In Header */}
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold text-foreground">Sign in</h2>
+        <p className="text-sm text-muted-foreground">Use your default credentials from the email.</p>
+      </div>
+
       {/* Account Setup Form */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
         <AuthOptions 
