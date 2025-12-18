@@ -54,7 +54,7 @@ const F42v3_ContractorDashboardPage = () => {
     <RoleLensProvider initialRole="contractor">
       <TooltipProvider>
         <div className="flex flex-col min-h-screen bg-background">
-          <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2" dashboardUrl="/candidate-dashboard-contractor-v3" />
+          <Topbar userName={candidateProfile.name} profileSettingsUrl="/candidate/profile-settings-v2?returnUrl=/candidate-dashboard-contractor-v3" dashboardUrl="/candidate-dashboard-contractor-v3" />
 
           <div className="flex-1">
             <AgentLayout context="Contractor Dashboard v3">

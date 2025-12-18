@@ -4,8 +4,8 @@
  * This is isolated to Flow 4 v2 and does not affect other flows
  */
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { X, User, FileCheck, CreditCard, Briefcase, ChevronRight, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,11 +70,36 @@ const PROFILE_STEPS = [
 
 const CandidateProfileSettingsV2 = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isSpeaking } = useAgentState();
   const [currentSection, setCurrentSection] = useState<Section>("overview");
   const [currentProfileStep, setCurrentProfileStep] = useState<ProfileStep>(1);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Determine return URL based on referrer or query param
+  const getReturnUrl = () => {
+    // Check for explicit return URL in state or search params
+    const searchParams = new URLSearchParams(location.search);
+    const returnUrl = searchParams.get('returnUrl') || (location.state as any)?.returnUrl;
+    if (returnUrl) return returnUrl;
+    
+    // Check referrer to determine which dashboard the user came from
+    const referrer = document.referrer;
+    if (referrer.includes('candidate-dashboard-contractor-v3')) {
+      return '/candidate-dashboard-contractor-v3';
+    }
+    if (referrer.includes('candidate-dashboard-employee-v3')) {
+      return '/candidate-dashboard-employee-v3';
+    }
+    
+    // Default fallback
+    return '/flows/candidate-dashboard-v2';
+  };
+  
+  const handleClose = () => {
+    navigate(getReturnUrl());
+  };
   
   // Pre-filled form data (from completed onboarding)
   const [formData, setFormData] = useState({
@@ -143,12 +168,12 @@ const CandidateProfileSettingsV2 = () => {
         src={frontedLogo}
         alt="Fronted"
         className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => navigate("/flows/candidate-dashboard-v2")}
+        onClick={handleClose}
       />
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => navigate("/flows/candidate-dashboard-v2")}
+        onClick={handleClose}
         className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
       >
         <X className="h-4 w-4 sm:h-5 sm:w-5" />
