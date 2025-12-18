@@ -572,41 +572,6 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                 </div>
               )}
 
-              {/* Worker can edit? control - only for prefilled + shown fields */}
-              {showEditabilityControl && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[11px] text-muted-foreground font-medium">Worker can edit?</span>
-                  </div>
-                  <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
-                    <button
-                      type="button"
-                      onClick={() => handleEditabilityChange(field.id, "editable")}
-                      className={cn(
-                        "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
-                        field.editability !== "readonly"
-                          ? "bg-background text-foreground shadow-sm" 
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      Editable
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEditabilityChange(field.id, "readonly")}
-                      className={cn(
-                        "px-2 py-1 text-[11px] font-medium rounded-sm transition-all flex items-center gap-1",
-                        field.editability === "readonly"
-                          ? "bg-background text-foreground shadow-sm" 
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <Lock className="h-3 w-3" />
-                      Read-only
-                    </button>
-                  </div>
-                </div>
-              )}
               
               {/* Dynamic helper text */}
               <p className="text-[10px] text-muted-foreground mt-1.5">
@@ -757,41 +722,6 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
                   </div>
                 )}
 
-                {/* Worker can edit? control - only for prefilled + shown fields */}
-                {showEditabilityControl && (
-                  <div className="mt-2">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-[11px] text-muted-foreground font-medium">Worker can edit?</span>
-                    </div>
-                    <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => handleCustomFieldEditabilityChange(field.id, "editable")}
-                        className={cn(
-                          "px-2 py-1 text-[11px] font-medium rounded-sm transition-all",
-                          field.editability !== "readonly"
-                            ? "bg-background text-foreground shadow-sm" 
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        Editable
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleCustomFieldEditabilityChange(field.id, "readonly")}
-                        className={cn(
-                          "px-2 py-1 text-[11px] font-medium rounded-sm transition-all flex items-center gap-1",
-                          field.editability === "readonly"
-                            ? "bg-background text-foreground shadow-sm" 
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <Lock className="h-3 w-3" />
-                        Read-only
-                      </button>
-                    </div>
-                  </div>
-                )}
                 
                 {/* Dynamic helper text */}
                 <p className="text-[10px] text-muted-foreground mt-1.5">
@@ -1123,39 +1053,6 @@ export const V4_ConfigureCandidateDetailsDrawer: React.FC<V4_ConfigureCandidateD
               <Switch checked={formFieldEnabled} onCheckedChange={setFormFieldEnabled} />
             </div>
 
-            {/* Editability control - only for prefilled + shown */}
-            {formFieldFilledBy === "prefilled" && formFieldEnabled && (
-              <div className="space-y-2">
-                <Label className="text-sm">Candidate can edit?</Label>
-                <div className="inline-flex rounded-md border border-border/60 bg-muted/30 p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setFormFieldEditability("editable")}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-sm transition-all",
-                      formFieldEditability === "editable" 
-                        ? "bg-background text-foreground shadow-sm" 
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    Editable
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormFieldEditability("readonly")}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-sm transition-all flex items-center gap-1",
-                      formFieldEditability === "readonly" 
-                        ? "bg-background text-foreground shadow-sm" 
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Lock className="h-3 w-3" />
-                    Read-only
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <DialogFooter>
