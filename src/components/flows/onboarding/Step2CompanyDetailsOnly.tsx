@@ -156,6 +156,9 @@ const Step2CompanyDetailsOnly = ({
             {errors.hqCountry && (
               <p className="text-xs text-destructive">{errors.hqCountry}</p>
             )}
+            <p className="text-xs text-muted-foreground">
+              Legal headquarters of your company. This does not limit where you can hire employees or contractors.
+            </p>
           </div>
 
         </div>
