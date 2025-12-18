@@ -20,18 +20,43 @@ interface FrontedAdminV4NewCompanyDrawerProps {
 }
 
 const COUNTRIES = [
-  { code: "PH", name: "Philippines" },
-  { code: "SG", name: "Singapore" },
-  { code: "US", name: "United States" },
-  { code: "DE", name: "Germany" },
-  { code: "FR", name: "France" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "NO", name: "Norway" },
-  { code: "MX", name: "Mexico" },
-  { code: "PT", name: "Portugal" },
-  { code: "IT", name: "Italy" },
-  { code: "JP", name: "Japan" },
-  { code: "AU", name: "Australia" },
+  // Nordic
+  { code: "NO", name: "🇳🇴 Norway" },
+  { code: "DK", name: "🇩🇰 Denmark" },
+  { code: "SE", name: "🇸🇪 Sweden" },
+  { code: "FI", name: "🇫🇮 Finland" },
+  { code: "IS", name: "🇮🇸 Iceland" },
+  // Europe
+  { code: "GB", name: "🇬🇧 United Kingdom" },
+  { code: "DE", name: "🇩🇪 Germany" },
+  { code: "FR", name: "🇫🇷 France" },
+  { code: "NL", name: "🇳🇱 Netherlands" },
+  { code: "BE", name: "🇧🇪 Belgium" },
+  { code: "IE", name: "🇮🇪 Ireland" },
+  { code: "ES", name: "🇪🇸 Spain" },
+  { code: "PT", name: "🇵🇹 Portugal" },
+  { code: "IT", name: "🇮🇹 Italy" },
+  { code: "CH", name: "🇨🇭 Switzerland" },
+  { code: "AT", name: "🇦🇹 Austria" },
+  { code: "PL", name: "🇵🇱 Poland" },
+  { code: "XK", name: "🇽🇰 Kosovo" },
+  // Americas
+  { code: "US", name: "🇺🇸 United States" },
+  { code: "CA", name: "🇨🇦 Canada" },
+  { code: "MX", name: "🇲🇽 Mexico" },
+  { code: "BR", name: "🇧🇷 Brazil" },
+  // Asia & Pacific
+  { code: "IN", name: "🇮🇳 India" },
+  { code: "PH", name: "🇵🇭 Philippines" },
+  { code: "SG", name: "🇸🇬 Singapore" },
+  { code: "AU", name: "🇦🇺 Australia" },
+  { code: "NZ", name: "🇳🇿 New Zealand" },
+  { code: "JP", name: "🇯🇵 Japan" },
+  { code: "KR", name: "🇰🇷 South Korea" },
+  // Middle East & Africa
+  { code: "AE", name: "🇦🇪 United Arab Emirates" },
+  { code: "ZA", name: "🇿🇦 South Africa" },
+  { code: "IL", name: "🇮🇱 Israel" },
 ];
 
 const CURRENCIES = [
@@ -120,12 +145,12 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="country">Country / Region *</Label>
+            <Label htmlFor="country">Primary Legal Entity Country *</Label>
             <Select value={country} onValueChange={setCountry}>
               <SelectTrigger id="country">
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
-              <SelectContent className="bg-background z-50">
+              <SelectContent className="bg-background z-50 max-h-[280px]">
                 {COUNTRIES.map((c) => (
                   <SelectItem key={c.code} value={c.code}>
                     {c.name}
@@ -133,6 +158,9 @@ export const FrontedAdminV4NewCompanyDrawer: React.FC<FrontedAdminV4NewCompanyDr
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Where the company is legally registered. Additional entities can be added later.
+            </p>
           </div>
 
           <div className="space-y-2">
