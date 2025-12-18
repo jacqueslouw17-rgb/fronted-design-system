@@ -1460,7 +1460,7 @@ export const V4_PipelineWithPayrollDetails: React.FC<V4_PipelineWithPayrollDetai
                           <>
                             <div className="pt-1 pb-1 text-center">
                               <p className="text-xs text-muted-foreground">
-                                Waiting for worker to complete onboarding
+                                Awaiting onboarding completion
                               </p>
                               {contractor.onboardingFormLastSentAt && (
                                 <p className="text-[10px] text-muted-foreground/70 mt-0.5">
