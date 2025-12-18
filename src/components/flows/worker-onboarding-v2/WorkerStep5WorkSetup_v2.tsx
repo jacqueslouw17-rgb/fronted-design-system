@@ -48,10 +48,10 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
   };
 
   const isValid = data.deviceProvided === undefined
-    ? data.agreementSigned
+    ? true
     : data.deviceProvided 
-      ? data.assetAcknowledged && data.agreementSigned
-      : data.agreementSigned;
+      ? data.assetAcknowledged
+      : true;
 
 
   return (
@@ -167,21 +167,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
       </div>
 
 
-      <div className="flex items-start space-x-2">
-        <Checkbox
-          id="agreementSign"
-          checked={data.agreementSigned}
-          onCheckedChange={(checked) => 
-            setData({ ...data, agreementSigned: checked as boolean })
-          }
-        />
-        <label
-          htmlFor="agreementSign"
-          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          I have read and agree to the employment agreement terms
-        </label>
-      </div>
 
 
       <Button
