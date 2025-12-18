@@ -3,6 +3,7 @@
  * 
  * Detached clone of EmbeddedAdminOnboarding from v3.
  * Full-screen Add New Company flow within v4.
+ * Uses V4_Step2OrgProfile for Primary Legal Entity Country field.
  */
 
 import { useState, useRef, useEffect } from "react";
