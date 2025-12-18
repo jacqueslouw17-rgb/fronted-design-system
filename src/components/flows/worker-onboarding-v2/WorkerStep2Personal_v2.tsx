@@ -134,55 +134,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
 
   const isValid = data.fullName && data.email && data.phone;
 
-  if (isLoading || isLoadingFields) {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="loading"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="space-y-6 p-6">
-            <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <AudioWaveVisualizer isActive={true} />
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4 }}
-                className="text-center space-y-2"
-              >
-                <h3 className="text-lg font-semibold">Retrieving your details</h3>
-                <p className="text-sm text-muted-foreground">Please wait a moment</p>
-              </motion.div>
-            </div>
-            
-            <div className="space-y-4">
-              {[0, 1, 2, 3, 4, 5].map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 1, y: 0 }}
-                  exit={{ 
-                    opacity: 0, 
-                    y: -6,
-                    transition: {
-                      duration: 0.4,
-                      delay: index * 0.15,
-                      ease: "easeOut"
-                    }
-                  }}
-                  className="space-y-2"
-                >
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
 
   return (
     <AnimatePresence mode="wait">
@@ -215,16 +166,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
               Full Name *
               <Lock className="h-3 w-3 text-muted-foreground" />
             </Label>
-            {autoFilledFields.has('fullName') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             id="fullName"
@@ -237,16 +178,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="email">Email Address *</Label>
-            {autoFilledFields.has('email') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             id="email"
@@ -260,16 +191,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="phone">Phone Number *</Label>
-            {autoFilledFields.has('phone') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             id="phone"
@@ -287,16 +208,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
               Date of Birth *
               <Lock className="h-3 w-3 text-muted-foreground" />
             </Label>
-            {autoFilledFields.has('dateOfBirth') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             value={data.dateOfBirth ? data.dateOfBirth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
@@ -312,16 +223,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
               Nationality *
               <Lock className="h-3 w-3 text-muted-foreground" />
             </Label>
-            {autoFilledFields.has('nationality') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             value={data.nationality === 'PH' ? '🇵🇭 Filipino' : data.nationality}
@@ -337,16 +238,6 @@ const WorkerStep2Personal_v2 = ({ formData, onComplete, isProcessing, isLoadingF
               Residential Address *
               <Lock className="h-3 w-3 text-muted-foreground" />
             </Label>
-            {autoFilledFields.has('address') && (
-              <motion.span
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
-              >
-                <Sparkles className="h-3 w-3" />
-                Auto-filled by Kurt
-              </motion.span>
-            )}
           </div>
           <Input
             id="address"

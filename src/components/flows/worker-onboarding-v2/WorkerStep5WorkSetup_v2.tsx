@@ -53,15 +53,6 @@ const WorkerStep5WorkSetup_v2 = ({ formData, onComplete, isProcessing, isLoading
       ? data.assetAcknowledged && data.agreementSigned
       : data.agreementSigned;
 
-  if (isLoadingFields) {
-    return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 p-6">
