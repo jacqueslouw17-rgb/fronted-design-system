@@ -209,7 +209,21 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
         {candidate && <div className="space-y-6 mt-6">
             {/* Progress Bar */}
-            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Signing Progress</span>
+                <span className="font-semibold">{Math.round(getProgressPercentage())}%</span>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <motion.div className="h-full bg-gradient-primary" initial={{
+              width: 0
+            }} animate={{
+              width: `${getProgressPercentage()}%`
+            }} transition={{
+              duration: 0.5
+            }} />
+              </div>
+            </div>
 
             {/* Current Status Badge */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
