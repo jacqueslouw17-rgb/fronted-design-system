@@ -211,6 +211,31 @@ const V4_Step2OrgProfile = ({
             </p>
           </div>
 
+        </div>
+      </div>
+
+      {/* Payroll Frequency & Payout Schedule */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Calendar className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+            Payroll Details
+          </h3>
+        </div>
+        
+        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
+          <div className="flex items-start gap-2.5 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Monthly payroll frequency
+              </p>
+              <p className="text-xs text-blue-700/80 dark:text-blue-300/70">
+                We currently support monthly payroll cycles. This ensures consistent processing and makes it easier to manage your team's payments.
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="payrollCurrency" className="text-sm">
               Payroll Currencies
@@ -292,30 +317,6 @@ const V4_Step2OrgProfile = ({
             <p className="text-xs text-muted-foreground">
               Choose the currencies you'll use for payroll. You can adjust this later for each country setup.
             </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Payroll Frequency & Payout Schedule */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Calendar className="h-4 w-4 text-primary" />
-          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Payroll Details
-          </h3>
-        </div>
-        
-        <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-          <div className="flex items-start gap-2.5 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
-            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                Monthly payroll frequency
-              </p>
-              <p className="text-xs text-blue-700/80 dark:text-blue-300/70">
-                We currently support monthly payroll cycles. This ensures consistent processing and makes it easier to manage your team's payments.
-              </p>
-            </div>
           </div>
 
           <div className="space-y-2">
