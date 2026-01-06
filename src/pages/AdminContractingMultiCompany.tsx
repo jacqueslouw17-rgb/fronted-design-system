@@ -633,7 +633,8 @@ const AdminContractingMultiCompany = () => {
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }} 
-                    className="flex flex-col items-center justify-center min-h-full p-8"
+                    className="flex flex-col items-center justify-center p-8"
+                    style={{ minHeight: 'calc(100vh - 80px)' }}
                   >
                     <div className="flex flex-col items-center text-center space-y-6">
                       <AgentHeader
