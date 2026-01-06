@@ -215,7 +215,7 @@ const EmbeddedAdminOnboarding = ({
   const stepsToShow = isEditMode 
     ? FLOW_STEPS.filter(s => s.id !== "finish_dashboard_transition") 
     : FLOW_STEPS;
-  const currentStepIndex = isEditMode ? stepsToShow.length : stepsToShow.findIndex(s => s.id === state.currentStep);
+  const currentStepIndex = isEditMode ? stepsToShow.length - 1 : stepsToShow.findIndex(s => s.id === state.currentStep);
   const totalSteps = stepsToShow.length;
 
   return (
