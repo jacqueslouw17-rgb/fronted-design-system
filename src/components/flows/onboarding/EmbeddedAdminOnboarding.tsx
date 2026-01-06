@@ -197,7 +197,13 @@ const EmbeddedAdminOnboarding = ({
           />
         );
       case "localization_country_blocks":
-        return <Step3Localization {...stepProps} />;
+        return (
+          <Step3Localization 
+            {...stepProps} 
+            showSkipButton={!isEditMode}
+            isEditMode={isEditMode}
+          />
+        );
       case "finish_dashboard_transition":
         return <Step7Finish {...stepProps} />;
       default:
@@ -205,8 +211,11 @@ const EmbeddedAdminOnboarding = ({
     }
   };
 
-  const stepsToShow = FLOW_STEPS;
-  const currentStepIndex = stepsToShow.findIndex(s => s.id === state.currentStep);
+  // In edit mode, show all steps except finish, and mark them all as completed
+  const stepsToShow = isEditMode 
+    ? FLOW_STEPS.filter(s => s.id !== "finish_dashboard_transition") 
+    : FLOW_STEPS;
+  const currentStepIndex = isEditMode ? stepsToShow.length : stepsToShow.findIndex(s => s.id === state.currentStep);
   const totalSteps = stepsToShow.length;
 
   return (
@@ -264,7 +273,8 @@ const EmbeddedAdminOnboarding = ({
         {/* Step Cards */}
         <div className="space-y-3">
           {stepsToShow.map((step, index) => {
-            const status = getStepStatus(step.id);
+            // In edit mode, all steps should be clickable (completed state)
+            const status = isEditMode ? 'completed' : getStepStatus(step.id);
             const isExpanded = expandedStep === step.id;
             const headerId = `step-header-${step.id}`;
             
