@@ -268,6 +268,27 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="employmentType">Employment Type *</Label>
+                  <Select 
+                    value={formData.employmentType} 
+                    onValueChange={(value: "contractor" | "employee") => 
+                      setFormData(prev => ({ ...prev, employmentType: value }))
+                    }
+                  >
+                    <SelectTrigger id="employmentType">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="contractor">Contractor</SelectItem>
+                      <SelectItem value="employee">Employee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {isATSSelected && (
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="role">Role *</Label>
                   <Input
                     id="role"
@@ -298,27 +319,6 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     value={formData.startDate}
                     onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="employmentType">Employment Type *</Label>
-                  <Select 
-                    value={formData.employmentType} 
-                    onValueChange={(value: "contractor" | "employee") => 
-                      setFormData(prev => ({ ...prev, employmentType: value }))
-                    }
-                  >
-                    <SelectTrigger id="employmentType">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="contractor">Contractor</SelectItem>
-                      <SelectItem value="employee">Employee</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {isATSSelected && (
-                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                  )}
                 </div>
               </div>
 
