@@ -203,6 +203,8 @@ const EmbeddedAdminOnboarding = ({
             {...stepProps} 
             showSkipButton={!isEditMode}
             isEditMode={isEditMode}
+            hasCandidates={hasCandidates}
+            existingCountries={initialData?.selectedCountries || []}
           />
         );
       case "finish_dashboard_transition":
