@@ -88,7 +88,7 @@ const statusConfig = {
     label: "Collect Candidate Details",
     color: "bg-accent-yellow-fill/30 border-accent-yellow-outline/20",
     badgeColor: "bg-accent-yellow-fill text-accent-yellow-text border-accent-yellow-outline/30",
-    tooltip: "Gather info needed to generate their contract"
+    tooltip: "Waiting for candidate to submit details for contract prep"
   },
   "drafting": {
     label: "Prepare Contract",
