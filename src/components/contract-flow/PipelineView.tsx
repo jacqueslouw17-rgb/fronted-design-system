@@ -1095,7 +1095,21 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                         <div className="flex flex-col gap-1.5 text-[11px]">
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Salary</span>
-                            <span className="font-medium text-foreground">{contractor.salary}</span>
+                            <span className="font-medium text-foreground">
+                              {contractor.employmentType === "contractor" 
+                                ? "$" 
+                                : contractor.country === "Philippines" 
+                                  ? "₱" 
+                                  : contractor.country === "Norway" 
+                                    ? "kr " 
+                                    : contractor.country === "India" 
+                                      ? "₹" 
+                                      : contractor.country === "Singapore" 
+                                        ? "S$" 
+                                        : contractor.country === "Mexico" 
+                                          ? "$" 
+                                          : "$"}{contractor.salary}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Country</span>
