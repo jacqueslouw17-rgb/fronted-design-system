@@ -46,7 +46,7 @@ interface EmbeddedAdminOnboardingProps {
 const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus, getStepData } = useAdminFlowBridge();
-  const { resetAdminFlow } = useOnboardingStore();
+  const { resetAdminFlow, updateAdminStepData } = useOnboardingStore();
   
   const { currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -77,9 +77,9 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
   const handleStepComplete = async (stepId: string, data?: any) => {
     setIsProcessing(true);
 
-    // Update form data if provided
+    // Update form data if provided - explicitly save under the step's ID
     if (data) {
-      updateFormData(data);
+      updateAdminStepData(stepId, data);
     }
     
     // Complete the step
