@@ -39,11 +39,25 @@ const FLOW_STEPS = [
 ];
 
 interface EmbeddedAdminOnboardingProps {
-  onComplete: (companyName: string) => void;
+  onComplete: (companyName: string, companyData?: Record<string, any>) => void;
   onCancel: () => void;
+  // Edit mode props
+  isEditMode?: boolean;
+  editModeTitle?: string;
+  initialData?: Record<string, any>;
+  hasSignedContract?: boolean;
+  hasCandidates?: boolean;
 }
 
-const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardingProps) => {
+const EmbeddedAdminOnboarding = ({ 
+  onComplete, 
+  onCancel, 
+  isEditMode = false,
+  editModeTitle,
+  initialData,
+  hasSignedContract = false,
+  hasCandidates = false,
+}: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus, getStepData } = useAdminFlowBridge();
   const { resetAdminFlow, updateAdminStepData } = useOnboardingStore();
@@ -64,10 +78,14 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
   useEffect(() => {
     if (!hasInitialized.current) {
       resetAdminFlow();
+      // In edit mode, pre-populate the form data
+      if (isEditMode && initialData) {
+        updateAdminStepData("org_profile", initialData);
+      }
       setExpandedStep("org_profile");
       hasInitialized.current = true;
     }
-  }, [resetAdminFlow, setExpandedStep]);
+  }, [resetAdminFlow, setExpandedStep, isEditMode, initialData, updateAdminStepData]);
 
   // Scroll to step helper
   const scrollToStep = (stepId: string) => {
@@ -85,6 +103,22 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     // Complete the step
     completeStep(stepId);
 
+    // In edit mode, only show the org_profile step and complete immediately
+    if (isEditMode && stepId === "org_profile") {
+      const companyName = data?.companyName || "Company";
+      
+      toast({
+        title: "Company Updated",
+        description: `${companyName} has been updated successfully!`,
+      });
+
+      setTimeout(() => {
+        onComplete(companyName, data);
+      }, 500);
+      setIsProcessing(false);
+      return;
+    }
+
     // Check if this is the final step
     if (stepId === "finish_dashboard_transition") {
       // Read company name directly from store to ensure we get the latest saved value
@@ -97,7 +131,7 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
       });
 
       setTimeout(() => {
-        onComplete(companyName);
+        onComplete(companyName, orgProfileData);
       }, 500);
     } else {
       // Move to next step
@@ -153,7 +187,15 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
 
     switch (stepId) {
       case "org_profile":
-        return <Step2OrgProfileSimplified {...stepProps} />;
+        return (
+          <Step2OrgProfileSimplified 
+            {...stepProps} 
+            isEditMode={isEditMode}
+            editModeTitle={editModeTitle}
+            hasSignedContract={hasSignedContract}
+            hasCandidates={hasCandidates}
+          />
+        );
       case "localization_country_blocks":
         return <Step3Localization {...stepProps} />;
       case "finish_dashboard_transition":
@@ -163,8 +205,10 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
     }
   };
 
-  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
-  const totalSteps = FLOW_STEPS.length;
+  // In edit mode, only show org_profile step
+  const stepsToShow = isEditMode ? FLOW_STEPS.filter(s => s.id === "org_profile") : FLOW_STEPS;
+  const currentStepIndex = stepsToShow.findIndex(s => s.id === state.currentStep);
+  const totalSteps = stepsToShow.length;
 
   return (
     <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
@@ -203,27 +247,33 @@ const EmbeddedAdminOnboarding = ({ onComplete, onCancel }: EmbeddedAdminOnboardi
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             className="text-center space-y-3 max-w-2xl"
           >
-            <h1 className="text-3xl font-bold text-foreground">Add New Company</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {isEditMode ? editModeTitle || "Edit Company" : "Add New Company"}
+            </h1>
             <p className="text-base text-center text-muted-foreground">
-              Let's set up your new company and get ready to start managing contracts.
+              {isEditMode 
+                ? "Update your company details below."
+                : "Let's set up your new company and get ready to start managing contracts."}
             </p>
           </motion.div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-        </div>
+        {/* Progress Bar - only show in add mode */}
+        {!isEditMode && (
+          <div className="mb-8">
+            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+          </div>
+        )}
 
         {/* Step Cards */}
         <div className="space-y-3">
-          {FLOW_STEPS.map((step, index) => {
+          {stepsToShow.map((step, index) => {
             const status = getStepStatus(step.id);
             const isExpanded = expandedStep === step.id;
             const headerId = `step-header-${step.id}`;
             
-            const currentIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
-            const isLocked = index > currentIndex && status === 'inactive';
+            const currentIndex = stepsToShow.findIndex(s => s.id === state.currentStep);
+            const isLocked = !isEditMode && index > currentIndex && status === 'inactive';
 
             // Generate subtitle for step 3 (localization) when collapsed
             let subtitle = undefined;

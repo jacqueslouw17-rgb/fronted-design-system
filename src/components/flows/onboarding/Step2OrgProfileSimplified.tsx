@@ -27,6 +27,12 @@ interface Step2Props {
   isProcessing?: boolean;
   isLoadingFields?: boolean;
   showAutoFillLoading?: boolean; // allow disabling auto-fill spinner in settings
+  // Edit mode props
+  isEditMode?: boolean;
+  editModeTitle?: string;
+  hasSignedContract?: boolean; // Business rule: Company name can't change if signed contract exists
+  hasCandidates?: boolean; // Business rule: restrictions apply if candidates added
+  existingCountries?: string[]; // Countries already set (can only add, not remove if candidates exist)
 }
 
 const Step2OrgProfileSimplified = ({ 
@@ -35,6 +41,11 @@ const Step2OrgProfileSimplified = ({
   isProcessing: externalProcessing, 
   isLoadingFields = false,
   showAutoFillLoading = false,
+  isEditMode = false,
+  editModeTitle,
+  hasSignedContract = false,
+  hasCandidates = false,
+  existingCountries = [],
 }: Step2Props) => {
   const [data, setData] = useState({
     companyName: formData.companyName || "",
@@ -119,6 +130,11 @@ const Step2OrgProfileSimplified = ({
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
+      {/* Edit Mode Title */}
+      {isEditMode && editModeTitle && (
+        <h2 className="text-lg font-semibold text-foreground">{editModeTitle}</h2>
+      )}
+      
       {/* Company Information */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
@@ -139,7 +155,17 @@ const Step2OrgProfileSimplified = ({
               onChange={(e) => handleFieldChange('companyName', e.target.value)}
               placeholder="Fronted Test Co"
               className="text-sm"
+              disabled={isEditMode && hasSignedContract}
+              readOnly={isEditMode && hasSignedContract}
             />
+            {isEditMode && hasSignedContract && (
+              <p className="text-xs text-muted-foreground">
+                Company name cannot be changed as there are signed contracts for this company.
+              </p>
+            )}
+            {errors.companyName && (
+              <p className="text-xs text-destructive">{errors.companyName}</p>
+            )}
             {errors.companyName && (
               <p className="text-xs text-destructive">{errors.companyName}</p>
             )}
@@ -172,7 +198,14 @@ const Step2OrgProfileSimplified = ({
               onChange={(e) => handleFieldChange('adminEmail', e.target.value)}
               placeholder="admin@company.com"
               className="text-sm"
+              disabled={isEditMode}
+              readOnly={isEditMode}
             />
+            {isEditMode && (
+              <p className="text-xs text-muted-foreground">
+                Email cannot be changed as it is linked to this company's account.
+              </p>
+            )}
             {errors.adminEmail && (
               <p className="text-xs text-destructive">{errors.adminEmail}</p>
             )}
@@ -366,6 +399,8 @@ const Step2OrgProfileSimplified = ({
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Saving...
           </>
+        ) : isEditMode ? (
+          "Save Changes"
         ) : (
           "Continue"
         )}
