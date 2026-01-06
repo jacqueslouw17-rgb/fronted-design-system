@@ -191,7 +191,6 @@ const EmbeddedAdminOnboarding = ({
           <Step2OrgProfileSimplified 
             {...stepProps} 
             isEditMode={isEditMode}
-            editModeTitle={editModeTitle}
             hasSignedContract={hasSignedContract}
             hasCandidates={hasCandidates}
           />
