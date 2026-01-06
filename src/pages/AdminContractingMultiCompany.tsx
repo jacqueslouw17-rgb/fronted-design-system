@@ -184,6 +184,9 @@ const AdminContractingMultiCompany = () => {
     });
     
     setIsAddingNewCompany(false);
+    
+    // Scroll to top after returning to dashboard
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleCancelAddCompany = () => {
