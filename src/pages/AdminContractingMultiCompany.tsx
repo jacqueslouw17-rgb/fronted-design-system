@@ -277,6 +277,13 @@ const AdminContractingMultiCompany = () => {
     setIsAddingNewCompany(false);
   };
 
+  // Clear localStorage when leaving the flow (back arrow)
+  const handleBackToFlows = () => {
+    localStorage.removeItem('adminflow-companies');
+    localStorage.removeItem('adminflow-selected-company');
+    localStorage.removeItem('adminflow-company-contractors');
+  };
+
   const handleAddCandidate = () => {
     setIsAddCandidateDrawerOpen(true);
   };
@@ -616,6 +623,7 @@ const AdminContractingMultiCompany = () => {
           onDrawerToggle={toggleDrawer}
           profileSettingsUrl="/fronted-admin/profile-settings"
           profileMenuLabel="Profile Settings"
+          onBackClick={handleBackToFlows}
           companySwitcher={hasNoCompanies ? undefined : {
             companies,
             selectedCompany,

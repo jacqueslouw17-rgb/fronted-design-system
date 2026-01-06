@@ -50,6 +50,7 @@ interface TopbarProps {
   profileSettingsUrl?: string; // Custom profile settings URL
   profileMenuLabel?: string; // Custom label for profile menu item (default: "Profile Settings")
   dashboardUrl?: string; // Custom dashboard URL for logo click
+  onBackClick?: () => void; // Custom callback when back arrow is clicked (runs before navigation)
   companySwitcher?: {
     companies: Array<{ id: string; name: string; adminEmail?: string; hqCountry?: string; payrollCurrency?: string[]; payoutDay?: string }>;
     selectedCompany: string;
@@ -58,7 +59,7 @@ interface TopbarProps {
   };
 }
 
-const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, companySwitcher }: TopbarProps) => {
+const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle, isDrawerOpen, onDrawerToggle, profileSettingsUrl = "/admin/profile-settings", profileMenuLabel, dashboardUrl, onBackClick, companySwitcher }: TopbarProps) => {
   const navigate = useNavigate();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
@@ -103,7 +104,10 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/?tab=flows")}
+          onClick={() => {
+            onBackClick?.();
+            navigate("/?tab=flows");
+          }}
           className="hover:bg-transparent flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
         >
           <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
