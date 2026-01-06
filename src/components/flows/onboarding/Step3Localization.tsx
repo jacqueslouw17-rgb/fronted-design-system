@@ -15,6 +15,8 @@ interface Step3Props {
   isLoadingFields?: boolean;
   showSkipButton?: boolean;
   isEditMode?: boolean;
+  hasCandidates?: boolean; // Business rule: can only add, not remove existing countries if candidates exist
+  existingCountries?: string[]; // Countries already set when editing
 }
 
 const COUNTRIES = [
@@ -44,14 +46,36 @@ const COUNTRIES = [
   }
 ];
 
-const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false, showSkipButton = true, isEditMode = false }: Step3Props) => {
+const Step3Localization = ({ 
+  formData, 
+  onComplete, 
+  isProcessing: externalProcessing, 
+  isLoadingFields = false, 
+  showSkipButton = true, 
+  isEditMode = false,
+  hasCandidates = false,
+  existingCountries = []
+}: Step3Props) => {
   const hasPersistedData = formData && formData.selectedCountries && formData.selectedCountries.length > 0;
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
   );
   const [loading, setLoading] = useState(false);
 
+  // Determine which countries are locked (existing countries when candidates exist)
+  const lockedCountries = isEditMode && hasCandidates ? existingCountries : [];
+
   const toggleCountry = (code: string) => {
+    // Prevent removing locked countries (existing countries when candidates exist)
+    if (lockedCountries.includes(code) && selectedCountries.includes(code)) {
+      toast({
+        title: "Cannot remove location",
+        description: "This hiring location has candidates and cannot be removed.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setSelectedCountries(prev =>
       prev.includes(code)
         ? prev.filter(c => c !== code)
@@ -119,6 +143,7 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
           <div className="grid grid-cols-1 gap-2">
             {COUNTRIES.map((country) => {
             const isSelected = selectedCountries.includes(country.code);
+            const isLocked = lockedCountries.includes(country.code);
             return (
               <div
                 key={country.code}
@@ -127,15 +152,19 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
                   "p-3 rounded-lg border cursor-pointer transition-all text-sm",
                   isSelected
                     ? "border-primary bg-primary/5"
-                    : "border-border/50 hover:border-primary/30 bg-card/30"
+                    : "border-border/50 hover:border-primary/30 bg-card/30",
+                  isLocked && isSelected && "cursor-not-allowed opacity-75"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{country.flag}</span>
                     <span className="font-medium">{country.name}</span>
+                    {isLocked && isSelected && (
+                      <span className="text-xs text-muted-foreground">(has candidates)</span>
+                    )}
                   </div>
-                  <Checkbox checked={isSelected} />
+                  <Checkbox checked={isSelected} disabled={isLocked && isSelected} />
                 </div>
               </div>
             );
