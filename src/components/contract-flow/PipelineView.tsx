@@ -1115,6 +1115,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <span className="text-muted-foreground">Country</span>
                             <span className="font-medium text-foreground">{contractor.country}</span>
                           </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type</span>
+                            <span className="font-medium text-foreground">
+                              {contractor.employmentType === "contractor" ? "Contractor (COR)" : "Employee"}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Quick Actions */}
