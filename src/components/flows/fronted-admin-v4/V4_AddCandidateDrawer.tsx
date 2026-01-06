@@ -410,34 +410,6 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="v4-role" className="text-sm">
-                      Role <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="v4-role"
-                      value={formData.role}
-                      onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                      placeholder="e.g., Senior Developer"
-                      className="bg-background"
-                    />
-                    {isATSSelected && formData.role && (
-                      <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Section: Engagement & Compensation */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold">Engagement & Compensation</h3>
-                </div>
-
-                <div className="space-y-4 pl-6">
-                  <div className="space-y-2">
                     <Label htmlFor="v4-employmentType" className="text-sm">
                       Employment type <span className="text-destructive">*</span>
                     </Label>
@@ -465,6 +437,34 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                     )}
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="v4-role" className="text-sm">
+                      Role <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="v4-role"
+                      value={formData.role}
+                      onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                      placeholder="e.g., Senior Developer"
+                      className="bg-background"
+                    />
+                    {isATSSelected && formData.role && (
+                      <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Section: Engagement & Compensation */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold">Engagement & Compensation</h3>
+                </div>
+
+                <div className="space-y-4 pl-6">
                   {/* Currency field - only for contractors */}
                   {formData.employmentType === "contractor" && (
                     <div className="space-y-2">
