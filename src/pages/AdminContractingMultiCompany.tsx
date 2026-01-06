@@ -103,13 +103,37 @@ const AdminContractingMultiCompany = () => {
   const [searchParams] = useSearchParams();
   const { contractors, setContractors } = useContractorStore();
   
-  // Company switcher state - start empty for first-time admin
-  const [selectedCompany, setSelectedCompany] = useState<string>("");
+  // Company switcher state - persist to localStorage
+  const [selectedCompany, setSelectedCompany] = useState<string>(() => {
+    const saved = localStorage.getItem('adminflow-selected-company');
+    return saved || "";
+  });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
-  const [companies, setCompanies] = useState<CompanyData[]>(MOCK_COMPANIES);
-  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({});
+  const [companies, setCompanies] = useState<CompanyData[]>(() => {
+    const saved = localStorage.getItem('adminflow-companies');
+    return saved ? JSON.parse(saved) : MOCK_COMPANIES;
+  });
+  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
+    const saved = localStorage.getItem('adminflow-company-contractors');
+    return saved ? JSON.parse(saved) : {};
+  });
+  
+  // Persist companies to localStorage
+  useEffect(() => {
+    localStorage.setItem('adminflow-companies', JSON.stringify(companies));
+  }, [companies]);
+  
+  // Persist selected company to localStorage
+  useEffect(() => {
+    localStorage.setItem('adminflow-selected-company', selectedCompany);
+  }, [selectedCompany]);
+  
+  // Persist company contractors to localStorage
+  useEffect(() => {
+    localStorage.setItem('adminflow-company-contractors', JSON.stringify(companyContractors));
+  }, [companyContractors]);
   
   // Derived state: check if this is a first-time admin (no companies)
   const hasNoCompanies = companies.length === 0;
