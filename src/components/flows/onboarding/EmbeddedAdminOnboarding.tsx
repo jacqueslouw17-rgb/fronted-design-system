@@ -103,9 +103,10 @@ const EmbeddedAdminOnboarding = ({
     // Complete the step
     completeStep(stepId);
 
-    // In edit mode, only show the org_profile step and complete immediately
-    if (isEditMode && stepId === "org_profile") {
-      const companyName = data?.companyName || "Company";
+    // In edit mode, complete after the last step (finish)
+    if (isEditMode && stepId === "finish_dashboard_transition") {
+      const orgProfileData = getStepData("org_profile");
+      const companyName = orgProfileData?.companyName || "Company";
       
       toast({
         title: "Company Updated",
@@ -113,7 +114,7 @@ const EmbeddedAdminOnboarding = ({
       });
 
       setTimeout(() => {
-        onComplete(companyName, data);
+        onComplete(companyName, orgProfileData);
       }, 500);
       setIsProcessing(false);
       return;
@@ -204,8 +205,7 @@ const EmbeddedAdminOnboarding = ({
     }
   };
 
-  // In edit mode, only show org_profile step
-  const stepsToShow = isEditMode ? FLOW_STEPS.filter(s => s.id === "org_profile") : FLOW_STEPS;
+  const stepsToShow = FLOW_STEPS;
   const currentStepIndex = stepsToShow.findIndex(s => s.id === state.currentStep);
   const totalSteps = stepsToShow.length;
 
@@ -257,12 +257,9 @@ const EmbeddedAdminOnboarding = ({
           </motion.div>
         </div>
 
-        {/* Progress Bar - only show in add mode */}
-        {!isEditMode && (
-          <div className="mb-8">
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-          </div>
-        )}
+        <div className="mb-8">
+          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+        </div>
 
         {/* Step Cards */}
         <div className="space-y-3">
