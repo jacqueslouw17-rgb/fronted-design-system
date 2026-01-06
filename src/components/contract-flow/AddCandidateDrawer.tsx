@@ -263,7 +263,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   </Select>
                   {["Kosovo", "India", "Philippines"].includes(formData.country) ? (
                     <p className="text-xs text-muted-foreground">
-                      We currently only support contractor engagements in {formData.country}. Full employment coming soon!
+                      Contractor only in {formData.country}.
                     </p>
                   ) : isATSSelected ? (
                     <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
