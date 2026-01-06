@@ -70,22 +70,10 @@ import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import EmbeddedAdminOnboarding from "@/components/flows/onboarding/EmbeddedAdminOnboarding";
 import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
+import FirstTimeAdminEmptyState from "@/components/flows/empty-states/FirstTimeAdminEmptyState";
 
-// Mock companies data
-const MOCK_COMPANIES = [
-  { id: "1", name: "TechCorp Global" },
-  { id: "2", name: "InnovateLabs Inc." },
-  { id: "3", name: "Startup Ventures" },
-  { id: "4", name: "Digital Dynamics Ltd." },
-  { id: "5", name: "CloudScale Solutions" },
-  { id: "6", name: "NextGen Enterprises" },
-  { id: "7", name: "Quantum Systems Co." },
-  { id: "8", name: "FutureWorks International" },
-  { id: "9", name: "Apex Technologies" },
-  { id: "10", name: "Horizon Group" },
-  { id: "11", name: "Catalyst Innovations" },
-  { id: "12", name: "Vanguard Partners" },
-];
+// Mock companies data - start empty for first-time admin experience
+const MOCK_COMPANIES: { id: string; name: string }[] = [];
 
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
@@ -104,264 +92,14 @@ const AdminContractingMultiCompany = () => {
   const [searchParams] = useSearchParams();
   const { contractors, setContractors } = useContractorStore();
   
-  // Company switcher state
-  const [selectedCompany, setSelectedCompany] = useState<string>(MOCK_COMPANIES[0].id);
+  // Company switcher state - start empty for first-time admin
+  const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [companies, setCompanies] = useState(MOCK_COMPANIES);
-  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({
-    "1": [ // TechCorp Global
-      {
-        id: "contractor-1",
-        name: "Maria Santos",
-        country: "Philippines",
-        countryFlag: "🇵🇭",
-        role: "Senior Developer",
-        salary: "PHP 120,000/mo",
-        status: "offer-accepted" as const,
-        formSent: false,
-        dataReceived: false,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "maria.santos@email.com",
-      },
-      {
-        id: "contractor-2",
-        name: "Liam Chen",
-        country: "Singapore",
-        countryFlag: "🇸🇬",
-        role: "Frontend Developer",
-        salary: "SGD 7,500/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "liam.chen@email.com",
-      },
-      {
-        id: "contractor-1b",
-        name: "Ahmed Hassan",
-        country: "Egypt",
-        countryFlag: "🇪🇬",
-        role: "Backend Developer",
-        salary: "EGP 45,000/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "ahmed.hassan@email.com",
-      },
-    ],
-    "2": [ // InnovateLabs Inc.
-      {
-        id: "contractor-3",
-        name: "Sofia Rodriguez",
-        country: "Mexico",
-        countryFlag: "🇲🇽",
-        role: "Marketing Manager",
-        salary: "MXN 45,000/mo",
-        status: "awaiting-signature" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "employee" as const,
-        hasATSData: true,
-        email: "sofia.rodriguez@email.com",
-      },
-      {
-        id: "contractor-3b",
-        name: "Lucas Silva",
-        country: "Portugal",
-        countryFlag: "🇵🇹",
-        role: "Content Strategist",
-        salary: "EUR 3,200/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "lucas.silva@email.com",
-      },
-      {
-        id: "contractor-3c",
-        name: "Priya Sharma",
-        country: "India",
-        countryFlag: "🇮🇳",
-        role: "Digital Marketing Specialist",
-        salary: "INR 95,000/mo",
-        status: "onboarding-pending" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "priya.sharma@email.com",
-      },
-    ],
-    "3": [ // Startup Ventures - Empty
-    ],
-    "5": [ // CloudScale Solutions
-      {
-        id: "contractor-5",
-        name: "James Anderson",
-        country: "United Kingdom",
-        countryFlag: "🇬🇧",
-        role: "DevOps Engineer",
-        salary: "GBP 5,500/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "james.anderson@email.com",
-      },
-      {
-        id: "contractor-6",
-        name: "Emma Wilson",
-        country: "Australia",
-        countryFlag: "🇦🇺",
-        role: "Product Manager",
-        salary: "AUD 9,000/mo",
-        status: "awaiting-signature" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "employee" as const,
-        hasATSData: true,
-        email: "emma.wilson@email.com",
-      },
-      {
-        id: "contractor-5b",
-        name: "Oliver Schmidt",
-        country: "Germany",
-        countryFlag: "🇩🇪",
-        role: "Cloud Architect",
-        salary: "EUR 7,200/mo",
-        status: "data-pending" as const,
-        formSent: true,
-        dataReceived: false,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "oliver.schmidt@email.com",
-      },
-    ],
-    "7": [ // Quantum Systems Co.
-      {
-        id: "contractor-7",
-        name: "Carlos Mendez",
-        country: "Brazil",
-        countryFlag: "🇧🇷",
-        role: "Data Scientist",
-        salary: "BRL 18,000/mo",
-        status: "trigger-onboarding" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "carlos.mendez@email.com",
-      },
-      {
-        id: "contractor-7b",
-        name: "Anna Kowalski",
-        country: "Poland",
-        countryFlag: "🇵🇱",
-        role: "ML Engineer",
-        salary: "PLN 15,000/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "anna.kowalski@email.com",
-      },
-    ],
-    "9": [ // Apex Technologies
-      {
-        id: "contractor-8",
-        name: "Yuki Tanaka",
-        country: "Japan",
-        countryFlag: "🇯🇵",
-        role: "UX Designer",
-        salary: "JPY 800,000/mo",
-        status: "offer-accepted" as const,
-        formSent: false,
-        dataReceived: false,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "yuki.tanaka@email.com",
-      },
-      {
-        id: "contractor-9",
-        name: "Nina Petrov",
-        country: "Poland",
-        countryFlag: "🇵🇱",
-        role: "QA Engineer",
-        salary: "PLN 12,000/mo",
-        status: "data-pending" as const,
-        formSent: true,
-        dataReceived: false,
-        employmentType: "employee" as const,
-        hasATSData: true,
-        email: "nina.petrov@email.com",
-      },
-      {
-        id: "contractor-10",
-        name: "Mohammed Ali",
-        country: "UAE",
-        countryFlag: "🇦🇪",
-        role: "Solutions Architect",
-        salary: "AED 22,000/mo",
-        status: "CERTIFIED" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "mohammed.ali@email.com",
-      },
-    ],
-    "11": [ // Catalyst Innovations
-      {
-        id: "contractor-11",
-        name: "Isabella Rossi",
-        country: "Italy",
-        countryFlag: "🇮🇹",
-        role: "Tech Lead",
-        salary: "EUR 6,500/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "isabella.rossi@email.com",
-      },
-      {
-        id: "contractor-11b",
-        name: "Thomas Dubois",
-        country: "France",
-        countryFlag: "🇫🇷",
-        role: "Senior Engineer",
-        salary: "EUR 6,000/mo",
-        status: "drafting" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "contractor" as const,
-        hasATSData: true,
-        email: "thomas.dubois@email.com",
-      },
-      {
-        id: "contractor-11c",
-        name: "Sarah O'Brien",
-        country: "Ireland",
-        countryFlag: "🇮🇪",
-        role: "Software Engineer",
-        salary: "EUR 5,800/mo",
-        status: "trigger-onboarding" as const,
-        formSent: true,
-        dataReceived: true,
-        employmentType: "employee" as const,
-        hasATSData: true,
-        email: "sarah.obrien@email.com",
-      },
-    ],
-  });
+  const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({});
+  
+  // Derived state: check if this is a first-time admin (no companies)
+  const hasNoCompanies = companies.length === 0;
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
   
   // Check for new company from onboarding
@@ -791,7 +529,7 @@ const AdminContractingMultiCompany = () => {
           onDrawerToggle={toggleDrawer}
           profileSettingsUrl="/fronted-admin/profile-settings"
           profileMenuLabel="Profile Settings"
-          companySwitcher={{
+          companySwitcher={hasNoCompanies ? undefined : {
             companies,
             selectedCompany,
             onCompanyChange: handleCompanyChange
@@ -886,6 +624,28 @@ const AdminContractingMultiCompany = () => {
                           <span className="animate-bounce" style={{ animationDelay: "300ms" }}>.</span>
                         </span>
                       </div>
+                    </div>
+                  </motion.div>
+                ) : hasNoCompanies ? (
+                  /* First-time admin empty state */
+                  <motion.div 
+                    key="empty-state" 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }} 
+                    className="flex-1 overflow-y-auto"
+                  >
+                    <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
+                      <AgentHeader
+                        title="Welcome to your Fronted dashboard"
+                        subtitle=""
+                        showPulse={true}
+                        isActive={false}
+                        showInput={false}
+                      />
+                      <FirstTimeAdminEmptyState 
+                        onAddCompany={() => setIsAddingNewCompany(true)} 
+                      />
                     </div>
                   </motion.div>
                 ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
