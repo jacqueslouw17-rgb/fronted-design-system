@@ -35,8 +35,8 @@ const ATS_CANDIDATES = [{
 }, {
   id: "ats-2",
   name: "John Smith",
-  country: "United States",
-  countryFlag: "🇺🇸",
+  country: "Denmark",
+  countryFlag: "🇩🇰",
   role: "Product Manager",
   email: "john.smith@email.com",
   employmentType: "employee" as const,
@@ -44,8 +44,8 @@ const ATS_CANDIDATES = [{
 }, {
   id: "ats-3",
   name: "Sarah Chen",
-  country: "Singapore",
-  countryFlag: "🇸🇬",
+  country: "Sweden",
+  countryFlag: "🇸🇪",
   role: "UX Designer",
   email: "sarah.chen@email.com",
   employmentType: "contractor" as const,
@@ -217,9 +217,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   "India": "🇮🇳",
                   "Kosovo": "🇽🇰",
                   "Sweden": "🇸🇪",
-                  "Denmark": "🇩🇰",
-                  "United States": "🇺🇸",
-                  "Singapore": "🇸🇬"
+                  "Denmark": "🇩🇰"
                 };
                 setFormData(prev => ({
                   ...prev,
@@ -237,8 +235,6 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       <SelectItem value="Kosovo">🇽🇰 Kosovo</SelectItem>
                       <SelectItem value="Sweden">🇸🇪 Sweden</SelectItem>
                       <SelectItem value="Denmark">🇩🇰 Denmark</SelectItem>
-                      <SelectItem value="United States">🇺🇸 United States</SelectItem>
-                      <SelectItem value="Singapore">🇸🇬 Singapore</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
