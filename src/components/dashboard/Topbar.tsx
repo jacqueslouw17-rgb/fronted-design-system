@@ -1,4 +1,4 @@
-import { ArrowLeft, PanelLeftOpen } from "lucide-react";
+import { ArrowLeft, PanelLeftOpen, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -51,9 +51,10 @@ interface TopbarProps {
   profileMenuLabel?: string; // Custom label for profile menu item (default: "Profile Settings")
   dashboardUrl?: string; // Custom dashboard URL for logo click
   companySwitcher?: {
-    companies: Array<{ id: string; name: string }>;
+    companies: Array<{ id: string; name: string; adminEmail?: string; hqCountry?: string; payrollCurrency?: string[]; payoutDay?: string }>;
     selectedCompany: string;
     onCompanyChange: (companyId: string) => void;
+    onEditCompany?: (companyId: string) => void;
   };
 }
 
@@ -141,10 +142,23 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 aria-expanded={companySearchOpen}
                 className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
               >
-                <span className="truncate">
+                <span className="truncate flex items-center gap-2">
                   {companySwitcher.selectedCompany === "add-new" 
                     ? "Select company..."
                     : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
+                  {companySwitcher.selectedCompany && companySwitcher.selectedCompany !== "add-new" && companySwitcher.onEditCompany && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        companySwitcher.onEditCompany?.(companySwitcher.selectedCompany);
+                      }}
+                      className="p-1 rounded hover:bg-muted transition-colors"
+                      title="Edit company details"
+                    >
+                      <Pencil className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  )}
                 </span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>

@@ -72,8 +72,19 @@ import EmbeddedAdminOnboarding from "@/components/flows/onboarding/EmbeddedAdmin
 import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
 
 
+// Company type with full details for edit functionality
+interface CompanyData {
+  id: string;
+  name: string;
+  adminName?: string;
+  adminEmail?: string;
+  hqCountry?: string;
+  payrollCurrency?: string[];
+  payoutDay?: string;
+}
+
 // Mock companies data - start empty for first-time admin experience
-const MOCK_COMPANIES: { id: string; name: string }[] = [];
+const MOCK_COMPANIES: CompanyData[] = [];
 
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
@@ -95,7 +106,9 @@ const AdminContractingMultiCompany = () => {
   // Company switcher state - start empty for first-time admin
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
-  const [companies, setCompanies] = useState(MOCK_COMPANIES);
+  const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
+  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [companies, setCompanies] = useState<CompanyData[]>(MOCK_COMPANIES);
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>({});
   
   // Derived state: check if this is a first-time admin (no companies)
@@ -169,10 +182,18 @@ const AdminContractingMultiCompany = () => {
     });
   };
 
-  const handleNewCompanyComplete = (companyName: string) => {
+  const handleNewCompanyComplete = (companyName: string, companyData?: Record<string, any>) => {
     // Add the new company directly instead of relying on URL params
     const newCompanyId = `company-${Date.now()}`;
-    const newCompany = { id: newCompanyId, name: companyName };
+    const newCompany: CompanyData = { 
+      id: newCompanyId, 
+      name: companyName,
+      adminName: companyData?.adminName,
+      adminEmail: companyData?.adminEmail,
+      hqCountry: companyData?.hqCountry,
+      payrollCurrency: companyData?.payrollCurrency,
+      payoutDay: companyData?.payoutDay,
+    };
     
     setCompanies(prev => [...prev, newCompany]);
     setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
@@ -187,6 +208,45 @@ const AdminContractingMultiCompany = () => {
     
     // Scroll to top after returning to dashboard
     window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleEditCompany = (companyId: string) => {
+    setEditingCompanyId(companyId);
+    setIsEditingCompany(true);
+  };
+
+  const handleEditCompanyComplete = (companyName: string, companyData?: Record<string, any>) => {
+    if (!editingCompanyId) return;
+    
+    setCompanies(prev => prev.map(company => 
+      company.id === editingCompanyId
+        ? {
+            ...company,
+            name: companyData?.companyName || company.name,
+            adminName: companyData?.adminName ?? company.adminName,
+            // Email cannot be changed in edit mode
+            hqCountry: companyData?.hqCountry ?? company.hqCountry,
+            payrollCurrency: companyData?.payrollCurrency ?? company.payrollCurrency,
+            payoutDay: companyData?.payoutDay ?? company.payoutDay,
+          }
+        : company
+    ));
+    
+    toast({
+      title: "Company Updated",
+      description: `${companyData?.companyName || companyName} has been updated successfully!`,
+    });
+    
+    setIsEditingCompany(false);
+    setEditingCompanyId(null);
+    
+    // Scroll to top after returning to dashboard
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleCancelEditCompany = () => {
+    setIsEditingCompany(false);
+    setEditingCompanyId(null);
   };
 
   const handleCancelAddCompany = () => {
@@ -524,8 +584,8 @@ const AdminContractingMultiCompany = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar - hidden when adding new company */}
-      {!isAddingNewCompany && (
+      {/* Topbar - hidden when adding or editing company */}
+      {!isAddingNewCompany && !isEditingCompany && (
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
@@ -535,7 +595,8 @@ const AdminContractingMultiCompany = () => {
           companySwitcher={hasNoCompanies ? undefined : {
             companies,
             selectedCompany,
-            onCompanyChange: handleCompanyChange
+            onCompanyChange: handleCompanyChange,
+            onEditCompany: handleEditCompany
           }}
         />
       )}
@@ -553,6 +614,26 @@ const AdminContractingMultiCompany = () => {
             variant="ghost"
             size="icon"
             onClick={handleCancelAddCompany}
+            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+          >
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        </>
+      )}
+
+      {/* Logo and Close Button for Edit Company - No container */}
+      {isEditingCompany && (
+        <>
+          <img 
+            src={frontedLogo}
+            alt="Fronted"
+            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleCancelEditCompany}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCancelEditCompany}
             className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -583,6 +664,32 @@ const AdminContractingMultiCompany = () => {
                   onComplete={handleNewCompanyComplete}
                   onCancel={handleCancelAddCompany}
                 />
+              ) : isEditingCompany && editingCompanyId ? (
+                (() => {
+                  const editingCompany = companies.find(c => c.id === editingCompanyId);
+                  const candidatesForCompany = companyContractors[editingCompanyId] || [];
+                  const hasCandidates = candidatesForCompany.length > 0;
+                  const hasSignedContract = candidatesForCompany.some(c => c.status === "signed");
+                  
+                  return (
+                    <EmbeddedAdminOnboarding
+                      onComplete={handleEditCompanyComplete}
+                      onCancel={handleCancelEditCompany}
+                      isEditMode={true}
+                      editModeTitle={`Change ${editingCompany?.name || 'Company'} details`}
+                      initialData={{
+                        companyName: editingCompany?.name || "",
+                        adminName: editingCompany?.adminName || "",
+                        adminEmail: editingCompany?.adminEmail || "",
+                        hqCountry: editingCompany?.hqCountry || "",
+                        payrollCurrency: editingCompany?.payrollCurrency || [],
+                        payoutDay: editingCompany?.payoutDay || "",
+                      }}
+                      hasSignedContract={hasSignedContract}
+                      hasCandidates={hasCandidates}
+                    />
+                  );
+                })()
               ) : (
               <AnimatePresence mode="wait">
                 {contractFlow.phase === "prompt" ? (
