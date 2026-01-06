@@ -1,4 +1,4 @@
-import { ArrowLeft, PanelLeftOpen, Settings2 } from "lucide-react";
+import { ArrowLeft, PanelLeftOpen, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -208,7 +208,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                               className="ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all opacity-60 group-hover:opacity-100"
                               title="Edit company details"
                             >
-                              <Settings2 className="h-3.5 w-3.5" />
+                              <Settings className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </CommandItem>
