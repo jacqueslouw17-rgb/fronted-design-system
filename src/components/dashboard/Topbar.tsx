@@ -1,4 +1,4 @@
-import { ArrowLeft, PanelLeftOpen, Pencil } from "lucide-react";
+import { ArrowLeft, PanelLeftOpen, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -142,23 +142,10 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 aria-expanded={companySearchOpen}
                 className="w-[280px] h-8 sm:h-9 text-xs sm:text-sm bg-background justify-between"
               >
-                <span className="truncate flex items-center gap-2">
+                <span className="truncate">
                   {companySwitcher.selectedCompany === "add-new" 
                     ? "Select company..."
                     : companySwitcher.companies.find((c) => c.id === companySwitcher.selectedCompany)?.name || "Select company..."}
-                  {companySwitcher.selectedCompany && companySwitcher.selectedCompany !== "add-new" && companySwitcher.onEditCompany && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        companySwitcher.onEditCompany?.(companySwitcher.selectedCompany);
-                      }}
-                      className="p-1 rounded hover:bg-muted transition-colors"
-                      title="Edit company details"
-                    >
-                      <Pencil className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                    </button>
-                  )}
                 </span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -187,28 +174,46 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                 <CommandList className="max-h-[240px]">
                   <CommandEmpty>No company found.</CommandEmpty>
                   <CommandGroup>
-                    {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => (
-                      <CommandItem
-                        key={company.id}
-                        value={company.name}
-                        onSelect={() => {
-                          companySwitcher.onCompanyChange(company.id);
-                          setCompanySearchOpen(false);
-                          setCompanySearchValue("");
-                        }}
-                        className="truncate"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            companySwitcher.selectedCompany === company.id ? "opacity-100" : "opacity-0"
+                    {[...companySwitcher.companies].sort((a, b) => a.name.localeCompare(b.name)).map((company) => {
+                      const isSelected = companySwitcher.selectedCompany === company.id;
+                      return (
+                        <CommandItem
+                          key={company.id}
+                          value={company.name}
+                          onSelect={() => {
+                            companySwitcher.onCompanyChange(company.id);
+                            setCompanySearchOpen(false);
+                            setCompanySearchValue("");
+                          }}
+                          className="truncate group"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4 flex-shrink-0",
+                              isSelected ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <span className="truncate flex-1">
+                            {highlightMatch(company.name, companySearchValue)}
+                          </span>
+                          {isSelected && companySwitcher.onEditCompany && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                companySwitcher.onEditCompany?.(company.id);
+                                setCompanySearchOpen(false);
+                              }}
+                              className="ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all opacity-60 group-hover:opacity-100"
+                              title="Edit company details"
+                            >
+                              <Settings2 className="h-3.5 w-3.5" />
+                            </button>
                           )}
-                        />
-                        <span className="truncate">
-                          {highlightMatch(company.name, companySearchValue)}
-                        </span>
-                      </CommandItem>
-                    ))}
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </CommandList>
               </Command>
