@@ -154,7 +154,8 @@ const EmbeddedAdminOnboarding = ({
   const handleStepClick = (stepId: string) => {
     const status = getStepStatus(stepId);
     
-    if (status !== 'inactive') {
+    // In edit mode, all steps are clickable
+    if (isEditMode || status !== 'inactive') {
       if (expandedStep === stepId) {
         setExpandedStep(null);
       } else {
