@@ -300,12 +300,37 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="salary">Salary *</Label>
-                  <Input
-                    id="salary"
-                    value={formData.salary}
-                    onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
-                    placeholder="e.g., $5,000/mo"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium pointer-events-none select-none">
+                      {formData.employmentType === "contractor" 
+                        ? "$" 
+                        : formData.country === "Philippines" 
+                          ? "₱" 
+                          : formData.country === "Norway" 
+                            ? "kr" 
+                            : formData.country === "India" 
+                              ? "₹" 
+                              : formData.country === "Singapore" 
+                                ? "S$" 
+                                : formData.country === "Mexico" 
+                                  ? "$" 
+                                  : formData.country === "United States"
+                                    ? "$"
+                                    : "$"}
+                    </div>
+                    <Input
+                      id="salary"
+                      value={formData.salary}
+                      onChange={(e) => {
+                        // Only allow numbers
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        setFormData(prev => ({ ...prev, salary: value }));
+                      }}
+                      placeholder="e.g., 5000"
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Enter monthly amount (numbers only).</p>
                   {isATSSelected && (
                     <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
                   )}
