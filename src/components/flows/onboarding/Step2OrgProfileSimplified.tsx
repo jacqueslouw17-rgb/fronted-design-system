@@ -147,7 +147,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="adminName" className="text-sm">
-              Admin Name <span className="text-destructive">*</span>
+              End-client name <span className="text-destructive">*</span>
             </Label>
             <Input
               id="adminName"
@@ -163,7 +163,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="adminEmail" className="text-sm">
-              Admin Email <span className="text-destructive">*</span>
+              End-client email <span className="text-destructive">*</span>
             </Label>
             <Input
               id="adminEmail"
