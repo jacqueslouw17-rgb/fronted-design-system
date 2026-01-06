@@ -200,7 +200,7 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                           <span className="truncate flex-1">
                             {highlightMatch(company.name, companySearchValue)}
                           </span>
-                          {isSelected && companySwitcher.onEditCompany && (
+                          {companySwitcher.onEditCompany && (
                             <button
                               type="button"
                               onClick={(e) => {
@@ -209,7 +209,10 @@ const Topbar = ({ userName, version, onVersionChange, isAgentOpen, onAgentToggle
                                 companySwitcher.onEditCompany?.(company.id);
                                 setCompanySearchOpen(false);
                               }}
-                              className="ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all opacity-60 group-hover:opacity-100"
+                              className={cn(
+                                "ml-2 p-1.5 rounded-md bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all",
+                                isSelected ? "opacity-60 group-hover:opacity-100" : "opacity-0 group-hover:opacity-100"
+                              )}
                               title="Edit company details"
                             >
                               <Settings className="h-3.5 w-3.5" />
