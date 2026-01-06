@@ -241,11 +241,12 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     value={formData.country} 
                     onValueChange={(value) => {
                       const countryFlags: Record<string, string> = {
+                        "Norway": "🇳🇴",
                         "Philippines": "🇵🇭",
-                        "Singapore": "🇸🇬",
-                        "United States": "🇺🇸",
-                        "Mexico": "🇲🇽",
                         "India": "🇮🇳",
+                        "Kosovo": "🇽🇰",
+                        "Sweden": "🇸🇪",
+                        "Denmark": "🇩🇰",
                       };
                       setFormData(prev => ({ 
                         ...prev, 
@@ -258,11 +259,12 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Norway">🇳🇴 Norway</SelectItem>
                       <SelectItem value="Philippines">🇵🇭 Philippines</SelectItem>
-                      <SelectItem value="Singapore">🇸🇬 Singapore</SelectItem>
-                      <SelectItem value="United States">🇺🇸 United States</SelectItem>
-                      <SelectItem value="Mexico">🇲🇽 Mexico</SelectItem>
                       <SelectItem value="India">🇮🇳 India</SelectItem>
+                      <SelectItem value="Kosovo">🇽🇰 Kosovo</SelectItem>
+                      <SelectItem value="Sweden">🇸🇪 Sweden</SelectItem>
+                      <SelectItem value="Denmark">🇩🇰 Denmark</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -310,12 +312,12 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                             ? "kr" 
                             : formData.country === "India" 
                               ? "₹" 
-                              : formData.country === "Singapore" 
-                                ? "S$" 
-                                : formData.country === "Mexico" 
-                                  ? "$" 
-                                  : formData.country === "United States"
-                                    ? "$"
+                              : formData.country === "Kosovo" 
+                                ? "€" 
+                                : formData.country === "Sweden" 
+                                  ? "kr" 
+                                  : formData.country === "Denmark"
+                                    ? "kr"
                                     : "$"}
                     </div>
                     <Input
