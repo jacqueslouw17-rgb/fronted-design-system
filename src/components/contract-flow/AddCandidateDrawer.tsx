@@ -219,10 +219,14 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   "Sweden": "🇸🇪",
                   "Denmark": "🇩🇰"
                 };
+                const contractorOnlyCountries = ["Kosovo", "India", "Philippines"];
+                const isContractorOnly = contractorOnlyCountries.includes(value);
                 setFormData(prev => ({
                   ...prev,
                   country: value,
-                  countryFlag: countryFlags[value] || ""
+                  countryFlag: countryFlags[value] || "",
+                  // Auto-set to contractor for contractor-only countries
+                  employmentType: isContractorOnly ? "contractor" : prev.employmentType
                 }));
               }}>
                     <SelectTrigger id="country">
@@ -241,11 +245,15 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="employmentType">Employment Type *</Label>
-                  <Select value={formData.employmentType} onValueChange={(value: "contractor" | "employee") => setFormData(prev => ({
-                ...prev,
-                employmentType: value
-              }))}>
-                    <SelectTrigger id="employmentType">
+                  <Select 
+                    value={formData.employmentType} 
+                    onValueChange={(value: "contractor" | "employee") => setFormData(prev => ({
+                      ...prev,
+                      employmentType: value
+                    }))}
+                    disabled={["Kosovo", "India", "Philippines"].includes(formData.country)}
+                  >
+                    <SelectTrigger id="employmentType" className={["Kosovo", "India", "Philippines"].includes(formData.country) ? "opacity-70" : ""}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -253,7 +261,13 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       <SelectItem value="employee">Employee</SelectItem>
                     </SelectContent>
                   </Select>
-                  {isATSSelected && <p className="text-xs text-muted-foreground">Prefilled from ATS</p>}
+                  {["Kosovo", "India", "Philippines"].includes(formData.country) ? (
+                    <p className="text-xs text-muted-foreground">
+                      We currently only support contractor engagements in {formData.country}. Full employment coming soon!
+                    </p>
+                  ) : isATSSelected ? (
+                    <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                  ) : null}
                 </div>
 
                 <div className="space-y-2">
