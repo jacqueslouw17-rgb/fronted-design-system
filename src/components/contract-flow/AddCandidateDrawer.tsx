@@ -217,7 +217,9 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   "India": "🇮🇳",
                   "Kosovo": "🇽🇰",
                   "Sweden": "🇸🇪",
-                  "Denmark": "🇩🇰"
+                  "Denmark": "🇩🇰",
+                  "United States": "🇺🇸",
+                  "Singapore": "🇸🇬"
                 };
                 setFormData(prev => ({
                   ...prev,
@@ -235,6 +237,8 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                       <SelectItem value="Kosovo">🇽🇰 Kosovo</SelectItem>
                       <SelectItem value="Sweden">🇸🇪 Sweden</SelectItem>
                       <SelectItem value="Denmark">🇩🇰 Denmark</SelectItem>
+                      <SelectItem value="United States">🇺🇸 United States</SelectItem>
+                      <SelectItem value="Singapore">🇸🇬 Singapore</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
