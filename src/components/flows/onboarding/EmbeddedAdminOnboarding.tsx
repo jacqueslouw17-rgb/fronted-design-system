@@ -77,14 +77,20 @@ const EmbeddedAdminOnboarding = ({
   // Ensure first step is expanded on initial load and reset flow for new company
   useEffect(() => {
     if (!hasInitialized.current) {
+      // Always reset for a fresh start
       resetAdminFlow();
-      // In edit mode, pre-populate the form data
+      // In edit mode, pre-populate the form data AFTER reset
       if (isEditMode && initialData) {
         updateAdminStepData("org_profile", initialData);
       }
       setExpandedStep("org_profile");
       hasInitialized.current = true;
     }
+    
+    // Reset on unmount so next mount starts fresh
+    return () => {
+      hasInitialized.current = false;
+    };
   }, [resetAdminFlow, setExpandedStep, isEditMode, initialData, updateAdminStepData]);
 
   // Scroll to step helper
