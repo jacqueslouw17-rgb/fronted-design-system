@@ -70,7 +70,7 @@ import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import EmbeddedAdminOnboarding from "@/components/flows/onboarding/EmbeddedAdminOnboarding";
 import { AddCandidateDrawer } from "@/components/contract-flow/AddCandidateDrawer";
-import FirstTimeAdminEmptyState from "@/components/flows/empty-states/FirstTimeAdminEmptyState";
+
 
 // Mock companies data - start empty for first-time admin experience
 const MOCK_COMPANIES: { id: string; name: string }[] = [];
@@ -637,15 +637,20 @@ const AdminContractingMultiCompany = () => {
                   >
                     <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
                       <AgentHeader
-                        title="Welcome to your Fronted dashboard"
-                        subtitle=""
+                        title="Start by adding a company"
+                        subtitle="Once a company is set up, you'll be able to manage candidates, contracts, and payroll from here."
                         showPulse={true}
                         isActive={false}
                         showInput={false}
                       />
-                      <FirstTimeAdminEmptyState 
-                        onAddCompany={() => setIsAddingNewCompany(true)} 
-                      />
+                      <div className="flex justify-center">
+                        <Button 
+                          onClick={() => setIsAddingNewCompany(true)}
+                          size="lg"
+                        >
+                          Add company
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
