@@ -19,7 +19,6 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import StandardInput from "@/components/shared/StandardInput";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 interface Step2Props {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
@@ -34,18 +33,17 @@ interface Step2Props {
   hasCandidates?: boolean; // Business rule: restrictions apply if candidates added
   existingCountries?: string[]; // Countries already set (can only add, not remove if candidates exist)
 }
-
-const Step2OrgProfileSimplified = ({ 
-  formData, 
-  onComplete, 
-  isProcessing: externalProcessing, 
+const Step2OrgProfileSimplified = ({
+  formData,
+  onComplete,
+  isProcessing: externalProcessing,
   isLoadingFields = false,
   showAutoFillLoading = false,
   isEditMode = false,
   editModeTitle,
   hasSignedContract = false,
   hasCandidates = false,
-  existingCountries = [],
+  existingCountries = []
 }: Step2Props) => {
   const [data, setData] = useState({
     companyName: formData.companyName || "",
@@ -54,9 +52,8 @@ const Step2OrgProfileSimplified = ({
     hqCountry: formData.hqCountry || "",
     payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
     payrollFrequency: formData.payrollFrequency || "monthly",
-    payoutDay: formData.payoutDay || "",
+    payoutDay: formData.payoutDay || ""
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   // const { speak } = {} as any; // voice removed
 
@@ -70,26 +67,21 @@ const Step2OrgProfileSimplified = ({
         hqCountry: formData.hqCountry || "",
         payrollCurrency: formData.payrollCurrency || (Array.isArray(formData.payrollCurrency) ? formData.payrollCurrency : []),
         payrollFrequency: formData.payrollFrequency || "monthly",
-        payoutDay: formData.payoutDay || "",
+        payoutDay: formData.payoutDay || ""
       });
     }
   }, [formData, data.companyName]);
-
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    
     if (!data.companyName) newErrors.companyName = "Company name is required";
     if (!data.adminName) newErrors.adminName = "Admin name is required";
-    if (!data.adminEmail) newErrors.adminEmail = "Admin email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail)) {
+    if (!data.adminEmail) newErrors.adminEmail = "Admin email is required";else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.adminEmail)) {
       newErrors.adminEmail = "Invalid email format";
     }
     if (!data.hqCountry) newErrors.hqCountry = "HQ Country is required";
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSave = () => {
     if (!validate()) {
       toast({
@@ -103,7 +95,6 @@ const Step2OrgProfileSimplified = ({
     // No generic save notification - let the step transition speak for itself
     onComplete("org_profile", data);
   };
-
   const getFrequencyHint = (frequency: string) => {
     switch (frequency) {
       case "weekly":
@@ -116,24 +107,18 @@ const Step2OrgProfileSimplified = ({
         return "";
     }
   };
-
   const handleFieldChange = (fieldName: string, value: string | string[]) => {
-    setData(prev => ({ ...prev, [fieldName]: value }));
+    setData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
   };
 
   // Check if all required fields are filled
-  const isFormValid = 
-    data.companyName.trim().length > 0 &&
-    data.adminName.trim().length > 0 &&
-    data.adminEmail.trim().length > 0 &&
-    data.hqCountry.trim().length > 0;
-
-  return (
-    <div className="space-y-5 max-w-xl mx-auto">
+  const isFormValid = data.companyName.trim().length > 0 && data.adminName.trim().length > 0 && data.adminEmail.trim().length > 0 && data.hqCountry.trim().length > 0;
+  return <div className="space-y-5 max-w-xl mx-auto">
       {/* Edit Mode Title */}
-      {isEditMode && editModeTitle && (
-        <h2 className="text-lg font-semibold text-foreground">{editModeTitle}</h2>
-      )}
+      {isEditMode && editModeTitle}
       
       {/* Company Information */}
       <div className="space-y-3">
@@ -149,73 +134,38 @@ const Step2OrgProfileSimplified = ({
             <Label htmlFor="companyName" className="text-sm">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="companyName"
-              value={data.companyName}
-              onChange={(e) => handleFieldChange('companyName', e.target.value)}
-              placeholder="Fronted Test Co"
-              className="text-sm"
-              disabled={isEditMode && hasSignedContract}
-              readOnly={isEditMode && hasSignedContract}
-            />
-            {isEditMode && hasSignedContract && (
-              <p className="text-xs text-muted-foreground">
+            <Input id="companyName" value={data.companyName} onChange={e => handleFieldChange('companyName', e.target.value)} placeholder="Fronted Test Co" className="text-sm" disabled={isEditMode && hasSignedContract} readOnly={isEditMode && hasSignedContract} />
+            {isEditMode && hasSignedContract && <p className="text-xs text-muted-foreground">
                 Company name cannot be changed as there are signed contracts for this company.
-              </p>
-            )}
-            {errors.companyName && (
-              <p className="text-xs text-destructive">{errors.companyName}</p>
-            )}
-            {errors.companyName && (
-              <p className="text-xs text-destructive">{errors.companyName}</p>
-            )}
+              </p>}
+            {errors.companyName && <p className="text-xs text-destructive">{errors.companyName}</p>}
+            {errors.companyName && <p className="text-xs text-destructive">{errors.companyName}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="adminName" className="text-sm">
               End-client name <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="adminName"
-              value={data.adminName}
-              onChange={(e) => handleFieldChange('adminName', e.target.value)}
-              placeholder="John Doe"
-              className="text-sm"
-            />
-            {errors.adminName && (
-              <p className="text-xs text-destructive">{errors.adminName}</p>
-            )}
+            <Input id="adminName" value={data.adminName} onChange={e => handleFieldChange('adminName', e.target.value)} placeholder="John Doe" className="text-sm" />
+            {errors.adminName && <p className="text-xs text-destructive">{errors.adminName}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="adminEmail" className="text-sm">
               End-client email <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="adminEmail"
-              type="email"
-              value={data.adminEmail}
-              onChange={(e) => handleFieldChange('adminEmail', e.target.value)}
-              placeholder="admin@company.com"
-              className="text-sm"
-              disabled={isEditMode}
-              readOnly={isEditMode}
-            />
-            {isEditMode && (
-              <p className="text-xs text-muted-foreground">
+            <Input id="adminEmail" type="email" value={data.adminEmail} onChange={e => handleFieldChange('adminEmail', e.target.value)} placeholder="admin@company.com" className="text-sm" disabled={isEditMode} readOnly={isEditMode} />
+            {isEditMode && <p className="text-xs text-muted-foreground">
                 Email cannot be changed as it is linked to this company's account.
-              </p>
-            )}
-            {errors.adminEmail && (
-              <p className="text-xs text-destructive">{errors.adminEmail}</p>
-            )}
+              </p>}
+            {errors.adminEmail && <p className="text-xs text-destructive">{errors.adminEmail}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="hqCountry" className="text-sm">
               HQ Country <span className="text-destructive">*</span>
             </Label>
-            <Select value={data.hqCountry} onValueChange={(val) => handleFieldChange('hqCountry', val)}>
+            <Select value={data.hqCountry} onValueChange={val => handleFieldChange('hqCountry', val)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
@@ -230,9 +180,7 @@ const Step2OrgProfileSimplified = ({
                 <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
               </SelectContent>
             </Select>
-            {errors.hqCountry && (
-              <p className="text-xs text-destructive">{errors.hqCountry}</p>
-            )}
+            {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
           </div>
 
           <div className="space-y-2">
@@ -241,81 +189,65 @@ const Step2OrgProfileSimplified = ({
             </Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between text-sm h-10 hover:bg-card hover:text-foreground hover:shadow-none"
-                >
+                <Button variant="outline" role="combobox" className="w-full justify-between text-sm h-10 hover:bg-card hover:text-foreground hover:shadow-none">
                   <div className="flex flex-wrap gap-1.5 items-center">
-                    {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? (
-                      data.payrollCurrency.map((currency) => (
-                        <span
-                          key={currency}
-                          className="inline-flex items-center gap-0.5 pl-2 pr-1 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors"
-                        >
+                    {Array.isArray(data.payrollCurrency) && data.payrollCurrency.length > 0 ? data.payrollCurrency.map(currency => <span key={currency} className="inline-flex items-center gap-0.5 pl-2 pr-1 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors">
                           {currency}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
-                              handleFieldChange('payrollCurrency', newCurrencies);
-                            }}
-                            className="rounded-sm p-0.5"
-                          >
+                          <button type="button" onClick={e => {
+                      e.stopPropagation();
+                      const newCurrencies = data.payrollCurrency.filter((c: string) => c !== currency);
+                      handleFieldChange('payrollCurrency', newCurrencies);
+                    }} className="rounded-sm p-0.5">
                             <X className="h-2.5 w-2.5" />
                           </button>
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-muted-foreground">Select currencies</span>
-                    )}
+                        </span>) : <span className="text-muted-foreground">Select currencies</span>}
                   </div>
                   <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
                 <div className="p-1.5 space-y-0.5">
-                  {[
-                    { value: "NOK", label: "NOK - Norwegian Krone" },
-                    { value: "DKK", label: "DKK - Danish Krone" },
-                    { value: "SEK", label: "SEK - Swedish Krona" },
-                    { value: "PHP", label: "PHP - Philippine Peso" },
-                    { value: "INR", label: "INR - Indian Rupee" },
-                    { value: "USD", label: "USD - US Dollar" },
-                    { value: "EUR", label: "EUR - Euro" },
-                    { value: "GBP", label: "GBP - British Pound" },
-                  ].map((currency) => {
-                    const isSelected = Array.isArray(data.payrollCurrency) && data.payrollCurrency.includes(currency.value);
-                    return (
-                      <div
-                        key={currency.value}
-                        className="flex items-center space-x-2.5 px-2.5 py-2 hover:bg-primary/5 rounded-md cursor-pointer transition-colors group"
-                        onClick={() => {
-                          const currentCurrencies = Array.isArray(data.payrollCurrency) ? data.payrollCurrency : [];
-                          const newCurrencies = isSelected
-                            ? currentCurrencies.filter((c: string) => c !== currency.value)
-                            : [...currentCurrencies, currency.value];
-                          handleFieldChange('payrollCurrency', newCurrencies);
-                        }}
-                      >
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => {}}
-                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary shrink-0"
-                        />
+                  {[{
+                  value: "NOK",
+                  label: "NOK - Norwegian Krone"
+                }, {
+                  value: "DKK",
+                  label: "DKK - Danish Krone"
+                }, {
+                  value: "SEK",
+                  label: "SEK - Swedish Krona"
+                }, {
+                  value: "PHP",
+                  label: "PHP - Philippine Peso"
+                }, {
+                  value: "INR",
+                  label: "INR - Indian Rupee"
+                }, {
+                  value: "USD",
+                  label: "USD - US Dollar"
+                }, {
+                  value: "EUR",
+                  label: "EUR - Euro"
+                }, {
+                  value: "GBP",
+                  label: "GBP - British Pound"
+                }].map(currency => {
+                  const isSelected = Array.isArray(data.payrollCurrency) && data.payrollCurrency.includes(currency.value);
+                  return <div key={currency.value} className="flex items-center space-x-2.5 px-2.5 py-2 hover:bg-primary/5 rounded-md cursor-pointer transition-colors group" onClick={() => {
+                    const currentCurrencies = Array.isArray(data.payrollCurrency) ? data.payrollCurrency : [];
+                    const newCurrencies = isSelected ? currentCurrencies.filter((c: string) => c !== currency.value) : [...currentCurrencies, currency.value];
+                    handleFieldChange('payrollCurrency', newCurrencies);
+                  }}>
+                        <Checkbox checked={isSelected} onCheckedChange={() => {}} className="data-[state=checked]:bg-primary data-[state=checked]:border-primary shrink-0" />
                         <label className="text-sm cursor-pointer flex-1 text-foreground group-hover:text-primary transition-colors leading-none">
                           {currency.label}
                         </label>
-                      </div>
-                    );
-                  })}
+                      </div>;
+                })}
                 </div>
               </PopoverContent>
             </Popover>
-            {errors.payrollCurrency && (
-              <p className="text-xs text-destructive">{errors.payrollCurrency}</p>
-            )}
+            {errors.payrollCurrency && <p className="text-xs text-destructive">{errors.payrollCurrency}</p>}
             <p className="text-xs text-muted-foreground">
               Choose the currencies you'll use for payroll. You can adjust this later for each country setup.
             </p>
@@ -348,16 +280,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="payoutDay" className="text-sm">Preferred Payout Date</Label>
-            <Input
-              id="payoutDay"
-              type="number"
-              min="1"
-              max="31"
-              value={data.payoutDay}
-              onChange={(e) => handleFieldChange('payoutDay', e.target.value)}
-              placeholder="e.g., 25"
-              className="text-sm"
-            />
+            <Input id="payoutDay" type="number" min="1" max="31" value={data.payoutDay} onChange={e => handleFieldChange('payoutDay', e.target.value)} placeholder="e.g., 25" className="text-sm" />
             <p className="text-xs text-muted-foreground">
               Day of the month (e.g., 25 = 25th of each month)
             </p>
@@ -388,25 +311,12 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      <Button 
-        onClick={handleSave} 
-        size="lg" 
-        className="w-full" 
-        disabled={externalProcessing || !isFormValid}
-      >
-        {externalProcessing ? (
-          <>
+      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || !isFormValid}>
+        {externalProcessing ? <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Saving...
-          </>
-        ) : isEditMode ? (
-          "Save Changes"
-        ) : (
-          "Continue"
-        )}
+          </> : isEditMode ? "Save Changes" : "Continue"}
       </Button>
-    </div>
-  );
+    </div>;
 };
-
 export default Step2OrgProfileSimplified;
