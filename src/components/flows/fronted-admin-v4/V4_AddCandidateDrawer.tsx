@@ -410,34 +410,6 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="v4-employmentType" className="text-sm">
-                      Employment type <span className="text-destructive">*</span>
-                    </Label>
-                    <Select 
-                      value={formData.employmentType} 
-                      onValueChange={(value: "contractor" | "employee") => {
-                        // When switching to contractor, set currency based on country
-                        const countryData = COUNTRY_OPTIONS.find(c => c.value === formData.country);
-                        const defaultCurrency = value === "contractor" && countryData?.currency 
-                          ? countryData.currency 
-                          : formData.currency;
-                        setFormData(prev => ({ ...prev, employmentType: value, currency: defaultCurrency }));
-                      }}
-                    >
-                      <SelectTrigger id="v4-employmentType" className="bg-background">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        <SelectItem value="employee">Employee (EOR)</SelectItem>
-                        <SelectItem value="contractor">Contractor (COR)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {isATSSelected && formData.employmentType && (
-                      <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="v4-role" className="text-sm">
                       Role <span className="text-destructive">*</span>
                     </Label>
@@ -465,6 +437,34 @@ export const V4_AddCandidateDrawer: React.FC<V4_AddCandidateDrawerProps> = ({
                 </div>
 
                 <div className="space-y-4 pl-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="v4-employmentType" className="text-sm">
+                      Employment type <span className="text-destructive">*</span>
+                    </Label>
+                    <Select 
+                      value={formData.employmentType} 
+                      onValueChange={(value: "contractor" | "employee") => {
+                        // When switching to contractor, set currency based on country
+                        const countryData = COUNTRY_OPTIONS.find(c => c.value === formData.country);
+                        const defaultCurrency = value === "contractor" && countryData?.currency 
+                          ? countryData.currency 
+                          : formData.currency;
+                        setFormData(prev => ({ ...prev, employmentType: value, currency: defaultCurrency }));
+                      }}
+                    >
+                      <SelectTrigger id="v4-employmentType" className="bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover">
+                        <SelectItem value="employee">Employee (EOR)</SelectItem>
+                        <SelectItem value="contractor">Contractor (COR)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {isATSSelected && formData.employmentType && (
+                      <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
+                    )}
+                  </div>
+
                   {/* Currency field - only for contractors */}
                   {formData.employmentType === "contractor" && (
                     <div className="space-y-2">
