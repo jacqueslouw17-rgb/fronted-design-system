@@ -199,15 +199,56 @@ export const OnboardingFormDrawer: React.FC<OnboardingFormDrawerProps> = ({
               <Label>Salary</Label>
               {isFromATS ? (
                 <>
-                  <Input value={candidate.salary} disabled className="bg-muted/50" />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                      {candidate.employmentType === "contractor" 
+                        ? "$" 
+                        : candidate.country === "Philippines" 
+                          ? "₱" 
+                          : candidate.country === "Norway" 
+                            ? "kr" 
+                            : candidate.country === "India" 
+                              ? "₹" 
+                              : candidate.country === "Singapore" 
+                                ? "S$" 
+                                : candidate.country === "Mexico" 
+                                  ? "$" 
+                                  : "$"}
+                    </span>
+                    <Input value={candidate.salary} disabled className="bg-muted/50 pl-8" />
+                  </div>
                   <p className="text-xs text-muted-foreground">Prefilled from ATS</p>
                 </>
               ) : (
-                <Input 
-                  value={formData.salary} 
-                  onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
-                  className="bg-background"
-                />
+                <>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                      {employmentType === "contractor" 
+                        ? "$" 
+                        : candidate.country === "Philippines" 
+                          ? "₱" 
+                          : candidate.country === "Norway" 
+                            ? "kr" 
+                            : candidate.country === "India" 
+                              ? "₹" 
+                              : candidate.country === "Singapore" 
+                                ? "S$" 
+                                : candidate.country === "Mexico" 
+                                  ? "$" 
+                                  : "$"}
+                    </span>
+                    <Input 
+                      value={formData.salary} 
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                        setFormData(prev => ({ ...prev, salary: numericValue }));
+                      }}
+                      placeholder="e.g., 5000"
+                      className="bg-background pl-8"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Enter monthly amount (numbers only).</p>
+                </>
               )}
             </div>
           </div>
