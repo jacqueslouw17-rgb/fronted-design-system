@@ -14,6 +14,7 @@ interface Step3Props {
   isProcessing?: boolean;
   isLoadingFields?: boolean;
   showSkipButton?: boolean;
+  isEditMode?: boolean;
 }
 
 const COUNTRIES = [
@@ -43,7 +44,7 @@ const COUNTRIES = [
   }
 ];
 
-const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false, showSkipButton = true }: Step3Props) => {
+const Step3Localization = ({ formData, onComplete, isProcessing: externalProcessing, isLoadingFields = false, showSkipButton = true, isEditMode = false }: Step3Props) => {
   const hasPersistedData = formData && formData.selectedCountries && formData.selectedCountries.length > 0;
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
     formData.selectedCountries || []
@@ -186,7 +187,7 @@ const Step3Localization = ({ formData, onComplete, isProcessing: externalProcess
               Saving...
             </>
           ) : (
-            "Continue"
+            isEditMode ? "Save Changes" : "Continue"
           )}
           </Button>
         </div>
