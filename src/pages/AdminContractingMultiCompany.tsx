@@ -633,9 +633,9 @@ const AdminContractingMultiCompany = () => {
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }} 
-                    className="flex-1 overflow-y-auto"
+                    className="flex-1 flex items-center justify-center"
                   >
-                    <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
+                    <div className="flex flex-col items-center text-center space-y-6">
                       <AgentHeader
                         title="Start by adding a company"
                         subtitle="Once a company is set up, you'll be able to manage candidates, contracts, and payroll from here."
@@ -643,14 +643,12 @@ const AdminContractingMultiCompany = () => {
                         isActive={false}
                         showInput={false}
                       />
-                      <div className="flex justify-center">
-                        <Button 
-                          onClick={() => setIsAddingNewCompany(true)}
-                          size="lg"
-                        >
-                          Add company
-                        </Button>
-                      </div>
+                      <Button 
+                        onClick={() => setIsAddingNewCompany(true)}
+                        size="lg"
+                      >
+                        Add company
+                      </Button>
                     </div>
                   </motion.div>
                 ) : (contractFlow.phase === "offer-accepted" || contractFlow.phase === "data-collection") ? (
