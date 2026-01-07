@@ -398,8 +398,8 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
       className="px-8 pb-8 pt-4 max-w-7xl mx-auto space-y-6"
     >
       <AgentHeader
-        title={`Preparing ${candidate.name.split(' ')[0]}'s Contract`}
-        subtitle="Review pre-filled details and make edits before generating the bundle."
+        title={`Review ${candidate.name.split(' ')[0]}'s Details`}
+        subtitle="Please review the candidate's details below to ensure everything is accurate before adding them to the agreement."
         placeholder="Kurt can help with: reviewing fields, explaining terms, or generating bundles."
         showPulse={true}
         showInput={false}
