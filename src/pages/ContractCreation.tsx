@@ -114,9 +114,13 @@ const ContractCreation: React.FC = () => {
     const localStorageCandidates: Candidate[] = (() => {
       try {
         const raw = localStorage.getItem("adminflow-company-contractors");
-        if (!raw) return [];
+        if (!raw) {
+          console.log("[ContractCreation] No localStorage data found");
+          return [];
+        }
         const parsed = JSON.parse(raw) as Record<string, any[]>;
         const flattened = Object.values(parsed || {}).flat();
+        console.log("[ContractCreation] localStorage candidates:", flattened.map((c: any) => ({ id: c.id, name: c.name })));
         return flattened
           .filter(Boolean)
           .map((c: any) =>
@@ -131,7 +135,8 @@ const ContractCreation: React.FC = () => {
               employmentType: c.employmentType,
             })
           );
-      } catch {
+      } catch (e) {
+        console.error("[ContractCreation] localStorage parse error:", e);
         return [];
       }
     })();
@@ -141,7 +146,13 @@ const ContractCreation: React.FC = () => {
     for (const c of contractorsFromStore.map(contractorToCandidate)) lookup.set(c.id, c);
     for (const c of localStorageCandidates) lookup.set(c.id, c);
 
-    return ids.map((id) => lookup.get(id)).filter(Boolean) as Candidate[];
+    console.log("[ContractCreation] Looking for ids:", ids);
+    console.log("[ContractCreation] Lookup map keys:", Array.from(lookup.keys()));
+    
+    const result = ids.map((id) => lookup.get(id)).filter(Boolean) as Candidate[];
+    console.log("[ContractCreation] Found candidates:", result.map(c => ({ id: c.id, name: c.name })));
+    
+    return result;
   }, [idsParam, mockCandidates, allCandidates, contractorsFromStore]);
 
   const [index, setIndex] = useState(0);
