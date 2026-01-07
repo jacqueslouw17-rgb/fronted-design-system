@@ -137,9 +137,9 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
       // Move to next candidate in contract creation
       setCurrentDraftIndex(prev => prev + 1);
     } else {
-      // All candidates processed, move to bundle creation
-      setPhase("bundle-creation");
-      setCurrentDraftIndex(0); // Reset for bundle creation
+      // All candidates processed, skip bundle-creation and go directly to drafting
+      setPhase("drafting");
+      setCurrentDraftIndex(0); // Reset for drafting
     }
   }, [currentDraftIndex, selectedCandidates.length]);
 
