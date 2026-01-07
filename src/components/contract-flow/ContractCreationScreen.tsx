@@ -599,20 +599,45 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
 
           <div className="space-y-2">
             <Label>Nationality</Label>
-            <Input
+            <Select
               value={contractData.nationality || ""}
-              onChange={(e) => setContractData({ ...contractData, nationality: e.target.value })}
-              placeholder="Nationality"
-            />
+              onValueChange={(value) => setContractData({ ...contractData, nationality: value })}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select nationality" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="Swedish">🇸🇪 Swedish</SelectItem>
+                <SelectItem value="Norwegian">🇳🇴 Norwegian</SelectItem>
+                <SelectItem value="Filipino">🇵🇭 Filipino</SelectItem>
+                <SelectItem value="Indian">🇮🇳 Indian</SelectItem>
+                <SelectItem value="American">🇺🇸 American</SelectItem>
+                <SelectItem value="British">🇬🇧 British</SelectItem>
+                <SelectItem value="German">🇩🇪 German</SelectItem>
+                <SelectItem value="French">🇫🇷 French</SelectItem>
+                <SelectItem value="Spanish">🇪🇸 Spanish</SelectItem>
+                <SelectItem value="Italian">🇮🇹 Italian</SelectItem>
+                <SelectItem value="Singaporean">🇸🇬 Singaporean</SelectItem>
+                <SelectItem value="Mexican">🇲🇽 Mexican</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
             <Label>ID Type</Label>
-            <Input
+            <Select
               value={contractData.idType || ""}
-              onChange={(e) => setContractData({ ...contractData, idType: e.target.value })}
-              placeholder="e.g., Passport, National ID"
-            />
+              onValueChange={(value) => setContractData({ ...contractData, idType: value })}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select ID type" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="National ID">National ID</SelectItem>
+                <SelectItem value="Passport">Passport</SelectItem>
+                <SelectItem value="Driver's License">Driver's License</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -641,6 +666,33 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               placeholder="City"
             />
           </div>
+
+          <div className="space-y-2">
+            <Label>Country</Label>
+            <Select
+              value={contractData.country || ""}
+              onValueChange={(value) => setContractData({ ...contractData, country: value })}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="Sweden">🇸🇪 Sweden</SelectItem>
+                <SelectItem value="Norway">🇳🇴 Norway</SelectItem>
+                <SelectItem value="Philippines">🇵🇭 Philippines</SelectItem>
+                <SelectItem value="India">🇮🇳 India</SelectItem>
+                <SelectItem value="United States">🇺🇸 United States</SelectItem>
+                <SelectItem value="United Kingdom">🇬🇧 United Kingdom</SelectItem>
+                <SelectItem value="Germany">🇩🇪 Germany</SelectItem>
+                <SelectItem value="France">🇫🇷 France</SelectItem>
+                <SelectItem value="Spain">🇪🇸 Spain</SelectItem>
+                <SelectItem value="Italy">🇮🇹 Italy</SelectItem>
+                <SelectItem value="Singapore">🇸🇬 Singapore</SelectItem>
+                <SelectItem value="Mexico">🇲🇽 Mexico</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label>Address</Label>
             <Textarea
