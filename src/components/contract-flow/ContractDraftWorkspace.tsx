@@ -609,7 +609,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             }} transition={{
               duration: 0.2
             }}>
-              <Card className="p-6 bg-background border-border">
+              <Card className="p-6 bg-background border-border rounded-b-none">
                 <div className="space-y-4 select-none">
                   {fullContent.map((section, idx) => <div key={idx}>
                       {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
@@ -626,7 +626,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </div>
 
         {/* Buttons below document - always visible */}
-        <div className="flex-shrink-0 pt-4 flex gap-3 justify-between items-center">
+        <div className="flex-shrink-0 p-4 flex gap-3 justify-between items-center bg-background border border-t-0 border-border rounded-b-lg">
           <Button
             variant="outline"
             onClick={() => {
