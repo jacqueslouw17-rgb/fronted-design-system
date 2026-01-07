@@ -493,7 +493,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               type="date"
               value={contractData.startDate}
               onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
-              className={errors.startDate ? "border-destructive" : ""}
+              className={`${errors.startDate ? "border-destructive" : ""} ${contractData.startDate ? "text-foreground" : "text-muted-foreground"}`}
             />
             {errors.startDate ? (
               <p className="text-destructive text-sm">{errors.startDate}</p>
