@@ -327,6 +327,18 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
     
+    if (!contractData.fullName?.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+    
+    if (!contractData.email?.trim()) {
+      newErrors.email = "Email is required";
+    }
+    
+    if (!contractData.role?.trim()) {
+      newErrors.role = "Role is required";
+    }
+    
     if (!contractData.salary) {
       newErrors.salary = "Looks like this one's still empty";
     }
@@ -458,29 +470,62 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         {/* Auto-populated fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Full Legal Name</Label>
+            <Label>
+              Full Legal Name
+              {errors.fullName && (
+                <span className="text-destructive text-xs ml-2">Required</span>
+              )}
+            </Label>
             <Input
               value={contractData.fullName}
-              onChange={(e) => setContractData({ ...contractData, fullName: e.target.value })}
+              onChange={(e) => {
+                setContractData({ ...contractData, fullName: e.target.value });
+                if (e.target.value.trim() && errors.fullName) {
+                  setErrors(prev => ({ ...prev, fullName: '' }));
+                }
+              }}
+              className={errors.fullName ? "border-destructive" : ""}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label>
+              Email
+              {errors.email && (
+                <span className="text-destructive text-xs ml-2">Required</span>
+              )}
+            </Label>
             <Input
               id="email"
               type="email"
               value={contractData.email}
-              onChange={(e) => setContractData({ ...contractData, email: e.target.value })}
+              onChange={(e) => {
+                setContractData({ ...contractData, email: e.target.value });
+                if (e.target.value.trim() && errors.email) {
+                  setErrors(prev => ({ ...prev, email: '' }));
+                }
+              }}
+              className={errors.email ? "border-destructive" : ""}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Role</Label>
+            <Label>
+              Role
+              {errors.role && (
+                <span className="text-destructive text-xs ml-2">Required</span>
+              )}
+            </Label>
             <Input
               id="role"
               value={contractData.role}
-              onChange={(e) => setContractData({ ...contractData, role: e.target.value })}
+              onChange={(e) => {
+                setContractData({ ...contractData, role: e.target.value });
+                if (e.target.value.trim() && errors.role) {
+                  setErrors(prev => ({ ...prev, role: '' }));
+                }
+              }}
+              className={errors.role ? "border-destructive" : ""}
             />
           </div>
 
