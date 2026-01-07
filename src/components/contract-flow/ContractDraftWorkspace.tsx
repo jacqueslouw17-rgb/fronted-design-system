@@ -594,7 +594,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         {/* Scrollable contract content */}
         <div
           ref={scrollAreaRef}
-          className="flex-1 min-h-0 overflow-y-auto"
+          className="flex-1 min-h-0 overflow-y-auto rounded-t-lg border border-b-0 border-border bg-background"
         >
           <AnimatePresence mode="wait">
             <motion.div key={activeDocument} initial={{
@@ -609,7 +609,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             }} transition={{
               duration: 0.2
             }}>
-              <Card className="p-6 bg-background border-border rounded-b-none">
+              <div className="p-6">
                 <div className="space-y-4 select-none">
                   {fullContent.map((section, idx) => <div key={idx}>
                       {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
@@ -620,7 +620,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                         </p>}
                     </div>)}
                 </div>
-              </Card>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
