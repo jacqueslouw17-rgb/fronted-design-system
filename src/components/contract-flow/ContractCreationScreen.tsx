@@ -682,7 +682,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         >
           <Sparkles className="h-5 w-5" />
           {currentIndex + 1 === totalCandidates 
-            ? "Next: Review Contract Bundle" 
+            ? (totalCandidates > 1 ? "Review Agreements" : "Review Agreement")
             : "Review Next Candidate"}
         </Button>
       </div>
