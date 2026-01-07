@@ -551,8 +551,8 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         delay: 0.2,
         duration: 0.3
       }} className="flex-1 flex flex-col max-h-[600px]">
-        {/* Document Bundle Toggle - Hidden for now since we only have one document */}
-        {/* <motion.div initial={{
+        {/* Document Bundle Toggle */}
+        <motion.div initial={{
           opacity: 0,
           y: -10
         }} animate={{
@@ -577,7 +577,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
                 </button>;
             })}
           </div>
-        </motion.div> */}
+        </motion.div>
 
         {/* Info message */}
         <motion.div initial={{
@@ -634,21 +634,17 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
             }} transition={{
               duration: 0.3
             }} className="mb-4">
-              <ContractCarousel pages={carouselPages} />
+              
             </motion.div>
 
             <div className="flex gap-3 justify-end">
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                  });
-                  onPrevious();
-                }} 
-                size="lg"
-              >
+              <Button variant="outline" onClick={() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+                });
+                onPrevious();
+              }} size="lg">
                 Previous
               </Button>
               <Button onClick={() => {
