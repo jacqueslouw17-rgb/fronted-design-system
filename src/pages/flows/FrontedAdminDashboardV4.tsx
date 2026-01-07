@@ -1,6 +1,6 @@
 // Flow 1 - Fronted Admin Dashboard v4 - Updated
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Topbar from "@/components/dashboard/Topbar";
 import DashboardDrawer from "@/components/dashboard/DashboardDrawer";
@@ -536,8 +536,16 @@ const FrontedAdminDashboardV4: React.FC = () => {
   const [viewMode, setViewMode] = useState<"tracker" | "payroll" | "batch-review">("tracker");
 
   // Company Switcher State (v4-specific, detached from v3)
+  const [searchParams] = useSearchParams();
+  const companyFromUrl = searchParams.get("company");
   const [companies, setCompanies] = useState(V4_MOCK_COMPANIES);
-  const [selectedCompany, setSelectedCompany] = useState<string>(V4_MOCK_COMPANIES[0].id);
+  const [selectedCompany, setSelectedCompany] = useState<string>(() => {
+    // Use company from URL if valid, otherwise default to first company
+    if (companyFromUrl && V4_MOCK_COMPANIES.some(c => c.id === companyFromUrl)) {
+      return companyFromUrl;
+    }
+    return V4_MOCK_COMPANIES[0].id;
+  });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState(false);
   
   // Add Candidate Drawer State (v4-specific)
