@@ -213,7 +213,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
     const isAtBottom = remaining <= thresholdPx;
 
-    setHasScrolledToBottom(prev => prev || isAtBottom);
+    setHasScrolledToBottom(isAtBottom);
   }, [getViewportEl]);
 
   // Attach scroll listener to the actual ScrollArea viewport (scroll events don't reliably bubble)
