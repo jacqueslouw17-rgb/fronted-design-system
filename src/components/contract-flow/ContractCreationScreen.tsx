@@ -492,7 +492,20 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               id="startDate"
               type="date"
               value={contractData.startDate}
-              onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
+              onChange={(e) => {
+                const newDate = e.target.value;
+                setContractData({ ...contractData, startDate: newDate });
+                // Clear error if valid future date entered
+                if (newDate && errors.startDate) {
+                  const [year, month, day] = newDate.split('-').map(Number);
+                  const startDate = new Date(year, month - 1, day);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (startDate >= today) {
+                    setErrors(prev => ({ ...prev, startDate: '' }));
+                  }
+                }
+              }}
               className={`${errors.startDate ? "border-destructive" : ""} ${contractData.startDate ? "date-has-value text-foreground" : "text-muted-foreground"}`}
             />
             {errors.startDate ? (
