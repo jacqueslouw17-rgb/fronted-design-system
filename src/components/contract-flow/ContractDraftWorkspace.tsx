@@ -577,88 +577,80 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         delay: 0.2,
         duration: 0.3
       }} className="flex-1 flex flex-col h-[600px] min-h-0">
-        <div className="flex-1 min-h-0 flex flex-col w-full max-w-3xl mx-auto">
-          {/* Info message */}
-          <motion.div initial={{
-            opacity: 0,
-            scale: 0.95
-          }} animate={{
-            opacity: 1,
-            scale: 1
-          }} transition={{
-            delay: 0.3,
-            duration: 0.3
-          }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
-            <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
-          </motion.div>
+        {/* Info message */}
+        <motion.div initial={{
+          opacity: 0,
+          scale: 0.95
+        }} animate={{
+          opacity: 1,
+          scale: 1
+        }} transition={{
+          delay: 0.3,
+          duration: 0.3
+        }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
+          <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
+        </motion.div>
 
-          {/* Scrollable contract content */}
-          <div className="flex-1 min-h-0 flex flex-col">
-            <div
-              ref={scrollAreaRef}
-              className="flex-1 min-h-0 overflow-y-auto"
-            >
-              <div className="pb-6 pr-4">
-                <AnimatePresence mode="wait">
-                  <motion.div key={activeDocument} initial={{
-                    opacity: 0,
-                    x: 20
-                  }} animate={{
-                    opacity: 1,
-                    x: 0
-                  }} exit={{
-                    opacity: 0,
-                    x: -20
-                  }} transition={{
-                    duration: 0.2
-                  }}>
-                    <Card className="p-6 bg-background border-border">
-                      <div className="space-y-4 select-none">
-                        {fullContent.map((section, idx) => <div key={idx}>
-                            {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
-                                {section.heading}
-                              </h3>}
-                            {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                                {section.text}
-                              </p>}
-                          </div>)}
-                      </div>
-                    </Card>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
-
-            {/* Sticky buttons at bottom */}
-            <div className="flex-shrink-0 pt-4 border-t border-border bg-background">
-              <div className="flex gap-3 justify-between items-center">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    scrollAgreementToTop();
-                    onPrevious();
-                  }}
-                  size="lg"
-                >
-                  Previous
-                </Button>
-                <div className="flex items-center gap-2">
-                  {!hasScrolledToBottom && (
-                    <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
-                  )}
-                  <Button
-                    onClick={() => {
-                      scrollAgreementToTop();
-                      onNext();
-                    }}
-                    size="lg"
-                    disabled={!hasScrolledToBottom}
-                  >
-                    {index === total - 1 ? "Review All Drafts" : "Confirm"}
-                  </Button>
+        {/* Scrollable contract content */}
+        <div
+          ref={scrollAreaRef}
+          className="flex-1 min-h-0 overflow-y-auto"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div key={activeDocument} initial={{
+              opacity: 0,
+              x: 20
+            }} animate={{
+              opacity: 1,
+              x: 0
+            }} exit={{
+              opacity: 0,
+              x: -20
+            }} transition={{
+              duration: 0.2
+            }}>
+              <Card className="p-6 bg-background border-border">
+                <div className="space-y-4 select-none">
+                  {fullContent.map((section, idx) => <div key={idx}>
+                      {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                          {section.heading}
+                        </h3>}
+                      {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                          {section.text}
+                        </p>}
+                    </div>)}
                 </div>
-              </div>
-            </div>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Buttons below document - always visible */}
+        <div className="flex-shrink-0 pt-4 flex gap-3 justify-between items-center">
+          <Button
+            variant="outline"
+            onClick={() => {
+              scrollAgreementToTop();
+              onPrevious();
+            }}
+            size="lg"
+          >
+            Previous
+          </Button>
+          <div className="flex items-center gap-2">
+            {!hasScrolledToBottom && (
+              <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
+            )}
+            <Button
+              onClick={() => {
+                scrollAgreementToTop();
+                onNext();
+              }}
+              size="lg"
+              disabled={!hasScrolledToBottom}
+            >
+              {index === total - 1 ? "Review All Drafts" : "Confirm"}
+            </Button>
           </div>
         </div>
       </motion.div>
