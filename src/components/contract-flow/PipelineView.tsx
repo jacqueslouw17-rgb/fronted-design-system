@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles } from "lucide-react";
+import { CheckCircle2, Eye, Send, Settings, FileEdit, FileText, FileSignature, AlertCircle, Loader2, Info, Clock, DollarSign, Plus, History, Download, Activity, Trash2, Award, Sparkles, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1142,27 +1142,32 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               </Button>
                             </>}
                           
-                          {status === "data-pending" && <>
-                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" onClick={e => {
-                          e.stopPropagation();
-                          handleOpenConfigure(contractor);
-                        }}>
-                                <Eye className="h-3 w-3" />
-                                View Form
-                              </Button>
+                          {status === "data-pending" && (
+                            <div className="w-full space-y-2">
+                              <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
                               <Button 
                                 size="sm" 
-                                className="flex-1 text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" 
-                                disabled={resentFormIds.has(contractor.id)}
+                                className="w-full text-xs h-8 gap-1.5 bg-gradient-primary hover:opacity-90" 
+                                disabled={sendingFormIds.has(contractor.id)}
                                 onClick={e => {
                                   e.stopPropagation();
-                                  handleSendForm(contractor.id);
+                                  setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                                  setTimeout(() => {
+                                    setSendingFormIds(prev => {
+                                      const next = new Set(prev);
+                                      next.delete(contractor.id);
+                                      return next;
+                                    });
+                                    setResentFormIds(prev => new Set([...prev, contractor.id]));
+                                    toast.info(`Form resent to ${contractor.name}`);
+                                  }, 1500);
                                 }}
                               >
-                                <Send className="h-3 w-3" />
-                                {resentFormIds.has(contractor.id) ? "Sent" : "Resend"}
+                                <RotateCcw className={cn("h-3.5 w-3.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                                Resend
                               </Button>
-                            </>}
+                            </div>
+                          )}
                           
                           {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                           e.stopPropagation();
