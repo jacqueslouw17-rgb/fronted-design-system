@@ -86,6 +86,34 @@ interface CompanyData {
 // Mock companies data - start empty for first-time admin experience
 const MOCK_COMPANIES: CompanyData[] = [];
 
+// Default candidates to pre-populate in the "drafting" (Prepare Contract) step
+const DEFAULT_DRAFTING_CANDIDATES = [
+  {
+    id: "default-1",
+    name: "Marcus Chen",
+    country: "Singapore",
+    countryFlag: "🇸🇬",
+    role: "Senior Backend Engineer",
+    salary: "SGD 12,000/mo",
+    status: "drafting",
+    employmentType: "contractor",
+    email: "marcus.chen@example.com",
+    dataReceived: true,
+  },
+  {
+    id: "default-2", 
+    name: "Sofia Rodriguez",
+    country: "Spain",
+    countryFlag: "🇪🇸",
+    role: "Product Designer",
+    salary: "EUR 6,500/mo",
+    status: "drafting",
+    employmentType: "contractor",
+    email: "sofia.rodriguez@example.com",
+    dataReceived: true,
+  },
+];
+
 const AdminContractingMultiCompany = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -147,7 +175,7 @@ const AdminContractingMultiCompany = () => {
       const newCompany = { id: newCompanyId, name: decodeURIComponent(newCompanyName) };
       
       setCompanies(prev => [...prev, newCompany]);
-      setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
+      setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [...DEFAULT_DRAFTING_CANDIDATES.map(c => ({ ...c, id: `${c.id}-${Date.now()}` }))] }));
       setSelectedCompany(newCompanyId);
       
       toast({
@@ -220,7 +248,7 @@ const AdminContractingMultiCompany = () => {
     };
     
     setCompanies(prev => [...prev, newCompany]);
-    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [] }));
+    setCompanyContractors(prev => ({ ...prev, [newCompanyId]: [...DEFAULT_DRAFTING_CANDIDATES.map(c => ({ ...c, id: `${c.id}-${Date.now()}` }))] }));
     setSelectedCompany(newCompanyId);
     
     toast({
