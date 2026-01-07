@@ -1272,10 +1272,6 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <CheckCircle2 className="h-3 w-3" />
                             <span>Data received</span>
                           </div>}
-                        {status === "drafting" && contractor.dataReceived && <div className="flex items-center gap-1 text-[10px] text-accent-blue-text">
-                            <Sparkles className="h-3 w-3" />
-                            <span>Auto-draft ready</span>
-                          </div>}
                       </CardContent>
                     </Card>
                     </motion.div>)}
