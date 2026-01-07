@@ -336,19 +336,18 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
     } else {
       const startDate = new Date(contractData.startDate);
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
       if (startDate < today) {
-        // Genie confirmation for past dates
-        toast.warning("Hmm, that doesn't look right — this date seems to be in the past. Did you mean a future date?", {
-          duration: 5000,
-          action: {
-            label: "Fix it",
-            onClick: () => {},
-          },
-        });
+        newErrors.startDate = "This date is in the past — please select a future date";
       }
     }
 
     setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -486,9 +485,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
           <div className="space-y-2">
             <Label>
               Start Date
-              {errors.startDate && (
-                <span className="text-destructive text-xs ml-2">Needs your attention</span>
-              )}
             </Label>
             <Input
               id="startDate"
@@ -497,6 +493,11 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               onChange={(e) => setContractData({ ...contractData, startDate: e.target.value })}
               className={errors.startDate ? "border-destructive" : ""}
             />
+            {errors.startDate ? (
+              <p className="text-destructive text-sm">{errors.startDate}</p>
+            ) : (
+              <p className="text-muted-foreground text-xs">When should this person start?</p>
+            )}
           </div>
 
           <div className="space-y-2">
