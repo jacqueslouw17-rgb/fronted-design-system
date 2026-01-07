@@ -329,7 +329,30 @@ export const V4_PipelineView: React.FC<V4_PipelineViewProps> = ({
             )}
             <div className="flex gap-2">
               {contractor.status === "offer-accepted" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleConfigureCandidateForm(contractor)}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleOpenSendCandidateForm(contractor)} disabled={sendingFormIds.has(contractor.id)}>{sendingFormIds.has(contractor.id) ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Send className="h-3 w-3 mr-1" />}Send Form</Button></>)}
-              {contractor.status === "data-pending" && (<><Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleConfigureCandidateForm(contractor)}><Settings className="h-3 w-3 mr-1" />Configure</Button><Button size="sm" className="flex-1 text-xs" onClick={() => handleMarkReceived(contractor)}><CheckCircle2 className="h-3 w-3 mr-1" />Mark Received</Button></>)}
+              {contractor.status === "data-pending" && (
+                <div className="w-full space-y-2">
+                  <p className="text-xs text-muted-foreground text-center">Awaiting candidate details</p>
+                  <Button 
+                    size="sm" 
+                    className="w-full text-xs bg-primary hover:bg-primary/90" 
+                    onClick={() => {
+                      setSendingFormIds(prev => new Set([...prev, contractor.id]));
+                      setTimeout(() => {
+                        setSendingFormIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(contractor.id);
+                          return next;
+                        });
+                        toast.success(`Form resent to ${contractor.name}`);
+                      }, 1500);
+                    }}
+                    disabled={sendingFormIds.has(contractor.id)}
+                  >
+                    <RotateCcw className={cn("h-3.5 w-3.5 mr-1.5", sendingFormIds.has(contractor.id) && "animate-spin")} />
+                    Resend
+                  </Button>
+                </div>
+              )}
               {contractor.status === "drafting" && (<Button size="sm" className="w-full text-xs" onClick={() => handleDraftContract(contractor)}><FileEdit className="h-3 w-3 mr-1" />Send for Signature</Button>)}
               {contractor.status === "awaiting-signature" && (<Button size="sm" className="w-full text-xs" onClick={() => handleSignatureComplete(contractor)}><FileSignature className="h-3 w-3 mr-1" />Mark Signed</Button>)}
               {contractor.status === "trigger-onboarding" && (<Button size="sm" className="w-full text-xs" onClick={() => handleStartOnboarding(contractor)}><Sparkles className="h-3 w-3 mr-1" />Start Onboarding</Button>)}
