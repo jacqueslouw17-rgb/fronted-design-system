@@ -470,12 +470,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
         {/* Auto-populated fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>
-              Full Legal Name
-              {errors.fullName && (
-                <span className="text-destructive text-xs ml-2">Required</span>
-              )}
-            </Label>
+            <Label>Full Legal Name</Label>
             <Input
               value={contractData.fullName}
               onChange={(e) => {
@@ -486,15 +481,13 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               }}
               className={errors.fullName ? "border-destructive" : ""}
             />
+            {errors.fullName && (
+              <p className="text-destructive text-sm">We'll need this one filled in</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label>
-              Email
-              {errors.email && (
-                <span className="text-destructive text-xs ml-2">Required</span>
-              )}
-            </Label>
+            <Label>Email</Label>
             <Input
               id="email"
               type="email"
@@ -507,15 +500,13 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               }}
               className={errors.email ? "border-destructive" : ""}
             />
+            {errors.email && (
+              <p className="text-destructive text-sm">We'll need this one filled in</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label>
-              Role
-              {errors.role && (
-                <span className="text-destructive text-xs ml-2">Required</span>
-              )}
-            </Label>
+            <Label>Role</Label>
             <Input
               id="role"
               value={contractData.role}
@@ -527,6 +518,9 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               }}
               className={errors.role ? "border-destructive" : ""}
             />
+            {errors.role && (
+              <p className="text-destructive text-sm">We'll need this one filled in</p>
+            )}
           </div>
 
           <div className="space-y-2">
