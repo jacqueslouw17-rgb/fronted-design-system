@@ -334,7 +334,9 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
     if (!contractData.startDate) {
       newErrors.startDate = "We'll need this one filled in";
     } else {
-      const startDate = new Date(contractData.startDate);
+      // Parse date parts to avoid timezone issues
+      const [year, month, day] = contractData.startDate.split('-').map(Number);
+      const startDate = new Date(year, month - 1, day);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (startDate < today) {
