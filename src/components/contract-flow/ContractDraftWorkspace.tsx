@@ -649,7 +649,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
               size="lg"
               disabled={!hasScrolledToBottom}
             >
-              {index === total - 1 ? "Review All Drafts" : "Confirm"}
+              {index === total - 1 ? "Confirm & Continue" : "Confirm"}
             </Button>
           </div>
         </div>
