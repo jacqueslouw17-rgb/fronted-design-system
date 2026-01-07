@@ -888,8 +888,9 @@ const ContractFlowDemo = () => {
                         }}
                         onPrevious={() => {
                           if (contractFlow.currentDraftIndex === 0) {
-                            // If on first candidate, go back to bundle creation
-                            navigate("/flows/contract-flow?phase=bundle-creation");
+                            // Go back to Review Candidate Details
+                            const ids = contractFlow.selectedCandidates.map(c => c.id).join(",");
+                            navigate(`/flows/contract-creation?ids=${ids}`);
                           } else {
                             // Otherwise go to previous candidate
                             contractFlow.previousDraft();
