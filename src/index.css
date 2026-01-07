@@ -527,4 +527,19 @@ All colors MUST be HSL.
     border-right: 2px solid hsl(var(--muted-foreground));
     border-bottom: 2px solid hsl(var(--muted-foreground));
   }
+
+  /* Native date input value color (WebKit renders it muted by default) */
+  input.date-has-value[type="date"] {
+    color: hsl(var(--foreground));
+    -webkit-text-fill-color: hsl(var(--foreground));
+  }
+
+  input.date-has-value[type="date"]::-webkit-datetime-edit,
+  input.date-has-value[type="date"]::-webkit-datetime-edit-text,
+  input.date-has-value[type="date"]::-webkit-datetime-edit-month-field,
+  input.date-has-value[type="date"]::-webkit-datetime-edit-day-field,
+  input.date-has-value[type="date"]::-webkit-datetime-edit-year-field {
+    color: hsl(var(--foreground));
+    -webkit-text-fill-color: hsl(var(--foreground));
+  }
 }
