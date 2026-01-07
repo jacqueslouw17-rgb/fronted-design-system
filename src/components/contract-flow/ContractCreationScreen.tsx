@@ -650,14 +650,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
           </div>
         </div>
 
-        {/* Compliance Preview */}
-        <CompliancePreviewCard
-          country={candidate.country}
-          countryCode={candidate.countryCode}
-          flag={candidate.flag}
-          employmentType={employmentType}
-        />
-
       </Card>
 
       {/* Navigation */}
