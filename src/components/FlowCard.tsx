@@ -159,6 +159,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 1 Fronted Admin Dashboard v2",
       locked: false,
+      live: true,
       deprecated: false,
       description: "Multi-company version of Flow 2: Switch between companies and manage contracts across multiple organizations. Includes company switcher dropdown with 'Add New Company' action.",
       steps: "7 steps",
@@ -406,7 +407,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
                 🔒
               </Badge>
             )}
-            {flow.locked && !flow.deprecated && (
+            {((flow.locked && !flow.deprecated) || ('live' in flow && flow.live)) && (
               <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30">
                 Live
               </Badge>
