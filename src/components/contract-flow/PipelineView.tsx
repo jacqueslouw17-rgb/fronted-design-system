@@ -1171,11 +1171,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           
                           {status === "drafting" && <Button size="sm" className="w-full text-xs h-7 gap-1 bg-gradient-primary hover:opacity-90" onClick={e => {
                           e.stopPropagation();
-                          const params = new URLSearchParams({
-                            ids: contractor.id,
-                            mode: "single"
-                          });
-                          navigate(`/flows/contract-creation?${params}`);
+                          // Use the shared onDraftContract callback (same as bulk) for consistent behavior
+                          handleDraftContract([contractor.id]);
                         }}>
                               <FileEdit className="h-3 w-3" />
                               Draft Contract

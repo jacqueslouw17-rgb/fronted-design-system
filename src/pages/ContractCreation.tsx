@@ -263,6 +263,7 @@ const ContractCreation: React.FC = () => {
                     }
                   }}
                   onNext={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     if (index < selected.length - 1) {
                       setIndex((i) => i + 1);
                     } else {
