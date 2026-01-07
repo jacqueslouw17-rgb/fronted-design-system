@@ -607,7 +607,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           delay: 0.3,
           duration: 0.3
         }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
-          <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
+          <p className="text-sm text-foreground">This contract uses a legally verified template — just review the details and you're good to go.</p>
         </motion.div>
 
         {/* Scrollable contract content */}
