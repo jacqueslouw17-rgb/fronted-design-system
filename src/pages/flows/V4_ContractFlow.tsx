@@ -207,10 +207,10 @@ const V4_ContractFlow: React.FC = () => {
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex w-full bg-background">
         <AgentLayout context="Contract Flow">
-          <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
-            {/* Static background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+          <div className="flex-1 overflow-auto relative min-h-screen">
+            {/* Fixed background - covers entire viewport */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06]" />
               <div
                 className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10"
                 style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))' }}
@@ -221,7 +221,7 @@ const V4_ContractFlow: React.FC = () => {
               />
             </div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 min-h-screen">
               <AnimatePresence mode="wait">
                 {/* Phase 1: Contract Creation (per candidate) */}
                 {phase === "contract-creation" && (
