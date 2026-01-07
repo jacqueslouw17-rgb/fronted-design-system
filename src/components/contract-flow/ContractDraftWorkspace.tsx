@@ -464,22 +464,30 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
           </div>
         </div>
   }];
+  // Candidate stepper component - only show when there's more than one candidate
+  const candidateStepper = total > 1 ? (
+    <div className="flex items-center justify-center gap-3">
+      <span className="text-sm text-muted-foreground">Candidate</span>
+      <span className="text-lg font-bold text-foreground">{index + 1}</span>
+      <span className="text-sm text-muted-foreground">/ {total}</span>
+      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden ml-1">
+        <div 
+          className="h-full bg-primary rounded-full transition-all duration-300" 
+          style={{ width: `${((index + 1) / total) * 100}%` }}
+        />
+      </div>
+    </div>
+  ) : null;
+
   return <div className="space-y-6">
-      <AgentHeader title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} subtitle="Preview how this contract will appear to the candidate before sending for signature." showPulse={true} isActive={isAgentSpeaking} showInput={false}
-    // tags={
-    //   <KurtContextualTags 
-    //     flowContext="contract-workspace" 
-    //     onTagClick={action => {
-    //       if (action === "ask-kurt") {
-    //         setOpen(true);
-    //       } else {
-    //         handleKurtAction(action);
-    //       }
-    //     }} 
-    //     disabled={false} 
-    //   />
-    // }
-    />
+      <AgentHeader 
+        title={`Reviewing ${candidate.name.split(' ')[0]}'s Contract for ${candidate.country}`} 
+        subtitle="Preview how this contract will appear to the candidate before sending for signature." 
+        showPulse={true} 
+        isActive={isAgentSpeaking} 
+        showInput={false}
+        progressIndicator={candidateStepper}
+      />
       <motion.div initial={{
       opacity: 0
     }} animate={{
