@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClauseTooltip } from "@/components/ClauseTooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { CheckCircle2, Briefcase, Shield, FileText, Handshake, ScrollText } from "lucide-react";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { toast } from "sonner";
@@ -145,54 +145,59 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   // Determine employment type (default to contractor if not specified)
   const employmentType = candidate.employmentType || "contractor";
 
-  // Define available documents based on employment type
-  const getAvailableDocuments = () => {
+  const documents = useMemo(() => {
     if (employmentType === "employee") {
-      return [{
-        id: "employment-agreement" as DocumentType,
-        label: "Employment Agreement",
-        icon: FileText,
-        shortLabel: "Employment"
-      }, {
-        id: "country-compliance" as DocumentType,
-        label: `Country Compliance (${candidate.countryCode})`,
-        icon: Shield,
-        shortLabel: "Compliance"
-      }, {
-        id: "nda-policy" as DocumentType,
-        label: "NDA / Policy Docs",
-        icon: Handshake,
-        shortLabel: "NDA/Policy"
-      }];
-    } else {
-      return [{
+      return [
+        {
+          id: "employment-agreement" as DocumentType,
+          label: "Employment Agreement",
+          icon: FileText,
+          shortLabel: "Employment",
+        },
+        {
+          id: "country-compliance" as DocumentType,
+          label: `Country Compliance (${candidate.countryCode})`,
+          icon: Shield,
+          shortLabel: "Compliance",
+        },
+        {
+          id: "nda-policy" as DocumentType,
+          label: "NDA / Policy Docs",
+          icon: Handshake,
+          shortLabel: "NDA/Policy",
+        },
+      ];
+    }
+
+    return [
+      {
         id: "contractor-agreement" as DocumentType,
         label: "Contractor Agreement",
         icon: FileText,
-        shortLabel: "Contract"
-      }, {
+        shortLabel: "Contract",
+      },
+      {
         id: "nda" as DocumentType,
         label: "Non-Disclosure Agreement",
         icon: Handshake,
-        shortLabel: "NDA"
-      }, {
+        shortLabel: "NDA",
+      },
+      {
         id: "data-privacy" as DocumentType,
         label: `Data Privacy (${candidate.countryCode})`,
         icon: ScrollText,
-        shortLabel: "Privacy"
-      }];
-    }
-  };
-  const documents = getAvailableDocuments();
-  const [activeDocument, setActiveDocument] = useState<DocumentType>(documents[0].id);
+        shortLabel: "Privacy",
+      },
+    ];
+  }, [employmentType, candidate.countryCode]);
+
+  const [activeDocument, setActiveDocument] = useState<DocumentType>(() => documents[0].id);
   const fullContent = getContractContent(candidate, activeDocument);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
   const getViewportEl = useCallback(() => {
-    return scrollAreaRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]",
-    ) as HTMLDivElement | null;
+    return scrollAreaRef.current;
   }, []);
 
   const scrollAgreementToTop = useCallback((behavior: ScrollBehavior = "smooth") => {
@@ -232,7 +237,7 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     scrollAgreementToTop("auto");
 
     requestAnimationFrame(() => checkScrolledToBottom());
-  }, [candidate.id, documents, scrollAgreementToTop, checkScrolledToBottom]);
+  }, [candidate.id, documents[0].id, scrollAgreementToTop, checkScrolledToBottom]);
   const {
     setOpen,
     addMessage,
@@ -571,87 +576,87 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
       }} transition={{
         delay: 0.2,
         duration: 0.3
-      }} className="flex-1 flex flex-col max-h-[600px]">
-        {/* Info message */}
-        <motion.div initial={{
-          opacity: 0,
-          scale: 0.95
-        }} animate={{
-          opacity: 1,
-          scale: 1
-        }} transition={{
-          delay: 0.3,
-          duration: 0.3
-        }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
-          <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
-        </motion.div>
+      }} className="flex-1 flex flex-col h-[600px] min-h-0">
+        <div className="flex-1 min-h-0 flex flex-col w-full max-w-3xl mx-auto">
+          {/* Info message */}
+          <motion.div initial={{
+            opacity: 0,
+            scale: 0.95
+          }} animate={{
+            opacity: 1,
+            scale: 1
+          }} transition={{
+            delay: 0.3,
+            duration: 0.3
+          }} className="rounded-lg border border-border bg-muted/30 p-4 mb-4 flex-shrink-0 text-center">
+            <p className="text-sm text-foreground">We use a verified Fronted template and cannot be edited at this stage. Review details carefully before proceeding.</p>
+          </motion.div>
 
-        {/* Scrollable contract content */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          <ScrollArea 
-            ref={scrollAreaRef} 
-            className="flex-1 h-full"
-          >
-            <div className="pr-4 pb-4">
-              <AnimatePresence mode="wait">
-                <motion.div key={activeDocument} initial={{
-                  opacity: 0,
-                  x: 20
-                }} animate={{
-                  opacity: 1,
-                  x: 0
-                }} exit={{
-                  opacity: 0,
-                  x: -20
-                }} transition={{
-                  duration: 0.2
-                }}>
-                  <Card className="p-6 bg-background border-border">
-                    <div className="space-y-4 select-none">
-                      {fullContent.map((section, idx) => <div key={idx}>
-                          {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
-                              {section.heading}
-                            </h3>}
-                          {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                              {section.text}
-                            </p>}
-                        </div>)}
-                    </div>
-                  </Card>
-                </motion.div>
-              </AnimatePresence>
+          {/* Scrollable contract content */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div
+              ref={scrollAreaRef}
+              className="flex-1 min-h-0 overflow-y-auto"
+            >
+              <div className="pb-6 pr-4">
+                <AnimatePresence mode="wait">
+                  <motion.div key={activeDocument} initial={{
+                    opacity: 0,
+                    x: 20
+                  }} animate={{
+                    opacity: 1,
+                    x: 0
+                  }} exit={{
+                    opacity: 0,
+                    x: -20
+                  }} transition={{
+                    duration: 0.2
+                  }}>
+                    <Card className="p-6 bg-background border-border">
+                      <div className="space-y-4 select-none">
+                        {fullContent.map((section, idx) => <div key={idx}>
+                            {section.heading && <h3 className={`${idx === 0 ? 'text-lg font-medium mb-4 text-center' : 'text-sm font-medium mb-2'} text-foreground`}>
+                                {section.heading}
+                              </h3>}
+                            {section.text && <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                                {section.text}
+                              </p>}
+                          </div>)}
+                      </div>
+                    </Card>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
-          </ScrollArea>
 
-          {/* Sticky buttons at bottom */}
-          <div className="flex-shrink-0 pt-4 border-t border-border bg-background">
-            <div className="flex gap-3 justify-between items-center">
-              <Button variant="outline" onClick={() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: 'smooth'
-                });
-                onPrevious();
-              }} size="lg">
-                Previous
-              </Button>
-              <div className="flex items-center gap-2">
-                {!hasScrolledToBottom && (
-                  <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
-                )}
-                <Button 
+            {/* Sticky buttons at bottom */}
+            <div className="flex-shrink-0 pt-4 border-t border-border bg-background">
+              <div className="flex gap-3 justify-between items-center">
+                <Button
+                  variant="outline"
                   onClick={() => {
-                    window.scrollTo({
-                      top: 0,
-                      behavior: 'smooth'
-                    });
-                    onNext();
-                  }} 
+                    scrollAgreementToTop();
+                    onPrevious();
+                  }}
                   size="lg"
-                  disabled={!hasScrolledToBottom}
                 >
-                  {index === total - 1 ? "Review All Drafts" : "Confirm"}
+                  Previous
                 </Button>
+                <div className="flex items-center gap-2">
+                  {!hasScrolledToBottom && (
+                    <span className="text-xs text-muted-foreground">Scroll to bottom to confirm</span>
+                  )}
+                  <Button
+                    onClick={() => {
+                      scrollAgreementToTop();
+                      onNext();
+                    }}
+                    size="lg"
+                    disabled={!hasScrolledToBottom}
+                  >
+                    {index === total - 1 ? "Review All Drafts" : "Confirm"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
