@@ -146,9 +146,9 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     id: 'f1.1-fronted-admin',
     title: 'Flow 1.1 — Fronted Admin Dashboard v2',
     path: '/flows/contract-flow-multi-company',
-    locked: true,
-    lockedDate: '2025-01-15',
-    lockedReason: 'Finalized multi-company admin dashboard with pipeline, company switcher, add new company flow, and contractor management. Structure, design, and logic frozen.',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
     filePaths: [
       'src/pages/AdminContractingMultiCompany.tsx',
       'src/components/contract-flow/PipelineView.tsx',
