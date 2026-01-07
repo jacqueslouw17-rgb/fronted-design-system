@@ -501,17 +501,29 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
 
           <div className="space-y-2">
             <Label>
-              Monthly Salary / Compensation
+              Salary
               {errors.salary && (
                 <span className="text-destructive text-xs ml-2">Needs your attention</span>
               )}
             </Label>
-            <Input
-              id="salary"
-              value={contractData.salary}
-              onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
-              className={errors.salary ? "border-destructive" : ""}
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
+                {employmentType === "contractor" ? "$" : 
+                  contractData.country === "Philippines" ? "₱" :
+                  contractData.country === "Norway" ? "kr" :
+                  contractData.country === "Singapore" ? "S$" :
+                  contractData.country === "India" ? "₹" :
+                  contractData.country === "United Kingdom" ? "£" :
+                  contractData.country === "Germany" || contractData.country === "France" || contractData.country === "Spain" || contractData.country === "Italy" ? "€" :
+                  "$"}
+              </span>
+              <Input
+                id="salary"
+                value={contractData.salary}
+                onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
+                className={`pl-8 ${errors.salary ? "border-destructive" : ""}`}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
