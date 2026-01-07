@@ -355,7 +355,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
   const handleNext = () => {
     if (handleValidate()) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      toast.success("All done ✅ Everything's good to go");
       onNext();
     }
   };
