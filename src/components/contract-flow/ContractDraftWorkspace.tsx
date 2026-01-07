@@ -587,11 +587,10 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
         </motion.div>
 
         {/* Scrollable contract content */}
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           <ScrollArea 
             ref={scrollAreaRef} 
-            className="flex-1"
-            onScrollCapture={handleScroll}
+            className="flex-1 h-full"
           >
             <div className="pr-4 pb-4">
               <AnimatePresence mode="wait">
