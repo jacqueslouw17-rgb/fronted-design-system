@@ -10,11 +10,34 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
 
+// Additional display candidates that appear in PipelineView
+const displayCandidates: Candidate[] = [
+  {
+    id: "display-3",
+    name: "Elena Popescu",
+    role: "Backend Developer",
+    country: "Romania",
+    countryCode: "RO",
+    flag: "🇷🇴",
+    salary: "RON 18,000/mo",
+    startDate: "",
+    noticePeriod: "30 days",
+    pto: "21 days/year",
+    currency: "RON",
+    signingPortal: "DocuSign",
+    status: "Hired",
+    email: "elena.popescu@example.com",
+    employmentType: "contractor",
+  },
+];
+
 const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const idsParam = searchParams.get("ids");
-  const allCandidates = useMockCandidates();
+  const mockCandidates = useMockCandidates();
+  // Combine mock candidates with display candidates for lookup
+  const allCandidates = [...mockCandidates, ...displayCandidates];
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
 
   const userData = {
@@ -26,11 +49,12 @@ const ContractCreation: React.FC = () => {
   };
 
   const selected: Candidate[] = useMemo(() => {
-    if (!idsParam) return allCandidates.filter(c => c.status === "Hired");
+    if (!idsParam) return mockCandidates.filter(c => c.status === "Hired");
     const ids = idsParam.split(",").map((s) => s.trim());
     const list = allCandidates.filter((c) => ids.includes(c.id));
-    return list.length > 0 ? list : allCandidates.filter(c => c.status === "Hired");
-  }, [idsParam, allCandidates]);
+    // Only return the specific candidates requested, don't fall back to all
+    return list.length > 0 ? list : mockCandidates.filter(c => c.status === "Hired");
+  }, [idsParam, allCandidates, mockCandidates]);
 
   const [index, setIndex] = useState(0);
   const current = selected[index] ?? selected[0];
