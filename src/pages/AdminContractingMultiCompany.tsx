@@ -631,7 +631,8 @@ const AdminContractingMultiCompany = () => {
     const signedParam = searchParams.get("signed");
     
     if (phaseParam === "bundle-creation") {
-      contractFlow.goToBundleCreation();
+      // Bundle step is hidden in Flow 1.1 — treat this as drafting.
+      contractFlow.proceedToDrafting();
       navigate("/flows/contract-flow-multi-company", { replace: true });
     }
     
@@ -982,7 +983,9 @@ const AdminContractingMultiCompany = () => {
                       size="sm" 
                       className="gap-2"
                       onClick={() => {
-                        navigate("/flows/contract-flow-multi-company?phase=bundle-creation");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        // Bundle step is hidden — go back to candidate details instead.
+                        contractFlow.prepareDrafts();
                       }}
                     >
                       <ArrowLeft className="h-4 w-4" />
