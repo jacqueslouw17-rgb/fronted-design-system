@@ -683,7 +683,10 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
       <div className="flex justify-end gap-3">
         {currentIndex > 0 && onPrevious && (
           <Button 
-            onClick={onPrevious}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              onPrevious();
+            }}
             variant="outline"
             size="lg"
             className="px-8"
