@@ -597,7 +597,14 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
             </Select>
           </div>
 
-
+          <div className="space-y-2">
+            <Label>Nationality</Label>
+            <Input
+              value={contractData.nationality || ""}
+              onChange={(e) => setContractData({ ...contractData, nationality: e.target.value })}
+              placeholder="Nationality"
+            />
+          </div>
 
           <div className="space-y-2">
             <Label>ID Type</Label>
@@ -634,16 +641,6 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               placeholder="City"
             />
           </div>
-
-          <div className="space-y-2">
-            <Label>Nationality</Label>
-            <Input
-              value={contractData.nationality || ""}
-              onChange={(e) => setContractData({ ...contractData, nationality: e.target.value })}
-              placeholder="Nationality"
-            />
-          </div>
-
           <div className="space-y-2">
             <Label>Address</Label>
             <Textarea
