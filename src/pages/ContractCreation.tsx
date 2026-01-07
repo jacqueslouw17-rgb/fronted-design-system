@@ -88,6 +88,8 @@ const ContractCreation: React.FC = () => {
   const navigate = useNavigate();
   const idsParam = searchParams.get("ids");
   const mockCandidates = useMockCandidates();
+  const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
+
   // Combine mock candidates with display candidates for lookup
   const allCandidates = [...mockCandidates, ...displayCandidates];
   const { isOpen: isDrawerOpen, toggle: toggleDrawer } = useDashboardDrawer();
@@ -101,14 +103,54 @@ const ContractCreation: React.FC = () => {
   };
 
   const selected: Candidate[] = useMemo(() => {
-    if (!idsParam) return mockCandidates.filter(c => c.status === "Hired");
-    const ids = idsParam.split(",").map((s) => s.trim());
-    const list = allCandidates.filter((c) => ids.includes(c.id));
-    // Only return the specific candidates requested, don't fall back to all
-    return list.length > 0 ? list : mockCandidates.filter(c => c.status === "Hired");
-  }, [idsParam, allCandidates, mockCandidates]);
+    // When launched without ids (e.g. demo flows), keep existing default behavior.
+    if (!idsParam) return mockCandidates.filter((c) => c.status === "Hired");
+
+    const ids = idsParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const localStorageCandidates: Candidate[] = (() => {
+      try {
+        const raw = localStorage.getItem("adminflow-company-contractors");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw) as Record<string, any[]>;
+        const flattened = Object.values(parsed || {}).flat();
+        return flattened
+          .filter(Boolean)
+          .map((c: any) =>
+            contractorToCandidate({
+              id: c.id,
+              name: c.name,
+              role: c.role,
+              country: c.country,
+              countryFlag: c.countryFlag ?? c.flag,
+              salary: c.salary,
+              email: c.email,
+              employmentType: c.employmentType,
+            })
+          );
+      } catch {
+        return [];
+      }
+    })();
+
+    const lookup = new Map<string, Candidate>();
+    for (const c of allCandidates) lookup.set(c.id, c);
+    for (const c of contractorsFromStore.map(contractorToCandidate)) lookup.set(c.id, c);
+    for (const c of localStorageCandidates) lookup.set(c.id, c);
+
+    return ids.map((id) => lookup.get(id)).filter(Boolean) as Candidate[];
+  }, [idsParam, mockCandidates, allCandidates, contractorsFromStore]);
 
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    // Reset the paging when a new ids set is requested.
+    setIndex(0);
+  }, [idsParam]);
+
   const current = selected[index] ?? selected[0];
 
   useEffect(() => {
@@ -119,7 +161,56 @@ const ContractCreation: React.FC = () => {
     }
   }, [current]);
 
-  if (!current) return null;
+  if (!current) {
+    return (
+      <RoleLensProvider initialRole="admin">
+        <div className="min-h-screen flex w-full bg-background">
+          <DashboardDrawer isOpen={isDrawerOpen} userData={userData} />
+          <AgentLayout context="Contract Drafting">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                  <img
+                    src={frontedLogo}
+                    alt="Fronted"
+                    className="h-7 sm:h-8 w-auto cursor-pointer"
+                    onClick={() => navigate("/flows/contract-flow-multi-company")}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => navigate("/flows/contract-flow-multi-company")}
+                    aria-label="Close and return to pipeline"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="px-6 pb-8">
+                  <div className="max-w-xl">
+                    <h1 className="text-xl font-semibold text-foreground">
+                      Candidate not found
+                    </h1>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      We couldn’t find the candidate for this Draft Contract action. Please go back
+                      and try again.
+                    </p>
+                    <div className="mt-4">
+                      <Button onClick={() => navigate("/flows/contract-flow-multi-company")}
+                      >
+                        Back to pipeline
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </AgentLayout>
+        </div>
+      </RoleLensProvider>
+    );
+  }
 
   return (
     <RoleLensProvider initialRole="admin">
