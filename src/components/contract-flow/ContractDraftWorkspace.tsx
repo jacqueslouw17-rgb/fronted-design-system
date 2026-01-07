@@ -186,30 +186,53 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
   const documents = getAvailableDocuments();
   const [activeDocument, setActiveDocument] = useState<DocumentType>(documents[0].id);
   const fullContent = getContractContent(candidate, activeDocument);
-  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
-  // Track scroll position to enable Confirm button
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLDivElement;
-    const isAtBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 50;
-    if (isAtBottom && !hasScrolledToBottom) {
-      setHasScrolledToBottom(true);
-    }
-  }, [hasScrolledToBottom]);
+  const getViewportEl = useCallback(() => {
+    return scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLDivElement | null;
+  }, []);
+
+  const scrollAgreementToTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const viewport = getViewportEl();
+    viewport?.scrollTo({ top: 0, behavior });
+  }, [getViewportEl]);
+
+  const checkScrolledToBottom = useCallback(() => {
+    const viewport = getViewportEl();
+    if (!viewport) return;
+
+    const thresholdPx = 24;
+    const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    const isAtBottom = remaining <= thresholdPx;
+
+    setHasScrolledToBottom(prev => prev || isAtBottom);
+  }, [getViewportEl]);
+
+  // Attach scroll listener to the actual ScrollArea viewport (scroll events don't reliably bubble)
+  useEffect(() => {
+    const viewport = getViewportEl();
+    if (!viewport) return;
+
+    const onScroll = () => checkScrolledToBottom();
+    viewport.addEventListener("scroll", onScroll, { passive: true });
+
+    // Initial check (in case content fits without scrolling)
+    requestAnimationFrame(() => checkScrolledToBottom());
+
+    return () => viewport.removeEventListener("scroll", onScroll);
+  }, [getViewportEl, checkScrolledToBottom, candidate.id, activeDocument]);
 
   // Reset scroll state and document when candidate changes
   useEffect(() => {
     setActiveDocument(documents[0].id);
     setHasScrolledToBottom(false);
-    // Scroll to top when candidate changes
-    if (scrollAreaRef.current) {
-      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (viewport) {
-        viewport.scrollTop = 0;
-      }
-    }
-  }, [candidate.id]);
+    scrollAgreementToTop("auto");
+
+    requestAnimationFrame(() => checkScrolledToBottom());
+  }, [candidate.id, documents, scrollAgreementToTop, checkScrolledToBottom]);
   const {
     setOpen,
     addMessage,
