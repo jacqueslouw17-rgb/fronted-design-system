@@ -402,6 +402,12 @@ const ContractFlowDemo = () => {
       navigate("/flows/contract-flow", { replace: true });
     }
     
+    if (phaseParam === "drafting") {
+      contractFlow.proceedToDrafting();
+      // Clear the query param
+      navigate("/flows/contract-flow", { replace: true });
+    }
+    
     if (signedParam === "true") {
       setShowContractSignedMessage(true);
     }
