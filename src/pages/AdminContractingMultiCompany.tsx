@@ -1011,7 +1011,11 @@ const AdminContractingMultiCompany = () => {
                           contractFlow.nextDraft(); 
                         }}
                         onPrevious={() => {
-                          contractFlow.previousDraft();
+                          if (contractFlow.currentDraftIndex === 0) {
+                            contractFlow.prepareDrafts();
+                          } else {
+                            contractFlow.previousDraft();
+                          }
                         }}
                       />
                     </div>
