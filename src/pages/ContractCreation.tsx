@@ -9,6 +9,58 @@ import { useDashboardDrawer } from "@/hooks/useDashboardDrawer";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import frontedLogo from "@/assets/fronted-logo.png";
+import { useContractorStore } from "@/hooks/useContractorStore";
+
+type PipelineContractor = {
+  id: string;
+  name: string;
+  role: string;
+  country: string;
+  countryFlag?: string;
+  salary?: string;
+  email?: string;
+  employmentType?: "contractor" | "employee";
+};
+
+const COUNTRY_CODE_BY_NAME: Record<string, string> = {
+  Philippines: "PH",
+  Norway: "NO",
+  Sweden: "SE",
+  Denmark: "DK",
+  India: "IN",
+  Kosovo: "XK",
+  Singapore: "SG",
+  Spain: "ES",
+  Romania: "RO",
+};
+
+const inferCountryCode = (country: string) => COUNTRY_CODE_BY_NAME[country] ?? "US";
+
+const inferCurrencyFromSalary = (salary?: string) => {
+  if (!salary) return "USD";
+  if (salary.includes("₱")) return "PHP";
+  const match = salary.match(/\b[A-Z]{3}\b/);
+  if (match?.[0]) return match[0];
+  return "USD";
+};
+
+const contractorToCandidate = (c: PipelineContractor): Candidate => ({
+  id: c.id,
+  name: c.name,
+  role: c.role,
+  country: c.country,
+  countryCode: inferCountryCode(c.country),
+  flag: c.countryFlag ?? "",
+  salary: c.salary ?? "",
+  startDate: "",
+  noticePeriod: "30 days",
+  pto: "15 days/year",
+  currency: inferCurrencyFromSalary(c.salary),
+  signingPortal: "",
+  status: "Hired",
+  email: c.email,
+  employmentType: c.employmentType,
+});
 
 // Additional display candidates that appear in PipelineView
 const displayCandidates: Candidate[] = [
