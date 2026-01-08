@@ -1097,18 +1097,18 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <span className="text-muted-foreground">Salary</span>
                             <span className="font-medium text-foreground">
                               {contractor.employmentType === "contractor" 
-                                ? "$" 
+                                ? "USD " 
                                 : contractor.country === "Philippines" 
-                                  ? "₱" 
+                                  ? "PHP " 
                                   : contractor.country === "Norway" 
-                                    ? "kr " 
+                                    ? "NOK " 
                                     : contractor.country === "India" 
-                                      ? "₹" 
+                                      ? "INR " 
                                       : contractor.country === "Singapore" 
-                                        ? "S$" 
+                                        ? "SGD " 
                                         : contractor.country === "Mexico" 
-                                          ? "$" 
-                                          : "$"}{contractor.salary}
+                                          ? "MXN " 
+                                          : "USD "}{contractor.salary}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
