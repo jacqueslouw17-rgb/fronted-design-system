@@ -34,8 +34,6 @@ import Step7Finish from "@/components/flows/onboarding/Step7Finish";
 
 const FLOW_STEPS = [
   { id: "org_profile", title: "Company details", stepNumber: 1 },
-  { id: "localization_country_blocks", title: "Hiring Locations", stepNumber: 2 },
-  { id: "finish_dashboard_transition", title: "Finish & Launch", stepNumber: 3 }
 ];
 
 interface EmbeddedAdminOnboardingProps {
@@ -116,50 +114,18 @@ const EmbeddedAdminOnboarding = ({
     // Complete the step
     completeStep(stepId);
 
-    // In edit mode, complete after the last step (finish)
-    if (isEditMode && stepId === "finish_dashboard_transition") {
-      const orgProfileData = getStepData("org_profile");
-      const companyName = orgProfileData?.companyName || "Company";
-      
-      toast({
-        title: "Company Updated",
-        description: `${companyName} has been updated successfully!`,
-      });
+    // Since we only have org_profile step now, complete immediately
+    const orgProfileData = data || getStepData("org_profile");
+    const companyName = orgProfileData?.companyName || (isEditMode ? "Company" : "New Company");
+    
+    toast({
+      title: isEditMode ? "Company Updated" : "Company Added",
+      description: `${companyName} has been ${isEditMode ? "updated" : "added"} successfully!`,
+    });
 
-      setTimeout(() => {
-        onComplete(companyName, orgProfileData);
-      }, 500);
-      setIsProcessing(false);
-      return;
-    }
-
-    // Check if this is the final step
-    if (stepId === "finish_dashboard_transition") {
-      // Read company name directly from store to ensure we get the latest saved value
-      const orgProfileData = getStepData("org_profile");
-      const companyName = orgProfileData?.companyName || "New Company";
-      
-      toast({
-        title: "Setup Complete",
-        description: `${companyName} is ready to go!`,
-      });
-
-      setTimeout(() => {
-        onComplete(companyName, orgProfileData);
-      }, 500);
-    } else {
-      // Move to next step
-      const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-      if (currentIndex < FLOW_STEPS.length - 1) {
-        const nextStep = FLOW_STEPS[currentIndex + 1];
-        goToStep(nextStep.id);
-        setExpandedStep(nextStep.id);
-        
-        setTimeout(() => {
-          scrollToStep(nextStep.id);
-        }, 100);
-      }
-    }
+    setTimeout(() => {
+      onComplete(companyName, orgProfileData);
+    }, 500);
 
     setIsProcessing(false);
   };
@@ -254,12 +220,8 @@ const EmbeddedAdminOnboarding = ({
     );
   }
 
-  // In edit mode, show all steps except finish, and mark them all as completed
-  const stepsToShow = isEditMode 
-    ? FLOW_STEPS.filter(s => s.id !== "finish_dashboard_transition") 
-    : FLOW_STEPS;
-  const currentStepIndex = isEditMode ? stepsToShow.length - 1 : stepsToShow.findIndex(s => s.id === state.currentStep);
-  const totalSteps = stepsToShow.length;
+  // Only show the company details step
+  const stepsToShow = FLOW_STEPS;
 
   return (
     <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
@@ -309,71 +271,21 @@ const EmbeddedAdminOnboarding = ({
           </motion.div>
         </div>
 
-        <div className="mb-8">
-          <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-        </div>
-
-        {/* Step Cards */}
+        {/* Step Content - Render directly without StepCard wrapper */}
         <div className="space-y-3">
-          {stepsToShow.map((step, index) => {
-            // In edit mode, all steps should be clickable (completed state)
-            const status = isEditMode ? 'completed' : getStepStatus(step.id);
-            const isExpanded = expandedStep === step.id;
-            const headerId = `step-header-${step.id}`;
-            
-            const currentIndex = stepsToShow.findIndex(s => s.id === state.currentStep);
-            const isLocked = !isEditMode && index > currentIndex && status === 'inactive';
-
-            // Generate subtitle for step 3 (localization) when collapsed
-            let subtitle = undefined;
-            if (step.id === 'localization_country_blocks' && !isExpanded) {
-              const stepData = state.formData[step.id];
-              if (stepData?.selectedCountries && stepData.selectedCountries.length > 0) {
-                const COUNTRIES = [
-                  { code: "NO", name: "Norway", flag: "🇳🇴" },
-                  { code: "PH", name: "Philippines", flag: "🇵🇭" },
-                  { code: "IN", name: "India", flag: "🇮🇳" },
-                  { code: "XK", name: "Kosovo", flag: "🇽🇰" }
-                ];
-                const countryNames = stepData.selectedCountries
-                  .map((code: string) => {
-                    const country = COUNTRIES.find(c => c.code === code);
-                    return country ? `${country.flag} ${country.name}` : code;
-                  })
-                  .join(", ");
-                subtitle = countryNames;
-              }
-            }
-
-            return (
+          {stepsToShow.map((step) => (
+            <div 
+              key={step.id}
+              data-step={step.id}
+              role="region"
+            >
               <div 
-                key={step.id}
-                data-step={step.id}
-                role="region"
-                aria-labelledby={headerId}
+                ref={(el) => stepRefs.current[step.id] = el}
               >
-                <StepCard
-                  title={step.title}
-                  status={status}
-                  stepNumber={step.stepNumber}
-                  isExpanded={isExpanded}
-                  onClick={() => handleStepClick(step.id)}
-                  headerId={headerId}
-                  isLocked={isLocked}
-                  subtitle={subtitle}
-                >
-                  {isExpanded && (
-                    <div 
-                      ref={(el) => stepRefs.current[step.id] = el}
-                      className="pt-6"
-                    >
-                      {renderStepContent(step.id)}
-                    </div>
-                  )}
-                </StepCard>
+                {renderStepContent(step.id)}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
     </div>
