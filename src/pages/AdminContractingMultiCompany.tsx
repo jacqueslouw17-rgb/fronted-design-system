@@ -129,7 +129,7 @@ const AdminContractingMultiCompany = () => {
   const [contractMessageMode, setContractMessageMode] = useState<"sent" | "signed">("signed");
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
-  const { contractors, setContractors } = useContractorStore();
+  const { contractors, setContractors, updateContractor } = useContractorStore();
 
   // Prevent URL-driven effects from resetting the draft index mid-flow.
   const didApplyDraftingUrlRef = useRef(false);
@@ -1135,8 +1135,12 @@ const AdminContractingMultiCompany = () => {
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
                       onStartSigning={() => { 
+                        // Move selected candidates to "awaiting-signature" status
+                        contractFlow.selectedCandidates.forEach((candidate) => {
+                          updateContractor(candidate.id, { status: "awaiting-signature" });
+                        });
                         contractFlow.proceedToDataCollection();
-                        toast({ title: "Contracts sent for signature", description: "Candidates moved to awaiting signature column" });
+                        toast({ title: "Contracts sent for signature", description: `${contractFlow.selectedCandidates.length} candidate(s) moved to Waiting for Signature` });
                         navigate("/flows/contract-flow-multi-company?phase=data-collection&moved=true");
                       }}
                     />
