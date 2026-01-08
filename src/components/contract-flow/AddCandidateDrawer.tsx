@@ -281,9 +281,9 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="salary">Salary *</Label>
                   <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium pointer-events-none select-none">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">
                       {formData.employmentType === "contractor" ? "USD" : formData.country === "Philippines" ? "PHP" : formData.country === "Norway" ? "NOK" : formData.country === "India" ? "INR" : formData.country === "Kosovo" ? "EUR" : formData.country === "Sweden" ? "SEK" : formData.country === "Denmark" ? "DKK" : "USD"}
-                    </div>
+                    </span>
                     <Input id="salary" value={formData.salary} onChange={e => {
                   // Only allow numbers
                   const value = e.target.value.replace(/[^0-9]/g, '');
@@ -291,7 +291,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                     ...prev,
                     salary: value
                   }));
-                }} placeholder="e.g., 5000" className="pl-10" />
+                }} placeholder="5000" className="pl-12" />
                   </div>
                   <p className="text-xs text-muted-foreground">Enter monthly amount (numbers only).</p>
                   {isATSSelected}
