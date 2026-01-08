@@ -4,11 +4,12 @@ import confetti from "canvas-confetti";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, FileSignature, FileText, ExternalLink, Info, Circle, FileCheck, Send } from "lucide-react";
+import { CheckCircle2, Clock, FileSignature, FileText, ExternalLink, Info, Circle, FileCheck, Send, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import type { Candidate } from "@/hooks/useContractFlow";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
 interface SignatureWorkflowDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -16,10 +17,11 @@ interface SignatureWorkflowDrawerProps {
   onComplete?: () => void;
   onSendForSignatures?: () => void;
 }
-type SigningStatus = "ready_to_send" // Ready to send to candidate
-| "sent_to_candidate" // Sent to candidate, awaiting signature
-| "candidate_signed" // Candidate signed, ready for next steps
-| "certified"; // Certified and sent to candidate
+
+type SigningStatus = 
+  | "awaiting_admin" // Waiting for admin to sign
+  | "sent_to_candidate" // Auto-sent to candidate after admin signed, awaiting signature
+  | "candidate_signed"; // Candidate signed, ready for next steps
 
 interface ContractItem {
   id: string;
@@ -28,11 +30,13 @@ interface ContractItem {
   status: "complete" | "active" | "pending";
   timestamp?: string;
 }
+
 interface Document {
   name: string;
   type: string;
   included: boolean;
 }
+
 const getDocumentsForCandidate = (candidate: Candidate | null): Document[] => {
   if (!candidate) return [];
   const baseDocuments: Document[] = [{
@@ -59,40 +63,37 @@ const getDocumentsForCandidate = (candidate: Candidate | null): Document[] => {
 // Helper functions for status labels and descriptions
 const getStatusLabel = (status: SigningStatus): string => {
   switch (status) {
-    case "ready_to_send":
+    case "awaiting_admin":
       return "Ready to Send";
     case "sent_to_candidate":
       return "Awaiting Candidate Signature";
     case "candidate_signed":
       return "Candidate Signed";
-    case "certified":
-      return "Certified & Sent";
   }
 };
+
 const getStatusDescription = (status: SigningStatus, candidateName: string): string => {
   switch (status) {
-    case "ready_to_send":
+    case "awaiting_admin":
       return `Ready to send to ${candidateName} for electronic signature.`;
     case "sent_to_candidate":
       return `Contract sent to ${candidateName}. Waiting for their signature.`;
     case "candidate_signed":
       return `${candidateName} has signed the contract. Ready for next steps.`;
-    case "certified":
-      return "Contract certified and copy sent to candidate. Ready for onboarding.";
   }
 };
+
 const getStatusBadge = (status: SigningStatus) => {
   switch (status) {
-    case "ready_to_send":
+    case "awaiting_admin":
       return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20">🔵 Ready</Badge>;
     case "sent_to_candidate":
       return <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">🟡 Pending</Badge>;
     case "candidate_signed":
       return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Signed</Badge>;
-    case "certified":
-      return <Badge variant="secondary" className="bg-success/10 text-success border-success/20">🟢 Certified</Badge>;
   }
 };
+
 export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = ({
   open,
   onOpenChange,
@@ -100,62 +101,76 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   onComplete,
   onSendForSignatures
 }) => {
-  const [signingStatus, setSigningStatus] = useState<SigningStatus>("ready_to_send");
+  const [signingStatus, setSigningStatus] = useState<SigningStatus>("awaiting_admin");
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [contractItems, setContractItems] = useState<ContractItem[]>([]);
-  const [resendSent, setResendSent] = useState(false);
+  const [hasSentToCandidate, setHasSentToCandidate] = useState(false);
 
   // Update documents when candidate changes
   useEffect(() => {
     if (candidate) {
       setDocuments(getDocumentsForCandidate(candidate));
-      setSigningStatus("ready_to_send");
-      setResendSent(false);
+      setSigningStatus("awaiting_admin");
+      setHasSentToCandidate(false);
 
-      // Initialize contract items
+      // Initialize contract items - Admin signature is the first step (active/waiting)
       setContractItems([{
-        id: "sent_to_admins",
-        label: "Sent to Admins",
-        description: "Contract was prepared and sent to the internal Fronted admin for review.",
-        status: "complete",
-        timestamp: new Date().toLocaleString()
+        id: "admin_signature",
+        label: "Admin Signature",
+        description: "Waiting for admin to sign the contract.",
+        status: "active"
       }, {
         id: "send_to_candidate",
         label: "Send to Candidate",
-        description: "Ready to send to the candidate for electronic signature.",
-        status: "active"
+        description: "Cannot send until admin signs the contract.",
+        status: "pending"
       }, {
         id: "candidate_signed",
         label: "Candidate Signed",
-        description: "Candidate has signed the contract. Ready for next steps.",
+        description: "Pending candidate signature.",
         status: "pending"
       }]);
     }
   }, [candidate]);
 
-  // Handle sending to candidate
-  const handleSendToCandidate = () => {
-    setSigningStatus("sent_to_candidate");
+  // Handle admin signing - this automatically sends to candidate
+  const handleAdminSign = () => {
+    // First mark admin signature complete
     setContractItems(prev => prev.map(item => {
+      if (item.id === "admin_signature") {
+        return {
+          ...item,
+          status: "complete" as const,
+          timestamp: new Date().toLocaleString(),
+          description: "Admin has signed the contract."
+        };
+      }
       if (item.id === "send_to_candidate") {
         return {
           ...item,
           status: "complete" as const,
           timestamp: new Date().toLocaleString(),
-          description: "Contract sent to the candidate. Waiting for their signature."
+          description: "Contract automatically sent to candidate after admin signature."
         };
       }
       if (item.id === "candidate_signed") {
         return {
           ...item,
-          status: "active" as const
+          status: "active" as const,
+          description: "Waiting for candidate to sign the contract."
         };
       }
       return item;
     }));
-    toast.success(`Contract sent to ${candidate?.name} for signature.`);
-    setResendSent(true);
+    
+    setSigningStatus("sent_to_candidate");
+    setHasSentToCandidate(true);
+    toast.success(`Admin signed! Contract automatically sent to ${candidate?.name}.`);
+  };
+
+  // Handle resend to candidate
+  const handleResendToCandidate = () => {
+    toast.success(`Contract resent to ${candidate?.name}.`);
   };
 
   // Simulate candidate signing
@@ -166,7 +181,8 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
         return {
           ...item,
           status: "complete" as const,
-          timestamp: new Date().toLocaleString()
+          timestamp: new Date().toLocaleString(),
+          description: "Candidate has signed the contract."
         };
       }
       return item;
@@ -190,15 +206,19 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
   // Calculate progress percentage
   const getProgressPercentage = () => {
     const completed = contractItems.filter(item => item.status === "complete").length;
-    return completed / contractItems.length * 100;
+    return (completed / contractItems.length) * 100;
   };
-  return <Sheet open={open} onOpenChange={onOpenChange}>
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
         <SheetHeader className="space-y-3">
           <SheetTitle>Contract Progress for {candidate?.name}</SheetTitle>
-          {candidate && <p className="text-sm text-muted-foreground">
+          {candidate && (
+            <p className="text-sm text-muted-foreground">
               {candidate.role} · {candidate.country} · {candidate.salary}
-            </p>}
+            </p>
+          )}
           <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
             <Info className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-blue-700">
@@ -207,7 +227,8 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
           </div>
         </SheetHeader>
 
-        {candidate && <div className="space-y-6 mt-6">
+        {candidate && (
+          <div className="space-y-6 mt-6">
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
@@ -215,13 +236,12 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
                 <span className="font-semibold">{Math.round(getProgressPercentage())}%</span>
               </div>
               <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                <motion.div className="h-full bg-gradient-primary" initial={{
-              width: 0
-            }} animate={{
-              width: `${getProgressPercentage()}%`
-            }} transition={{
-              duration: 0.5
-            }} />
+                <motion.div 
+                  className="h-full bg-gradient-primary" 
+                  initial={{ width: 0 }} 
+                  animate={{ width: `${getProgressPercentage()}%` }} 
+                  transition={{ duration: 0.5 }} 
+                />
               </div>
             </div>
 
@@ -239,53 +259,83 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
             <Separator />
 
+            {/* Admin Signature Required Notice */}
+            {signingStatus === "awaiting_admin" && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+                <Info className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Admin Signature Required</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    The contract must be signed by an admin before it can be sent to the candidate for signature.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Contract Progress Tracker */}
             <div className="space-y-3">
               <h3 className="font-semibold text-foreground">Signature Workflow</h3>
               
               <div className="space-y-2">
-                {contractItems.map((item, index) => <motion.div key={item.id} initial={{
-              opacity: 0,
-              x: -10
-            }} animate={{
-              opacity: 1,
-              x: 0
-            }} transition={{
-              delay: index * 0.1
-            }} className={cn("flex items-start gap-3 p-4 rounded-lg border transition-all", item.status === "complete" && "bg-success/5 border-success/20", item.status === "active" && "bg-primary/5 border-primary/20", item.status === "pending" && "bg-muted/30 border-border opacity-60")}>
+                {contractItems.map((item, index) => (
+                  <motion.div 
+                    key={item.id} 
+                    initial={{ opacity: 0, x: -10 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: index * 0.1 }} 
+                    className={cn(
+                      "flex items-start gap-3 p-4 rounded-lg border transition-all", 
+                      item.status === "complete" && "bg-success/5 border-success/20", 
+                      item.status === "active" && "bg-primary/5 border-primary/20", 
+                      item.status === "pending" && "bg-muted/30 border-border opacity-60"
+                    )}
+                  >
                     <div className="flex-shrink-0 mt-0.5">
-                      {item.status === "complete" ? <CheckCircle2 className="h-5 w-5 text-success" /> : item.status === "active" ? <Clock className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
+                      {item.status === "complete" ? (
+                        <CheckCircle2 className="h-5 w-5 text-success" />
+                      ) : item.status === "active" ? (
+                        <Clock className="h-5 w-5 text-primary" />
+                      ) : (
+                        <Circle className="h-5 w-5 text-muted-foreground" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={cn("font-medium text-sm", item.status === "complete" && "line-through opacity-60")}>
+                      <p className={cn(
+                        "font-medium text-sm", 
+                        item.status === "complete" && "line-through opacity-60"
+                      )}>
                         {item.label}
                       </p>
-                      <p className={cn("text-xs text-muted-foreground mt-1", item.status === "complete" && "line-through opacity-50")}>
+                      <p className={cn(
+                        "text-xs text-muted-foreground mt-1", 
+                        item.status === "complete" && "line-through opacity-50"
+                      )}>
                         {item.description}
                       </p>
-                      {item.timestamp && <p className="text-xs text-muted-foreground mt-1">
+                      {item.timestamp && (
+                        <p className="text-xs text-muted-foreground mt-1">
                           {item.timestamp}
-                        </p>}
+                        </p>
+                      )}
                     </div>
-                    {item.id === "send_to_candidate" && item.status === "active" && <Button size="sm" onClick={handleSendToCandidate} className="flex-shrink-0">
-                        <Send className="h-3 w-3 mr-1.5" />
-                        Send
-                      </Button>}
-                    {item.id === "send_to_candidate" && item.status === "complete" && <Button size="sm" variant="outline" onClick={handleSendToCandidate} className="flex-shrink-0">
-                        <Send className="h-3 w-3 mr-1.5" />
-                        Send Again
-                      </Button>}
-                  </motion.div>)}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Supporting Documents */}
-            <div className="space-y-3">
-              
-              <div className="space-y-2">
-                {documents.map(doc => null)}
+                    
+                    {/* Admin signature button */}
+                    {item.id === "admin_signature" && item.status === "active" && (
+                      <Button size="sm" onClick={handleAdminSign} className="flex-shrink-0">
+                        <FileSignature className="h-3 w-3 mr-1.5" />
+                        Sign
+                      </Button>
+                    )}
+                    
+                    {/* Resend button after sent */}
+                    {item.id === "send_to_candidate" && item.status === "complete" && (
+                      <Button size="sm" variant="outline" onClick={handleResendToCandidate} className="flex-shrink-0">
+                        <RotateCcw className="h-3 w-3 mr-1.5" />
+                        Resend
+                      </Button>
+                    )}
+                  </motion.div>
+                ))}
               </div>
             </div>
 
@@ -293,23 +343,29 @@ export const SignatureWorkflowDrawer: React.FC<SignatureWorkflowDrawerProps> = (
 
             {/* Action Buttons */}
             <div className="space-y-2">
-              {signingStatus === "sent_to_candidate" && <Button variant="outline" size="sm" className="w-full" onClick={handleSimulateCandidateSigned}>
+              {signingStatus === "sent_to_candidate" && (
+                <Button variant="outline" size="sm" className="w-full" onClick={handleSimulateCandidateSigned}>
                   Simulate Candidate Signed
-                </Button>}
+                </Button>
+              )}
 
-              {signingStatus === "candidate_signed" && <motion.div initial={{
-            scale: 0.95
-          }} animate={{
-            scale: 1
-          }} className="p-4 rounded-lg bg-success/10 border border-success/20 text-center">
+              {signingStatus === "candidate_signed" && (
+                <motion.div 
+                  initial={{ scale: 0.95 }} 
+                  animate={{ scale: 1 }} 
+                  className="p-4 rounded-lg bg-success/10 border border-success/20 text-center"
+                >
                   <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
                   <p className="font-medium text-success">Contract Signed</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Candidate has completed signing. Moving to onboarding phase.
                   </p>
-                </motion.div>}
+                </motion.div>
+              )}
             </div>
-          </div>}
+          </div>
+        )}
       </SheetContent>
-    </Sheet>;
+    </Sheet>
+  );
 };
