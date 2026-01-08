@@ -202,6 +202,13 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     setCurrentDraftIndex(selectedCandidates.length - 1); // Go to last draft
   }, [selectedCandidates.length]);
 
+  // Allow setting candidates externally (for returning from contract-creation)
+  const setCandidatesForDrafting = useCallback((candidates: Candidate[]) => {
+    setSelectedCandidates(candidates);
+    setPhase("drafting");
+    setCurrentDraftIndex(0);
+  }, []);
+
   return {
     phase,
     selectedCandidates,
@@ -225,5 +232,6 @@ export const useContractFlow = (version: "v3" | "v5" = "v3") => {
     completeFlow,
     resetFlow,
     backToDrafting,
+    setCandidatesForDrafting,
   };
 };

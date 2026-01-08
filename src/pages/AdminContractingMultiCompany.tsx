@@ -131,8 +131,11 @@ const AdminContractingMultiCompany = () => {
   const [searchParams] = useSearchParams();
   const { contractors, setContractors } = useContractorStore();
   
-  // Company switcher state - persist to localStorage
+  // Company switcher state - persist to localStorage, restore from URL if available
+  const companyFromUrl = searchParams.get('company');
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
+    // Priority: URL param > localStorage > empty
+    if (companyFromUrl) return companyFromUrl;
     const saved = localStorage.getItem('adminflow-selected-company');
     return saved || "";
   });
@@ -629,6 +632,13 @@ const AdminContractingMultiCompany = () => {
   useEffect(() => {
     const phaseParam = searchParams.get("phase");
     const signedParam = searchParams.get("signed");
+    const companyParam = searchParams.get("company");
+    const idsParam = searchParams.get("ids");
+    
+    // Restore company from URL if provided (e.g. returning from contract-creation)
+    if (companyParam && companyParam !== selectedCompany && companies.some(c => c.id === companyParam)) {
+      setSelectedCompany(companyParam);
+    }
     
     if (phaseParam === "bundle-creation") {
       // Bundle step is hidden in Flow 1.1 — treat this as drafting.
@@ -636,10 +646,52 @@ const AdminContractingMultiCompany = () => {
       navigate("/flows/contract-flow-multi-company", { replace: true });
     }
     
+    if (phaseParam === "drafting" && idsParam) {
+      // Returning from contract-creation with candidate IDs
+      // Load candidates from company contractors
+      const ids = idsParam.split(",").map(s => s.trim()).filter(Boolean);
+      const companyId = companyParam || selectedCompany;
+      const contractors = companyContractors[companyId] || [];
+      
+      // Convert contractors to Candidate format for the drafting phase
+      const candidatesForDrafting = contractors
+        .filter((c: any) => ids.includes(c.id))
+        .map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          role: c.role,
+          country: c.country,
+          countryCode: c.countryCode || (c.country === "Singapore" ? "SG" : c.country === "Spain" ? "ES" : "US"),
+          flag: c.countryFlag || c.flag || "",
+          salary: c.salary || "",
+          startDate: c.startDate || "",
+          noticePeriod: c.noticePeriod || "30 days",
+          pto: c.pto || "15 days/year",
+          currency: c.currency || "USD",
+          signingPortal: c.signingPortal || "DocuSign",
+          status: "Hired" as const,
+          email: c.email,
+          employmentType: c.employmentType,
+        }));
+      
+      if (candidatesForDrafting.length > 0) {
+        contractFlow.setCandidatesForDrafting(candidatesForDrafting);
+      } else {
+        // Fallback: just proceed to drafting with existing candidates
+        contractFlow.proceedToDrafting();
+      }
+      
+      // Clean up the URL
+      navigate("/flows/contract-flow-multi-company?phase=drafting", { replace: true });
+    } else if (phaseParam === "drafting" && !idsParam) {
+      // Returning without IDs, just proceed to drafting
+      contractFlow.proceedToDrafting();
+    }
+    
     if (signedParam === "true") {
       setShowContractSignedMessage(true);
     }
-  }, [searchParams, contractFlow, navigate]);
+  }, [searchParams, contractFlow, navigate, companies, selectedCompany, companyContractors]);
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -879,7 +931,11 @@ const AdminContractingMultiCompany = () => {
                               sonnerToast.success("Candidate removed");
                             }}
                             onDraftContract={(ids) => {
-                              const params = new URLSearchParams({ ids: ids.join(',') }).toString();
+                              const params = new URLSearchParams({ 
+                                ids: ids.join(','),
+                                returnTo: 'flow-1.1',
+                                company: selectedCompany
+                              }).toString();
                               navigate(`/flows/contract-creation?${params}`);
                             }}
                             onSignatureComplete={() => {
