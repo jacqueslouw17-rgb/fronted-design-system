@@ -116,7 +116,7 @@ const Step2OrgProfileSimplified = ({
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm">
-              Company Name <span className="text-destructive">*</span>
+              Company Name
             </Label>
             <Input
               id="companyName"
@@ -137,7 +137,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="adminName" className="text-sm">
-              End-client name <span className="text-destructive">*</span>
+              End-client name
             </Label>
             <Input
               id="adminName"
@@ -151,7 +151,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="adminEmail" className="text-sm">
-              End-client email <span className="text-destructive">*</span>
+              End-client email
             </Label>
             <Input
               id="adminEmail"
@@ -173,7 +173,7 @@ const Step2OrgProfileSimplified = ({
 
           <div className="space-y-2">
             <Label htmlFor="hqCountry" className="text-sm">
-              HQ Country <span className="text-destructive">*</span>
+              HQ Country
             </Label>
             <Select value={data.hqCountry} onValueChange={val => handleFieldChange('hqCountry', val)}>
               <SelectTrigger className="text-sm">
