@@ -244,7 +244,20 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     viewport.addEventListener("scroll", onScroll, { passive: true });
 
     // Initial check (in case content fits without scrolling)
-    requestAnimationFrame(() => checkScrolledToBottom());
+    const checkInitial = () => {
+      const vp = getViewportEl();
+      if (!vp) return;
+      const thresholdPx = 24;
+      const remaining = vp.scrollHeight - vp.scrollTop - vp.clientHeight;
+      setHasScrolledToBottom(remaining <= thresholdPx);
+    };
+    
+    // Multiple RAF to ensure DOM is fully rendered
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        checkInitial();
+      });
+    });
 
     return () => viewport.removeEventListener("scroll", onScroll);
   }, [getViewportEl, checkScrolledToBottom, candidate.id, activeDocument]);
@@ -255,8 +268,17 @@ export const ContractDraftWorkspace: React.FC<ContractDraftWorkspaceProps> = ({
     setHasScrolledToBottom(false);
     scrollAgreementToTop("auto");
 
-    requestAnimationFrame(() => checkScrolledToBottom());
-  }, [candidate.id, documents[0].id, scrollAgreementToTop, checkScrolledToBottom]);
+    // Delay check to ensure content is rendered
+    const timer = setTimeout(() => {
+      const viewport = getViewportEl();
+      if (!viewport) return;
+      const thresholdPx = 24;
+      const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      setHasScrolledToBottom(remaining <= thresholdPx);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [candidate.id, documents, scrollAgreementToTop, getViewportEl]);
   const {
     setOpen,
     addMessage,
