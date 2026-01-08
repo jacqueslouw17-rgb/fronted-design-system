@@ -714,8 +714,8 @@ const AdminContractingMultiCompany = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar - hidden when adding or editing company */}
-      {!isAddingNewCompany && !isEditingCompany && (
+      {/* Topbar - hidden when adding/editing company OR in contract flow phases */}
+      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase === "idle" && (
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
@@ -765,6 +765,32 @@ const AdminContractingMultiCompany = () => {
             variant="ghost"
             size="icon"
             onClick={handleCancelEditCompany}
+            className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
+          >
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        </>
+      )}
+
+      {/* Logo and Close Button for Contract Flow phases (data-collection, drafting, reviewing) */}
+      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase !== "idle" && (
+        <>
+          <img 
+            src={frontedLogo}
+            alt="Fronted"
+            className="fixed top-6 left-8 z-50 h-5 sm:h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => {
+              contractFlow.resetFlow();
+              navigate("/flows/contract-flow-multi-company");
+            }}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              contractFlow.resetFlow();
+              navigate("/flows/contract-flow-multi-company");
+            }}
             className="fixed top-6 right-6 z-50 h-8 w-8 sm:h-10 sm:w-10"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
