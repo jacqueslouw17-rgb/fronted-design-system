@@ -75,7 +75,7 @@ export const StartOnboardingConfirmation: React.FC<StartOnboardingConfirmationPr
             </div>
             <p className="text-sm text-muted-foreground flex items-center justify-center gap-2 mt-3">
               <Sparkles className="h-4 w-4" />
-              They'll receive an email with their personalized onboarding link
+              They'll receive their onboarding link via email
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
