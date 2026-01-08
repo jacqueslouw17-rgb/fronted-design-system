@@ -714,8 +714,8 @@ const AdminContractingMultiCompany = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar - hidden when adding/editing company OR in contract flow phases */}
-      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase === "idle" && (
+      {/* Topbar - shown on pipeline view (idle + data-collection) */}
+      {!isAddingNewCompany && !isEditingCompany && (contractFlow.phase === "idle" || contractFlow.phase === "data-collection") && (
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
@@ -772,8 +772,8 @@ const AdminContractingMultiCompany = () => {
         </>
       )}
 
-      {/* Logo and Close Button for Contract Flow phases (data-collection, drafting, reviewing) */}
-      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase !== "idle" && (
+      {/* Logo and Close Button for contract steps (not pipeline view) */}
+      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase !== "idle" && contractFlow.phase !== "data-collection" && (
         <>
           <img 
             src={frontedLogo}
