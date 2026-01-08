@@ -1181,8 +1181,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           {status === "awaiting-signature" && (
                             <Button 
                               size="sm" 
-                              variant="outline"
-                              className="w-full text-xs h-7 gap-1 bg-card hover:bg-card/80 hover:text-foreground" 
+                              className="w-full text-xs h-7 gap-1" 
                               onClick={e => {
                                 e.stopPropagation();
                                 handleOpenSignatureWorkflow(contractor);
