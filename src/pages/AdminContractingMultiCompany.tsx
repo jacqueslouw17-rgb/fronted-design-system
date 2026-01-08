@@ -29,7 +29,7 @@
  * To unlock: Update src/config/flowRegistry.ts
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, X, FileCheck } from "lucide-react";
@@ -130,6 +130,9 @@ const AdminContractingMultiCompany = () => {
   const [isKurtMuted, setIsKurtMuted] = React.useState(false);
   const [searchParams] = useSearchParams();
   const { contractors, setContractors } = useContractorStore();
+
+  // Prevent URL-driven effects from resetting the draft index mid-flow.
+  const didApplyDraftingUrlRef = useRef(false);
   
   // Company switcher state - persist to localStorage, restore from URL if available
   const companyFromUrl = searchParams.get('company');
@@ -685,8 +688,12 @@ const AdminContractingMultiCompany = () => {
       navigate("/flows/contract-flow-multi-company?phase=drafting", { replace: true });
     } else if (phaseParam === "drafting" && !idsParam) {
       // Returning without IDs: only force drafting once (avoid resetting draft index mid-flow)
-      if (contractFlow.phase !== "drafting") {
-        contractFlow.proceedToDrafting();
+      if (!didApplyDraftingUrlRef.current) {
+        didApplyDraftingUrlRef.current = true;
+        if (contractFlow.phase !== "drafting") {
+          console.log("[Flow 1.1] Applying ?phase=drafting from URL", { from: contractFlow.phase });
+          contractFlow.proceedToDrafting();
+        }
       }
     }
 
@@ -1075,11 +1082,22 @@ const AdminContractingMultiCompany = () => {
                         index={contractFlow.currentDraftIndex} 
                         total={contractFlow.selectedCandidates.length} 
                         onNext={() => { 
+                          const isLast =
+                            contractFlow.currentDraftIndex >=
+                            contractFlow.selectedCandidates.length - 1;
+
                           console.log("[Flow 1.1] Confirm click", {
                             currentDraftIndex: contractFlow.currentDraftIndex,
                             total: contractFlow.selectedCandidates.length,
+                            isLast,
                           });
-                          contractFlow.nextDraft(); 
+
+                          contractFlow.nextDraft();
+
+                          // Ensure "Confirm & Continue" lands on the final review screen (Send for Signature)
+                          if (isLast) {
+                            navigate("/flows/contract-flow-multi-company?phase=reviewing", { replace: true });
+                          }
                         }}
                         onPrevious={() => {
                           if (contractFlow.currentDraftIndex === 0) {
