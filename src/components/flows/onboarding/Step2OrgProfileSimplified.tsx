@@ -44,6 +44,7 @@ const Step2OrgProfileSimplified = ({
     hqCountry: formData.hqCountry || "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Watch for formData updates
   useEffect(() => {
@@ -70,7 +71,7 @@ const Step2OrgProfileSimplified = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) {
       toast({
         title: "Validation error",
@@ -79,7 +80,11 @@ const Step2OrgProfileSimplified = ({
       });
       return;
     }
+    setIsSubmitting(true);
+    // Small delay for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 300));
     onComplete("org_profile", data);
+    setIsSubmitting(false);
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
@@ -178,11 +183,11 @@ const Step2OrgProfileSimplified = ({
         </div>
       </div>
 
-      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || !isFormValid}>
-        {externalProcessing ? (
+      <Button onClick={handleSave} size="lg" className="w-full" disabled={externalProcessing || isSubmitting || !isFormValid}>
+        {(externalProcessing || isSubmitting) ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Saving...
+            {isEditMode ? "Saving..." : "Adding..."}
           </>
         ) : isEditMode ? "Save Changes" : "Add"}
       </Button>
