@@ -43,6 +43,12 @@ const Step2OrgProfileSimplified = ({
     adminEmail: formData.adminEmail || "",
     hqCountry: formData.hqCountry || "",
   });
+  const [originalData] = useState({
+    companyName: formData.companyName || "",
+    adminName: formData.adminName || "",
+    adminEmail: formData.adminEmail || "",
+    hqCountry: formData.hqCountry || "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,7 +99,14 @@ const Step2OrgProfileSimplified = ({
     }));
   };
 
-  const isFormValid = data.companyName.trim().length > 0 && data.adminName.trim().length > 0 && data.adminEmail.trim().length > 0 && data.hqCountry.trim().length > 0;
+  const hasChanges = isEditMode ? (
+    data.companyName !== originalData.companyName ||
+    data.adminName !== originalData.adminName ||
+    data.adminEmail !== originalData.adminEmail ||
+    data.hqCountry !== originalData.hqCountry
+  ) : true;
+
+  const isFormValid = data.companyName.trim().length > 0 && data.adminName.trim().length > 0 && data.adminEmail.trim().length > 0 && data.hqCountry.trim().length > 0 && hasChanges;
 
   return (
     <div className="space-y-5 max-w-xl mx-auto">
