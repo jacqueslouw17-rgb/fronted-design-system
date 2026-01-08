@@ -714,8 +714,12 @@ const AdminContractingMultiCompany = () => {
   return (
     <RoleLensProvider initialRole="admin">
       <div className="min-h-screen flex flex-col w-full bg-background">
-      {/* Topbar - shown on pipeline view (idle + data-collection) */}
-      {!isAddingNewCompany && !isEditingCompany && (contractFlow.phase === "idle" || contractFlow.phase === "data-collection") && (
+      {/* Topbar - shown on pipeline view (idle + offer-accepted + data-collection) */}
+      {!isAddingNewCompany && !isEditingCompany && (
+        contractFlow.phase === "idle" ||
+        contractFlow.phase === "offer-accepted" ||
+        contractFlow.phase === "data-collection"
+      ) && (
         <Topbar 
           userName={`${userData.firstName} ${userData.lastName}`}
           isDrawerOpen={isDrawerOpen}
@@ -773,7 +777,10 @@ const AdminContractingMultiCompany = () => {
       )}
 
       {/* Logo and Close Button for contract steps (not pipeline view) */}
-      {!isAddingNewCompany && !isEditingCompany && contractFlow.phase !== "idle" && contractFlow.phase !== "data-collection" && (
+      {!isAddingNewCompany && !isEditingCompany &&
+        contractFlow.phase !== "idle" &&
+        contractFlow.phase !== "offer-accepted" &&
+        contractFlow.phase !== "data-collection" && (
         <>
           <img 
             src={frontedLogo}
