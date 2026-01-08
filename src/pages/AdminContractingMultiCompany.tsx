@@ -1103,6 +1103,10 @@ const AdminContractingMultiCompany = () => {
                   <div className="flex-1 p-8">
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
+                      onBack={() => {
+                        // Go back to the last candidate in drafting
+                        contractFlow.backToDrafting();
+                      }}
                       onStartSigning={() => { 
                         // Move selected candidates to "awaiting-signature" status
                         contractFlow.selectedCandidates.forEach((candidate) => {
