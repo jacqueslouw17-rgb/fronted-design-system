@@ -282,7 +282,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   <Label htmlFor="salary">Salary *</Label>
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium pointer-events-none select-none">
-                      {formData.employmentType === "contractor" ? "$" : formData.country === "Philippines" ? "₱" : formData.country === "Norway" ? "kr" : formData.country === "India" ? "₹" : formData.country === "Kosovo" ? "€" : formData.country === "Sweden" ? "kr" : formData.country === "Denmark" ? "kr" : "$"}
+                      {formData.employmentType === "contractor" ? "USD" : formData.country === "Philippines" ? "PHP" : formData.country === "Norway" ? "NOK" : formData.country === "India" ? "INR" : formData.country === "Kosovo" ? "EUR" : formData.country === "Sweden" ? "SEK" : formData.country === "Denmark" ? "DKK" : "USD"}
                     </div>
                     <Input id="salary" value={formData.salary} onChange={e => {
                   // Only allow numbers

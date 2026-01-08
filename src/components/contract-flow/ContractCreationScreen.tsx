@@ -563,14 +563,14 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
-                {employmentType === "contractor" ? "$" : 
-                  contractData.country === "Philippines" ? "₱" :
-                  contractData.country === "Norway" ? "kr" :
-                  contractData.country === "Singapore" ? "S$" :
-                  contractData.country === "India" ? "₹" :
-                  contractData.country === "United Kingdom" ? "£" :
-                  contractData.country === "Germany" || contractData.country === "France" || contractData.country === "Spain" || contractData.country === "Italy" ? "€" :
-                  "$"}
+                {employmentType === "contractor" ? "USD" : 
+                  contractData.country === "Philippines" ? "PHP" :
+                  contractData.country === "Norway" ? "NOK" :
+                  contractData.country === "Singapore" ? "SGD" :
+                  contractData.country === "India" ? "INR" :
+                  contractData.country === "United Kingdom" ? "GBP" :
+                  contractData.country === "Germany" || contractData.country === "France" || contractData.country === "Spain" || contractData.country === "Italy" ? "EUR" :
+                  "USD"}
               </span>
               <Input
                 id="salary"
