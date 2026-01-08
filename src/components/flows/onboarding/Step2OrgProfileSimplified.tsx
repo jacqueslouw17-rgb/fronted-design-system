@@ -96,13 +96,6 @@ const Step2OrgProfileSimplified = ({
       {isEditMode && editModeTitle}
       
       <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Building2 className="h-4 w-4 text-primary" />
-          <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
-            Company Details
-          </h3>
-        </div>
-        
         <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm">
