@@ -81,8 +81,7 @@ const Step2OrgProfileSimplified = ({
       return;
     }
     setIsSubmitting(true);
-    // Small delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 800));
     onComplete("org_profile", data);
     setIsSubmitting(false);
   };
