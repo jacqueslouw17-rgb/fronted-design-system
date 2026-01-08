@@ -87,6 +87,8 @@ const ContractCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const idsParam = searchParams.get("ids");
+  const returnTo = searchParams.get("returnTo");
+  const companyParam = searchParams.get("company");
   const mockCandidates = useMockCandidates();
   const contractorsFromStore = useContractorStore((s) => s.contractors) as unknown as PipelineContractor[];
 
@@ -278,8 +280,20 @@ const ContractCreation: React.FC = () => {
                     if (index < selected.length - 1) {
                       setIndex((i) => i + 1);
                     } else {
-                      // Skip bundle-creation and go directly to drafting phase
-                      navigate("/flows/contract-flow?phase=drafting");
+                      // Navigate back to the appropriate flow
+                      if (returnTo === 'flow-1.1') {
+                        // Return to Flow 1.1 with company context and candidate IDs preserved
+                        const candidateIds = selected.map(c => c.id).join(',');
+                        const params = new URLSearchParams({ 
+                          phase: 'drafting',
+                          ids: candidateIds,
+                          ...(companyParam && { company: companyParam })
+                        }).toString();
+                        navigate(`/flows/contract-flow-multi-company?${params}`);
+                      } else {
+                        // Default: go to contract-flow drafting phase
+                        navigate("/flows/contract-flow?phase=drafting");
+                      }
                     }
                   }}
                 />
