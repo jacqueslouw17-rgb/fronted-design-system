@@ -1108,10 +1108,16 @@ const AdminContractingMultiCompany = () => {
                         contractFlow.backToDrafting();
                       }}
                       onStartSigning={() => { 
-                        // Move selected candidates to "awaiting-signature" status
-                        contractFlow.selectedCandidates.forEach((candidate) => {
-                          updateContractor(candidate.id, { status: "awaiting-signature" });
-                        });
+                        // Move selected candidates to "awaiting-signature" status in companyContractors
+                        const candidateIds = contractFlow.selectedCandidates.map(c => c.id);
+                        setCompanyContractors(prev => ({
+                          ...prev,
+                          [selectedCompany]: (prev[selectedCompany] || []).map(c =>
+                            candidateIds.includes(c.id) 
+                              ? { ...c, status: "awaiting-signature" }
+                              : c
+                          )
+                        }));
                         contractFlow.proceedToDataCollection();
                         toast({ title: "Contracts sent for signature", description: `${contractFlow.selectedCandidates.length} candidate(s) moved to Waiting for Signature` });
                         navigate("/flows/contract-flow-multi-company?phase=data-collection&moved=true");
