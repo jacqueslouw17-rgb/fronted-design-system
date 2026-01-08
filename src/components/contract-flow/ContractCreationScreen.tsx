@@ -575,7 +575,7 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
               <Input
                 id="salary"
                 placeholder="5000"
-                value={contractData.salary?.replace(/^[$₱€£₹]|^kr\s?|^S\$\s?/g, '').trim() || ''}
+                value={contractData.salary?.replace(/^[$₱€£₹]|^kr\s?|^S\$\s?|^[A-Z]{3}\s?/gi, '').replace(/\/mo$/i, '').trim() || ''}
                 onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
                 className={`pl-12 ${errors.salary ? "border-destructive" : ""}`}
               />
