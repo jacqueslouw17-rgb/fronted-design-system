@@ -634,25 +634,25 @@ const AdminContractingMultiCompany = () => {
     const signedParam = searchParams.get("signed");
     const companyParam = searchParams.get("company");
     const idsParam = searchParams.get("ids");
-    
+
     // Restore company from URL if provided (e.g. returning from contract-creation)
     if (companyParam && companyParam !== selectedCompany && companies.some(c => c.id === companyParam)) {
       setSelectedCompany(companyParam);
     }
-    
+
     if (phaseParam === "bundle-creation") {
       // Bundle step is hidden in Flow 1.1 — treat this as drafting.
       contractFlow.proceedToDrafting();
       navigate("/flows/contract-flow-multi-company", { replace: true });
     }
-    
+
     if (phaseParam === "drafting" && idsParam) {
       // Returning from contract-creation with candidate IDs
       // Load candidates from company contractors
       const ids = idsParam.split(",").map(s => s.trim()).filter(Boolean);
       const companyId = companyParam || selectedCompany;
       const contractors = companyContractors[companyId] || [];
-      
+
       // Convert contractors to Candidate format for the drafting phase
       const candidatesForDrafting = contractors
         .filter((c: any) => ids.includes(c.id))
@@ -673,25 +673,36 @@ const AdminContractingMultiCompany = () => {
           email: c.email,
           employmentType: c.employmentType,
         }));
-      
+
       if (candidatesForDrafting.length > 0) {
         contractFlow.setCandidatesForDrafting(candidatesForDrafting);
       } else {
         // Fallback: just proceed to drafting with existing candidates
         contractFlow.proceedToDrafting();
       }
-      
+
       // Clean up the URL
       navigate("/flows/contract-flow-multi-company?phase=drafting", { replace: true });
     } else if (phaseParam === "drafting" && !idsParam) {
-      // Returning without IDs, just proceed to drafting
-      contractFlow.proceedToDrafting();
+      // Returning without IDs: only force drafting once (avoid resetting draft index mid-flow)
+      if (contractFlow.phase !== "drafting") {
+        contractFlow.proceedToDrafting();
+      }
     }
-    
+
     if (signedParam === "true") {
       setShowContractSignedMessage(true);
     }
-  }, [searchParams, contractFlow, navigate, companies, selectedCompany, companyContractors]);
+  }, [
+    searchParams,
+    navigate,
+    companies,
+    selectedCompany,
+    companyContractors,
+    contractFlow.phase,
+    contractFlow.proceedToDrafting,
+    contractFlow.setCandidatesForDrafting,
+  ]);
 
   return (
     <RoleLensProvider initialRole="admin">
@@ -1064,6 +1075,10 @@ const AdminContractingMultiCompany = () => {
                         index={contractFlow.currentDraftIndex} 
                         total={contractFlow.selectedCandidates.length} 
                         onNext={() => { 
+                          console.log("[Flow 1.1] Confirm click", {
+                            currentDraftIndex: contractFlow.currentDraftIndex,
+                            total: contractFlow.selectedCandidates.length,
+                          });
                           contractFlow.nextDraft(); 
                         }}
                         onPrevious={() => {
