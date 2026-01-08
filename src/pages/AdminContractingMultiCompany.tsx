@@ -1000,29 +1000,7 @@ const AdminContractingMultiCompany = () => {
                   />
                 </motion.div>
               ) : contractFlow.phase === "bundle-creation" ? (
-                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
-                      onClick={() => {
-                        const ids = contractFlow.selectedCandidates.map(c => c.id).join(',');
-                        navigate(`/flows/contract-creation?ids=${ids}`);
-                      }}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow-multi-company?phase=data-collection"); }}
-                      aria-label="Close and return to pipeline"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <motion.div key="bundle-creation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
 
                   <div className="flex-1 flex flex-col items-center justify-center p-8">
                     <div className="w-full max-w-4xl space-y-8">
@@ -1076,30 +1054,7 @@ const AdminContractingMultiCompany = () => {
                 </div>
                 </motion.div>
               ) : contractFlow.phase === "drafting" ? (
-                <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        // Bundle step is hidden — go back to candidate details instead.
-                        contractFlow.prepareDrafts();
-                      }}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow-multi-company?phase=data-collection"); }}
-                      aria-label="Close and return to pipeline"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <motion.div key="drafting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
 
                   <div className="flex-1 flex flex-col items-center p-8">
                     <div className="w-full max-w-7xl space-y-8">
@@ -1137,26 +1092,7 @@ const AdminContractingMultiCompany = () => {
                   </div>
                 </motion.div>
               ) : contractFlow.phase === "reviewing" ? (
-                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full">
-                  <div className="max-w-7xl mx-auto w-full px-6 pt-4 pb-2 flex items-center justify-between">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="gap-2"
-                      onClick={() => contractFlow.backToDrafting()}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      Back
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => { contractFlow.proceedToDataCollection(); navigate("/flows/contract-flow-multi-company?phase=data-collection"); }}
-                      aria-label="Close and return to pipeline"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <motion.div key="reviewing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col min-h-full pt-16">
                   <div className="flex-1 p-8">
                     <ContractReviewBoard 
                       candidates={contractFlow.selectedCandidates} 
