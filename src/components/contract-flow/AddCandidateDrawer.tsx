@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { User, Sparkles } from "lucide-react";
+import { getCurrencyCode } from "@/utils/currencyUtils";
 interface AddCandidateDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -282,7 +283,7 @@ export const AddCandidateDrawer: React.FC<AddCandidateDrawerProps> = ({
                   <Label htmlFor="salary">Salary *</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">
-                      {formData.employmentType === "contractor" ? "USD" : formData.country === "Philippines" ? "PHP" : formData.country === "Norway" ? "NOK" : formData.country === "India" ? "INR" : formData.country === "Kosovo" ? "EUR" : formData.country === "Sweden" ? "SEK" : formData.country === "Denmark" ? "DKK" : "USD"}
+                      {getCurrencyCode(formData.country, formData.employmentType)}
                     </span>
                     <Input id="salary" value={formData.salary} onChange={e => {
                   // Only allow numbers

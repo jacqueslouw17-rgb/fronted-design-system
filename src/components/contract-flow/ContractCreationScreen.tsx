@@ -15,6 +15,7 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import { KurtIntroTooltip } from "./KurtIntroTooltip";
 import { useAgentState } from "@/hooks/useAgentState";
+import { getCurrencyCode, parseSalaryValue } from "@/utils/currencyUtils";
 
 interface ContractCreationScreenProps {
   candidate: Candidate;
@@ -563,19 +564,12 @@ Initial 3-6 month evaluation period where performance is closely monitored and t
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
-                {employmentType === "contractor" ? "USD" : 
-                  contractData.country === "Philippines" ? "PHP" :
-                  contractData.country === "Norway" ? "NOK" :
-                  contractData.country === "Singapore" ? "SGD" :
-                  contractData.country === "India" ? "INR" :
-                  contractData.country === "United Kingdom" ? "GBP" :
-                  contractData.country === "Germany" || contractData.country === "France" || contractData.country === "Spain" || contractData.country === "Italy" ? "EUR" :
-                  "USD"}
+                {getCurrencyCode(contractData.country, employmentType)}
               </span>
               <Input
                 id="salary"
                 placeholder="5000"
-                value={contractData.salary?.replace(/^[$₱€£₹]|^kr\s?|^S\$\s?|^[A-Z]{3}\s?/gi, '').replace(/\/mo$/i, '').trim() || ''}
+                value={parseSalaryValue(contractData.salary)}
                 onChange={(e) => setContractData({ ...contractData, salary: e.target.value })}
                 className={`pl-12 ${errors.salary ? "border-destructive" : ""}`}
               />

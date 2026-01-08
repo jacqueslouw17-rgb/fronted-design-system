@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { getCurrencyCode } from "@/utils/currencyUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1096,19 +1097,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Salary</span>
                             <span className="font-medium text-foreground">
-                              {contractor.employmentType === "contractor" 
-                                ? "USD " 
-                                : contractor.country === "Philippines" 
-                                  ? "PHP " 
-                                  : contractor.country === "Norway" 
-                                    ? "NOK " 
-                                    : contractor.country === "India" 
-                                      ? "INR " 
-                                      : contractor.country === "Singapore" 
-                                        ? "SGD " 
-                                        : contractor.country === "Mexico" 
-                                          ? "MXN " 
-                                          : "USD "}{contractor.salary}
+                              {getCurrencyCode(contractor.country, contractor.employmentType)} {contractor.salary}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
