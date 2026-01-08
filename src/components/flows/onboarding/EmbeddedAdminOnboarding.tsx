@@ -13,28 +13,15 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
-import StepCard from "@/components/StepCard";
-import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAgentState } from "@/hooks/useAgentState";
 import { motion } from "framer-motion";
-import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
 // Step components
-import Step1IntroTrust from "@/components/flows/onboarding/Step1IntroTrust";
 import Step2OrgProfileSimplified from "@/components/flows/onboarding/Step2OrgProfileSimplified";
-import Step3Localization from "@/components/flows/onboarding/Step3Localization";
-import Step4Integrations from "@/components/flows/onboarding/Step4Integrations";
-import Step7Finish from "@/components/flows/onboarding/Step7Finish";
-
-const FLOW_STEPS = [
-  { id: "org_profile", title: "Company details", stepNumber: 1 },
-];
 
 interface EmbeddedAdminOnboardingProps {
   onComplete: (companyName: string, companyData?: Record<string, any>) => void;
@@ -57,24 +44,19 @@ const EmbeddedAdminOnboarding = ({
   hasCandidates = false,
 }: EmbeddedAdminOnboardingProps) => {
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
-  const { state, updateFormData, completeStep, goToStep, expandedStep, setExpandedStep, getStepStatus, getStepData } = useAdminFlowBridge();
+  const { completeStep, getStepData } = useAdminFlowBridge();
   const { resetAdminFlow, updateAdminStepData } = useOnboardingStore();
-  
-  const { currentWordIndex } = useTextToSpeech({ lang: 'en-GB', voiceName: 'british', rate: 1.1 });
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isLoadingFields, setIsLoadingFields] = useState(false);
-  // Prevent step components from mounting with stale persisted values before we reset the store
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const hasInitialized = useRef(false);
-  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state
   useEffect(() => {
     setAgentSpeaking(isSpeaking);
   }, [isSpeaking, setAgentSpeaking]);
 
-  // Ensure first step is expanded on initial load and reset flow for new company
+  // Initialize the flow on mount
   useEffect(() => {
     if (!hasInitialized.current) {
       setIsBootstrapping(true);
@@ -87,7 +69,6 @@ const EmbeddedAdminOnboarding = ({
         updateAdminStepData("org_profile", initialData);
       }
 
-      setExpandedStep("org_profile");
       hasInitialized.current = true;
       setIsBootstrapping(false);
     }
@@ -96,17 +77,12 @@ const EmbeddedAdminOnboarding = ({
     return () => {
       hasInitialized.current = false;
     };
-  }, [resetAdminFlow, setExpandedStep, isEditMode, initialData, updateAdminStepData]);
-
-  // Scroll to step helper
-  const scrollToStep = (stepId: string) => {
-    utilScrollToStep(stepId, { focusHeader: true, delay: 100 });
-  };
+  }, [resetAdminFlow, isEditMode, initialData, updateAdminStepData]);
 
   const handleStepComplete = async (stepId: string, data?: any) => {
     setIsProcessing(true);
 
-    // Update form data if provided - explicitly save under the step's ID
+    // Update form data if provided
     if (data) {
       updateAdminStepData(stepId, data);
     }
@@ -130,68 +106,7 @@ const EmbeddedAdminOnboarding = ({
     setIsProcessing(false);
   };
 
-  const handleStepClick = (stepId: string) => {
-    const status = getStepStatus(stepId);
-    
-    // In edit mode, all steps are clickable
-    if (isEditMode || status !== 'inactive') {
-      if (expandedStep === stepId) {
-        setExpandedStep(null);
-      } else {
-        setExpandedStep(stepId);
-        
-        setTimeout(() => {
-          scrollToStep(stepId);
-        }, 50);
-      }
-    }
-  };
-
-  const renderStepContent = (stepId: string) => {
-    // For the final step, provide a merged view of earlier steps so it can
-    // reflect completion states (e.g. hiring locations)
-    const stepData = stepId === "finish_dashboard_transition"
-      ? {
-          ...(state.formData["org_profile"] || {}),
-          ...(state.formData["localization_country_blocks"] || {}),
-          ...(state.formData[stepId] || {}),
-        }
-      : (state.formData[stepId] || {});
-
-    const stepProps = {
-      formData: stepData,
-      onComplete: handleStepComplete,
-      onOpenDrawer: () => {},
-      isProcessing: isProcessing,
-      isLoadingFields: isLoadingFields
-    };
-
-    switch (stepId) {
-      case "org_profile":
-        return (
-          <Step2OrgProfileSimplified 
-            {...stepProps} 
-            isEditMode={isEditMode}
-            hasSignedContract={hasSignedContract}
-            hasCandidates={hasCandidates}
-          />
-        );
-      case "localization_country_blocks":
-        return (
-          <Step3Localization 
-            {...stepProps} 
-            showSkipButton={!isEditMode}
-            isEditMode={isEditMode}
-            hasCandidates={hasCandidates}
-            existingCountries={initialData?.selectedCountries || []}
-          />
-        );
-      case "finish_dashboard_transition":
-        return <Step7Finish {...stepProps} />;
-      default:
-        return null;
-    }
-  };
+  const formData = getStepData("org_profile") || {};
 
   if (isBootstrapping) {
     return (
@@ -219,9 +134,6 @@ const EmbeddedAdminOnboarding = ({
       </div>
     );
   }
-
-  // Only show the company details step
-  const stepsToShow = FLOW_STEPS;
 
   return (
     <div className="flex-1 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] relative overflow-hidden">
@@ -271,22 +183,16 @@ const EmbeddedAdminOnboarding = ({
           </motion.div>
         </div>
 
-        {/* Step Content - Render directly without StepCard wrapper */}
-        <div className="space-y-3">
-          {stepsToShow.map((step) => (
-            <div 
-              key={step.id}
-              data-step={step.id}
-              role="region"
-            >
-              <div 
-                ref={(el) => stepRefs.current[step.id] = el}
-              >
-                {renderStepContent(step.id)}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Company Details Form */}
+        <Step2OrgProfileSimplified 
+          formData={formData}
+          onComplete={handleStepComplete}
+          onOpenDrawer={() => {}}
+          isProcessing={isProcessing}
+          isEditMode={isEditMode}
+          hasSignedContract={hasSignedContract}
+          hasCandidates={hasCandidates}
+        />
       </div>
     </div>
   );
