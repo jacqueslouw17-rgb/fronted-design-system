@@ -15,14 +15,16 @@ import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import StandardInput from "@/components/shared/StandardInput";
-
 interface Step1SimplifiedProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
   isProcessing?: boolean;
 }
-
-const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = false }: Step1SimplifiedProps) => {
+const Step1AdminAccountSimplified = ({
+  formData,
+  onComplete,
+  isProcessing = false
+}: Step1SimplifiedProps) => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState(formData.adminName || "Joe Smith");
   const [email, setEmail] = useState(formData.adminEmail || "");
@@ -31,12 +33,10 @@ const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = fals
   const [hqCountry, setHqCountry] = useState(formData.hqCountry || "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email.trim()) newErrors.email = "Email is required";else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = "Invalid email format";
     }
     if (!password || password.length < 8) newErrors.password = "Password must be at least 8 characters";
@@ -45,15 +45,7 @@ const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = fals
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  const isFormValid = 
-    fullName.trim().length > 0 && 
-    email.trim().length > 0 && 
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-    password.length >= 8 &&
-    companyName.trim().length > 0 && 
-    hqCountry.length > 0;
-
+  const isFormValid = fullName.trim().length > 0 && email.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && password.length >= 8 && companyName.trim().length > 0 && hqCountry.length > 0;
   const handleGoToDashboard = async () => {
     if (!validate()) {
       toast({
@@ -63,10 +55,9 @@ const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = fals
       });
       return;
     }
-    
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     // Complete and navigate to dashboard
     onComplete("admin_account", {
       fullName,
@@ -77,62 +68,26 @@ const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = fals
     });
     navigate("/flows/company-admin-dashboard-v1");
   };
-
-  return (
-    <div className="space-y-6 max-w-xl mx-auto">
+  return <div className="space-y-6 max-w-xl mx-auto">
       {/* Sign In Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-foreground">Sign in</h2>
-        <p className="text-sm text-muted-foreground">Use your default credentials from the email.</p>
+        
+        
       </div>
 
       {/* Form */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-        <StandardInput
-          id="fullName"
-          label="Full Name"
-          value={fullName}
-          onChange={setFullName}
-          type="text"
-          required
-          error={errors.fullName}
-          placeholder="John Doe"
-        />
+        <StandardInput id="fullName" label="Full Name" value={fullName} onChange={setFullName} type="text" required error={errors.fullName} placeholder="John Doe" />
 
-        <StandardInput
-          id="email"
-          label="Email"
-          value={email}
-          onChange={setEmail}
-          type="email"
-          required
-          error={errors.email}
-          placeholder="you@company.com"
-        />
+        <StandardInput id="email" label="Email" value={email} onChange={setEmail} type="email" required error={errors.email} placeholder="you@company.com" />
 
-        <StandardInput
-          id="password"
-          label="Password"
-          value={password}
-          onChange={setPassword}
-          type="password"
-          required
-          error={errors.password}
-          helpText="Minimum 8 characters"
-          placeholder="••••••••"
-        />
+        <StandardInput id="password" label="Password" value={password} onChange={setPassword} type="password" required error={errors.password} helpText="Minimum 8 characters" placeholder="••••••••" />
 
         <div className="space-y-2">
           <Label htmlFor="companyName" className="text-sm">
             Company Name <span className="text-destructive">*</span>
           </Label>
-          <Input
-            id="companyName"
-            value={companyName}
-            onChange={e => setCompanyName(e.target.value)}
-            placeholder="Fronted Test Co"
-            className="text-sm"
-          />
+          <Input id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Fronted Test Co" className="text-sm" />
           {errors.companyName && <p className="text-xs text-destructive">{errors.companyName}</p>}
         </div>
 
@@ -165,24 +120,13 @@ const Step1AdminAccountSimplified = ({ formData, onComplete, isProcessing = fals
 
       {/* Action Button */}
       <div className="pt-1">
-        <Button
-          onClick={handleGoToDashboard}
-          disabled={!isFormValid || isProcessing || isSubmitting}
-          className="w-full"
-          size="lg"
-        >
-          {(isProcessing || isSubmitting) ? (
-            <>
+        <Button onClick={handleGoToDashboard} disabled={!isFormValid || isProcessing || isSubmitting} className="w-full" size="lg">
+          {isProcessing || isSubmitting ? <>
               <Loader2 className="h-5 w-5 mr-2 animate-spin" />
               Processing...
-            </>
-          ) : (
-            "Go to Dashboard"
-          )}
+            </> : "Go to Dashboard"}
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Step1AdminAccountSimplified;
