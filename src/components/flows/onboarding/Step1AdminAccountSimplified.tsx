@@ -26,26 +26,39 @@ const Step1AdminAccountSimplified = ({
   isProcessing = false
 }: Step1SimplifiedProps) => {
   const navigate = useNavigate();
+  
+  // Auto-populate from formData (simulating pre-filled data from invite)
   const [fullName, setFullName] = useState(formData.adminName || "Joe Smith");
-  const [email, setEmail] = useState(formData.adminEmail || "");
+  const [email] = useState(formData.adminEmail || "joe.smith@jboxtech.com");
+  const [companyName, setCompanyName] = useState(formData.companyName || "JBOX Technologies");
+  const [hqCountry, setHqCountry] = useState(formData.hqCountry || "NO");
   const [password, setPassword] = useState("");
-  const [companyName, setCompanyName] = useState(formData.companyName || "");
-  const [hqCountry, setHqCountry] = useState(formData.hqCountry || "");
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!email.trim()) newErrors.email = "Email is required";else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = "Invalid email format";
     }
-    if (!password || password.length < 8) newErrors.password = "Password must be at least 8 characters";
     if (!companyName.trim()) newErrors.companyName = "Company name is required";
     if (!hqCountry) newErrors.hqCountry = "HQ Country is required";
+    if (!password || password.length < 8) newErrors.password = "Password must be at least 8 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const isFormValid = fullName.trim().length > 0 && email.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && password.length >= 8 && companyName.trim().length > 0 && hqCountry.length > 0;
+
+  const isFormValid = 
+    fullName.trim().length > 0 && 
+    email.trim().length > 0 && 
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && 
+    companyName.trim().length > 0 && 
+    hqCountry.length > 0 &&
+    password.length >= 8;
+
   const handleGoToDashboard = async () => {
     if (!validate()) {
       toast({
@@ -68,7 +81,9 @@ const Step1AdminAccountSimplified = ({
     });
     navigate("/flows/company-admin-dashboard-v1");
   };
-  return <div className="space-y-6 max-w-xl mx-auto">
+
+  return (
+    <div className="space-y-6 max-w-xl mx-auto">
       {/* Sign In Header */}
       <div className="space-y-2">
         
@@ -77,17 +92,41 @@ const Step1AdminAccountSimplified = ({
 
       {/* Form */}
       <div className="bg-card/40 border border-border/40 rounded-lg p-4 space-y-4">
-        <StandardInput id="fullName" label="Full Name" value={fullName} onChange={setFullName} type="text" required error={errors.fullName} placeholder="John Doe" />
+        <StandardInput 
+          id="fullName" 
+          label="Full Name" 
+          value={fullName} 
+          onChange={setFullName} 
+          type="text" 
+          required 
+          error={errors.fullName} 
+          placeholder="John Doe" 
+        />
 
-        <StandardInput id="email" label="Email" value={email} onChange={setEmail} type="email" required error={errors.email} placeholder="you@company.com" />
-
-        <StandardInput id="password" label="Password" value={password} onChange={setPassword} type="password" required error={errors.password} helpText="Minimum 8 characters" placeholder="••••••••" />
+        <StandardInput 
+          id="email" 
+          label="Email" 
+          value={email} 
+          onChange={() => {}} 
+          type="email" 
+          required 
+          error={errors.email} 
+          placeholder="you@company.com"
+          disabled
+          helpText="Email is linked to your invitation and cannot be changed"
+        />
 
         <div className="space-y-2">
           <Label htmlFor="companyName" className="text-sm">
             Company Name <span className="text-destructive">*</span>
           </Label>
-          <Input id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Fronted Test Co" className="text-sm" />
+          <Input 
+            id="companyName" 
+            value={companyName} 
+            onChange={e => setCompanyName(e.target.value)} 
+            placeholder="Fronted Test Co" 
+            className="text-sm" 
+          />
           {errors.companyName && <p className="text-xs text-destructive">{errors.companyName}</p>}
         </div>
 
@@ -113,6 +152,18 @@ const Step1AdminAccountSimplified = ({
           {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
         </div>
 
+        <StandardInput 
+          id="password" 
+          label="Password" 
+          value={password} 
+          onChange={setPassword} 
+          type="password" 
+          required 
+          error={errors.password} 
+          helpText="Minimum 8 characters" 
+          placeholder="••••••••" 
+        />
+
         <p className="text-xs text-center text-[#A0A0A0] pt-2">
           🔒 Secure sign-in. Your credentials are never shared.
         </p>
@@ -120,13 +171,24 @@ const Step1AdminAccountSimplified = ({
 
       {/* Action Button */}
       <div className="pt-1">
-        <Button onClick={handleGoToDashboard} disabled={!isFormValid || isProcessing || isSubmitting} className="w-full" size="lg">
-          {isProcessing || isSubmitting ? <>
+        <Button 
+          onClick={handleGoToDashboard} 
+          disabled={!isFormValid || isProcessing || isSubmitting} 
+          className="w-full" 
+          size="lg"
+        >
+          {isProcessing || isSubmitting ? (
+            <>
               <Loader2 className="h-5 w-5 mr-2 animate-spin" />
               Processing...
-            </> : "Go to Dashboard"}
+            </>
+          ) : (
+            "Go to Dashboard"
+          )}
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Step1AdminAccountSimplified;
