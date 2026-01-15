@@ -9,12 +9,102 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Loader2, ChevronsUpDown, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import StandardInput from "@/components/shared/StandardInput";
+import { cn } from "@/lib/utils";
+
+// Full list of countries with flags
+const COUNTRIES = [
+  { value: "AF", label: "Afghanistan", flag: "🇦🇫" },
+  { value: "AX", label: "Åland Islands", flag: "🇦🇽" },
+  { value: "AL", label: "Albania", flag: "🇦🇱" },
+  { value: "DZ", label: "Algeria", flag: "🇩🇿" },
+  { value: "AS", label: "American Samoa", flag: "🇦🇸" },
+  { value: "AD", label: "Andorra", flag: "🇦🇩" },
+  { value: "AO", label: "Angola", flag: "🇦🇴" },
+  { value: "AI", label: "Anguilla", flag: "🇦🇮" },
+  { value: "AQ", label: "Antarctica", flag: "🇦🇶" },
+  { value: "AG", label: "Antigua and Barbuda", flag: "🇦🇬" },
+  { value: "AR", label: "Argentina", flag: "🇦🇷" },
+  { value: "AM", label: "Armenia", flag: "🇦🇲" },
+  { value: "AU", label: "Australia", flag: "🇦🇺" },
+  { value: "AT", label: "Austria", flag: "🇦🇹" },
+  { value: "AZ", label: "Azerbaijan", flag: "🇦🇿" },
+  { value: "BS", label: "Bahamas", flag: "🇧🇸" },
+  { value: "BH", label: "Bahrain", flag: "🇧🇭" },
+  { value: "BD", label: "Bangladesh", flag: "🇧🇩" },
+  { value: "BB", label: "Barbados", flag: "🇧🇧" },
+  { value: "BE", label: "Belgium", flag: "🇧🇪" },
+  { value: "BZ", label: "Belize", flag: "🇧🇿" },
+  { value: "BJ", label: "Benin", flag: "🇧🇯" },
+  { value: "BT", label: "Bhutan", flag: "🇧🇹" },
+  { value: "BO", label: "Bolivia", flag: "🇧🇴" },
+  { value: "BR", label: "Brazil", flag: "🇧🇷" },
+  { value: "BG", label: "Bulgaria", flag: "🇧🇬" },
+  { value: "CA", label: "Canada", flag: "🇨🇦" },
+  { value: "CL", label: "Chile", flag: "🇨🇱" },
+  { value: "CN", label: "China", flag: "🇨🇳" },
+  { value: "CO", label: "Colombia", flag: "🇨🇴" },
+  { value: "HR", label: "Croatia", flag: "🇭🇷" },
+  { value: "CY", label: "Cyprus", flag: "🇨🇾" },
+  { value: "CZ", label: "Czech Republic", flag: "🇨🇿" },
+  { value: "DK", label: "Denmark", flag: "🇩🇰" },
+  { value: "EG", label: "Egypt", flag: "🇪🇬" },
+  { value: "EE", label: "Estonia", flag: "🇪🇪" },
+  { value: "FI", label: "Finland", flag: "🇫🇮" },
+  { value: "FR", label: "France", flag: "🇫🇷" },
+  { value: "DE", label: "Germany", flag: "🇩🇪" },
+  { value: "GR", label: "Greece", flag: "🇬🇷" },
+  { value: "HK", label: "Hong Kong", flag: "🇭🇰" },
+  { value: "HU", label: "Hungary", flag: "🇭🇺" },
+  { value: "IS", label: "Iceland", flag: "🇮🇸" },
+  { value: "IN", label: "India", flag: "🇮🇳" },
+  { value: "ID", label: "Indonesia", flag: "🇮🇩" },
+  { value: "IE", label: "Ireland", flag: "🇮🇪" },
+  { value: "IL", label: "Israel", flag: "🇮🇱" },
+  { value: "IT", label: "Italy", flag: "🇮🇹" },
+  { value: "JP", label: "Japan", flag: "🇯🇵" },
+  { value: "KE", label: "Kenya", flag: "🇰🇪" },
+  { value: "XK", label: "Kosovo", flag: "🇽🇰" },
+  { value: "LV", label: "Latvia", flag: "🇱🇻" },
+  { value: "LT", label: "Lithuania", flag: "🇱🇹" },
+  { value: "LU", label: "Luxembourg", flag: "🇱🇺" },
+  { value: "MY", label: "Malaysia", flag: "🇲🇾" },
+  { value: "MX", label: "Mexico", flag: "🇲🇽" },
+  { value: "NL", label: "Netherlands", flag: "🇳🇱" },
+  { value: "NZ", label: "New Zealand", flag: "🇳🇿" },
+  { value: "NG", label: "Nigeria", flag: "🇳🇬" },
+  { value: "NO", label: "Norway", flag: "🇳🇴" },
+  { value: "PK", label: "Pakistan", flag: "🇵🇰" },
+  { value: "PH", label: "Philippines", flag: "🇵🇭" },
+  { value: "PL", label: "Poland", flag: "🇵🇱" },
+  { value: "PT", label: "Portugal", flag: "🇵🇹" },
+  { value: "RO", label: "Romania", flag: "🇷🇴" },
+  { value: "RU", label: "Russia", flag: "🇷🇺" },
+  { value: "SA", label: "Saudi Arabia", flag: "🇸🇦" },
+  { value: "RS", label: "Serbia", flag: "🇷🇸" },
+  { value: "SG", label: "Singapore", flag: "🇸🇬" },
+  { value: "SK", label: "Slovakia", flag: "🇸🇰" },
+  { value: "SI", label: "Slovenia", flag: "🇸🇮" },
+  { value: "ZA", label: "South Africa", flag: "🇿🇦" },
+  { value: "KR", label: "South Korea", flag: "🇰🇷" },
+  { value: "ES", label: "Spain", flag: "🇪🇸" },
+  { value: "SE", label: "Sweden", flag: "🇸🇪" },
+  { value: "CH", label: "Switzerland", flag: "🇨🇭" },
+  { value: "TW", label: "Taiwan", flag: "🇹🇼" },
+  { value: "TH", label: "Thailand", flag: "🇹🇭" },
+  { value: "TR", label: "Turkey", flag: "🇹🇷" },
+  { value: "UA", label: "Ukraine", flag: "🇺🇦" },
+  { value: "AE", label: "United Arab Emirates", flag: "🇦🇪" },
+  { value: "GB", label: "United Kingdom", flag: "🇬🇧" },
+  { value: "US", label: "United States", flag: "🇺🇸" },
+  { value: "VN", label: "Vietnam", flag: "🇻🇳" },
+];
 interface Step1SimplifiedProps {
   formData: Record<string, any>;
   onComplete: (stepId: string, data?: Record<string, any>) => void;
@@ -37,6 +127,8 @@ const Step1AdminAccountSimplified = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [countryOpen, setCountryOpen] = useState(false);
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!fullName.trim()) newErrors.fullName = "Full name is required";
@@ -50,6 +142,8 @@ const Step1AdminAccountSimplified = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const selectedCountry = COUNTRIES.find(c => c.value === hqCountry);
 
   const isFormValid = 
     fullName.trim().length > 0 && 
@@ -134,21 +228,52 @@ const Step1AdminAccountSimplified = ({
           <Label htmlFor="hqCountry" className="text-sm">
             HQ Country <span className="text-destructive">*</span>
           </Label>
-          <Select value={hqCountry} onValueChange={setHqCountry}>
-            <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="NO">🇳🇴 Norway</SelectItem>
-              <SelectItem value="DK">🇩🇰 Denmark</SelectItem>
-              <SelectItem value="SE">🇸🇪 Sweden</SelectItem>
-              <SelectItem value="PH">🇵🇭 Philippines</SelectItem>
-              <SelectItem value="IN">🇮🇳 India</SelectItem>
-              <SelectItem value="XK">🇽🇰 Kosovo</SelectItem>
-              <SelectItem value="US">🇺🇸 United States</SelectItem>
-              <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-            </SelectContent>
-          </Select>
+          <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={countryOpen}
+                className="w-full justify-between text-sm font-normal h-10"
+              >
+                {selectedCountry ? (
+                  <span>{selectedCountry.flag} {selectedCountry.label}</span>
+                ) : (
+                  <span className="text-muted-foreground">Select country</span>
+                )}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-background border border-border z-50" align="start">
+              <Command>
+                <CommandInput placeholder="Search country..." className="h-10" />
+                <CommandList className="max-h-[240px]">
+                  <CommandEmpty>No country found.</CommandEmpty>
+                  <CommandGroup>
+                    {COUNTRIES.map((country) => (
+                      <CommandItem
+                        key={country.value}
+                        value={country.label}
+                        onSelect={() => {
+                          setHqCountry(country.value);
+                          setCountryOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            hqCountry === country.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {country.flag} {country.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           {errors.hqCountry && <p className="text-xs text-destructive">{errors.hqCountry}</p>}
         </div>
 
