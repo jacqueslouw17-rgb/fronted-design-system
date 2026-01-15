@@ -1,43 +1,24 @@
 /**
- * Flow 5 — Company Admin Onboarding v1 (updated)
+ * Flow 5 — Company Admin Onboarding v1 (simplified)
  * 
- * Simplified standalone onboarding flow for Company Admins with just 2 steps:
- * 1. Sign in (Full Name, Email, Password)
- * 2. Company Details (Company Name, End-client name, End-client email, HQ Country)
+ * Single unified form with sign-in fields + company name + HQ country.
+ * No stepper - just one simple form.
  * 
- * Accessed via deep link from email invite.
  * After completion, navigates to Flow 6 Company Admin Dashboard v1.
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import StepCard from "@/components/StepCard";
-import ProgressBar from "@/components/ProgressBar";
 import AudioWaveVisualizer from "@/components/AudioWaveVisualizer";
 import { useAdminFlowBridge } from "@/hooks/useAdminFlowBridge";
 import { useAgentState } from "@/hooks/useAgentState";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { scrollToStep as utilScrollToStep } from "@/lib/scroll-utils";
 import frontedLogo from "@/assets/fronted-logo.png";
 
-// Step components
-import Step1AdminAccount from "@/components/flows/onboarding/Step1AdminAccount";
-import Step2CompanyDetailsSimplifiedV5 from "@/components/flows/onboarding/Step2CompanyDetailsSimplifiedV5";
-
-const FLOW_STEPS = [
-  {
-    id: "admin_account",
-    title: "Sign in",
-    stepNumber: 1
-  },
-  {
-    id: "company_details",
-    title: "Company Details",
-    stepNumber: 2
-  }
-];
+// Step component
+import Step1AdminAccountSimplified from "@/components/flows/onboarding/Step1AdminAccountSimplified";
 
 const CompanyAdminOnboarding = () => {
   const navigate = useNavigate();
@@ -45,16 +26,12 @@ const CompanyAdminOnboarding = () => {
     state,
     updateFormData,
     completeStep,
-    goToStep,
-    expandedStep,
-    setExpandedStep,
   } = useAdminFlowBridge();
   const { resetAdminFlow } = useOnboardingStore();
   const { setIsSpeaking: setAgentSpeaking } = useAgentState();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const hasInitialized = useRef(false);
-  const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sync local speaking state with agent state
   useEffect(() => {
@@ -74,18 +51,9 @@ const CompanyAdminOnboarding = () => {
         companyName: "Acme Corp",
         hqCountry: "NO"
       });
-      setExpandedStep("admin_account");
       hasInitialized.current = true;
     }
-  }, [resetAdminFlow, setExpandedStep, updateFormData]);
-
-  // Scroll to step helper
-  const scrollToStep = (stepId: string) => {
-    utilScrollToStep(stepId, {
-      focusHeader: true,
-      delay: 100
-    });
-  };
+  }, [resetAdminFlow, updateFormData]);
 
   const handleStepComplete = async (stepId: string, data?: any) => {
     setIsProcessing(true);
@@ -97,59 +65,8 @@ const CompanyAdminOnboarding = () => {
 
     // Complete the step
     completeStep(stepId);
-
-    // Check if this is the final step - navigation is handled in Step2
-    if (stepId === "company_details") {
-      setIsProcessing(false);
-      return;
-    }
-
-    // Move to the next step
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    if (currentIndex < FLOW_STEPS.length - 1) {
-      const nextStep = FLOW_STEPS[currentIndex + 1];
-      goToStep(nextStep.id);
-      setExpandedStep(nextStep.id);
-      setTimeout(() => {
-        scrollToStep(nextStep.id);
-      }, 150);
-    }
     setIsProcessing(false);
   };
-
-  const handleStepClick = (stepId: string) => {
-    const clickedIndex = FLOW_STEPS.findIndex(s => s.id === stepId);
-    const currentIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
-    if (clickedIndex <= currentIndex || state.completedSteps.includes(stepId)) {
-      setExpandedStep(expandedStep === stepId ? null : stepId);
-      setTimeout(() => {
-        scrollToStep(stepId);
-      }, 100);
-    }
-  };
-
-  const renderStepContent = (stepId: string) => {
-    const isExpanded = expandedStep === stepId;
-    if (!isExpanded) return null;
-    
-    const commonProps = {
-      formData: state.formData,
-      onComplete: (data?: any) => handleStepComplete(stepId, data),
-      isProcessing
-    };
-    
-    switch (stepId) {
-      case "admin_account":
-        return <Step1AdminAccount {...commonProps} />;
-      case "company_details":
-        return <Step2CompanyDetailsSimplifiedV5 {...commonProps} />;
-      default:
-        return null;
-    }
-  };
-
-  const currentStepIndex = FLOW_STEPS.findIndex(s => s.id === state.currentStep);
-  const totalSteps = FLOW_STEPS.length;
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] overflow-hidden">
@@ -215,46 +132,18 @@ const CompanyAdminOnboarding = () => {
             </motion.div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
-          </div>
-
-          {/* Step Cards */}
-          <div className="space-y-3">
-            <AnimatePresence mode="sync">
-              {FLOW_STEPS.map((step, index) => {
-                const isCompleted = state.completedSteps.includes(step.id);
-                const isCurrent = state.currentStep === step.id;
-                const isExpanded = expandedStep === step.id;
-                const isLocked = !isCompleted && !isCurrent && 
-                  FLOW_STEPS.findIndex(s => s.id === step.id) > FLOW_STEPS.findIndex(s => s.id === state.currentStep);
-                
-                return (
-                  <motion.div 
-                    key={step.id} 
-                    id={`step-card-${step.id}`} 
-                    ref={el => stepRefs.current[step.id] = el} 
-                    initial={{ opacity: 0, y: 20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    exit={{ opacity: 0, y: -20 }} 
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <StepCard 
-                      stepNumber={step.stepNumber} 
-                      title={step.title} 
-                      status={isCompleted ? "completed" : isCurrent ? "active" : "inactive"} 
-                      isExpanded={isExpanded} 
-                      onClick={() => handleStepClick(step.id)} 
-                      isLocked={isLocked}
-                    >
-                      {renderStepContent(step.id)}
-                    </StepCard>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+          {/* Single Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Step1AdminAccountSimplified
+              formData={state.formData}
+              onComplete={handleStepComplete}
+              isProcessing={isProcessing}
+            />
+          </motion.div>
         </div>
       </div>
     </div>
