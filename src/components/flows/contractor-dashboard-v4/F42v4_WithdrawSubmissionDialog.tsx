@@ -1,8 +1,6 @@
 /**
  * Flow 4.2 — Contractor Dashboard v4
- * Confirm Invoice Dialog - matches F41v4 pattern
- * 
- * ISOLATED: Changes here do NOT affect other flows.
+ * Withdraw Submission Dialog - matches F41v4 pattern
  */
 
 import {
@@ -17,21 +15,22 @@ import {
 } from '@/components/ui/alert-dialog';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useF42v4_DashboardStore } from '@/stores/F42v4_DashboardStore';
 
-interface F42v4_ConfirmInvoiceDialogProps {
+interface WithdrawSubmissionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  periodLabel: string;
+  onConfirm: () => void;
 }
 
-export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v4_ConfirmInvoiceDialogProps) => {
-  const { submitInvoice } = useF42v4_DashboardStore();
-
+export const F42v4_WithdrawSubmissionDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+}: WithdrawSubmissionDialogProps) => {
   const handleConfirm = () => {
-    submitInvoice();
-    toast.success("Invoice submitted. Your company will review before finalising.");
+    onConfirm();
     onOpenChange(false);
+    toast.success('Submission withdrawn. You can make changes and resubmit.');
   };
 
   return (
@@ -48,22 +47,22 @@ export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: 
         >
           <X className="h-4 w-4" />
         </button>
-
+        
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm upcoming invoice</AlertDialogTitle>
+          <AlertDialogTitle>Withdraw submission?</AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <p>
-              You're confirming your invoice for {periodLabel}.
+              This will withdraw your invoice submission and return it to draft status.
             </p>
             <p>
-              You can still request adjustments until the submission window closes.
+              You'll be able to make changes and resubmit before the cut-off date.
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>
-            Confirm
+            Withdraw submission
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

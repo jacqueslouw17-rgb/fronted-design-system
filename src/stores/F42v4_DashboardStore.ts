@@ -2,7 +2,7 @@
  * Flow 4.2 — Contractor Dashboard v4 Store
  * 
  * Namespaced store for Contractor Dashboard v4.
- * Includes T-5 invoice confirmation and adjustment state for contractors.
+ * Includes invoice status states matching employee payroll patterns.
  * 
  * ISOLATED: This is a complete copy from v3 - changes here do NOT affect v3.
  */
@@ -10,6 +10,7 @@
 import { create } from 'zustand';
 
 export type F42v4_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
+export type F42v4_InvoiceStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised';
 export type F42v4_ContractType = 'hourly' | 'fixed';
 export type F42v4_AdjustmentType = 'Expense' | 'Additional hours' | 'Bonus' | 'Correction';
 export type F42v4_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
@@ -42,21 +43,27 @@ interface F42v4_DashboardState {
   // Invoice data
   nextInvoiceDate: string;
   periodLabel: string;
+  periodMonth: string;
   invoiceTotal: number;
   currency: string;
   contractType: F42v4_ContractType;
   lineItems: F42v4_LineItem[];
   windowState: F42v4_WindowState;
-  confirmed: boolean;
+  invoiceStatus: F42v4_InvoiceStatus;
+  returnedReason?: string;
+  resubmitDeadline?: string;
   adjustments: F42v4_Adjustment[];
   
-  // Computed
+  // Cut-off
+  cutoffDate: string;
+  isCutoffSoon: boolean;
   daysUntilClose: number;
 }
 
 interface F42v4_DashboardActions {
   setLoading: (loading: boolean) => void;
-  confirmInvoice: () => void;
+  submitInvoice: () => void;
+  withdrawSubmission: () => void;
   addAdjustment: (adjustment: Omit<F42v4_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
   reset: () => void;
@@ -69,16 +76,31 @@ const initialState: F42v4_DashboardState = {
   // Mock data matching the spec
   nextInvoiceDate: '2026-01-05',
   periodLabel: 'Dec 1 – Dec 31',
+  periodMonth: 'December',
   invoiceTotal: 4500,
   currency: 'USD',
   contractType: 'hourly', // 'hourly' | 'fixed'
   lineItems: [
-    { type: 'Earnings', label: 'Approved hours', meta: '152 h @ $30/h', amount: 4560 },
-    { type: 'Adjustment', label: 'Expense (Travel)', amount: -60 },
+    { type: 'Earnings', label: 'Approved hours', meta: '150 h @ $30/h', amount: 4500, locked: true },
   ],
   windowState: 'OPEN',
-  confirmed: false,
-  adjustments: [],
+  invoiceStatus: 'draft',
+  returnedReason: undefined,
+  resubmitDeadline: undefined,
+  adjustments: [
+    {
+      id: 'adj-demo-1',
+      type: 'Additional hours',
+      label: '+22h',
+      amount: null,
+      hours: 22,
+      status: 'Pending',
+      description: 'Extra project work',
+      submittedAt: new Date().toISOString(),
+    },
+  ],
+  cutoffDate: 'Jan 2',
+  isCutoffSoon: true,
   daysUntilClose: 3,
 };
 
@@ -87,7 +109,9 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  confirmInvoice: () => set({ confirmed: true }),
+  submitInvoice: () => set({ invoiceStatus: 'submitted' }),
+  
+  withdrawSubmission: () => set({ invoiceStatus: 'draft' }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [
