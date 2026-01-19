@@ -9,17 +9,10 @@
 import { create } from 'zustand';
 
 export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type SubmissionStatus = 'not_submitted' | 'submitted' | 'returned';
 export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
 export type AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 export type LeaveType = 'Annual leave' | 'Sick leave' | 'Unpaid leave' | 'Other';
 export type LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
-
-export interface ReturnedSubmission {
-  reason: string;
-  resubmitBy?: string;
-  highlightSection?: 'time' | 'expenses' | 'leave' | 'other';
-}
 
 export interface LineItem {
   type: 'Earnings' | 'Deduction';
@@ -71,8 +64,6 @@ interface F41v4_DashboardState {
   employerCosts: EmployerCost[];
   windowState: WindowState;
   confirmed: boolean;
-  submissionStatus: SubmissionStatus;
-  returnedSubmission: ReturnedSubmission | null;
   adjustments: Adjustment[];
   leaveRequests: LeaveRequest[];
   
@@ -83,9 +74,6 @@ interface F41v4_DashboardState {
 interface F41v4_DashboardActions {
   setLoading: (loading: boolean) => void;
   confirmPay: () => void;
-  submitForReview: () => void;
-  returnSubmission: (reason: string, resubmitBy?: string, highlightSection?: ReturnedSubmission['highlightSection']) => void;
-  resubmit: () => void;
   addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
@@ -118,8 +106,6 @@ const initialState: F41v4_DashboardState = {
   ],
   windowState: 'OPEN',
   confirmed: false,
-  submissionStatus: 'not_submitted',
-  returnedSubmission: null,
   adjustments: [],
   leaveRequests: [],
   daysUntilClose: 3,
@@ -130,17 +116,7 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  confirmPay: () => set({ confirmed: true, submissionStatus: 'submitted', returnedSubmission: null }),
-  
-  submitForReview: () => set({ confirmed: true, submissionStatus: 'submitted', returnedSubmission: null }),
-  
-  returnSubmission: (reason, resubmitBy, highlightSection) => set({
-    submissionStatus: 'returned',
-    confirmed: false,
-    returnedSubmission: { reason, resubmitBy, highlightSection },
-  }),
-  
-  resubmit: () => set({ confirmed: true, submissionStatus: 'submitted', returnedSubmission: null }),
+  confirmPay: () => set({ confirmed: true }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [
