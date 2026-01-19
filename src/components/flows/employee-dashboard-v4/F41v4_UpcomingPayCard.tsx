@@ -531,7 +531,6 @@ export const F41v4_UpcomingPayCard = () => {
         open={breakdownDrawerOpen}
         onOpenChange={setBreakdownDrawerOpen}
         lineItems={lineItems}
-        employerCosts={employerCosts}
         currency={currency}
         estimatedNet={estimatedNet}
         periodLabel={periodLabel}
