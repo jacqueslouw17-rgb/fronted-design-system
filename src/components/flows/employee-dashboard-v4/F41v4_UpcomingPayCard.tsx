@@ -469,14 +469,9 @@ export const F41v4_UpcomingPayCard = () => {
                 <Button
                   variant="outline"
                   onClick={handleSecondaryAction}
-                  className="flex-1 relative"
+                  className="flex-1"
                 >
                   {statusConfig.secondaryAction}
-                  {payrollStatus === 'submitted' && pendingCount > 0 && (
-                    <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
-                      {pendingCount}
-                    </span>
-                  )}
                 </Button>
               )}
             </div>
