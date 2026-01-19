@@ -540,6 +540,8 @@ export const F41v4_UpcomingPayCard = () => {
         currency={currency}
         estimatedNet={estimatedNet}
         periodLabel={periodLabel}
+        adjustments={adjustments}
+        leaveRequests={leaveRequests}
       />
 
       <F41v4_WithdrawDialog
