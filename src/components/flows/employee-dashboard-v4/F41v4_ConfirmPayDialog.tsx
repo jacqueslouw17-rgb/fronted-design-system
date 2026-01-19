@@ -41,7 +41,7 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="relative">
+      <AlertDialogContent>
         <button
           onClick={() => onOpenChange(false)}
           className="absolute top-4 right-4 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
