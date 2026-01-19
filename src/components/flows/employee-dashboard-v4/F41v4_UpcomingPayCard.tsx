@@ -9,13 +9,9 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-  ChevronDown, 
-  ChevronUp, 
   ChevronRight,
-  Info, 
   FileText, 
   X, 
   Calendar, 
@@ -132,7 +128,6 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 };
 
 export const F41v4_UpcomingPayCard = () => {
-  const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -179,7 +174,6 @@ export const F41v4_UpcomingPayCard = () => {
   const statusConfig = getStatusConfig(payrollStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
-  const totalEmployerCosts = employerCosts.reduce((sum, cost) => sum + cost.amount, 0);
   const pendingCount = adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length;
 
   // Check if a tag is removable (pending + window open + draft status)
@@ -353,42 +347,6 @@ export const F41v4_UpcomingPayCard = () => {
           </div>
 
 
-          {/* Employer Contributions - Collapsible */}
-          <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
-            <CollapsibleTrigger asChild>
-              <button className="w-full flex items-center justify-between py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <div className="flex items-center gap-2">
-                  <span>View employer contributions</span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">Some items are controlled by country rules</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{formatCurrency(totalEmployerCosts, currency)}</span>
-                  {employerCostsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </div>
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-3 pb-1 space-y-2">
-              <div className="p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
-                {employerCosts.map((cost, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{cost.label}</span>
-                    <span className="text-foreground">{formatCurrency(cost.amount, currency)}</span>
-                  </div>
-                ))}
-                <div className="pt-2 mt-2 border-t border-border/30 flex items-center justify-between text-sm font-medium">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="text-foreground">{formatCurrency(totalEmployerCosts, currency)}</span>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
 
           {/* Changes Summary - Only show if there are changes */}
           {(adjustments.length > 0 || leaveRequests.length > 0) && (
@@ -573,6 +531,7 @@ export const F41v4_UpcomingPayCard = () => {
         open={breakdownDrawerOpen}
         onOpenChange={setBreakdownDrawerOpen}
         lineItems={lineItems}
+        employerCosts={employerCosts}
         currency={currency}
         estimatedNet={estimatedNet}
         periodLabel={periodLabel}
