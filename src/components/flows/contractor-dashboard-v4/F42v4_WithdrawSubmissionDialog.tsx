@@ -50,13 +50,8 @@ export const F42v4_WithdrawSubmissionDialog = ({
         
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw submission?</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              This will withdraw your invoice submission and return it to draft status.
-            </p>
-            <p>
-              You'll be able to make changes and resubmit before the cut-off date.
-            </p>
+          <AlertDialogDescription>
+            This will withdraw your invoice submission and return it to draft status. You'll be able to make changes and resubmit before the cut-off date.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
