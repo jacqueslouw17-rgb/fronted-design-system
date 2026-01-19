@@ -25,7 +25,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useF41v4_DashboardStore, type PayrollStatus, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
-import { F41v4_AdjustmentModal } from './F41v4_AdjustmentModal';
+import { F41v4_AdjustmentModal, type RequestType } from './F41v4_AdjustmentModal';
 import { F41v4_ConfirmPayDialog } from './F41v4_ConfirmPayDialog';
 import { F41v4_SubmitNoChangesDialog } from './F41v4_SubmitNoChangesDialog';
 import { F41v4_AdjustmentDetailModal } from './F41v4_AdjustmentDetailModal';
@@ -135,6 +135,7 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 export const F41v4_UpcomingPayCard = () => {
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
+  const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
@@ -142,6 +143,19 @@ export const F41v4_UpcomingPayCard = () => {
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
+
+  // Helper to open adjustment modal with specific type
+  const openAdjustmentModal = (type: RequestType = null) => {
+    setAdjustmentModalInitialType(type);
+    setAdjustmentModalOpen(true);
+  };
+
+  const handleAdjustmentModalClose = (open: boolean) => {
+    setAdjustmentModalOpen(open);
+    if (!open) {
+      setAdjustmentModalInitialType(null);
+    }
+  };
 
   const {
     nextPayoutDate,
@@ -218,7 +232,7 @@ export const F41v4_UpcomingPayCard = () => {
         break;
       case 'submitted':
       case 'approved':
-        setAdjustmentModalOpen(true);
+        openAdjustmentModal();
         break;
       case 'returned':
         setBreakdownDrawerOpen(true);
@@ -230,37 +244,54 @@ export const F41v4_UpcomingPayCard = () => {
     }
   };
 
-  // Checklist items for Draft/Returned states
-  const checklistItems = [
-    {
-      id: 'time',
-      label: 'Time worked',
-      description: leaveRequests.length > 0 ? `${leaveRequests.length} leave day(s) added` : 'No changes',
-      completed: true,
-    },
+  // Checklist items for Draft/Returned states - matches side panel headings exactly
+  const checklistItems: { 
+    id: string; 
+    label: string; 
+    description: string; 
+    completed: boolean; 
+    optional?: boolean;
+    requestType: RequestType;
+  }[] = [
     {
       id: 'leave',
-      label: 'Leave / unpaid days',
-      description: leaveRequests.length > 0 ? 'Updated' : 'None this period',
-      completed: true,
+      label: 'Leave',
+      description: leaveRequests.length > 0 
+        ? `${leaveRequests.length} request${leaveRequests.length > 1 ? 's' : ''} added` 
+        : 'Request time off',
+      completed: leaveRequests.length > 0,
+      optional: true,
+      requestType: 'leave',
     },
     {
-      id: 'expenses',
-      label: 'Expenses',
+      id: 'expense',
+      label: 'Expense',
       description: adjustments.filter(a => a.type === 'Expense').length > 0 
-        ? `${adjustments.filter(a => a.type === 'Expense').length} expense(s)` 
-        : 'Optional',
+        ? `${adjustments.filter(a => a.type === 'Expense').length} submitted` 
+        : 'Submit a reimbursement',
       completed: adjustments.filter(a => a.type === 'Expense').length > 0,
       optional: true,
+      requestType: 'expense',
     },
     {
-      id: 'adjustments',
-      label: 'Bonuses / adjustments',
+      id: 'overtime',
+      label: 'Overtime',
+      description: adjustments.filter(a => a.type === 'Overtime').length > 0 
+        ? `${adjustments.filter(a => a.type === 'Overtime').reduce((sum, a) => sum + (a.hours || 0), 0)}h logged` 
+        : 'Log extra hours',
+      completed: adjustments.filter(a => a.type === 'Overtime').length > 0,
+      optional: true,
+      requestType: 'overtime',
+    },
+    {
+      id: 'bonus-correction',
+      label: 'Bonus / Correction',
       description: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0 
-        ? `${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length} request(s)` 
-        : 'Optional',
+        ? `${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length} request${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 1 ? 's' : ''}` 
+        : 'Request adjustment',
       completed: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0,
       optional: true,
+      requestType: 'bonus-correction',
     },
   ];
 
@@ -364,25 +395,17 @@ export const F41v4_UpcomingPayCard = () => {
           {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
             <div className="space-y-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                What you're confirming
+                Add or update
               </p>
               <div className="space-y-2">
                 {checklistItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => {
-                      if (item.id === 'leave') {
-                        setAdjustmentModalOpen(true);
-                      } else if (item.id === 'expenses' || item.id === 'adjustments') {
-                        setAdjustmentModalOpen(true);
-                      }
-                    }}
+                    onClick={() => openAdjustmentModal(item.requestType)}
                     className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-border/30 transition-colors text-left group"
                   >
-                    {item.completed && !item.optional ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                    ) : item.completed ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    {item.completed ? (
+                      <CheckCircle2 className="h-4 w-4 text-accent-green dark:text-accent-green-text flex-shrink-0" />
                     ) : (
                       <Circle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
                     )}
@@ -596,8 +619,9 @@ export const F41v4_UpcomingPayCard = () => {
       {/* Modals & Drawers */}
       <F41v4_AdjustmentModal
         open={adjustmentModalOpen}
-        onOpenChange={setAdjustmentModalOpen}
+        onOpenChange={handleAdjustmentModalClose}
         currency={currency}
+        initialType={adjustmentModalInitialType}
       />
 
       <F41v4_ConfirmPayDialog
