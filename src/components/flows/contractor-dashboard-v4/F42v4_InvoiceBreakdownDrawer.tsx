@@ -176,10 +176,6 @@ export const F42v4_InvoiceBreakdownDrawer = ({
               <span className="font-medium">Note:</span> As a contractor, you are responsible for managing and paying applicable taxes.
             </p>
           </div>
-
-          <p className="text-xs text-muted-foreground text-center">
-            This is an estimate. Final invoice may vary based on adjustments and approvals.
-          </p>
         </div>
       </SheetContent>
     </Sheet>
