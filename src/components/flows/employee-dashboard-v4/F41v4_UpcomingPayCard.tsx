@@ -260,35 +260,36 @@ export const F41v4_UpcomingPayCard = () => {
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         {/* Hero Header - Clean & Compact */}
         <CardHeader className="bg-gradient-to-r from-primary/[0.04] to-secondary/[0.03] border-b border-border/40 pb-4">
-          {/* Top Row: Title + Status */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-xl font-semibold">Current pay period</CardTitle>
-              <span className="text-sm text-muted-foreground">·</span>
-              <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
+          {/* Header with badge aligned to vertical center of content block */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-xl font-semibold">Current pay period</CardTitle>
+                <span className="text-sm text-muted-foreground">·</span>
+                <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
+              </div>
+              {/* Single helper line with cut-off inline */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{statusConfig.explanation}</span>
+                {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+                  <>
+                    <span className="text-muted-foreground/50">·</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" />
+                      Cut-off {cutoffDate}
+                    </span>
+                    {isCutoffSoon && (
+                      <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
+                        Soon
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-            <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+            <Badge className={cn('text-sm px-3 py-1 mt-2', statusConfig.className)}>
               {statusConfig.label}
             </Badge>
-          </div>
-
-          {/* Single helper line with cut-off inline */}
-          <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-            <span>{statusConfig.explanation}</span>
-            {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
-              <>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />
-                  Cut-off {cutoffDate}
-                </span>
-                {isCutoffSoon && (
-                  <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
-                    Soon
-                  </Badge>
-                )}
-              </>
-            )}
           </div>
 
           {/* Returned reason block - only when applicable */}
