@@ -2,11 +2,14 @@
  * Flow 4.1 — Employee Dashboard v4 Store
  * 
  * Namespaced store for Employee Dashboard v4 (UI: v2).
- * Includes T-5 confirmation and adjustment state.
+ * Includes 5-status payroll states and adjustment tracking.
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
 import { create } from 'zustand';
+
+// New 5-status payroll states
+export type PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised';
 
 export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
 export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
@@ -57,22 +60,37 @@ interface F41v4_DashboardState {
   // Pay data
   nextPayoutDate: string;
   periodLabel: string;
+  periodMonth: string;
   estimatedNet: number;
   currency: string;
   countryRuleLocks: string[];
   lineItems: LineItem[];
   employerCosts: EmployerCost[];
   windowState: WindowState;
+  
+  // New 5-status state
+  payrollStatus: PayrollStatus;
+  returnedReason?: string;
+  resubmitDeadline?: string;
+  
+  // Legacy - keeping for backwards compat
   confirmed: boolean;
+  
   adjustments: Adjustment[];
   leaveRequests: LeaveRequest[];
   
   // Computed
   daysUntilClose: number;
+  cutoffDate: string;
+  isCutoffSoon: boolean;
 }
 
 interface F41v4_DashboardActions {
   setLoading: (loading: boolean) => void;
+  submitForReview: () => void;
+  submitNoChanges: () => void;
+  fixAndResubmit: () => void;
+  setPayrollStatus: (status: PayrollStatus) => void;
   confirmPay: () => void;
   addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
@@ -86,8 +104,9 @@ const initialState: F41v4_DashboardState = {
   isLoading: false,
   
   // Mock data matching the spec
-  nextPayoutDate: '2026-01-05',
-  periodLabel: 'Dec 1 – Dec 31',
+  nextPayoutDate: '2026-01-31',
+  periodLabel: 'Jan 1 – Jan 31',
+  periodMonth: 'January 2026',
   estimatedNet: 42166.67,
   currency: 'PHP',
   countryRuleLocks: ['Income Tax', 'SSS', 'PhilHealth', 'Pag-IBIG'],
@@ -105,10 +124,15 @@ const initialState: F41v4_DashboardState = {
     { label: 'Pag-IBIG Employer', amount: 1000 },
   ],
   windowState: 'OPEN',
+  payrollStatus: 'draft',
+  returnedReason: undefined,
+  resubmitDeadline: undefined,
   confirmed: false,
   adjustments: [],
   leaveRequests: [],
   daysUntilClose: 3,
+  cutoffDate: '15 Jan',
+  isCutoffSoon: false,
 };
 
 export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_DashboardActions>((set) => ({
@@ -116,7 +140,15 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  confirmPay: () => set({ confirmed: true }),
+  submitForReview: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  
+  submitNoChanges: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  
+  fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  
+  setPayrollStatus: (status) => set({ payrollStatus: status }),
+  
+  confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted' }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [

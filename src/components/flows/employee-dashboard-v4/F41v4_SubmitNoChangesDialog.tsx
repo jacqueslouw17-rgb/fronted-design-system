@@ -1,6 +1,6 @@
 /**
  * Flow 4.1 — Employee Dashboard v4
- * Confirm Pay Dialog - Review & Submit flow
+ * Submit No Changes Dialog - Fast path for employees with no changes this month
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
@@ -17,24 +17,22 @@ import {
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore } from '@/stores/F41v4_DashboardStore';
 
-interface F41v4_ConfirmPayDialogProps {
+interface F41v4_SubmitNoChangesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   periodLabel: string;
 }
 
-export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v4_ConfirmPayDialogProps) => {
-  const { submitForReview, payrollStatus } = useF41v4_DashboardStore();
+export const F41v4_SubmitNoChangesDialog = ({ 
+  open, 
+  onOpenChange, 
+  periodLabel 
+}: F41v4_SubmitNoChangesDialogProps) => {
+  const { submitNoChanges } = useF41v4_DashboardStore();
 
-  const isResubmit = payrollStatus === 'returned';
-
-  const handleConfirm = () => {
-    submitForReview();
-    toast.success(
-      isResubmit 
-        ? "Resubmitted for review. Your company will review your changes."
-        : "Submitted for review. Your company will review before payroll is finalised."
-    );
+  const handleSubmit = () => {
+    submitNoChanges();
+    toast.success("Submitted with no changes. Your company will review.");
     onOpenChange(false);
   };
 
@@ -42,18 +40,16 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {isResubmit ? 'Resubmit for review?' : 'Submit for review?'}
-          </AlertDialogTitle>
+          <AlertDialogTitle>Submit with no changes?</AlertDialogTitle>
           <AlertDialogDescription>
-            You're confirming your details for {periodLabel} are correct. 
-            Your company will review and approve before payroll is processed.
+            You're confirming no leave, expenses, or adjustments for {periodLabel}. 
+            Your standard pay will be processed.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>
-            {isResubmit ? 'Resubmit' : 'Submit'}
+          <AlertDialogAction onClick={handleSubmit}>
+            Submit
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
