@@ -368,14 +368,26 @@ export const F41v4_UpcomingPayCard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Estimated Net Pay Tile */}
             <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Wallet className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+                  </div>
+                  <p className="text-3xl font-bold text-foreground tracking-tight">
+                    {formatCurrency(estimatedNet, currency)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>
+                </div>
+                <button
+                  onClick={() => setBreakdownDrawerOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  {payrollStatus === 'approved' ? 'Preview' : 'Breakdown'}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
               </div>
-              <p className="text-3xl font-bold text-foreground tracking-tight">
-                {formatCurrency(estimatedNet, currency)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>
             </div>
 
             {/* Pay Date Tile */}
@@ -390,49 +402,6 @@ export const F41v4_UpcomingPayCard = () => {
               <p className="text-xs text-muted-foreground mt-1.5">Expected deposit date</p>
             </div>
           </div>
-
-          {/* Checklist - Only in Draft/Returned states */}
-          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
-            <div className="space-y-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Add or update
-              </p>
-              <div className="space-y-2">
-                {checklistItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => openAdjustmentModal(item.requestType)}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-border/30 transition-colors text-left group"
-                  >
-                    {item.completed ? (
-                      <CheckCircle2 className="h-4 w-4 text-accent-green dark:text-accent-green-text flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* View Pay Breakdown - Secondary Action */}
-          <Button
-            variant="outline"
-            onClick={() => setBreakdownDrawerOpen(true)}
-            className="w-full justify-between text-sm font-medium h-11"
-          >
-            <span className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              {payrollStatus === 'approved' ? 'View draft payslip preview' : 'View pay breakdown'}
-            </span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </Button>
-
           {/* Employer Contributions - Collapsible */}
           <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
             <CollapsibleTrigger asChild>
