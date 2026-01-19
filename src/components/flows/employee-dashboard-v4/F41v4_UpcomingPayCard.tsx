@@ -13,14 +13,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { 
   ChevronDown, 
   ChevronUp, 
+  ChevronRight,
   Info, 
   FileText, 
   X, 
   Calendar, 
   Wallet, 
-  ChevronRight,
-  CheckCircle2,
-  Circle,
   Clock,
   AlertCircle
 } from 'lucide-react';
@@ -57,7 +55,7 @@ const getStatusConfig = (status: PayrollStatus) => {
         className: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
         explanation: 'Review your details and submit for approval.',
         primaryAction: 'Review & submit',
-        secondaryAction: 'No changes this month',
+        secondaryAction: 'Make adjustments',
       };
     case 'submitted':
       return {
@@ -228,7 +226,7 @@ export const F41v4_UpcomingPayCard = () => {
   const handleSecondaryAction = () => {
     switch (payrollStatus) {
       case 'draft':
-        setNoChangesDialogOpen(true);
+        openAdjustmentModal();
         break;
       case 'submitted':
       case 'approved':
@@ -244,56 +242,6 @@ export const F41v4_UpcomingPayCard = () => {
     }
   };
 
-  // Checklist items for Draft/Returned states - matches side panel headings exactly
-  const checklistItems: { 
-    id: string; 
-    label: string; 
-    description: string; 
-    completed: boolean; 
-    optional?: boolean;
-    requestType: RequestType;
-  }[] = [
-    {
-      id: 'leave',
-      label: 'Leave',
-      description: leaveRequests.length > 0 
-        ? `${leaveRequests.length} request${leaveRequests.length > 1 ? 's' : ''} added` 
-        : 'Request time off',
-      completed: leaveRequests.length > 0,
-      optional: true,
-      requestType: 'leave',
-    },
-    {
-      id: 'expense',
-      label: 'Expense',
-      description: adjustments.filter(a => a.type === 'Expense').length > 0 
-        ? `${adjustments.filter(a => a.type === 'Expense').length} submitted` 
-        : 'Submit a reimbursement',
-      completed: adjustments.filter(a => a.type === 'Expense').length > 0,
-      optional: true,
-      requestType: 'expense',
-    },
-    {
-      id: 'overtime',
-      label: 'Overtime',
-      description: adjustments.filter(a => a.type === 'Overtime').length > 0 
-        ? `${adjustments.filter(a => a.type === 'Overtime').reduce((sum, a) => sum + (a.hours || 0), 0)}h logged` 
-        : 'Log extra hours',
-      completed: adjustments.filter(a => a.type === 'Overtime').length > 0,
-      optional: true,
-      requestType: 'overtime',
-    },
-    {
-      id: 'bonus-correction',
-      label: 'Bonus / Correction',
-      description: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0 
-        ? `${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length} request${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 1 ? 's' : ''}` 
-        : 'Request adjustment',
-      completed: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0,
-      optional: true,
-      requestType: 'bonus-correction',
-    },
-  ];
 
   // Empty state
   if (isNone) {
@@ -403,34 +351,6 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
           </div>
 
-          {/* Checklist - Only in Draft/Returned states */}
-          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
-            <div className="space-y-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Add or update
-              </p>
-              <div className="space-y-2">
-                {checklistItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => openAdjustmentModal(item.requestType)}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-border/30 transition-colors text-left group"
-                  >
-                    {item.completed ? (
-                      <CheckCircle2 className="h-4 w-4 text-accent-green dark:text-accent-green-text flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Employer Contributions - Collapsible */}
           <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
