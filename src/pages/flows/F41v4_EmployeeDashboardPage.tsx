@@ -53,31 +53,31 @@ const F41v4_EmployeeDashboardPage = () => {
 
           <div className="flex-1">
             <AgentLayout context="Employee Dashboard v4">
-              <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.04] via-background to-secondary/[0.03] text-foreground relative overflow-hidden">
-                {/* Subtle background accents */}
+              <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+                {/* Static background */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  <div className="absolute -top-32 -right-32 w-[40rem] h-[40rem] rounded-full blur-3xl opacity-[0.04]" style={{
-                    background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)'
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
+                  }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
+                    background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
                   }} />
                 </div>
 
-                <div className="max-w-3xl mx-auto px-6 py-12 space-y-10 relative z-10">
-                  {/* Hero Header */}
-                  <div className="space-y-3">
-                    <AgentHeader 
-                      title={`Hey ${candidateProfile.firstName}, here's your pay overview`} 
-                      subtitle="" 
-                      showPulse={false} 
-                      isActive={false} 
-                      showInput={false} 
-                    />
-                    <p className="text-muted-foreground text-base max-w-xl">
-                      Review and confirm your upcoming pay. Need to make changes? Submit adjustments before the window closes.
-                    </p>
-                  </div>
+                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-6 relative z-10">
+                  {/* Agent Header */}
+                  <AgentHeader 
+                    title={`Welcome back, ${candidateProfile.firstName}!`} 
+                    subtitle="Candidate Dashboard — Employee" 
+                    showPulse={true} 
+                    isActive={false} 
+                    showInput={false} 
+                  />
 
-                  {/* Primary Action: Upcoming Pay Card */}
-                  <div className="relative">
+                  {/* Main Content */}
+                  <div className="space-y-6">
+                    {/* Upcoming Pay Card - T-5 Confirmation */}
                     <F41v4_UpcomingPayCard />
                   </div>
                 </div>
