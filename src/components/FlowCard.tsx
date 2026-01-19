@@ -361,6 +361,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-4.2-contractor-dashboard-v4': {
+      path: "/candidate-dashboard-contractor-v4",
+      iconColor: "emerald",
+      icon: UserCheck,
+      title: "Flow 4.2 Contractor Dashboard v2",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v1: Contractor-specific dashboard with invoice management, contract documents, and certificates. This version is unlocked for development and isolated from v1.",
+      steps: "1 view",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Genie-Led Conversational", path: "/onboarding" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
     'flow-1-fronted-admin-v3': {
       path: "/flows/fronted-admin-dashboard-v4",
       iconColor: "cyan",
