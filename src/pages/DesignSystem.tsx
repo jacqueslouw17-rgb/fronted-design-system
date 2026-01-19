@@ -287,6 +287,7 @@ const DesignSystem = () => {
     'flow-4.1-employee-dashboard-v3',// Flow 4.1 Employee Dashboard v1
     'flow-4.1-employee-dashboard-v4',// Flow 4.1 Employee Dashboard v2
     'flow-4.2-contractor-dashboard-v3',// Flow 4.2 Contractor Dashboard v1
+    'flow-4.2-contractor-dashboard-v4',// Flow 4.2 Contractor Dashboard v2
     // 'flow-1-admin-onboarding',    // Flow 5 Company Admin Onboarding v1 (deprecated/hidden)
     'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v2
     'flow-6-company-admin-dashboard',// Flow 6 Company Admin Dashboard v1
