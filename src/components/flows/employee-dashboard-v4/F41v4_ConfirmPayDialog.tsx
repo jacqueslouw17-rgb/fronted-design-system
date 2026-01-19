@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore } from '@/stores/F41v4_DashboardStore';
 
@@ -40,7 +41,14 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="relative">
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-4 right-4 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
         <AlertDialogHeader>
           <AlertDialogTitle>
             {isResubmit ? 'Resubmit for review?' : 'Submit for review?'}
