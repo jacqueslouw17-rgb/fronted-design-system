@@ -58,27 +58,27 @@ export const F41v4_PayBreakdownDrawer = ({
 
         <div className="space-y-6">
           {/* Earnings Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Earnings
               </h3>
-              <span className="text-sm font-medium text-accent-green-text">
-                {formatCurrency(totalEarnings, currency)}
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Amount
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="rounded-lg border border-border/40 bg-muted/20 divide-y divide-border/30">
               {earnings.map((item, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30"
+                  className="flex items-center justify-between py-3 px-4"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{item.label}</span>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-sm text-foreground truncate">{item.label}</span>
                     {item.locked && (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Lock className="h-3 w-3 text-muted-foreground" />
+                          <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="text-xs">Set by your company</p>
@@ -86,36 +86,43 @@ export const F41v4_PayBreakdownDrawer = ({
                       </Tooltip>
                     )}
                   </div>
-                  <span className="text-sm font-medium text-accent-green-text">
+                  <span className="text-sm font-medium text-accent-green-text tabular-nums text-right min-w-[100px]">
                     +{formatCurrency(item.amount, currency)}
                   </span>
                 </div>
               ))}
+              {/* Subtotal */}
+              <div className="flex items-center justify-between py-3 px-4 bg-muted/30">
+                <span className="text-sm font-medium text-foreground">Total earnings</span>
+                <span className="text-sm font-semibold text-accent-green-text tabular-nums text-right min-w-[100px]">
+                  {formatCurrency(totalEarnings, currency)}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Deductions Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Deductions
               </h3>
-              <span className="text-sm font-medium text-destructive">
-                -{formatCurrency(totalDeductions, currency)}
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Amount
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="rounded-lg border border-border/40 bg-muted/20 divide-y divide-border/30">
               {deductions.map((item, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30"
+                  className="flex items-center justify-between py-3 px-4"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{item.label}</span>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-sm text-foreground truncate">{item.label}</span>
                     {item.locked && (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Lock className="h-3 w-3 text-muted-foreground" />
+                          <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="text-xs">Set by your company</p>
@@ -123,20 +130,27 @@ export const F41v4_PayBreakdownDrawer = ({
                       </Tooltip>
                     )}
                   </div>
-                  <span className="text-sm font-medium text-destructive">
+                  <span className="text-sm font-medium text-destructive tabular-nums text-right min-w-[100px]">
                     {formatCurrency(item.amount, currency)}
                   </span>
                 </div>
               ))}
+              {/* Subtotal */}
+              <div className="flex items-center justify-between py-3 px-4 bg-muted/30">
+                <span className="text-sm font-medium text-foreground">Total deductions</span>
+                <span className="text-sm font-semibold text-destructive tabular-nums text-right min-w-[100px]">
+                  -{formatCurrency(totalDeductions, currency)}
+                </span>
+              </div>
             </div>
           </div>
 
           <Separator />
 
           {/* Net Pay Summary */}
-          <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-gradient-to-br from-primary/[0.05] to-secondary/[0.03] border border-border/30">
+          <div className="flex items-center justify-between py-4 px-4 rounded-lg bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
             <span className="text-sm font-medium text-foreground">Estimated net pay</span>
-            <span className="text-lg font-semibold text-foreground">
+            <span className="text-xl font-bold text-foreground tabular-nums">
               {formatCurrency(estimatedNet, currency)}
             </span>
           </div>
