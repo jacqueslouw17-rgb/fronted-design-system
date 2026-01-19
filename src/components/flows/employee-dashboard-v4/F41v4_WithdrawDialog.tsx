@@ -51,15 +51,8 @@ export const F41v4_WithdrawDialog = ({
         
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw this request?</AlertDialogTitle>
-          <AlertDialogDescription asChild>
-            <div className="space-y-2">
-              <p>
-                This will remove your pending {requestType === 'leave' ? 'leave request' : 'pay adjustment'} from this pay cycle.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                If you still need a change, you can submit a new request before confirmation closes.
-              </p>
-            </div>
+          <AlertDialogDescription>
+            This will remove your pending {requestType === 'leave' ? 'leave request' : 'pay adjustment'} from this pay cycle. If you still need a change, you can submit a new request before confirmation closes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

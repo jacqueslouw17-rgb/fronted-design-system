@@ -51,13 +51,8 @@ export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: 
 
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm upcoming invoice</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              You're confirming your invoice for {periodLabel}.
-            </p>
-            <p>
-              You can still request adjustments until the submission window closes.
-            </p>
+          <AlertDialogDescription>
+            You're confirming your invoice for {periodLabel}. You can still request adjustments until the submission window closes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

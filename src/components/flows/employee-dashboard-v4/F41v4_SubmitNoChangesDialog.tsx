@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore } from '@/stores/F41v4_DashboardStore';
 
@@ -38,12 +39,23 @@ export const F41v4_SubmitNoChangesDialog = ({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent 
+        className="sm:max-w-md"
+        onOverlayClick={() => onOpenChange(false)}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
         <AlertDialogHeader>
           <AlertDialogTitle>Submit with no changes?</AlertDialogTitle>
           <AlertDialogDescription>
-            You're confirming no leave, expenses, or adjustments for {periodLabel}. 
-            Your standard pay will be processed.
+            You're confirming no leave, expenses, or adjustments for {periodLabel}. Your standard pay will be processed.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

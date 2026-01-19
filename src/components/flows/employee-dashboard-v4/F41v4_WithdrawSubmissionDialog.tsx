@@ -48,15 +48,8 @@ export const F41v4_WithdrawSubmissionDialog = ({
 
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw your submission?</AlertDialogTitle>
-          <AlertDialogDescription asChild>
-            <div className="space-y-2">
-              <p>
-                This will return your pay details to draft status so you can make changes.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                You'll need to re-submit once you've made your changes.
-              </p>
-            </div>
+          <AlertDialogDescription>
+            This will return your pay details to draft status so you can make changes. You'll need to re-submit once you've made your changes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
