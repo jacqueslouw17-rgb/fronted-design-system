@@ -1,0 +1,64 @@
+/**
+ * Flow 4.1 — Employee Dashboard v4
+ * Withdraw Submission Confirmation Dialog
+ * INDEPENDENT from v3 - changes here do not affect other flows.
+ */
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+
+interface F41v4_WithdrawSubmissionDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}
+
+export const F41v4_WithdrawSubmissionDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+}: F41v4_WithdrawSubmissionDialogProps) => {
+  const handleConfirm = () => {
+    onConfirm();
+    onOpenChange(false);
+    toast.success('Submission withdrawn. You can now make changes.');
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Withdraw your submission?</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <p>
+                This will return your pay details to draft status so you can make changes.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                You'll need to re-submit once you've made your changes.
+              </p>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Withdraw submission
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

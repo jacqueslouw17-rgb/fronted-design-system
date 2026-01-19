@@ -26,6 +26,7 @@ import { F41v4_SubmitNoChangesDialog } from './F41v4_SubmitNoChangesDialog';
 import { F41v4_AdjustmentDetailModal } from './F41v4_AdjustmentDetailModal';
 import { F41v4_PayslipHistoryDrawer } from './F41v4_PayslipHistoryDrawer';
 import { F41v4_WithdrawDialog } from './F41v4_WithdrawDialog';
+import { F41v4_WithdrawSubmissionDialog } from './F41v4_WithdrawSubmissionDialog';
 import { F41v4_PayBreakdownDrawer } from './F41v4_PayBreakdownDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -60,7 +61,7 @@ const getStatusConfig = (status: PayrollStatus) => {
         className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30',
         explanation: 'Submitted to your company for review.',
         primaryAction: 'View submission',
-        secondaryAction: 'Request a change',
+        secondaryAction: 'Withdraw submission',
       };
     case 'returned':
       return {
@@ -137,6 +138,7 @@ export const F41v4_UpcomingPayCard = () => {
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
+  const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
 
   // Helper to open adjustment modal with specific type
   const openAdjustmentModal = (type: RequestType = null) => {
@@ -169,6 +171,7 @@ export const F41v4_UpcomingPayCard = () => {
     isCutoffSoon,
     withdrawAdjustment,
     withdrawLeaveRequest,
+    withdrawSubmission,
   } = useF41v4_DashboardStore();
 
   const statusConfig = getStatusConfig(payrollStatus);
@@ -224,6 +227,8 @@ export const F41v4_UpcomingPayCard = () => {
         openAdjustmentModal();
         break;
       case 'submitted':
+        setWithdrawSubmissionDialogOpen(true);
+        break;
       case 'approved':
         openAdjustmentModal();
         break;
@@ -542,6 +547,12 @@ export const F41v4_UpcomingPayCard = () => {
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}
         requestType={withdrawTarget?.type || 'adjustment'}
+      />
+
+      <F41v4_WithdrawSubmissionDialog
+        open={withdrawSubmissionDialogOpen}
+        onOpenChange={setWithdrawSubmissionDialogOpen}
+        onConfirm={withdrawSubmission}
       />
     </>
   );
