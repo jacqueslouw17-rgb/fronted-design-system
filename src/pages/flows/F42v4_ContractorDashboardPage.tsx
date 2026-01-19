@@ -48,7 +48,7 @@ const F42v4_ContractorDashboardPage = () => {
         <div className="flex flex-col min-h-screen bg-background">
           <Topbar 
             userName={candidateProfile.name} 
-            profileSettingsUrl="/candidate/profile-settings-v2?returnUrl=/candidate-dashboard-contractor-v4" 
+            profileSettingsUrl="/flows/contractor-profile-settings-v4?returnUrl=/candidate-dashboard-contractor-v4" 
             dashboardUrl="/candidate-dashboard-contractor-v4" 
           />
 
