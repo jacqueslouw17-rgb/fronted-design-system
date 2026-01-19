@@ -2,6 +2,7 @@
  * Flow 4.1 — Employee Dashboard v4
  * Current Pay Period Hero Card with 5-status UX
  * INDEPENDENT from v3 - changes here do not affect other flows.
+ * Updated: trigger rebuild
  */
 
 import { useState } from 'react';
