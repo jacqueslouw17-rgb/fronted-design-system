@@ -418,22 +418,34 @@ export const F41v4_UpcomingPayCard = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              onClick={() => setConfirmDialogOpen(true)}
-              disabled={!isWindowOpen || confirmed}
-              className="flex-1"
-            >
-              {confirmed ? 'Submitted' : 'Submit for payroll'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setAdjustmentModalOpen(true)}
-              disabled={isWindowClosed || isPaid}
-              className="flex-1"
-            >
-              Request adjustment
-            </Button>
+          <div className="space-y-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={() => setConfirmDialogOpen(true)}
+                disabled={!isWindowOpen || confirmed}
+                className="flex-1"
+              >
+                {confirmed ? 'Submitted' : 'Confirm details'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setAdjustmentModalOpen(true)}
+                disabled={isWindowClosed || isPaid}
+                className="flex-1 relative"
+              >
+                Request change
+                {(adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length) > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
+                    {adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length}
+                  </span>
+                )}
+              </Button>
+            </div>
+            {!confirmed && isWindowOpen && (
+              <p className="text-xs text-muted-foreground text-center">
+                This confirms your details for this pay period. Your company reviews and approves payroll.
+              </p>
+            )}
           </div>
 
           {/* View previous payslips link */}
