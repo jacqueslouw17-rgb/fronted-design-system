@@ -362,7 +362,7 @@ export const F41v4_UpcomingPayCard = () => {
                     className={cn(
                       'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
                       getAdjustmentStatusColor(adj.status),
-                      isRemovable(adj.status) ? 'pr-1.5' : ''
+                      isRemovable(adj.status) ? 'pr-1.5 group-hover:pr-2' : ''
                     )}
                     role="listitem"
                   >
