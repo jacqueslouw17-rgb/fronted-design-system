@@ -11,13 +11,15 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronDown, ChevronUp, Lock, Info, FileText, X, Calendar, Wallet, ChevronRight } from 'lucide-react';
-import { useF41v4_DashboardStore, type WindowState, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
+import { useF41v4_DashboardStore, type WindowState, type Adjustment, type LeaveRequest, type SubmissionStatus } from '@/stores/F41v4_DashboardStore';
 import { F41v4_AdjustmentModal } from './F41v4_AdjustmentModal';
 import { F41v4_ConfirmPayDialog } from './F41v4_ConfirmPayDialog';
 import { F41v4_AdjustmentDetailModal } from './F41v4_AdjustmentDetailModal';
 import { F41v4_PayslipHistoryDrawer } from './F41v4_PayslipHistoryDrawer';
 import { F41v4_WithdrawDialog } from './F41v4_WithdrawDialog';
 import { F41v4_PayBreakdownDrawer } from './F41v4_PayBreakdownDrawer';
+import { F41v4_ReviewSubmitModal } from './F41v4_ReviewSubmitModal';
+import { F41v4_ReturnedSubmissionBanner } from './F41v4_ReturnedSubmissionBanner';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +36,7 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
-const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
+const getStatusBadge = (windowState: WindowState, confirmed: boolean, submissionStatus: SubmissionStatus) => {
   if (windowState === 'PAID') {
     return <Badge className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">Paid</Badge>;
   }
@@ -44,7 +46,10 @@ const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
   if (windowState === 'NONE') {
     return <Badge variant="secondary">Pending</Badge>;
   }
-  if (confirmed) {
+  if (submissionStatus === 'returned') {
+    return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Returned</Badge>;
+  }
+  if (confirmed || submissionStatus === 'submitted') {
     return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Submitted</Badge>;
   }
   return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
@@ -109,6 +114,7 @@ export const F41v4_UpcomingPayCard = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
+  const [reviewSubmitModalOpen, setReviewSubmitModalOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
@@ -122,6 +128,8 @@ export const F41v4_UpcomingPayCard = () => {
     employerCosts,
     windowState,
     confirmed,
+    submissionStatus,
+    returnedSubmission,
     adjustments,
     leaveRequests,
     daysUntilClose,
@@ -200,14 +208,22 @@ export const F41v4_UpcomingPayCard = () => {
                 </p>
               )}
             </div>
-            {getStatusBadge(windowState, confirmed)}
+            {getStatusBadge(windowState, confirmed, submissionStatus)}
           </div>
-          {isWindowOpen && !confirmed && (
+          {submissionStatus === 'returned' && returnedSubmission && (
+            <F41v4_ReturnedSubmissionBanner 
+              reason={returnedSubmission.reason}
+              resubmitBy={returnedSubmission.resubmitBy}
+              onFixClick={() => setReviewSubmitModalOpen(true)}
+              className="mt-4"
+            />
+          )}
+          {isWindowOpen && !confirmed && submissionStatus !== 'returned' && (
             <p className="text-xs text-muted-foreground mt-3">
               Submit your details for this pay period. Your company will review before payroll is finalised.
             </p>
           )}
-          {confirmed && (
+          {confirmed && submissionStatus === 'submitted' && (
             <p className="text-xs text-muted-foreground mt-3">
               Submitted to your company for review.
             </p>
@@ -421,11 +437,11 @@ export const F41v4_UpcomingPayCard = () => {
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
-                onClick={() => setConfirmDialogOpen(true)}
-                disabled={!isWindowOpen || confirmed}
+                onClick={() => setReviewSubmitModalOpen(true)}
+                disabled={!isWindowOpen || (confirmed && submissionStatus !== 'returned')}
                 className="flex-1"
               >
-                {confirmed ? 'Submitted' : 'Confirm details'}
+                {confirmed && submissionStatus !== 'returned' ? 'Submitted' : 'Review & submit'}
               </Button>
               <Button
                 variant="outline"
@@ -433,15 +449,15 @@ export const F41v4_UpcomingPayCard = () => {
                 disabled={isWindowClosed || isPaid}
                 className="flex-1 relative"
               >
-                Request change
+                Request adjustment
                 {(adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length) > 0 && (
-                  <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
+                  <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                     {adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length}
                   </span>
                 )}
               </Button>
             </div>
-            {!confirmed && isWindowOpen && (
+            {!confirmed && isWindowOpen && submissionStatus !== 'returned' && (
               <p className="text-xs text-muted-foreground text-center">
                 This confirms your details for this pay period. Your company reviews and approves payroll.
               </p>
@@ -499,6 +515,13 @@ export const F41v4_UpcomingPayCard = () => {
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}
         requestType={withdrawTarget?.type || 'adjustment'}
+      />
+
+      <F41v4_ReviewSubmitModal
+        open={reviewSubmitModalOpen}
+        onOpenChange={setReviewSubmitModalOpen}
+        currency={currency}
+        periodLabel={periodLabel}
       />
     </>
   );
