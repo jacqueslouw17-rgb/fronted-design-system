@@ -28,7 +28,7 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
 
   const handleConfirm = () => {
     confirmPay();
-    toast.success("Pay confirmed. You're all set.");
+    toast.success("Submitted for payroll. Your company will review.");
     onOpenChange(false);
   };
 
@@ -36,15 +36,15 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm upcoming pay</AlertDialogTitle>
+          <AlertDialogTitle>Submit for payroll</AlertDialogTitle>
           <AlertDialogDescription>
-            You're confirming the base calculation for {periodLabel}. You can still request adjustments until the window closes.
+            You're submitting your details for {periodLabel}. Your company will review before payroll is finalised. You can still request adjustments until the submission window closes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>
-            Confirm
+            Submit
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
