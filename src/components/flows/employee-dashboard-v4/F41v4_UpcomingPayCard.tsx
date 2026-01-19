@@ -402,6 +402,36 @@ export const F41v4_UpcomingPayCard = () => {
               <p className="text-xs text-muted-foreground mt-1.5">Expected deposit date</p>
             </div>
           </div>
+
+          {/* Checklist - Only in Draft/Returned states */}
+          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Add or update
+              </p>
+              <div className="space-y-2">
+                {checklistItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => openAdjustmentModal(item.requestType)}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-border/30 transition-colors text-left group"
+                  >
+                    {item.completed ? (
+                      <CheckCircle2 className="h-4 w-4 text-accent-green dark:text-accent-green-text flex-shrink-0" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Employer Contributions - Collapsible */}
           <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
             <CollapsibleTrigger asChild>
