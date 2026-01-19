@@ -573,27 +573,29 @@ export const F41v4_UpcomingPayCard = () => {
 
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
-            <Button
-              onClick={handlePrimaryAction}
-              className="w-full"
-            >
-              {statusConfig.primaryAction}
-            </Button>
-            
-            {statusConfig.secondaryAction && (
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
-                variant="outline"
-                onClick={handleSecondaryAction}
-                className="w-full relative"
+                onClick={handlePrimaryAction}
+                className="flex-1"
               >
-                {statusConfig.secondaryAction}
-                {payrollStatus === 'submitted' && pendingCount > 0 && (
-                  <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
-                    {pendingCount}
-                  </span>
-                )}
+                {statusConfig.primaryAction}
               </Button>
-            )}
+              
+              {statusConfig.secondaryAction && (
+                <Button
+                  variant="outline"
+                  onClick={handleSecondaryAction}
+                  className="flex-1 relative"
+                >
+                  {statusConfig.secondaryAction}
+                  {payrollStatus === 'submitted' && pendingCount > 0 && (
+                    <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
+                      {pendingCount}
+                    </span>
+                  )}
+                </Button>
+              )}
+            </div>
 
             {/* "What happens next" line */}
             {payrollStatus === 'draft' && (
