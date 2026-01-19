@@ -319,7 +319,7 @@ export const F41v4_UpcomingPayCard = () => {
         <CardHeader className="bg-gradient-to-r from-primary/[0.04] to-secondary/[0.03] border-b border-border/40 pb-4">
           {/* Top Row: Title + Status */}
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-center gap-3">
               <CardTitle className="text-xl font-semibold">Current pay period</CardTitle>
               <span className="text-sm text-muted-foreground">·</span>
               <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
