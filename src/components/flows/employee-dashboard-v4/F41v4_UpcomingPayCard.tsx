@@ -5,18 +5,19 @@
  */
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronDown, ChevronUp, Lock, Info, FileText, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Lock, Info, FileText, X, Calendar, Wallet, ChevronRight } from 'lucide-react';
 import { useF41v4_DashboardStore, type WindowState, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { F41v4_AdjustmentModal } from './F41v4_AdjustmentModal';
 import { F41v4_ConfirmPayDialog } from './F41v4_ConfirmPayDialog';
 import { F41v4_AdjustmentDetailModal } from './F41v4_AdjustmentDetailModal';
 import { F41v4_PayslipHistoryDrawer } from './F41v4_PayslipHistoryDrawer';
 import { F41v4_WithdrawDialog } from './F41v4_WithdrawDialog';
+import { F41v4_PayBreakdownDrawer } from './F41v4_PayBreakdownDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -79,12 +80,35 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
   }
 };
 
+// Helper to generate summary chips text
+const getChangeSummaryChips = (adjustments: Adjustment[], leaveRequests: LeaveRequest[], currency: string) => {
+  const chips: { label: string; type: 'adjustment' | 'leave'; id: string }[] = [];
+  
+  // Group adjustments by type
+  const expenseCount = adjustments.filter(a => a.type === 'Expense').length;
+  const overtimeCount = adjustments.filter(a => a.type === 'Overtime').length;
+  const bonusCount = adjustments.filter(a => a.type === 'Bonus').length;
+  const correctionCount = adjustments.filter(a => a.type === 'Correction').length;
+  
+  if (expenseCount > 0) chips.push({ label: `${expenseCount} expense${expenseCount > 1 ? 's' : ''} submitted`, type: 'adjustment', id: 'expense' });
+  if (overtimeCount > 0) chips.push({ label: `${overtimeCount} overtime request${overtimeCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'overtime' });
+  if (bonusCount > 0) chips.push({ label: `${bonusCount} bonus request${bonusCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'bonus' });
+  if (correctionCount > 0) chips.push({ label: `${correctionCount} correction${correctionCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'correction' });
+  
+  // Leave requests
+  if (leaveRequests.length > 0) {
+    chips.push({ label: `Leave request${leaveRequests.length > 1 ? 's' : ''} added`, type: 'leave', id: 'leave' });
+  }
+  
+  return chips;
+};
+
 export const F41v4_UpcomingPayCard = () => {
-  const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
+  const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
@@ -110,16 +134,15 @@ export const F41v4_UpcomingPayCard = () => {
   const isPaid = windowState === 'PAID';
   const isNone = windowState === 'NONE';
 
-  const earnings = lineItems.filter(item => item.type === 'Earnings');
-  const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalEmployerCosts = employerCosts.reduce((sum, cost) => sum + cost.amount, 0);
+  const changeSummaryChips = getChangeSummaryChips(adjustments, leaveRequests, currency);
 
   // Check if a tag is removable (pending + window open)
   const isRemovable = (status: string) => status === 'Pending' && isWindowOpen;
 
   // Handle withdraw click
   const handleWithdrawClick = (e: React.MouseEvent, type: 'adjustment' | 'leave', id: string) => {
-    e.stopPropagation(); // Don't trigger parent click
+    e.stopPropagation();
     setWithdrawTarget({ type, id });
     setWithdrawDialogOpen(true);
   };
@@ -158,43 +181,37 @@ export const F41v4_UpcomingPayCard = () => {
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-lg">
-              {isPaid ? 'Last payment' : 'Upcoming pay'}
-            </CardTitle>
-            {getStatusBadge(windowState, confirmed)}
-          </div>
-          <CardDescription className="flex flex-col gap-1.5 mt-1">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span>Pay date: {formatDate(nextPayoutDate)}</span>
-              <span className="text-muted-foreground/60">•</span>
-              <span>{periodLabel}</span>
+        {/* Header: Status + Urgency Row */}
+        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <CardTitle className="text-xl font-semibold">
+                {isPaid ? 'Last payment' : 'Upcoming pay'}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{periodLabel}</p>
               {isWindowOpen && !confirmed && (
-                <>
-                  <span className="text-muted-foreground/60">•</span>
-                  <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    Submission closes in {daysUntilClose} days
-                    <span className="inline-flex">
-                      <span className="animate-pulse">.</span>
-                      <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span>
-                      <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
-                    </span>
+                <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  Submission closes in {daysUntilClose} days
+                  <span className="inline-flex">
+                    <span className="animate-pulse">.</span>
+                    <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span>
+                    <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
                   </span>
-                </>
+                </p>
               )}
             </div>
-            {isWindowOpen && !confirmed && (
-              <span className="text-xs text-muted-foreground">
-                Submit your details for this pay period. Your company will review before payroll is finalised.
-              </span>
-            )}
-            {confirmed && (
-              <span className="text-xs text-muted-foreground">
-                Submitted to your company for review.
-              </span>
-            )}
-          </CardDescription>
+            {getStatusBadge(windowState, confirmed)}
+          </div>
+          {isWindowOpen && !confirmed && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Submit your details for this pay period. Your company will review before payroll is finalised.
+            </p>
+          )}
+          {confirmed && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Submitted to your company for review.
+            </p>
+          )}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -205,118 +222,85 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
           )}
 
-          {/* Amounts Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Estimated Net Pay */}
-            <div className="p-4 rounded-lg bg-gradient-to-br from-primary/[0.05] to-secondary/[0.03] border border-border/30">
-              <p className="text-sm text-muted-foreground mb-1">Estimated Net Pay</p>
-              <p className="text-2xl font-semibold text-foreground">
+          {/* Key Numbers Row - 2 Tiles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Estimated Net Pay Tile */}
+            <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+              </div>
+              <p className="text-3xl font-bold text-foreground tracking-tight">
                 {formatCurrency(estimatedNet, currency)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">After taxes & deductions</p>
+              <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>
             </div>
 
-            {/* Employer Contributions */}
-            <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
-              <div className="p-4 rounded-lg bg-muted/30 border border-border/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-muted-foreground">Employer Contributions</p>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Some items are controlled by country rules</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <p className="text-lg font-medium text-foreground">
-                      {formatCurrency(totalEmployerCosts, currency)}
-                    </p>
-                  </div>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      {employerCostsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="mt-3 pt-3 border-t border-border/30 space-y-2">
-                  {employerCosts.map((cost, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{cost.label}</span>
-                      <span className="text-foreground">{formatCurrency(cost.amount, currency)}</span>
-                    </div>
-                  ))}
-                </CollapsibleContent>
+            {/* Pay Date Tile */}
+            <div className="p-5 rounded-xl bg-muted/30 border border-border/40">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Pay date</p>
               </div>
-            </Collapsible>
+              <p className="text-2xl font-semibold text-foreground">
+                {formatDate(nextPayoutDate)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1.5">Expected deposit date</p>
+            </div>
           </div>
 
-          {/* Line Items Preview */}
-          <Collapsible open={lineItemsOpen} onOpenChange={setLineItemsOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-3 h-auto hover:bg-muted/30">
-                <span className="text-sm font-medium">View earnings & deductions breakdown</span>
-                {lineItemsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4 pt-3">
-              {/* Earnings */}
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Earnings</p>
-                {earnings.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-sm p-2 rounded bg-muted/20">
-                    <div className="flex items-center gap-2">
-                      <span className="text-foreground">{item.label}</span>
-                      {item.locked && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Lock className="h-3 w-3 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">Defined by country configuration</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
-                    <span className="text-accent-green-text font-medium">
-                      +{formatCurrency(item.amount, currency)}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* View Pay Breakdown - Secondary Action */}
+          <Button
+            variant="outline"
+            onClick={() => setBreakdownDrawerOpen(true)}
+            className="w-full justify-between text-sm font-medium h-11"
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              View pay breakdown
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Button>
 
-              {/* Deductions */}
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Deductions</p>
-                {deductions.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-sm p-2 rounded bg-muted/20">
-                    <div className="flex items-center gap-2">
-                      <span className="text-foreground">{item.label}</span>
-                      {item.locked && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Lock className="h-3 w-3 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">Defined by country configuration</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
-                    <span className="text-destructive font-medium">
-                      {formatCurrency(item.amount, currency)}
-                    </span>
+          {/* Employer Contributions - Collapsible (de-emphasized) */}
+          <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
+            <CollapsibleTrigger asChild>
+              <button className="w-full flex items-center justify-between py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  <span>View employer contributions</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Some items are controlled by country rules</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{formatCurrency(totalEmployerCosts, currency)}</span>
+                  {employerCostsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3 pb-1 space-y-2">
+              <div className="p-4 rounded-lg bg-muted/20 border border-border/30 space-y-2">
+                {employerCosts.map((cost, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{cost.label}</span>
+                    <span className="text-foreground">{formatCurrency(cost.amount, currency)}</span>
                   </div>
                 ))}
+                <div className="pt-2 mt-2 border-t border-border/30 flex items-center justify-between text-sm font-medium">
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="text-foreground">{formatCurrency(totalEmployerCosts, currency)}</span>
+                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Changes Summary Strip */}
-          <div className="space-y-2">
+          {/* Changes Summary - Chips Style */}
+          <div className="space-y-3">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Your changes (this cycle)
             </p>
@@ -324,26 +308,19 @@ export const F41v4_UpcomingPayCard = () => {
               <p className="text-sm text-muted-foreground/60">No changes yet</p>
             ) : (
               <div className="space-y-3">
-                {/* Summary text */}
-                <p className="text-sm text-muted-foreground">
-                  {adjustments.length > 0 && (
-                    <span>
-                      Pay adjustments: {adjustments.filter(a => a.status === 'Pending').length} pending
-                      {adjustments.filter(a => a.status === 'Admin approved').length > 0 && 
-                        ` · ${adjustments.filter(a => a.status === 'Admin approved').length} approved`}
+                {/* Summary Chips */}
+                <div className="flex flex-wrap gap-2">
+                  {changeSummaryChips.map((chip, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                    >
+                      {chip.label}
                     </span>
-                  )}
-                  {adjustments.length > 0 && leaveRequests.length > 0 && ' · '}
-                  {leaveRequests.length > 0 && (
-                    <span>
-                      Leave: {leaveRequests.filter(l => l.status === 'Pending').length} pending
-                      {leaveRequests.filter(l => l.status === 'Admin approved').length > 0 && 
-                        ` · ${leaveRequests.filter(l => l.status === 'Admin approved').length} approved`}
-                    </span>
-                  )}
-                </p>
+                  ))}
+                </div>
 
-                {/* All tags inline - adjustments and leave together */}
+                {/* Detailed Tags with Status */}
                 <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
                   {/* Adjustment chips */}
                   {adjustments.map((adj) => (
@@ -494,6 +471,15 @@ export const F41v4_UpcomingPayCard = () => {
       <F41v4_PayslipHistoryDrawer
         open={payslipDrawerOpen}
         onOpenChange={setPayslipDrawerOpen}
+      />
+
+      <F41v4_PayBreakdownDrawer
+        open={breakdownDrawerOpen}
+        onOpenChange={setBreakdownDrawerOpen}
+        lineItems={lineItems}
+        currency={currency}
+        estimatedNet={estimatedNet}
+        periodLabel={periodLabel}
       />
 
       <F41v4_WithdrawDialog
