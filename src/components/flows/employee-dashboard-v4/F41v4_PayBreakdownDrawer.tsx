@@ -13,10 +13,18 @@ interface LineItem {
   type: 'Earnings' | 'Deduction';
   locked?: boolean;
 }
+
+interface EmployerCost {
+  label: string;
+  amount: number;
+  locked?: boolean;
+}
+
 interface PayBreakdownDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lineItems: LineItem[];
+  employerCosts: EmployerCost[];
   currency: string;
   estimatedNet: number;
   periodLabel: string;
@@ -32,6 +40,7 @@ export const F41v4_PayBreakdownDrawer = ({
   open,
   onOpenChange,
   lineItems,
+  employerCosts,
   currency,
   estimatedNet,
   periodLabel
@@ -40,6 +49,7 @@ export const F41v4_PayBreakdownDrawer = ({
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
   const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
+  const totalEmployerCosts = employerCosts.reduce((sum, cost) => sum + cost.amount, 0);
   return <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4">
@@ -118,7 +128,59 @@ export const F41v4_PayBreakdownDrawer = ({
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground text-center">
+          {/* Employer Contributions Section */}
+          {employerCosts.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                      Employer contributions
+                    </h3>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Lock className="h-3 w-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">These are paid by your employer on top of your salary</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {formatCurrency(totalEmployerCosts, currency)}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {employerCosts.map((cost, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/20 border border-border/20">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{cost.label}</span>
+                        {cost.locked && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Lock className="h-3 w-3 text-muted-foreground/60" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">Set by country rules</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <span className="text-sm text-muted-foreground tabular-nums">
+                        {formatCurrency(cost.amount, currency)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  Employer contributions don't affect your take-home pay.
+                </p>
+              </div>
+            </>
+          )}
+
+          <p className="text-xs text-muted-foreground text-center pt-2">
             This is an estimate. Final pay may vary based on adjustments and approvals.
           </p>
         </div>
