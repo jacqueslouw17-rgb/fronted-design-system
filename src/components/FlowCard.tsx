@@ -314,7 +314,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/candidate-dashboard-employee-v3",
       iconColor: "blue",
       icon: UserCheck,
-      title: "Flow 4.1 Employee Dashboard v3",
+      title: "Flow 4.1 Employee Dashboard v1",
       locked: false,
       deprecated: false,
       description: "Employee-specific dashboard: Post-onboarding view with contract documents, certificates, and T-5 confirmation. Duplicate of Candidate Dashboard v2 scoped for employees.",
