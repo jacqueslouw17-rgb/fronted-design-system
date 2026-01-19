@@ -250,11 +250,6 @@ export const F42v4_UpcomingInvoiceCard = () => {
                       <Clock className="h-3.5 w-3.5" />
                       Cut-off {cutoffDate}
                     </span>
-                    {isCutoffSoon && (
-                      <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
-                        Soon
-                      </Badge>
-                    )}
                   </>
                 )}
               </div>
