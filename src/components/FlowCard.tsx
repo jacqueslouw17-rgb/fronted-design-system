@@ -331,7 +331,7 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       path: "/candidate-dashboard-contractor-v3",
       iconColor: "emerald",
       icon: UserCheck,
-      title: "Flow 4.2 Contractor Dashboard v3",
+      title: "Flow 4.2 Contractor Dashboard v1",
       locked: false,
       deprecated: false,
       description: "Contractor-specific dashboard: Post-onboarding view with contract documents, certificates, and T-5 confirmation. Duplicate of Candidate Dashboard v2 scoped for contractors.",
