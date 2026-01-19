@@ -44,7 +44,7 @@ const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
     return <Badge variant="secondary">Pending</Badge>;
   }
   if (confirmed) {
-    return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Confirmed</Badge>;
+    return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Submitted</Badge>;
   }
   return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
 };
@@ -165,22 +165,34 @@ export const F41v4_UpcomingPayCard = () => {
             </CardTitle>
             {getStatusBadge(windowState, confirmed)}
           </div>
-          <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-            <span>Pay date: {formatDate(nextPayoutDate)}</span>
-            <span className="text-muted-foreground/60">•</span>
-            <span>{periodLabel}</span>
-            {isWindowOpen && !confirmed && (
-              <>
-                <span className="text-muted-foreground/60">•</span>
-                <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                  Confirmation closes in {daysUntilClose} days
-                  <span className="inline-flex">
-                    <span className="animate-pulse">.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
+          <CardDescription className="flex flex-col gap-1.5 mt-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>Pay date: {formatDate(nextPayoutDate)}</span>
+              <span className="text-muted-foreground/60">•</span>
+              <span>{periodLabel}</span>
+              {isWindowOpen && !confirmed && (
+                <>
+                  <span className="text-muted-foreground/60">•</span>
+                  <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    Submission closes in {daysUntilClose} days
+                    <span className="inline-flex">
+                      <span className="animate-pulse">.</span>
+                      <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span>
+                      <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
+                    </span>
                   </span>
-                </span>
-              </>
+                </>
+              )}
+            </div>
+            {isWindowOpen && !confirmed && (
+              <span className="text-xs text-muted-foreground">
+                Submit your details for this pay period. Your company will review before payroll is finalised.
+              </span>
+            )}
+            {confirmed && (
+              <span className="text-xs text-muted-foreground">
+                Submitted to your company for review.
+              </span>
             )}
           </CardDescription>
         </CardHeader>
@@ -435,7 +447,7 @@ export const F41v4_UpcomingPayCard = () => {
               disabled={!isWindowOpen || confirmed}
               className="flex-1"
             >
-              {confirmed ? 'Pay Confirmed' : 'Confirm pay'}
+              {confirmed ? 'Submitted' : 'Submit for payroll'}
             </Button>
             <Button
               variant="outline"
@@ -443,7 +455,7 @@ export const F41v4_UpcomingPayCard = () => {
               disabled={isWindowClosed || isPaid}
               className="flex-1"
             >
-              Request change
+              Request adjustment
             </Button>
           </div>
 
