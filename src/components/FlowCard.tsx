@@ -327,6 +327,23 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-4.1-employee-dashboard-v4': {
+      path: "/candidate-dashboard-employee-v4",
+      iconColor: "blue",
+      icon: UserCheck,
+      title: "Flow 4.1 Employee Dashboard v2",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v1: Employee-specific dashboard with contract documents, certificates, and T-5 confirmation. This version is unlocked for development and isolated from v1.",
+      steps: "1 view",
+      patterns: "3 patterns",
+      badges: [
+        { label: "Data Summary Cards", path: "/data-summary" },
+        { label: "Genie-Led Conversational", path: "/onboarding" }
+      ],
+      additionalCount: 0,
+      dataModel: null
+    },
     'flow-4.2-contractor-dashboard-v3': {
       path: "/candidate-dashboard-contractor-v3",
       iconColor: "emerald",
