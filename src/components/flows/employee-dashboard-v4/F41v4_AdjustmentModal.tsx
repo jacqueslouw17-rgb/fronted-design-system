@@ -31,13 +31,14 @@ import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, AlertCircle } from 'lucide-react';
 import { format, differenceInBusinessDays, isAfter, isBefore, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
+export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
+
 interface F41v4_AdjustmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
+  initialType?: RequestType;
 }
-
-type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
 const leaveTypes: LeaveType[] = ['Annual leave', 'Sick leave', 'Unpaid leave', 'Other'];
@@ -74,7 +75,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency }: F41v4_AdjustmentModalProps) => {
+export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null }: F41v4_AdjustmentModalProps) => {
   const { addAdjustment, addLeaveRequest, periodLabel } = useF41v4_DashboardStore();
   
   // Selection state
@@ -120,7 +121,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency }: F41v4_Ad
     : 0;
 
   const resetForm = () => {
-    setSelectedType(null);
+    setSelectedType(initialType);
     setExpenseCategory('');
     setExpenseAmount('');
     setExpenseDescription('');
@@ -146,9 +147,21 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency }: F41v4_Ad
   };
 
   const handleBack = () => {
-    setSelectedType(null);
-    setErrors({});
+    // If opened with initialType, close instead of going back to selection
+    if (initialType) {
+      handleClose();
+    } else {
+      setSelectedType(null);
+      setErrors({});
+    }
   };
+
+  // Set initial type when modal opens
+  useEffect(() => {
+    if (open && initialType) {
+      setSelectedType(initialType);
+    }
+  }, [open, initialType]);
 
   // Reset errors when switching types
   useEffect(() => {
