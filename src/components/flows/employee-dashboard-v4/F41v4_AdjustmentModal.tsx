@@ -44,9 +44,9 @@ const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
 const leaveTypes: LeaveType[] = ['Annual leave', 'Sick leave', 'Unpaid leave', 'Other'];
 
 // Pay period bounds (mock - in real app would come from store)
-const payPeriodStart = new Date(2025, 11, 1); // Dec 1, 2025
-const payPeriodEnd = new Date(2025, 11, 31); // Dec 31, 2025
-const payPeriodLabel = 'Dec 1 – Dec 31';
+const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
+const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
+const payPeriodLabel = 'Jan 1 – Jan 31';
 
 const requestTypeOptions = [
   { 
