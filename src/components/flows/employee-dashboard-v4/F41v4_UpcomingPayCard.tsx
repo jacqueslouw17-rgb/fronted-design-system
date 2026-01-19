@@ -1,6 +1,6 @@
 /**
  * Flow 4.1 — Employee Dashboard v4
- * Upcoming Pay Card with T-5 confirmation
+ * Current Pay Period Hero Card with 5-status UX
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
@@ -10,10 +10,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronDown, ChevronUp, Lock, Info, FileText, X, Calendar, Wallet, ChevronRight } from 'lucide-react';
-import { useF41v4_DashboardStore, type WindowState, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
+import { 
+  ChevronDown, 
+  ChevronUp, 
+  Info, 
+  FileText, 
+  X, 
+  Calendar, 
+  Wallet, 
+  ChevronRight,
+  CheckCircle2,
+  Circle,
+  Clock,
+  AlertCircle
+} from 'lucide-react';
+import { useF41v4_DashboardStore, type PayrollStatus, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { F41v4_AdjustmentModal } from './F41v4_AdjustmentModal';
 import { F41v4_ConfirmPayDialog } from './F41v4_ConfirmPayDialog';
+import { F41v4_SubmitNoChangesDialog } from './F41v4_SubmitNoChangesDialog';
 import { F41v4_AdjustmentDetailModal } from './F41v4_AdjustmentDetailModal';
 import { F41v4_PayslipHistoryDrawer } from './F41v4_PayslipHistoryDrawer';
 import { F41v4_WithdrawDialog } from './F41v4_WithdrawDialog';
@@ -34,20 +48,58 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
-const getStatusBadge = (windowState: WindowState, confirmed: boolean) => {
-  if (windowState === 'PAID') {
-    return <Badge className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">Paid</Badge>;
+// Status badge configuration
+const getStatusConfig = (status: PayrollStatus) => {
+  switch (status) {
+    case 'draft':
+      return {
+        label: 'Action needed',
+        className: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
+        explanation: 'Review your details and submit for approval.',
+        primaryAction: 'Review & submit',
+        secondaryAction: 'No changes this month',
+      };
+    case 'submitted':
+      return {
+        label: 'Submitted',
+        className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30',
+        explanation: 'Submitted to your company for review.',
+        primaryAction: 'View submission',
+        secondaryAction: 'Request a change',
+      };
+    case 'returned':
+      return {
+        label: 'Returned to you',
+        className: 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30',
+        explanation: 'Your company needs changes before they can approve.',
+        primaryAction: 'Fix & resubmit',
+        secondaryAction: 'View previous submission',
+      };
+    case 'approved':
+      return {
+        label: 'Approved',
+        className: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
+        explanation: 'Approved by your company and sent to Fronted for processing.',
+        primaryAction: 'View draft payslip',
+        secondaryAction: 'Request a correction',
+      };
+    case 'finalised':
+      return {
+        label: 'Finalised',
+        className: 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30',
+        explanation: 'Payroll approved. Payment will be processed externally.',
+        primaryAction: 'View payslip',
+        secondaryAction: 'View documents in profile',
+      };
+    default:
+      return {
+        label: 'Pending',
+        className: 'bg-muted text-muted-foreground',
+        explanation: '',
+        primaryAction: 'View details',
+        secondaryAction: '',
+      };
   }
-  if (windowState === 'CLOSED') {
-    return <Badge variant="secondary" className="bg-muted text-muted-foreground">Locked</Badge>;
-  }
-  if (windowState === 'NONE') {
-    return <Badge variant="secondary">Pending</Badge>;
-  }
-  if (confirmed) {
-    return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30">Submitted</Badge>;
-  }
-  return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
 };
 
 const getAdjustmentStatusColor = (status: Adjustment['status']) => {
@@ -80,33 +132,11 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
   }
 };
 
-// Helper to generate summary chips text
-const getChangeSummaryChips = (adjustments: Adjustment[], leaveRequests: LeaveRequest[], currency: string) => {
-  const chips: { label: string; type: 'adjustment' | 'leave'; id: string }[] = [];
-  
-  // Group adjustments by type
-  const expenseCount = adjustments.filter(a => a.type === 'Expense').length;
-  const overtimeCount = adjustments.filter(a => a.type === 'Overtime').length;
-  const bonusCount = adjustments.filter(a => a.type === 'Bonus').length;
-  const correctionCount = adjustments.filter(a => a.type === 'Correction').length;
-  
-  if (expenseCount > 0) chips.push({ label: `${expenseCount} expense${expenseCount > 1 ? 's' : ''} submitted`, type: 'adjustment', id: 'expense' });
-  if (overtimeCount > 0) chips.push({ label: `${overtimeCount} overtime request${overtimeCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'overtime' });
-  if (bonusCount > 0) chips.push({ label: `${bonusCount} bonus request${bonusCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'bonus' });
-  if (correctionCount > 0) chips.push({ label: `${correctionCount} correction${correctionCount > 1 ? 's' : ''}`, type: 'adjustment', id: 'correction' });
-  
-  // Leave requests
-  if (leaveRequests.length > 0) {
-    chips.push({ label: `Leave request${leaveRequests.length > 1 ? 's' : ''} added`, type: 'leave', id: 'leave' });
-  }
-  
-  return chips;
-};
-
 export const F41v4_UpcomingPayCard = () => {
   const [employerCostsOpen, setEmployerCostsOpen] = useState(false);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
@@ -116,29 +146,31 @@ export const F41v4_UpcomingPayCard = () => {
   const {
     nextPayoutDate,
     periodLabel,
+    periodMonth,
     estimatedNet,
     currency,
     lineItems,
     employerCosts,
     windowState,
-    confirmed,
+    payrollStatus,
+    returnedReason,
+    resubmitDeadline,
     adjustments,
     leaveRequests,
-    daysUntilClose,
+    cutoffDate,
+    isCutoffSoon,
     withdrawAdjustment,
     withdrawLeaveRequest,
   } = useF41v4_DashboardStore();
 
+  const statusConfig = getStatusConfig(payrollStatus);
   const isWindowOpen = windowState === 'OPEN';
-  const isWindowClosed = windowState === 'CLOSED';
-  const isPaid = windowState === 'PAID';
   const isNone = windowState === 'NONE';
-
   const totalEmployerCosts = employerCosts.reduce((sum, cost) => sum + cost.amount, 0);
-  const changeSummaryChips = getChangeSummaryChips(adjustments, leaveRequests, currency);
+  const pendingCount = adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length;
 
-  // Check if a tag is removable (pending + window open)
-  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen;
+  // Check if a tag is removable (pending + window open + draft status)
+  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen && payrollStatus === 'draft';
 
   // Handle withdraw click
   const handleWithdrawClick = (e: React.MouseEvent, type: 'adjustment' | 'leave', id: string) => {
@@ -161,6 +193,77 @@ export const F41v4_UpcomingPayCard = () => {
     setWithdrawTarget(null);
   };
 
+  // Handle primary action
+  const handlePrimaryAction = () => {
+    switch (payrollStatus) {
+      case 'draft':
+      case 'returned':
+        setConfirmDialogOpen(true);
+        break;
+      case 'submitted':
+        setBreakdownDrawerOpen(true);
+        break;
+      case 'approved':
+      case 'finalised':
+        setPayslipDrawerOpen(true);
+        break;
+    }
+  };
+
+  // Handle secondary action
+  const handleSecondaryAction = () => {
+    switch (payrollStatus) {
+      case 'draft':
+        setNoChangesDialogOpen(true);
+        break;
+      case 'submitted':
+      case 'approved':
+        setAdjustmentModalOpen(true);
+        break;
+      case 'returned':
+        setBreakdownDrawerOpen(true);
+        break;
+      case 'finalised':
+        // Navigate to profile docs - would be a router action
+        toast.info('Opening documents in profile...');
+        break;
+    }
+  };
+
+  // Checklist items for Draft/Returned states
+  const checklistItems = [
+    {
+      id: 'time',
+      label: 'Time worked',
+      description: leaveRequests.length > 0 ? `${leaveRequests.length} leave day(s) added` : 'No changes',
+      completed: true,
+    },
+    {
+      id: 'leave',
+      label: 'Leave / unpaid days',
+      description: leaveRequests.length > 0 ? 'Updated' : 'None this period',
+      completed: true,
+    },
+    {
+      id: 'expenses',
+      label: 'Expenses',
+      description: adjustments.filter(a => a.type === 'Expense').length > 0 
+        ? `${adjustments.filter(a => a.type === 'Expense').length} expense(s)` 
+        : 'Optional',
+      completed: adjustments.filter(a => a.type === 'Expense').length > 0,
+      optional: true,
+    },
+    {
+      id: 'adjustments',
+      label: 'Bonuses / adjustments',
+      description: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0 
+        ? `${adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length} request(s)` 
+        : 'Optional',
+      completed: adjustments.filter(a => a.type === 'Bonus' || a.type === 'Correction').length > 0,
+      optional: true,
+    },
+  ];
+
   // Empty state
   if (isNone) {
     return (
@@ -181,48 +284,59 @@ export const F41v4_UpcomingPayCard = () => {
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        {/* Header: Status + Urgency Row */}
-        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 pb-4">
+        {/* Hero Header */}
+        <CardHeader className="bg-gradient-to-r from-primary/[0.04] to-secondary/[0.03] border-b border-border/40 pb-5">
+          {/* Status Row */}
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1.5">
-              <CardTitle className="text-xl font-semibold">
-                {isPaid ? 'Last payment' : 'Upcoming pay'}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">{periodLabel}</p>
-              {isWindowOpen && !confirmed && (
-                <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                  Submission closes in {daysUntilClose} days
-                  <span className="inline-flex">
-                    <span className="animate-pulse">.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
-                  </span>
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-semibold">Current pay period</CardTitle>
+              <p className="text-base font-medium text-foreground/80">{periodMonth}</p>
+            </div>
+            <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+              {statusConfig.label}
+            </Badge>
+          </div>
+
+          {/* Explanation Line */}
+          <p className="text-sm text-muted-foreground mt-3">
+            {statusConfig.explanation}
+          </p>
+
+          {/* Returned reason block */}
+          {payrollStatus === 'returned' && returnedReason && (
+            <div className="mt-4 p-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
+              <p className="text-sm text-orange-700 dark:text-orange-400">
+                <span className="font-medium">Reason from admin:</span> {returnedReason}
+              </p>
+              {resubmitDeadline && (
+                <p className="text-xs text-orange-600 dark:text-orange-500 mt-1">
+                  Resubmit by: {resubmitDeadline}
                 </p>
               )}
             </div>
-            {getStatusBadge(windowState, confirmed)}
-          </div>
-          {isWindowOpen && !confirmed && (
-            <p className="text-xs text-muted-foreground mt-3">
-              Submit your details for this pay period. Your company will review before payroll is finalised.
-            </p>
           )}
-          {confirmed && (
-            <p className="text-xs text-muted-foreground mt-3">
-              Submitted to your company for review.
+
+          {/* Cut-off notice */}
+          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+            <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>Cut-off: {cutoffDate}</span>
+              {isCutoffSoon && (
+                <Badge variant="outline" className="ml-2 text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
+                  Cut-off soon
+                </Badge>
+              )}
+            </div>
+          )}
+          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Submit before cut-off to include changes this month.
             </p>
           )}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
-          {/* Window Closed Banner */}
-          {isWindowClosed && (
-            <div className="p-3 rounded-lg bg-muted/50 border border-border/40 text-sm text-muted-foreground">
-              The confirmation window is closed. New requests will roll into the next cycle.
-            </div>
-          )}
-
-          {/* Key Numbers Row - 2 Tiles */}
+          {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Estimated Net Pay Tile */}
             <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
@@ -249,6 +363,43 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
           </div>
 
+          {/* Checklist - Only in Draft/Returned states */}
+          {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                What you're confirming
+              </p>
+              <div className="space-y-2">
+                {checklistItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      if (item.id === 'leave') {
+                        setAdjustmentModalOpen(true);
+                      } else if (item.id === 'expenses' || item.id === 'adjustments') {
+                        setAdjustmentModalOpen(true);
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-border/30 transition-colors text-left group"
+                  >
+                    {item.completed && !item.optional ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    ) : item.completed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* View Pay Breakdown - Secondary Action */}
           <Button
             variant="outline"
@@ -257,12 +408,12 @@ export const F41v4_UpcomingPayCard = () => {
           >
             <span className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              View pay breakdown
+              {payrollStatus === 'approved' ? 'View draft payslip preview' : 'View pay breakdown'}
             </span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Button>
 
-          {/* Employer Contributions - Collapsible (de-emphasized) */}
+          {/* Employer Contributions - Collapsible */}
           <Collapsible open={employerCostsOpen} onOpenChange={setEmployerCostsOpen}>
             <CollapsibleTrigger asChild>
               <button className="w-full flex items-center justify-between py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -299,151 +450,135 @@ export const F41v4_UpcomingPayCard = () => {
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Changes Summary - Chips Style */}
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Your changes (this cycle)
-            </p>
-            {adjustments.length === 0 && leaveRequests.length === 0 ? (
-              <p className="text-sm text-muted-foreground/60">No changes yet</p>
-            ) : (
-              <div className="space-y-3">
-                {/* Summary Chips */}
-                <div className="flex flex-wrap gap-2">
-                  {changeSummaryChips.map((chip, idx) => (
+          {/* Changes Summary - Only show if there are changes */}
+          {(adjustments.length > 0 || leaveRequests.length > 0) && (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Your changes (this cycle)
+              </p>
+              <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
+                {/* Adjustment chips */}
+                {adjustments.map((adj) => (
+                  <div
+                    key={adj.id}
+                    className={cn(
+                      'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
+                      getAdjustmentStatusColor(adj.status),
+                      isRemovable(adj.status) ? 'pr-1.5' : ''
+                    )}
+                    role="listitem"
+                  >
+                    <button
+                      onClick={() => setSelectedAdjustment(adj)}
+                      aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
+                      className="inline-flex items-center gap-1.5 focus:outline-none"
+                    >
+                      <span>{adj.type}</span>
+                      {adj.amount !== null && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{formatCurrency(adj.amount, currency)}</span>
+                        </>
+                      )}
+                      {adj.type === 'Overtime' && adj.hours && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{adj.hours}h</span>
+                        </>
+                      )}
+                      <span aria-hidden="true">·</span>
+                      <span className="opacity-70">{adj.status}</span>
+                    </button>
+                    {isRemovable(adj.status) && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => handleWithdrawClick(e, 'adjustment', adj.id)}
+                            className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
+                            aria-label="Withdraw request"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                          Withdraw request
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                ))}
+
+                {/* Leave chips */}
+                {leaveRequests.map((leave) => (
+                  <div
+                    key={leave.id}
+                    className={cn(
+                      'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
+                      getLeaveStatusColor(leave.status),
+                      isRemovable(leave.status) ? 'pr-1.5' : ''
+                    )}
+                    role="listitem"
+                  >
                     <span
-                      key={idx}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                      aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`}
+                      className="inline-flex items-center gap-1.5"
                     >
-                      {chip.label}
+                      <span>{leave.leaveType}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{leave.totalDays}d</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="opacity-70">{leave.status}</span>
                     </span>
-                  ))}
-                </div>
-
-                {/* Detailed Tags with Status */}
-                <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
-                  {/* Adjustment chips */}
-                  {adjustments.map((adj) => (
-                    <div
-                      key={adj.id}
-                      className={cn(
-                        'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
-                        getAdjustmentStatusColor(adj.status),
-                        isRemovable(adj.status) ? 'pr-1.5' : ''
-                      )}
-                      role="listitem"
-                    >
-                      <button
-                        onClick={() => setSelectedAdjustment(adj)}
-                        aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
-                        className="inline-flex items-center gap-1.5 focus:outline-none"
-                      >
-                        <span>{adj.type}</span>
-                        {adj.amount !== null && (
-                          <>
-                            <span aria-hidden="true">·</span>
-                            <span>{formatCurrency(adj.amount, currency)}</span>
-                          </>
-                        )}
-                        {adj.type === 'Overtime' && adj.hours && (
-                          <>
-                            <span aria-hidden="true">·</span>
-                            <span>{adj.hours}h</span>
-                          </>
-                        )}
-                        <span aria-hidden="true">·</span>
-                        <span className="opacity-70">{adj.status}</span>
-                      </button>
-                      {isRemovable(adj.status) && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={(e) => handleWithdrawClick(e, 'adjustment', adj.id)}
-                              className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
-                              aria-label="Withdraw request"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Withdraw request
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Leave chips */}
-                  {leaveRequests.map((leave) => (
-                    <div
-                      key={leave.id}
-                      className={cn(
-                        'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
-                        getLeaveStatusColor(leave.status),
-                        isRemovable(leave.status) ? 'pr-1.5' : ''
-                      )}
-                      role="listitem"
-                    >
-                      <span
-                        aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`}
-                        className="inline-flex items-center gap-1.5"
-                      >
-                        <span>{leave.leaveType}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>{leave.totalDays}d</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="opacity-70">{leave.status}</span>
-                      </span>
-                      {isRemovable(leave.status) && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={(e) => handleWithdrawClick(e, 'leave', leave.id)}
-                              className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
-                              aria-label="Withdraw request"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Withdraw request
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    {isRemovable(leave.status) && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => handleWithdrawClick(e, 'leave', leave.id)}
+                            className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
+                            aria-label="Withdraw request"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                          Withdraw request
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Actions */}
+          {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={() => setConfirmDialogOpen(true)}
-                disabled={!isWindowOpen || confirmed}
-                className="flex-1"
-              >
-                {confirmed ? 'Submitted' : 'Confirm details'}
-              </Button>
+            <Button
+              onClick={handlePrimaryAction}
+              className="w-full"
+            >
+              {statusConfig.primaryAction}
+            </Button>
+            
+            {statusConfig.secondaryAction && (
               <Button
                 variant="outline"
-                onClick={() => setAdjustmentModalOpen(true)}
-                disabled={isWindowClosed || isPaid}
-                className="flex-1 relative"
+                onClick={handleSecondaryAction}
+                className="w-full relative"
               >
-                Request change
-                {(adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length) > 0 && (
+                {statusConfig.secondaryAction}
+                {payrollStatus === 'submitted' && pendingCount > 0 && (
                   <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-500/20 dark:text-amber-400">
-                    {adjustments.filter(a => a.status === 'Pending').length + leaveRequests.filter(l => l.status === 'Pending').length}
+                    {pendingCount}
                   </span>
                 )}
               </Button>
-            </div>
-            {!confirmed && isWindowOpen && (
+            )}
+
+            {/* "What happens next" line */}
+            {payrollStatus === 'draft' && (
               <p className="text-xs text-muted-foreground text-center">
-                This confirms your details for this pay period. Your company reviews and approves payroll.
+                Your company will review before payroll is finalised.
               </p>
             )}
           </div>
@@ -471,6 +606,12 @@ export const F41v4_UpcomingPayCard = () => {
       <F41v4_ConfirmPayDialog
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
+        periodLabel={periodLabel}
+      />
+
+      <F41v4_SubmitNoChangesDialog
+        open={noChangesDialogOpen}
+        onOpenChange={setNoChangesDialogOpen}
         periodLabel={periodLabel}
       />
 
