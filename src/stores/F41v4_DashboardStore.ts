@@ -92,6 +92,7 @@ interface F41v4_DashboardActions {
   fixAndResubmit: () => void;
   setPayrollStatus: (status: PayrollStatus) => void;
   confirmPay: () => void;
+  withdrawSubmission: () => void;
   addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
@@ -149,6 +150,8 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   setPayrollStatus: (status) => set({ payrollStatus: status }),
   
   confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted' }),
+  
+  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [
