@@ -40,7 +40,7 @@ export const F41v4_PayBreakdownDrawer = ({
   open,
   onOpenChange,
   lineItems,
-  employerCosts,
+  employerCosts = [],
   currency,
   estimatedNet,
   periodLabel
