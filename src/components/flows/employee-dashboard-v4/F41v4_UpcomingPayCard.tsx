@@ -316,16 +316,11 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
               {/* Helper text or rejected headline */}
               <div className="flex flex-col gap-0.5">
-                {effectiveStatus === 'rejected' ? (
-                  <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                    Action needed: Your pay needs an update
+                {/* Helper text - hide for rejected state */}
+                {!demoRejected && (payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && (
+                  <p className="text-sm text-muted-foreground">
+                    {statusConfig.helperText}
                   </p>
-                ) : (
-                  (payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && (
-                    <p className="text-sm text-muted-foreground">
-                      {statusConfig.helperText}
-                    </p>
-                  )
                 )}
               </div>
             </div>
@@ -382,16 +377,16 @@ export const F41v4_UpcomingPayCard = () => {
           
           {/* Rejection panel - only when demo rejected is active */}
           {demoRejected && (
-            <div className="mt-4 p-4 rounded-lg bg-amber-50/70 dark:bg-amber-500/5 border border-amber-200/60 dark:border-amber-500/20">
+            <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Submission rejected</p>
+                  <p className="text-sm font-medium text-foreground">This pay period was not approved</p>
                   <p className="text-sm text-muted-foreground">
-                    Bonus needs clarification before payroll can be finalised.
+                    Please speak with your manager to resolve any issues. You can resubmit for the next payroll run.
                   </p>
                   <p className="text-xs text-muted-foreground/70">
-                    Rejected on Jan 20, 2:05 PM
+                    Submit before Feb 15 to be included in the February payroll.
                   </p>
                 </div>
               </div>
@@ -500,26 +495,9 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
             </div>}
 
-          {/* Primary + Secondary Actions */}
-          <div className="space-y-3 pt-2">
-            {demoRejected ? (
-              // Rejected state: primary action left, secondary text link right
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <Button onClick={handlePrimaryAction} className="flex-1 w-full sm:w-auto">
-                    {statusConfig.primaryAction}
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => toast.info('Opening message to manager...')}
-                    className="flex-1 w-full sm:w-auto"
-                  >
-                    Contact your manager
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              // Normal states
+          {/* Primary + Secondary Actions - hide completely for rejected state */}
+          {!demoRejected && (
+            <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
                 {(effectiveStatus === 'submitted' || effectiveStatus === 'approved') ? (
                   // Submitted/Approved state: disabled button with check icon
@@ -555,29 +533,29 @@ export const F41v4_UpcomingPayCard = () => {
                   )
                 )}
               </div>
-            )}
 
-            {/* "What happens next" line - only for draft */}
-            {payrollStatus === 'draft' && !demoRejected && (
-              <p className="text-xs text-muted-foreground text-center">
-                Your company will review before payroll is finalised.
-              </p>
-            )}
+              {/* "What happens next" line - only for draft */}
+              {payrollStatus === 'draft' && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Your company will review before payroll is finalised.
+                </p>
+              )}
 
-            {/* Submitted timestamp */}
-            {payrollStatus === 'submitted' && submittedAt && !demoRejected && (
-              <p className="text-xs text-muted-foreground/70 text-center">
-                Submitted on {formatSubmittedTimestamp(submittedAt)}
-              </p>
-            )}
+              {/* Submitted timestamp */}
+              {payrollStatus === 'submitted' && submittedAt && (
+                <p className="text-xs text-muted-foreground/70 text-center">
+                  Submitted on {formatSubmittedTimestamp(submittedAt)}
+                </p>
+              )}
 
-            {/* Approved timestamp */}
-            {payrollStatus === 'approved' && approvedAt && !demoRejected && (
-              <p className="text-xs text-muted-foreground/70 text-center">
-                Approved on {formatSubmittedTimestamp(approvedAt)}
-              </p>
-            )}
-          </div>
+              {/* Approved timestamp */}
+              {payrollStatus === 'approved' && approvedAt && (
+                <p className="text-xs text-muted-foreground/70 text-center">
+                  Approved on {formatSubmittedTimestamp(approvedAt)}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* View previous payslips link */}
           <div className="text-center">
