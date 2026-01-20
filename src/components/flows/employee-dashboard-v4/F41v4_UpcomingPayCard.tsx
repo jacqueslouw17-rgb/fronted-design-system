@@ -494,9 +494,6 @@ export const F41v4_UpcomingPayCard = () => {
               </p>
             </div>}
 
-          {/* Approved timestamp - show separately when approved */}
-          {payrollStatus === 'approved' && approvedAt && !demoRejected}
-
           {/* View previous payslips link */}
           <div className="text-center">
             <Button variant="link" onClick={() => setPayslipDrawerOpen(true)} className="text-sm text-muted-foreground hover:text-foreground">
