@@ -111,10 +111,6 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
 
       {/* Batch meta row - ultra compact */}
       <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <span className="text-muted-foreground/60">Rails:</span>
-          <span className="font-medium text-foreground/80">{paymentRails.join(" / ")}</span>
-        </div>
         <div className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
           <span>{processingTime}</span>
