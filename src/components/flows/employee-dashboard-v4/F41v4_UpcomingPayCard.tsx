@@ -64,6 +64,7 @@ const getStatusConfig = (status: PayrollStatus): {
         label: 'Action needed',
         className: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
         explanation: 'Review your details and submit for approval.',
+        helperText: 'Please review and confirm your pay details before the cut-off.',
         primaryAction: 'Review & submit',
         secondaryAction: 'Make adjustments'
       };
@@ -297,8 +298,8 @@ export const F41v4_UpcomingPayCard = () => {
               {/* Single helper line with cut-off inline */}
               <div className="flex flex-col gap-0.5">
                 
-                {/* Helper text for submitted/approved state */}
-                {(payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && <p className="text-sm text-muted-foreground">
+                {/* Helper text for draft/submitted/approved state */}
+                {(payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
                   </p>}
               </div>
