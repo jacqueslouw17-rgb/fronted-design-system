@@ -70,10 +70,14 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
-      <div key={worker.id}>
-        <div 
-          className="flex items-center justify-between p-4 rounded-lg border border-border bg-card"
-        >
+      <div 
+        key={worker.id}
+        className={cn(
+          "p-4 rounded-lg border bg-card",
+          isFailed ? "border-destructive/20" : "border-border"
+        )}
+      >
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
@@ -82,7 +86,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
             </Avatar>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-0.5">
                 <p className="text-sm font-medium text-foreground">{worker.name}</p>
                 <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <TypeIcon className="h-3 w-3" />
@@ -105,9 +109,10 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           </div>
         </div>
 
-        {/* Show error message inline for failed items (read-only) */}
+        {/* Error message inline within the card */}
         {isFailed && worker.errorMessage && (
-          <div className="ml-14 mt-1.5 mb-2 px-3 py-2 rounded-md bg-destructive/5 border border-destructive/10">
+          <div className="mt-3 pt-3 border-t border-destructive/10 flex items-start gap-2">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground">
               {worker.errorMessage}
             </p>
