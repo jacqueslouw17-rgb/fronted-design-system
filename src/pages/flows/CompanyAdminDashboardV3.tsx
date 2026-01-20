@@ -12,6 +12,7 @@ import { PipelineView } from "@/components/contract-flow/PipelineView";
 import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
+import { CA3_PayrollSection } from "@/components/flows/company-admin-v3/CA3_PayrollSection";
 import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_PayrollOverviewCard";
 import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
 import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
@@ -3890,29 +3891,10 @@ You can ask me about:
                               <CA_CompletedPaymentDetailsCard employees={allContractors.filter(c => c.employmentType === "employee")} contractors={allContractors.filter(c => c.employmentType === "contractor")} workerTypeFilter={workerTypeFilter} onWorkerTypeFilterChange={v => setWorkerTypeFilter(v as typeof workerTypeFilter)} onOpenPaymentDetail={handleOpenPaymentDetail} getPaymentStatus={getPaymentStatus} getPaymentDue={getPaymentDue} paymentReceipts={paymentReceipts} onViewReceipt={handleViewReceipt} />
                             </div>}
 
-                          {/* CURRENT Period - In Review (not completed, no batch) */}
-                          {selectedCycle === "current" && !currentBatch && payrollCycleData.current.status !== "completed" && <div className="space-y-6">
-                              {/* Card A: Payroll Overview & Actions */}
-                              <CA_PayrollOverviewCard payPeriod={payrollCycleData.current.label} primaryCurrency="USD" countries="Philippines, Norway, Portugal, France, Italy" employeeCount={3} contractorCount={6} status="in_review" adjustments={caAdjustments} leaveChanges={caLeaveChanges} autoApprovedCount={caAdjustments.filter(a => a.status === "auto_approved").length} blockingAlerts={mockBlockingAlerts} onResolveItems={() => setResolveDrawerOpen(true)} onCreateBatch={handleCreateBatch} onCountryRules={() => setCountryRulesDrawerOpen(true)} onPeriodChange={val => setSelectedCycle(val)} selectedPeriod={selectedCycle} periods={payrollCycleData} />
-
-                              {/* Issues Bar - only show when there are pending items */}
-                              {(caAdjustments.filter(a => a.status === "pending").length > 0 || caLeaveChanges.filter(l => l.status === "pending").length > 0) && <CA_IssuesBar pendingAdjustments={caAdjustments.filter(a => a.status === "pending").length} pendingLeave={caLeaveChanges.filter(l => l.status === "pending").length} autoApproved={caAdjustments.filter(a => a.status === "auto_approved").length} onResolveClick={() => handleResolveWithCurrency()} />}
-
-                              {/* Card B: Review FX & Totals */}
-                              <CA_ReviewFXTotalsCard data={mockFXTotalsData} hasPendingItems={caAdjustments.some(a => a.status === "pending") || caLeaveChanges.some(l => l.status === "pending")} onResolveClick={handleResolveWithCurrency} employmentFilter={caFxFilter} onEmploymentFilterChange={setCaFxFilter} selectedCountries={caSelectedCountries} onCountriesChange={setCaSelectedCountries} allCountries={["Philippines", "Norway", "Portugal", "France", "Italy"]} onNetToPayClick={handleNetToPayClick} />
-
-                              {/* Resolve Items Drawer */}
-                              <CA_ResolveItemsDrawer open={resolveDrawerOpen} onClose={() => {
-                          setResolveDrawerOpen(false);
-                          setResolveDrawerPreSelectedCurrency(undefined);
-                        }} adjustments={caAdjustments} leaveChanges={caLeaveChanges} onApproveAdjustment={handleApproveAdjustment} onRejectAdjustment={handleRejectAdjustment} onApproveLeave={handleApproveLeave} onRejectLeave={handleRejectLeave} onViewWorker={id => toast.info(`View worker ${id}`)} autoApproveThreshold={500} preSelectedCurrency={resolveDrawerPreSelectedCurrency} onCreateBatch={handleCreateBatch} />
-
-                              {/* Currency Workers Drawer */}
-                              <CA_CurrencyWorkersDrawer open={currencyWorkersDrawerOpen} onClose={() => setCurrencyWorkersDrawerOpen(false)} currency={currencyWorkersDrawerCurrency} employees={getWorkersByCurrency(currencyWorkersDrawerCurrency).employees} contractors={getWorkersByCurrency(currencyWorkersDrawerCurrency).contractors} onViewPayrollPreview={id => toast.info(`View payroll preview for ${id}`)} onViewInvoicePreview={id => toast.info(`View invoice preview for ${id}`)} />
-
-                              {/* Worker Workbench Drawer */}
-                              <CA_WorkerWorkbenchDrawer open={workerWorkbenchOpen} onOpenChange={setWorkerWorkbenchOpen} worker={selectedWorkbenchWorker} payrollPeriod="November 2025" onSaveAndRecalculate={handleWorkbenchSaveAndRecalculate} />
-                            </div>}
+                          {/* CURRENT Period - NEW V3 Streamlined UI */}
+                          {selectedCycle === "current" && !currentBatch && payrollCycleData.current.status !== "completed" && (
+                            <CA3_PayrollSection payPeriod={payrollCycleData.current.label} />
+                          )}
 
                           {/* CURRENT Period - In Batch (4-Step Flow) */}
                           {selectedCycle === "current" && currentBatch && <div className="space-y-6">
