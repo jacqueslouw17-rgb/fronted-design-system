@@ -41,6 +41,7 @@ import ContractorPayroll from "./pages/flows/ContractorPayroll";
 import CompanyAdminOnboarding from "./pages/flows/CompanyAdminOnboarding";
 import CompanyAdminDashboard from "./pages/flows/CompanyAdminDashboard";
 import CompanyAdminDashboardV2 from "./pages/flows/CompanyAdminDashboardV2";
+import CompanyAdminDashboardV3 from "./pages/flows/CompanyAdminDashboardV3";
 import FrontedAdminDashboardV4 from "./pages/flows/FrontedAdminDashboardV4";
 import V4_ContractFlow from "./pages/flows/V4_ContractFlow";
 import SecureLinkError from "./pages/flows/SecureLinkError";
@@ -151,6 +152,7 @@ const App = () => (
         <Route path="/flows/company-admin-onboarding" element={<CompanyAdminOnboarding />} />
         <Route path="/flows/company-admin-dashboard" element={<CompanyAdminDashboard />} />
         <Route path="/flows/company-admin-dashboard-v2" element={<CompanyAdminDashboardV2 />} />
+        <Route path="/flows/company-admin-dashboard-v3" element={<CompanyAdminDashboardV3 />} />
         <Route path="/flows/fronted-admin-dashboard-v4" element={<FrontedAdminDashboardV4 />} />
         <Route path="/flows/fronted-admin-dashboard-v4/contract-flow" element={<V4_ContractFlow />} />
         <Route path="/flow-1-v4/profile-settings" element={<FrontedAdminV4ProfileSettings />} />
