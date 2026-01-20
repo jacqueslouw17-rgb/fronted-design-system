@@ -42,7 +42,7 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center">
       {steps.map((step, index) => {
         const state = getStepState(step.id);
         const isClickable = state === "completed" || step.id === currentStep;
@@ -58,22 +58,22 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               onClick={() => isClickable && onStepClick?.(step.id)}
               disabled={!isClickable}
               className={cn(
-                "flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-200",
-                "text-xs relative group",
-                state === "active" && "text-foreground font-medium",
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200",
+                "text-sm relative",
+                state === "active" && "text-foreground font-medium bg-muted/30",
                 state === "completed" && "text-accent-green-text cursor-pointer hover:bg-accent-green-fill/10",
                 state === "upcoming" && "text-muted-foreground/40 cursor-not-allowed"
               )}
             >
               {/* Step indicator */}
               <div className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-medium transition-all",
+                "flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-medium transition-all",
                 state === "completed" && "bg-accent-green-fill/20 text-accent-green-text",
                 state === "active" && "bg-foreground text-background",
                 state === "upcoming" && "border border-muted-foreground/20 text-muted-foreground/40"
               )}>
                 {state === "completed" ? (
-                  <Check className="h-2.5 w-2.5" />
+                  <Check className="h-3 w-3" />
                 ) : (
                   <span>{index + 1}</span>
                 )}
@@ -83,26 +83,26 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               
               {/* Badge for blocking count */}
               {showBlockingBadge && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
                   {blockingCount}
                 </span>
               )}
               
               {/* Badge for submissions */}
               {showSubmissionBadge && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500 text-white text-[9px] font-bold">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">
                   {pendingSubmissions}
                 </span>
               )}
             </button>
             
-            {/* Connector line */}
+            {/* Connector line - minimal */}
             {index < steps.length - 1 && (
               <div className={cn(
-                "w-6 h-px transition-colors",
+                "w-8 h-px mx-1 transition-colors",
                 stepOrder.indexOf(step.id) < currentIndex 
-                  ? "bg-accent-green-text/30" 
-                  : "bg-border/20"
+                  ? "bg-accent-green-text/20" 
+                  : "bg-border/10"
               )} />
             )}
           </React.Fragment>

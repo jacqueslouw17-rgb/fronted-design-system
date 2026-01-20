@@ -58,7 +58,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       case "processing":
         return { icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10 border-amber-500/20", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border/20", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/20 border-border/10", label: "Queued" };
       case "failed":
         return { icon: XCircle, color: "text-red-600", bg: "bg-red-500/10 border-red-500/20", label: "Failed" };
     }
@@ -80,50 +80,52 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     const StatusIcon = statusConfig.icon;
     const isExpanded = expandedFailed.includes(worker.id);
     const isFailed = worker.status === "failed";
+    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
       <div key={worker.id}>
         <div 
           className={cn(
-            "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150",
+            "flex items-center gap-4 p-4 rounded-lg border transition-all duration-150 group",
             isFailed 
-              ? "border-l-[3px] border-l-red-500 border-r border-t border-b border-border/10 bg-red-500/[0.03] cursor-pointer hover:bg-red-500/[0.06]" 
-              : "border-border/10 bg-muted/5 hover:bg-muted/15"
+              ? "border-border/10 bg-red-500/[0.02] cursor-pointer hover:bg-red-500/[0.05]" 
+              : "border-border/5 bg-muted/5 hover:bg-muted/15"
           )}
           onClick={() => isFailed && toggleFailedExpand(worker.id)}
         >
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarFallback className="text-[10px] font-medium bg-muted/50">
+          <Avatar className="h-10 w-10 flex-shrink-0">
+            <AvatarFallback className="text-[11px] font-medium bg-muted/40">
               {getInitials(worker.name)}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
-              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
-                {worker.type === "employee" ? "EE" : "C"}
-              </Badge>
+            <div className="flex items-center gap-2 mb-0.5">
+              <p className="text-sm font-medium text-foreground">{worker.name}</p>
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <TypeIcon className="h-3 w-3" />
+                <span className="text-[10px]">{worker.type === "employee" ? "Employee" : "Contractor"}</span>
+              </div>
             </div>
-            <p className="text-[10px] text-muted-foreground">{worker.country}</p>
+            <p className="text-xs text-muted-foreground">{worker.country}</p>
           </div>
 
-          <div className="text-right flex-shrink-0">
-            <p className="text-sm font-medium text-foreground">
+          <div className="text-right flex-shrink-0 min-w-[100px]">
+            <p className="text-sm font-semibold text-foreground">
               {formatCurrency(worker.amount, worker.currency)}
             </p>
           </div>
 
           <Badge 
             variant="outline" 
-            className={cn("text-[10px] gap-1 border flex-shrink-0", statusConfig.bg, statusConfig.color)}
+            className={cn("text-[10px] gap-1 border flex-shrink-0 min-w-[85px] justify-center", statusConfig.bg, statusConfig.color)}
           >
             <StatusIcon className="h-3 w-3" />
             {statusConfig.label}
           </Badge>
           
           {isFailed && (
-            <div className="text-muted-foreground flex-shrink-0">
+            <div className="text-muted-foreground/50 group-hover:text-muted-foreground transition-colors flex-shrink-0">
               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </div>
           )}
@@ -131,11 +133,11 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
         {/* Expanded error details for failed */}
         {isFailed && isExpanded && (
-          <div className="mt-1 ml-11 p-3 rounded-lg bg-red-500/[0.03] border border-red-500/10 space-y-2">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+          <div className="mt-2 ml-14 p-4 rounded-lg bg-muted/5 border border-border/10 space-y-3">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                <p className="text-sm font-medium text-foreground">
                   {worker.errorMessage || "Payment failed"}
                 </p>
                 {worker.fixInstructions && (
@@ -149,7 +151,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <Button 
                 size="sm" 
                 variant="outline"
-                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                className="h-8 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRetry(worker);
@@ -157,7 +159,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                 }}
               >
                 <RefreshCw className="h-3 w-3" />
-                Retry
+                Retry payment
               </Button>
             )}
           </div>
@@ -167,95 +169,99 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header with Actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Processing Status</h3>
-          <p className="text-xs text-muted-foreground">Fronted is executing payments</p>
+          <h3 className="text-base font-semibold text-foreground">Processing Status</h3>
+          <p className="text-sm text-muted-foreground">Fronted is executing payments</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onExportCSV} className="h-7 text-xs gap-1.5">
-            <Download className="h-3 w-3" />
+          <Button variant="outline" size="sm" onClick={onExportCSV} className="h-8 gap-1.5">
+            <Download className="h-3.5 w-3.5" />
             CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={onDownloadAuditPDF} className="h-7 text-xs gap-1.5">
-            <FileText className="h-3 w-3" />
+          <Button variant="outline" size="sm" onClick={onDownloadAuditPDF} className="h-8 gap-1.5">
+            <FileText className="h-3.5 w-3.5" />
             Audit PDF
           </Button>
         </div>
       </div>
 
-      {/* Summary Counts - Compact chips */}
-      <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-muted/10 border border-border/10">
-        <div className="flex items-center gap-1.5">
+      {/* Summary Counts - Minimal chips */}
+      <div className="flex items-center gap-4 py-3 px-4 rounded-lg bg-muted/5 border border-border/5">
+        <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-          <span className="text-xs">
-            <span className="font-semibold">{paidCount}</span> completed
+          <span className="text-sm">
+            <span className="font-semibold">{paidCount}</span>
+            <span className="text-muted-foreground ml-1">completed</span>
           </span>
         </div>
         {processingCount > 0 && (
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-amber-600" />
-            <span className="text-xs">
-              <span className="font-semibold">{processingCount}</span> processing
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-amber-500" />
+            <span className="text-sm">
+              <span className="font-semibold">{processingCount}</span>
+              <span className="text-muted-foreground ml-1">processing</span>
             </span>
           </div>
         )}
         {failedCount > 0 && (
-          <div className="flex items-center gap-1.5">
-            <XCircle className="h-4 w-4 text-red-600" />
-            <span className="text-xs">
-              <span className="font-semibold">{failedCount}</span> failed
+          <div className="flex items-center gap-2">
+            <XCircle className="h-4 w-4 text-red-500" />
+            <span className="text-sm">
+              <span className="font-semibold">{failedCount}</span>
+              <span className="text-muted-foreground ml-1">failed</span>
             </span>
           </div>
         )}
       </div>
 
-      {/* Subtle action banner for failures */}
+      {/* Action banner for failures - calmer */}
       {failedCount > 0 && (
-        <div className="flex items-center gap-2 py-2 px-3 rounded-lg border-l-[3px] border-l-red-500 bg-red-500/[0.03] border border-border/10">
-          <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
-          <p className="text-xs text-foreground">
-            Action required: {failedCount} worker{failedCount !== 1 ? 's' : ''} failed. Click to expand and review.
+        <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
+          <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+          <p className="text-sm text-foreground">
+            <span className="font-medium">{failedCount} payment{failedCount !== 1 ? 's' : ''} need attention.</span>
+            <span className="text-muted-foreground ml-1">Click to expand and review.</span>
           </p>
         </div>
       )}
 
       {/* Tabbed View */}
       <Tabs defaultValue="all">
-        <TabsList className="h-8 bg-muted/20">
-          <TabsTrigger value="all" className="text-[11px] h-6 px-3">
+        <TabsList className="h-9 bg-muted/10 p-1">
+          <TabsTrigger value="all" className="text-xs h-7 px-4">
             All ({workers.length})
           </TabsTrigger>
-          <TabsTrigger value="employees" className="text-[11px] h-6 px-3 gap-1">
+          <TabsTrigger value="employees" className="text-xs h-7 px-4 gap-1.5">
             <Users className="h-3 w-3" />
-            EE ({employees.length})
+            Employees ({employees.length})
           </TabsTrigger>
-          <TabsTrigger value="contractors" className="text-[11px] h-6 px-3 gap-1">
+          <TabsTrigger value="contractors" className="text-xs h-7 px-4 gap-1.5">
             <Briefcase className="h-3 w-3" />
-            C ({contractors.length})
+            Contractors ({contractors.length})
           </TabsTrigger>
           {failedCount > 0 && (
-            <TabsTrigger value="failed" className="text-[11px] h-6 px-3 text-red-600">
+            <TabsTrigger value="failed" className="text-xs h-7 px-4 text-red-600">
               Failed ({failedCount})
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="all" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+        <TabsContent value="all" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
           {workers.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="employees" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+        <TabsContent value="employees" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
           {employees.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="contractors" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+        <TabsContent value="contractors" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
           {contractors.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="failed" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+        <TabsContent value="failed" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
           {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
         </TabsContent>
       </Tabs>
