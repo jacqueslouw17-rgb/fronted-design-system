@@ -553,15 +553,16 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   return (
     <div className="space-y-6">
-      {/* Stepper - left aligned, minimal */}
-      <CA3_PayrollStepper
-        currentStep={currentStep}
-        completedSteps={completedSteps}
-        onStepClick={handleStepClick}
-        blockingCount={blockingCount}
-        pendingSubmissions={pendingSubmissions}
-        isSubmitted={currentStep === "track"}
-      />
+      {/* Stepper - hidden on track step after submission */}
+      {currentStep !== "track" && (
+        <CA3_PayrollStepper
+          currentStep={currentStep}
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+          blockingCount={blockingCount}
+          pendingSubmissions={pendingSubmissions}
+        />
+      )}
 
       {/* Step Content */}
       <div>
