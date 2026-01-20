@@ -1,8 +1,8 @@
 import React from "react";
-import { Check, FileSearch, AlertCircle, Send, Activity } from "lucide-react";
+import { Check, FileSearch, Inbox, AlertCircle, Send, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CA3_PayrollStep = "review" | "resolve" | "submit" | "track";
+export type CA3_PayrollStep = "review" | "submissions" | "checks" | "submit" | "track";
 
 interface StepConfig {
   id: CA3_PayrollStep;
@@ -12,7 +12,8 @@ interface StepConfig {
 
 const steps: StepConfig[] = [
   { id: "review", label: "Review", icon: FileSearch },
-  { id: "resolve", label: "Resolve Checks", icon: AlertCircle },
+  { id: "submissions", label: "Submissions", icon: Inbox },
+  { id: "checks", label: "Checks", icon: AlertCircle },
   { id: "submit", label: "Submit", icon: Send },
   { id: "track", label: "Track", icon: Activity },
 ];
@@ -22,6 +23,7 @@ interface CA3_PayrollStepperProps {
   completedSteps: CA3_PayrollStep[];
   onStepClick?: (step: CA3_PayrollStep) => void;
   blockingCount?: number;
+  pendingSubmissions?: number;
 }
 
 export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
@@ -29,8 +31,9 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   completedSteps,
   onStepClick,
   blockingCount = 0,
+  pendingSubmissions = 0,
 }) => {
-  const stepOrder: CA3_PayrollStep[] = ["review", "resolve", "submit", "track"];
+  const stepOrder: CA3_PayrollStep[] = ["review", "submissions", "checks", "submit", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const getStepState = (step: CA3_PayrollStep): "completed" | "active" | "upcoming" => {
@@ -40,12 +43,16 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-1 p-2 rounded-2xl bg-muted/30 border border-border/30 backdrop-blur-sm">
+    <div className="flex items-center justify-center gap-0.5 py-2 px-3 rounded-full bg-muted/20 border border-border/20 backdrop-blur-sm">
       {steps.map((step, index) => {
         const state = getStepState(step.id);
         const Icon = step.icon;
         const isClickable = state === "completed" || step.id === currentStep;
-        const showBadge = step.id === "resolve" && blockingCount > 0 && state !== "completed";
+        
+        // Show badge for checks with blocking count
+        const showBlockingBadge = step.id === "checks" && blockingCount > 0 && state !== "completed";
+        // Show badge for submissions with pending count
+        const showSubmissionBadge = step.id === "submissions" && pendingSubmissions > 0 && state !== "completed";
 
         return (
           <React.Fragment key={step.id}>
@@ -53,42 +60,48 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               onClick={() => isClickable && onStepClick?.(step.id)}
               disabled={!isClickable}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200",
-                "text-sm font-medium relative",
-                state === "active" && "bg-primary/15 text-primary border border-primary/30",
-                state === "completed" && "bg-accent-green-fill/10 text-accent-green-text hover:bg-accent-green-fill/20 cursor-pointer",
-                state === "upcoming" && "text-muted-foreground/60 cursor-not-allowed"
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
+                "text-xs font-medium relative",
+                state === "active" && "bg-primary/10 text-primary",
+                state === "completed" && "text-accent-green-text hover:bg-accent-green-fill/10 cursor-pointer",
+                state === "upcoming" && "text-muted-foreground/50 cursor-not-allowed"
               )}
             >
               <div className={cn(
-                "flex items-center justify-center w-5 h-5 rounded-full",
+                "flex items-center justify-center w-4 h-4 rounded-full",
                 state === "completed" && "bg-accent-green-fill/20",
-                state === "active" && "bg-primary/20",
-                state === "upcoming" && "bg-muted/50"
+                state === "active" && "bg-primary/20"
               )}>
                 {state === "completed" ? (
-                  <Check className="h-3 w-3" />
+                  <Check className="h-2.5 w-2.5" />
                 ) : (
-                  <Icon className="h-3 w-3" />
+                  <Icon className="h-2.5 w-2.5" />
                 )}
               </div>
-              <span>{step.label}</span>
+              <span className="hidden sm:inline">{step.label}</span>
               
               {/* Badge for blocking count */}
-              {showBadge && (
-                <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              {showBlockingBadge && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
                   {blockingCount}
+                </span>
+              )}
+              
+              {/* Badge for submissions */}
+              {showSubmissionBadge && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                  {pendingSubmissions}
                 </span>
               )}
             </button>
             
-            {/* Connector */}
+            {/* Connector line */}
             {index < steps.length - 1 && (
               <div className={cn(
-                "w-8 h-px",
+                "w-4 h-px",
                 stepOrder.indexOf(step.id) < currentIndex 
-                  ? "bg-accent-green-text/30" 
-                  : "bg-border/50"
+                  ? "bg-accent-green-text/40" 
+                  : "bg-border/30"
               )} />
             )}
           </React.Fragment>
