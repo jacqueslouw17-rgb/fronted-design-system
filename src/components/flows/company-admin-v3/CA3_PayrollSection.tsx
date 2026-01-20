@@ -1,9 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { CA3_TopSummary, PayrollStatus } from "./CA3_TopSummary";
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
@@ -119,6 +117,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Modal state
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   
+  // Submit state for in-place transition in Submit step
+  const [isPayrollSubmitted, setIsPayrollSubmitted] = useState(false);
+  
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
@@ -155,8 +156,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   const handleConfirmSubmit = () => {
     setSubmitModalOpen(false);
+    setIsPayrollSubmitted(true);
     setCompletedSteps(prev => [...prev, "submit"]);
-    setCurrentStep("track");
     toast.success("Batch submitted to Fronted for processing");
   };
 
@@ -241,8 +242,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             employeeCount={4}
             contractorCount={5}
             currencyCount={3}
+            isSubmitted={isPayrollSubmitted}
+            onRequestSubmit={handleOpenSubmitModal}
             trackingWorkers={trackingWorkers}
-            onSubmit={handleConfirmSubmit}
             onExportCSV={handleExportCSV}
             onDownloadAuditPDF={handleDownloadAuditPDF}
           />
@@ -264,8 +266,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   return (
     <div className="space-y-6">
-      {/* Stepper - hidden on track step after submission */}
-      {currentStep !== "track" && (
+      {/* Stepper - hidden after submission */}
+      {currentStep !== "track" && !isPayrollSubmitted && (
         <CA3_PayrollStepper
           currentStep={currentStep}
           completedSteps={completedSteps}
