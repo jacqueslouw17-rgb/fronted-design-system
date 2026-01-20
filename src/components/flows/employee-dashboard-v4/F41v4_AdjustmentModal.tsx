@@ -51,8 +51,8 @@ const payPeriodLabel = 'Jan 1 – Jan 31';
 const requestTypeOptions = [
   { 
     id: 'leave' as RequestType, 
-    label: 'Leave', 
-    description: 'Request time off',
+    label: 'Log time off', 
+    description: 'Add approved leave for payroll',
     icon: Plane 
   },
   { 
@@ -101,6 +101,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   
   // Leave form state
   const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
+  const [leaveDateScope, setLeaveDateScope] = useState<'this-period' | 'different'>('this-period');
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [leaveReason, setLeaveReason] = useState('');
@@ -135,6 +136,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setBonusCorrectionReason('');
     setBonusCorrectionAttachment(null);
     setLeaveType('Annual leave');
+    setLeaveDateScope('this-period');
     setStartDate(undefined);
     setEndDate(undefined);
     setLeaveReason('');
@@ -379,14 +381,14 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             <div>
               <SheetTitle>
                 {selectedType === null && 'Request a change'}
-                {selectedType === 'leave' && 'Leave request'}
+                {selectedType === 'leave' && 'Log time off'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && (bonusCorrectionType === 'Bonus' ? 'Bonus request' : 'Correction request')}
               </SheetTitle>
               <SheetDescription>
-                {selectedType === null && 'Send a request to be included in this pay period.'}
-                {selectedType === 'leave' && 'Request time off for this pay period.'}
+                {selectedType === null && 'Request a change for this pay period.'}
+                {selectedType === 'leave' && 'Log approved time off so payroll reflects it correctly.'}
                 {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
                 {selectedType === 'overtime' && 'Log overtime hours worked.'}
                 {selectedType === 'bonus-correction' && 'Request a bonus or correction.'}
@@ -423,7 +425,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
           {/* Leave Form */}
           {selectedType === 'leave' && (
             <div className="space-y-5">
-              <PayPeriodBadge />
+              {/* Scoped intro text */}
+              <p className="text-xs text-muted-foreground">
+                This updates your pay for the selected dates. Only log leave that's already approved.
+              </p>
 
               {/* Leave Type */}
               <div className="space-y-2">
@@ -440,88 +445,165 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 </Select>
               </div>
 
-              {/* Date Range */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label>Start date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !startDate && 'text-muted-foreground',
-                          errors.startDate && 'border-destructive'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? format(startDate, 'MMM d') : 'Select'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>End date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !endDate && 'text-muted-foreground',
-                          errors.endDate && 'border-destructive'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? format(endDate, 'MMM d') : 'Select'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={setEndDate}
-                        disabled={(date) => startDate ? date < startDate : false}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+              {/* Date Scope Selection */}
+              <div className="space-y-2">
+                <Label>Date range</Label>
+                <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLeaveDateScope('this-period');
+                      // Reset dates when switching to this period
+                      setStartDate(undefined);
+                      setEndDate(undefined);
+                    }}
+                    className={cn(
+                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                      leaveDateScope === 'this-period'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    This pay period
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLeaveDateScope('different')}
+                    className={cn(
+                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
+                      leaveDateScope === 'different'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    Different dates
+                  </button>
                 </div>
               </div>
 
-              {/* Warning if dates outside period */}
-              {hasDateWarning && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30">
-                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                    This leave falls outside the current payroll period and may be applied next cycle.
+              {/* Date Range - only show if "Different dates" is selected */}
+              {leaveDateScope === 'different' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>Start date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal',
+                            !startDate && 'text-muted-foreground',
+                            errors.startDate && 'border-destructive'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {startDate ? format(startDate, 'MMM d') : 'Select'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={setStartDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>End date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal',
+                            !endDate && 'text-muted-foreground',
+                            errors.endDate && 'border-destructive'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {endDate ? format(endDate, 'MMM d') : 'Select'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={endDate}
+                          onSelect={setEndDate}
+                          disabled={(date) => startDate ? date < startDate : false}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+                  </div>
+                </div>
+              )}
+
+              {/* This pay period - show date range summary */}
+              {leaveDateScope === 'this-period' && (
+                <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Period</span>
+                    <span className="text-sm font-medium text-foreground">{payPeriodLabel}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Leave will be applied within this pay period.
                   </p>
                 </div>
               )}
 
-              {/* Total Days (read-only) */}
-              {startDate && endDate && (
-                <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total days</span>
-                    <span className="text-sm font-medium text-foreground">
-                      {totalDays} {totalDays === 1 ? 'day' : 'days'}
-                    </span>
-                  </div>
+              {/* Warning if dates outside period - only when different dates selected */}
+              {leaveDateScope === 'different' && hasDateWarning && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30">
+                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    These dates fall outside the current payroll period. Your pay will be adjusted accordingly in the relevant cycle.
+                  </p>
                 </div>
+              )}
+
+              {/* Total Days input for this-period, read-only display for different dates */}
+              {leaveDateScope === 'this-period' ? (
+                <div className="space-y-2">
+                  <Label>Number of days</Label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    placeholder="1"
+                    value={startDate && endDate ? totalDays.toString() : ''}
+                    onChange={(e) => {
+                      // For this-period, we calculate dates based on days input
+                      const days = parseFloat(e.target.value) || 0;
+                      if (days > 0) {
+                        const start = payPeriodStart;
+                        const end = new Date(start);
+                        end.setDate(start.getDate() + days - 1);
+                        setStartDate(start);
+                        setEndDate(end);
+                      }
+                    }}
+                    className={cn(errors.startDate && 'border-destructive')}
+                  />
+                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                </div>
+              ) : (
+                startDate && endDate && (
+                  <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Total days</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {totalDays} {totalDays === 1 ? 'day' : 'days'}
+                      </span>
+                    </div>
+                  </div>
+                )
               )}
 
               {/* Reason (optional) */}
@@ -542,7 +624,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   Cancel
                 </Button>
                 <Button onClick={handleSubmitLeave} className="flex-1">
-                  Submit request
+                  Log time off
                 </Button>
               </div>
             </div>

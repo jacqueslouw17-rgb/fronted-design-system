@@ -6,9 +6,10 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Calendar, Receipt } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Lock, Calendar, Receipt, Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { Adjustment, LeaveRequest } from '@/stores/F41v4_DashboardStore';
+import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
 
 interface LineItem {
   label: string;
@@ -26,6 +27,8 @@ interface PayBreakdownDrawerProps {
   periodLabel: string;
   adjustments?: Adjustment[];
   leaveRequests?: LeaveRequest[];
+  payrollStatus?: PayrollStatus;
+  onMakeAdjustment?: () => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -56,21 +59,42 @@ export const F41v4_PayBreakdownDrawer = ({
   estimatedNet,
   periodLabel,
   adjustments = [],
-  leaveRequests = []
+  leaveRequests = [],
+  payrollStatus = 'draft',
+  onMakeAdjustment
 }: PayBreakdownDrawerProps) => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
   const hasRequests = adjustments.length > 0 || leaveRequests.length > 0;
+  const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4">
-          <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-          <SheetDescription className="text-sm text-muted-foreground">
-            {periodLabel}
-          </SheetDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+              <SheetDescription className="text-sm text-muted-foreground">
+                {periodLabel}
+              </SheetDescription>
+            </div>
+            {canMakeAdjustments && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  onMakeAdjustment();
+                  onOpenChange(false);
+                }}
+                className="gap-1.5 h-8 text-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Make adjustments
+              </Button>
+            )}
+          </div>
         </SheetHeader>
 
         <div className="space-y-6">

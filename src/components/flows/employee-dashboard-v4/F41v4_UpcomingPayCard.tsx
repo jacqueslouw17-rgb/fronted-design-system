@@ -478,14 +478,19 @@ export const F41v4_UpcomingPayCard = () => {
 
           {/* Primary + Secondary Actions - only show for draft state */}
           {!demoRejected && payrollStatus === 'draft' && <div className="space-y-3 pt-2">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button onClick={handlePrimaryAction} className="flex-1">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Button onClick={handlePrimaryAction} className="flex-1 w-full sm:w-auto">
                   {statusConfig.primaryAction}
                 </Button>
                 
-                {statusConfig.secondaryAction && <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
-                  {statusConfig.secondaryAction}
-                </Button>}
+                {statusConfig.secondaryAction && (
+                  <button 
+                    onClick={handleSecondaryAction} 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+                  >
+                    {statusConfig.secondaryAction}
+                  </button>
+                )}
               </div>
             </div>}
 
@@ -509,7 +514,18 @@ export const F41v4_UpcomingPayCard = () => {
 
       <F41v4_PayslipHistoryDrawer open={payslipDrawerOpen} onOpenChange={setPayslipDrawerOpen} />
 
-      <F41v4_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} adjustments={adjustments} leaveRequests={leaveRequests} />
+      <F41v4_PayBreakdownDrawer 
+        open={breakdownDrawerOpen} 
+        onOpenChange={setBreakdownDrawerOpen} 
+        lineItems={lineItems} 
+        currency={currency} 
+        estimatedNet={estimatedNet} 
+        periodLabel={periodLabel} 
+        adjustments={adjustments} 
+        leaveRequests={leaveRequests}
+        payrollStatus={payrollStatus}
+        onMakeAdjustment={() => openAdjustmentModal()}
+      />
 
       <F41v4_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
 
