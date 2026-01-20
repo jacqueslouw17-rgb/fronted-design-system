@@ -108,27 +108,6 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
           <p className="text-xl font-semibold text-primary">{formatCurrency(totalCost)}</p>
         </div>
       </div>
-
-      {/* Batch meta row - ultra compact */}
-      <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          <span>{processingTime}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          {fxLocked ? (
-            <>
-              <Lock className="h-3 w-3 text-accent-green-text" />
-              <span className="text-accent-green-text font-medium">FX Locked</span>
-            </>
-          ) : (
-            <>
-              <Unlock className="h-3 w-3" />
-              <span>FX Unlocked</span>
-            </>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
