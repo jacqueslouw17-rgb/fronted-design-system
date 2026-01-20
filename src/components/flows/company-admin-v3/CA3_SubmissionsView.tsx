@@ -138,62 +138,61 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         className={cn(
-          "flex items-center gap-4 p-4 rounded-lg border transition-all duration-150 cursor-pointer group",
-          "border-border/5 bg-muted/5",
-          "hover:bg-muted/20 hover:border-border/10 hover:shadow-sm"
+          "flex items-center gap-4 p-3.5 rounded-lg border transition-all duration-150 cursor-pointer group",
+          "border-border/5 bg-transparent",
+          "hover:bg-muted/10"
         )}
         onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
-        <Avatar className="h-10 w-10 flex-shrink-0">
-          <AvatarFallback className="text-[11px] font-medium bg-muted/40">
+        <Avatar className="h-9 w-9 flex-shrink-0">
+          <AvatarFallback className="text-[10px] font-medium bg-muted/30">
             {getInitials(submission.workerName)}
           </AvatarFallback>
         </Avatar>
 
-        {/* Worker Info - Primary column */}
+        {/* Worker Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-0.5">
             <span className="text-sm font-medium text-foreground">
               {submission.workerName}
             </span>
-            <div className="flex items-center gap-1 text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <TypeIcon className="h-3 w-3" />
-              <span className="text-[10px]">{submission.workerType === "employee" ? "Employee" : "Contractor"}</span>
-            </div>
+              {submission.workerType === "employee" ? "EE" : "C"}
+            </span>
           </div>
           <span className="text-xs text-muted-foreground">
             {submission.workerCountry}
           </span>
         </div>
 
-        {/* Submission type chips */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        {/* Submission type chips - minimal */}
+        <div className="flex items-center gap-1 flex-shrink-0">
           {submission.submissions.slice(0, 2).map((sub, idx) => {
             const config = submissionTypeConfig[sub.type];
             const Icon = config.icon;
             return (
-              <Badge 
+              <div 
                 key={idx} 
-                variant="outline" 
-                className={cn("text-[10px] px-2 py-0.5 gap-1", config.color)}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/20 text-[10px] text-muted-foreground"
               >
                 <Icon className="h-3 w-3" />
                 {config.label}
-              </Badge>
+              </div>
             );
           })}
           {submission.submissions.length > 2 && (
-            <span className="text-[10px] text-muted-foreground font-medium">
+            <span className="text-[10px] text-muted-foreground">
               +{submission.submissions.length - 2}
             </span>
           )}
         </div>
 
         {/* Impact Amount */}
-        <div className="text-right flex-shrink-0 min-w-[80px]">
+        <div className="text-right flex-shrink-0 min-w-[70px]">
           {submission.totalImpact ? (
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-sm font-medium text-foreground">
               {formatCurrency(submission.totalImpact, submission.currency)}
             </p>
           ) : (
@@ -201,13 +200,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           )}
         </div>
 
-        {/* Status */}
-        <Badge variant="outline" className={cn("text-[10px] gap-1 flex-shrink-0 min-w-[80px] justify-center", status.color)}>
+        {/* Status - subtle */}
+        <div className={cn("flex items-center gap-1 text-[10px] flex-shrink-0 min-w-[70px]", 
+          submission.status === "approved" && "text-accent-green-text",
+          submission.status === "pending" && "text-amber-600",
+          submission.status === "rejected" && "text-red-600"
+        )}>
           <StatusIcon className="h-3 w-3" />
           {status.label}
-        </Badge>
+        </div>
 
-        <ChevronRight className="h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors flex-shrink-0" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/40 transition-colors flex-shrink-0" />
       </motion.div>
     );
   };
@@ -216,13 +219,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     <div className="space-y-4">
       {/* Header with search and actions */}
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search workers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9"
+            className="pl-8 h-8 text-sm w-48"
           />
         </div>
 
@@ -232,61 +235,61 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               size="sm" 
               variant="ghost"
               onClick={onApproveAll}
-              className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+              className="h-8 text-[11px] gap-1 text-muted-foreground hover:text-foreground"
             >
-              <Check className="h-3.5 w-3.5" />
+              <Check className="h-3 w-3" />
               Approve all safe
             </Button>
           )}
           <Button 
             size="sm"
             onClick={onContinue}
-            className="h-9 gap-1.5"
+            className="h-8 text-[11px] gap-1"
           >
             Continue to Checks
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3 w-3" />
           </Button>
         </div>
       </div>
 
-      {/* Tabbed view */}
+      {/* Tabbed view - minimal */}
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="h-9 bg-muted/10 p-1">
-          <TabsTrigger value="all" className="text-xs h-7 px-4">
+        <TabsList className="h-8 bg-transparent p-0 gap-1">
+          <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
             All ({submissions.length})
           </TabsTrigger>
-          <TabsTrigger value="pending" className="text-xs h-7 px-4">
+          <TabsTrigger value="pending" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
             Pending ({pendingCount})
           </TabsTrigger>
-          <TabsTrigger value="approved" className="text-xs h-7 px-4">
+          <TabsTrigger value="approved" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
             Approved ({approvedCount})
           </TabsTrigger>
           {rejectedCount > 0 && (
-            <TabsTrigger value="rejected" className="text-xs h-7 px-4 text-red-600">
+            <TabsTrigger value="rejected" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
               Rejected ({rejectedCount})
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="all" className="mt-4 space-y-2">
+        <TabsContent value="all" className="mt-3 space-y-1">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="pending" className="mt-4 space-y-2">
+        <TabsContent value="pending" className="mt-3 space-y-1">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="approved" className="mt-4 space-y-2">
+        <TabsContent value="approved" className="mt-3 space-y-1">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="rejected" className="mt-4 space-y-2">
+        <TabsContent value="rejected" className="mt-3 space-y-1">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
           </AnimatePresence>
@@ -367,48 +370,52 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </>
                 )}
 
-                {/* Reject reason (only shown for pending) */}
-                {selectedSubmission.status === "pending" && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">
-                        Reject reason (required if rejecting)
-                      </label>
-                      <Select value={rejectReason} onValueChange={setRejectReason}>
-                        <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Select a reason..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {rejectReasons.map((reason) => (
-                            <SelectItem key={reason} value={reason}>{reason}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
               </div>
 
-              <SheetFooter className="mt-8 gap-2">
+              <SheetFooter className="mt-6 flex-col gap-3">
                 {selectedSubmission.status === "pending" && (
                   <>
+                    {/* Primary: Approve */}
                     <Button 
-                      variant="outline" 
-                      className="flex-1 gap-1.5 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-                      onClick={handleRejectFromDrawer}
-                      disabled={!rejectReason}
-                    >
-                      <X className="h-4 w-4" />
-                      Reject
-                    </Button>
-                    <Button 
-                      className="flex-1 gap-1.5"
+                      className="w-full gap-1.5"
                       onClick={handleApproveFromDrawer}
                     >
                       <Check className="h-4 w-4" />
                       Approve
                     </Button>
+                    
+                    {/* Secondary: Reject flow */}
+                    {!rejectReason ? (
+                      <Button 
+                        variant="ghost" 
+                        className="w-full text-muted-foreground hover:text-red-600"
+                        onClick={() => setRejectReason("Missing documentation")}
+                      >
+                        <X className="h-4 w-4 mr-1.5" />
+                        Reject instead...
+                      </Button>
+                    ) : (
+                      <div className="space-y-2 w-full">
+                        <Select value={rejectReason} onValueChange={setRejectReason}>
+                          <SelectTrigger className="h-9 text-sm">
+                            <SelectValue placeholder="Select reason..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {rejectReasons.map((reason) => (
+                              <SelectItem key={reason} value={reason}>{reason}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button 
+                          variant="outline" 
+                          className="w-full gap-1.5 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                          onClick={handleRejectFromDrawer}
+                        >
+                          <X className="h-4 w-4" />
+                          Confirm Rejection
+                        </Button>
+                      </div>
+                    )}
                   </>
                 )}
                 {selectedSubmission.status !== "pending" && (

@@ -40,9 +40,6 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
   contractorCount,
   currencyCount,
   status = "in-review",
-  fxLocked = false,
-  paymentRails = ["SEPA", "Local"],
-  processingTime = "2-3 days",
 }) => {
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
@@ -57,58 +54,54 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
   const statusInfo = statusConfig[status];
 
   return (
-    <div className="space-y-4">
-      {/* Header Row - Full width with counts on right */}
+    <div className="p-5 rounded-xl bg-muted/10 backdrop-blur-sm border border-border/5 space-y-4">
+      {/* Header Row */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-foreground">{payPeriod}</h2>
-          <Badge variant="outline" className={cn("text-[10px] px-2 py-0.5 font-medium", statusInfo.className)}>
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base font-medium text-foreground">{payPeriod}</h2>
+          <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", statusInfo.className)}>
             {statusInfo.label}
           </Badge>
         </div>
-        <div className="flex items-center gap-5 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Users className="h-4 w-4" />
+            <Users className="h-3.5 w-3.5" />
             <span className="font-medium text-foreground">{employeeCount}</span>
-            <span>Employees</span>
+            <span>employees</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Briefcase className="h-4 w-4" />
+            <Briefcase className="h-3.5 w-3.5" />
             <span className="font-medium text-foreground">{contractorCount}</span>
-            <span>Contractors</span>
+            <span>contractors</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Globe className="h-4 w-4" />
+            <Globe className="h-3.5 w-3.5" />
             <span className="font-medium text-foreground">{currencyCount}</span>
-            <span>Currencies</span>
+            <span>currencies</span>
           </div>
         </div>
       </div>
 
-      {/* KPI Row - Horizontal batch summary cards */}
-      <div className="grid grid-cols-4 gap-4">
-        {/* Gross Pay */}
-        <div className="bg-muted/20 backdrop-blur-sm rounded-xl p-5 border border-border/10">
-          <p className="text-xs text-muted-foreground mb-1.5">Gross Pay</p>
-          <p className="text-2xl font-semibold text-foreground tracking-tight">{formatCurrency(grossPay)}</p>
+      {/* KPI Row - inline, not oversized */}
+      <div className="flex items-center gap-6">
+        <div className="flex-1">
+          <p className="text-[10px] text-muted-foreground mb-0.5">Gross Pay</p>
+          <p className="text-lg font-semibold text-foreground">{formatCurrency(grossPay)}</p>
         </div>
-
-        {/* Net Pay */}
-        <div className="bg-muted/20 backdrop-blur-sm rounded-xl p-5 border border-border/10">
-          <p className="text-xs text-muted-foreground mb-1.5">Net Pay</p>
-          <p className="text-2xl font-semibold text-foreground tracking-tight">{formatCurrency(netPay)}</p>
+        <div className="w-px h-8 bg-border/10" />
+        <div className="flex-1">
+          <p className="text-[10px] text-muted-foreground mb-0.5">Net Pay</p>
+          <p className="text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
         </div>
-
-        {/* Fronted Fees */}
-        <div className="bg-muted/20 backdrop-blur-sm rounded-xl p-5 border border-border/10">
-          <p className="text-xs text-muted-foreground mb-1.5">Fronted Fees</p>
-          <p className="text-2xl font-semibold text-foreground tracking-tight">{formatCurrency(frontedFees)}</p>
+        <div className="w-px h-8 bg-border/10" />
+        <div className="flex-1">
+          <p className="text-[10px] text-muted-foreground mb-0.5">Fronted Fees</p>
+          <p className="text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
         </div>
-
-        {/* Total Cost - highlighted */}
-        <div className="bg-primary/[0.05] backdrop-blur-sm rounded-xl p-5 border border-primary/10">
-          <p className="text-xs text-primary/70 mb-1.5">Total Cost</p>
-          <p className="text-2xl font-semibold text-primary tracking-tight">{formatCurrency(totalCost)}</p>
+        <div className="w-px h-8 bg-border/10" />
+        <div className="flex-1">
+          <p className="text-[10px] text-primary/70 mb-0.5">Total Cost</p>
+          <p className="text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
         </div>
       </div>
     </div>

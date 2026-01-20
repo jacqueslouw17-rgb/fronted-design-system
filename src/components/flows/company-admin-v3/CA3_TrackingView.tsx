@@ -52,15 +52,15 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green-fill/10 border-accent-green-outline/20", label: "Paid" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Paid" };
       case "posted":
-        return { icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-500/10 border-blue-500/20", label: "Posted" };
+        return { icon: CheckCircle2, color: "text-blue-600", label: "Posted" };
       case "processing":
-        return { icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10 border-amber-500/20", label: "Processing" };
+        return { icon: Clock, color: "text-amber-600", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/20 border-border/10", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", label: "Queued" };
       case "failed":
-        return { icon: XCircle, color: "text-red-600", bg: "bg-red-500/10 border-red-500/20", label: "Failed" };
+        return { icon: XCircle, color: "text-red-600", label: "Failed" };
     }
   };
 
@@ -86,15 +86,15 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       <div key={worker.id}>
         <div 
           className={cn(
-            "flex items-center gap-4 p-4 rounded-lg border transition-all duration-150 group",
+            "flex items-center gap-4 p-3.5 rounded-lg transition-all duration-150 group",
             isFailed 
-              ? "border-border/10 bg-red-500/[0.02] cursor-pointer hover:bg-red-500/[0.05]" 
-              : "border-border/5 bg-muted/5 hover:bg-muted/15"
+              ? "cursor-pointer hover:bg-muted/10" 
+              : "hover:bg-muted/5"
           )}
           onClick={() => isFailed && toggleFailedExpand(worker.id)}
         >
-          <Avatar className="h-10 w-10 flex-shrink-0">
-            <AvatarFallback className="text-[11px] font-medium bg-muted/40">
+          <Avatar className="h-9 w-9 flex-shrink-0">
+            <AvatarFallback className="text-[10px] font-medium bg-muted/30">
               {getInitials(worker.name)}
             </AvatarFallback>
           </Avatar>
@@ -102,46 +102,43 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <p className="text-sm font-medium text-foreground">{worker.name}</p>
-              <div className="flex items-center gap-1 text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                 <TypeIcon className="h-3 w-3" />
-                <span className="text-[10px]">{worker.type === "employee" ? "Employee" : "Contractor"}</span>
-              </div>
+                {worker.type === "employee" ? "EE" : "C"}
+              </span>
             </div>
             <p className="text-xs text-muted-foreground">{worker.country}</p>
           </div>
 
-          <div className="text-right flex-shrink-0 min-w-[100px]">
-            <p className="text-sm font-semibold text-foreground">
+          <div className="text-right flex-shrink-0 min-w-[90px]">
+            <p className="text-sm font-medium text-foreground">
               {formatCurrency(worker.amount, worker.currency)}
             </p>
           </div>
 
-          <Badge 
-            variant="outline" 
-            className={cn("text-[10px] gap-1 border flex-shrink-0 min-w-[85px] justify-center", statusConfig.bg, statusConfig.color)}
-          >
+          <div className={cn("flex items-center gap-1 text-[10px] flex-shrink-0 min-w-[70px]", statusConfig.color)}>
             <StatusIcon className="h-3 w-3" />
             {statusConfig.label}
-          </Badge>
+          </div>
           
           {isFailed && (
-            <div className="text-muted-foreground/50 group-hover:text-muted-foreground transition-colors flex-shrink-0">
+            <div className="text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors flex-shrink-0">
               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </div>
           )}
         </div>
 
-        {/* Expanded error details for failed */}
+        {/* Expanded error details */}
         {isFailed && isExpanded && (
-          <div className="mt-2 ml-14 p-4 rounded-lg bg-muted/5 border border-border/10 space-y-3">
-            <div className="flex items-start gap-2.5">
-              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <div className="ml-14 mb-2 p-3 rounded-lg bg-muted/5 border border-border/5 space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-sm text-foreground">
                   {worker.errorMessage || "Payment failed"}
                 </p>
                 {worker.fixInstructions && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {worker.fixInstructions}
                   </p>
                 )}
@@ -151,7 +148,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <Button 
                 size="sm" 
                 variant="outline"
-                className="h-8 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                className="h-7 text-[11px] gap-1 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRetry(worker);
@@ -159,7 +156,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                 }}
               >
                 <RefreshCw className="h-3 w-3" />
-                Retry payment
+                Retry
               </Button>
             )}
           </div>
@@ -169,99 +166,85 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   };
 
   return (
-    <div className="space-y-5">
-      {/* Header with Actions */}
+    <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-foreground">Processing Status</h3>
-          <p className="text-sm text-muted-foreground">Fronted is executing payments</p>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-sm">
+            <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+            <span className="font-medium">{paidCount}</span>
+            <span className="text-muted-foreground">completed</span>
+          </div>
+          {processingCount > 0 && (
+            <div className="flex items-center gap-1.5 text-sm">
+              <Clock className="h-4 w-4 text-amber-500" />
+              <span className="font-medium">{processingCount}</span>
+              <span className="text-muted-foreground">processing</span>
+            </div>
+          )}
+          {failedCount > 0 && (
+            <div className="flex items-center gap-1.5 text-sm">
+              <XCircle className="h-4 w-4 text-red-500" />
+              <span className="font-medium">{failedCount}</span>
+              <span className="text-muted-foreground">failed</span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onExportCSV} className="h-8 gap-1.5">
-            <Download className="h-3.5 w-3.5" />
+        <div className="flex items-center gap-1.5">
+          <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-7 text-[11px] gap-1 text-muted-foreground">
+            <Download className="h-3 w-3" />
             CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={onDownloadAuditPDF} className="h-8 gap-1.5">
-            <FileText className="h-3.5 w-3.5" />
-            Audit PDF
+          <Button variant="ghost" size="sm" onClick={onDownloadAuditPDF} className="h-7 text-[11px] gap-1 text-muted-foreground">
+            <FileText className="h-3 w-3" />
+            Audit
           </Button>
         </div>
       </div>
 
-      {/* Summary Counts - Minimal chips */}
-      <div className="flex items-center gap-4 py-3 px-4 rounded-lg bg-muted/5 border border-border/5">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-          <span className="text-sm">
-            <span className="font-semibold">{paidCount}</span>
-            <span className="text-muted-foreground ml-1">completed</span>
-          </span>
-        </div>
-        {processingCount > 0 && (
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-amber-500" />
-            <span className="text-sm">
-              <span className="font-semibold">{processingCount}</span>
-              <span className="text-muted-foreground ml-1">processing</span>
-            </span>
-          </div>
-        )}
-        {failedCount > 0 && (
-          <div className="flex items-center gap-2">
-            <XCircle className="h-4 w-4 text-red-500" />
-            <span className="text-sm">
-              <span className="font-semibold">{failedCount}</span>
-              <span className="text-muted-foreground ml-1">failed</span>
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Action banner for failures - calmer */}
+      {/* Failed alert - subtle */}
       {failedCount > 0 && (
-        <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
-          <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-          <p className="text-sm text-foreground">
-            <span className="font-medium">{failedCount} payment{failedCount !== 1 ? 's' : ''} need attention.</span>
-            <span className="text-muted-foreground ml-1">Click to expand and review.</span>
-          </p>
+        <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-amber-500/5 text-sm">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+          <span className="text-foreground">{failedCount} need attention</span>
+          <span className="text-muted-foreground">— click to expand</span>
         </div>
       )}
 
-      {/* Tabbed View */}
+      {/* Tabbed View - minimal */}
       <Tabs defaultValue="all">
-        <TabsList className="h-9 bg-muted/10 p-1">
-          <TabsTrigger value="all" className="text-xs h-7 px-4">
+        <TabsList className="h-8 bg-transparent p-0 gap-1">
+          <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
             All ({workers.length})
           </TabsTrigger>
-          <TabsTrigger value="employees" className="text-xs h-7 px-4 gap-1.5">
+          <TabsTrigger value="employees" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
             <Users className="h-3 w-3" />
             Employees ({employees.length})
           </TabsTrigger>
-          <TabsTrigger value="contractors" className="text-xs h-7 px-4 gap-1.5">
+          <TabsTrigger value="contractors" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
             <Briefcase className="h-3 w-3" />
             Contractors ({contractors.length})
           </TabsTrigger>
           {failedCount > 0 && (
-            <TabsTrigger value="failed" className="text-xs h-7 px-4 text-red-600">
+            <TabsTrigger value="failed" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
               Failed ({failedCount})
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="all" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
+        <TabsContent value="all" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
           {workers.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="employees" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
+        <TabsContent value="employees" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
           {employees.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="contractors" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
+        <TabsContent value="contractors" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
           {contractors.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="failed" className="mt-4 space-y-2 max-h-[400px] overflow-y-auto">
+        <TabsContent value="failed" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
           {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
         </TabsContent>
       </Tabs>

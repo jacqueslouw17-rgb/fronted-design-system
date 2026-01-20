@@ -42,7 +42,7 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       {steps.map((step, index) => {
         const state = getStepState(step.id);
         const isClickable = state === "completed" || step.id === currentStep;
@@ -58,22 +58,22 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               onClick={() => isClickable && onStepClick?.(step.id)}
               disabled={!isClickable}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200",
-                "text-sm relative",
-                state === "active" && "text-foreground font-medium bg-muted/30",
-                state === "completed" && "text-accent-green-text cursor-pointer hover:bg-accent-green-fill/10",
-                state === "upcoming" && "text-muted-foreground/40 cursor-not-allowed"
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all duration-150",
+                "text-xs relative",
+                state === "active" && "text-foreground font-medium",
+                state === "completed" && "text-muted-foreground cursor-pointer hover:text-foreground",
+                state === "upcoming" && "text-muted-foreground/30 cursor-not-allowed"
               )}
             >
               {/* Step indicator */}
               <div className={cn(
-                "flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-medium transition-all",
-                state === "completed" && "bg-accent-green-fill/20 text-accent-green-text",
-                state === "active" && "bg-foreground text-background",
-                state === "upcoming" && "border border-muted-foreground/20 text-muted-foreground/40"
+                "flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-medium transition-all",
+                state === "completed" && "bg-accent-green-fill/15 text-accent-green-text",
+                state === "active" && "bg-foreground/10 text-foreground",
+                state === "upcoming" && "bg-muted/20 text-muted-foreground/30"
               )}>
                 {state === "completed" ? (
-                  <Check className="h-3 w-3" />
+                  <Check className="h-2.5 w-2.5" />
                 ) : (
                   <span>{index + 1}</span>
                 )}
@@ -81,28 +81,28 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               
               <span className="hidden sm:inline">{step.label}</span>
               
-              {/* Badge for blocking count */}
+              {/* Badge for blocking count - subtle */}
               {showBlockingBadge && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                <span className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-red-500/80 text-white text-[9px] font-medium">
                   {blockingCount}
                 </span>
               )}
               
-              {/* Badge for submissions */}
+              {/* Badge for submissions - subtle */}
               {showSubmissionBadge && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                <span className="flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500/80 text-white text-[9px] font-medium">
                   {pendingSubmissions}
                 </span>
               )}
             </button>
             
-            {/* Connector line - minimal */}
+            {/* Connector - very subtle */}
             {index < steps.length - 1 && (
               <div className={cn(
-                "w-8 h-px mx-1 transition-colors",
+                "w-4 h-px transition-colors",
                 stepOrder.indexOf(step.id) < currentIndex 
-                  ? "bg-accent-green-text/20" 
-                  : "bg-border/10"
+                  ? "bg-accent-green-text/15" 
+                  : "bg-border/5"
               )} />
             )}
           </React.Fragment>
