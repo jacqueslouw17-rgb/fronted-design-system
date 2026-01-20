@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -137,170 +138,168 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
-        className={cn(
-          "flex items-center gap-4 p-3.5 rounded-lg border transition-all duration-150 cursor-pointer group",
-          "border-border/5 bg-transparent",
-          "hover:bg-muted/10"
-        )}
+        className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
         onClick={() => handleRowClick(submission)}
       >
-        {/* Avatar */}
-        <Avatar className="h-9 w-9 flex-shrink-0">
-          <AvatarFallback className="text-[10px] font-medium bg-muted/30">
-            {getInitials(submission.workerName)}
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-4 flex-1">
+          {/* Avatar */}
+          <Avatar className="h-10 w-10">
+            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+              {getInitials(submission.workerName)}
+            </AvatarFallback>
+          </Avatar>
 
-        {/* Worker Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-sm font-medium text-foreground">
-              {submission.workerName}
-            </span>
-            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <TypeIcon className="h-3 w-3" />
-              {submission.workerType === "employee" ? "EE" : "C"}
-            </span>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {submission.workerCountry}
-          </span>
-        </div>
-
-        {/* Submission type chips - minimal */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {submission.submissions.slice(0, 2).map((sub, idx) => {
-            const config = submissionTypeConfig[sub.type];
-            const Icon = config.icon;
-            return (
-              <div 
-                key={idx} 
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/20 text-[10px] text-muted-foreground"
-              >
-                <Icon className="h-3 w-3" />
-                {config.label}
+          {/* Worker Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-medium text-foreground">
+                {submission.workerName}
+              </span>
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <TypeIcon className="h-3 w-3" />
+                {submission.workerType === "employee" ? "Employee" : "Contractor"}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span>{submission.workerCountry}</span>
+              {/* Submission type chips */}
+              <div className="flex items-center gap-1">
+                {submission.submissions.slice(0, 2).map((sub, idx) => {
+                  const config = submissionTypeConfig[sub.type];
+                  const Icon = config.icon;
+                  return (
+                    <Badge key={idx} variant="secondary" className="text-[10px] gap-1 px-1.5 py-0">
+                      <Icon className="h-3 w-3" />
+                      {config.label}
+                    </Badge>
+                  );
+                })}
+                {submission.submissions.length > 2 && (
+                  <span className="text-[10px] text-muted-foreground">
+                    +{submission.submissions.length - 2}
+                  </span>
+                )}
               </div>
-            );
-          })}
-          {submission.submissions.length > 2 && (
-            <span className="text-[10px] text-muted-foreground">
-              +{submission.submissions.length - 2}
-            </span>
-          )}
+            </div>
+          </div>
         </div>
 
-        {/* Impact Amount */}
-        <div className="text-right flex-shrink-0 min-w-[70px]">
+        {/* Right side: Amount + Status */}
+        <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+          {/* Impact Amount */}
           {submission.totalImpact ? (
-            <p className="text-sm font-medium text-foreground">
+            <p className="text-sm font-medium text-foreground min-w-[70px] text-right">
               {formatCurrency(submission.totalImpact, submission.currency)}
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground">—</p>
+            <p className="text-xs text-muted-foreground min-w-[70px] text-right">—</p>
           )}
-        </div>
 
-        {/* Status - subtle */}
-        <div className={cn("flex items-center gap-1 text-[10px] flex-shrink-0 min-w-[70px]", 
-          submission.status === "approved" && "text-accent-green-text",
-          submission.status === "pending" && "text-amber-600",
-          submission.status === "rejected" && "text-red-600"
-        )}>
-          <StatusIcon className="h-3 w-3" />
-          {status.label}
-        </div>
+          {/* Status */}
+          <div className={cn("flex items-center gap-1 text-xs min-w-[70px]", 
+            submission.status === "approved" && "text-accent-green-text",
+            submission.status === "pending" && "text-amber-600",
+            submission.status === "rejected" && "text-red-600"
+          )}>
+            <StatusIcon className="h-3.5 w-3.5" />
+            {status.label}
+          </div>
 
-        <ChevronRight className="h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/40 transition-colors flex-shrink-0" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
+        </div>
       </motion.div>
     );
   };
 
   return (
-    <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      {/* Header with search and actions */}
-      <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h3 className="text-sm font-medium text-foreground">Submissions</h3>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              placeholder="Search workers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 text-sm w-48 bg-background/50"
-            />
+    <>
+      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h3 className="text-base font-medium text-foreground">Submissions</h3>
+              <p className="text-sm text-muted-foreground">
+                {submissions.length} submission{submissions.length !== 1 ? "s" : ""} this cycle
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search workers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 w-56 bg-background/60"
+                />
+              </div>
+              {pendingCount > 0 && (
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={onApproveAll}
+                  className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  Approve all safe
+                </Button>
+              )}
+              <Button 
+                size="sm"
+                onClick={onContinue}
+                className="h-9 text-xs gap-1.5"
+              >
+                Continue to Checks
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {pendingCount > 0 && (
-            <Button 
-              size="sm" 
-              variant="ghost"
-              onClick={onApproveAll}
-              className="h-8 text-[11px] gap-1 text-muted-foreground hover:text-foreground"
-            >
-              <Check className="h-3 w-3" />
-              Approve all safe
-            </Button>
-          )}
-          <Button 
-            size="sm"
-            onClick={onContinue}
-            className="h-8 text-[11px] gap-1"
-          >
-            Continue to Checks
-            <ChevronRight className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Content area */}
-      <div className="p-5">
-        {/* Tabbed view - minimal */}
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="h-8 bg-transparent p-0 gap-1 mb-3">
-            <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-              All ({submissions.length})
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-              Pending ({pendingCount})
-            </TabsTrigger>
-            <TabsTrigger value="approved" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-              Approved ({approvedCount})
-            </TabsTrigger>
-            {rejectedCount > 0 && (
-              <TabsTrigger value="rejected" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
-                Rejected ({rejectedCount})
+        </CardHeader>
+        <CardContent className="p-5">
+          {/* Tabbed view */}
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="h-9 bg-muted/30 p-1 mb-4">
+              <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                All ({submissions.length})
               </TabsTrigger>
-            )}
-          </TabsList>
+              <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                Pending ({pendingCount})
+              </TabsTrigger>
+              <TabsTrigger value="approved" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                Approved ({approvedCount})
+              </TabsTrigger>
+              {rejectedCount > 0 && (
+                <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
+                  Rejected ({rejectedCount})
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-          <TabsContent value="all" className="mt-0 space-y-1">
-            <AnimatePresence mode="popLayout">
-              {filteredSubmissions.map(renderSubmissionRow)}
-            </AnimatePresence>
-          </TabsContent>
+            <TabsContent value="all" className="mt-0 space-y-2">
+              <AnimatePresence mode="popLayout">
+                {filteredSubmissions.map(renderSubmissionRow)}
+              </AnimatePresence>
+            </TabsContent>
 
-          <TabsContent value="pending" className="mt-0 space-y-1">
-            <AnimatePresence mode="popLayout">
-              {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
-            </AnimatePresence>
-          </TabsContent>
+            <TabsContent value="pending" className="mt-0 space-y-2">
+              <AnimatePresence mode="popLayout">
+                {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
+              </AnimatePresence>
+            </TabsContent>
 
-          <TabsContent value="approved" className="mt-0 space-y-1">
-            <AnimatePresence mode="popLayout">
-              {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
-            </AnimatePresence>
-          </TabsContent>
+            <TabsContent value="approved" className="mt-0 space-y-2">
+              <AnimatePresence mode="popLayout">
+                {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
+              </AnimatePresence>
+            </TabsContent>
 
-          <TabsContent value="rejected" className="mt-0 space-y-1">
-            <AnimatePresence mode="popLayout">
-              {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
-            </AnimatePresence>
-          </TabsContent>
-        </Tabs>
-      </div>
+            <TabsContent value="rejected" className="mt-0 space-y-2">
+              <AnimatePresence mode="popLayout">
+                {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
+              </AnimatePresence>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Submission Detail Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -336,7 +335,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       return (
                         <div 
                           key={idx} 
-                          className="p-4 rounded-lg bg-muted/10 border border-border/5"
+                          className="p-4 rounded-lg border border-border bg-card"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <Badge variant="outline" className={cn("text-xs gap-1.5", config.color)}>
@@ -438,7 +437,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           )}
         </SheetContent>
       </Sheet>
-    </div>
+    </>
   );
 };
 

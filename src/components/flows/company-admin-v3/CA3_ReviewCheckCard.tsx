@@ -1,7 +1,8 @@
 import React from "react";
-import { AlertTriangle, AlertCircle, Info, ChevronRight, Check } from "lucide-react";
+import { AlertTriangle, AlertCircle, Info, ChevronRight, Check, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export type CheckSeverity = "blocking" | "warning" | "info";
@@ -43,18 +44,21 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
         return {
           icon: AlertTriangle,
           iconColor: "text-red-500",
+          bgColor: "bg-red-500/10",
           label: "Blocking",
         };
       case "warning":
         return {
           icon: AlertCircle,
           iconColor: "text-amber-500",
+          bgColor: "bg-amber-500/10",
           label: "Warning",
         };
       case "info":
         return {
           icon: Info,
           iconColor: "text-blue-500",
+          bgColor: "bg-blue-500/10",
           label: "Info",
         };
     }
@@ -62,6 +66,7 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
 
   const config = getSeverityConfig(check.severity);
   const Icon = config.icon;
+  const TypeIcon = check.workerType === "employee" ? Users : Briefcase;
 
   if (check.status !== "pending") {
     return null;
@@ -69,50 +74,52 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
 
   return (
     <div 
-      className={cn(
-        "group flex items-center gap-4 p-3.5 rounded-lg border transition-all duration-150",
-        "border-border/5 bg-muted/5",
-        "hover:bg-muted/15 cursor-pointer"
-      )}
+      className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
     >
-      {/* Worker Avatar */}
-      <Avatar className="h-9 w-9 flex-shrink-0">
-        <AvatarFallback className="text-[10px] font-medium bg-muted/30">
-          {getInitials(check.workerName)}
-        </AvatarFallback>
-      </Avatar>
+      <div className="flex items-center gap-4 flex-1">
+        {/* Worker Avatar */}
+        <Avatar className="h-10 w-10">
+          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+            {getInitials(check.workerName)}
+          </AvatarFallback>
+        </Avatar>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-medium text-sm text-foreground">
-            {check.workerName}
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            {check.workerType === "employee" ? "EE" : "C"} · {check.workerCountry}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-1.5">
-          <Icon className={cn("h-3 w-3 flex-shrink-0", config.iconColor)} />
-          <span className="text-xs text-foreground">{check.title}</span>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-medium text-foreground">
+              {check.workerName}
+            </span>
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <TypeIcon className="h-3 w-3" />
+              {check.workerType === "employee" ? "Employee" : "Contractor"}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{check.workerCountry}</span>
+            <Badge variant="secondary" className={cn("text-[10px] gap-1 px-1.5 py-0", config.iconColor)}>
+              <Icon className="h-3 w-3" />
+              {check.title}
+            </Badge>
+          </div>
         </div>
       </div>
 
-      {/* Actions - streamlined */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
+      {/* Actions */}
+      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
         {check.canFixNow && check.severity === "blocking" && (
           <Button 
             size="sm" 
             variant="outline"
-            className="h-7 text-[11px] gap-1 px-2.5"
+            className="h-8 text-xs gap-1.5"
             onClick={(e) => {
               e.stopPropagation();
               onFixNow(check);
             }}
           >
             Fix
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         )}
         
@@ -120,13 +127,13 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
           <Button 
             size="sm" 
             variant="ghost"
-            className="h-7 text-[11px] gap-1 px-2"
+            className="h-8 text-xs gap-1.5"
             onClick={(e) => {
               e.stopPropagation();
               onAcknowledge(check);
             }}
           >
-            <Check className="h-3 w-3" />
+            <Check className="h-3.5 w-3.5" />
             OK
           </Button>
         )}
@@ -135,7 +142,7 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
           <Button 
             size="sm" 
             variant="ghost"
-            className="h-7 text-[11px] text-muted-foreground hover:text-foreground px-2"
+            className="h-8 text-xs text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.stopPropagation();
               onSkip(check);
@@ -144,6 +151,8 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
             Skip
           </Button>
         )}
+        
+        <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
       </div>
     </div>
   );
