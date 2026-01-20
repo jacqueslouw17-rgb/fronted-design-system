@@ -487,11 +487,6 @@ export const F41v4_UpcomingPayCard = () => {
                   {statusConfig.secondaryAction}
                 </Button>}
               </div>
-
-              {/* "What happens next" line */}
-              <p className="text-xs text-muted-foreground text-center">
-                Your company will review before payroll is finalised.
-              </p>
             </div>}
 
           {/* View previous payslips link */}

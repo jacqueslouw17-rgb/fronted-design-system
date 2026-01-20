@@ -510,11 +510,6 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </Button>
                 )}
               </div>
-
-              {/* "What happens next" line */}
-              <p className="text-xs text-muted-foreground text-center">
-                Your company will review before the invoice is finalised.
-              </p>
             </div>
           )}
           {/* View previous invoices link */}
