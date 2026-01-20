@@ -85,25 +85,25 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
       {/* KPI Row - 4 cards in a row */}
       <div className="grid grid-cols-4 gap-3">
         {/* Gross Pay */}
-        <div className="bg-card rounded-xl p-4 border border-border/30 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-4 border border-border/20">
           <p className="text-[11px] text-muted-foreground mb-1">Gross Pay</p>
           <p className="text-xl font-semibold text-foreground">{formatCurrency(grossPay)}</p>
         </div>
 
         {/* Net Pay */}
-        <div className="bg-card rounded-xl p-4 border border-border/30 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-4 border border-border/20">
           <p className="text-[11px] text-muted-foreground mb-1">Net Pay</p>
           <p className="text-xl font-semibold text-foreground">{formatCurrency(netPay)}</p>
         </div>
 
         {/* Fronted Fees */}
-        <div className="bg-card rounded-xl p-4 border border-border/30 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-muted/30 backdrop-blur-sm rounded-xl p-4 border border-border/20">
           <p className="text-[11px] text-muted-foreground mb-1">Fronted Fees</p>
           <p className="text-xl font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
         </div>
 
         {/* Total Cost - highlighted */}
-        <div className="bg-primary/[0.04] rounded-xl p-4 border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-primary/[0.06] backdrop-blur-sm rounded-xl p-4 border border-primary/15">
           <p className="text-[11px] text-primary/70 mb-1">Total Cost</p>
           <p className="text-xl font-semibold text-primary">{formatCurrency(totalCost)}</p>
         </div>
