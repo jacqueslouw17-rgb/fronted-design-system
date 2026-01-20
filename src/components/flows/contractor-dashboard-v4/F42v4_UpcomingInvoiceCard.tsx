@@ -93,6 +93,14 @@ const getStatusConfig = (status: F42v4_InvoiceStatus): {
         primaryAction: 'Fix & resubmit',
         secondaryAction: 'View previous submission',
       };
+    case 'rejected':
+      return {
+        label: 'Rejected',
+        className: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30',
+        explanation: 'Action needed: Your invoice needs an update',
+        primaryAction: 'Review & resubmit',
+        secondaryAction: '',
+      };
     case 'approved':
       return {
         label: 'Approved',
@@ -146,6 +154,9 @@ export const F42v4_UpcomingInvoiceCard = () => {
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
 
+  // Demo state toggle - for simulating rejected state
+  const [demoRejected, setDemoRejected] = useState(false);
+
   const {
     nextInvoiceDate,
     periodLabel,
@@ -179,13 +190,15 @@ export const F42v4_UpcomingInvoiceCard = () => {
     }
   }, [invoiceStatus, setInvoiceStatus]);
 
-  const statusConfig = getStatusConfig(invoiceStatus);
+  // Calculate effective status (demo override for rejected)
+  const effectiveStatus = demoRejected ? 'rejected' as const : invoiceStatus;
+  const statusConfig = getStatusConfig(effectiveStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
   const pendingCount = adjustments.filter(a => a.status === 'Pending').length;
 
   // Check if a tag is removable (pending + window open + draft status)
-  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen && invoiceStatus === 'draft';
+  const isRemovable = (status: string) => status === 'Pending' && isWindowOpen && effectiveStatus === 'draft';
 
   // Handle withdraw click from chip
   const handleWithdrawClick = (e: React.MouseEvent, id: string) => {
@@ -277,23 +290,50 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 <span className="text-sm text-muted-foreground">·</span>
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
-              {/* Single helper line with cut-off inline */}
+              {/* Helper text - hide for rejected state */}
               <div className="flex flex-col gap-0.5">
-                {/* Helper text for draft/submitted/approved state */}
-                {(invoiceStatus === 'draft' || invoiceStatus === 'submitted' || invoiceStatus === 'approved') && statusConfig.helperText && (
+                {!demoRejected && (invoiceStatus === 'draft' || invoiceStatus === 'submitted' || invoiceStatus === 'approved') && statusConfig.helperText && (
                   <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
                   </p>
                 )}
               </div>
             </div>
-            <Badge className={cn('text-sm px-3 py-1 mt-2', statusConfig.className)}>
-              {statusConfig.label}
-            </Badge>
+            <div className="flex items-center gap-3 mt-2">
+              {/* Demo state toggle - only show after submission (submitted/approved states) */}
+              {(invoiceStatus === 'submitted' || invoiceStatus === 'approved') && (
+                <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
+                  <div className="flex rounded-md overflow-hidden border border-border/50">
+                    <button
+                      onClick={() => setDemoRejected(false)}
+                      className={cn(
+                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
+                        !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Approved
+                    </button>
+                    <button
+                      onClick={() => setDemoRejected(true)}
+                      className={cn(
+                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
+                        demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Rejected
+                    </button>
+                  </div>
+                </div>
+              )}
+              <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+                {statusConfig.label}
+              </Badge>
+            </div>
           </div>
 
           {/* Returned reason block - only when applicable */}
-          {invoiceStatus === 'returned' && returnedReason && (
+          {invoiceStatus === 'returned' && returnedReason && !demoRejected && (
             <div className="mt-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
               <p className="text-sm text-orange-700 dark:text-orange-400">
                 <span className="font-medium">Admin note:</span> {returnedReason}
@@ -303,6 +343,24 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   Resubmit by: {resubmitDeadline}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Rejection panel - only when demo rejected is active */}
+          {demoRejected && (
+            <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">This invoice was not approved</p>
+                  <p className="text-sm text-muted-foreground">
+                    Please speak with your manager to resolve any issues. You can resubmit for the next invoice cycle.
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">
+                    Submit before Feb 15 to be included in the February invoice cycle.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </CardHeader>
@@ -424,8 +482,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
             </div>
           )}
 
-          {/* Primary + Secondary Actions - only show for draft state */}
-          {invoiceStatus === 'draft' && (
+          {/* Primary + Secondary Actions - only show for draft state and not rejected */}
+          {!demoRejected && invoiceStatus === 'draft' && (
             <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button onClick={handlePrimaryAction} className="flex-1">

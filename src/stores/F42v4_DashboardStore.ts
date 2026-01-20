@@ -10,7 +10,7 @@
 import { create } from 'zustand';
 
 export type F42v4_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type F42v4_InvoiceStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised';
+export type F42v4_InvoiceStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 export type F42v4_ContractType = 'hourly' | 'fixed';
 export type F42v4_AdjustmentType = 'Expense' | 'Additional hours' | 'Bonus' | 'Correction';
 export type F42v4_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
