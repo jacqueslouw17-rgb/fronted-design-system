@@ -48,6 +48,8 @@ import { useContractorStore } from "@/hooks/useContractorStore";
 import { KurtContextualTags } from "@/components/kurt/KurtContextualTags";
 import F1v4_EmbeddedAdminOnboarding from "@/components/flows/fronted-admin-v4-clone/F1v4_EmbeddedAdminOnboarding";
 import { F1v4_AddCandidateDrawer } from "@/components/flows/fronted-admin-v4-clone/F1v4_AddCandidateDrawer";
+import { F1v4_PayrollTab } from "@/components/flows/fronted-admin-v4-clone/F1v4_PayrollTab";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 // Company type with full details for edit functionality
@@ -160,6 +162,7 @@ const AdminContractingMultiCompany = () => {
   // Derived state: check if this is a first-time admin (no companies)
   const hasNoCompanies = companies.length === 0;
   const [isAddCandidateDrawerOpen, setIsAddCandidateDrawerOpen] = useState(false);
+  const [activeMainTab, setActiveMainTab] = useState<"tracker" | "payroll">("tracker");
   
   // Check for new company from onboarding
   useEffect(() => {
@@ -724,6 +727,22 @@ const AdminContractingMultiCompany = () => {
         />
       )}
 
+      {/* Tracker | Payroll Tab Toggle - shown on pipeline view */}
+      {!isAddingNewCompany && !isEditingCompany && !hasNoCompanies && (
+        contractFlow.phase === "idle" ||
+        contractFlow.phase === "offer-accepted" ||
+        contractFlow.phase === "data-collection"
+      ) && (
+        <div className="flex justify-center pt-4 pb-2 relative z-20">
+          <Tabs value={activeMainTab} onValueChange={(v) => setActiveMainTab(v as "tracker" | "payroll")}>
+            <TabsList className="bg-muted/60 backdrop-blur-sm">
+              <TabsTrigger value="tracker" className="px-6">Tracker</TabsTrigger>
+              <TabsTrigger value="payroll" className="px-6">Payroll</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
+
       {/* Logo and Close Button for Add New Company - No container */}
       {isAddingNewCompany && (
         <>
@@ -922,68 +941,72 @@ const AdminContractingMultiCompany = () => {
                     exit={{ opacity: 0 }} 
                     className="flex-1 overflow-y-auto"
                   >
-                    <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
-                      {showContractSignedMessage ? (
-                        <ContractSignedMessage 
-                          mode="signed"
-                          onReadingComplete={() => {
-                            setTimeout(() => {
-                              setShowContractSignedMessage(false);
-                            }, 2000);
-                          }}
-                        />
-                      ) : (
-                        <AgentHeader
-                          title={`Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`}
-                          subtitle={
-                            searchParams.get("allSigned") === "true"
-                              ? "Both candidates have signed! Let's trigger their onboarding checklists."
-                              : searchParams.get("moved") === "true" 
-                                ? "Great, contracts sent to candidates via their preferred signing portals."
-                                : "Monitor candidate signatures and complete certification to finalize contracts."
-                          }
-                          showPulse={true}
-                          hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
-                          isActive={isAgentSpeaking || (
-                            searchParams.get("allSigned") === "true"
-                              ? !hasSpokenPhase["data-collection-all-signed"]
-                              : searchParams.get("moved") === "true" 
-                                ? !hasSpokenPhase["data-collection-moved"]
-                                : !hasSpokenPhase["offer-accepted"]
-                          )}
-                          showInput={false}
-                        />
-                      )}
-
-                    {/* Pipeline Tracking */}
-                    <div className="space-y-4">
-                    <div className="mt-3">
-                          <F1v4_PipelineView 
-                            key={selectedCompany}
-                            contractors={companyContractors[selectedCompany] || []}
-                            onAddCandidate={handleAddCandidate}
-                            onRemoveContractor={(contractorId) => {
-                              setCompanyContractors(prev => ({
-                                ...prev,
-                                [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
-                              }));
-                              sonnerToast.success("Candidate removed");
-                            }}
-                            onDraftContract={(ids) => {
-                              const params = new URLSearchParams({ 
-                                ids: ids.join(','),
-                                returnTo: 'flow-1.1',
-                                company: selectedCompany
-                              }).toString();
-                              navigate(`/flows/contract-creation?${params}`);
-                            }}
-                            onSignatureComplete={() => {
-                              navigate("/flows/contract-flow-multi-company?phase=data-collection&allSigned=true");
+                    {activeMainTab === "payroll" ? (
+                      <F1v4_PayrollTab />
+                    ) : (
+                      <div className="max-w-7xl mx-auto p-8 pb-32 space-y-8">
+                        {showContractSignedMessage ? (
+                          <ContractSignedMessage 
+                            mode="signed"
+                            onReadingComplete={() => {
+                              setTimeout(() => {
+                                setShowContractSignedMessage(false);
+                              }, 2000);
                             }}
                           />
+                        ) : (
+                          <AgentHeader
+                            title={`Welcome Joe, get to work at ${companies.find(c => c.id === selectedCompany)?.name || "your company"}!`}
+                            subtitle={
+                              searchParams.get("allSigned") === "true"
+                                ? "Both candidates have signed! Let's trigger their onboarding checklists."
+                                : searchParams.get("moved") === "true" 
+                                  ? "Great, contracts sent to candidates via their preferred signing portals."
+                                  : "Monitor candidate signatures and complete certification to finalize contracts."
+                            }
+                            showPulse={true}
+                            hasChanges={searchParams.get("moved") === "true" || searchParams.get("allSigned") === "true"}
+                            isActive={isAgentSpeaking || (
+                              searchParams.get("allSigned") === "true"
+                                ? !hasSpokenPhase["data-collection-all-signed"]
+                                : searchParams.get("moved") === "true" 
+                                  ? !hasSpokenPhase["data-collection-moved"]
+                                  : !hasSpokenPhase["offer-accepted"]
+                            )}
+                            showInput={false}
+                          />
+                        )}
+
+                        {/* Pipeline Tracking */}
+                        <div className="space-y-4">
+                          <div className="mt-3">
+                            <F1v4_PipelineView 
+                              key={selectedCompany}
+                              contractors={companyContractors[selectedCompany] || []}
+                              onAddCandidate={handleAddCandidate}
+                              onRemoveContractor={(contractorId) => {
+                                setCompanyContractors(prev => ({
+                                  ...prev,
+                                  [selectedCompany]: (prev[selectedCompany] || []).filter(c => c.id !== contractorId)
+                                }));
+                                sonnerToast.success("Candidate removed");
+                              }}
+                              onDraftContract={(ids) => {
+                                const params = new URLSearchParams({ 
+                                  ids: ids.join(','),
+                                  returnTo: 'flow-1.1',
+                                  company: selectedCompany
+                                }).toString();
+                                navigate(`/flows/contract-creation?${params}`);
+                              }}
+                              onSignatureComplete={() => {
+                                navigate("/flows/contract-flow-multi-company?phase=data-collection&allSigned=true");
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      </div>
-                    </div>
+                    )}
                   </motion.div>
               ) : contractFlow.phase === "contract-creation" ? (
                 <motion.div key={`contract-creation-${contractFlow.currentDraftIndex}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
