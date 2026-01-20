@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -379,49 +379,47 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
               <SheetFooter className="mt-6 flex-col gap-3">
                 {selectedSubmission.status === "pending" && (
-                  <>
+                  <div className="flex gap-3 w-full">
                     {/* Primary: Approve */}
                     <Button 
-                      className="w-full gap-1.5"
+                      className="flex-1 gap-1.5"
                       onClick={handleApproveFromDrawer}
                     >
                       <Check className="h-4 w-4" />
                       Approve
                     </Button>
                     
-                    {/* Secondary: Reject flow */}
-                    {!rejectReason ? (
-                      <Button 
-                        variant="ghost" 
-                        className="w-full text-muted-foreground hover:text-red-600"
-                        onClick={() => setRejectReason("Missing documentation")}
-                      >
-                        <X className="h-4 w-4 mr-1.5" />
-                        Reject instead...
-                      </Button>
-                    ) : (
-                      <div className="space-y-2 w-full">
-                        <Select value={rejectReason} onValueChange={setRejectReason}>
-                          <SelectTrigger className="h-9 text-sm">
-                            <SelectValue placeholder="Select reason..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {rejectReasons.map((reason) => (
-                              <SelectItem key={reason} value={reason}>{reason}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    {/* Reject with dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="w-full gap-1.5 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-                          onClick={handleRejectFromDrawer}
+                          className="flex-1 gap-1.5 text-muted-foreground hover:text-red-600 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20"
                         >
                           <X className="h-4 w-4" />
-                          Confirm Rejection
+                          Reject
                         </Button>
-                      </div>
-                    )}
-                  </>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                          Select rejection reason
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {rejectReasons.map((reason) => (
+                          <DropdownMenuItem 
+                            key={reason} 
+                            onClick={() => {
+                              setRejectReason(reason);
+                              handleRejectFromDrawer();
+                            }}
+                            className="cursor-pointer"
+                          >
+                            {reason}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 )}
                 {selectedSubmission.status !== "pending" && (
                   <Button 
