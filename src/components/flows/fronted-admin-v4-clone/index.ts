@@ -9,6 +9,7 @@
  */
 
 export { F1v4_PipelineView } from './F1v4_PipelineView';
+export { F1v4_PayrollTab } from './F1v4_PayrollTab';
 export { F1v4_AddCandidateDrawer } from './F1v4_AddCandidateDrawer';
 export { F1v4_OnboardingFormDrawer } from './F1v4_OnboardingFormDrawer';
 export { F1v4_SignatureWorkflowDrawer } from './F1v4_SignatureWorkflowDrawer';
