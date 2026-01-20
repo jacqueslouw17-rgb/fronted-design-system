@@ -465,45 +465,22 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
             </div>}
 
-          {/* Primary + Secondary Actions - hide for rejected and approved states */}
-          {!demoRejected && payrollStatus !== 'approved' && <div className="space-y-3 pt-2">
+          {/* Primary + Secondary Actions - only show for draft state */}
+          {!demoRejected && payrollStatus === 'draft' && <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
-                {payrollStatus === 'submitted' ?
-            // Submitted state: disabled button with check icon
-            <Button disabled className="flex-1 gap-2">
-                    <Check className="h-4 w-4" />
-                    {statusConfig.primaryAction}
-                  </Button> : <Button onClick={handlePrimaryAction} className="flex-1">
-                    {statusConfig.primaryAction}
-                  </Button>}
+                <Button onClick={handlePrimaryAction} className="flex-1">
+                  {statusConfig.primaryAction}
+                </Button>
                 
-                {statusConfig.secondaryAction && (payrollStatus === 'submitted' ?
-            // Submitted state: disabled secondary with tooltip
-            <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="flex-1">
-                          <Button variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
-                            {statusConfig.secondaryAction}
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="text-xs">
-                        Adjustments are locked while your submission is under review.
-                      </TooltipContent>
-                    </Tooltip> : <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
-                      {statusConfig.secondaryAction}
-                    </Button>)}
+                {statusConfig.secondaryAction && <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
+                  {statusConfig.secondaryAction}
+                </Button>}
               </div>
 
-              {/* "What happens next" line - only for draft */}
-              {payrollStatus === 'draft' && <p className="text-xs text-muted-foreground text-center">
-                  Your company will review before payroll is finalised.
-                </p>}
-
-              {/* Submitted timestamp */}
-              {payrollStatus === 'submitted' && submittedAt && <p className="text-xs text-muted-foreground/70 text-center">
-                  Submitted on {formatSubmittedTimestamp(submittedAt)}
-                </p>}
+              {/* "What happens next" line */}
+              <p className="text-xs text-muted-foreground text-center">
+                Your company will review before payroll is finalised.
+              </p>
             </div>}
 
           {/* Approved timestamp - show separately when approved */}
