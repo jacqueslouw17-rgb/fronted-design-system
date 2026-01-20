@@ -61,7 +61,7 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
                 "flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-200",
                 "text-xs relative group",
                 state === "active" && "text-foreground font-medium",
-                state === "completed" && "text-accent-green-text cursor-pointer hover:text-accent-green-text/80",
+                state === "completed" && "text-accent-green-text cursor-pointer hover:bg-accent-green-fill/10",
                 state === "upcoming" && "text-muted-foreground/40 cursor-not-allowed"
               )}
             >
