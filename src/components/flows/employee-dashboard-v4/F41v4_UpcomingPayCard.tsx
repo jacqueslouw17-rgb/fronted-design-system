@@ -478,18 +478,15 @@ export const F41v4_UpcomingPayCard = () => {
 
           {/* Primary + Secondary Actions - only show for draft state */}
           {!demoRejected && payrollStatus === 'draft' && <div className="space-y-3 pt-2">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <Button onClick={handlePrimaryAction} className="flex-1 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={handlePrimaryAction} className="flex-1">
                   {statusConfig.primaryAction}
                 </Button>
                 
                 {statusConfig.secondaryAction && (
-                  <button 
-                    onClick={handleSecondaryAction} 
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
-                  >
+                  <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
                     {statusConfig.secondaryAction}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>}
