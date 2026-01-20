@@ -110,12 +110,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                   <p className="text-xs text-muted-foreground">Fronted receives your payroll</p>
                 </div>
                 
-                {/* Step 2 */}
-                <div className="relative pb-5">
-                  <div className="absolute left-[-24px] w-4 h-4 rounded-full bg-muted border-2 border-muted-foreground/30" />
-                  <p className="text-sm font-medium text-foreground">FX rates locked</p>
-                  <p className="text-xs text-muted-foreground">Exchange rates finalized</p>
-                </div>
                 
                 {/* Step 3 */}
                 <div className="relative pb-5">
