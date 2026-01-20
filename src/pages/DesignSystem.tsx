@@ -292,6 +292,7 @@ const DesignSystem = () => {
     'flow-5-company-admin-onboarding',// Flow 5 Company Admin Onboarding v2
     'flow-6-company-admin-dashboard',// Flow 6 Company Admin Dashboard v1
     'flow-6-company-admin-dashboard-v2',// Flow 6 Company Admin Dashboard v2
+    'flow-6-company-admin-dashboard-v3',// Flow 6 Company Admin Dashboard v3
     // 'flow-2.1-admin-payroll',     // Flow 7 Fronted Admin Payroll v1 (deprecated/hidden)
     'shared-secure-link-error',      // Shared – Secure Link Error (403)
   ];
