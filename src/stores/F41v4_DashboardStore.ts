@@ -9,7 +9,7 @@
 import { create } from 'zustand';
 
 // New 5-status payroll states
-export type PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised';
+export type PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 
 export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
 export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
