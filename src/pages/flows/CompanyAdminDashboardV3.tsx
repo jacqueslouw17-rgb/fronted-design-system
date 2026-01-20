@@ -69,24 +69,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { addDays, format } from "date-fns";
 import { useCountrySettings } from "@/hooks/useCountrySettings";
-type PayrollStep = "review-fx" | "exceptions" | "execute" | "track";
+// V3 Simplified step flow: Review → Resolve Checks → Submit to Fronted → Track
+type PayrollStep = "review" | "resolve" | "submit" | "track";
 const steps = [{
-  id: "review-fx",
-  label: "Review FX",
+  id: "review",
+  label: "Review",
   icon: DollarSign
 }, {
-  id: "exceptions",
-  label: "Exceptions",
+  id: "resolve",
+  label: "Resolve Checks",
   icon: AlertTriangle
-},
-// { id: "approvals", label: "Approvals", icon: CheckSquare }, // TODO: reinstate approval gate once role management is live
-{
-  id: "execute",
-  label: "Execute",
-  icon: Play
+}, {
+  id: "submit",
+  label: "Submit",
+  icon: Send
 }, {
   id: "track",
-  label: "Track & Reconcile",
+  label: "Track",
   icon: TrendingUp
 }] as const;
 interface LeaveRecord {
@@ -382,7 +381,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
   const [requestChangesModalOpen, setRequestChangesModalOpen] = useState(false);
   const [itemDetailDrawerOpen, setItemDetailDrawerOpen] = useState(false);
   const [selectedBatchItem, setSelectedBatchItem] = useState<CA_BatchAdjustment | undefined>(undefined);
-  const [currentStep, setCurrentStep] = useState<PayrollStep>("review-fx");
+  const [currentStep, setCurrentStep] = useState<PayrollStep>("review");
   const [fxRatesLocked, setFxRatesLocked] = useState(false);
   const [lockedAt, setLockedAt] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -690,7 +689,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
     const batch = createMockBatch();
     setCurrentBatch(batch);
     setBatchClientReviewItems(mockClientReviewItems);
-    setCurrentStep("review-fx"); // Reset to first step when creating batch
+    setCurrentStep("review"); // Reset to first step when creating batch
     toast.success("Payment batch created.");
   };
   const handleApproveBatchItem = (id: string) => {
@@ -738,7 +737,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
   };
   const handleBackToPayroll = () => {
     setCurrentBatch(null);
-    setCurrentStep("review-fx");
+    setCurrentStep("review");
     setViewMode("payroll");
   };
 
@@ -1082,7 +1081,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
     if (currentCycleData.status === "completed") {
       setCurrentStep("track");
     } else if (currentCycleData.status === "active" && currentStep === "track") {
-      setCurrentStep("review-fx");
+      setCurrentStep("review");
     }
   }, [selectedCycle, currentCycleData.status]);
 
@@ -1760,7 +1759,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
     }
 
     // Navigate to exceptions step
-    setCurrentStep("exceptions");
+    setCurrentStep("resolve");
 
     // Scroll to the worker's exception after a brief delay
     setTimeout(() => {
@@ -1821,7 +1820,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
   };
   const handleReturnToPayrollOverview = () => {
     setViewMode("payroll");
-    setCurrentStep("review-fx");
+    setCurrentStep("review");
     toast.success("Returned to Payroll Overview");
   };
   const handleCompleteAndReturnToOverview = () => {
@@ -1853,7 +1852,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
 
     // Reset batch state to show completed view (like October/previous)
     setCurrentBatch(null);
-    setCurrentStep("review-fx");
+    setCurrentStep("review");
     
     // Scroll to top
     window.scrollTo({
@@ -1864,11 +1863,11 @@ const CompanyAdminDashboardV3: React.FC = () => {
   };
   const handleGoBackToFix = () => {
     setIsMarkCompleteConfirmOpen(false);
-    // Navigate to Exceptions if blocking exceptions exist, otherwise to Execution
+    // Navigate to Resolve Checks if blocking exceptions exist, otherwise to Submit
     if (unresolvedIssues.blockingExceptions > 0) {
-      setCurrentStep("exceptions");
+      setCurrentStep("resolve");
     } else {
-      setCurrentStep("execute");
+      setCurrentStep("submit");
     }
   };
   const getPaymentStatus = (contractorId: string): "Paid" | "InTransit" | "Failed" => {
@@ -1895,7 +1894,7 @@ const CompanyAdminDashboardV3: React.FC = () => {
   const allExceptionsResolved = activeExceptions.length === 0;
   const renderStepContent = () => {
     switch (currentStep) {
-      case "review-fx":
+      case "review":
         return <div className="space-y-3">
             {/* Admin Context Helper */}
             
@@ -2606,14 +2605,14 @@ const CompanyAdminDashboardV3: React.FC = () => {
             {/* Footer Navigation - Step 1 of 4 */}
             <div className="pt-6 border-t border-border/30 flex items-center justify-between">
               <div className="text-xs text-muted-foreground">
-                Step 1 of 4 – FX Review
+                Step 1 of 4 – Review
               </div>
-              <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                Continue to Exceptions →
+              <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("resolve")} disabled={selectedCycle === "previous"}>
+                Continue to Resolve Checks →
               </Button>
             </div>
           </div>;
-      case "exceptions":
+      case "resolve":
         const exceptionTypeLabels: Record<string, string> = {
           "missing-bank": "Missing Bank Details",
           "fx-mismatch": "FX Mismatch",
@@ -2859,26 +2858,19 @@ const CompanyAdminDashboardV3: React.FC = () => {
 
             {/* Footer Navigation - Step 2 of 4 */}
             <div className="pt-4 border-t border-border/30 flex items-center justify-between">
-              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review-fx")} disabled={selectedCycle === "previous"}>
+              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("review")} disabled={selectedCycle === "previous"}>
                 ← Back to Review
               </Button>
               <div className="text-xs text-muted-foreground">
-                Step 2 of 4 – Exceptions
+                Step 2 of 4 – Resolve Checks
               </div>
-              <Button className="h-9 px-4 text-sm" disabled={selectedCycle === "previous"} onClick={() => setCurrentStep("execute")}>
-                Continue to Execute →
+              <Button className="h-9 px-4 text-sm" disabled={selectedCycle === "previous"} onClick={() => setCurrentStep("submit")}>
+                Continue to Submit →
               </Button>
             </div>
           </div>;
 
-      // Approvals step temporarily hidden - auto-approved for MVP
-      // TODO: reinstate approval gate here once role management is live
-      /* 
-      case "approvals":
-        ... (approvals UI code preserved but commented out)
-      */
-
-      case "execute":
+      case "submit":
         return <div className="space-y-6">
               {/* Info note for legacy batches or auto-approval context */}
               
@@ -3175,15 +3167,15 @@ const CompanyAdminDashboardV3: React.FC = () => {
                   </div>}
 
                 {!isExecuting && Object.keys(executionProgress).length === 0 && <div className="pt-4 border-t border-border/30 flex items-center justify-between">
-                    <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                      ← Back to Exceptions
+                    <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("resolve")} disabled={selectedCycle === "previous"}>
+                      ← Back to Resolve Checks
                     </Button>
                     <div className="text-xs text-muted-foreground">
-                      Step 3 of 4 – Execute
+                      Step 3 of 4 – Submit
                     </div>
                     <Button className="h-9 px-4 text-sm bg-primary hover:bg-primary/90" onClick={handleExecutePayroll} disabled={activeExceptions.length > 0 || selectedCycle === "previous"}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Execute Payroll
+                      <Send className="h-4 w-4 mr-2" />
+                      Submit to Fronted
                     </Button>
                   </div>}
 
@@ -3200,22 +3192,20 @@ const CompanyAdminDashboardV3: React.FC = () => {
                         <CheckCircle2 className="h-6 w-6 text-accent-green-text" />
                       </motion.div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-foreground">Batch Processed Successfully</p>
+                        <p className="text-sm font-semibold text-foreground">Submitted to Fronted</p>
                         <p className="text-xs text-muted-foreground">
-                          {allContractors.filter(c => c.employmentType === "contractor").length > 0 && `${allContractors.filter(c => c.employmentType === "contractor").length} contractor payment${allContractors.filter(c => c.employmentType === "contractor").length !== 1 ? 's' : ''} executed`}
-                          {allContractors.filter(c => c.employmentType === "contractor").length > 0 && allContractors.filter(c => c.employmentType === "employee").length > 0 && " • "}
-                          {allContractors.filter(c => c.employmentType === "employee").length > 0 && `${allContractors.filter(c => c.employmentType === "employee").length} employee payroll${allContractors.filter(c => c.employmentType === "employee").length !== 1 ? 's' : ''} posted`}
+                          Fronted is now processing your payroll batch
                         </p>
                       </div>
                     </div>
                     
                     {/* Footer Navigation after success - Step 3 of 4 */}
                     <div className="pt-4 border-t border-border/30 flex items-center justify-between">
-                      <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("exceptions")} disabled={selectedCycle === "previous"}>
-                        ← Back to Exceptions
+                      <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("resolve")} disabled={selectedCycle === "previous"}>
+                        ← Back to Resolve Checks
                       </Button>
                       <div className="text-xs text-muted-foreground">
-                        Step 3 of 4 – Execute
+                        Step 3 of 4 – Submit
                       </div>
                       <Button className="h-9 px-4 text-sm" onClick={() => setCurrentStep("track")}>
                         Continue to Track & Reconcile →
@@ -3506,11 +3496,11 @@ const CompanyAdminDashboardV3: React.FC = () => {
 
             {/* Footer Navigation - Step 4 of 4 */}
             <div className="pt-4 border-t border-border/30 flex items-center justify-between">
-              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("execute")}>
-                ← Back to Execute
+              <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => setCurrentStep("submit")}>
+                ← Back to Submit
               </Button>
               <div className="text-xs text-muted-foreground">
-                Step 4 of 4 – Track & Reconcile
+                Step 4 of 4 – Track
               </div>
               <Button className="h-9 px-4 text-sm" onClick={currentCycleData.status === "completed" ? handleBackToPayroll : handleCompleteAndReturnToOverview}>
                 {currentCycleData.status === "completed" ? "Finish & close" : "Finish & close"}
