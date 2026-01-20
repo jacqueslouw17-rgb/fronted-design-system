@@ -1,12 +1,12 @@
 import React from "react";
-import { CheckCircle2, Clock, XCircle, Download, FileText, Users, Briefcase, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Users, Briefcase, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued";
+export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
 export interface TrackingWorker {
   id: string;
@@ -35,9 +35,9 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
   
-  const paidCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
-  const failedCount = workers.filter(w => w.status === "failed").length;
-  const processingCount = workers.filter(w => w.status === "processing" || w.status === "queued").length;
+  const completedCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
+  const attentionCount = workers.filter(w => w.status === "failed").length;
+  const processingCount = workers.filter(w => w.status === "processing" || w.status === "queued" || w.status === "sent").length;
 
   const getInitials = (name: string) => {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -46,15 +46,17 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Paid" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
       case "posted":
-        return { icon: CheckCircle2, color: "text-blue-600", label: "Posted" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
       case "processing":
         return { icon: Clock, color: "text-amber-600", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", label: "In progress" };
+      case "sent":
+        return { icon: Clock, color: "text-blue-600", label: "Sent to Fronted" };
       case "failed":
-        return { icon: XCircle, color: "text-red-600", label: "Failed" };
+        return { icon: AlertTriangle, color: "text-amber-600", label: "Needs attention" };
     }
   };
 
@@ -66,7 +68,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   const renderWorkerRow = (worker: TrackingWorker) => {
     const statusConfig = getStatusConfig(worker.status);
     const StatusIcon = statusConfig.icon;
-    const isFailed = worker.status === "failed";
+    const needsAttention = worker.status === "failed";
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
@@ -74,7 +76,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         key={worker.id}
         className={cn(
           "p-4 rounded-lg border bg-card",
-          isFailed ? "border-destructive/20" : "border-border"
+          needsAttention ? "border-amber-500/30" : "border-border"
         )}
       >
         <div className="flex items-center justify-between">
@@ -102,16 +104,16 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               {formatCurrency(worker.amount, worker.currency)}
             </p>
 
-            <div className={cn("flex items-center gap-1.5 text-xs min-w-[90px]", statusConfig.color)}>
+            <div className={cn("flex items-center gap-1.5 text-xs min-w-[110px]", statusConfig.color)}>
               <StatusIcon className="h-3.5 w-3.5" />
               {statusConfig.label}
             </div>
           </div>
         </div>
 
-        {/* Error message inline within the card */}
-        {isFailed && worker.errorMessage && (
-          <div className="mt-3 pt-3 border-t border-destructive/10 flex items-start gap-2">
+        {/* Error message inline within the card - no clickable actions for V1 */}
+        {needsAttention && worker.errorMessage && (
+          <div className="mt-3 pt-3 border-t border-amber-500/10 flex items-start gap-2">
             <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground">
               {worker.errorMessage}
@@ -131,21 +133,21 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 text-xs">
                 <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                <span className="font-medium">{paidCount}</span>
+                <span className="font-medium">{completedCount}</span>
                 <span className="text-muted-foreground">completed</span>
               </div>
               {processingCount > 0 && (
                 <div className="flex items-center gap-1.5 text-xs">
-                  <Clock className="h-3.5 w-3.5 text-amber-500" />
+                  <Clock className="h-3.5 w-3.5 text-blue-500" />
                   <span className="font-medium">{processingCount}</span>
-                  <span className="text-muted-foreground">processing</span>
+                  <span className="text-muted-foreground">in progress</span>
                 </div>
               )}
-              {failedCount > 0 && (
+              {attentionCount > 0 && (
                 <div className="flex items-center gap-1.5 text-xs">
-                  <XCircle className="h-3.5 w-3.5 text-red-500" />
-                  <span className="font-medium">{failedCount}</span>
-                  <span className="text-muted-foreground">failed</span>
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="font-medium">{attentionCount}</span>
+                  <span className="text-muted-foreground">needs attention</span>
                 </div>
               )}
             </div>
@@ -163,15 +165,18 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-5 space-y-4">
-        {/* Failed notice - subtle, read-only */}
-        {failedCount > 0 && (
-          <div className="flex items-center gap-2 py-2.5 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10 text-sm">
-            <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-            <span className="text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} require Fronted support</span>
+        {/* Attention notice - subtle, calm banner */}
+        {attentionCount > 0 && (
+          <div className="flex items-start gap-3 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
+            <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">{attentionCount} payment{attentionCount > 1 ? "s" : ""} need{attentionCount === 1 ? "s" : ""} attention</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Fronted flagged an issue. Review details and contact support if needed.</p>
+            </div>
           </div>
         )}
 
-        {/* Tabbed View - read only */}
+        {/* Tabbed View - read only, no clickable affordances */}
         <Tabs defaultValue="all">
           <TabsList className="h-9 bg-muted/30 p-1 mb-4">
             <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
@@ -185,9 +190,9 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <Briefcase className="h-3 w-3" />
               Contractors ({contractors.length})
             </TabsTrigger>
-            {failedCount > 0 && (
-              <TabsTrigger value="failed" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
-                Failed ({failedCount})
+            {attentionCount > 0 && (
+              <TabsTrigger value="attention" className="text-xs h-7 px-3 data-[state=active]:bg-background text-amber-600">
+                Needs attention ({attentionCount})
               </TabsTrigger>
             )}
           </TabsList>
@@ -204,7 +209,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
             {contractors.map(renderWorkerRow)}
           </TabsContent>
 
-          <TabsContent value="failed" className="mt-0 space-y-2 max-h-[450px] overflow-y-auto">
+          <TabsContent value="attention" className="mt-0 space-y-2 max-h-[450px] overflow-y-auto">
             {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
           </TabsContent>
         </Tabs>
