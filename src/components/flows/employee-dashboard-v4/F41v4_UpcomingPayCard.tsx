@@ -10,16 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  ChevronRight,
-  FileText, 
-  X, 
-  Calendar, 
-  Wallet, 
-  Clock,
-  AlertCircle,
-  Check
-} from 'lucide-react';
+import { ChevronRight, FileText, X, Calendar, Wallet, Clock, AlertCircle, Check } from 'lucide-react';
 import { useF41v4_DashboardStore, type PayrollStatus, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { F41v4_AdjustmentModal, type RequestType } from './F41v4_AdjustmentModal';
 import { F41v4_ConfirmPayDialog } from './F41v4_ConfirmPayDialog';
@@ -31,25 +22,26 @@ import { F41v4_WithdrawSubmissionDialog } from './F41v4_WithdrawSubmissionDialog
 import { F41v4_PayBreakdownDrawer } from './F41v4_PayBreakdownDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-
 const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 2
   }).format(amount);
 };
-
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
 };
-
 const formatSubmittedTimestamp = (dateStr: string) => {
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric',
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
   }) + ', ' + date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -73,7 +65,7 @@ const getStatusConfig = (status: PayrollStatus): {
         className: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
         explanation: 'Review your details and submit for approval.',
         primaryAction: 'Review & submit',
-        secondaryAction: 'Make adjustments',
+        secondaryAction: 'Make adjustments'
       };
     case 'submitted':
       return {
@@ -82,7 +74,7 @@ const getStatusConfig = (status: PayrollStatus): {
         explanation: 'Submitted for review',
         helperText: 'Your company will review this before payroll is finalised.',
         primaryAction: 'Submitted',
-        secondaryAction: 'Make adjustments',
+        secondaryAction: 'Make adjustments'
       };
     case 'returned':
       return {
@@ -90,7 +82,7 @@ const getStatusConfig = (status: PayrollStatus): {
         className: 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30',
         explanation: 'Your company needs changes before they can approve.',
         primaryAction: 'Fix & resubmit',
-        secondaryAction: 'View previous submission',
+        secondaryAction: 'View previous submission'
       };
     case 'approved':
       return {
@@ -98,7 +90,7 @@ const getStatusConfig = (status: PayrollStatus): {
         className: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
         explanation: 'Approved by your company and sent to Fronted for processing.',
         primaryAction: 'View draft payslip',
-        secondaryAction: 'Request a correction',
+        secondaryAction: 'Request a correction'
       };
     case 'finalised':
       return {
@@ -106,7 +98,7 @@ const getStatusConfig = (status: PayrollStatus): {
         className: 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30',
         explanation: 'Payroll approved. Payment will be processed externally.',
         primaryAction: 'View payslip',
-        secondaryAction: 'View documents in profile',
+        secondaryAction: 'View documents in profile'
       };
     default:
       return {
@@ -114,11 +106,10 @@ const getStatusConfig = (status: PayrollStatus): {
         className: 'bg-muted text-muted-foreground',
         explanation: '',
         primaryAction: 'View details',
-        secondaryAction: '',
+        secondaryAction: ''
       };
   }
 };
-
 const getAdjustmentStatusColor = (status: Adjustment['status']) => {
   switch (status) {
     case 'Pending':
@@ -133,7 +124,6 @@ const getAdjustmentStatusColor = (status: Adjustment['status']) => {
       return 'bg-muted text-muted-foreground';
   }
 };
-
 const getLeaveStatusColor = (status: LeaveRequest['status']) => {
   switch (status) {
     case 'Pending':
@@ -148,7 +138,6 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
       return 'bg-muted text-muted-foreground';
   }
 };
-
 export const F41v4_UpcomingPayCard = () => {
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
@@ -158,7 +147,10 @@ export const F41v4_UpcomingPayCard = () => {
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] = useState<Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const [withdrawTarget, setWithdrawTarget] = useState<{ type: 'adjustment' | 'leave'; id: string } | null>(null);
+  const [withdrawTarget, setWithdrawTarget] = useState<{
+    type: 'adjustment' | 'leave';
+    id: string;
+  } | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
 
   // Helper to open adjustment modal with specific type
@@ -166,14 +158,12 @@ export const F41v4_UpcomingPayCard = () => {
     setAdjustmentModalInitialType(type);
     setAdjustmentModalOpen(true);
   };
-
   const handleAdjustmentModalClose = (open: boolean) => {
     setAdjustmentModalOpen(open);
     if (!open) {
       setAdjustmentModalInitialType(null);
     }
   };
-
   const {
     nextPayoutDate,
     periodLabel,
@@ -193,9 +183,8 @@ export const F41v4_UpcomingPayCard = () => {
     isCutoffSoon,
     withdrawAdjustment,
     withdrawLeaveRequest,
-    withdrawSubmission,
+    withdrawSubmission
   } = useF41v4_DashboardStore();
-
   const statusConfig = getStatusConfig(payrollStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
@@ -207,20 +196,21 @@ export const F41v4_UpcomingPayCard = () => {
   // Handle withdraw click
   const handleWithdrawClick = (e: React.MouseEvent, type: 'adjustment' | 'leave', id: string) => {
     e.stopPropagation();
-    setWithdrawTarget({ type, id });
+    setWithdrawTarget({
+      type,
+      id
+    });
     setWithdrawDialogOpen(true);
   };
 
   // Confirm withdraw
   const handleConfirmWithdraw = () => {
     if (!withdrawTarget) return;
-    
     if (withdrawTarget.type === 'adjustment') {
       withdrawAdjustment(withdrawTarget.id);
     } else {
       withdrawLeaveRequest(withdrawTarget.id);
     }
-    
     toast.success('Request withdrawn.');
     setWithdrawTarget(null);
   };
@@ -264,11 +254,9 @@ export const F41v4_UpcomingPayCard = () => {
     }
   };
 
-
   // Empty state
   if (isNone) {
-    return (
-      <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+    return <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardContent className="p-8 text-center">
           <div className="text-muted-foreground mb-4">
             <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -278,12 +266,9 @@ export const F41v4_UpcomingPayCard = () => {
             Complete Onboarding
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <>
+  return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         {/* Hero Header - Clean & Compact */}
         <CardHeader className="bg-gradient-to-r from-primary/[0.04] to-secondary/[0.03] border-b border-border/40 pb-4">
@@ -297,34 +282,11 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
               {/* Single helper line with cut-off inline */}
               <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  {payrollStatus === 'submitted' && (
-                    <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
-                  )}
-                  <span className={payrollStatus === 'submitted' ? 'text-foreground font-medium' : ''}>
-                    {statusConfig.explanation}
-                  </span>
-                  {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
-                    <>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        Cut-off {cutoffDate}
-                      </span>
-                      {isCutoffSoon && (
-                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
-                          Soon
-                        </Badge>
-                      )}
-                    </>
-                  )}
-                </div>
+                
                 {/* Helper text for submitted state */}
-                {payrollStatus === 'submitted' && statusConfig.helperText && (
-                  <p className="text-sm text-muted-foreground">
+                {payrollStatus === 'submitted' && statusConfig.helperText && <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
-                  </p>
-                )}
+                  </p>}
               </div>
             </div>
             <Badge className={cn('text-sm px-3 py-1 mt-2', statusConfig.className)}>
@@ -333,18 +295,14 @@ export const F41v4_UpcomingPayCard = () => {
           </div>
 
           {/* Returned reason block - only when applicable */}
-          {payrollStatus === 'returned' && returnedReason && (
-            <div className="mt-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
+          {payrollStatus === 'returned' && returnedReason && <div className="mt-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
               <p className="text-sm text-orange-700 dark:text-orange-400">
                 <span className="font-medium">Admin note:</span> {returnedReason}
               </p>
-              {resubmitDeadline && (
-                <p className="text-xs text-orange-600 dark:text-orange-500 mt-1">
+              {resubmitDeadline && <p className="text-xs text-orange-600 dark:text-orange-500 mt-1">
                   Resubmit by: {resubmitDeadline}
-                </p>
-              )}
-            </div>
-          )}
+                </p>}
+            </div>}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -363,10 +321,7 @@ export const F41v4_UpcomingPayCard = () => {
                   </p>
                   <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>
                 </div>
-                <button
-                  onClick={() => setBreakdownDrawerOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-                >
+                <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors">
                   <FileText className="h-3.5 w-3.5" />
                   {payrollStatus === 'approved' ? 'Preview' : 'Breakdown'}
                   <ChevronRight className="h-3.5 w-3.5" />
@@ -390,138 +345,79 @@ export const F41v4_UpcomingPayCard = () => {
 
 
           {/* Changes Summary - Only show if there are changes */}
-          {(adjustments.length > 0 || leaveRequests.length > 0) && (
-            <div className="space-y-3">
+          {(adjustments.length > 0 || leaveRequests.length > 0) && <div className="space-y-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Your changes (this cycle)
               </p>
               <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
                 {/* Adjustment chips */}
-                {adjustments.map((adj) => (
-                  <div
-                    key={adj.id}
-                    className={cn(
-                      'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
-                      getAdjustmentStatusColor(adj.status),
-                      isRemovable(adj.status) ? 'pr-1.5 group-hover:pr-2' : ''
-                    )}
-                    role="listitem"
-                  >
-                    <button
-                      onClick={() => setSelectedAdjustment(adj)}
-                      aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
-                      className="inline-flex items-center gap-1.5 focus:outline-none"
-                    >
+                {adjustments.map(adj => <div key={adj.id} className={cn('group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all', getAdjustmentStatusColor(adj.status), isRemovable(adj.status) ? 'pr-1.5 group-hover:pr-2' : '')} role="listitem">
+                    <button onClick={() => setSelectedAdjustment(adj)} aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`} className="inline-flex items-center gap-1.5 focus:outline-none">
                       <span>{adj.type}</span>
-                      {adj.amount !== null && (
-                        <>
+                      {adj.amount !== null && <>
                           <span aria-hidden="true">·</span>
                           <span>{formatCurrency(adj.amount, currency)}</span>
-                        </>
-                      )}
-                      {adj.type === 'Overtime' && adj.hours && (
-                        <>
+                        </>}
+                      {adj.type === 'Overtime' && adj.hours && <>
                           <span aria-hidden="true">·</span>
                           <span>{adj.hours}h</span>
-                        </>
-                      )}
+                        </>}
                       <span aria-hidden="true">·</span>
                       <span className="opacity-70">{adj.status}</span>
                     </button>
-                    {isRemovable(adj.status) && (
-                      <Tooltip>
+                    {isRemovable(adj.status) && <Tooltip>
                         <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleWithdrawClick(e, 'adjustment', adj.id)}
-                            className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
-                            aria-label="Withdraw request"
-                          >
+                          <button onClick={e => handleWithdrawClick(e, 'adjustment', adj.id)} className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current" aria-label="Withdraw request">
                             <X className="h-3 w-3" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="text-xs">
                           Withdraw request
                         </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                ))}
+                      </Tooltip>}
+                  </div>)}
 
                 {/* Leave chips */}
-                {leaveRequests.map((leave) => (
-                  <div
-                    key={leave.id}
-                    className={cn(
-                      'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
-                      getLeaveStatusColor(leave.status),
-                      isRemovable(leave.status) ? 'pr-1.5' : ''
-                    )}
-                    role="listitem"
-                  >
-                    <span
-                      aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`}
-                      className="inline-flex items-center gap-1.5"
-                    >
+                {leaveRequests.map(leave => <div key={leave.id} className={cn('group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all', getLeaveStatusColor(leave.status), isRemovable(leave.status) ? 'pr-1.5' : '')} role="listitem">
+                    <span aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`} className="inline-flex items-center gap-1.5">
                       <span>{leave.leaveType}</span>
                       <span aria-hidden="true">·</span>
                       <span>{leave.totalDays}d</span>
                       <span aria-hidden="true">·</span>
                       <span className="opacity-70">{leave.status}</span>
                     </span>
-                    {isRemovable(leave.status) && (
-                      <Tooltip>
+                    {isRemovable(leave.status) && <Tooltip>
                         <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleWithdrawClick(e, 'leave', leave.id)}
-                            className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
-                            aria-label="Withdraw request"
-                          >
+                          <button onClick={e => handleWithdrawClick(e, 'leave', leave.id)} className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current" aria-label="Withdraw request">
                             <X className="h-3 w-3" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="text-xs">
                           Withdraw request
                         </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                ))}
+                      </Tooltip>}
+                  </div>)}
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
-              {payrollStatus === 'submitted' ? (
-                // Submitted state: disabled button with check icon
-                <Button
-                  disabled
-                  className="flex-1 gap-2"
-                >
+              {payrollStatus === 'submitted' ?
+            // Submitted state: disabled button with check icon
+            <Button disabled className="flex-1 gap-2">
                   <Check className="h-4 w-4" />
                   {statusConfig.primaryAction}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handlePrimaryAction}
-                  className="flex-1"
-                >
+                </Button> : <Button onClick={handlePrimaryAction} className="flex-1">
                   {statusConfig.primaryAction}
-                </Button>
-              )}
+                </Button>}
               
-              {statusConfig.secondaryAction && (
-                payrollStatus === 'submitted' ? (
-                  // Submitted state: disabled secondary with tooltip
-                  <Tooltip>
+              {statusConfig.secondaryAction && (payrollStatus === 'submitted' ?
+            // Submitted state: disabled secondary with tooltip
+            <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="flex-1">
-                        <Button
-                          variant="outline"
-                          disabled
-                          className="w-full opacity-50 cursor-not-allowed"
-                        >
+                        <Button variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
                           {statusConfig.secondaryAction}
                         </Button>
                       </span>
@@ -529,41 +425,25 @@ export const F41v4_UpcomingPayCard = () => {
                     <TooltipContent side="bottom" className="text-xs">
                       Adjustments are locked while your submission is under review.
                     </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={handleSecondaryAction}
-                    className="flex-1"
-                  >
+                  </Tooltip> : <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
                     {statusConfig.secondaryAction}
-                  </Button>
-                )
-              )}
+                  </Button>)}
             </div>
 
             {/* "What happens next" line - only for draft */}
-            {payrollStatus === 'draft' && (
-              <p className="text-xs text-muted-foreground text-center">
+            {payrollStatus === 'draft' && <p className="text-xs text-muted-foreground text-center">
                 Your company will review before payroll is finalised.
-              </p>
-            )}
+              </p>}
 
             {/* Submitted timestamp */}
-            {payrollStatus === 'submitted' && submittedAt && (
-              <p className="text-xs text-muted-foreground/70 text-center">
+            {payrollStatus === 'submitted' && submittedAt && <p className="text-xs text-muted-foreground/70 text-center">
                 Submitted on {formatSubmittedTimestamp(submittedAt)}
-              </p>
-            )}
+              </p>}
           </div>
 
           {/* View previous payslips link */}
           <div className="text-center">
-            <Button 
-              variant="link" 
-              onClick={() => setPayslipDrawerOpen(true)}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="link" onClick={() => setPayslipDrawerOpen(true)} className="text-sm text-muted-foreground hover:text-foreground">
               View previous payslips
             </Button>
           </div>
@@ -571,59 +451,20 @@ export const F41v4_UpcomingPayCard = () => {
       </Card>
 
       {/* Modals & Drawers */}
-      <F41v4_AdjustmentModal
-        open={adjustmentModalOpen}
-        onOpenChange={handleAdjustmentModalClose}
-        currency={currency}
-        initialType={adjustmentModalInitialType}
-      />
+      <F41v4_AdjustmentModal open={adjustmentModalOpen} onOpenChange={handleAdjustmentModalClose} currency={currency} initialType={adjustmentModalInitialType} />
 
-      <F41v4_ConfirmPayDialog
-        open={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        periodLabel={periodLabel}
-      />
+      <F41v4_ConfirmPayDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
 
-      <F41v4_SubmitNoChangesDialog
-        open={noChangesDialogOpen}
-        onOpenChange={setNoChangesDialogOpen}
-        periodLabel={periodLabel}
-      />
+      <F41v4_SubmitNoChangesDialog open={noChangesDialogOpen} onOpenChange={setNoChangesDialogOpen} periodLabel={periodLabel} />
 
-      <F41v4_AdjustmentDetailModal
-        adjustment={selectedAdjustment}
-        onClose={() => setSelectedAdjustment(null)}
-        currency={currency}
-      />
+      <F41v4_AdjustmentDetailModal adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} currency={currency} />
 
-      <F41v4_PayslipHistoryDrawer
-        open={payslipDrawerOpen}
-        onOpenChange={setPayslipDrawerOpen}
-      />
+      <F41v4_PayslipHistoryDrawer open={payslipDrawerOpen} onOpenChange={setPayslipDrawerOpen} />
 
-      <F41v4_PayBreakdownDrawer
-        open={breakdownDrawerOpen}
-        onOpenChange={setBreakdownDrawerOpen}
-        lineItems={lineItems}
-        currency={currency}
-        estimatedNet={estimatedNet}
-        periodLabel={periodLabel}
-        adjustments={adjustments}
-        leaveRequests={leaveRequests}
-      />
+      <F41v4_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} adjustments={adjustments} leaveRequests={leaveRequests} />
 
-      <F41v4_WithdrawDialog
-        open={withdrawDialogOpen}
-        onOpenChange={setWithdrawDialogOpen}
-        onConfirm={handleConfirmWithdraw}
-        requestType={withdrawTarget?.type || 'adjustment'}
-      />
+      <F41v4_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
 
-      <F41v4_WithdrawSubmissionDialog
-        open={withdrawSubmissionDialogOpen}
-        onOpenChange={setWithdrawSubmissionDialogOpen}
-        onConfirm={withdrawSubmission}
-      />
-    </>
-  );
+      <F41v4_WithdrawSubmissionDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen} onConfirm={withdrawSubmission} />
+    </>;
 };
