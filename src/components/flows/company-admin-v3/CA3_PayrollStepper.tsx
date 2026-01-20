@@ -23,6 +23,7 @@ interface CA3_PayrollStepperProps {
   onStepClick?: (step: CA3_PayrollStep) => void;
   blockingCount?: number;
   pendingSubmissions?: number;
+  isSubmitted?: boolean; // When true, all steps before Track are locked
 }
 
 export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
@@ -31,11 +32,14 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   onStepClick,
   blockingCount = 0,
   pendingSubmissions = 0,
+  isSubmitted = false,
 }) => {
   const stepOrder: CA3_PayrollStep[] = ["review", "submissions", "checks", "submit", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
-  const getStepState = (step: CA3_PayrollStep): "completed" | "active" | "upcoming" => {
+  const getStepState = (step: CA3_PayrollStep): "completed" | "active" | "upcoming" | "locked" => {
+    // If submitted, all steps except track are locked
+    if (isSubmitted && step !== "track") return "locked";
     if (completedSteps.includes(step)) return "completed";
     if (step === currentStep) return "active";
     return "upcoming";
@@ -45,12 +49,12 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
     <div className="flex items-center gap-1">
       {steps.map((step, index) => {
         const state = getStepState(step.id);
-        const isClickable = state === "completed" || step.id === currentStep;
+        const isClickable = (state === "completed" || step.id === currentStep) && state !== "locked";
         
         // Show badge for checks with blocking count
-        const showBlockingBadge = step.id === "checks" && blockingCount > 0 && state !== "completed";
+        const showBlockingBadge = step.id === "checks" && blockingCount > 0 && state !== "completed" && state !== "locked";
         // Show badge for submissions with pending count
-        const showSubmissionBadge = step.id === "submissions" && pendingSubmissions > 0 && state !== "completed";
+        const showSubmissionBadge = step.id === "submissions" && pendingSubmissions > 0 && state !== "completed" && state !== "locked";
 
         return (
           <React.Fragment key={step.id}>
@@ -62,7 +66,8 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
                 "text-xs relative",
                 state === "active" && "text-foreground font-medium",
                 state === "completed" && "text-muted-foreground cursor-pointer hover:text-foreground",
-                state === "upcoming" && "text-muted-foreground/30 cursor-not-allowed"
+                state === "upcoming" && "text-muted-foreground/30 cursor-not-allowed",
+                state === "locked" && "text-muted-foreground/40 cursor-not-allowed opacity-60"
               )}
             >
               {/* Step indicator */}
@@ -70,9 +75,10 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
                 "flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-medium transition-all",
                 state === "completed" && "bg-accent-green-fill/15 text-accent-green-text",
                 state === "active" && "bg-foreground/10 text-foreground",
-                state === "upcoming" && "bg-muted/20 text-muted-foreground/30"
+                state === "upcoming" && "bg-muted/20 text-muted-foreground/30",
+                state === "locked" && "bg-muted/10 text-muted-foreground/30"
               )}>
-                {state === "completed" ? (
+                {state === "completed" || state === "locked" ? (
                   <Check className="h-2.5 w-2.5" />
                 ) : (
                   <span>{index + 1}</span>

@@ -562,6 +562,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         onStepClick={handleStepClick}
         blockingCount={blockingCount}
         pendingSubmissions={pendingSubmissions}
+        isSubmitted={currentStep === "track"}
       />
 
       {/* Step Content */}
