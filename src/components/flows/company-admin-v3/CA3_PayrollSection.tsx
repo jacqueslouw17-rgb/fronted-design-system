@@ -335,7 +335,10 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             />
 
             {/* Continue action */}
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-muted-foreground">
+                Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
+              </p>
               <Button onClick={goToSubmissions} size="sm" className="gap-1.5">
                 Continue to Submissions
                 <ChevronRight className="h-3.5 w-3.5" />
