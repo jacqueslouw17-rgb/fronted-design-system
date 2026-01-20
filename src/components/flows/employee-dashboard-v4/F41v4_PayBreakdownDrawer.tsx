@@ -73,28 +73,10 @@ export const F41v4_PayBreakdownDrawer = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-              <SheetDescription className="text-sm text-muted-foreground">
-                {periodLabel}
-              </SheetDescription>
-            </div>
-            {canMakeAdjustments && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  onMakeAdjustment();
-                  onOpenChange(false);
-                }}
-                className="gap-1.5 h-8 text-xs"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Make adjustments
-              </Button>
-            )}
-          </div>
+          <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+          <SheetDescription className="text-sm text-muted-foreground">
+            {periodLabel}
+          </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6">
@@ -170,6 +152,20 @@ export const F41v4_PayBreakdownDrawer = ({
               {formatCurrency(estimatedNet, currency)}
             </span>
           </div>
+
+          {/* Make Adjustments CTA - below net pay for context */}
+          {canMakeAdjustments && (
+            <button
+              onClick={() => {
+                onMakeAdjustment();
+                onOpenChange(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Request a change for this period
+            </button>
+          )}
 
           {/* Submitted Adjustments & Leave Requests */}
           {hasRequests && (
