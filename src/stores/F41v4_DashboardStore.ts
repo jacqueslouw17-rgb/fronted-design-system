@@ -73,6 +73,7 @@ interface F41v4_DashboardState {
   returnedReason?: string;
   resubmitDeadline?: string;
   submittedAt?: string; // Timestamp when submission was made
+  approvedAt?: string; // Timestamp when approval was received
   
   // Legacy - keeping for backwards compat
   confirmed: boolean;
@@ -130,6 +131,7 @@ const initialState: F41v4_DashboardState = {
   returnedReason: undefined,
   resubmitDeadline: undefined,
   submittedAt: undefined,
+  approvedAt: undefined,
   confirmed: false,
   adjustments: [],
   leaveRequests: [],
@@ -149,11 +151,14 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
   
-  setPayrollStatus: (status) => set({ payrollStatus: status }),
+  setPayrollStatus: (status) => set((state) => ({ 
+    payrollStatus: status,
+    approvedAt: status === 'approved' ? new Date().toISOString() : state.approvedAt
+  })),
   
   confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted', submittedAt: new Date().toISOString() }),
   
-  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false, submittedAt: undefined }),
+  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false, submittedAt: undefined, approvedAt: undefined }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [

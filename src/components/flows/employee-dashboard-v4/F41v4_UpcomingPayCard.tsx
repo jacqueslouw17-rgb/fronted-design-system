@@ -5,7 +5,7 @@
  * Updated: trigger rebuild
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -87,10 +87,11 @@ const getStatusConfig = (status: PayrollStatus): {
     case 'approved':
       return {
         label: 'Approved',
-        className: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
-        explanation: 'Approved by your company and sent to Fronted for processing.',
-        primaryAction: 'View draft payslip',
-        secondaryAction: 'Request a correction'
+        className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30',
+        explanation: 'Payroll approved',
+        helperText: 'Your pay is finalised for this period.',
+        primaryAction: 'Approved',
+        secondaryAction: 'Make adjustments'
       };
     case 'finalised':
       return {
@@ -177,14 +178,27 @@ export const F41v4_UpcomingPayCard = () => {
     returnedReason,
     resubmitDeadline,
     submittedAt,
+    approvedAt,
     adjustments,
     leaveRequests,
     cutoffDate,
     isCutoffSoon,
     withdrawAdjustment,
     withdrawLeaveRequest,
-    withdrawSubmission
+    withdrawSubmission,
+    setPayrollStatus
   } = useF41v4_DashboardStore();
+
+  // Auto-transition from 'submitted' to 'approved' after 3 seconds
+  useEffect(() => {
+    if (payrollStatus === 'submitted') {
+      const timer = setTimeout(() => {
+        setPayrollStatus('approved');
+        toast.success('Approved. Your payroll is finalised.');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [payrollStatus, setPayrollStatus]);
   const statusConfig = getStatusConfig(payrollStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
@@ -283,8 +297,8 @@ export const F41v4_UpcomingPayCard = () => {
               {/* Single helper line with cut-off inline */}
               <div className="flex flex-col gap-0.5">
                 
-                {/* Helper text for submitted state */}
-                {payrollStatus === 'submitted' && statusConfig.helperText && <p className="text-sm text-muted-foreground">
+                {/* Helper text for submitted/approved state */}
+                {(payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
                   </p>}
               </div>
@@ -403,8 +417,8 @@ export const F41v4_UpcomingPayCard = () => {
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
-              {payrollStatus === 'submitted' ?
-            // Submitted state: disabled button with check icon
+              {(payrollStatus === 'submitted' || payrollStatus === 'approved') ?
+            // Submitted/Approved state: disabled button with check icon
             <Button disabled className="flex-1 gap-2">
                   <Check className="h-4 w-4" />
                   {statusConfig.primaryAction}
@@ -412,8 +426,8 @@ export const F41v4_UpcomingPayCard = () => {
                   {statusConfig.primaryAction}
                 </Button>}
               
-              {statusConfig.secondaryAction && (payrollStatus === 'submitted' ?
-            // Submitted state: disabled secondary with tooltip
+              {statusConfig.secondaryAction && ((payrollStatus === 'submitted' || payrollStatus === 'approved') ?
+            // Submitted/Approved state: disabled secondary with tooltip
             <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="flex-1">
@@ -438,6 +452,11 @@ export const F41v4_UpcomingPayCard = () => {
             {/* Submitted timestamp */}
             {payrollStatus === 'submitted' && submittedAt && <p className="text-xs text-muted-foreground/70 text-center">
                 Submitted on {formatSubmittedTimestamp(submittedAt)}
+              </p>}
+
+            {/* Approved timestamp */}
+            {payrollStatus === 'approved' && approvedAt && <p className="text-xs text-muted-foreground/70 text-center">
+                Approved on {formatSubmittedTimestamp(approvedAt)}
               </p>}
           </div>
 
