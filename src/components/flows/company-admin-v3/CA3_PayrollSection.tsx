@@ -541,8 +541,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         return (
           <CA3_TrackingView
             workers={trackingWorkers}
-            onViewIssue={handleViewIssue}
-            onRetry={handleRetryPayment}
             onExportCSV={handleExportCSV}
             onDownloadAuditPDF={handleDownloadAuditPDF}
           />

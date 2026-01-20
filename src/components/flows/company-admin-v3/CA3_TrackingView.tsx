@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { CheckCircle2, Clock, XCircle, RefreshCw, Download, FileText, Users, Briefcase, ChevronDown, ChevronUp, AlertTriangle, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import React from "react";
+import { CheckCircle2, Clock, XCircle, Download, FileText, Users, Briefcase, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued";
 
@@ -25,20 +23,15 @@ export interface TrackingWorker {
 
 interface CA3_TrackingViewProps {
   workers: TrackingWorker[];
-  onViewIssue: (worker: TrackingWorker) => void;
-  onRetry: (worker: TrackingWorker) => void;
   onExportCSV: () => void;
   onDownloadAuditPDF: () => void;
 }
 
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   workers,
-  onRetry,
   onExportCSV,
   onDownloadAuditPDF,
 }) => {
-  const [expandedFailed, setExpandedFailed] = useState<string[]>([]);
-
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
   
@@ -70,29 +63,16 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     return `${symbols[currency] || currency}${amount.toLocaleString()}`;
   };
 
-  const toggleFailedExpand = (id: string) => {
-    setExpandedFailed(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
   const renderWorkerRow = (worker: TrackingWorker) => {
     const statusConfig = getStatusConfig(worker.status);
     const StatusIcon = statusConfig.icon;
-    const isExpanded = expandedFailed.includes(worker.id);
     const isFailed = worker.status === "failed";
     const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
     return (
       <div key={worker.id}>
         <div 
-          className={cn(
-            "flex items-center justify-between p-4 rounded-lg border border-border bg-card transition-colors group",
-            isFailed 
-              ? "cursor-pointer hover:bg-muted/30" 
-              : "hover:bg-muted/30"
-          )}
-          onClick={() => isFailed && toggleFailedExpand(worker.id)}
+          className="flex items-center justify-between p-4 rounded-lg border border-border bg-card"
         >
           <div className="flex items-center gap-4 flex-1">
             <Avatar className="h-10 w-10">
@@ -114,57 +94,23 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           </div>
 
           <div className="flex items-center gap-4 ml-4 flex-shrink-0">
-            <p className="text-sm font-medium text-foreground min-w-[90px] text-right">
+            <p className="text-sm font-medium text-foreground min-w-[90px] text-right tabular-nums">
               {formatCurrency(worker.amount, worker.currency)}
             </p>
 
-            <div className={cn("flex items-center gap-1.5 text-xs min-w-[80px]", statusConfig.color)}>
+            <div className={cn("flex items-center gap-1.5 text-xs min-w-[90px]", statusConfig.color)}>
               <StatusIcon className="h-3.5 w-3.5" />
               {statusConfig.label}
             </div>
-            
-            {isFailed && (
-              <div className="text-muted-foreground/40 group-hover:text-muted-foreground/60 transition-colors">
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </div>
-            )}
-            {!isFailed && (
-              <ChevronRight className="h-4 w-4 text-muted-foreground/30" />
-            )}
           </div>
         </div>
 
-        {/* Expanded error details */}
-        {isFailed && isExpanded && (
-          <div className="ml-14 mt-2 mb-3 p-4 rounded-lg border border-border bg-card space-y-3">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm text-foreground">
-                  {worker.errorMessage || "Payment failed"}
-                </p>
-                {worker.fixInstructions && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {worker.fixInstructions}
-                  </p>
-                )}
-              </div>
-            </div>
-            {worker.canRetry && (
-              <Button 
-                size="sm" 
-                variant="outline"
-                className="h-8 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRetry(worker);
-                  toast.info(`Retrying payment for ${worker.name}`);
-                }}
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Retry Payment
-              </Button>
-            )}
+        {/* Show error message inline for failed items (read-only) */}
+        {isFailed && worker.errorMessage && (
+          <div className="ml-14 mt-1.5 mb-2 px-3 py-2 rounded-md bg-destructive/5 border border-destructive/10">
+            <p className="text-xs text-muted-foreground">
+              {worker.errorMessage}
+            </p>
           </div>
         )}
       </div>
@@ -212,16 +158,15 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-5 space-y-4">
-        {/* Failed alert - subtle */}
+        {/* Failed notice - subtle, read-only */}
         {failedCount > 0 && (
           <div className="flex items-center gap-2 py-2.5 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10 text-sm">
             <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-            <span className="text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} need attention</span>
-            <span className="text-muted-foreground">— click to expand</span>
+            <span className="text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} require Fronted support</span>
           </div>
         )}
 
-        {/* Tabbed View */}
+        {/* Tabbed View - read only */}
         <Tabs defaultValue="all">
           <TabsList className="h-9 bg-muted/30 p-1 mb-4">
             <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
