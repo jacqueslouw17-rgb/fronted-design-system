@@ -1,5 +1,5 @@
 import React from "react";
-import { Send, Users, Briefcase, CheckCircle2, Lock, ArrowRight, Globe } from "lucide-react";
+import { Send, Users, Briefcase, CheckCircle2, Lock, ArrowRight, Globe, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -81,41 +81,53 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
           </Card>
         </div>
 
-        {/* Right: What happens next (2/5) */}
+        {/* Right: What happens next (2/5) - Minimal timeline */}
         <div className="lg:col-span-2">
           <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm h-full">
             <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                What happens next
-              </h3>
+              <h3 className="text-sm font-medium text-foreground">What happens next</h3>
             </CardHeader>
-            <CardContent className="p-5 space-y-3">
-              <div className="p-3 rounded-lg border border-border bg-card flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent-green-fill/10 flex items-center justify-center mt-0.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+            <CardContent className="p-5">
+              {/* Vertical timeline */}
+              <div className="relative pl-6">
+                {/* Timeline line */}
+                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
+                
+                {/* Step 1 */}
+                <div className="relative pb-5">
+                  <div className="absolute left-[-24px] w-4 h-4 rounded-full bg-accent-green-fill/20 border-2 border-accent-green-text flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground">Submit batch</p>
+                  <p className="text-xs text-muted-foreground">Fronted receives your payroll</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Fronted processes payments</p>
-                  <p className="text-xs text-muted-foreground">All workers paid automatically</p>
-                </div>
-              </div>
-              <div className="p-3 rounded-lg border border-border bg-card flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted/30 flex items-center justify-center mt-0.5">
-                  <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                <div>
+                
+                {/* Step 2 */}
+                <div className="relative pb-5">
+                  <div className="absolute left-[-24px] w-4 h-4 rounded-full bg-muted border-2 border-muted-foreground/30" />
                   <p className="text-sm font-medium text-foreground">FX rates locked</p>
-                  <p className="text-xs text-muted-foreground">No changes until completion</p>
+                  <p className="text-xs text-muted-foreground">Exchange rates finalized</p>
+                </div>
+                
+                {/* Step 3 */}
+                <div className="relative pb-5">
+                  <div className="absolute left-[-24px] w-4 h-4 rounded-full bg-muted border-2 border-muted-foreground/30" />
+                  <p className="text-sm font-medium text-foreground">Payments processed</p>
+                  <p className="text-xs text-muted-foreground">Workers paid automatically</p>
+                </div>
+                
+                {/* Step 4 */}
+                <div className="relative">
+                  <div className="absolute left-[-24px] w-4 h-4 rounded-full bg-muted border-2 border-muted-foreground/30" />
+                  <p className="text-sm font-medium text-foreground">Reconciliation</p>
+                  <p className="text-xs text-muted-foreground">Track status in real-time</p>
                 </div>
               </div>
-              <div className="p-3 rounded-lg border border-border bg-card flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted/30 flex items-center justify-center mt-0.5">
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Track progress</p>
-                  <p className="text-xs text-muted-foreground">Real-time updates on next screen</p>
-                </div>
+
+              {/* Processing time note */}
+              <div className="mt-5 pt-4 border-t border-border/50 flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Typically 2-3 business days</span>
               </div>
             </CardContent>
           </Card>
