@@ -326,7 +326,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
         {/* Right Panel: What happens next - Always visible */}
         <div className="lg:col-span-2">
-          <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-sm h-full">
+          <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
             <div className="border-b border-border/40 py-4 px-5">
               <h3 className="text-sm font-medium text-foreground">What happens next</h3>
             </div>
