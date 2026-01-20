@@ -7,9 +7,9 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Receipt } from 'lucide-react';
+import { Lock, Receipt, Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import type { F42v4_Adjustment, F42v4_LineItem } from '@/stores/F42v4_DashboardStore';
+import type { F42v4_Adjustment, F42v4_LineItem, F42v4_InvoiceStatus } from '@/stores/F42v4_DashboardStore';
 
 interface InvoiceBreakdownDrawerProps {
   open: boolean;
@@ -19,6 +19,8 @@ interface InvoiceBreakdownDrawerProps {
   invoiceTotal: number;
   periodLabel: string;
   adjustments?: F42v4_Adjustment[];
+  invoiceStatus?: F42v4_InvoiceStatus;
+  onMakeAdjustment?: () => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -50,11 +52,14 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   currency,
   invoiceTotal,
   periodLabel,
-  adjustments = []
+  adjustments = [],
+  invoiceStatus = 'draft',
+  onMakeAdjustment
 }: InvoiceBreakdownDrawerProps) => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const adjustmentItems = lineItems.filter(item => item.type === 'Adjustment');
   const hasRequests = adjustments.length > 0;
+  const canMakeAdjustments = invoiceStatus === 'draft' && onMakeAdjustment;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -129,6 +134,20 @@ export const F42v4_InvoiceBreakdownDrawer = ({
               {formatCurrency(invoiceTotal, currency)}
             </span>
           </div>
+
+          {/* Make Adjustments CTA - below invoice total for context */}
+          {canMakeAdjustments && (
+            <button
+              onClick={() => {
+                onMakeAdjustment();
+                onOpenChange(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Request a change for this period
+            </button>
+          )}
 
           {/* Submitted Adjustments */}
           {hasRequests && (
