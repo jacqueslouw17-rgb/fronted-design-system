@@ -495,12 +495,12 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
             </div>}
 
-          {/* Primary + Secondary Actions - hide completely for rejected state */}
-          {!demoRejected && (
+          {/* Primary + Secondary Actions - hide for rejected and approved states */}
+          {!demoRejected && payrollStatus !== 'approved' && (
             <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
-                {(effectiveStatus === 'submitted' || effectiveStatus === 'approved') ? (
-                  // Submitted/Approved state: disabled button with check icon
+                {payrollStatus === 'submitted' ? (
+                  // Submitted state: disabled button with check icon
                   <Button disabled className="flex-1 gap-2">
                     <Check className="h-4 w-4" />
                     {statusConfig.primaryAction}
@@ -512,8 +512,8 @@ export const F41v4_UpcomingPayCard = () => {
                 )}
                 
                 {statusConfig.secondaryAction && (
-                  (effectiveStatus === 'submitted' || effectiveStatus === 'approved') ? (
-                    // Submitted/Approved state: disabled secondary with tooltip
+                  payrollStatus === 'submitted' ? (
+                    // Submitted state: disabled secondary with tooltip
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="flex-1">
@@ -547,13 +547,15 @@ export const F41v4_UpcomingPayCard = () => {
                   Submitted on {formatSubmittedTimestamp(submittedAt)}
                 </p>
               )}
+            </div>
+          )}
 
-              {/* Approved timestamp */}
-              {payrollStatus === 'approved' && approvedAt && (
-                <p className="text-xs text-muted-foreground/70 text-center">
-                  Approved on {formatSubmittedTimestamp(approvedAt)}
-                </p>
-              )}
+          {/* Approved timestamp - show separately when approved */}
+          {payrollStatus === 'approved' && approvedAt && !demoRejected && (
+            <div className="pt-2 text-center">
+              <p className="text-xs text-muted-foreground/70">
+                Approved on {formatSubmittedTimestamp(approvedAt)}
+              </p>
             </div>
           )}
 
