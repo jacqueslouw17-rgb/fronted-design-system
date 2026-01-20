@@ -17,7 +17,8 @@ import {
   Calendar, 
   Wallet, 
   Clock,
-  AlertCircle
+  AlertCircle,
+  Check
 } from 'lucide-react';
 import { useF41v4_DashboardStore, type PayrollStatus, type Adjustment, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { F41v4_AdjustmentModal, type RequestType } from './F41v4_AdjustmentModal';
@@ -44,8 +45,27 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
+const formatSubmittedTimestamp = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+  }) + ', ' + date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 // Status badge configuration
-const getStatusConfig = (status: PayrollStatus) => {
+const getStatusConfig = (status: PayrollStatus): {
+  label: string;
+  className: string;
+  explanation: string;
+  helperText?: string;
+  primaryAction: string;
+  secondaryAction: string;
+} => {
   switch (status) {
     case 'draft':
       return {
@@ -57,11 +77,12 @@ const getStatusConfig = (status: PayrollStatus) => {
       };
     case 'submitted':
       return {
-        label: 'Submitted',
-        className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30',
-        explanation: 'Submitted to your company for review.',
-        primaryAction: 'View submission',
-        secondaryAction: 'Withdraw submission',
+        label: 'In review',
+        className: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+        explanation: 'Submitted for review',
+        helperText: 'Your company will review this before payroll is finalised.',
+        primaryAction: 'Submitted',
+        secondaryAction: 'Make adjustments',
       };
     case 'returned':
       return {
@@ -165,6 +186,7 @@ export const F41v4_UpcomingPayCard = () => {
     payrollStatus,
     returnedReason,
     resubmitDeadline,
+    submittedAt,
     adjustments,
     leaveRequests,
     cutoffDate,
@@ -274,21 +296,34 @@ export const F41v4_UpcomingPayCard = () => {
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
               {/* Single helper line with cut-off inline */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{statusConfig.explanation}</span>
-                {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
-                  <>
-                    <span className="text-muted-foreground/50">·</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" />
-                      Cut-off {cutoffDate}
-                    </span>
-                    {isCutoffSoon && (
-                      <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
-                        Soon
-                      </Badge>
-                    )}
-                  </>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  {payrollStatus === 'submitted' && (
+                    <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+                  )}
+                  <span className={payrollStatus === 'submitted' ? 'text-foreground font-medium' : ''}>
+                    {statusConfig.explanation}
+                  </span>
+                  {(payrollStatus === 'draft' || payrollStatus === 'returned') && (
+                    <>
+                      <span className="text-muted-foreground/50">·</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        Cut-off {cutoffDate}
+                      </span>
+                      {isCutoffSoon && (
+                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30">
+                          Soon
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                </div>
+                {/* Helper text for submitted state */}
+                {payrollStatus === 'submitted' && statusConfig.helperText && (
+                  <p className="text-sm text-muted-foreground">
+                    {statusConfig.helperText}
+                  </p>
                 )}
               </div>
             </div>
@@ -458,28 +493,66 @@ export const F41v4_UpcomingPayCard = () => {
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={handlePrimaryAction}
-                className="flex-1"
-              >
-                {statusConfig.primaryAction}
-              </Button>
-              
-              {statusConfig.secondaryAction && (
+              {payrollStatus === 'submitted' ? (
+                // Submitted state: disabled button with check icon
                 <Button
-                  variant="outline"
-                  onClick={handleSecondaryAction}
+                  disabled
+                  className="flex-1 gap-2"
+                >
+                  <Check className="h-4 w-4" />
+                  {statusConfig.primaryAction}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handlePrimaryAction}
                   className="flex-1"
                 >
-                  {statusConfig.secondaryAction}
+                  {statusConfig.primaryAction}
                 </Button>
+              )}
+              
+              {statusConfig.secondaryAction && (
+                payrollStatus === 'submitted' ? (
+                  // Submitted state: disabled secondary with tooltip
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex-1">
+                        <Button
+                          variant="outline"
+                          disabled
+                          className="w-full opacity-50 cursor-not-allowed"
+                        >
+                          {statusConfig.secondaryAction}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">
+                      Adjustments are locked while your submission is under review.
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleSecondaryAction}
+                    className="flex-1"
+                  >
+                    {statusConfig.secondaryAction}
+                  </Button>
+                )
               )}
             </div>
 
-            {/* "What happens next" line */}
+            {/* "What happens next" line - only for draft */}
             {payrollStatus === 'draft' && (
               <p className="text-xs text-muted-foreground text-center">
                 Your company will review before payroll is finalised.
+              </p>
+            )}
+
+            {/* Submitted timestamp */}
+            {payrollStatus === 'submitted' && submittedAt && (
+              <p className="text-xs text-muted-foreground/70 text-center">
+                Submitted on {formatSubmittedTimestamp(submittedAt)}
               </p>
             )}
           </div>

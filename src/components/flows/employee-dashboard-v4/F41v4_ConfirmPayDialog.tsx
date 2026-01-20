@@ -33,8 +33,8 @@ export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v
     submitForReview();
     toast.success(
       isResubmit 
-        ? "Resubmitted for review. Your company will review your changes."
-        : "Submitted for review. Your company will review before payroll is finalised."
+        ? "Resubmitted successfully. Your payroll is now under review."
+        : "Submitted successfully. Your payroll is now under review."
     );
     onOpenChange(false);
   };
