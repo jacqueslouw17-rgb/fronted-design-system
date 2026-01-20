@@ -501,17 +501,20 @@ export const F41v4_UpcomingPayCard = () => {
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
             {demoRejected ? (
-              // Rejected state: single primary action + secondary text link on right
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button onClick={handlePrimaryAction} className="flex-1">
-                  {statusConfig.primaryAction}
-                </Button>
-                <button 
-                  onClick={() => toast.info('Opening message to manager...')}
-                  className="flex-1 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors text-center sm:text-right"
-                >
-                  Contact your manager
-                </button>
+              // Rejected state: primary action left, secondary text link right
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <Button onClick={handlePrimaryAction} className="flex-1 w-full sm:w-auto">
+                    {statusConfig.primaryAction}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => toast.info('Opening message to manager...')}
+                    className="flex-1 w-full sm:w-auto"
+                  >
+                    Contact your manager
+                  </Button>
+                </div>
               </div>
             ) : (
               // Normal states
