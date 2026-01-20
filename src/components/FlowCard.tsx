@@ -418,7 +418,6 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       icon: Workflow,
       title: "Flow 1 Fronted Admin Dashboard v4",
       locked: false,
-      live: true,
       deprecated: false,
       description: "Isolated copy of Flow 1 v2 (Fronted Admin Dashboard). Fresh clone for active development with full component isolation.",
       steps: "7 steps",
