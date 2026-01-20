@@ -151,6 +151,7 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 export const F41v4_UpcomingPayCard = () => {
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
+  const [adjustmentModalFromBreakdown, setAdjustmentModalFromBreakdown] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
   const [payslipDrawerOpen, setPayslipDrawerOpen] = useState(false);
@@ -167,14 +168,16 @@ export const F41v4_UpcomingPayCard = () => {
   const [demoRejected, setDemoRejected] = useState(false);
 
   // Helper to open adjustment modal with specific type
-  const openAdjustmentModal = (type: RequestType = null) => {
+  const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false) => {
     setAdjustmentModalInitialType(type);
+    setAdjustmentModalFromBreakdown(fromBreakdown);
     setAdjustmentModalOpen(true);
   };
   const handleAdjustmentModalClose = (open: boolean) => {
     setAdjustmentModalOpen(open);
     if (!open) {
       setAdjustmentModalInitialType(null);
+      setAdjustmentModalFromBreakdown(false);
     }
   };
   const {
@@ -506,7 +509,7 @@ export const F41v4_UpcomingPayCard = () => {
         onOpenChange={handleAdjustmentModalClose} 
         currency={currency} 
         initialType={adjustmentModalInitialType}
-        onBack={() => setBreakdownDrawerOpen(true)}
+        onBack={adjustmentModalFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined}
       />
 
       <F41v4_ConfirmPayDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
@@ -527,7 +530,7 @@ export const F41v4_UpcomingPayCard = () => {
         adjustments={adjustments} 
         leaveRequests={leaveRequests}
         payrollStatus={payrollStatus}
-        onMakeAdjustment={() => openAdjustmentModal()}
+        onMakeAdjustment={() => openAdjustmentModal(null, true)}
       />
 
       <F41v4_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
