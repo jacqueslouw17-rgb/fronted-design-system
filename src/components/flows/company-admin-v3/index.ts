@@ -6,4 +6,5 @@ export * from "./CA3_SubmitConfirmationModal";
 export * from "./CA3_FixCheckDrawer";
 export * from "./CA3_TopSummary";
 export * from "./CA3_TrackingView";
+export * from "./CA3_SubmissionsView";
 export * from "./CA3_PayrollSection";

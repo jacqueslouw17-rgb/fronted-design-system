@@ -1,11 +1,13 @@
-import React from "react";
-import { CheckCircle2, Clock, XCircle, AlertCircle, Download, FileText, Users, Briefcase } from "lucide-react";
+import React, { useState } from "react";
+import { CheckCircle2, Clock, XCircle, RefreshCw, Download, FileText, Users, Briefcase, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued";
 
@@ -18,11 +20,14 @@ export interface TrackingWorker {
   currency: string;
   status: WorkerPaymentStatus;
   errorMessage?: string;
+  fixInstructions?: string;
+  canRetry?: boolean;
 }
 
 interface CA3_TrackingViewProps {
   workers: TrackingWorker[];
   onViewIssue: (worker: TrackingWorker) => void;
+  onRetry: (worker: TrackingWorker) => void;
   onExportCSV: () => void;
   onDownloadAuditPDF: () => void;
 }
@@ -30,13 +35,16 @@ interface CA3_TrackingViewProps {
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   workers,
   onViewIssue,
+  onRetry,
   onExportCSV,
   onDownloadAuditPDF,
 }) => {
+  const [expandedFailed, setExpandedFailed] = useState<string[]>([]);
+
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
   
-  const successCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
+  const paidCount = workers.filter(w => w.status === "paid" || w.status === "posted").length;
   const failedCount = workers.filter(w => w.status === "failed").length;
   const processingCount = workers.filter(w => w.status === "processing" || w.status === "queued").length;
 
@@ -47,15 +55,15 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green-fill/10", label: "Paid" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", bg: "bg-accent-green-fill/10 border-accent-green-outline/20", label: "Paid" };
       case "posted":
-        return { icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-500/10", label: "Posted" };
+        return { icon: CheckCircle2, color: "text-blue-600", bg: "bg-blue-500/10 border-blue-500/20", label: "Posted" };
       case "processing":
-        return { icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10", label: "Processing" };
+        return { icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10 border-amber-500/20", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border/30", label: "Queued" };
       case "failed":
-        return { icon: XCircle, color: "text-red-600", bg: "bg-red-500/10", label: "Failed" };
+        return { icon: XCircle, color: "text-red-600", bg: "bg-red-500/10 border-red-500/20", label: "Failed" };
     }
   };
 
@@ -64,149 +72,191 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
     return `${symbols[currency] || currency}${amount.toLocaleString()}`;
   };
 
+  const toggleFailedExpand = (id: string) => {
+    setExpandedFailed(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const renderWorkerRow = (worker: TrackingWorker) => {
     const statusConfig = getStatusConfig(worker.status);
     const StatusIcon = statusConfig.icon;
+    const isExpanded = expandedFailed.includes(worker.id);
+    const isFailed = worker.status === "failed";
 
     return (
-      <div 
-        key={worker.id}
-        className={cn(
-          "flex items-center gap-4 p-3 rounded-lg border transition-colors",
-          worker.status === "failed" ? "border-red-500/30 bg-red-500/5" : "border-border/30 bg-muted/10 hover:bg-muted/20"
-        )}
-      >
-        <Avatar className="h-9 w-9">
-          <AvatarFallback className="text-xs font-medium bg-muted">
-            {getInitials(worker.name)}
-          </AvatarFallback>
-        </Avatar>
+      <div key={worker.id}>
+        <div 
+          className={cn(
+            "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+            isFailed 
+              ? "border-red-500/20 bg-red-500/5 cursor-pointer hover:bg-red-500/10" 
+              : "border-border/20 bg-muted/5"
+          )}
+          onClick={() => isFailed && toggleFailedExpand(worker.id)}
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="text-[10px] font-medium bg-muted">
+              {getInitials(worker.name)}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
-          <p className="text-xs text-muted-foreground">{worker.country}</p>
-        </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+            <p className="text-[10px] text-muted-foreground">{worker.country}</p>
+          </div>
 
-        <div className="text-right">
-          <p className="text-sm font-medium text-foreground">
-            {formatCurrency(worker.amount, worker.currency)}
-          </p>
-        </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-foreground">
+              {formatCurrency(worker.amount, worker.currency)}
+            </p>
+          </div>
 
-        <div className="flex items-center gap-2">
           <Badge 
             variant="outline" 
-            className={cn("text-xs gap-1", statusConfig.bg, statusConfig.color, "border-transparent")}
+            className={cn("text-[10px] gap-1 border", statusConfig.bg, statusConfig.color)}
           >
             <StatusIcon className="h-3 w-3" />
             {statusConfig.label}
           </Badge>
           
-          {worker.status === "failed" && (
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-500/10"
-              onClick={() => onViewIssue(worker)}
-            >
-              View issue
-            </Button>
+          {isFailed && (
+            <div className="text-muted-foreground">
+              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </div>
           )}
         </div>
+
+        {/* Expanded error details for failed */}
+        {isFailed && isExpanded && (
+          <div className="mt-1 ml-11 p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                  {worker.errorMessage || "Payment failed"}
+                </p>
+                {worker.fixInstructions && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {worker.fixInstructions}
+                  </p>
+                )}
+              </div>
+            </div>
+            {worker.canRetry && (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRetry(worker);
+                  toast.info(`Retrying payment for ${worker.name}`);
+                }}
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header with Actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Processing Status</h3>
-          <p className="text-sm text-muted-foreground">Fronted is executing payments</p>
+          <h3 className="text-sm font-semibold text-foreground">Processing Status</h3>
+          <p className="text-xs text-muted-foreground">Fronted is executing payments</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onExportCSV} className="gap-2">
-            <Download className="h-3.5 w-3.5" />
-            Export CSV
+          <Button variant="outline" size="sm" onClick={onExportCSV} className="h-7 text-xs gap-1.5">
+            <Download className="h-3 w-3" />
+            CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={onDownloadAuditPDF} className="gap-2">
-            <FileText className="h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" onClick={onDownloadAuditPDF} className="h-7 text-xs gap-1.5">
+            <FileText className="h-3 w-3" />
             Audit PDF
           </Button>
         </div>
       </div>
 
-      {/* Summary Counts */}
-      <div className="flex items-center gap-6 p-4 rounded-xl bg-muted/20 border border-border/30">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-5 w-5 text-accent-green-text" />
-          <span className="text-sm">
-            <strong className="font-semibold text-foreground">{successCount}</strong>{" "}
-            <span className="text-muted-foreground">completed</span>
+      {/* Summary Counts - Compact */}
+      <div className="flex items-center gap-4 py-2.5 px-4 rounded-lg bg-muted/20 border border-border/20">
+        <div className="flex items-center gap-1.5">
+          <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
+          <span className="text-xs">
+            <strong className="font-semibold">{paidCount}</strong> completed
           </span>
         </div>
         {processingCount > 0 && (
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-amber-600" />
-            <span className="text-sm">
-              <strong className="font-semibold text-foreground">{processingCount}</strong>{" "}
-              <span className="text-muted-foreground">processing</span>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-amber-600" />
+            <span className="text-xs">
+              <strong className="font-semibold">{processingCount}</strong> processing
             </span>
           </div>
         )}
         {failedCount > 0 && (
-          <div className="flex items-center gap-2">
-            <XCircle className="h-5 w-5 text-red-600" />
-            <span className="text-sm">
-              <strong className="font-semibold text-foreground">{failedCount}</strong>{" "}
-              <span className="text-muted-foreground">failed</span>
+          <div className="flex items-center gap-1.5">
+            <XCircle className="h-4 w-4 text-red-600" />
+            <span className="text-xs">
+              <strong className="font-semibold">{failedCount}</strong> failed
             </span>
           </div>
         )}
       </div>
 
-      {/* Tabbed View */}
-      <Card className="border-border/20 bg-card/30">
-        <CardContent className="p-4">
-          <Tabs defaultValue="all">
-            <TabsList className="mb-4">
-              <TabsTrigger value="all" className="text-xs">
-                All ({workers.length})
-              </TabsTrigger>
-              <TabsTrigger value="employees" className="text-xs gap-1.5">
-                <Users className="h-3 w-3" />
-                Employees ({employees.length})
-              </TabsTrigger>
-              <TabsTrigger value="contractors" className="text-xs gap-1.5">
-                <Briefcase className="h-3 w-3" />
-                Contractors ({contractors.length})
-              </TabsTrigger>
-              {failedCount > 0 && (
-                <TabsTrigger value="failed" className="text-xs text-red-600">
-                  Failed ({failedCount})
-                </TabsTrigger>
-              )}
-            </TabsList>
+      {/* Action banner for failures */}
+      {failedCount > 0 && (
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <p className="text-sm text-red-700 dark:text-red-400 flex-1">
+            Action required: {failedCount} worker{failedCount !== 1 ? 's' : ''} failed. Review details and retry.
+          </p>
+        </div>
+      )}
 
-            <TabsContent value="all" className="space-y-2 max-h-96 overflow-y-auto">
-              {workers.map(renderWorkerRow)}
-            </TabsContent>
+      {/* Tabbed View - Compact */}
+      <Tabs defaultValue="all">
+        <TabsList className="h-8 bg-muted/20">
+          <TabsTrigger value="all" className="text-[11px] h-6 px-3">
+            All ({workers.length})
+          </TabsTrigger>
+          <TabsTrigger value="employees" className="text-[11px] h-6 px-3 gap-1">
+            <Users className="h-3 w-3" />
+            EE ({employees.length})
+          </TabsTrigger>
+          <TabsTrigger value="contractors" className="text-[11px] h-6 px-3 gap-1">
+            <Briefcase className="h-3 w-3" />
+            C ({contractors.length})
+          </TabsTrigger>
+          {failedCount > 0 && (
+            <TabsTrigger value="failed" className="text-[11px] h-6 px-3 text-red-600">
+              Failed ({failedCount})
+            </TabsTrigger>
+          )}
+        </TabsList>
 
-            <TabsContent value="employees" className="space-y-2 max-h-96 overflow-y-auto">
-              {employees.map(renderWorkerRow)}
-            </TabsContent>
+        <TabsContent value="all" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+          {workers.map(renderWorkerRow)}
+        </TabsContent>
 
-            <TabsContent value="contractors" className="space-y-2 max-h-96 overflow-y-auto">
-              {contractors.map(renderWorkerRow)}
-            </TabsContent>
+        <TabsContent value="employees" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+          {employees.map(renderWorkerRow)}
+        </TabsContent>
 
-            <TabsContent value="failed" className="space-y-2 max-h-96 overflow-y-auto">
-              {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        <TabsContent value="contractors" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+          {contractors.map(renderWorkerRow)}
+        </TabsContent>
+
+        <TabsContent value="failed" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+          {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

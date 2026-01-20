@@ -1,23 +1,23 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { CA3_TopSummary } from "./CA3_TopSummary";
+import { CA3_TopSummary, PayrollStatus } from "./CA3_TopSummary";
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 import { CA3_ReadinessIndicator } from "./CA3_ReadinessIndicator";
 import { CA3_ReviewCheckCard, ReviewCheck, CheckSeverity, CheckStatus } from "./CA3_ReviewCheckCard";
+import { CA3_SubmissionsView, WorkerSubmission } from "./CA3_SubmissionsView";
 import { CA3_FixCheckDrawer } from "./CA3_FixCheckDrawer";
 import { CA3_SubmitConfirmationModal } from "./CA3_SubmitConfirmationModal";
 import { CA3_TrackingView, TrackingWorker } from "./CA3_TrackingView";
 
-// Mock data for the new streamlined UI
+// Mock data for the streamlined UI
 const mockReviewChecks: ReviewCheck[] = [
   {
     id: "check-1",
@@ -69,6 +69,74 @@ const mockReviewChecks: ReviewCheck[] = [
   },
 ];
 
+const mockSubmissions: WorkerSubmission[] = [
+  {
+    id: "sub-1",
+    workerId: "1",
+    workerName: "David Martinez",
+    workerCountry: "Portugal",
+    workerType: "contractor",
+    submissions: [
+      { type: "timesheet", hours: 160, description: "October 2024" },
+      { type: "expenses", amount: 245, currency: "EUR", description: "Travel expenses" },
+    ],
+    status: "pending",
+    totalImpact: 245,
+    currency: "EUR",
+  },
+  {
+    id: "sub-2",
+    workerId: "2",
+    workerName: "Sophie Laurent",
+    workerCountry: "France",
+    workerType: "employee",
+    submissions: [
+      { type: "leave", days: 2, description: "Personal time" },
+    ],
+    status: "approved",
+    currency: "EUR",
+  },
+  {
+    id: "sub-3",
+    workerId: "6",
+    workerName: "Maria Santos",
+    workerCountry: "Philippines",
+    workerType: "employee",
+    submissions: [
+      { type: "overtime", hours: 8, description: "Project deadline" },
+      { type: "bonus", amount: 15000, currency: "PHP", description: "Performance bonus" },
+    ],
+    status: "pending",
+    totalImpact: 15000,
+    currency: "PHP",
+  },
+  {
+    id: "sub-4",
+    workerId: "4",
+    workerName: "Alex Hansen",
+    workerCountry: "Norway",
+    workerType: "employee",
+    submissions: [
+      { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment" },
+    ],
+    status: "flagged",
+    totalImpact: 1200,
+    currency: "NOK",
+  },
+  {
+    id: "sub-5",
+    workerId: "5",
+    workerName: "Emma Wilson",
+    workerCountry: "Norway",
+    workerType: "contractor",
+    submissions: [
+      { type: "timesheet", hours: 168, description: "October 2024" },
+    ],
+    status: "approved",
+    currency: "NOK",
+  },
+];
+
 const mockTrackingWorkers: TrackingWorker[] = [
   { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR", status: "paid" },
   { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR", status: "posted" },
@@ -76,7 +144,7 @@ const mockTrackingWorkers: TrackingWorker[] = [
   { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK", status: "paid" },
   { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK", status: "queued" },
   { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP", status: "paid" },
-  { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP", status: "failed", errorMessage: "Bank rejected payment - invalid account" },
+  { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP", status: "failed", errorMessage: "Bank rejected payment - invalid account number", fixInstructions: "Update bank details and retry.", canRetry: true },
 ];
 
 interface CA3_PayrollSectionProps {
@@ -84,15 +152,16 @@ interface CA3_PayrollSectionProps {
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
-  // Step state
+  // Step state - 5 steps now
   const [currentStep, setCurrentStep] = useState<CA3_PayrollStep>("review");
   const [completedSteps, setCompletedSteps] = useState<CA3_PayrollStep[]>([]);
   
   // Checks state
   const [checks, setChecks] = useState<ReviewCheck[]>(mockReviewChecks);
   const [searchQuery, setSearchQuery] = useState("");
-  const [severityFilter, setSeverityFilter] = useState<"all" | CheckSeverity>("all");
-  const [showResolved, setShowResolved] = useState(false);
+  
+  // Submissions state
+  const [submissions, setSubmissions] = useState<WorkerSubmission[]>(mockSubmissions);
   
   // Drawer/Modal state
   const [fixDrawerOpen, setFixDrawerOpen] = useState(false);
@@ -102,20 +171,19 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Tracking state
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
-  // Computed values
+  // Computed values for checks
   const pendingChecks = useMemo(() => checks.filter(c => c.status === "pending"), [checks]);
   const blockingCount = useMemo(() => pendingChecks.filter(c => c.severity === "blocking").length, [pendingChecks]);
   const warningCount = useMemo(() => pendingChecks.filter(c => c.severity === "warning").length, [pendingChecks]);
   const infoCount = useMemo(() => pendingChecks.filter(c => c.severity === "info").length, [pendingChecks]);
   const isReady = blockingCount === 0;
 
+  // Computed values for submissions
+  const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
+
   // Filtered checks
   const filteredChecks = useMemo(() => {
-    return checks.filter(check => {
-      // Status filter
-      if (!showResolved && check.status !== "pending") return false;
-      
-      // Search filter
+    return pendingChecks.filter(check => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (!check.workerName.toLowerCase().includes(query) && 
@@ -123,18 +191,22 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           return false;
         }
       }
-      
-      // Severity filter
-      if (severityFilter !== "all" && check.severity !== severityFilter) return false;
-      
       return true;
     });
-  }, [checks, searchQuery, severityFilter, showResolved]);
+  }, [pendingChecks, searchQuery]);
 
   // Group checks by severity for tabs
   const blockingChecks = filteredChecks.filter(c => c.severity === "blocking");
   const warningChecks = filteredChecks.filter(c => c.severity === "warning");
   const infoChecks = filteredChecks.filter(c => c.severity === "info");
+
+  // Get current payroll status based on step
+  const getPayrollStatus = (): PayrollStatus => {
+    if (currentStep === "track") return "processing";
+    if (currentStep === "submit") return "ready";
+    if (blockingCount > 0) return "checks-pending";
+    return "in-review";
+  };
 
   // Handlers
   const handleFixNow = (check: ReviewCheck) => {
@@ -169,17 +241,23 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     }
   };
 
-  const handleContinueToResolve = () => {
+  // Navigation handlers
+  const goToSubmissions = () => {
     setCompletedSteps(prev => [...prev, "review"]);
-    setCurrentStep("resolve");
+    setCurrentStep("submissions");
   };
 
-  const handleContinueToSubmit = () => {
+  const goToChecks = () => {
+    setCompletedSteps(prev => [...prev, "submissions"]);
+    setCurrentStep("checks");
+  };
+
+  const goToSubmit = () => {
     if (!isReady) {
       toast.error("Please resolve all blocking issues first");
       return;
     }
-    setCompletedSteps(prev => [...prev, "resolve"]);
+    setCompletedSteps(prev => [...prev, "checks"]);
     setCurrentStep("submit");
   };
 
@@ -194,8 +272,36 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     toast.success("Batch submitted to Fronted for processing");
   };
 
+  // Submission handlers
+  const handleApproveSubmission = (submission: WorkerSubmission) => {
+    setSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "approved" } : s
+    ));
+  };
+
+  const handleFlagSubmission = (submission: WorkerSubmission, reason: string) => {
+    setSubmissions(prev => prev.map(s => 
+      s.id === submission.id ? { ...s, status: "flagged" } : s
+    ));
+  };
+
+  const handleApproveAllSafe = () => {
+    setSubmissions(prev => prev.map(s => 
+      s.status === "pending" ? { ...s, status: "approved" } : s
+    ));
+    toast.success("All safe submissions approved");
+  };
+
+  // Tracking handlers
   const handleViewIssue = (worker: TrackingWorker) => {
     toast.info(`Viewing issue for ${worker.name}: ${worker.errorMessage}`);
+  };
+
+  const handleRetryPayment = (worker: TrackingWorker) => {
+    setTrackingWorkers(prev => prev.map(w => 
+      w.id === worker.id ? { ...w, status: "processing" } : w
+    ));
+    toast.info(`Retrying payment for ${worker.name}`);
   };
 
   const handleExportCSV = () => {
@@ -211,7 +317,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     switch (currentStep) {
       case "review":
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Top Summary */}
             <CA3_TopSummary
               payPeriod={payPeriod}
@@ -223,34 +329,41 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               employeeCount={4}
               contractorCount={5}
               currencyCount={3}
+              status={getPayrollStatus()}
+              paymentRails={["SEPA", "Local", "SWIFT"]}
+              processingTime="2-3 days"
             />
 
-            {/* Quick action card */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
-              <CardContent className="py-4 px-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Review your workers and payroll totals above.
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Continue to resolve any checks before submitting.
-                    </p>
-                  </div>
-                  <Button onClick={handleContinueToResolve} className="gap-2">
-                    Continue to Resolve Checks
-                    <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Quick action - minimal */}
+            <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/10 border border-border/20">
+              <p className="text-sm text-muted-foreground">
+                Review totals above, then continue to check submissions.
+              </p>
+              <Button onClick={goToSubmissions} size="sm" className="gap-1.5">
+                Continue
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         );
 
-      case "resolve":
+      case "submissions":
         return (
-          <div className="space-y-6">
-            {/* Readiness + Summary Row */}
+          <div className="space-y-4">
+            <CA3_SubmissionsView
+              submissions={submissions}
+              onApprove={handleApproveSubmission}
+              onFlag={handleFlagSubmission}
+              onApproveAll={handleApproveAllSafe}
+              onContinue={goToChecks}
+            />
+          </div>
+        );
+
+      case "checks":
+        return (
+          <div className="space-y-4">
+            {/* Readiness + Continue */}
             <div className="flex items-center justify-between">
               <CA3_ReadinessIndicator
                 blockingCount={blockingCount}
@@ -260,52 +373,48 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               />
               
               <Button 
-                onClick={handleContinueToSubmit} 
+                onClick={goToSubmit} 
                 disabled={!isReady}
-                className="gap-2"
+                size="sm"
+                className="gap-1.5"
               >
-                Continue to Submit
-                <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
+                Continue
+                <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
 
-            {/* Search and Filters */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by worker name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9"
-                />
-              </div>
+            {/* Search */}
+            <div className="relative max-w-xs">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search workers..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-8 text-sm w-56"
+              />
             </div>
 
             {/* Tabbed checks view */}
             <Tabs defaultValue="blocking" className="w-full">
-              <TabsList className="mb-4 bg-muted/30">
-                <TabsTrigger value="blocking" className="text-xs gap-1.5 data-[state=active]:bg-red-500/10 data-[state=active]:text-red-600">
+              <TabsList className="h-8 bg-muted/20">
+                <TabsTrigger value="blocking" className="text-[11px] h-6 px-3 data-[state=active]:text-destructive">
                   Blocking ({blockingCount})
                 </TabsTrigger>
-                <TabsTrigger value="warning" className="text-xs gap-1.5 data-[state=active]:bg-amber-500/10 data-[state=active]:text-amber-600">
+                <TabsTrigger value="warning" className="text-[11px] h-6 px-3">
                   Warnings ({warningCount})
                 </TabsTrigger>
-                <TabsTrigger value="info" className="text-xs gap-1.5 data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600">
+                <TabsTrigger value="info" className="text-[11px] h-6 px-3">
                   Info ({infoCount})
-                </TabsTrigger>
-                <TabsTrigger value="all" className="text-xs">
-                  All ({pendingChecks.length})
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="blocking" className="space-y-3">
+              <TabsContent value="blocking" className="mt-3 space-y-2">
                 <AnimatePresence mode="popLayout">
                   {blockingChecks.length === 0 ? (
                     <motion.div 
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-center py-8 text-muted-foreground"
+                      className="text-center py-6 text-sm text-muted-foreground"
                     >
                       No blocking issues. Ready to submit! ✓
                     </motion.div>
@@ -314,9 +423,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                       <motion.div
                         key={check.id}
                         layout
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
                       >
                         <CA3_ReviewCheckCard
                           check={check}
@@ -330,24 +439,24 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="warning" className="space-y-3">
+              <TabsContent value="warning" className="mt-3 space-y-2">
                 <AnimatePresence mode="popLayout">
                   {warningChecks.length === 0 ? (
                     <motion.div 
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-center py-8 text-muted-foreground"
+                      className="text-center py-6 text-sm text-muted-foreground"
                     >
-                      No warnings to review.
+                      No warnings.
                     </motion.div>
                   ) : (
                     warningChecks.map((check) => (
                       <motion.div
                         key={check.id}
                         layout
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
                       >
                         <CA3_ReviewCheckCard
                           check={check}
@@ -361,55 +470,24 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="info" className="space-y-3">
+              <TabsContent value="info" className="mt-3 space-y-2">
                 <AnimatePresence mode="popLayout">
                   {infoChecks.length === 0 ? (
                     <motion.div 
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-center py-8 text-muted-foreground"
+                      className="text-center py-6 text-sm text-muted-foreground"
                     >
-                      No informational items.
+                      No info items.
                     </motion.div>
                   ) : (
                     infoChecks.map((check) => (
                       <motion.div
                         key={check.id}
                         layout
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                      >
-                        <CA3_ReviewCheckCard
-                          check={check}
-                          onFixNow={handleFixNow}
-                          onAcknowledge={handleAcknowledge}
-                          onSkip={handleSkip}
-                        />
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="all" className="space-y-3">
-                <AnimatePresence mode="popLayout">
-                  {pendingChecks.length === 0 ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      All checks resolved! Ready to submit.
-                    </motion.div>
-                  ) : (
-                    pendingChecks.map((check) => (
-                      <motion.div
-                        key={check.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
                       >
                         <CA3_ReviewCheckCard
                           check={check}
@@ -428,49 +506,40 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
       case "submit":
         return (
-          <div className="space-y-6">
-            {/* Compact summary before submit */}
-            <Card className="border-border/20 bg-card/30 backdrop-blur-sm">
+          <div className="space-y-4">
+            {/* Submit summary card */}
+            <Card className="border-border/15 bg-card/20">
               <CardContent className="py-6 px-6">
                 <div className="text-center space-y-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/30">
-                    <span className="text-accent-green-text text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
+                    <span className="text-sm font-medium text-accent-green-text">
                       ✓ All checks resolved
                     </span>
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                    <h3 className="text-base font-semibold text-foreground mb-1">
                       Ready to submit
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Your batch is complete. Submit to Fronted for processing.
+                      Submit to Fronted for processing.
                     </p>
                   </div>
 
-                  <div className="flex justify-center gap-6 py-4">
+                  <div className="flex justify-center gap-8 py-3">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground">4</p>
-                      <p className="text-xs text-muted-foreground">Employees</p>
+                      <p className="text-2xl font-bold text-foreground">$128.6K</p>
+                      <p className="text-xs text-muted-foreground">Total cost</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground">5</p>
-                      <p className="text-xs text-muted-foreground">Contractors</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-primary">$128.6K</p>
-                      <p className="text-xs text-muted-foreground">Total Cost</p>
+                      <p className="text-2xl font-bold text-foreground">9</p>
+                      <p className="text-xs text-muted-foreground">Workers</p>
                     </div>
                   </div>
 
-                  {warningCount > 0 && (
-                    <p className="text-xs text-amber-600">
-                      Note: {warningCount} warning{warningCount !== 1 ? 's' : ''} acknowledged and will proceed.
-                    </p>
-                  )}
-
-                  <Button size="lg" onClick={handleOpenSubmitModal} className="gap-2 mt-4">
+                  <Button onClick={handleOpenSubmitModal} className="gap-2">
                     Submit to Fronted
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -483,37 +552,34 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           <CA3_TrackingView
             workers={trackingWorkers}
             onViewIssue={handleViewIssue}
+            onRetry={handleRetryPayment}
             onExportCSV={handleExportCSV}
             onDownloadAuditPDF={handleDownloadAuditPDF}
           />
         );
+
+      default:
+        return null;
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stepper */}
+    <div className="space-y-4">
+      {/* Stepper - always visible, ultra minimal */}
       <div className="flex justify-center">
         <CA3_PayrollStepper
           currentStep={currentStep}
           completedSteps={completedSteps}
           onStepClick={handleStepClick}
           blockingCount={blockingCount}
+          pendingSubmissions={pendingSubmissions}
         />
       </div>
 
       {/* Step Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          {renderStepContent()}
-        </motion.div>
-      </AnimatePresence>
+      <div className="pt-2">
+        {renderStepContent()}
+      </div>
 
       {/* Fix Check Drawer */}
       <CA3_FixCheckDrawer
