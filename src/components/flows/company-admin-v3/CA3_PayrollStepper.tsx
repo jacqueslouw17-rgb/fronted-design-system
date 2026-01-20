@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, FileSearch, Inbox, AlertCircle, Send, Activity } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type CA3_PayrollStep = "review" | "submissions" | "checks" | "submit" | "track";
@@ -7,15 +7,14 @@ export type CA3_PayrollStep = "review" | "submissions" | "checks" | "submit" | "
 interface StepConfig {
   id: CA3_PayrollStep;
   label: string;
-  icon: React.ElementType;
 }
 
 const steps: StepConfig[] = [
-  { id: "review", label: "Review", icon: FileSearch },
-  { id: "submissions", label: "Submissions", icon: Inbox },
-  { id: "checks", label: "Checks", icon: AlertCircle },
-  { id: "submit", label: "Submit", icon: Send },
-  { id: "track", label: "Track", icon: Activity },
+  { id: "review", label: "Review" },
+  { id: "submissions", label: "Submissions" },
+  { id: "checks", label: "Checks" },
+  { id: "submit", label: "Submit" },
+  { id: "track", label: "Track" },
 ];
 
 interface CA3_PayrollStepperProps {
@@ -43,10 +42,9 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-0.5 py-2 px-3 rounded-full bg-muted/20 border border-border/20 backdrop-blur-sm">
+    <div className="flex items-center gap-1">
       {steps.map((step, index) => {
         const state = getStepState(step.id);
-        const Icon = step.icon;
         const isClickable = state === "completed" || step.id === currentStep;
         
         // Show badge for checks with blocking count
@@ -60,36 +58,39 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
               onClick={() => isClickable && onStepClick?.(step.id)}
               disabled={!isClickable}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
-                "text-xs font-medium relative",
-                state === "active" && "bg-primary/10 text-primary",
-                state === "completed" && "text-accent-green-text hover:bg-accent-green-fill/10 cursor-pointer",
-                state === "upcoming" && "text-muted-foreground/50 cursor-not-allowed"
+                "flex items-center gap-1.5 px-2 py-1 rounded transition-all duration-200",
+                "text-xs relative group",
+                state === "active" && "text-foreground font-medium",
+                state === "completed" && "text-accent-green-text cursor-pointer hover:text-accent-green-text/80",
+                state === "upcoming" && "text-muted-foreground/40 cursor-not-allowed"
               )}
             >
+              {/* Step indicator */}
               <div className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-full",
-                state === "completed" && "bg-accent-green-fill/20",
-                state === "active" && "bg-primary/20"
+                "flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-medium transition-all",
+                state === "completed" && "bg-accent-green-fill/20 text-accent-green-text",
+                state === "active" && "bg-foreground text-background",
+                state === "upcoming" && "border border-muted-foreground/20 text-muted-foreground/40"
               )}>
                 {state === "completed" ? (
                   <Check className="h-2.5 w-2.5" />
                 ) : (
-                  <Icon className="h-2.5 w-2.5" />
+                  <span>{index + 1}</span>
                 )}
               </div>
+              
               <span className="hidden sm:inline">{step.label}</span>
               
               {/* Badge for blocking count */}
               {showBlockingBadge && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold">
                   {blockingCount}
                 </span>
               )}
               
               {/* Badge for submissions */}
               {showSubmissionBadge && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500 text-white text-[9px] font-bold">
                   {pendingSubmissions}
                 </span>
               )}
@@ -98,10 +99,10 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
             {/* Connector line */}
             {index < steps.length - 1 && (
               <div className={cn(
-                "w-4 h-px",
+                "w-6 h-px transition-colors",
                 stepOrder.indexOf(step.id) < currentIndex 
-                  ? "bg-accent-green-text/40" 
-                  : "bg-border/30"
+                  ? "bg-accent-green-text/30" 
+                  : "bg-border/20"
               )} />
             )}
           </React.Fragment>
