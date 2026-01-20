@@ -24,7 +24,8 @@ interface CA3_SubmitStepProps {
   employeeCount: number;
   contractorCount: number;
   currencyCount?: number;
-  onSubmit: () => void;
+  isSubmitted?: boolean;
+  onRequestSubmit: () => void; // Opens confirmation modal
   // Track data for post-submit state
   trackingWorkers?: TrackingWorker[];
   onExportCSV?: () => void;
@@ -36,18 +37,13 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   employeeCount,
   contractorCount,
   currencyCount = 3,
-  onSubmit,
+  isSubmitted = false,
+  onRequestSubmit,
   trackingWorkers = [],
   onExportCSV = () => {},
   onDownloadAuditPDF = () => {},
 }) => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSubmit = () => {
-    setIsSubmitted(true);
-    onSubmit();
-  };
 
   // Track view calculations
   const employees = trackingWorkers.filter(w => w.type === "employee");
@@ -216,7 +212,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
                   {/* CTA - Single primary action */}
                   <div className="pt-2">
-                    <Button onClick={handleSubmit} size="lg" className="h-11 px-6 gap-2">
+                    <Button onClick={onRequestSubmit} size="lg" className="h-11 px-6 gap-2">
                       <Send className="h-4 w-4" />
                       Submit to Fronted
                     </Button>
