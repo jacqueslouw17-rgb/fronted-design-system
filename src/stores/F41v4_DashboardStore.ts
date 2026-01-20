@@ -72,6 +72,7 @@ interface F41v4_DashboardState {
   payrollStatus: PayrollStatus;
   returnedReason?: string;
   resubmitDeadline?: string;
+  submittedAt?: string; // Timestamp when submission was made
   
   // Legacy - keeping for backwards compat
   confirmed: boolean;
@@ -128,6 +129,7 @@ const initialState: F41v4_DashboardState = {
   payrollStatus: 'draft',
   returnedReason: undefined,
   resubmitDeadline: undefined,
+  submittedAt: undefined,
   confirmed: false,
   adjustments: [],
   leaveRequests: [],
@@ -141,17 +143,17 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  submitForReview: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  submitForReview: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
   
-  submitNoChanges: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  submitNoChanges: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
   
-  fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true }),
+  fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
   
   setPayrollStatus: (status) => set({ payrollStatus: status }),
   
-  confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted' }),
+  confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted', submittedAt: new Date().toISOString() }),
   
-  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false }),
+  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false, submittedAt: undefined }),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [

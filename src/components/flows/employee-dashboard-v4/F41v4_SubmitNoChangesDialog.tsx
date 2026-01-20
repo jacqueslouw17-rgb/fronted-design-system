@@ -33,7 +33,7 @@ export const F41v4_SubmitNoChangesDialog = ({
 
   const handleSubmit = () => {
     submitNoChanges();
-    toast.success("Submitted with no changes. Your company will review.");
+    toast.success("Submitted successfully. Your payroll is now under review.");
     onOpenChange(false);
   };
 
