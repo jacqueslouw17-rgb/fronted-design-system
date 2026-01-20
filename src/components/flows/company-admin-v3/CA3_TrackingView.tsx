@@ -149,7 +149,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <Button 
                 size="sm" 
                 variant="outline"
-                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRetry(worker);
