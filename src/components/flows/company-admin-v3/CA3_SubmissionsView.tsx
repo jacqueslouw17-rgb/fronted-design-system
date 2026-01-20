@@ -412,20 +412,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     {/* Two clear action buttons side by side */}
                     {!showCustomReason ? (
                       <>
-                        <div className="flex gap-3">
+                        <div className="flex gap-2">
                           <Button 
-                            className="flex-1 gap-2 h-11"
+                            size="sm"
+                            className="flex-1 gap-1.5 h-9"
                             onClick={handleApproveFromDrawer}
                           >
-                            <Check className="h-4 w-4" />
+                            <Check className="h-3.5 w-3.5" />
                             Approve
                           </Button>
                           <Button 
                             variant="outline"
-                            className="flex-1 gap-2 h-11 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                            size="sm"
+                            className="flex-1 gap-1.5 h-9 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
                             onClick={() => setShowCustomReason(true)}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3.5 w-3.5" />
                             Reject
                           </Button>
                         </div>
