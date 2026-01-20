@@ -179,10 +179,26 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                     </div>
                   </div>
 
-                  {/* Total payout - Hero */}
+                  {/* Total payout - Hero with breakdown */}
                   <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
                     <p className="text-xs text-primary/70 mb-1">Total payout</p>
                     <p className="text-3xl font-semibold text-primary tracking-tight">{totalCost}</p>
+                    
+                    {/* Elegant receipt-style breakdown */}
+                    <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Gross pay</span>
+                        <span className="text-foreground tabular-nums">$124,800</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Fronted fees</span>
+                        <span className="text-foreground tabular-nums">$3,792</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
+                        <span className="text-primary/80 font-medium">Net payout</span>
+                        <span className="text-primary font-medium tabular-nums">$128,592</span>
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Breakdown tiles */}
