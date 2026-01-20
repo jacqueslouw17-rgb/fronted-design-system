@@ -32,49 +32,57 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
         {/* Left: Batch summary (3/5) */}
         <div className="lg:col-span-3">
           <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-              <h3 className="text-base font-medium text-foreground">Batch Overview</h3>
+            <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-3 px-5">
+              <h3 className="text-sm font-medium text-foreground">Batch Overview</h3>
             </CardHeader>
-            <CardContent className="p-5 space-y-5">
-              {/* Total payout card */}
-              <div className="p-4 rounded-lg border border-primary/20 bg-primary/5">
-                <p className="text-xs text-primary/70 mb-1">Total payout</p>
-                <p className="text-3xl font-semibold text-primary tracking-tight">{totalCost}</p>
+            <CardContent className="p-4 space-y-4">
+              {/* Total payout - compact */}
+              <div className="p-3 rounded-lg border border-primary/20 bg-primary/5">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs text-primary/70">Total payout</span>
+                  <span className="text-2xl font-semibold text-primary tracking-tight">{totalCost}</span>
+                </div>
               </div>
               
-              {/* Stats row as individual cards */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Employees</span>
+              {/* Stats row - tighter */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-3 rounded-lg border border-border bg-card">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Employees</span>
+                    </div>
+                    <span className="text-base font-semibold text-foreground">{employeeCount}</span>
                   </div>
-                  <p className="text-lg font-semibold text-foreground">{employeeCount}</p>
                 </div>
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Contractors</span>
+                <div className="p-3 rounded-lg border border-border bg-card">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Contractors</span>
+                    </div>
+                    <span className="text-base font-semibold text-foreground">{contractorCount}</span>
                   </div>
-                  <p className="text-lg font-semibold text-foreground">{contractorCount}</p>
                 </div>
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Currencies</span>
+                <div className="p-3 rounded-lg border border-border bg-card">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Currencies</span>
+                    </div>
+                    <span className="text-base font-semibold text-foreground">{currencyCount}</span>
                   </div>
-                  <p className="text-lg font-semibold text-foreground">{currencyCount}</p>
                 </div>
               </div>
 
-              {/* CTA */}
-              <div className="pt-2 flex items-center gap-4">
-                <Button onClick={onSubmit} size="lg" className="h-11 px-6 gap-2">
+              {/* CTA - tighter */}
+              <div className="pt-1 flex items-center gap-3">
+                <Button onClick={onSubmit} className="h-10 px-5 gap-2">
                   <Send className="h-4 w-4" />
                   Submit to Fronted
                 </Button>
                 <span className="text-xs text-muted-foreground">
-                  Processed within 2-3 business days
+                  2-3 business days
                 </span>
               </div>
             </CardContent>
