@@ -58,12 +58,17 @@ interface F42v4_DashboardState {
   cutoffDate: string;
   isCutoffSoon: boolean;
   daysUntilClose: number;
+  
+  // Timestamps for state transitions
+  submittedAt?: string;
+  approvedAt?: string;
 }
 
 interface F42v4_DashboardActions {
   setLoading: (loading: boolean) => void;
   submitInvoice: () => void;
   withdrawSubmission: () => void;
+  setInvoiceStatus: (status: F42v4_InvoiceStatus) => void;
   addAdjustment: (adjustment: Omit<F42v4_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
   reset: () => void;
@@ -109,9 +114,21 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  submitInvoice: () => set({ invoiceStatus: 'submitted' }),
+  submitInvoice: () => set({ 
+    invoiceStatus: 'submitted',
+    submittedAt: new Date().toISOString(),
+  }),
   
-  withdrawSubmission: () => set({ invoiceStatus: 'draft' }),
+  withdrawSubmission: () => set({ 
+    invoiceStatus: 'draft',
+    submittedAt: undefined,
+    approvedAt: undefined,
+  }),
+  
+  setInvoiceStatus: (status) => set((state) => ({ 
+    invoiceStatus: status,
+    approvedAt: status === 'approved' ? new Date().toISOString() : state.approvedAt,
+  })),
   
   addAdjustment: (adjustment) => set((state) => ({
     adjustments: [

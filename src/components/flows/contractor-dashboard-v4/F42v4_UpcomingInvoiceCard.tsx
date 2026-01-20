@@ -6,7 +6,7 @@
  * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,8 @@ import {
   Calendar, 
   Wallet, 
   Clock,
-  AlertCircle
+  AlertCircle,
+  Check
 } from 'lucide-react';
 import { useF42v4_DashboardStore, type F42v4_InvoiceStatus, type F42v4_Adjustment } from '@/stores/F42v4_DashboardStore';
 import { F42v4_AdjustmentDrawer } from './F42v4_AdjustmentDrawer';
@@ -44,24 +45,45 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
+const formatSubmittedTimestamp = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  }) + ', ' + date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 // Status configuration matching employee patterns
-const getStatusConfig = (status: F42v4_InvoiceStatus) => {
+const getStatusConfig = (status: F42v4_InvoiceStatus): {
+  label: string;
+  className: string;
+  explanation: string;
+  helperText?: string;
+  primaryAction: string;
+  secondaryAction: string;
+} => {
   switch (status) {
     case 'draft':
       return {
         label: 'Action needed',
         className: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
         explanation: 'Review your details and submit for approval.',
+        helperText: 'Please review and confirm your invoice details before the cut-off.',
         primaryAction: 'Confirm invoice',
         secondaryAction: 'Request adjustment',
       };
     case 'submitted':
       return {
-        label: 'Submitted',
-        className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-accent-green/20 dark:text-accent-green-text dark:border-accent-green/30',
-        explanation: 'Submitted to your company for review.',
-        primaryAction: 'View submission',
-        secondaryAction: 'Withdraw submission',
+        label: 'In review',
+        className: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+        explanation: 'Submitted for review',
+        helperText: 'Your company will review this before the invoice is finalised.',
+        primaryAction: 'Submitted',
+        secondaryAction: 'Request adjustment',
       };
     case 'returned':
       return {
@@ -74,10 +96,11 @@ const getStatusConfig = (status: F42v4_InvoiceStatus) => {
     case 'approved':
       return {
         label: 'Approved',
-        className: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
-        explanation: 'Approved by your company and sent for processing.',
-        primaryAction: 'View draft invoice',
-        secondaryAction: 'Request a correction',
+        className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30',
+        explanation: 'Invoice approved',
+        helperText: 'Your invoice is finalised for this period.',
+        primaryAction: 'Approved',
+        secondaryAction: 'Request adjustment',
       };
     case 'finalised':
       return {
@@ -138,9 +161,23 @@ export const F42v4_UpcomingInvoiceCard = () => {
     adjustments,
     cutoffDate,
     isCutoffSoon,
+    submittedAt,
+    approvedAt,
     withdrawAdjustment,
     withdrawSubmission,
+    setInvoiceStatus,
   } = useF42v4_DashboardStore();
+
+  // Auto-transition from 'submitted' to 'approved' after 3 seconds
+  useEffect(() => {
+    if (invoiceStatus === 'submitted') {
+      const timer = setTimeout(() => {
+        setInvoiceStatus('approved');
+        toast.success('Approved. Your invoice is finalised.');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [invoiceStatus, setInvoiceStatus]);
 
   const statusConfig = getStatusConfig(invoiceStatus);
   const isWindowOpen = windowState === 'OPEN';
@@ -241,16 +278,12 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
               {/* Single helper line with cut-off inline */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{statusConfig.explanation}</span>
-                {(invoiceStatus === 'draft' || invoiceStatus === 'returned') && (
-                  <>
-                    <span className="text-muted-foreground/50">·</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" />
-                      Cut-off {cutoffDate}
-                    </span>
-                  </>
+              <div className="flex flex-col gap-0.5">
+                {/* Helper text for draft/submitted/approved state */}
+                {(invoiceStatus === 'draft' || invoiceStatus === 'submitted' || invoiceStatus === 'approved') && statusConfig.helperText && (
+                  <p className="text-sm text-muted-foreground">
+                    {statusConfig.helperText}
+                  </p>
                 )}
               </div>
             </div>
@@ -394,25 +427,68 @@ export const F42v4_UpcomingInvoiceCard = () => {
           {/* Primary + Secondary Actions */}
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={handlePrimaryAction}
-                className="flex-1"
-              >
-                {statusConfig.primaryAction}
-              </Button>
-              
-              {statusConfig.secondaryAction && (
+              {/* Primary button - disabled for submitted/approved states */}
+              {invoiceStatus === 'submitted' || invoiceStatus === 'approved' ? (
                 <Button
-                  variant="outline"
-                  onClick={handleSecondaryAction}
+                  disabled
+                  className="flex-1 gap-2"
+                >
+                  <Check className="h-4 w-4" />
+                  {statusConfig.primaryAction}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handlePrimaryAction}
                   className="flex-1"
                 >
-                  {statusConfig.secondaryAction}
+                  {statusConfig.primaryAction}
                 </Button>
+              )}
+              
+              {/* Secondary button - disabled with tooltip for submitted/approved */}
+              {statusConfig.secondaryAction && (
+                invoiceStatus === 'submitted' || invoiceStatus === 'approved' ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex-1">
+                        <Button
+                          variant="outline"
+                          disabled
+                          className="w-full"
+                        >
+                          {statusConfig.secondaryAction}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Adjustments are locked while your submission is under review.
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleSecondaryAction}
+                    className="flex-1"
+                  >
+                    {statusConfig.secondaryAction}
+                  </Button>
+                )
               )}
             </div>
 
-            {/* "What happens next" line */}
+            {/* Timestamp for submitted/approved */}
+            {invoiceStatus === 'submitted' && submittedAt && (
+              <p className="text-xs text-muted-foreground text-center">
+                Submitted on {formatSubmittedTimestamp(submittedAt)}
+              </p>
+            )}
+            {invoiceStatus === 'approved' && approvedAt && (
+              <p className="text-xs text-muted-foreground text-center">
+                Approved on {formatSubmittedTimestamp(approvedAt)}
+              </p>
+            )}
+
+            {/* "What happens next" line - only for draft */}
             {invoiceStatus === 'draft' && (
               <p className="text-xs text-muted-foreground text-center">
                 Your company will review before the invoice is finalised.
