@@ -424,47 +424,15 @@ export const F42v4_UpcomingInvoiceCard = () => {
             </div>
           )}
 
-          {/* Primary + Secondary Actions */}
-          <div className="space-y-3 pt-2">
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Primary button - disabled for submitted/approved states */}
-              {invoiceStatus === 'submitted' || invoiceStatus === 'approved' ? (
-                <Button
-                  disabled
-                  className="flex-1 gap-2"
-                >
-                  <Check className="h-4 w-4" />
+          {/* Primary + Secondary Actions - only show for draft state */}
+          {invoiceStatus === 'draft' && (
+            <div className="space-y-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={handlePrimaryAction} className="flex-1">
                   {statusConfig.primaryAction}
                 </Button>
-              ) : (
-                <Button
-                  onClick={handlePrimaryAction}
-                  className="flex-1"
-                >
-                  {statusConfig.primaryAction}
-                </Button>
-              )}
-              
-              {/* Secondary button - disabled with tooltip for submitted/approved */}
-              {statusConfig.secondaryAction && (
-                invoiceStatus === 'submitted' || invoiceStatus === 'approved' ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <Button
-                          variant="outline"
-                          disabled
-                          className="w-full"
-                        >
-                          {statusConfig.secondaryAction}
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      Adjustments are locked while your submission is under review.
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
+                
+                {statusConfig.secondaryAction && (
                   <Button
                     variant="outline"
                     onClick={handleSecondaryAction}
@@ -472,29 +440,29 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   >
                     {statusConfig.secondaryAction}
                   </Button>
-                )
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Timestamp for submitted/approved */}
-            {invoiceStatus === 'submitted' && submittedAt && (
-              <p className="text-xs text-muted-foreground text-center">
-                Submitted on {formatSubmittedTimestamp(submittedAt)}
-              </p>
-            )}
-            {invoiceStatus === 'approved' && approvedAt && (
-              <p className="text-xs text-muted-foreground text-center">
-                Approved on {formatSubmittedTimestamp(approvedAt)}
-              </p>
-            )}
-
-            {/* "What happens next" line - only for draft */}
-            {invoiceStatus === 'draft' && (
+              {/* "What happens next" line */}
               <p className="text-xs text-muted-foreground text-center">
                 Your company will review before the invoice is finalised.
               </p>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Timestamp for submitted */}
+          {invoiceStatus === 'submitted' && submittedAt && (
+            <p className="text-xs text-muted-foreground text-center pt-2">
+              Submitted on {formatSubmittedTimestamp(submittedAt)}
+            </p>
+          )}
+
+          {/* Timestamp for approved */}
+          {invoiceStatus === 'approved' && approvedAt && (
+            <p className="text-xs text-muted-foreground text-center pt-2">
+              Approved on {formatSubmittedTimestamp(approvedAt)}
+            </p>
+          )}
 
           {/* View previous invoices link */}
           <div className="text-center">
