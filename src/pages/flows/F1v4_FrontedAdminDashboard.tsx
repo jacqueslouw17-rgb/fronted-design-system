@@ -61,8 +61,18 @@ interface CompanyData {
   payoutDay?: string;
 }
 
-// Mock companies data - start empty for first-time admin experience
-const MOCK_COMPANIES: CompanyData[] = [];
+// Mock companies data - start with a default company to skip empty state
+const MOCK_COMPANIES: CompanyData[] = [
+  {
+    id: "company-default",
+    name: "Acme Corp",
+    adminName: "Joe User",
+    adminEmail: "joe@example.com",
+    hqCountry: "United States",
+    payrollCurrency: ["USD"],
+    payoutDay: "25",
+  }
+];
 
 // Default candidates to pre-populate in the "drafting" (Prepare Contract) step
 const DEFAULT_DRAFTING_CANDIDATES = [
@@ -115,10 +125,10 @@ const AdminContractingMultiCompany = () => {
   // Company switcher state - persist to localStorage, restore from URL if available
   const companyFromUrl = searchParams.get('company');
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
-    // Priority: URL param > localStorage > empty
+    // Priority: URL param > localStorage > default company
     if (companyFromUrl) return companyFromUrl;
     const saved = localStorage.getItem('adminflow-selected-company');
-    return saved || "";
+    return saved || "company-default";
   });
   const [isAddingNewCompany, setIsAddingNewCompany] = useState<boolean>(false);
   const [isEditingCompany, setIsEditingCompany] = useState<boolean>(false);
@@ -129,7 +139,7 @@ const AdminContractingMultiCompany = () => {
   });
   const [companyContractors, setCompanyContractors] = useState<Record<string, any[]>>(() => {
     const saved = localStorage.getItem('adminflow-company-contractors');
-    return saved ? JSON.parse(saved) : {};
+    return saved ? JSON.parse(saved) : { "company-default": [...DEFAULT_DRAFTING_CANDIDATES] };
   });
   
   // Persist companies to localStorage
