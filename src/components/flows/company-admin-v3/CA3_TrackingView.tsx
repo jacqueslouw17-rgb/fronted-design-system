@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { CheckCircle2, Clock, XCircle, RefreshCw, Download, FileText, Users, Briefcase, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -34,7 +32,6 @@ interface CA3_TrackingViewProps {
 
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   workers,
-  onViewIssue,
   onRetry,
   onExportCSV,
   onDownloadAuditPDF,
@@ -61,7 +58,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       case "processing":
         return { icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10 border-amber-500/20", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border/30", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border/20", label: "Queued" };
       case "failed":
         return { icon: XCircle, color: "text-red-600", bg: "bg-red-500/10 border-red-500/20", label: "Failed" };
     }
@@ -88,25 +85,30 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       <div key={worker.id}>
         <div 
           className={cn(
-            "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+            "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150",
             isFailed 
-              ? "border-red-500/20 bg-red-500/5 cursor-pointer hover:bg-red-500/10" 
-              : "border-border/20 bg-muted/5"
+              ? "border-l-[3px] border-l-red-500 border-r border-t border-b border-border/10 bg-red-500/[0.03] cursor-pointer hover:bg-red-500/[0.06]" 
+              : "border-border/10 bg-muted/5 hover:bg-muted/15"
           )}
           onClick={() => isFailed && toggleFailedExpand(worker.id)}
         >
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-[10px] font-medium bg-muted">
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarFallback className="text-[10px] font-medium bg-muted/50">
               {getInitials(worker.name)}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
+                {worker.type === "employee" ? "EE" : "C"}
+              </Badge>
+            </div>
             <p className="text-[10px] text-muted-foreground">{worker.country}</p>
           </div>
 
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <p className="text-sm font-medium text-foreground">
               {formatCurrency(worker.amount, worker.currency)}
             </p>
@@ -114,14 +116,14 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
           <Badge 
             variant="outline" 
-            className={cn("text-[10px] gap-1 border", statusConfig.bg, statusConfig.color)}
+            className={cn("text-[10px] gap-1 border flex-shrink-0", statusConfig.bg, statusConfig.color)}
           >
             <StatusIcon className="h-3 w-3" />
             {statusConfig.label}
           </Badge>
           
           {isFailed && (
-            <div className="text-muted-foreground">
+            <div className="text-muted-foreground flex-shrink-0">
               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </div>
           )}
@@ -129,9 +131,9 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
         {/* Expanded error details for failed */}
         {isFailed && isExpanded && (
-          <div className="mt-1 ml-11 p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-2">
+          <div className="mt-1 ml-11 p-3 rounded-lg bg-red-500/[0.03] border border-red-500/10 space-y-2">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5" />
+              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-red-700 dark:text-red-400">
                   {worker.errorMessage || "Payment failed"}
@@ -147,7 +149,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <Button 
                 size="sm" 
                 variant="outline"
-                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-50"
+                className="h-7 text-xs gap-1.5 border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRetry(worker);
@@ -184,19 +186,19 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </div>
       </div>
 
-      {/* Summary Counts - Compact */}
-      <div className="flex items-center gap-4 py-2.5 px-4 rounded-lg bg-muted/20 border border-border/20">
+      {/* Summary Counts - Compact chips */}
+      <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-muted/10 border border-border/10">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
           <span className="text-xs">
-            <strong className="font-semibold">{paidCount}</strong> completed
+            <span className="font-semibold">{paidCount}</span> completed
           </span>
         </div>
         {processingCount > 0 && (
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4 text-amber-600" />
             <span className="text-xs">
-              <strong className="font-semibold">{processingCount}</strong> processing
+              <span className="font-semibold">{processingCount}</span> processing
             </span>
           </div>
         )}
@@ -204,23 +206,23 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           <div className="flex items-center gap-1.5">
             <XCircle className="h-4 w-4 text-red-600" />
             <span className="text-xs">
-              <strong className="font-semibold">{failedCount}</strong> failed
+              <span className="font-semibold">{failedCount}</span> failed
             </span>
           </div>
         )}
       </div>
 
-      {/* Action banner for failures */}
+      {/* Subtle action banner for failures */}
       {failedCount > 0 && (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <p className="text-sm text-red-700 dark:text-red-400 flex-1">
-            Action required: {failedCount} worker{failedCount !== 1 ? 's' : ''} failed. Review details and retry.
+        <div className="flex items-center gap-2 py-2 px-3 rounded-lg border-l-[3px] border-l-red-500 bg-red-500/[0.03] border border-border/10">
+          <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
+          <p className="text-xs text-foreground">
+            Action required: {failedCount} worker{failedCount !== 1 ? 's' : ''} failed. Click to expand and review.
           </p>
         </div>
       )}
 
-      {/* Tabbed View - Compact */}
+      {/* Tabbed View */}
       <Tabs defaultValue="all">
         <TabsList className="h-8 bg-muted/20">
           <TabsTrigger value="all" className="text-[11px] h-6 px-3">
@@ -241,19 +243,19 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
           )}
         </TabsList>
 
-        <TabsContent value="all" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+        <TabsContent value="all" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
           {workers.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="employees" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+        <TabsContent value="employees" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
           {employees.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="contractors" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+        <TabsContent value="contractors" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
           {contractors.map(renderWorkerRow)}
         </TabsContent>
 
-        <TabsContent value="failed" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+        <TabsContent value="failed" className="mt-3 space-y-2 max-h-96 overflow-y-auto">
           {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
         </TabsContent>
       </Tabs>

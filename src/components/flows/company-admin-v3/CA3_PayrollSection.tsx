@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Search, ChevronRight, ArrowLeft } from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 import { CA3_TopSummary, PayrollStatus } from "./CA3_TopSummary";
@@ -16,6 +15,7 @@ import { CA3_SubmissionsView, WorkerSubmission } from "./CA3_SubmissionsView";
 import { CA3_FixCheckDrawer } from "./CA3_FixCheckDrawer";
 import { CA3_SubmitConfirmationModal } from "./CA3_SubmitConfirmationModal";
 import { CA3_TrackingView, TrackingWorker } from "./CA3_TrackingView";
+import { CA3_SubmitStep } from "./CA3_SubmitStep";
 
 // Mock data for the streamlined UI
 const mockReviewChecks: ReviewCheck[] = [
@@ -119,7 +119,7 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment" },
     ],
-    status: "flagged",
+    status: "pending",
     totalImpact: 1200,
     currency: "NOK",
   },
@@ -279,9 +279,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     ));
   };
 
-  const handleFlagSubmission = (submission: WorkerSubmission, reason: string) => {
+  const handleRejectSubmission = (submission: WorkerSubmission, reason: string) => {
     setSubmissions(prev => prev.map(s => 
-      s.id === submission.id ? { ...s, status: "flagged" } : s
+      s.id === submission.id ? { ...s, status: "rejected" } : s
     ));
   };
 
@@ -334,13 +334,10 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               processingTime="2-3 days"
             />
 
-            {/* Quick action - minimal */}
-            <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/10 border border-border/20">
-              <p className="text-sm text-muted-foreground">
-                Review totals above, then continue to check submissions.
-              </p>
+            {/* Continue action */}
+            <div className="flex justify-end pt-2">
               <Button onClick={goToSubmissions} size="sm" className="gap-1.5">
-                Continue
+                Continue to Submissions
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -349,21 +346,19 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
       case "submissions":
         return (
-          <div className="space-y-4">
-            <CA3_SubmissionsView
-              submissions={submissions}
-              onApprove={handleApproveSubmission}
-              onFlag={handleFlagSubmission}
-              onApproveAll={handleApproveAllSafe}
-              onContinue={goToChecks}
-            />
-          </div>
+          <CA3_SubmissionsView
+            submissions={submissions}
+            onApprove={handleApproveSubmission}
+            onFlag={handleRejectSubmission}
+            onApproveAll={handleApproveAllSafe}
+            onContinue={goToChecks}
+          />
         );
 
       case "checks":
         return (
           <div className="space-y-4">
-            {/* Readiness + Continue */}
+            {/* Header with readiness + action */}
             <div className="flex items-center justify-between">
               <CA3_ReadinessIndicator
                 blockingCount={blockingCount}
@@ -378,7 +373,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                 size="sm"
                 className="gap-1.5"
               >
-                Continue
+                Continue to Submit
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -397,13 +392,13 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             {/* Tabbed checks view */}
             <Tabs defaultValue="blocking" className="w-full">
               <TabsList className="h-8 bg-muted/20">
-                <TabsTrigger value="blocking" className="text-[11px] h-6 px-3 data-[state=active]:text-destructive">
+                <TabsTrigger value="blocking" className="text-[11px] h-6 px-3 data-[state=active]:text-red-600">
                   Blocking ({blockingCount})
                 </TabsTrigger>
-                <TabsTrigger value="warning" className="text-[11px] h-6 px-3">
+                <TabsTrigger value="warning" className="text-[11px] h-6 px-3 data-[state=active]:text-amber-600">
                   Warnings ({warningCount})
                 </TabsTrigger>
-                <TabsTrigger value="info" className="text-[11px] h-6 px-3">
+                <TabsTrigger value="info" className="text-[11px] h-6 px-3 data-[state=active]:text-blue-600">
                   Info ({infoCount})
                 </TabsTrigger>
               </TabsList>
@@ -506,45 +501,13 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
       case "submit":
         return (
-          <div className="space-y-4">
-            {/* Submit summary card */}
-            <Card className="border-border/15 bg-card/20">
-              <CardContent className="py-6 px-6">
-                <div className="text-center space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
-                    <span className="text-sm font-medium text-accent-green-text">
-                      ✓ All checks resolved
-                    </span>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground mb-1">
-                      Ready to submit
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Submit to Fronted for processing.
-                    </p>
-                  </div>
-
-                  <div className="flex justify-center gap-8 py-3">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground">$128.6K</p>
-                      <p className="text-xs text-muted-foreground">Total cost</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground">9</p>
-                      <p className="text-xs text-muted-foreground">Workers</p>
-                    </div>
-                  </div>
-
-                  <Button onClick={handleOpenSubmitModal} className="gap-2">
-                    Submit to Fronted
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <CA3_SubmitStep
+            totalCost="$128,592"
+            employeeCount={4}
+            contractorCount={5}
+            warningCount={warningCount}
+            onSubmit={handleOpenSubmitModal}
+          />
         );
 
       case "track":
@@ -564,20 +527,18 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   };
 
   return (
-    <div className="space-y-4">
-      {/* Stepper - always visible, ultra minimal */}
-      <div className="flex justify-center">
-        <CA3_PayrollStepper
-          currentStep={currentStep}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          blockingCount={blockingCount}
-          pendingSubmissions={pendingSubmissions}
-        />
-      </div>
+    <div className="space-y-6">
+      {/* Stepper - left aligned, minimal */}
+      <CA3_PayrollStepper
+        currentStep={currentStep}
+        completedSteps={completedSteps}
+        onStepClick={handleStepClick}
+        blockingCount={blockingCount}
+        pendingSubmissions={pendingSubmissions}
+      />
 
       {/* Step Content */}
-      <div className="pt-2">
+      <div>
         {renderStepContent()}
       </div>
 
