@@ -22,7 +22,7 @@ import {
   Check
 } from 'lucide-react';
 import { useF42v4_DashboardStore, type F42v4_InvoiceStatus, type F42v4_Adjustment } from '@/stores/F42v4_DashboardStore';
-import { F42v4_AdjustmentDrawer } from './F42v4_AdjustmentDrawer';
+import { F42v4_AdjustmentDrawer, type ContractorRequestType } from './F42v4_AdjustmentDrawer';
 import { F42v4_ConfirmInvoiceDialog } from './F42v4_ConfirmInvoiceDialog';
 import { F42v4_AdjustmentDetailDrawer } from './F42v4_AdjustmentDetailDrawer';
 import { F42v4_WithdrawDialog } from './F42v4_WithdrawDialog';
@@ -146,6 +146,8 @@ const getAdjustmentStatusColor = (status: F42v4_Adjustment['status']) => {
 
 export const F42v4_UpcomingInvoiceCard = () => {
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
+  const [adjustmentDrawerInitialType, setAdjustmentDrawerInitialType] = useState<ContractorRequestType>(null);
+  const [adjustmentDrawerFromBreakdown, setAdjustmentDrawerFromBreakdown] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
   const [invoiceHistoryOpen, setInvoiceHistoryOpen] = useState(false);
@@ -156,6 +158,20 @@ export const F42v4_UpcomingInvoiceCard = () => {
 
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
+
+  // Helper to open adjustment drawer with specific type
+  const openAdjustmentDrawer = (type: ContractorRequestType = null, fromBreakdown: boolean = false) => {
+    setAdjustmentDrawerInitialType(type);
+    setAdjustmentDrawerFromBreakdown(fromBreakdown);
+    setAdjustmentDrawerOpen(true);
+  };
+  const handleAdjustmentDrawerClose = (open: boolean) => {
+    setAdjustmentDrawerOpen(open);
+    if (!open) {
+      setAdjustmentDrawerInitialType(null);
+      setAdjustmentDrawerFromBreakdown(false);
+    }
+  };
 
   const {
     nextInvoiceDate,
@@ -243,13 +259,13 @@ export const F42v4_UpcomingInvoiceCard = () => {
   const handleSecondaryAction = () => {
     switch (invoiceStatus) {
       case 'draft':
-        setAdjustmentDrawerOpen(true);
+        openAdjustmentDrawer();
         break;
       case 'submitted':
         setWithdrawSubmissionDialogOpen(true);
         break;
       case 'approved':
-        setAdjustmentDrawerOpen(true);
+        openAdjustmentDrawer();
         break;
       case 'returned':
         setBreakdownDrawerOpen(true);
@@ -528,9 +544,11 @@ export const F42v4_UpcomingInvoiceCard = () => {
       {/* Modals & Drawers */}
       <F42v4_AdjustmentDrawer
         open={adjustmentDrawerOpen}
-        onOpenChange={setAdjustmentDrawerOpen}
+        onOpenChange={handleAdjustmentDrawerClose}
         currency={currency}
         contractType={contractType}
+        initialType={adjustmentDrawerInitialType}
+        onBack={adjustmentDrawerFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined}
       />
 
       <F42v4_ConfirmInvoiceDialog
@@ -555,6 +573,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
         invoiceTotal={invoiceTotal}
         periodLabel={periodLabel}
         adjustments={adjustments}
+        invoiceStatus={invoiceStatus}
+        onMakeAdjustment={() => openAdjustmentDrawer(null, true)}
       />
 
       <F42v4_InvoiceHistoryDrawer

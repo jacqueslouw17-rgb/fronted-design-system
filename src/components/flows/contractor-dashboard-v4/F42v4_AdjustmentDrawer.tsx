@@ -37,6 +37,7 @@ interface F42v4_AdjustmentDrawerProps {
   currency: string;
   contractType: F42v4_ContractType;
   initialType?: ContractorRequestType;
+  onBack?: () => void; // Called when back is pressed at type selection level
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
@@ -86,7 +87,8 @@ export const F42v4_AdjustmentDrawer = ({
   onOpenChange, 
   currency, 
   contractType,
-  initialType = null 
+  initialType = null,
+  onBack 
 }: F42v4_AdjustmentDrawerProps) => {
   const { addAdjustment } = useF42v4_DashboardStore();
   
@@ -136,6 +138,12 @@ export const F42v4_AdjustmentDrawer = ({
   };
 
   const handleBack = () => {
+    // If we're at type selection level and have onBack, call it
+    if (selectedType === null && onBack) {
+      handleClose();
+      onBack();
+      return;
+    }
     // If opened with initialType, close instead of going back to selection
     if (initialType) {
       handleClose();
@@ -144,6 +152,9 @@ export const F42v4_AdjustmentDrawer = ({
       setErrors({});
     }
   };
+
+  // Check if we should show back arrow at type selection level
+  const showBackAtSelection = selectedType === null && onBack;
 
   // Set initial type when drawer opens
   useEffect(() => {
@@ -346,7 +357,7 @@ export const F42v4_AdjustmentDrawer = ({
       <SheetContent className="w-full sm:max-w-md overflow-y-auto flex flex-col">
         <SheetHeader className="pb-4 border-b border-border/40">
           <div className="flex items-center gap-2">
-            {selectedType && (
+            {(selectedType || showBackAtSelection) && (
               <Button
                 variant="ghost"
                 size="icon"
