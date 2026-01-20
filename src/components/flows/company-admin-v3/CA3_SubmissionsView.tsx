@@ -384,48 +384,36 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
               </div>
 
-              <SheetFooter className="mt-6 flex-col gap-3">
+              <SheetFooter className="mt-6 flex-col gap-4">
                 {selectedSubmission.status === "pending" && (
-                  <div className="flex gap-3 w-full">
-                    {/* Primary: Approve */}
+                  <div className="space-y-3 w-full">
+                    {/* Primary action - Approve (full width, prominent) */}
                     <Button 
-                      className="flex-1 gap-1.5"
+                      className="w-full gap-2 h-11"
                       onClick={handleApproveFromDrawer}
                     >
                       <Check className="h-4 w-4" />
-                      Approve
+                      Approve Submission
                     </Button>
                     
-                    {/* Reject with dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          className="flex-1 gap-1.5 text-muted-foreground hover:text-red-600 hover:border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20"
-                        >
-                          <X className="h-4 w-4" />
-                          Reject
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                          Select rejection reason
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
+                    {/* Rejection reasons as subtle text buttons */}
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground mb-2">Or reject with reason:</p>
+                      <div className="flex flex-wrap gap-2">
                         {rejectReasons.map((reason) => (
-                          <DropdownMenuItem 
-                            key={reason} 
+                          <button
+                            key={reason}
                             onClick={() => {
                               setRejectReason(reason);
                               handleRejectFromDrawer();
                             }}
-                            className="cursor-pointer"
+                            className="text-xs px-3 py-1.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 hover:bg-destructive/5 transition-colors"
                           >
                             {reason}
-                          </DropdownMenuItem>
+                          </button>
                         ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {selectedSubmission.status !== "pending" && (
