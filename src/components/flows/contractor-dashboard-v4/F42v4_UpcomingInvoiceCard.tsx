@@ -517,21 +517,6 @@ export const F42v4_UpcomingInvoiceCard = () => {
               </p>
             </div>
           )}
-
-          {/* Timestamp for submitted */}
-          {invoiceStatus === 'submitted' && submittedAt && (
-            <p className="text-xs text-muted-foreground text-center pt-2">
-              Submitted on {formatSubmittedTimestamp(submittedAt)}
-            </p>
-          )}
-
-          {/* Timestamp for approved */}
-          {invoiceStatus === 'approved' && approvedAt && (
-            <p className="text-xs text-muted-foreground text-center pt-2">
-              Approved on {formatSubmittedTimestamp(approvedAt)}
-            </p>
-          )}
-
           {/* View previous invoices link */}
           <div className="text-center">
             <Button 
