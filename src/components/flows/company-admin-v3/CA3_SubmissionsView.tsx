@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, AlertCircle, Clock, FileText, Receipt, Calendar, Timer, Award, ChevronRight, Check, X } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Calendar, Timer, Award, ChevronRight, Check, X, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -79,13 +78,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [rejectNote, setRejectNote] = useState("");
 
   // Computed counts
   const pendingCount = submissions.filter(s => s.status === "pending").length;
   const approvedCount = submissions.filter(s => s.status === "approved").length;
   const rejectedCount = submissions.filter(s => s.status === "rejected").length;
-  const flaggedCount = submissions.filter(s => s.flagged).length;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -106,11 +103,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     return `${symbols[currency] || currency}${amount.toLocaleString()}`;
   };
 
-  const handleViewSubmission = (submission: WorkerSubmission) => {
+  const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
     setDrawerOpen(true);
     setRejectReason("");
-    setRejectNote("");
   };
 
   const handleApproveFromDrawer = () => {
@@ -123,8 +119,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
   const handleRejectFromDrawer = () => {
     if (selectedSubmission && rejectReason) {
-      const reason = rejectReason === "Other" && rejectNote ? rejectNote : rejectReason;
-      onFlag(selectedSubmission, reason);
+      onFlag(selectedSubmission, rejectReason);
       setDrawerOpen(false);
       toast.info(`Rejected submission for ${selectedSubmission.workerName}`);
     }
@@ -133,6 +128,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const renderSubmissionRow = (submission: WorkerSubmission) => {
     const status = statusConfig[submission.status];
     const StatusIcon = status.icon;
+    const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
 
     return (
       <motion.div
@@ -142,73 +138,76 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer",
-          "border-border/10 bg-muted/5",
-          "hover:bg-muted/20 hover:shadow-sm"
+          "flex items-center gap-4 p-4 rounded-lg border transition-all duration-150 cursor-pointer group",
+          "border-border/5 bg-muted/5",
+          "hover:bg-muted/20 hover:border-border/10 hover:shadow-sm"
         )}
-        onClick={() => handleViewSubmission(submission)}
+        onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
-        <Avatar className="h-9 w-9 flex-shrink-0">
-          <AvatarFallback className="text-[10px] font-medium bg-muted/50">
+        <Avatar className="h-10 w-10 flex-shrink-0">
+          <AvatarFallback className="text-[11px] font-medium bg-muted/40">
             {getInitials(submission.workerName)}
           </AvatarFallback>
         </Avatar>
 
-        {/* Worker Info */}
+        {/* Worker Info - Primary column */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground truncate">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-medium text-foreground">
               {submission.workerName}
             </span>
-            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
-              {submission.workerType === "employee" ? "EE" : "C"}
-            </Badge>
-            <span className="text-[10px] text-muted-foreground">
-              {submission.workerCountry}
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <TypeIcon className="h-3 w-3" />
+              <span className="text-[10px]">{submission.workerType === "employee" ? "Employee" : "Contractor"}</span>
+            </div>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {submission.workerCountry}
+          </span>
+        </div>
+
+        {/* Submission type chips */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {submission.submissions.slice(0, 2).map((sub, idx) => {
+            const config = submissionTypeConfig[sub.type];
+            const Icon = config.icon;
+            return (
+              <Badge 
+                key={idx} 
+                variant="outline" 
+                className={cn("text-[10px] px-2 py-0.5 gap-1", config.color)}
+              >
+                <Icon className="h-3 w-3" />
+                {config.label}
+              </Badge>
+            );
+          })}
+          {submission.submissions.length > 2 && (
+            <span className="text-[10px] text-muted-foreground font-medium">
+              +{submission.submissions.length - 2}
             </span>
-          </div>
-          
-          {/* Submission type chips */}
-          <div className="flex items-center gap-1.5 mt-1.5">
-            {submission.submissions.slice(0, 3).map((sub, idx) => {
-              const config = submissionTypeConfig[sub.type];
-              const Icon = config.icon;
-              return (
-                <Badge 
-                  key={idx} 
-                  variant="outline" 
-                  className={cn("text-[9px] px-1.5 py-0 h-4 gap-0.5", config.color)}
-                >
-                  <Icon className="h-2.5 w-2.5" />
-                  {config.label}
-                </Badge>
-              );
-            })}
-            {submission.submissions.length > 3 && (
-              <span className="text-[10px] text-muted-foreground">
-                +{submission.submissions.length - 3}
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Impact Amount */}
-        {submission.totalImpact && (
-          <div className="text-right flex-shrink-0">
-            <p className="text-sm font-medium text-foreground">
+        <div className="text-right flex-shrink-0 min-w-[80px]">
+          {submission.totalImpact ? (
+            <p className="text-sm font-semibold text-foreground">
               {formatCurrency(submission.totalImpact, submission.currency)}
             </p>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-muted-foreground">—</p>
+          )}
+        </div>
 
         {/* Status */}
-        <Badge variant="outline" className={cn("text-[10px] gap-1 flex-shrink-0", status.color)}>
+        <Badge variant="outline" className={cn("text-[10px] gap-1 flex-shrink-0 min-w-[80px] justify-center", status.color)}>
           <StatusIcon className="h-3 w-3" />
           {status.label}
         </Badge>
 
-        <ChevronRight className="h-4 w-4 text-muted-foreground/30 flex-shrink-0" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors flex-shrink-0" />
       </motion.div>
     );
   };
@@ -218,12 +217,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       {/* Header with search and actions */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search workers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 text-sm"
+            className="pl-9 h-9"
           />
         </div>
 
@@ -231,63 +230,63 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           {pendingCount > 0 && (
             <Button 
               size="sm" 
-              variant="outline"
+              variant="ghost"
               onClick={onApproveAll}
-              className="h-8 text-xs gap-1.5"
+              className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
             >
-              <Check className="h-3 w-3" />
+              <Check className="h-3.5 w-3.5" />
               Approve all safe
             </Button>
           )}
           <Button 
             size="sm"
             onClick={onContinue}
-            className="h-8 text-xs gap-1.5"
+            className="h-9 gap-1.5"
           >
             Continue to Checks
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
       {/* Tabbed view */}
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="h-8 bg-muted/20">
-          <TabsTrigger value="all" className="text-[11px] h-6 px-3">
+        <TabsList className="h-9 bg-muted/10 p-1">
+          <TabsTrigger value="all" className="text-xs h-7 px-4">
             All ({submissions.length})
           </TabsTrigger>
-          <TabsTrigger value="pending" className="text-[11px] h-6 px-3">
+          <TabsTrigger value="pending" className="text-xs h-7 px-4">
             Pending ({pendingCount})
           </TabsTrigger>
-          <TabsTrigger value="approved" className="text-[11px] h-6 px-3">
+          <TabsTrigger value="approved" className="text-xs h-7 px-4">
             Approved ({approvedCount})
           </TabsTrigger>
           {rejectedCount > 0 && (
-            <TabsTrigger value="rejected" className="text-[11px] h-6 px-3 text-red-600">
+            <TabsTrigger value="rejected" className="text-xs h-7 px-4 text-red-600">
               Rejected ({rejectedCount})
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="all" className="mt-3 space-y-2">
+        <TabsContent value="all" className="mt-4 space-y-2">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="pending" className="mt-3 space-y-2">
+        <TabsContent value="pending" className="mt-4 space-y-2">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="approved" className="mt-3 space-y-2">
+        <TabsContent value="approved" className="mt-4 space-y-2">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
           </AnimatePresence>
         </TabsContent>
 
-        <TabsContent value="rejected" className="mt-3 space-y-2">
+        <TabsContent value="rejected" className="mt-4 space-y-2">
           <AnimatePresence mode="popLayout">
             {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
           </AnimatePresence>
@@ -300,81 +299,84 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           {selectedSubmission && (
             <>
               <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
+                <SheetTitle className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="text-xs bg-muted/40">
                       {getInitials(selectedSubmission.workerName)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <span className="text-base">{selectedSubmission.workerName}</span>
                     <p className="text-xs text-muted-foreground font-normal">
-                      {selectedSubmission.workerCountry} · {selectedSubmission.workerType}
+                      {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
                     </p>
                   </div>
                 </SheetTitle>
               </SheetHeader>
 
-              <div className="mt-6 space-y-4">
-                <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Submissions this cycle
-                </h4>
-                
-                <div className="space-y-2">
-                  {selectedSubmission.submissions.map((sub, idx) => {
-                    const config = submissionTypeConfig[sub.type];
-                    const Icon = config.icon;
-                    return (
-                      <div 
-                        key={idx} 
-                        className="p-3 rounded-lg bg-muted/20 border border-border/10"
-                      >
-                        <div className="flex items-center justify-between mb-1.5">
-                          <Badge variant="outline" className={cn("text-xs gap-1", config.color)}>
-                            <Icon className="h-3 w-3" />
-                            {config.label}
-                          </Badge>
-                          {sub.amount && (
-                            <span className="text-sm font-medium">
-                              {formatCurrency(sub.amount, sub.currency || selectedSubmission.currency)}
-                            </span>
+              <div className="mt-6 space-y-5">
+                <div>
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                    Submissions this cycle
+                  </h4>
+                  
+                  <div className="space-y-2">
+                    {selectedSubmission.submissions.map((sub, idx) => {
+                      const config = submissionTypeConfig[sub.type];
+                      const Icon = config.icon;
+                      return (
+                        <div 
+                          key={idx} 
+                          className="p-4 rounded-lg bg-muted/10 border border-border/5"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="outline" className={cn("text-xs gap-1.5", config.color)}>
+                              <Icon className="h-3.5 w-3.5" />
+                              {config.label}
+                            </Badge>
+                            {sub.amount && (
+                              <span className="text-sm font-semibold">
+                                {formatCurrency(sub.amount, sub.currency || selectedSubmission.currency)}
+                              </span>
+                            )}
+                          </div>
+                          {sub.description && (
+                            <p className="text-sm text-muted-foreground">{sub.description}</p>
+                          )}
+                          {sub.hours && (
+                            <p className="text-sm text-muted-foreground">{sub.hours} hours</p>
+                          )}
+                          {sub.days && (
+                            <p className="text-sm text-muted-foreground">{sub.days} days</p>
                           )}
                         </div>
-                        {sub.description && (
-                          <p className="text-xs text-muted-foreground">{sub.description}</p>
-                        )}
-                        {sub.hours && (
-                          <p className="text-xs text-muted-foreground">{sub.hours} hours</p>
-                        )}
-                        {sub.days && (
-                          <p className="text-xs text-muted-foreground">{sub.days} days</p>
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <Separator />
-
                 {selectedSubmission.totalImpact && (
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
-                    <span className="text-sm text-muted-foreground">Total impact</span>
-                    <span className="text-base font-semibold text-primary">
-                      {formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
-                    </span>
-                  </div>
+                  <>
+                    <Separator />
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/10">
+                      <span className="text-sm text-muted-foreground">Total impact</span>
+                      <span className="text-lg font-semibold text-primary">
+                        {formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
+                      </span>
+                    </div>
+                  </>
                 )}
 
                 {/* Reject reason (only shown for pending) */}
                 {selectedSubmission.status === "pending" && (
-                  <div className="space-y-3 pt-2">
+                  <>
                     <Separator />
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-muted-foreground">
                         Reject reason (required if rejecting)
                       </label>
                       <Select value={rejectReason} onValueChange={setRejectReason}>
-                        <SelectTrigger className="h-9 text-sm">
+                        <SelectTrigger className="h-10">
                           <SelectValue placeholder="Select a reason..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -383,16 +385,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
-                      {rejectReason === "Other" && (
-                        <Textarea 
-                          placeholder="Add a note..."
-                          value={rejectNote}
-                          onChange={(e) => setRejectNote(e.target.value)}
-                          className="text-sm min-h-[60px]"
-                        />
-                      )}
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 
