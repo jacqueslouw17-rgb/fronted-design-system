@@ -270,6 +270,23 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
     filePaths: [
       'src/pages/flows/SecureLinkError.tsx'
     ]
+  },
+  'f1-fronted-admin-v4-clone': {
+    id: 'f1-fronted-admin-v4-clone',
+    title: 'Flow 1 — Fronted Admin Dashboard v4',
+    path: '/flows/fronted-admin-dashboard-v4-clone',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F1v4_FrontedAdminDashboard.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_PipelineView.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_AddCandidateDrawer.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_OnboardingFormDrawer.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_EmbeddedAdminOnboarding.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_SignatureWorkflowDrawer.tsx',
+      'src/components/flows/fronted-admin-v4-clone/F1v4_StartOnboardingConfirmation.tsx'
+    ]
   }
 };
 

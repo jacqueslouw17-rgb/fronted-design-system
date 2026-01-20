@@ -1155,4 +1155,4 @@ const AdminContractingMultiCompany = () => {
   );
 };
 
-export default F1v4_FrontedAdminDashboard;
+export default AdminContractingMultiCompany;
