@@ -162,7 +162,7 @@ export const F41v4_UpcomingPayCard = () => {
     id: string;
   } | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
-  
+
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
 
@@ -211,7 +211,7 @@ export const F41v4_UpcomingPayCard = () => {
       return () => clearTimeout(timer);
     }
   }, [payrollStatus, setPayrollStatus]);
-  
+
   // Calculate effective status (demo override for rejected)
   const effectiveStatus = demoRejected ? 'rejected' as const : payrollStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
@@ -317,44 +317,24 @@ export const F41v4_UpcomingPayCard = () => {
               {/* Helper text or rejected headline */}
               <div className="flex flex-col gap-0.5">
                 {/* Helper text - hide for rejected state */}
-                {!demoRejected && (payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && (
-                  <p className="text-sm text-muted-foreground">
+                {!demoRejected && (payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
-                  </p>
-                )}
+                  </p>}
               </div>
             </div>
             <div className="flex items-center gap-3 mt-2">
               {/* Demo state toggle - only show after submission (submitted/approved states) */}
-              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && (
-                <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
+              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
                   <div className="flex rounded-md overflow-hidden border border-border/50">
-                    <button
-                      onClick={() => setDemoRejected(false)}
-                      className={cn(
-                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                        !demoRejected
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-transparent text-muted-foreground hover:text-foreground'
-                      )}
-                    >
+                    <button onClick={() => setDemoRejected(false)} className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}>
                       Approved
                     </button>
-                    <button
-                      onClick={() => setDemoRejected(true)}
-                      className={cn(
-                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                        demoRejected
-                          ? 'bg-destructive/10 text-destructive'
-                          : 'bg-transparent text-muted-foreground hover:text-foreground'
-                      )}
-                    >
+                    <button onClick={() => setDemoRejected(true)} className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground')}>
                       Rejected
                     </button>
                   </div>
-                </div>
-              )}
+                </div>}
               <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
                 {statusConfig.label}
               </Badge>
@@ -362,22 +342,17 @@ export const F41v4_UpcomingPayCard = () => {
           </div>
 
           {/* Returned reason block - only when applicable */}
-          {payrollStatus === 'returned' && returnedReason && !demoRejected && (
-            <div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+          {payrollStatus === 'returned' && returnedReason && !demoRejected && <div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
               <p className="text-sm text-amber-700 dark:text-amber-400">
                 <span className="font-medium">Admin note:</span> {returnedReason}
               </p>
-              {resubmitDeadline && (
-                <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+              {resubmitDeadline && <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
                   Resubmit by: {resubmitDeadline}
-                </p>
-              )}
-            </div>
-          )}
+                </p>}
+            </div>}
           
           {/* Rejection panel - only when demo rejected is active */}
-          {demoRejected && (
-            <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
+          {demoRejected && <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-2">
@@ -390,8 +365,7 @@ export const F41v4_UpcomingPayCard = () => {
                   </p>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -408,13 +382,9 @@ export const F41v4_UpcomingPayCard = () => {
                   <p className="text-3xl font-bold text-foreground tracking-tight">
                     {formatCurrency(estimatedNet, currency)}
                   </p>
-                  {demoRejected ? (
-                    <p className="text-xs text-muted-foreground/70 mt-1.5">
+                  {demoRejected ? <p className="text-xs text-muted-foreground/70 mt-1.5">
                       Estimated net pay will update once changes are approved.
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>
-                  )}
+                    </p> : <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>}
                 </div>
                 <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors">
                   <FileText className="h-3.5 w-3.5" />
@@ -496,25 +466,20 @@ export const F41v4_UpcomingPayCard = () => {
             </div>}
 
           {/* Primary + Secondary Actions - hide for rejected and approved states */}
-          {!demoRejected && payrollStatus !== 'approved' && (
-            <div className="space-y-3 pt-2">
+          {!demoRejected && payrollStatus !== 'approved' && <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
-                {payrollStatus === 'submitted' ? (
-                  // Submitted state: disabled button with check icon
-                  <Button disabled className="flex-1 gap-2">
+                {payrollStatus === 'submitted' ?
+            // Submitted state: disabled button with check icon
+            <Button disabled className="flex-1 gap-2">
                     <Check className="h-4 w-4" />
                     {statusConfig.primaryAction}
-                  </Button>
-                ) : (
-                  <Button onClick={handlePrimaryAction} className="flex-1">
+                  </Button> : <Button onClick={handlePrimaryAction} className="flex-1">
                     {statusConfig.primaryAction}
-                  </Button>
-                )}
+                  </Button>}
                 
-                {statusConfig.secondaryAction && (
-                  payrollStatus === 'submitted' ? (
-                    // Submitted state: disabled secondary with tooltip
-                    <Tooltip>
+                {statusConfig.secondaryAction && (payrollStatus === 'submitted' ?
+            // Submitted state: disabled secondary with tooltip
+            <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="flex-1">
                           <Button variant="outline" disabled className="w-full opacity-50 cursor-not-allowed">
@@ -525,39 +490,24 @@ export const F41v4_UpcomingPayCard = () => {
                       <TooltipContent side="bottom" className="text-xs">
                         Adjustments are locked while your submission is under review.
                       </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
+                    </Tooltip> : <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
                       {statusConfig.secondaryAction}
-                    </Button>
-                  )
-                )}
+                    </Button>)}
               </div>
 
               {/* "What happens next" line - only for draft */}
-              {payrollStatus === 'draft' && (
-                <p className="text-xs text-muted-foreground text-center">
+              {payrollStatus === 'draft' && <p className="text-xs text-muted-foreground text-center">
                   Your company will review before payroll is finalised.
-                </p>
-              )}
+                </p>}
 
               {/* Submitted timestamp */}
-              {payrollStatus === 'submitted' && submittedAt && (
-                <p className="text-xs text-muted-foreground/70 text-center">
+              {payrollStatus === 'submitted' && submittedAt && <p className="text-xs text-muted-foreground/70 text-center">
                   Submitted on {formatSubmittedTimestamp(submittedAt)}
-                </p>
-              )}
-            </div>
-          )}
+                </p>}
+            </div>}
 
           {/* Approved timestamp - show separately when approved */}
-          {payrollStatus === 'approved' && approvedAt && !demoRejected && (
-            <div className="pt-2 text-center">
-              <p className="text-xs text-muted-foreground/70">
-                Approved on {formatSubmittedTimestamp(approvedAt)}
-              </p>
-            </div>
-          )}
+          {payrollStatus === 'approved' && approvedAt && !demoRejected}
 
           {/* View previous payslips link */}
           <div className="text-center">
