@@ -42,6 +42,7 @@ export interface WorkerSubmission {
   currency?: string;
   flagged?: boolean;
   flagReason?: string;
+  rejectionReason?: string;
 }
 
 interface CA3_SubmissionsViewProps {
@@ -379,6 +380,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       <span className="text-lg font-semibold text-primary">
                         {formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
                       </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Show rejection reason for rejected submissions */}
+                {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
+                  <>
+                    <Separator />
+                    <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                      <div className="flex items-start gap-3">
+                        <div className="p-1.5 rounded-full bg-destructive/10">
+                          <X className="h-4 w-4 text-destructive" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-destructive">Rejected</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {selectedSubmission.rejectionReason}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}

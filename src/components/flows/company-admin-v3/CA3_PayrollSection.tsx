@@ -136,6 +136,20 @@ const mockSubmissions: WorkerSubmission[] = [
     status: "approved",
     currency: "NOK",
   },
+  {
+    id: "sub-6",
+    workerId: "7",
+    workerName: "Jonas Schmidt",
+    workerCountry: "Germany",
+    workerType: "employee",
+    submissions: [
+      { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee" },
+    ],
+    status: "rejected",
+    totalImpact: 890,
+    currency: "EUR",
+    rejectionReason: "Amount exceeds policy limit",
+  },
 ];
 
 const mockTrackingWorkers: TrackingWorker[] = [
