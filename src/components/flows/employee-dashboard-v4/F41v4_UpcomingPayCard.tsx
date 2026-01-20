@@ -314,12 +314,23 @@ export const F41v4_UpcomingPayCard = () => {
                 <span className="text-sm text-muted-foreground">·</span>
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
-              {/* Helper text or rejected headline */}
+              {/* Helper text with timestamps - hide for rejected state */}
               <div className="flex flex-col gap-0.5">
-                {/* Helper text - hide for rejected state */}
-                {!demoRejected && (payrollStatus === 'draft' || payrollStatus === 'submitted' || payrollStatus === 'approved') && statusConfig.helperText && <p className="text-sm text-muted-foreground">
+                {!demoRejected && payrollStatus === 'draft' && statusConfig.helperText && (
+                  <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
-                  </p>}
+                  </p>
+                )}
+                {!demoRejected && payrollStatus === 'submitted' && submittedAt && (
+                  <p className="text-sm text-muted-foreground">
+                    Submitted on {formatSubmittedTimestamp(submittedAt)}
+                  </p>
+                )}
+                {!demoRejected && payrollStatus === 'approved' && approvedAt && (
+                  <p className="text-sm text-muted-foreground">
+                    Approved on {formatSubmittedTimestamp(approvedAt)}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3 mt-2">
