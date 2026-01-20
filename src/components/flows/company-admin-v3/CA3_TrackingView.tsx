@@ -166,29 +166,32 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-sm">
-            <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-            <span className="font-medium">{paidCount}</span>
-            <span className="text-muted-foreground">completed</span>
+          <h3 className="text-sm font-medium text-foreground">Payment Status</h3>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs">
+              <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
+              <span className="font-medium">{paidCount}</span>
+              <span className="text-muted-foreground">completed</span>
+            </div>
+            {processingCount > 0 && (
+              <div className="flex items-center gap-1.5 text-xs">
+                <Clock className="h-3.5 w-3.5 text-amber-500" />
+                <span className="font-medium">{processingCount}</span>
+                <span className="text-muted-foreground">processing</span>
+              </div>
+            )}
+            {failedCount > 0 && (
+              <div className="flex items-center gap-1.5 text-xs">
+                <XCircle className="h-3.5 w-3.5 text-red-500" />
+                <span className="font-medium">{failedCount}</span>
+                <span className="text-muted-foreground">failed</span>
+              </div>
+            )}
           </div>
-          {processingCount > 0 && (
-            <div className="flex items-center gap-1.5 text-sm">
-              <Clock className="h-4 w-4 text-amber-500" />
-              <span className="font-medium">{processingCount}</span>
-              <span className="text-muted-foreground">processing</span>
-            </div>
-          )}
-          {failedCount > 0 && (
-            <div className="flex items-center gap-1.5 text-sm">
-              <XCircle className="h-4 w-4 text-red-500" />
-              <span className="font-medium">{failedCount}</span>
-              <span className="text-muted-foreground">failed</span>
-            </div>
-          )}
         </div>
         <div className="flex items-center gap-1.5">
           <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-7 text-[11px] gap-1 text-muted-foreground">
@@ -202,52 +205,55 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </div>
       </div>
 
-      {/* Failed alert - subtle */}
-      {failedCount > 0 && (
-        <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-amber-500/5 text-sm">
-          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
-          <span className="text-foreground">{failedCount} need attention</span>
-          <span className="text-muted-foreground">— click to expand</span>
-        </div>
-      )}
+      {/* Content area */}
+      <div className="p-5 space-y-4">
+        {/* Failed alert - subtle */}
+        {failedCount > 0 && (
+          <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-amber-500/5 text-sm">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+            <span className="text-foreground">{failedCount} need attention</span>
+            <span className="text-muted-foreground">— click to expand</span>
+          </div>
+        )}
 
-      {/* Tabbed View - minimal */}
-      <Tabs defaultValue="all">
-        <TabsList className="h-8 bg-transparent p-0 gap-1">
-          <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-            All ({workers.length})
-          </TabsTrigger>
-          <TabsTrigger value="employees" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
-            <Users className="h-3 w-3" />
-            Employees ({employees.length})
-          </TabsTrigger>
-          <TabsTrigger value="contractors" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
-            <Briefcase className="h-3 w-3" />
-            Contractors ({contractors.length})
-          </TabsTrigger>
-          {failedCount > 0 && (
-            <TabsTrigger value="failed" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
-              Failed ({failedCount})
+        {/* Tabbed View - minimal */}
+        <Tabs defaultValue="all">
+          <TabsList className="h-8 bg-transparent p-0 gap-1 mb-3">
+            <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
+              All ({workers.length})
             </TabsTrigger>
-          )}
-        </TabsList>
+            <TabsTrigger value="employees" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
+              <Users className="h-3 w-3" />
+              Employees ({employees.length})
+            </TabsTrigger>
+            <TabsTrigger value="contractors" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 gap-1">
+              <Briefcase className="h-3 w-3" />
+              Contractors ({contractors.length})
+            </TabsTrigger>
+            {failedCount > 0 && (
+              <TabsTrigger value="failed" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
+                Failed ({failedCount})
+              </TabsTrigger>
+            )}
+          </TabsList>
 
-        <TabsContent value="all" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
-          {workers.map(renderWorkerRow)}
-        </TabsContent>
+          <TabsContent value="all" className="mt-0 space-y-0.5 max-h-[400px] overflow-y-auto">
+            {workers.map(renderWorkerRow)}
+          </TabsContent>
 
-        <TabsContent value="employees" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
-          {employees.map(renderWorkerRow)}
-        </TabsContent>
+          <TabsContent value="employees" className="mt-0 space-y-0.5 max-h-[400px] overflow-y-auto">
+            {employees.map(renderWorkerRow)}
+          </TabsContent>
 
-        <TabsContent value="contractors" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
-          {contractors.map(renderWorkerRow)}
-        </TabsContent>
+          <TabsContent value="contractors" className="mt-0 space-y-0.5 max-h-[400px] overflow-y-auto">
+            {contractors.map(renderWorkerRow)}
+          </TabsContent>
 
-        <TabsContent value="failed" className="mt-3 space-y-0.5 max-h-[400px] overflow-y-auto">
-          {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="failed" className="mt-0 space-y-0.5 max-h-[400px] overflow-y-auto">
+            {workers.filter(w => w.status === "failed").map(renderWorkerRow)}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

@@ -32,55 +32,61 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
 
       {/* Main content - two column */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left: Batch summary (3/5) */}
-        <div className="lg:col-span-3 p-6 rounded-xl bg-muted/10 border border-border/10 space-y-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">Total payout</p>
-              <p className="text-3xl font-semibold text-foreground tracking-tight">{totalCost}</p>
-            </div>
+        {/* Left: Batch summary (3/5) - crisp container style */}
+        <div className="lg:col-span-3 rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+          <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
+            <h3 className="text-sm font-medium text-foreground">Batch Overview</h3>
           </div>
-          
-          {/* Stats row */}
-          <div className="flex items-center gap-5 pt-1">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-foreground font-medium">{employeeCount}</span>
-              <span className="text-xs text-muted-foreground">employees</span>
+          <div className="p-5 space-y-5">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Total payout</p>
+                <p className="text-3xl font-semibold text-foreground tracking-tight">{totalCost}</p>
+              </div>
             </div>
-            <div className="w-px h-4 bg-border/50" />
-            <div className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-foreground font-medium">{contractorCount}</span>
-              <span className="text-xs text-muted-foreground">contractors</span>
+            
+            {/* Stats row */}
+            <div className="flex items-center gap-5 pt-1">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground font-medium">{employeeCount}</span>
+                <span className="text-xs text-muted-foreground">employees</span>
+              </div>
+              <div className="w-px h-4 bg-border/50" />
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground font-medium">{contractorCount}</span>
+                <span className="text-xs text-muted-foreground">contractors</span>
+              </div>
+              <div className="w-px h-4 bg-border/50" />
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground font-medium">{currencyCount}</span>
+                <span className="text-xs text-muted-foreground">currencies</span>
+              </div>
             </div>
-            <div className="w-px h-4 bg-border/50" />
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-foreground font-medium">{currencyCount}</span>
-              <span className="text-xs text-muted-foreground">currencies</span>
-            </div>
-          </div>
 
-          {/* CTA */}
-          <div className="pt-3 flex items-center gap-4">
-            <Button onClick={onSubmit} size="lg" className="h-11 px-6 gap-2">
-              <Send className="h-4 w-4" />
-              Submit to Fronted
-            </Button>
-            <span className="text-xs text-muted-foreground">
-              Processed within 2-3 business days
-            </span>
+            {/* CTA */}
+            <div className="pt-3 flex items-center gap-4">
+              <Button onClick={onSubmit} size="lg" className="h-11 px-6 gap-2">
+                <Send className="h-4 w-4" />
+                Submit to Fronted
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                Processed within 2-3 business days
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Right: What happens next (2/5) */}
-        <div className="lg:col-span-2 p-5 rounded-xl bg-muted/5 border border-border/5 space-y-4">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            What happens next
-          </h3>
-          
-          <div className="space-y-3">
+        {/* Right: What happens next (2/5) - crisp container style */}
+        <div className="lg:col-span-2 rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+          <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              What happens next
+            </h3>
+          </div>
+          <div className="p-5 space-y-3">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-5 h-5 rounded-full bg-accent-green-fill/10 flex items-center justify-center mt-0.5">
                 <CheckCircle2 className="h-3 w-3 text-accent-green-text" />

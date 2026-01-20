@@ -216,17 +216,20 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
       {/* Header with search and actions */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            placeholder="Search workers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 text-sm w-48"
-          />
+      <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-medium text-foreground">Submissions</h3>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search workers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 h-8 text-sm w-48 bg-background/50"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -252,49 +255,52 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         </div>
       </div>
 
-      {/* Tabbed view - minimal */}
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="h-8 bg-transparent p-0 gap-1">
-          <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-            All ({submissions.length})
-          </TabsTrigger>
-          <TabsTrigger value="pending" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-            Pending ({pendingCount})
-          </TabsTrigger>
-          <TabsTrigger value="approved" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
-            Approved ({approvedCount})
-          </TabsTrigger>
-          {rejectedCount > 0 && (
-            <TabsTrigger value="rejected" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
-              Rejected ({rejectedCount})
+      {/* Content area */}
+      <div className="p-5">
+        {/* Tabbed view - minimal */}
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="h-8 bg-transparent p-0 gap-1 mb-3">
+            <TabsTrigger value="all" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
+              All ({submissions.length})
             </TabsTrigger>
-          )}
-        </TabsList>
+            <TabsTrigger value="pending" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
+              Pending ({pendingCount})
+            </TabsTrigger>
+            <TabsTrigger value="approved" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20">
+              Approved ({approvedCount})
+            </TabsTrigger>
+            {rejectedCount > 0 && (
+              <TabsTrigger value="rejected" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 text-red-600">
+                Rejected ({rejectedCount})
+              </TabsTrigger>
+            )}
+          </TabsList>
 
-        <TabsContent value="all" className="mt-3 space-y-1">
-          <AnimatePresence mode="popLayout">
-            {filteredSubmissions.map(renderSubmissionRow)}
-          </AnimatePresence>
-        </TabsContent>
+          <TabsContent value="all" className="mt-0 space-y-1">
+            <AnimatePresence mode="popLayout">
+              {filteredSubmissions.map(renderSubmissionRow)}
+            </AnimatePresence>
+          </TabsContent>
 
-        <TabsContent value="pending" className="mt-3 space-y-1">
-          <AnimatePresence mode="popLayout">
-            {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
-          </AnimatePresence>
-        </TabsContent>
+          <TabsContent value="pending" className="mt-0 space-y-1">
+            <AnimatePresence mode="popLayout">
+              {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
+            </AnimatePresence>
+          </TabsContent>
 
-        <TabsContent value="approved" className="mt-3 space-y-1">
-          <AnimatePresence mode="popLayout">
-            {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
-          </AnimatePresence>
-        </TabsContent>
+          <TabsContent value="approved" className="mt-0 space-y-1">
+            <AnimatePresence mode="popLayout">
+              {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
+            </AnimatePresence>
+          </TabsContent>
 
-        <TabsContent value="rejected" className="mt-3 space-y-1">
-          <AnimatePresence mode="popLayout">
-            {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
-          </AnimatePresence>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="rejected" className="mt-0 space-y-1">
+            <AnimatePresence mode="popLayout">
+              {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
+            </AnimatePresence>
+          </TabsContent>
+        </Tabs>
+      </div>
 
       {/* Submission Detail Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>

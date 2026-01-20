@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -360,145 +360,152 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
       case "checks":
         return (
-          <div className="space-y-4">
-            {/* Header with readiness + action */}
-            <div className="flex items-center justify-between">
-              <CA3_ReadinessIndicator
-                blockingCount={blockingCount}
-                warningCount={warningCount}
-                infoCount={infoCount}
-                isReady={isReady}
-              />
+          <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+            {/* Header */}
+            <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <h3 className="text-sm font-medium text-foreground">Checks</h3>
+                <CA3_ReadinessIndicator
+                  blockingCount={blockingCount}
+                  warningCount={warningCount}
+                  infoCount={infoCount}
+                  isReady={isReady}
+                />
+              </div>
               
-              <Button 
-                onClick={goToSubmit} 
-                disabled={!isReady}
-                size="sm"
-                className="gap-1.5"
-              >
-                Continue to Submit
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search workers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 h-8 text-sm w-48 bg-background/50"
+                  />
+                </div>
+                <Button 
+                  onClick={goToSubmit} 
+                  disabled={!isReady}
+                  size="sm"
+                  className="gap-1.5"
+                >
+                  Continue to Submit
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
 
-            {/* Search */}
-            <div className="relative max-w-xs">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Search workers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 text-sm w-56"
-              />
+            {/* Content area */}
+            <div className="p-5">
+              {/* Tabbed checks view */}
+              <Tabs defaultValue="blocking" className="w-full">
+                <TabsList className="h-8 bg-transparent p-0 gap-1 mb-3">
+                  <TabsTrigger value="blocking" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-red-600">
+                    Blocking ({blockingCount})
+                  </TabsTrigger>
+                  <TabsTrigger value="warning" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-amber-600">
+                    Warnings ({warningCount})
+                  </TabsTrigger>
+                  <TabsTrigger value="info" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-blue-600">
+                    Info ({infoCount})
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="blocking" className="mt-0 space-y-1">
+                  <AnimatePresence mode="popLayout">
+                    {blockingChecks.length === 0 ? (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center justify-center gap-2 py-8 text-sm"
+                      >
+                        <ShieldCheck className="h-5 w-5 text-accent-green-text" />
+                        <span className="text-accent-green-text font-medium">All checks cleared. Ready to submit</span>
+                      </motion.div>
+                    ) : (
+                      blockingChecks.map((check) => (
+                        <motion.div
+                          key={check.id}
+                          layout
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                        >
+                          <CA3_ReviewCheckCard
+                            check={check}
+                            onFixNow={handleFixNow}
+                            onAcknowledge={handleAcknowledge}
+                            onSkip={handleSkip}
+                          />
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </TabsContent>
+
+                <TabsContent value="warning" className="mt-0 space-y-1">
+                  <AnimatePresence mode="popLayout">
+                    {warningChecks.length === 0 ? (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
+                      >
+                        No warnings
+                      </motion.div>
+                    ) : (
+                      warningChecks.map((check) => (
+                        <motion.div
+                          key={check.id}
+                          layout
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                        >
+                          <CA3_ReviewCheckCard
+                            check={check}
+                            onFixNow={handleFixNow}
+                            onAcknowledge={handleAcknowledge}
+                            onSkip={handleSkip}
+                          />
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </TabsContent>
+
+                <TabsContent value="info" className="mt-0 space-y-1">
+                  <AnimatePresence mode="popLayout">
+                    {infoChecks.length === 0 ? (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
+                      >
+                        No info items
+                      </motion.div>
+                    ) : (
+                      infoChecks.map((check) => (
+                        <motion.div
+                          key={check.id}
+                          layout
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                        >
+                          <CA3_ReviewCheckCard
+                            check={check}
+                            onFixNow={handleFixNow}
+                            onAcknowledge={handleAcknowledge}
+                            onSkip={handleSkip}
+                          />
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </TabsContent>
+              </Tabs>
             </div>
-
-            {/* Tabbed checks view */}
-            <Tabs defaultValue="blocking" className="w-full">
-              <TabsList className="h-8 bg-muted/20">
-                <TabsTrigger value="blocking" className="text-[11px] h-6 px-3 data-[state=active]:text-red-600">
-                  Blocking ({blockingCount})
-                </TabsTrigger>
-                <TabsTrigger value="warning" className="text-[11px] h-6 px-3 data-[state=active]:text-amber-600">
-                  Warnings ({warningCount})
-                </TabsTrigger>
-                <TabsTrigger value="info" className="text-[11px] h-6 px-3 data-[state=active]:text-blue-600">
-                  Info ({infoCount})
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="blocking" className="mt-3 space-y-2">
-                <AnimatePresence mode="popLayout">
-                  {blockingChecks.length === 0 ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center py-6 text-sm text-muted-foreground"
-                    >
-                      No blocking issues. Ready to submit! ✓
-                    </motion.div>
-                  ) : (
-                    blockingChecks.map((check) => (
-                      <motion.div
-                        key={check.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                      >
-                        <CA3_ReviewCheckCard
-                          check={check}
-                          onFixNow={handleFixNow}
-                          onAcknowledge={handleAcknowledge}
-                          onSkip={handleSkip}
-                        />
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="warning" className="mt-3 space-y-2">
-                <AnimatePresence mode="popLayout">
-                  {warningChecks.length === 0 ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center py-6 text-sm text-muted-foreground"
-                    >
-                      No warnings.
-                    </motion.div>
-                  ) : (
-                    warningChecks.map((check) => (
-                      <motion.div
-                        key={check.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                      >
-                        <CA3_ReviewCheckCard
-                          check={check}
-                          onFixNow={handleFixNow}
-                          onAcknowledge={handleAcknowledge}
-                          onSkip={handleSkip}
-                        />
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="info" className="mt-3 space-y-2">
-                <AnimatePresence mode="popLayout">
-                  {infoChecks.length === 0 ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center py-6 text-sm text-muted-foreground"
-                    >
-                      No info items.
-                    </motion.div>
-                  ) : (
-                    infoChecks.map((check) => (
-                      <motion.div
-                        key={check.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                      >
-                        <CA3_ReviewCheckCard
-                          check={check}
-                          onFixNow={handleFixNow}
-                          onAcknowledge={handleAcknowledge}
-                          onSkip={handleSkip}
-                        />
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-              </TabsContent>
-            </Tabs>
           </div>
         );
 
