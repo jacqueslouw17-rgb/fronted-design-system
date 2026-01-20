@@ -66,8 +66,8 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
                 "text-xs relative",
                 state === "active" && "text-foreground font-medium",
                 state === "completed" && "text-muted-foreground cursor-pointer hover:text-foreground",
-                state === "upcoming" && "text-muted-foreground/30 cursor-not-allowed",
-                state === "locked" && "text-muted-foreground/40 cursor-not-allowed opacity-60"
+                state === "upcoming" && "text-muted-foreground/50 cursor-not-allowed",
+                state === "locked" && "text-muted-foreground/50 cursor-not-allowed opacity-70"
               )}
             >
               {/* Step indicator */}
