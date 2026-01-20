@@ -401,7 +401,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   <>
                     <Button 
                       variant="outline" 
-                      className="flex-1 gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      className="flex-1 gap-1.5 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                       onClick={handleRejectFromDrawer}
                       disabled={!rejectReason}
                     >
