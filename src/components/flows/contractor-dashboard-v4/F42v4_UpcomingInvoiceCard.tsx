@@ -290,11 +290,21 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 <span className="text-sm text-muted-foreground">·</span>
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
-              {/* Helper text - hide for rejected state */}
+              {/* Helper text with timestamps - hide for rejected state */}
               <div className="flex flex-col gap-0.5">
-                {!demoRejected && (invoiceStatus === 'draft' || invoiceStatus === 'submitted' || invoiceStatus === 'approved') && statusConfig.helperText && (
+                {!demoRejected && invoiceStatus === 'draft' && statusConfig.helperText && (
                   <p className="text-sm text-muted-foreground">
                     {statusConfig.helperText}
+                  </p>
+                )}
+                {!demoRejected && invoiceStatus === 'submitted' && submittedAt && (
+                  <p className="text-sm text-muted-foreground">
+                    Submitted on {formatSubmittedTimestamp(submittedAt)}
+                  </p>
+                )}
+                {!demoRejected && invoiceStatus === 'approved' && approvedAt && (
+                  <p className="text-sm text-muted-foreground">
+                    Approved on {formatSubmittedTimestamp(approvedAt)}
                   </p>
                 )}
               </div>
