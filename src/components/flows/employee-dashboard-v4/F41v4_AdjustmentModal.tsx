@@ -38,6 +38,7 @@ interface F41v4_AdjustmentModalProps {
   onOpenChange: (open: boolean) => void;
   currency: string;
   initialType?: RequestType;
+  onBack?: () => void; // Called when back is pressed at type selection level
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
@@ -75,7 +76,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null }: F41v4_AdjustmentModalProps) => {
+export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, onBack }: F41v4_AdjustmentModalProps) => {
   const { addAdjustment, addLeaveRequest, periodLabel } = useF41v4_DashboardStore();
   
   // Selection state
@@ -149,6 +150,12 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const handleBack = () => {
+    // If we're at type selection level and have onBack, call it
+    if (selectedType === null && onBack) {
+      handleClose();
+      onBack();
+      return;
+    }
     // If opened with initialType, close instead of going back to selection
     if (initialType) {
       handleClose();
@@ -157,6 +164,9 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       setErrors({});
     }
   };
+
+  // Check if we should show back arrow at type selection level
+  const showBackAtSelection = selectedType === null && onBack;
 
   // Set initial type when modal opens
   useEffect(() => {
@@ -368,7 +378,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="pb-4 border-b border-border/40">
           <div className="flex items-center gap-2">
-            {selectedType && (
+            {(selectedType || showBackAtSelection) && (
               <Button
                 variant="ghost"
                 size="icon"

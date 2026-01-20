@@ -501,7 +501,13 @@ export const F41v4_UpcomingPayCard = () => {
       </Card>
 
       {/* Modals & Drawers */}
-      <F41v4_AdjustmentModal open={adjustmentModalOpen} onOpenChange={handleAdjustmentModalClose} currency={currency} initialType={adjustmentModalInitialType} />
+      <F41v4_AdjustmentModal 
+        open={adjustmentModalOpen} 
+        onOpenChange={handleAdjustmentModalClose} 
+        currency={currency} 
+        initialType={adjustmentModalInitialType}
+        onBack={() => setBreakdownDrawerOpen(true)}
+      />
 
       <F41v4_ConfirmPayDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
 
