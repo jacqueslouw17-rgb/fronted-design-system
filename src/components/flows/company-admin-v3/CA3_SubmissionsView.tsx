@@ -72,7 +72,6 @@ const rejectReasons = [
   "Amount exceeds policy limit",
   "Duplicate submission",
   "Incorrect category",
-  "Other",
 ];
 
 export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
@@ -86,6 +85,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [showCustomReason, setShowCustomReason] = useState(false);
+  const [customReason, setCustomReason] = useState("");
 
   // Computed counts
   const pendingCount = submissions.filter(s => s.status === "pending").length;
@@ -399,20 +400,67 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     {/* Rejection reasons as subtle text buttons */}
                     <div className="pt-2 border-t border-border/50">
                       <p className="text-xs text-muted-foreground mb-2">Or reject with reason:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {rejectReasons.map((reason) => (
+                      
+                      {!showCustomReason ? (
+                        <div className="flex flex-wrap gap-2">
+                          {rejectReasons.map((reason) => (
+                            <button
+                              key={reason}
+                              onClick={() => {
+                                setRejectReason(reason);
+                                handleRejectFromDrawer();
+                              }}
+                              className="text-xs px-3 py-1.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 hover:bg-destructive/5 transition-colors"
+                            >
+                              {reason}
+                            </button>
+                          ))}
                           <button
-                            key={reason}
-                            onClick={() => {
-                              setRejectReason(reason);
-                              handleRejectFromDrawer();
-                            }}
-                            className="text-xs px-3 py-1.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 hover:bg-destructive/5 transition-colors"
+                            onClick={() => setShowCustomReason(true)}
+                            className="text-xs px-3 py-1.5 rounded-full border border-dashed border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                           >
-                            {reason}
+                            Other...
                           </button>
-                        ))}
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Input
+                            placeholder="Enter rejection reason..."
+                            value={customReason}
+                            onChange={(e) => setCustomReason(e.target.value)}
+                            className="h-9 text-sm"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-muted-foreground"
+                              onClick={() => {
+                                setShowCustomReason(false);
+                                setCustomReason("");
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                              disabled={!customReason.trim()}
+                              onClick={() => {
+                                setRejectReason(customReason.trim());
+                                handleRejectFromDrawer();
+                                setShowCustomReason(false);
+                                setCustomReason("");
+                              }}
+                            >
+                              <X className="h-3.5 w-3.5 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
