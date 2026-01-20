@@ -330,34 +330,36 @@ export const F41v4_UpcomingPayCard = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 mt-2">
-              {/* Demo state toggle - subtle tool-like control */}
-              <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
-                <div className="flex rounded-md overflow-hidden border border-border/50">
-                  <button
-                    onClick={() => setDemoRejected(false)}
-                    className={cn(
-                      'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                      !demoRejected
-                        ? 'bg-primary/10 text-primary'
-                        : 'bg-transparent text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    Approved
-                  </button>
-                  <button
-                    onClick={() => setDemoRejected(true)}
-                    className={cn(
-                      'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                      demoRejected
-                        ? 'bg-destructive/10 text-destructive'
-                        : 'bg-transparent text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    Rejected
-                  </button>
+              {/* Demo state toggle - only show after submission (submitted/approved states) */}
+              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && (
+                <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
+                  <div className="flex rounded-md overflow-hidden border border-border/50">
+                    <button
+                      onClick={() => setDemoRejected(false)}
+                      className={cn(
+                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
+                        !demoRejected
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Approved
+                    </button>
+                    <button
+                      onClick={() => setDemoRejected(true)}
+                      className={cn(
+                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
+                        demoRejected
+                          ? 'bg-destructive/10 text-destructive'
+                          : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Rejected
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
               <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
                 {statusConfig.label}
               </Badge>
