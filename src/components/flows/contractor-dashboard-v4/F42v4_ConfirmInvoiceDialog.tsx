@@ -30,7 +30,7 @@ export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: 
 
   const handleConfirm = () => {
     submitInvoice();
-    toast.success("Invoice submitted. Your company will review before finalising.");
+    toast.success("Submitted successfully. Your invoice is under review.");
     onOpenChange(false);
   };
 
