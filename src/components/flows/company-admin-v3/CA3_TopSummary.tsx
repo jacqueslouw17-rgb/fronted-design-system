@@ -1,6 +1,7 @@
 import React from "react";
 import { Users, Briefcase, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export type PayrollStatus = "in-review" | "checks-pending" | "ready" | "submitted" | "processing" | "completed";
@@ -54,9 +55,8 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
   const statusInfo = statusConfig[status];
 
   return (
-    <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
+    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <h2 className="text-base font-medium text-foreground">{payPeriod}</h2>
@@ -82,31 +82,29 @@ export const CA3_TopSummary: React.FC<CA3_TopSummaryProps> = ({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* KPI Row - inline, not oversized */}
-      <div className="px-5 py-4 flex items-center gap-6">
-        <div className="flex-1">
-          <p className="text-[10px] text-muted-foreground mb-0.5">Gross Pay</p>
-          <p className="text-lg font-semibold text-foreground">{formatCurrency(grossPay)}</p>
+      </CardHeader>
+      <CardContent className="p-5">
+        {/* KPI Cards - individual cards like worker rows */}
+        <div className="grid grid-cols-4 gap-3">
+          <div className="p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+            <p className="text-[11px] text-muted-foreground mb-1">Gross Pay</p>
+            <p className="text-lg font-semibold text-foreground">{formatCurrency(grossPay)}</p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+            <p className="text-[11px] text-muted-foreground mb-1">Net Pay</p>
+            <p className="text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+            <p className="text-[11px] text-muted-foreground mb-1">Fronted Fees</p>
+            <p className="text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
+          </div>
+          <div className="p-4 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+            <p className="text-[11px] text-primary/70 mb-1">Total Cost</p>
+            <p className="text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
+          </div>
         </div>
-        <div className="w-px h-8 bg-border/20" />
-        <div className="flex-1">
-          <p className="text-[10px] text-muted-foreground mb-0.5">Net Pay</p>
-          <p className="text-lg font-semibold text-foreground">{formatCurrency(netPay)}</p>
-        </div>
-        <div className="w-px h-8 bg-border/20" />
-        <div className="flex-1">
-          <p className="text-[10px] text-muted-foreground mb-0.5">Fronted Fees</p>
-          <p className="text-lg font-semibold text-foreground">{formatCurrency(frontedFees)}</p>
-        </div>
-        <div className="w-px h-8 bg-border/20" />
-        <div className="flex-1">
-          <p className="text-[10px] text-primary/70 mb-0.5">Total Cost</p>
-          <p className="text-lg font-semibold text-primary">{formatCurrency(totalCost)}</p>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

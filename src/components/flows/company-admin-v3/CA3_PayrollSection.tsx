@@ -5,6 +5,7 @@ import { Search, ChevronRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 import { CA3_TopSummary, PayrollStatus } from "./CA3_TopSummary";
@@ -360,67 +361,69 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
       case "checks":
         return (
-          <div className="rounded-xl border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-            {/* Header */}
-            <div className="px-5 py-4 bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <h3 className="text-sm font-medium text-foreground">Checks</h3>
-                <CA3_ReadinessIndicator
-                  blockingCount={blockingCount}
-                  warningCount={warningCount}
-                  infoCount={infoCount}
-                  isReady={isReady}
-                />
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input
-                    placeholder="Search workers..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 h-8 text-sm w-48 bg-background/50"
+          <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-base font-medium text-foreground">Checks</h3>
+                  <CA3_ReadinessIndicator
+                    blockingCount={blockingCount}
+                    warningCount={warningCount}
+                    infoCount={infoCount}
+                    isReady={isReady}
                   />
                 </div>
-                <Button 
-                  onClick={goToSubmit} 
-                  disabled={!isReady}
-                  size="sm"
-                  className="gap-1.5"
-                >
-                  Continue to Submit
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search workers..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 h-9 w-56 bg-background/60"
+                    />
+                  </div>
+                  <Button 
+                    onClick={goToSubmit} 
+                    disabled={!isReady}
+                    size="sm"
+                    className="h-9 text-xs gap-1.5"
+                  >
+                    Continue to Submit
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            {/* Content area */}
-            <div className="p-5">
+            </CardHeader>
+            <CardContent className="p-5">
               {/* Tabbed checks view */}
               <Tabs defaultValue="blocking" className="w-full">
-                <TabsList className="h-8 bg-transparent p-0 gap-1 mb-3">
-                  <TabsTrigger value="blocking" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-red-600">
+                <TabsList className="h-9 bg-muted/30 p-1 mb-4">
+                  <TabsTrigger value="blocking" className="text-xs h-7 px-3 data-[state=active]:bg-background data-[state=active]:text-red-600">
                     Blocking ({blockingCount})
                   </TabsTrigger>
-                  <TabsTrigger value="warning" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-amber-600">
+                  <TabsTrigger value="warning" className="text-xs h-7 px-3 data-[state=active]:bg-background data-[state=active]:text-amber-600">
                     Warnings ({warningCount})
                   </TabsTrigger>
-                  <TabsTrigger value="info" className="text-[11px] h-7 px-3 rounded-md data-[state=active]:bg-muted/20 data-[state=active]:text-blue-600">
+                  <TabsTrigger value="info" className="text-xs h-7 px-3 data-[state=active]:bg-background data-[state=active]:text-blue-600">
                     Info ({infoCount})
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="blocking" className="mt-0 space-y-1">
+                <TabsContent value="blocking" className="mt-0 space-y-2">
                   <AnimatePresence mode="popLayout">
                     {blockingChecks.length === 0 ? (
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex items-center justify-center gap-2 py-8 text-sm"
+                        className="flex flex-col items-center justify-center py-12 px-6"
                       >
-                        <ShieldCheck className="h-5 w-5 text-accent-green-text" />
-                        <span className="text-accent-green-text font-medium">All checks cleared. Ready to submit</span>
+                        <div className="rounded-full bg-accent-green-fill/10 p-4 mb-4">
+                          <ShieldCheck className="h-8 w-8 text-accent-green-text" />
+                        </div>
+                        <p className="text-sm font-medium text-accent-green-text">All checks cleared</p>
+                        <p className="text-xs text-muted-foreground mt-1">Ready to submit to Fronted</p>
                       </motion.div>
                     ) : (
                       blockingChecks.map((check) => (
@@ -443,15 +446,15 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                   </AnimatePresence>
                 </TabsContent>
 
-                <TabsContent value="warning" className="mt-0 space-y-1">
+                <TabsContent value="warning" className="mt-0 space-y-2">
                   <AnimatePresence mode="popLayout">
                     {warningChecks.length === 0 ? (
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
+                        className="flex flex-col items-center justify-center py-12 px-6"
                       >
-                        No warnings
+                        <p className="text-sm text-muted-foreground">No warnings</p>
                       </motion.div>
                     ) : (
                       warningChecks.map((check) => (
@@ -474,15 +477,15 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                   </AnimatePresence>
                 </TabsContent>
 
-                <TabsContent value="info" className="mt-0 space-y-1">
+                <TabsContent value="info" className="mt-0 space-y-2">
                   <AnimatePresence mode="popLayout">
                     {infoChecks.length === 0 ? (
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground"
+                        className="flex flex-col items-center justify-center py-12 px-6"
                       >
-                        No info items
+                        <p className="text-sm text-muted-foreground">No info items</p>
                       </motion.div>
                     ) : (
                       infoChecks.map((check) => (
@@ -505,8 +508,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
                   </AnimatePresence>
                 </TabsContent>
               </Tabs>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         );
 
       case "submit":
