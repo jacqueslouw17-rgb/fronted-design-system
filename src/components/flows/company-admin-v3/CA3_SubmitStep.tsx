@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, ArrowRight, Download, FileText, XCircle, AlertTriangle } from "lucide-react";
+import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued";
+export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
 
 export interface TrackingWorker {
   id: string;
@@ -24,7 +24,6 @@ interface CA3_SubmitStepProps {
   employeeCount: number;
   contractorCount: number;
   currencyCount?: number;
-  warningCount?: number;
   onSubmit: () => void;
   // Track data for post-submit state
   trackingWorkers?: TrackingWorker[];
@@ -53,9 +52,9 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   // Track view calculations
   const employees = trackingWorkers.filter(w => w.type === "employee");
   const contractors = trackingWorkers.filter(w => w.type === "contractor");
-  const paidCount = trackingWorkers.filter(w => w.status === "paid" || w.status === "posted").length;
+  const completedCount = trackingWorkers.filter(w => w.status === "paid" || w.status === "posted").length;
   const failedCount = trackingWorkers.filter(w => w.status === "failed").length;
-  const processingCount = trackingWorkers.filter(w => w.status === "processing" || w.status === "queued").length;
+  const processingCount = trackingWorkers.filter(w => w.status === "processing" || w.status === "queued" || w.status === "sent").length;
 
   const filteredWorkers = trackingWorkers.filter(w => 
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,15 +68,17 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   const getStatusConfig = (status: WorkerPaymentStatus) => {
     switch (status) {
       case "paid":
-        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Paid" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
       case "posted":
-        return { icon: CheckCircle2, color: "text-blue-600", label: "Posted" };
+        return { icon: CheckCircle2, color: "text-accent-green-text", label: "Completed" };
       case "processing":
         return { icon: Clock, color: "text-amber-600", label: "Processing" };
       case "queued":
-        return { icon: Clock, color: "text-muted-foreground", label: "Queued" };
+        return { icon: Clock, color: "text-muted-foreground", label: "In progress" };
+      case "sent":
+        return { icon: Clock, color: "text-blue-600", label: "Sent to Fronted" };
       case "failed":
-        return { icon: XCircle, color: "text-red-600", label: "Failed" };
+        return { icon: AlertTriangle, color: "text-amber-600", label: "Needs attention" };
     }
   };
 
@@ -96,8 +97,8 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
       <div 
         key={worker.id}
         className={cn(
-          "p-3.5 rounded-lg border bg-card/80 hover:bg-muted/30 transition-colors",
-          isFailed ? "border-amber-500/20" : "border-border/60"
+          "p-3.5 rounded-lg border bg-card/80",
+          isFailed ? "border-amber-500/30" : "border-border/60"
         )}
       >
         <div className="flex items-center justify-between">
@@ -125,7 +126,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
               {formatCurrency(worker.amount, worker.currency)}
             </p>
 
-            <div className={cn("flex items-center gap-1.5 text-xs min-w-[90px]", statusConfig.color)}>
+            <div className={cn("flex items-center gap-1.5 text-xs min-w-[110px]", statusConfig.color)}>
               <StatusIcon className="h-3.5 w-3.5" />
               {statusConfig.label}
             </div>
@@ -142,8 +143,15 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
     );
   };
 
-  // Determine current step in the timeline
-  const currentStep = isSubmitted ? (processingCount > 0 ? 2 : 3) : 1;
+  // Determine current step in the timeline (1=submit, 2=review, 3=processing, 4=complete)
+  let currentTimelineStep = 1;
+  if (isSubmitted) {
+    if (processingCount > 0) {
+      currentTimelineStep = 3;
+    } else {
+      currentTimelineStep = 4;
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-280px)] relative">
@@ -166,6 +174,15 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 </div>
                 
                 <div className="p-5 space-y-5">
+                  {/* Pre-flight validation message */}
+                  <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-accent-green-fill/5 border border-accent-green-outline/20">
+                    <ShieldCheck className="h-4 w-4 text-accent-green-text flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-foreground">Pre-flight validation complete</p>
+                      <p className="text-xs text-muted-foreground">Fronted will run final compliance + payment checks after you submit.</p>
+                    </div>
+                  </div>
+
                   {/* Total payout - Hero */}
                   <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
                     <p className="text-xs text-primary/70 mb-1">Total payout</p>
@@ -197,13 +214,12 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                     </div>
                   </div>
 
-                  {/* CTA */}
+                  {/* CTA - Single primary action */}
                   <div className="pt-2">
                     <Button onClick={handleSubmit} size="lg" className="h-11 px-6 gap-2">
                       <Send className="h-4 w-4" />
                       Submit to Fronted
                     </Button>
-                    <p className="text-xs text-muted-foreground mt-2">Typically 2–3 business days</p>
                   </div>
                 </div>
               </>
@@ -217,21 +233,21 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1.5 text-xs">
                           <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
-                          <span className="font-medium">{paidCount}</span>
+                          <span className="font-medium">{completedCount}</span>
                           <span className="text-muted-foreground">completed</span>
                         </div>
                         {processingCount > 0 && (
                           <div className="flex items-center gap-1.5 text-xs">
-                            <Clock className="h-3.5 w-3.5 text-amber-500" />
+                            <Clock className="h-3.5 w-3.5 text-blue-500" />
                             <span className="font-medium">{processingCount}</span>
-                            <span className="text-muted-foreground">processing</span>
+                            <span className="text-muted-foreground">in progress</span>
                           </div>
                         )}
                         {failedCount > 0 && (
                           <div className="flex items-center gap-1.5 text-xs">
-                            <XCircle className="h-3.5 w-3.5 text-red-500" />
+                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
                             <span className="font-medium">{failedCount}</span>
-                            <span className="text-muted-foreground">failed</span>
+                            <span className="text-muted-foreground">needs attention</span>
                           </div>
                         )}
                       </div>
@@ -250,11 +266,14 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 </div>
 
                 <div className="p-5 space-y-4">
-                  {/* Failed notice - subtle */}
+                  {/* Failed notice - subtle, calm banner */}
                   {failedCount > 0 && (
-                    <div className="flex items-center gap-2 py-2.5 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10 text-sm">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                      <span className="text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} need attention from Fronted support</span>
+                    <div className="flex items-start gap-3 py-3 px-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{failedCount} payment{failedCount > 1 ? "s" : ""} need{failedCount === 1 ? "s" : ""} attention</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Fronted flagged an issue. Review details and contact support if needed.</p>
+                      </div>
                     </div>
                   )}
 
@@ -266,7 +285,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                     className="h-9 text-sm bg-background/50"
                   />
 
-                  {/* Tabbed View */}
+                  {/* Tabbed View - read-only */}
                   <Tabs defaultValue="all">
                     <TabsList className="h-9 bg-muted/30 p-1 mb-4">
                       <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
@@ -281,8 +300,8 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                         Contractors ({contractors.filter(w => filteredWorkers.includes(w)).length})
                       </TabsTrigger>
                       {failedCount > 0 && (
-                        <TabsTrigger value="failed" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
-                          Failed ({failedCount})
+                        <TabsTrigger value="attention" className="text-xs h-7 px-3 data-[state=active]:bg-background text-amber-600">
+                          Needs attention ({failedCount})
                         </TabsTrigger>
                       )}
                     </TabsList>
@@ -299,7 +318,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                       {contractors.filter(w => filteredWorkers.includes(w)).map(renderWorkerRow)}
                     </TabsContent>
 
-                    <TabsContent value="failed" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
+                    <TabsContent value="attention" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
                       {filteredWorkers.filter(w => w.status === "failed").map(renderWorkerRow)}
                     </TabsContent>
                   </Tabs>
@@ -317,7 +336,7 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             </div>
             
             <div className="p-5">
-              {/* Vertical timeline */}
+              {/* Vertical timeline - 4 steps with updated copy */}
               <div className="relative pl-6">
                 {/* Timeline line */}
                 <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
@@ -326,58 +345,69 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                 <div className="relative pb-6">
                   <div className={cn(
                     "absolute left-[-24px] w-4 h-4 rounded-full flex items-center justify-center",
-                    currentStep >= 1 
+                    currentTimelineStep >= 1 
                       ? "bg-accent-green-fill/20 border-2 border-accent-green-text" 
                       : "bg-muted border-2 border-muted-foreground/30"
                   )}>
-                    {currentStep >= 1 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
+                    {currentTimelineStep >= 1 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
                   </div>
                   <p className={cn(
                     "text-sm font-medium",
-                    currentStep === 1 ? "text-foreground" : "text-muted-foreground"
+                    currentTimelineStep === 1 ? "text-foreground" : "text-muted-foreground"
                   )}>Submit batch</p>
-                  <p className="text-xs text-muted-foreground">Send this payroll batch to Fronted for processing</p>
+                  <p className="text-xs text-muted-foreground">Send payroll to Fronted for processing.</p>
                 </div>
                 
-                {/* Step 2: Fronted approval */}
+                {/* Step 2: Fronted review */}
                 <div className="relative pb-6">
                   <div className={cn(
                     "absolute left-[-24px] w-4 h-4 rounded-full flex items-center justify-center",
-                    currentStep >= 2 
+                    currentTimelineStep >= 2 
                       ? "bg-accent-green-fill/20 border-2 border-accent-green-text" 
                       : "bg-muted border-2 border-muted-foreground/30"
                   )}>
-                    {currentStep >= 2 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
+                    {currentTimelineStep >= 2 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
                   </div>
                   <p className={cn(
                     "text-sm font-medium",
-                    currentStep === 2 ? "text-foreground" : "text-muted-foreground"
-                  )}>Fronted approval</p>
-                  <p className="text-xs text-muted-foreground">Fronted reviews and confirms the payout details</p>
+                    currentTimelineStep === 2 ? "text-foreground" : "text-muted-foreground"
+                  )}>Fronted review</p>
+                  <p className="text-xs text-muted-foreground">Fronted runs final checks and confirms payment.</p>
                 </div>
                 
-                {/* Step 3: Payments processed */}
+                {/* Step 3: Processing */}
+                <div className="relative pb-6">
+                  <div className={cn(
+                    "absolute left-[-24px] w-4 h-4 rounded-full flex items-center justify-center",
+                    currentTimelineStep >= 3 
+                      ? "bg-accent-green-fill/20 border-2 border-accent-green-text" 
+                      : "bg-muted border-2 border-muted-foreground/30"
+                  )}>
+                    {currentTimelineStep >= 3 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
+                  </div>
+                  <p className={cn(
+                    "text-sm font-medium",
+                    currentTimelineStep === 3 ? "text-foreground" : "text-muted-foreground"
+                  )}>Processing</p>
+                  <p className="text-xs text-muted-foreground">Payments are being processed externally.</p>
+                </div>
+                
+                {/* Step 4: Complete */}
                 <div className="relative">
                   <div className={cn(
                     "absolute left-[-24px] w-4 h-4 rounded-full flex items-center justify-center",
-                    currentStep >= 3 
+                    currentTimelineStep >= 4 
                       ? "bg-accent-green-fill/20 border-2 border-accent-green-text" 
                       : "bg-muted border-2 border-muted-foreground/30"
                   )}>
-                    {currentStep >= 3 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
+                    {currentTimelineStep >= 4 && <div className="w-1.5 h-1.5 rounded-full bg-accent-green-text" />}
                   </div>
                   <p className={cn(
                     "text-sm font-medium",
-                    currentStep === 3 ? "text-foreground" : "text-muted-foreground"
-                  )}>Payments processed</p>
-                  <p className="text-xs text-muted-foreground">Payments are processed and status updates appear in Track</p>
+                    currentTimelineStep === 4 ? "text-foreground" : "text-muted-foreground"
+                  )}>Complete</p>
+                  <p className="text-xs text-muted-foreground">All payments are complete (or flagged if action needed).</p>
                 </div>
-              </div>
-
-              {/* Processing time note */}
-              <div className="mt-6 pt-4 border-t border-border/50 flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Typically 2–3 business days</span>
               </div>
             </div>
           </div>

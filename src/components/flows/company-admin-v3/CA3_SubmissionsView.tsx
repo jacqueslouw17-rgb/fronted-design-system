@@ -257,7 +257,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 onClick={onContinue}
                 className="h-9 text-xs gap-1.5"
               >
-                Continue to Checks
+                Continue to Submit
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
