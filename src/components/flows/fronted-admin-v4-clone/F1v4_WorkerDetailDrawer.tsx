@@ -594,208 +594,210 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </Collapsible>
               )}
 
-              {/* SECTION D: Overrides (Contextual, not default) */}
-              <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <Pencil className="h-3 w-3" />
-                      Overrides & Adjustments
-                      {hasChanges && (
-                        <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 bg-amber-500/10 text-amber-600 border-amber-500/20">
-                          {adjustments.length} change{adjustments.length !== 1 ? "s" : ""}
-                        </Badge>
-                      )}
-                    </span>
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", overridesOpen && "rotate-180")} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-4 pb-2">
-                  {/* Enable Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-card/30">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Enable overrides</p>
-                      <p className="text-[11px] text-muted-foreground">This cycle only</p>
+              {/* SECTION D: Overrides (Contextual, not default) - Hidden in Track step */}
+              {!isTrackStep && (
+                <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <Pencil className="h-3 w-3" />
+                        Overrides & Adjustments
+                        {hasChanges && (
+                          <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-3.5 bg-amber-500/10 text-amber-600 border-amber-500/20">
+                            {adjustments.length} change{adjustments.length !== 1 ? "s" : ""}
+                          </Badge>
+                        )}
+                      </span>
+                      <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", overridesOpen && "rotate-180")} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pb-2">
+                    {/* Enable Toggle */}
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-card/30">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Enable overrides</p>
+                        <p className="text-[11px] text-muted-foreground">This cycle only</p>
+                      </div>
+                      <Switch checked={overridesEnabled} onCheckedChange={setOverridesEnabled} />
                     </div>
-                    <Switch checked={overridesEnabled} onCheckedChange={setOverridesEnabled} />
-                  </div>
 
-                  {overridesEnabled && (
-                    <>
-                      {/* Override Fields */}
-                      <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-3">
-                        <div className="flex items-center gap-2 text-[11px] text-amber-600 mb-2">
-                          <AlertTriangle className="h-3 w-3" />
-                          <span>Changes apply to this cycle only</span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">Start date</Label>
-                            <Input
-                              type="date"
-                              value={startDateOverride}
-                              onChange={(e) => setStartDateOverride(e.target.value)}
-                              className="h-8 text-xs"
-                            />
+                    {overridesEnabled && (
+                      <>
+                        {/* Override Fields */}
+                        <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-3">
+                          <div className="flex items-center gap-2 text-[11px] text-amber-600 mb-2">
+                            <AlertTriangle className="h-3 w-3" />
+                            <span>Changes apply to this cycle only</span>
                           </div>
-                          <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">End date</Label>
-                            <Input
-                              type="date"
-                              value={endDateOverride}
-                              onChange={(e) => setEndDateOverride(e.target.value)}
-                              className="h-8 text-xs"
-                            />
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">Start date</Label>
+                              <Input
+                                type="date"
+                                value={startDateOverride}
+                                onChange={(e) => setStartDateOverride(e.target.value)}
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">End date</Label>
+                              <Input
+                                type="date"
+                                value={endDateOverride}
+                                onChange={(e) => setEndDateOverride(e.target.value)}
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">Status</Label>
+                              <Select value={statusOverride} onValueChange={setStatusOverride}>
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue placeholder="No change" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="active">Active</SelectItem>
+                                  <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">Pay amount adj.</Label>
+                              <Input
+                                type="number"
+                                placeholder="0.00"
+                                value={payAmountOverride}
+                                onChange={(e) => setPayAmountOverride(e.target.value)}
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                          </div>
+
                           <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">Status</Label>
-                            <Select value={statusOverride} onValueChange={setStatusOverride}>
+                            <Label className="text-[11px] text-muted-foreground">Reason *</Label>
+                            <Select value={overrideReason} onValueChange={setOverrideReason}>
                               <SelectTrigger className="h-8 text-xs">
-                                <SelectValue placeholder="No change" />
+                                <SelectValue placeholder="Select reason" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="contract-change">Contract change</SelectItem>
+                                <SelectItem value="correction">Correction</SelectItem>
+                                <SelectItem value="special-case">Special case</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">Pay amount adj.</Label>
-                            <Input
-                              type="number"
-                              placeholder="0.00"
-                              value={payAmountOverride}
-                              onChange={(e) => setPayAmountOverride(e.target.value)}
-                              className="h-8 text-xs"
-                            />
+                        </div>
+
+                        {/* Manual Adjustments */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-muted-foreground">Manual Adjustments</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs gap-1 text-primary"
+                              onClick={() => setShowAddAdjustment(!showAddAdjustment)}
+                            >
+                              <Plus className="h-3 w-3" />
+                              Add
+                            </Button>
                           </div>
+
+                          {adjustments.map((adj) => (
+                            <div key={adj.id} className="flex items-center gap-2 p-2.5 rounded-lg border border-border/40 bg-card/30">
+                              <Badge variant="outline" className={cn(
+                                "text-[9px] px-1.5 py-0 h-4 shrink-0",
+                                adj.type === "bonus" && "bg-accent-green-fill/10 text-accent-green-text",
+                                adj.type === "deduction" && "bg-destructive/10 text-destructive",
+                                adj.type === "reimbursement" && "bg-blue-500/10 text-blue-600"
+                              )}>
+                                {adj.type}
+                              </Badge>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium truncate">{adj.label}</p>
+                              </div>
+                              <span className={cn(
+                                "text-xs font-medium tabular-nums shrink-0",
+                                adj.type === "deduction" ? "text-destructive" : "text-accent-green-text"
+                              )}>
+                                {adj.type === "deduction" ? "-" : "+"}{formatCurrency(adj.amount, worker.currency)}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0"
+                                onClick={() => setAdjustments(prev => prev.filter(a => a.id !== adj.id))}
+                              >
+                                <Trash2 className="h-3 w-3 text-muted-foreground" />
+                              </Button>
+                            </div>
+                          ))}
+
+                          {showAddAdjustment && (
+                            <div className="p-3 rounded-lg border border-dashed border-border/60 bg-muted/10 space-y-2.5">
+                              <div className="grid grid-cols-2 gap-2">
+                                <Select value={newAdjType} onValueChange={(v) => setNewAdjType(v as typeof newAdjType)}>
+                                  <SelectTrigger className="h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="bonus">Bonus</SelectItem>
+                                    <SelectItem value="deduction">Deduction</SelectItem>
+                                    <SelectItem value="reimbursement">Reimbursement</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <Input
+                                  type="number"
+                                  placeholder="Amount"
+                                  value={newAdjAmount}
+                                  onChange={(e) => setNewAdjAmount(e.target.value)}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                              <Input
+                                placeholder="Label (e.g., Q4 Bonus)"
+                                value={newAdjLabel}
+                                onChange={(e) => setNewAdjLabel(e.target.value)}
+                                className="h-7 text-xs"
+                              />
+                              <Input
+                                placeholder="Reason"
+                                value={newAdjReason}
+                                onChange={(e) => setNewAdjReason(e.target.value)}
+                                className="h-7 text-xs"
+                              />
+                              <div className="flex gap-2">
+                                <Button size="sm" className="h-7 text-xs flex-1" onClick={handleAddAdjustment}>
+                                  Add
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowAddAdjustment(false)}>
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="space-y-1">
-                          <Label className="text-[11px] text-muted-foreground">Reason *</Label>
-                          <Select value={overrideReason} onValueChange={setOverrideReason}>
-                            <SelectTrigger className="h-8 text-xs">
-                              <SelectValue placeholder="Select reason" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="contract-change">Contract change</SelectItem>
-                              <SelectItem value="correction">Correction</SelectItem>
-                              <SelectItem value="special-case">Special case</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Manual Adjustments */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-muted-foreground">Manual Adjustments</span>
+                        {hasChanges && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 text-xs gap-1 text-primary"
-                            onClick={() => setShowAddAdjustment(!showAddAdjustment)}
+                            className="gap-1.5 text-xs text-muted-foreground w-full justify-center"
+                            onClick={handleResetOverrides}
                           >
-                            <Plus className="h-3 w-3" />
-                            Add
+                            <RotateCcw className="h-3 w-3" />
+                            Reset all
                           </Button>
-                        </div>
-
-                        {adjustments.map((adj) => (
-                          <div key={adj.id} className="flex items-center gap-2 p-2.5 rounded-lg border border-border/40 bg-card/30">
-                            <Badge variant="outline" className={cn(
-                              "text-[9px] px-1.5 py-0 h-4 shrink-0",
-                              adj.type === "bonus" && "bg-accent-green-fill/10 text-accent-green-text",
-                              adj.type === "deduction" && "bg-destructive/10 text-destructive",
-                              adj.type === "reimbursement" && "bg-blue-500/10 text-blue-600"
-                            )}>
-                              {adj.type}
-                            </Badge>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium truncate">{adj.label}</p>
-                            </div>
-                            <span className={cn(
-                              "text-xs font-medium tabular-nums shrink-0",
-                              adj.type === "deduction" ? "text-destructive" : "text-accent-green-text"
-                            )}>
-                              {adj.type === "deduction" ? "-" : "+"}{formatCurrency(adj.amount, worker.currency)}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 shrink-0"
-                              onClick={() => setAdjustments(prev => prev.filter(a => a.id !== adj.id))}
-                            >
-                              <Trash2 className="h-3 w-3 text-muted-foreground" />
-                            </Button>
-                          </div>
-                        ))}
-
-                        {showAddAdjustment && (
-                          <div className="p-3 rounded-lg border border-dashed border-border/60 bg-muted/10 space-y-2.5">
-                            <div className="grid grid-cols-2 gap-2">
-                              <Select value={newAdjType} onValueChange={(v) => setNewAdjType(v as typeof newAdjType)}>
-                                <SelectTrigger className="h-7 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="bonus">Bonus</SelectItem>
-                                  <SelectItem value="deduction">Deduction</SelectItem>
-                                  <SelectItem value="reimbursement">Reimbursement</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <Input
-                                type="number"
-                                placeholder="Amount"
-                                value={newAdjAmount}
-                                onChange={(e) => setNewAdjAmount(e.target.value)}
-                                className="h-7 text-xs"
-                              />
-                            </div>
-                            <Input
-                              placeholder="Label (e.g., Q4 Bonus)"
-                              value={newAdjLabel}
-                              onChange={(e) => setNewAdjLabel(e.target.value)}
-                              className="h-7 text-xs"
-                            />
-                            <Input
-                              placeholder="Reason"
-                              value={newAdjReason}
-                              onChange={(e) => setNewAdjReason(e.target.value)}
-                              className="h-7 text-xs"
-                            />
-                            <div className="flex gap-2">
-                              <Button size="sm" className="h-7 text-xs flex-1" onClick={handleAddAdjustment}>
-                                Add
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowAddAdjustment(false)}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
                         )}
-                      </div>
-
-                      {hasChanges && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1.5 text-xs text-muted-foreground w-full justify-center"
-                          onClick={handleResetOverrides}
-                        >
-                          <RotateCcw className="h-3 w-3" />
-                          Reset all
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
+                      </>
+                    )}
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
               {/* SECTION E: Previous Payslips */}
               <Collapsible>
