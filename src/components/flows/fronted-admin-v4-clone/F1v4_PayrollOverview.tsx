@@ -36,36 +36,42 @@ const statusConfig: Record<CompanyPayrollData["status"], {
   className: string; 
   icon: React.ElementType;
   ctaLabel: string;
+  ctaVariant: "default" | "outline";
 }> = {
   blocked: { 
     label: "Blocked", 
     className: "bg-destructive/10 text-destructive border-destructive/20",
     icon: AlertCircle,
-    ctaLabel: "Resolve exceptions"
+    ctaLabel: "Review payroll",
+    ctaVariant: "default"
   },
   "needs-review": { 
     label: "Needs Review", 
     className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     icon: Clock,
-    ctaLabel: "Review payroll"
+    ctaLabel: "Review payroll",
+    ctaVariant: "default"
   },
   ready: { 
     label: "Ready", 
     className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
     icon: CheckCircle2,
-    ctaLabel: "Approve numbers"
+    ctaLabel: "Review payroll",
+    ctaVariant: "default"
   },
   approved: { 
     label: "Approved", 
     className: "bg-primary/10 text-primary border-primary/20",
     icon: CheckCircle2,
-    ctaLabel: "Reconcile status"
+    ctaLabel: "View status",
+    ctaVariant: "outline"
   },
   reconcile: { 
     label: "In Reconcile", 
     className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
     icon: Clock,
-    ctaLabel: "View status"
+    ctaLabel: "View status",
+    ctaVariant: "outline"
   },
 };
 
@@ -268,10 +274,10 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
 
                   {/* Right: Action */}
                   <Button
-                    variant={company.status === "blocked" ? "destructive" : "default"}
+                    variant={config.ctaVariant}
                     size="sm"
                     onClick={() => onSelectCompany(company.id)}
-                    className="gap-1.5 ml-4"
+                    className="gap-1.5 ml-4 min-w-[120px]"
                   >
                     {config.ctaLabel}
                     <ArrowRight className="h-3.5 w-3.5" />
