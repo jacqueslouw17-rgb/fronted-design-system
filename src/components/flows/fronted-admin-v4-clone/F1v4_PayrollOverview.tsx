@@ -15,8 +15,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  ArrowRight,
-  Filter
+  ChevronRight
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ type FilterType = "all" | "blocked" | "needs-review" | "ready" | "approved" | "r
 
 interface F1v4_PayrollOverviewProps {
   companies: CompanyPayrollData[];
-  onSelectCompany: (companyId: string) => void;
+  onSelectCompany: (companyId: string, jumpToStep?: number) => void;
 }
 
 const statusConfig: Record<CompanyPayrollData["status"], { 
@@ -37,41 +36,47 @@ const statusConfig: Record<CompanyPayrollData["status"], {
   icon: React.ElementType;
   ctaLabel: string;
   ctaVariant: "default" | "outline";
+  targetStep: number; // Which step to jump to when CTA is clicked
 }> = {
   blocked: { 
     label: "Blocked", 
     className: "bg-destructive/10 text-destructive border-destructive/20",
     icon: AlertCircle,
     ctaLabel: "Review payroll",
-    ctaVariant: "default"
+    ctaVariant: "default",
+    targetStep: 2 // Jump to Exceptions step
   },
   "needs-review": { 
     label: "Needs Review", 
     className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     icon: Clock,
     ctaLabel: "Review payroll",
-    ctaVariant: "default"
+    ctaVariant: "default",
+    targetStep: 2 // Jump to Exceptions step
   },
   ready: { 
     label: "Ready", 
     className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
     icon: CheckCircle2,
     ctaLabel: "Review payroll",
-    ctaVariant: "default"
+    ctaVariant: "default",
+    targetStep: 3 // Jump to Approve step
   },
   approved: { 
     label: "Approved", 
     className: "bg-primary/10 text-primary border-primary/20",
     icon: CheckCircle2,
     ctaLabel: "View status",
-    ctaVariant: "outline"
+    ctaVariant: "outline",
+    targetStep: 4 // Jump to Track & Reconcile
   },
   reconcile: { 
     label: "In Reconcile", 
     className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
     icon: Clock,
     ctaLabel: "View status",
-    ctaVariant: "outline"
+    ctaVariant: "outline",
+    targetStep: 4 // Jump to Track & Reconcile
   },
 };
 
@@ -191,11 +196,12 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
+              onClick={() => onSelectCompany(company.id)}
               className={cn(
-                "group relative rounded-xl border bg-card/50 backdrop-blur-sm",
-                "hover:bg-card/80 hover:shadow-md transition-all duration-200",
+                "group relative rounded-xl border bg-card/50 backdrop-blur-sm cursor-pointer",
+                "hover:bg-card/80 hover:shadow-lg hover:border-border/60 transition-all duration-200",
                 company.status === "blocked" 
-                  ? "border-destructive/30" 
+                  ? "border-destructive/30 hover:border-destructive/50" 
                   : "border-border/40"
               )}
             >
@@ -211,7 +217,7 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
                     {/* Company Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5 mb-1">
-                        <h3 className="text-sm font-medium text-foreground truncate">
+                        <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
                           {company.name}
                         </h3>
                         <Badge 
@@ -272,16 +278,23 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
                     </div>
                   </div>
 
-                  {/* Right: Action */}
-                  <Button
-                    variant={config.ctaVariant}
-                    size="sm"
-                    onClick={() => onSelectCompany(company.id)}
-                    className="gap-1.5 ml-4 min-w-[120px]"
-                  >
-                    {config.ctaLabel}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
+                  {/* Right: Action + Chevron */}
+                  <div className="flex items-center gap-2 ml-4">
+                    <Button
+                      variant={config.ctaVariant}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click
+                        onSelectCompany(company.id, config.targetStep);
+                      }}
+                      className="gap-1.5 min-w-[130px]"
+                    >
+                      {config.ctaLabel}
+                    </Button>
+                    
+                    {/* Hover chevron indicator */}
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
 
                 {/* Last Activity */}

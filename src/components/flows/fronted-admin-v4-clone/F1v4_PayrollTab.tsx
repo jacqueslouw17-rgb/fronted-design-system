@@ -99,18 +99,21 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
   selectedCompanyId,
 }) => {
   const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
+  const [initialStep, setInitialStep] = useState<number | undefined>(undefined);
   const [companies] = useState<CompanyPayrollData[]>(MOCK_COMPANY_PAYROLLS);
 
   const activeCompany = activeCompanyId 
     ? companies.find(c => c.id === activeCompanyId) 
     : null;
 
-  const handleSelectCompany = (companyId: string) => {
+  const handleSelectCompany = (companyId: string, jumpToStep?: number) => {
     setActiveCompanyId(companyId);
+    setInitialStep(jumpToStep);
   };
 
   const handleBackToOverview = () => {
     setActiveCompanyId(null);
+    setInitialStep(undefined);
   };
 
   if (activeCompany) {
@@ -118,6 +121,7 @@ export const F1v4_PayrollTab: React.FC<F1v4_PayrollTabProps> = ({
       <F1v4_CompanyPayrollRun
         company={activeCompany}
         onBack={handleBackToOverview}
+        initialStep={initialStep}
       />
     );
   }
