@@ -249,19 +249,19 @@ export const F1v4_ExceptionFixDrawer: React.FC<F1v4_ExceptionFixDrawerProps> = (
               className="w-full justify-center gap-2"
               onClick={() =>
                 handleAction(
-                  "snooze",
+                  "skip",
                   "snoozed",
-                  `Snoozed for ${exception.workerName}`
+                  `Skipped for ${exception.workerName}`
                 )
               }
               disabled={isLoading}
             >
-              {loadingAction === "snooze" ? (
+              {loadingAction === "skip" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Clock className="h-4 w-4" />
               )}
-              Snooze
+              Skip
             </Button>
           </div>
         );

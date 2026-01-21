@@ -110,7 +110,7 @@ const statusLabels: Record<ExceptionStatus, string> = {
   active: "",
   pending: "Pending",
   requested: "Requested",
-  snoozed: "Snoozed",
+  snoozed: "Skipped",
   acknowledged: "Acknowledged",
   resolved: "Resolved",
 };
@@ -265,8 +265,39 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
     }
   };
 
-  const handleSnooze = (exceptionId: string) => {
+  const handleSkip = (exceptionId: string) => {
     handleStatusChange(exceptionId, "snoozed");
+    toast({
+      description: (
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          <span>Exception skipped</span>
+        </div>
+      ),
+    });
+  };
+
+  const handleSkipAll = () => {
+    const exceptionsToSkip = exceptions.filter(
+      (e) => e.status === "active" || e.status === "requested"
+    );
+    
+    setExceptions((prev) =>
+      prev.map((e) =>
+        e.status === "active" || e.status === "requested"
+          ? { ...e, status: "snoozed" as ExceptionStatus }
+          : e
+      )
+    );
+
+    toast({
+      description: (
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          <span>{exceptionsToSkip.length} exceptions skipped</span>
+        </div>
+      ),
+    });
   };
 
   // Can continue if no active blocking exceptions and no pending blocking exceptions
@@ -484,10 +515,10 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleSnooze(exception.id)}
+                            onClick={() => handleSkip(exception.id)}
                             className="text-xs text-muted-foreground"
                           >
-                            Snooze
+                            Skip
                           </Button>
                         )}
                       </>
@@ -517,10 +548,22 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
 
       {/* Continue Action */}
       <div className="flex items-center justify-between pt-2">
-        <p className="text-xs text-muted-foreground">
-          {resolvedThisSession.length} exception
-          {resolvedThisSession.length !== 1 ? "s" : ""} resolved this session
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-xs text-muted-foreground">
+            {resolvedThisSession.length} exception
+            {resolvedThisSession.length !== 1 ? "s" : ""} resolved this session
+          </p>
+          {visibleExceptions.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkipAll}
+              className="text-xs text-muted-foreground h-7"
+            >
+              Skip all
+            </Button>
+          )}
+        </div>
         <Button
           onClick={onContinue}
           size="sm"
