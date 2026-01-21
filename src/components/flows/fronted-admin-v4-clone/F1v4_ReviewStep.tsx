@@ -125,22 +125,6 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
           <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /><span className="font-medium text-foreground">{company.currencyCount}</span> currencies</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => {
-              if (workers.length > 0) {
-                handlePayslipPreview(workers[0]);
-                toast.info(`Previewing payslip for ${workers[0].name}`, {
-                  description: "Click a worker row to preview individual payslips"
-                });
-              }
-            }} 
-            className="gap-1.5 text-xs"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Preview Payslips
-          </Button>
           <Button variant="ghost" size="sm" onClick={() => toast.success("Payroll data exported")} className="gap-1.5 text-xs text-muted-foreground"><Download className="h-3.5 w-3.5" />Export</Button>
         </div>
       </div>
