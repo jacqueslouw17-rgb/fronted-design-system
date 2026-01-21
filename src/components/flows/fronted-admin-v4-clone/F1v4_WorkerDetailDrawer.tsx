@@ -528,69 +528,71 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </div>
               )}
 
-              {/* SECTION C: Payment Breakdown (Collapsible) */}
-              <Collapsible open={breakdownOpen} onOpenChange={setBreakdownOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      View Full Breakdown
-                    </span>
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", breakdownOpen && "rotate-180")} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-3 pb-2">
-                  <div className="p-4 rounded-xl border border-border/40 bg-card/30 space-y-2.5">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Base {worker.type === "contractor" ? "rate" : "salary"}</span>
-                      <span className="font-medium tabular-nums">{formatCurrency(baseSalary, worker.currency)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Scheduled / Actual days</span>
-                      <span className="font-medium tabular-nums">{scheduledDays} / {actualDays}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Leave taken</span>
-                      <span className="font-medium tabular-nums">{leaveTaken} day{leaveTaken !== 1 ? "s" : ""}</span>
-                    </div>
-                    <div className="flex justify-between text-sm border-t border-border/40 pt-2.5">
-                      <span className="text-muted-foreground">Gross pay</span>
-                      <span className="font-medium tabular-nums">{formatCurrency(grossPay, worker.currency)}</span>
-                    </div>
-                    {worker.type === "employee" && (
+              {/* SECTION C: Payment Breakdown (Collapsible) - Hidden in Track step */}
+              {!isTrackStep && (
+                <Collapsible open={breakdownOpen} onOpenChange={setBreakdownOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        View Full Breakdown
+                      </span>
+                      <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", breakdownOpen && "rotate-180")} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-3 pb-2">
+                    <div className="p-4 rounded-xl border border-border/40 bg-card/30 space-y-2.5">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Deductions (tax, SSS, etc.)</span>
-                        <span className="font-medium tabular-nums text-muted-foreground">-{formatCurrency(deductions, worker.currency)}</span>
+                        <span className="text-muted-foreground">Base {worker.type === "contractor" ? "rate" : "salary"}</span>
+                        <span className="font-medium tabular-nums">{formatCurrency(baseSalary, worker.currency)}</span>
                       </div>
-                    )}
-                    {worker.type === "contractor" && fees > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Fees</span>
-                        <span className="font-medium tabular-nums text-muted-foreground">-{formatCurrency(fees, worker.currency)}</span>
+                        <span className="text-muted-foreground">Scheduled / Actual days</span>
+                        <span className="font-medium tabular-nums">{scheduledDays} / {actualDays}</span>
                       </div>
-                    )}
-                    {adjustments.length > 0 && adjustments.map(adj => (
-                      <div key={adj.id} className="flex justify-between text-sm">
-                        <span className="text-muted-foreground flex items-center gap-1.5">
-                          {adj.label}
-                          <Badge variant="outline" className="text-[8px] px-1 py-0 h-3">
-                            {adj.type}
-                          </Badge>
-                        </span>
-                        <span className={cn(
-                          "font-medium tabular-nums",
-                          adj.type === "deduction" ? "text-destructive" : "text-accent-green-text"
-                        )}>
-                          {adj.type === "deduction" ? "-" : "+"}{formatCurrency(adj.amount, worker.currency)}
-                        </span>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Leave taken</span>
+                        <span className="font-medium tabular-nums">{leaveTaken} day{leaveTaken !== 1 ? "s" : ""}</span>
                       </div>
-                    ))}
-                    <div className="flex justify-between text-sm border-t border-border/40 pt-2.5">
-                      <span className="font-medium text-foreground">Net pay</span>
-                      <span className="font-semibold text-foreground tabular-nums">{formatCurrency(calculatedNetPay, worker.currency)}</span>
+                      <div className="flex justify-between text-sm border-t border-border/40 pt-2.5">
+                        <span className="text-muted-foreground">Gross pay</span>
+                        <span className="font-medium tabular-nums">{formatCurrency(grossPay, worker.currency)}</span>
+                      </div>
+                      {worker.type === "employee" && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Deductions (tax, SSS, etc.)</span>
+                          <span className="font-medium tabular-nums text-muted-foreground">-{formatCurrency(deductions, worker.currency)}</span>
+                        </div>
+                      )}
+                      {worker.type === "contractor" && fees > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Fees</span>
+                          <span className="font-medium tabular-nums text-muted-foreground">-{formatCurrency(fees, worker.currency)}</span>
+                        </div>
+                      )}
+                      {adjustments.length > 0 && adjustments.map(adj => (
+                        <div key={adj.id} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground flex items-center gap-1.5">
+                            {adj.label}
+                            <Badge variant="outline" className="text-[8px] px-1 py-0 h-3">
+                              {adj.type}
+                            </Badge>
+                          </span>
+                          <span className={cn(
+                            "font-medium tabular-nums",
+                            adj.type === "deduction" ? "text-destructive" : "text-accent-green-text"
+                          )}>
+                            {adj.type === "deduction" ? "-" : "+"}{formatCurrency(adj.amount, worker.currency)}
+                          </span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-sm border-t border-border/40 pt-2.5">
+                        <span className="font-medium text-foreground">Net pay</span>
+                        <span className="font-semibold text-foreground tabular-nums">{formatCurrency(calculatedNetPay, worker.currency)}</span>
+                      </div>
                     </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
               {/* SECTION D: Overrides (Contextual, not default) */}
               <Collapsible open={overridesOpen} onOpenChange={setOverridesOpen}>
