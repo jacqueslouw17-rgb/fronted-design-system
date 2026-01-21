@@ -282,42 +282,27 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-[480px] sm:max-w-[480px] p-0 flex flex-col overflow-hidden">
           {/* Header - Always visible */}
-          <SheetHeader className="p-5 pb-4 border-b border-border/40 shrink-0 bg-background pt-10">
-            {/* Navigation */}
-            <div className="flex items-center justify-between mb-4">
+          <SheetHeader className="px-4 py-5 border-b border-border/40 shrink-0 bg-background pt-12">
+            {/* Unified header: Nav arrows + Worker identity centered */}
+            <div className="flex items-center gap-3">
+              {/* Prev Arrow */}
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => onNavigate(currentIndex - 1)}
                 disabled={!hasPrev}
-                className="gap-1 text-xs h-7 px-2"
+                className="h-9 w-9 shrink-0 rounded-full"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Prev
+                <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-xs text-muted-foreground">
-                {currentIndex + 1} of {workers.length}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate(currentIndex + 1)}
-                disabled={!hasNext}
-                className="gap-1 text-xs h-7 px-2"
-              >
-                Next
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
 
-            {/* Worker Identity + Status */}
-            <div className="flex items-start gap-3">
-              <Avatar className="h-11 w-11">
-                <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                  {getInitials(worker.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
+              {/* Worker Identity - Centered */}
+              <div className="flex-1 flex flex-col items-center text-center min-w-0">
+                <Avatar className="h-12 w-12 mb-2">
+                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                    {getInitials(worker.name)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex items-center gap-2 mb-1">
                   <h2 className="text-base font-semibold text-foreground truncate">
                     {worker.name}
@@ -326,7 +311,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                     {config.label}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground flex-wrap">
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-muted/30">
                     <TypeIcon className="h-2.5 w-2.5 mr-1" />
                     {worker.type === "employee" ? "Employee" : "Contractor"}
@@ -344,7 +329,21 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                     </>
                   )}
                 </div>
+                <span className="text-[10px] text-muted-foreground/60 mt-1.5">
+                  {currentIndex + 1} of {workers.length}
+                </span>
               </div>
+
+              {/* Next Arrow */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onNavigate(currentIndex + 1)}
+                disabled={!hasNext}
+                className="h-9 w-9 shrink-0 rounded-full"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </SheetHeader>
 
