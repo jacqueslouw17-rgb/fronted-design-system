@@ -282,7 +282,7 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-[480px] sm:max-w-[480px] p-0 flex flex-col overflow-hidden">
           {/* Header - Always visible */}
-          <SheetHeader className="p-5 pb-4 border-b border-border/40 shrink-0 bg-background">
+          <SheetHeader className="p-5 pb-4 border-b border-border/40 shrink-0 bg-background pt-10">
             {/* Navigation */}
             <div className="flex items-center justify-between mb-4">
               <Button
