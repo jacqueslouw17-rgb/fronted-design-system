@@ -160,8 +160,6 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
   // Collapsible states
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [overridesOpen, setOverridesOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [auditOpen, setAuditOpen] = useState(false);
 
   // Override fields
   const [startDateOverride, setStartDateOverride] = useState("");
@@ -824,72 +822,6 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* SECTION F: Worker Profile (Collapsed by default) */}
-              <Collapsible open={profileOpen} onOpenChange={setProfileOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Worker Profile
-                    </span>
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", profileOpen && "rotate-180")} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pb-2">
-                  <div className="p-3 rounded-xl border border-border/40 bg-card/30 space-y-2">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Employment type</span>
-                      <span className="font-medium">{worker.type === "employee" ? "Full-time employee" : "Contractor"}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Compensation</span>
-                      <span className="font-medium">Monthly</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Country</span>
-                      <span className="font-medium">{countryFlags[worker.country] || ""} {worker.country}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Currency</span>
-                      <span className="font-medium">{worker.currency}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Worker ID</span>
-                      <span className="font-mono text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{worker.id}</span>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* SECTION G: Audit Log (Collapsed by default) */}
-              <Collapsible open={auditOpen} onOpenChange={setAuditOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Audit Log
-                    </span>
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", auditOpen && "rotate-180")} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pb-2">
-                  <div className="space-y-0">
-                    {mockAuditLog.map((log, idx) => (
-                      <div
-                        key={log.id}
-                        className={cn(
-                          "relative pl-4 py-2",
-                          idx !== mockAuditLog.length - 1 && "border-l border-border/40 ml-1"
-                        )}
-                      >
-                        <div className="absolute left-0 top-3 w-2 h-2 rounded-full bg-muted border border-background -translate-x-0.5" />
-                        <p className="text-xs text-foreground">{log.action}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {log.timestamp} · {log.actor}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
 
             </div>
           </div>
