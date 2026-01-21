@@ -122,6 +122,11 @@ interface PendingProgress {
   workerName: string;
 }
 
+interface TimerRefs {
+  timeout: NodeJS.Timeout;
+  interval: NodeJS.Timeout;
+}
+
 export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
   company,
   exceptionsCount,
@@ -132,7 +137,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
   const [selectedExceptionId, setSelectedExceptionId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pendingProgress, setPendingProgress] = useState<PendingProgress[]>([]);
-  const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const timersRef = useRef<Map<string, TimerRefs>>(new Map());
 
   const selectedException = exceptions.find((e) => e.id === selectedExceptionId) || null;
 
@@ -162,20 +167,28 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
           );
         }, 100);
 
+        // Capture exception data for closure
+        const exceptionId = exception.id;
+        const workerName = exception.workerName;
+
         // Set timeout to resolve after 4 seconds
         const timeout = setTimeout(() => {
-          clearInterval(progressInterval);
+          // Clear the interval
+          const refs = timersRef.current.get(exceptionId);
+          if (refs) {
+            clearInterval(refs.interval);
+          }
           
           // Transition to resolved with animation
           setExceptions((prev) =>
             prev.map((e) =>
-              e.id === exception.id ? { ...e, status: "resolved" } : e
+              e.id === exceptionId ? { ...e, status: "resolved" as ExceptionStatus } : e
             )
           );
 
           // Remove from pending progress
           setPendingProgress((prev) =>
-            prev.filter((p) => p.exceptionId !== exception.id)
+            prev.filter((p) => p.exceptionId !== exceptionId)
           );
 
           // Show success toast
@@ -183,7 +196,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
             description: (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                <span>{exception.workerName} responded — exception resolved</span>
+                <span>{workerName} responded — exception resolved</span>
               </div>
             ),
           });
@@ -192,18 +205,30 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
           onResolve();
 
           // Cleanup timer reference
-          timersRef.current.delete(exception.id);
+          timersRef.current.delete(exceptionId);
         }, 4000);
 
-        timersRef.current.set(exception.id, timeout);
+        // Store both interval and timeout references
+        timersRef.current.set(exception.id, { timeout, interval: progressInterval });
       }
     });
 
-    // Cleanup on unmount
+    // Cleanup on unmount only
     return () => {
-      timersRef.current.forEach((timeout) => clearTimeout(timeout));
+      // Don't clear on every re-render, only on unmount
     };
   }, [exceptions, onResolve]);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((refs) => {
+        clearTimeout(refs.timeout);
+        clearInterval(refs.interval);
+      });
+      timersRef.current.clear();
+    };
+  }, []);
 
   // Filter logic
   const visibleExceptions = exceptions.filter(
