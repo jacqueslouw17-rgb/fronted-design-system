@@ -117,13 +117,6 @@ export const F1v4_PayrollOverview: React.FC<F1v4_PayrollOverviewProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto p-8 pb-32 space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold text-foreground">Payroll Overview</h1>
-        <p className="text-sm text-muted-foreground">
-          Review and approve payroll runs across all companies
-        </p>
-      </div>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-4 gap-4">
