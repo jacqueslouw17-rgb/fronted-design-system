@@ -820,41 +820,6 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* SECTION F: Worker Profile (Collapsed by default) */}
-              <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Worker Profile
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pb-2">
-                  <div className="p-3 rounded-xl border border-border/40 bg-card/30 space-y-2">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Employment type</span>
-                      <span className="font-medium">{worker.type === "employee" ? "Full-time employee" : "Contractor"}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Compensation</span>
-                      <span className="font-medium">Monthly</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Country</span>
-                      <span className="font-medium">{countryFlags[worker.country] || ""} {worker.country}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Currency</span>
-                      <span className="font-medium">{worker.currency}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Worker ID</span>
-                      <span className="font-mono text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{worker.id}</span>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
 
             </div>
           </div>
