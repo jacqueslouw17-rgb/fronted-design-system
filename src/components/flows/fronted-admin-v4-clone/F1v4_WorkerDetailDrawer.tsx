@@ -799,29 +799,31 @@ export const F1v4_WorkerDetailDrawer: React.FC<F1v4_WorkerDetailDrawerProps> = (
                 </Collapsible>
               )}
 
-              {/* SECTION E: Previous Payslips */}
-              <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <FileText className="h-3 w-3" />
-                      Previous Payslips
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2 pb-2">
-                  {["December 2025", "November 2025", "October 2025"].map((month) => (
-                    <div key={month} className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/30 transition-colors">
-                      <span className="text-xs text-foreground">{month}</span>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs gap-1">
-                        <Download className="h-3 w-3" />
-                        PDF
-                      </Button>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
+              {/* SECTION E: Previous Payslips - Hidden in Track step */}
+              {!isTrackStep && (
+                <Collapsible>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <FileText className="h-3 w-3" />
+                        Previous Payslips
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 pb-2">
+                    {["December 2025", "November 2025", "October 2025"].map((month) => (
+                      <div key={month} className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-card/30 hover:bg-muted/30 transition-colors">
+                        <span className="text-xs text-foreground">{month}</span>
+                        <Button variant="ghost" size="sm" className="h-6 text-xs gap-1">
+                          <Download className="h-3 w-3" />
+                          PDF
+                        </Button>
+                      </div>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
 
             </div>
