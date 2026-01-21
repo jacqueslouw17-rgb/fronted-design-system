@@ -33,15 +33,41 @@ import { F1v4_TrackStep } from "./F1v4_TrackStep";
 interface F1v4_CompanyPayrollRunProps {
   company: CompanyPayrollData;
   onBack: () => void;
+  initialStep?: number; // 1=review, 2=exceptions, 3=approve, 4=track
 }
+
+const stepMap: Record<number, F1v4_PayrollStep> = {
+  1: "review",
+  2: "exceptions",
+  3: "approve",
+  4: "track",
+};
 
 export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
   company,
   onBack,
+  initialStep,
 }) => {
-  const [currentStep, setCurrentStep] = useState<F1v4_PayrollStep>("review");
-  const [completedSteps, setCompletedSteps] = useState<F1v4_PayrollStep[]>([]);
-  const [isApproved, setIsApproved] = useState(false);
+  // Determine initial step based on prop
+  const getInitialStep = (): F1v4_PayrollStep => {
+    if (initialStep && stepMap[initialStep]) {
+      return stepMap[initialStep];
+    }
+    return "review";
+  };
+
+  const getInitialCompletedSteps = (): F1v4_PayrollStep[] => {
+    if (!initialStep) return [];
+    const steps: F1v4_PayrollStep[] = [];
+    if (initialStep >= 2) steps.push("review");
+    if (initialStep >= 3) steps.push("exceptions");
+    if (initialStep >= 4) steps.push("approve");
+    return steps;
+  };
+
+  const [currentStep, setCurrentStep] = useState<F1v4_PayrollStep>(getInitialStep);
+  const [completedSteps, setCompletedSteps] = useState<F1v4_PayrollStep[]>(getInitialCompletedSteps);
+  const [isApproved, setIsApproved] = useState(initialStep === 4);
   const [exceptionsCount, setExceptionsCount] = useState(company.blockingExceptions);
 
   const handleStepClick = (step: F1v4_PayrollStep) => {
