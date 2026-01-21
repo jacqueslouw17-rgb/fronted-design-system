@@ -1,10 +1,10 @@
 /**
  * F1v4_WorkerDetailDrawer - Premium payslip-first worker details drawer
  * 
- * Design philosophy: "Less is more"
- * - Payslip preview as primary action
+ * Design: "Less is more" - Payslip preview as primary action
  * - Calm, spacious layout
  * - Progressive disclosure for details
+ * - Contextual overrides (not default visible)
  * - Contextual overrides (not default visible)
  */
 
