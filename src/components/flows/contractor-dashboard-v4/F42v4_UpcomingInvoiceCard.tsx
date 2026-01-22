@@ -160,6 +160,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
 
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
+  // Track if user has resubmitted from rejected state (transitions to "in review")
+  const [hasResubmittedFromRejected, setHasResubmittedFromRejected] = useState(false);
 
   // Helper to open adjustment drawer with specific type and optional pre-fill data
   const openAdjustmentDrawer = (type: ContractorRequestType = null, fromBreakdown: boolean = false, category: string = '', amount: string = '') => {
@@ -215,8 +217,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
     }
   }, [invoiceStatus, setInvoiceStatus]);
 
-  // Calculate effective status (demo override for rejected)
-  const effectiveStatus = demoRejected ? 'rejected' as const : invoiceStatus;
+  // Calculate effective status (demo override for rejected, but transition to submitted if resubmitted)
+  const effectiveStatus = demoRejected 
+    ? (hasResubmittedFromRejected ? 'submitted' as const : 'rejected' as const) 
+    : invoiceStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
@@ -355,7 +359,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
                   <div className="flex rounded-md overflow-hidden border border-border/50">
                     <button
-                      onClick={() => setDemoRejected(false)}
+                      onClick={() => {
+                        setDemoRejected(false);
+                        setHasResubmittedFromRejected(false);
+                      }}
                       className={cn(
                         'px-2 py-0.5 text-[10px] font-medium transition-colors',
                         !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -364,7 +371,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
                       Approved
                     </button>
                     <button
-                      onClick={() => setDemoRejected(true)}
+                      onClick={() => {
+                        setDemoRejected(true);
+                        setHasResubmittedFromRejected(false);
+                      }}
                       className={cn(
                         'px-2 py-0.5 text-[10px] font-medium transition-colors',
                         demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -395,8 +405,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
             </div>
           )}
 
-          {/* Rejection panel - only when demo rejected is active */}
-          {demoRejected && (
+          {/* Rejection panel - only when demo rejected is active and not yet resubmitted */}
+          {demoRejected && !hasResubmittedFromRejected && (
             <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
@@ -663,6 +673,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
+          // Transition from rejected to "in review" if we're in demo rejected state
+          if (demoRejected) {
+            setHasResubmittedFromRejected(true);
+          }
           // Close breakdown drawer and open expense form with all fields pre-filled
           setBreakdownDrawerOpen(false);
           // Open adjustment drawer with expense type pre-selected, category and amount pre-filled
