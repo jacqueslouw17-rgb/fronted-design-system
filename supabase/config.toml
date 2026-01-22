@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.create-demo-user]
 verify_jwt = false
+
+[functions.get-country-holidays]
+verify_jwt = false

@@ -57,6 +57,9 @@ interface F41v4_DashboardState {
   dashboard_context: 'employee_v4';
   isLoading: boolean;
   
+  // Employee info
+  employeeCountry: string;
+  
   // Pay data
   nextPayoutDate: string;
   periodLabel: string;
@@ -105,6 +108,9 @@ interface F41v4_DashboardActions {
 const initialState: F41v4_DashboardState = {
   dashboard_context: 'employee_v4',
   isLoading: false,
+  
+  // Employee info - Norway for demo
+  employeeCountry: 'NO',
   
   // Mock data matching the spec
   nextPayoutDate: '2026-01-31',
