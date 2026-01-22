@@ -423,13 +423,13 @@ export const F41v4_UpcomingPayCard = () => {
 
 
 
-          {/* Changes Summary - Only show if there are changes */}
-          {(adjustments.length > 0 || leaveRequests.length > 0) && <div className="space-y-3">
+          {/* Changes Summary - Only show ADJUSTMENTS (not leave requests) */}
+          {adjustments.length > 0 && <div className="space-y-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Your changes (this cycle)
               </p>
               <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
-                {/* Adjustment chips */}
+                {/* Adjustment chips only - leave is shown in Time Off section */}
                 {adjustments.map(adj => <div key={adj.id} className={cn('group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all', getAdjustmentStatusColor(adj.status), isRemovable(adj.status) ? 'pr-1.5 group-hover:pr-2' : '')} role="listitem">
                     <button onClick={() => setSelectedAdjustment(adj)} aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Overtime' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`} className="inline-flex items-center gap-1.5 focus:outline-none">
                       <span>{adj.type}</span>
@@ -447,27 +447,6 @@ export const F41v4_UpcomingPayCard = () => {
                     {isRemovable(adj.status) && <Tooltip>
                         <TooltipTrigger asChild>
                           <button onClick={e => handleWithdrawClick(e, 'adjustment', adj.id)} className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current" aria-label="Withdraw request">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">
-                          Withdraw request
-                        </TooltipContent>
-                      </Tooltip>}
-                  </div>)}
-
-                {/* Leave chips */}
-                {leaveRequests.map(leave => <div key={leave.id} className={cn('group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all', getLeaveStatusColor(leave.status), isRemovable(leave.status) ? 'pr-1.5' : '')} role="listitem">
-                    <span aria-label={`${leave.leaveType}, ${leave.totalDays} ${leave.totalDays === 1 ? 'day' : 'days'}, status: ${leave.status}`} className="inline-flex items-center gap-1.5">
-                      <span>{leave.leaveType}</span>
-                      <span aria-hidden="true">·</span>
-                      <span>{leave.totalDays}d</span>
-                      <span aria-hidden="true">·</span>
-                      <span className="opacity-70">{leave.status}</span>
-                    </span>
-                    {isRemovable(leave.status) && <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button onClick={e => handleWithdrawClick(e, 'leave', leave.id)} className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current" aria-label="Withdraw request">
                             <X className="h-3 w-3" />
                           </button>
                         </TooltipTrigger>
