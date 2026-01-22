@@ -7,8 +7,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Calendar, Receipt, Plus } from 'lucide-react';
+import { Lock, Calendar, Receipt, Plus, Check, Plane } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
 
 interface LineItem {
@@ -39,6 +40,21 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
+const formatDateRange = (startDate: string, endDate: string) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  if (start.toDateString() === end.toDateString()) {
+    return format(start, 'MMM d');
+  }
+  
+  if (start.getMonth() === end.getMonth()) {
+    return `${format(start, 'MMM d')}–${format(end, 'd')}`;
+  }
+  
+  return `${format(start, 'MMM d')} – ${format(end, 'MMM d')}`;
+};
+
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
     case 'Admin approved':
@@ -66,7 +82,13 @@ export const F41v4_PayBreakdownDrawer = ({
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
-  const hasRequests = adjustments.length > 0 || leaveRequests.length > 0;
+  
+  // Separate approved leave from pending
+  const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
+  const pendingLeave = leaveRequests.filter(l => l.status === 'Pending');
+  const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
+  
+  const hasRequests = adjustments.length > 0 || pendingLeave.length > 0;
   const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
 
   return (
@@ -80,6 +102,37 @@ export const F41v4_PayBreakdownDrawer = ({
         </SheetHeader>
 
         <div className="space-y-6">
+          {/* Approved Time Off Summary - Read-only */}
+          {approvedLeave.length > 0 && (
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20">
+                  <Plane className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                  Approved time off
+                </h3>
+                <Badge variant="outline" className="ml-auto bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30 text-xs">
+                  <Check className="h-3 w-3 mr-1" />
+                  {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'}
+                </Badge>
+              </div>
+              <div className="space-y-2">
+                {approvedLeave.map((leave) => (
+                  <div key={leave.id} className="flex items-center justify-between text-sm">
+                    <span className="text-emerald-700 dark:text-emerald-300">{leave.leaveType}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 text-xs">
+                      {formatDateRange(leave.startDate, leave.endDate)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-emerald-600/70 dark:text-emerald-400/60 mt-3 pt-2 border-t border-emerald-200/50 dark:border-emerald-500/20">
+                This is already approved and will be included in payroll
+              </p>
+            </div>
+          )}
+
           {/* Earnings Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -167,13 +220,13 @@ export const F41v4_PayBreakdownDrawer = ({
             </button>
           )}
 
-          {/* Submitted Adjustments & Leave Requests */}
+          {/* Submitted Adjustments & Pending Leave Requests */}
           {hasRequests && (
             <>
               <Separator />
               <div className="space-y-3">
                 <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                  Your requests
+                  Pending requests
                 </h3>
                 <div className="space-y-2">
                   {adjustments.map((adj) => (
@@ -199,7 +252,7 @@ export const F41v4_PayBreakdownDrawer = ({
                       </div>
                     </div>
                   ))}
-                  {leaveRequests.map((leave) => (
+                  {pendingLeave.map((leave) => (
                     <div key={leave.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />

@@ -52,27 +52,31 @@ const payPeriodLabel = 'Jan 1 – Jan 31';
 const requestTypeOptions = [
   { 
     id: 'leave' as RequestType, 
-    label: 'Log time off', 
-    description: 'Add approved leave for payroll',
-    icon: Plane 
+    label: 'Time off', 
+    description: 'Now managed from dashboard',
+    icon: Plane,
+    disabled: true 
   },
   { 
     id: 'expense' as RequestType, 
     label: 'Expense', 
     description: 'Submit a reimbursement',
-    icon: Receipt 
+    icon: Receipt,
+    disabled: false 
   },
   { 
     id: 'overtime' as RequestType, 
     label: 'Overtime', 
     description: 'Log extra hours',
-    icon: Clock 
+    icon: Clock,
+    disabled: false 
   },
   { 
     id: 'bonus-correction' as RequestType, 
     label: 'Bonus / Correction', 
     description: 'Request adjustment',
-    icon: Gift 
+    icon: Gift,
+    disabled: false 
   },
 ];
 
@@ -413,18 +417,37 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             <div className="grid grid-cols-2 gap-3">
               {requestTypeOptions.map((option) => {
                 const Icon = option.icon;
+                const isDisabled = option.disabled;
                 return (
                   <button
                     key={option.id}
-                    onClick={() => setSelectedType(option.id)}
-                    className="flex flex-col items-center gap-3 p-5 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                    onClick={() => !isDisabled && setSelectedType(option.id)}
+                    disabled={isDisabled}
+                    className={cn(
+                      "flex flex-col items-center gap-3 p-5 rounded-xl border transition-all text-center",
+                      isDisabled 
+                        ? "border-border/30 bg-muted/30 cursor-not-allowed opacity-60"
+                        : "border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] group"
+                    )}
                   >
-                    <div className="p-3 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                      <Icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div className={cn(
+                      "p-3 rounded-lg transition-colors",
+                      isDisabled ? "bg-muted/30" : "bg-muted/50 group-hover:bg-primary/10"
+                    )}>
+                      <Icon className={cn(
+                        "h-5 w-5 transition-colors",
+                        isDisabled ? "text-muted-foreground/50" : "text-muted-foreground group-hover:text-primary"
+                      )} />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{option.label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{option.description}</p>
+                      <p className={cn(
+                        "text-sm font-medium",
+                        isDisabled ? "text-muted-foreground" : "text-foreground"
+                      )}>{option.label}</p>
+                      <p className={cn(
+                        "text-xs mt-0.5",
+                        isDisabled ? "text-muted-foreground/70 italic" : "text-muted-foreground"
+                      )}>{option.description}</p>
                     </div>
                   </button>
                 );

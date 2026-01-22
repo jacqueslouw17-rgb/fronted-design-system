@@ -6,16 +6,18 @@
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F41v4_UpcomingPayCard } from "@/components/flows/employee-dashboard-v4";
+import { F41v4_UpcomingPayCard, F41v4_TimeOffSection, F41v4_TimeOffRequestDrawer } from "@/components/flows/employee-dashboard-v4";
 
 const F41v4_EmployeeDashboardPage = () => {
+  const [timeOffDrawerOpen, setTimeOffDrawerOpen] = useState(false);
+
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
@@ -76,15 +78,24 @@ const F41v4_EmployeeDashboardPage = () => {
                   />
 
                   {/* Main Content */}
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {/* Upcoming Pay Card - T-5 Confirmation */}
                     <F41v4_UpcomingPayCard />
+                    
+                    {/* Time Off Section - First-class dashboard block */}
+                    <F41v4_TimeOffSection onRequestTimeOff={() => setTimeOffDrawerOpen(true)} />
                   </div>
                 </div>
               </main>
             </AgentLayout>
           </div>
         </div>
+        
+        {/* Dedicated Time Off Request Drawer */}
+        <F41v4_TimeOffRequestDrawer 
+          open={timeOffDrawerOpen} 
+          onOpenChange={setTimeOffDrawerOpen} 
+        />
       </TooltipProvider>
     </RoleLensProvider>
   );
