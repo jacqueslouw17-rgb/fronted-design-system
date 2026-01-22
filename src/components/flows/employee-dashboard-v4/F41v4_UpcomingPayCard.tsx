@@ -398,25 +398,6 @@ export const F41v4_UpcomingPayCard = () => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
-          {/* Rejection Alert Banner - Show inline when demo rejected */}
-          {demoRejected && (
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-destructive">1 request was not approved</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  View breakdown for details and to resubmit.
-                </p>
-              </div>
-              <button 
-                onClick={() => setBreakdownDrawerOpen(true)}
-                className="text-xs font-medium text-destructive hover:text-destructive/80 underline-offset-2 hover:underline shrink-0"
-              >
-                View details
-              </button>
-            </div>
-          )}
-
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Estimated Net Pay Tile - Enhanced with adjustments comparison */}
@@ -431,10 +412,7 @@ export const F41v4_UpcomingPayCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className={cn(
-                  "p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40",
-                  demoRejected && "border-destructive/20"
-                )}>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
                   <div className="flex items-center justify-between">
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
@@ -481,12 +459,7 @@ export const F41v4_UpcomingPayCard = () => {
                         </>
                       )}
                     </div>
-                    <button onClick={() => setBreakdownDrawerOpen(true)} className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0",
-                      demoRejected 
-                        ? "text-destructive hover:bg-destructive/10"
-                        : "text-primary hover:bg-primary/10"
-                    )}>
+                    <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0">
                       <FileText className="h-3.5 w-3.5" />
                       {effectiveStatus === 'approved' ? 'Preview' : 'Breakdown'}
                       <ChevronRight className="h-3.5 w-3.5" />
