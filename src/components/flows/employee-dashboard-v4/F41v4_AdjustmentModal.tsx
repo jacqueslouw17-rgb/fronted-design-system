@@ -118,6 +118,7 @@ interface F41v4_AdjustmentModalProps {
   currency: string;
   initialType?: RequestType;
   initialExpenseCategory?: string; // Pre-fill expense category (e.g., for resubmit)
+  initialExpenseAmount?: string; // Pre-fill expense amount (e.g., for resubmit)
   onBack?: () => void; // Called when back is pressed at type selection level
 }
 
@@ -161,7 +162,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', onBack }: F41v4_AdjustmentModalProps) => {
+export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', onBack }: F41v4_AdjustmentModalProps) => {
   const { addAdjustment, leaveRequests } = useF41v4_DashboardStore();
   
   // Selection state
@@ -169,7 +170,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   
   // Expense form state - multiple line items
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
-    { id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }
+    { id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }
   ]);
   
   // Legacy single expense state (kept for compatibility)
@@ -196,9 +197,9 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }]);
+    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
     setExpenseCategory(initialExpenseCategory);
-    setExpenseAmount('');
+    setExpenseAmount(initialExpenseAmount);
     setExpenseDescription('');
     setExpenseReceipt(null);
     setExpenseNotes('');
@@ -257,10 +258,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     if (open && initialType) {
       setSelectedType(initialType);
     }
-    if (open && initialExpenseCategory) {
-      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }]);
+    if (open && (initialExpenseCategory || initialExpenseAmount)) {
+      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
     }
-  }, [open, initialType, initialExpenseCategory]);
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
   // Reset errors when switching types
   useEffect(() => {
