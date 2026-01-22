@@ -504,29 +504,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {errors.expenseAmount && <p className="text-xs text-destructive">{errors.expenseAmount}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  placeholder="Brief description of the expense"
-                  value={expenseDescription}
-                  onChange={(e) => setExpenseDescription(e.target.value)}
-                  className={cn(errors.expenseDescription && 'border-destructive')}
-                  rows={2}
-                />
-                {errors.expenseDescription && <p className="text-xs text-destructive">{errors.expenseDescription}</p>}
-              </div>
-
               {renderFileUpload(expenseReceipt, setExpenseReceipt, 'expenseReceipt', true)}
-
-              <div className="space-y-2">
-                <Label>Notes (optional)</Label>
-                <Textarea
-                  placeholder="Additional notes"
-                  value={expenseNotes}
-                  onChange={(e) => setExpenseNotes(e.target.value)}
-                  rows={2}
-                />
-              </div>
 
               {/* Submit */}
               <div className="flex gap-3 pt-2">
