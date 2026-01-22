@@ -595,18 +595,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {errors.bonusCorrectionAmount && <p className="text-xs text-destructive">{errors.bonusCorrectionAmount}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  placeholder="Reason for bonus request"
-                  value={bonusCorrectionReason}
-                  onChange={(e) => setBonusCorrectionReason(e.target.value)}
-                  className={cn(errors.bonusCorrectionReason && 'border-destructive')}
-                  rows={3}
-                />
-                {errors.bonusCorrectionReason && <p className="text-xs text-destructive">{errors.bonusCorrectionReason}</p>}
-              </div>
-
               {renderFileUpload(bonusCorrectionAttachment, setBonusCorrectionAttachment, 'bonusCorrectionAttachment', false)}
 
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
