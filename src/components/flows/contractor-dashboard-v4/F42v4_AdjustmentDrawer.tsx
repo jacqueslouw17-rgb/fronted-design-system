@@ -72,12 +72,6 @@ const getRequestTypeOptions = (contractType: F42v4_ContractType) => {
       description: 'Request additional pay',
       icon: Gift 
     },
-    { 
-      id: 'correction' as ContractorRequestType, 
-      label: 'Correction', 
-      description: 'Flag an error',
-      icon: AlertCircle 
-    },
   ];
   
   // Only show Additional hours for hourly contracts
