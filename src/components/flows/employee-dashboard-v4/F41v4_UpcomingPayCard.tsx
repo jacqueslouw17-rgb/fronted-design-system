@@ -365,7 +365,7 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
             <div className="flex items-center gap-3 mt-2">
               {/* Demo state toggle - only show after submission (submitted/approved states) */}
-              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
+              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && !hasResubmittedFromRejected && <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
                   <div className="flex rounded-md overflow-hidden border border-border/50">
                     <button 
