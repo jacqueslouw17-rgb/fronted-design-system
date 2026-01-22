@@ -400,28 +400,74 @@ export const F41v4_UpcomingPayCard = () => {
         <CardContent className="p-6 space-y-6">
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Estimated Net Pay Tile */}
-            <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Wallet className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+            {/* Estimated Net Pay Tile - Enhanced with adjustments comparison */}
+            {(() => {
+              // Calculate pending adjustment total (only approved or pending, exclude rejected)
+              const pendingAdjustmentTotal = adjustments
+                .filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved')
+                .reduce((sum, adj) => sum + (adj.amount || 0), 0);
+              
+              const hasAdjustments = pendingAdjustmentTotal !== 0;
+              const adjustedNet = estimatedNet + pendingAdjustmentTotal;
+              const isPositiveAdjustment = pendingAdjustmentTotal > 0;
+
+              return (
+                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+                      </div>
+                      
+                      {hasAdjustments ? (
+                        <div className="space-y-2">
+                          {/* Adjusted Net - Primary display */}
+                          <div className="flex items-baseline gap-2">
+                            <p className="text-3xl font-bold text-foreground tracking-tight">
+                              {formatCurrency(adjustedNet, currency)}
+                            </p>
+                            <Badge className={cn(
+                              "text-[10px] px-1.5 py-0.5",
+                              isPositiveAdjustment 
+                                ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                                : "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
+                            )}>
+                              {isPositiveAdjustment ? '+' : ''}{formatCurrency(pendingAdjustmentTotal, currency)}
+                            </Badge>
+                          </div>
+                          
+                          {/* Original System Net - Secondary display */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="line-through opacity-70">{formatCurrency(estimatedNet, currency)}</span>
+                            <span>·</span>
+                            <span>System calculated</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-3xl font-bold text-foreground tracking-tight">
+                            {formatCurrency(estimatedNet, currency)}
+                          </p>
+                          {demoRejected ? (
+                            <p className="text-xs text-muted-foreground/70 mt-1.5">
+                              Estimated net pay will update once changes are approved.
+                            </p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">After taxes & deductions</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0">
+                      <FileText className="h-3.5 w-3.5" />
+                      {effectiveStatus === 'approved' ? 'Preview' : 'Breakdown'}
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                  <p className="text-3xl font-bold text-foreground tracking-tight">
-                    {formatCurrency(estimatedNet, currency)}
-                  </p>
-                  {demoRejected ? <p className="text-xs text-muted-foreground/70 mt-1.5">
-                      Estimated net pay will update once changes are approved.
-                    </p> : <p className="text-xs text-muted-foreground mt-1.5">After taxes & deductions</p>}
                 </div>
-                <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors">
-                  <FileText className="h-3.5 w-3.5" />
-                  {effectiveStatus === 'approved' ? 'Preview' : 'Breakdown'}
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Pay Date Tile */}
             <div className="p-5 rounded-xl bg-muted/30 border border-border/40">
