@@ -83,12 +83,12 @@ export const F41v4_PayBreakdownDrawer = ({
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
   
-  // Separate approved leave from pending
+  // Only show approved leave in the breakdown (pending stays in dashboard Time Off section)
   const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
-  const pendingLeave = leaveRequests.filter(l => l.status === 'Pending');
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
   
-  const hasRequests = adjustments.length > 0 || pendingLeave.length > 0;
+  // Only adjustments go in "Pending requests" - leave is managed separately
+  const hasRequests = adjustments.length > 0;
   const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
 
   return (
@@ -220,7 +220,7 @@ export const F41v4_PayBreakdownDrawer = ({
             </button>
           )}
 
-          {/* Submitted Adjustments & Pending Leave Requests */}
+          {/* Submitted Adjustments (expenses, overtime, bonus/correction) */}
           {hasRequests && (
             <>
               <Separator />
@@ -250,22 +250,6 @@ export const F41v4_PayBreakdownDrawer = ({
                           {adj.status}
                         </Badge>
                       </div>
-                    </div>
-                  ))}
-                  {pendingLeave.map((leave) => (
-                    <div key={leave.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        <div className="flex flex-col">
-                          <span className="text-sm text-foreground">{leave.leaveType}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {leave.totalDays} day{leave.totalDays !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className={getStatusBadgeClass(leave.status)}>
-                        {leave.status}
-                      </Badge>
                     </div>
                   ))}
                 </div>
