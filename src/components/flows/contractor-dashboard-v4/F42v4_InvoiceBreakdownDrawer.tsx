@@ -408,13 +408,6 @@ export const F42v4_InvoiceBreakdownDrawer = ({
             </button>
           )}
 
-          {/* Tax disclaimer */}
-          <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border/30">
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium">Note:</span> As a contractor, you are responsible for managing and paying applicable taxes.
-            </p>
-          </div>
-
           <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
             This is an estimate. Final invoice may vary.
           </p>
