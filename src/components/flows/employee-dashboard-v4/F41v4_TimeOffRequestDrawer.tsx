@@ -42,10 +42,7 @@ const leaveTypes: { value: LeaveType; label: string; icon: string }[] = [
   { value: 'Other', label: 'Other', icon: '📝' },
 ];
 
-// Pay period bounds (mock - in real app would come from store)
-const payPeriodStart = new Date(2026, 0, 1);
-const payPeriodEnd = new Date(2026, 0, 31);
-const payPeriodLabel = 'Jan 1 – Jan 31, 2026';
+// No date restrictions - allow past dates for missed leave
 
 export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOffRequestDrawerProps) => {
   const { addLeaveRequest } = useF41v4_DashboardStore();
@@ -175,7 +172,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
               </div>
               <div>
                 <SheetTitle className="text-lg">Request time off</SheetTitle>
-                <p className="text-sm text-muted-foreground">{payPeriodLabel}</p>
+                <p className="text-sm text-muted-foreground">Past or upcoming leave</p>
               </div>
             </div>
           </SheetHeader>
