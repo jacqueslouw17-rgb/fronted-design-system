@@ -334,9 +334,11 @@ export const F42v4_UpcomingInvoiceCard = () => {
                     </span>
                   </p>
                 )}
-                {!demoRejected && invoiceStatus === 'submitted' && submittedAt && (
+                {/* Show submitted timestamp - for actual submitted OR resubmitted from rejected */}
+                {((!demoRejected && invoiceStatus === 'submitted' && submittedAt) || 
+                  (demoRejected && hasResubmittedFromRejected)) && (
                   <p className="text-sm text-muted-foreground">
-                    Submitted on {formatSubmittedTimestamp(submittedAt)}
+                    Submitted for review
                   </p>
                 )}
                 {!demoRejected && invoiceStatus === 'approved' && approvedAt && (
@@ -345,7 +347,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </p>
                 )}
                 {/* Cutoff passed message */}
-                {windowState === 'CLOSED' && (
+                {windowState === 'CLOSED' && !hasResubmittedFromRejected && (
                   <p className="text-sm text-muted-foreground">
                     Cut-off passed — new requests will be included in next invoice cycle.
                   </p>

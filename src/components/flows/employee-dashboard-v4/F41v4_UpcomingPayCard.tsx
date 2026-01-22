@@ -345,9 +345,11 @@ export const F41v4_UpcomingPayCard = () => {
                     </span>
                   </p>
                 )}
-                {!demoRejected && payrollStatus === 'submitted' && submittedAt && (
+                {/* Show submitted timestamp - for actual submitted OR resubmitted from rejected */}
+                {((!demoRejected && payrollStatus === 'submitted' && submittedAt) || 
+                  (demoRejected && hasResubmittedFromRejected)) && (
                   <p className="text-sm text-muted-foreground">
-                    Submitted on {formatSubmittedTimestamp(submittedAt)}
+                    Submitted for review
                   </p>
                 )}
                 {!demoRejected && payrollStatus === 'approved' && approvedAt && (
@@ -356,7 +358,7 @@ export const F41v4_UpcomingPayCard = () => {
                   </p>
                 )}
                 {/* Cutoff passed message */}
-                {windowState === 'CLOSED' && (
+                {windowState === 'CLOSED' && !hasResubmittedFromRejected && (
                   <p className="text-sm text-muted-foreground">
                     Cut-off passed — new requests will be included in next pay period.
                   </p>
