@@ -199,22 +199,67 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
 
           {/* Date Range Selection - Single Calendar */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">When?</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">When?</Label>
+              {dateRange?.from && (
+                <button 
+                  onClick={() => setDateRange(undefined)}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground -mt-1">
-              Click once for a single day, or click two dates for a range
+              Tap a date for single day, or two dates for a range
             </p>
             
             <div className={cn(
-              "rounded-xl border-2 overflow-hidden transition-colors",
+              "rounded-xl border bg-card overflow-hidden transition-colors",
               errors.dates ? "border-destructive" : "border-border/60"
             )}>
-              <Calendar
-                mode="range"
-                selected={dateRange}
-                onSelect={setDateRange}
-                numberOfMonths={1}
-                className="p-3 pointer-events-auto w-full"
-              />
+              <div className="flex items-center justify-center py-2">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={1}
+                  className="pointer-events-auto"
+                  classNames={{
+                    months: "flex flex-col",
+                    month: "space-y-3",
+                    caption: "flex justify-center pt-1 relative items-center h-10",
+                    caption_label: "text-sm font-semibold text-foreground",
+                    nav: "space-x-1 flex items-center",
+                    nav_button: "h-8 w-8 bg-transparent p-0 opacity-60 hover:opacity-100 hover:bg-muted rounded-lg transition-all inline-flex items-center justify-center",
+                    nav_button_previous: "absolute left-2",
+                    nav_button_next: "absolute right-2",
+                    table: "w-full border-collapse",
+                    head_row: "flex justify-center",
+                    head_cell: "text-muted-foreground rounded-md w-10 font-medium text-xs py-2",
+                    row: "flex w-full justify-center mt-1",
+                    cell: cn(
+                      "relative h-10 w-10 text-center text-sm p-0",
+                      "focus-within:relative focus-within:z-20",
+                      "[&:has([aria-selected])]:bg-primary/10 [&:has([aria-selected])]:rounded-none",
+                      "[&:has([aria-selected].day-range-end)]:rounded-r-lg",
+                      "first:[&:has([aria-selected])]:rounded-l-lg last:[&:has([aria-selected])]:rounded-r-lg"
+                    ),
+                    day: cn(
+                      "h-10 w-10 p-0 font-normal rounded-lg transition-colors",
+                      "hover:bg-muted aria-selected:opacity-100",
+                      "focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    ),
+                    day_range_end: "day-range-end",
+                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-lg",
+                    day_today: "bg-primary/10 text-foreground font-semibold",
+                    day_outside: "text-muted-foreground/40 aria-selected:bg-primary/5 aria-selected:text-muted-foreground",
+                    day_disabled: "text-muted-foreground/30",
+                    day_range_middle: "aria-selected:bg-primary/10 aria-selected:text-foreground rounded-none",
+                    day_hidden: "invisible",
+                  }}
+                />
+              </div>
             </div>
 
             {/* Selected range display */}
