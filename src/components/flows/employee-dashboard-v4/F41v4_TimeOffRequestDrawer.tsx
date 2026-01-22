@@ -407,21 +407,49 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-2"
                 >
-                  <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4 text-primary" />
-                      <span className="text-sm text-foreground">
-                        {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
-                          ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
-                          : format(dateRange.from, 'EEE, MMM d, yyyy')}
-                      </span>
+                  <div className="rounded-lg bg-primary/[0.04] border border-primary/20 overflow-hidden">
+                    {/* Date range header */}
+                    <div className="flex items-center justify-between py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4 text-primary" />
+                        <span className="text-sm text-foreground">
+                          {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                            ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
+                            : format(dateRange.from, 'EEE, MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Plane className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-sm font-medium text-primary">
+                          {calculatedDays} business {calculatedDays === 1 ? 'day' : 'days'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Plane className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-sm font-medium text-primary">
-                        {calculatedDays} business {calculatedDays === 1 ? 'day' : 'days'}
-                      </span>
-                    </div>
+                    
+                    {/* Leave balance breakdown - only show for Annual leave with allowance */}
+                    {leaveType === 'Annual leave' && countryRules && countryRules.maxAnnualLeave > 0 && (
+                      <div className="border-t border-primary/10 px-4 py-2.5 bg-primary/[0.02]">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Leave balance</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-muted-foreground">
+                              Used: <span className="text-foreground font-medium">{usedAnnualLeave}</span>
+                            </span>
+                            <span className="text-muted-foreground">
+                              This request: <span className="text-foreground font-medium">+{calculatedDays}</span>
+                            </span>
+                            <span className={cn(
+                              "font-medium",
+                              countryRules.maxAnnualLeave - usedAnnualLeave - calculatedDays < 0 
+                                ? "text-destructive" 
+                                : "text-primary"
+                            )}>
+                              Remaining: {countryRules.maxAnnualLeave - usedAnnualLeave - calculatedDays}/{countryRules.maxAnnualLeave}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Holidays in range */}
