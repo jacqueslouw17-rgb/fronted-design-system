@@ -167,12 +167,12 @@ export const F41v4_PayBreakdownDrawer = ({
                 </div>
               ))}
               
-              {/* Overtime adjustments in Earnings */}
-              {overtimeAdjustments.map((adj) => (
-                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-primary/20">
+              {/* Expense/Bonus/Correction - just additional earning lines */}
+              {otherAdjustments.map((adj) => (
+                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">Overtime</span>
-                    {adj.hours && <span className="text-xs text-muted-foreground">· {adj.hours}h</span>}
+                    <span className="text-sm text-foreground">{adj.type}</span>
+                    {adj.label && <span className="text-xs text-muted-foreground">· {adj.label}</span>}
                     <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
                       {adj.status === 'Pending' ? 'Pending' : 'Approved'}
                     </Badge>
@@ -221,18 +221,17 @@ export const F41v4_PayBreakdownDrawer = ({
             </div>
           </div>
 
-          {/* Other Adjustments (Expense, Bonus, Correction) - below deductions */}
-          {otherAdjustments.length > 0 && (
+          {/* Overtime Section - separate */}
+          {overtimeAdjustments.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Adjustments
+                Overtime
               </h3>
               <div className="space-y-2">
-                {otherAdjustments.map((adj) => (
+                {overtimeAdjustments.map((adj) => (
                   <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-foreground">{adj.type}</span>
-                      {adj.label && <span className="text-xs text-muted-foreground">· {adj.label}</span>}
+                      <span className="text-sm text-foreground">{adj.hours}h logged</span>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
                         {adj.status === 'Pending' ? 'Pending' : 'Approved'}
                       </Badge>
