@@ -32,58 +32,81 @@ import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Cl
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 
-// TimeOffSummary component - read-only display of approved leave for this pay period
+// TimeOffSummary component - read-only display of *approved* leave impacting this pay period.
+// Always renders (with a calm placeholder) so employees can find it reliably.
 const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) => {
-  const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
+  const approvedLeave = leaveRequests.filter((l) => l.status === 'Admin approved');
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
-  
+
   const formatDateRange = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    if (start.toDateString() === end.toDateString()) {
-      return format(start, 'MMM d');
-    }
+    if (start.toDateString() === end.toDateString()) return format(start, 'MMM d');
     return `${format(start, 'MMM d')}–${format(end, 'd')}`;
   };
-  
-  // Don't render if no approved leave
-  if (approvedLeave.length === 0) {
-    return null;
-  }
-  
+
   return (
-    <div className="p-4 rounded-xl border border-border/60 bg-gradient-to-br from-emerald-500/[0.04] to-transparent">
+    <section
+      aria-label="Approved time off summary"
+      className="p-4 rounded-xl border border-border/60 bg-card/50"
+    >
       <div className="flex items-start gap-3">
-        <div className="p-2.5 rounded-lg bg-emerald-500/10">
-          <Plane className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        <div className="p-2.5 rounded-lg bg-muted/50 border border-border/40">
+          <Plane className="h-5 w-5 text-foreground" />
         </div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold text-foreground">Time off</span>
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
-              <Check className="h-2.5 w-2.5 mr-0.5" />
-              {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'} approved
-            </Badge>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Time off</p>
+              <p className="text-xs text-muted-foreground">Approved (this pay period)</p>
+            </div>
+
+            {approvedLeave.length > 0 && (
+              <Badge
+                variant="outline"
+                className="bg-muted/40 text-[10px] px-1.5 py-0"
+              >
+                <Check className="h-2.5 w-2.5 mr-0.5" />
+                {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'} approved
+              </Badge>
+            )}
           </div>
-          
-          {/* List approved leave */}
-          <div className="space-y-1.5 mt-2">
-            {approvedLeave.map((leave) => (
-              <div key={leave.id} className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{leave.leaveType}</span>
-                <span className="text-foreground font-medium tabular-nums">
-                  {formatDateRange(leave.startDate, leave.endDate)}
-                </span>
-              </div>
-            ))}
-          </div>
-          
-          <p className="text-[11px] text-muted-foreground/70 mt-3 pt-2 border-t border-border/30">
-            Approved leave will be reflected in payroll
-          </p>
+
+          {approvedLeave.length > 0 ? (
+            <div className="space-y-1.5 mt-3">
+              {approvedLeave.slice(0, 3).map((leave) => (
+                <div key={leave.id} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground truncate">{leave.leaveType}</span>
+                  <span className="text-foreground font-medium tabular-nums shrink-0">
+                    {formatDateRange(leave.startDate, leave.endDate)}
+                  </span>
+                </div>
+              ))}
+              {approvedLeave.length > 3 && (
+                <p className="text-[11px] text-muted-foreground">
+                  +{approvedLeave.length - 3} more
+                </p>
+              )}
+
+              <p className="text-[11px] text-muted-foreground/70 mt-3 pt-2 border-t border-border/30">
+                This is already approved and will be included in payroll.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-3">
+              <p className="text-sm text-foreground">No approved time off this period</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Pending requests stay in the dashboard until approved.
+              </p>
+              <p className="text-[11px] text-muted-foreground/70 mt-2">
+                Example: 2 days approved · Jan 12–13
+              </p>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
