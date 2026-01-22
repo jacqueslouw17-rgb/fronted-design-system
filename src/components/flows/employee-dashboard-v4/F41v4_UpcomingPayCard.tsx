@@ -151,6 +151,7 @@ const getLeaveStatusColor = (status: LeaveRequest['status']) => {
 export const F41v4_UpcomingPayCard = () => {
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
+  const [adjustmentModalInitialCategory, setAdjustmentModalInitialCategory] = useState('');
   const [adjustmentModalFromBreakdown, setAdjustmentModalFromBreakdown] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
@@ -167,9 +168,10 @@ export const F41v4_UpcomingPayCard = () => {
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
 
-  // Helper to open adjustment modal with specific type
-  const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false) => {
+  // Helper to open adjustment modal with specific type and optional category
+  const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false, category: string = '') => {
     setAdjustmentModalInitialType(type);
+    setAdjustmentModalInitialCategory(category);
     setAdjustmentModalFromBreakdown(fromBreakdown);
     setAdjustmentModalOpen(true);
   };
@@ -177,6 +179,7 @@ export const F41v4_UpcomingPayCard = () => {
     setAdjustmentModalOpen(open);
     if (!open) {
       setAdjustmentModalInitialType(null);
+      setAdjustmentModalInitialCategory('');
       setAdjustmentModalFromBreakdown(false);
     }
   };
@@ -551,6 +554,7 @@ export const F41v4_UpcomingPayCard = () => {
         onOpenChange={handleAdjustmentModalClose} 
         currency={currency} 
         initialType={adjustmentModalInitialType}
+        initialExpenseCategory={adjustmentModalInitialCategory}
         onBack={adjustmentModalFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined}
       />
 
@@ -576,6 +580,7 @@ export const F41v4_UpcomingPayCard = () => {
                 id: 'demo-rejected-1',
                 type: 'Expense' as const,
                 label: 'Team lunch receipt',
+                category: 'Meals', // Pre-fill category for resubmit
                 amount: 1500,
                 status: 'Admin rejected' as const,
                 submittedAt: new Date().toISOString(),
@@ -583,20 +588,20 @@ export const F41v4_UpcomingPayCard = () => {
               }
             ] 
           : adjustments
-        } 
+        }
         leaveRequests={leaveRequests}
         payrollStatus={effectiveStatus}
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={withdrawAdjustment}
-        onResubmitAdjustment={(id) => {
+        onResubmitAdjustment={(id, category) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
-          // Close breakdown drawer and open expense form
+          // Close breakdown drawer and open expense form with pre-filled category
           setBreakdownDrawerOpen(false);
-          // Open adjustment modal with expense type pre-selected, mark as from breakdown for return navigation
-          openAdjustmentModal('expense', true);
+          // Open adjustment modal with expense type pre-selected and category pre-filled
+          openAdjustmentModal('expense', true, category || '');
         }}
       />
 

@@ -33,7 +33,7 @@ interface PayBreakdownDrawerProps {
   resubmittedRejectionIds?: string[];
   onMakeAdjustment?: () => void;
   onWithdrawAdjustment?: (id: string) => void;
-  onResubmitAdjustment?: (id: string) => void;
+  onResubmitAdjustment?: (id: string, category?: string) => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -321,7 +321,7 @@ export const F41v4_PayBreakdownDrawer = ({
                     currency={currency}
                     reason={adj.rejectionReason || "This request couldn't be approved. Please check the details and resubmit."}
                     isCutoffPassed={isCutoffPassed}
-                    onResubmit={onResubmitAdjustment ? () => onResubmitAdjustment(adj.id) : undefined}
+                    onResubmit={onResubmitAdjustment ? () => onResubmitAdjustment(adj.id, adj.category || adj.label) : undefined}
                     onContact={handleContactManager}
                   />
                 ))}
