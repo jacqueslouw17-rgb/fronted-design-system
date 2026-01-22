@@ -34,6 +34,7 @@ export interface F42v4_Adjustment {
   hours?: number;
   receiptUrl?: string;
   submittedAt: string;
+  rejectionReason?: string; // Reason for rejection from admin
 }
 
 interface F42v4_DashboardState {
@@ -54,6 +55,9 @@ interface F42v4_DashboardState {
   resubmitDeadline?: string;
   adjustments: F42v4_Adjustment[];
   
+  // Track resubmitted rejected items (hide from "Needs attention")
+  resubmittedRejectionIds: string[];
+  
   // Cut-off
   cutoffDate: string;
   isCutoffSoon: boolean;
@@ -71,6 +75,7 @@ interface F42v4_DashboardActions {
   setInvoiceStatus: (status: F42v4_InvoiceStatus) => void;
   addAdjustment: (adjustment: Omit<F42v4_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
+  markRejectionResubmitted: (id: string) => void;
   reset: () => void;
 }
 
@@ -93,6 +98,7 @@ const initialState: F42v4_DashboardState = {
   returnedReason: undefined,
   resubmitDeadline: undefined,
   adjustments: [],
+  resubmittedRejectionIds: [],
   cutoffDate: 'Jan 2',
   isCutoffSoon: true,
   daysUntilClose: 3,
@@ -133,6 +139,10 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
   
   withdrawAdjustment: (id) => set((state) => ({
     adjustments: state.adjustments.filter((adj) => adj.id !== id),
+  })),
+  
+  markRejectionResubmitted: (id) => set((state) => ({
+    resubmittedRejectionIds: [...state.resubmittedRejectionIds, id],
   })),
   
   reset: () => set(initialState),

@@ -147,6 +147,8 @@ const getAdjustmentStatusColor = (status: F42v4_Adjustment['status']) => {
 export const F42v4_UpcomingInvoiceCard = () => {
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
   const [adjustmentDrawerInitialType, setAdjustmentDrawerInitialType] = useState<ContractorRequestType>(null);
+  const [adjustmentDrawerInitialCategory, setAdjustmentDrawerInitialCategory] = useState('');
+  const [adjustmentDrawerInitialAmount, setAdjustmentDrawerInitialAmount] = useState('');
   const [adjustmentDrawerFromBreakdown, setAdjustmentDrawerFromBreakdown] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
@@ -159,9 +161,11 @@ export const F42v4_UpcomingInvoiceCard = () => {
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
 
-  // Helper to open adjustment drawer with specific type
-  const openAdjustmentDrawer = (type: ContractorRequestType = null, fromBreakdown: boolean = false) => {
+  // Helper to open adjustment drawer with specific type and optional pre-fill data
+  const openAdjustmentDrawer = (type: ContractorRequestType = null, fromBreakdown: boolean = false, category: string = '', amount: string = '') => {
     setAdjustmentDrawerInitialType(type);
+    setAdjustmentDrawerInitialCategory(category);
+    setAdjustmentDrawerInitialAmount(amount);
     setAdjustmentDrawerFromBreakdown(fromBreakdown);
     setAdjustmentDrawerOpen(true);
   };
@@ -169,6 +173,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
     setAdjustmentDrawerOpen(open);
     if (!open) {
       setAdjustmentDrawerInitialType(null);
+      setAdjustmentDrawerInitialCategory('');
+      setAdjustmentDrawerInitialAmount('');
       setAdjustmentDrawerFromBreakdown(false);
     }
   };
@@ -188,11 +194,14 @@ export const F42v4_UpcomingInvoiceCard = () => {
     adjustments,
     cutoffDate,
     isCutoffSoon,
+    daysUntilClose,
     submittedAt,
     approvedAt,
+    resubmittedRejectionIds,
     withdrawAdjustment,
     withdrawSubmission,
     setInvoiceStatus,
+    markRejectionResubmitted,
   } = useF42v4_DashboardStore();
 
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
@@ -306,11 +315,19 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 <span className="text-sm text-muted-foreground">·</span>
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
-              {/* Helper text with timestamps - hide for rejected state */}
+              {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
-                {!demoRejected && invoiceStatus === 'draft' && statusConfig.helperText && (
+                {/* Draft state - show deadline countdown when window is open */}
+                {!demoRejected && invoiceStatus === 'draft' && windowState === 'OPEN' && (
                   <p className="text-sm text-muted-foreground">
-                    {statusConfig.helperText}
+                    Submit by <span className="font-medium text-foreground">{cutoffDate}</span>
+                    <span className="mx-1.5">·</span>
+                    <span className={cn(
+                      "font-medium",
+                      daysUntilClose <= 2 ? "text-amber-600 dark:text-amber-400" : "text-foreground"
+                    )}>
+                      {daysUntilClose} {daysUntilClose === 1 ? 'day' : 'days'} left
+                    </span>
                   </p>
                 )}
                 {!demoRejected && invoiceStatus === 'submitted' && submittedAt && (
@@ -321,6 +338,12 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 {!demoRejected && invoiceStatus === 'approved' && approvedAt && (
                   <p className="text-sm text-muted-foreground">
                     Approved on {formatSubmittedTimestamp(approvedAt)}
+                  </p>
+                )}
+                {/* Cutoff passed message */}
+                {windowState === 'CLOSED' && (
+                  <p className="text-sm text-muted-foreground">
+                    Cut-off passed — new requests will be included in next invoice cycle.
                   </p>
                 )}
               </div>
@@ -548,6 +571,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
         currency={currency}
         contractType={contractType}
         initialType={adjustmentDrawerInitialType}
+        initialExpenseCategory={adjustmentDrawerInitialCategory}
+        initialExpenseAmount={adjustmentDrawerInitialAmount}
         onBack={adjustmentDrawerFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined}
       />
 
@@ -572,9 +597,35 @@ export const F42v4_UpcomingInvoiceCard = () => {
         currency={currency}
         invoiceTotal={invoiceTotal}
         periodLabel={periodLabel}
-        adjustments={adjustments}
-        invoiceStatus={invoiceStatus}
+        adjustments={demoRejected 
+          ? [
+              ...adjustments,
+              {
+                id: 'demo-rejected-1',
+                type: 'Expense' as const,
+                label: 'Client lunch receipt',
+                category: 'Meals',
+                amount: 120,
+                status: 'Admin rejected' as const,
+                submittedAt: new Date().toISOString(),
+                rejectionReason: 'Receipt is unclear. Please upload a clearer photo showing the itemized costs.'
+              }
+            ] 
+          : adjustments
+        }
+        invoiceStatus={effectiveStatus}
+        windowState={windowState}
+        resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentDrawer(null, true)}
+        onWithdrawAdjustment={withdrawAdjustment}
+        onResubmitAdjustment={(id, category, amount) => {
+          // Mark this rejection as resubmitted so it hides from "Needs attention"
+          markRejectionResubmitted(id);
+          // Close breakdown drawer and open expense form with all fields pre-filled
+          setBreakdownDrawerOpen(false);
+          // Open adjustment drawer with expense type pre-selected, category and amount pre-filled
+          openAdjustmentDrawer('expense', true, category || '', amount || '');
+        }}
       />
 
       <F42v4_InvoiceHistoryDrawer

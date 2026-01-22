@@ -37,6 +37,8 @@ interface F42v4_AdjustmentDrawerProps {
   currency: string;
   contractType: F42v4_ContractType;
   initialType?: ContractorRequestType;
+  initialExpenseCategory?: string; // Pre-fill expense category (e.g., for resubmit)
+  initialExpenseAmount?: string; // Pre-fill expense amount (e.g., for resubmit)
   onBack?: () => void; // Called when back is pressed at type selection level
 }
 
@@ -88,6 +90,8 @@ export const F42v4_AdjustmentDrawer = ({
   currency, 
   contractType,
   initialType = null,
+  initialExpenseCategory = '',
+  initialExpenseAmount = '',
   onBack 
 }: F42v4_AdjustmentDrawerProps) => {
   const { addAdjustment } = useF42v4_DashboardStore();
@@ -96,8 +100,8 @@ export const F42v4_AdjustmentDrawer = ({
   const [selectedType, setSelectedType] = useState<ContractorRequestType>(null);
   
   // Expense form state
-  const [expenseCategory, setExpenseCategory] = useState('');
-  const [expenseAmount, setExpenseAmount] = useState('');
+  const [expenseCategory, setExpenseCategory] = useState(initialExpenseCategory);
+  const [expenseAmount, setExpenseAmount] = useState(initialExpenseAmount);
   const [expenseDescription, setExpenseDescription] = useState('');
   const [expenseReceipt, setExpenseReceipt] = useState<File | null>(null);
   
@@ -119,8 +123,8 @@ export const F42v4_AdjustmentDrawer = ({
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseCategory('');
-    setExpenseAmount('');
+    setExpenseCategory(initialExpenseCategory);
+    setExpenseAmount(initialExpenseAmount);
     setExpenseDescription('');
     setExpenseReceipt(null);
     setHours('');
@@ -156,12 +160,16 @@ export const F42v4_AdjustmentDrawer = ({
   // Check if we should show back arrow at type selection level
   const showBackAtSelection = selectedType === null && onBack;
 
-  // Set initial type when drawer opens
+  // Set initial type and pre-fill when drawer opens
   useEffect(() => {
     if (open && initialType) {
       setSelectedType(initialType);
     }
-  }, [open, initialType]);
+    if (open && (initialExpenseCategory || initialExpenseAmount)) {
+      setExpenseCategory(initialExpenseCategory);
+      setExpenseAmount(initialExpenseAmount);
+    }
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
   // Reset errors when switching types
   useEffect(() => {
@@ -244,6 +252,11 @@ export const F42v4_AdjustmentDrawer = ({
 
     toast.success("Expense submitted for review.");
     handleClose();
+    
+    // Return to breakdown drawer if requested
+    if (onBack) {
+      onBack();
+    }
   };
 
   const handleSubmitAdditionalHours = () => {
