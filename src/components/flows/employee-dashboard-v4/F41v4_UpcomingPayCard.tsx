@@ -197,6 +197,7 @@ export const F41v4_UpcomingPayCard = () => {
     adjustments,
     leaveRequests,
     cutoffDate,
+    daysUntilClose,
     isCutoffSoon,
     withdrawAdjustment,
     withdrawLeaveRequest,
@@ -317,11 +318,19 @@ export const F41v4_UpcomingPayCard = () => {
                 <span className="text-sm text-muted-foreground">·</span>
                 <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
               </div>
-              {/* Helper text with timestamps - hide for rejected state */}
+              {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
-                {!demoRejected && payrollStatus === 'draft' && statusConfig.helperText && (
+                {/* Draft state - show deadline countdown when window is open */}
+                {!demoRejected && payrollStatus === 'draft' && windowState === 'OPEN' && (
                   <p className="text-sm text-muted-foreground">
-                    {statusConfig.helperText}
+                    Submit by <span className="font-medium text-foreground">{cutoffDate}</span>
+                    <span className="mx-1.5">·</span>
+                    <span className={cn(
+                      "font-medium",
+                      daysUntilClose <= 2 ? "text-amber-600 dark:text-amber-400" : "text-foreground"
+                    )}>
+                      {daysUntilClose} {daysUntilClose === 1 ? 'day' : 'days'} left
+                    </span>
                   </p>
                 )}
                 {!demoRejected && payrollStatus === 'submitted' && submittedAt && (
