@@ -352,6 +352,11 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
+    
+    // If opened from breakdown drawer, return to it
+    if (onBack) {
+      onBack();
+    }
   };
 
   const handleSubmitOvertime = () => {

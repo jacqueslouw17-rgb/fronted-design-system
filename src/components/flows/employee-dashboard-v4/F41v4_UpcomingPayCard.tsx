@@ -587,8 +587,10 @@ export const F41v4_UpcomingPayCard = () => {
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={withdrawAdjustment}
         onResubmitAdjustment={(id) => {
-          // Demo: resubmit would re-open the adjustment modal with pre-filled data
-          toast.info('Resubmit adjustment flow would open here');
+          // Close breakdown drawer and open expense form
+          setBreakdownDrawerOpen(false);
+          // Open adjustment modal with expense type pre-selected, mark as from breakdown for return navigation
+          openAdjustmentModal('expense', true);
         }}
       />
 
