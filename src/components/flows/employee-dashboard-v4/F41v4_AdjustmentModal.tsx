@@ -145,8 +145,8 @@ const requestTypeOptions = [
   },
   { 
     id: 'bonus-correction' as RequestType, 
-    label: 'Bonus / Correction', 
-    description: 'Request adjustment',
+    label: 'Bonus', 
+    description: 'Request a bonus',
     icon: Gift,
     disabled: false 
   },
@@ -423,14 +423,14 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {selectedType === 'leave' && 'Log time off'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
-                {selectedType === 'bonus-correction' && (bonusCorrectionType === 'Bonus' ? 'Bonus request' : 'Correction request')}
+                {selectedType === 'bonus-correction' && 'Bonus request'}
               </SheetTitle>
               <SheetDescription>
                 {selectedType === null && 'Request a change for this pay period.'}
                 {selectedType === 'leave' && 'Log approved time off so payroll reflects it correctly.'}
                 {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
                 {selectedType === 'overtime' && 'Log overtime hours worked.'}
-                {selectedType === 'bonus-correction' && 'Request a bonus or correction.'}
+                {selectedType === 'bonus-correction' && 'Request a bonus for this pay period.'}
               </SheetDescription>
             </div>
           </div>
@@ -575,63 +575,30 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             </div>
           )}
 
-          {/* Bonus / Correction Form */}
+          {/* Bonus Form */}
           {selectedType === 'bonus-correction' && (
             <div className="space-y-5">
               <PayPeriodBadge />
 
-              {/* Type Toggle */}
+              {/* Amount */}
               <div className="space-y-2">
-                <Label>Type</Label>
-                <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => setBonusCorrectionType('Bonus')}
-                    className={cn(
-                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
-                      bonusCorrectionType === 'Bonus'
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    Bonus
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBonusCorrectionType('Correction')}
-                    className={cn(
-                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
-                      bonusCorrectionType === 'Correction'
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    Correction
-                  </button>
-                </div>
+                <Label>Amount ({currency})</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="0.00"
+                  value={bonusCorrectionAmount}
+                  onChange={(e) => setBonusCorrectionAmount(e.target.value)}
+                  className={cn(errors.bonusCorrectionAmount && 'border-destructive')}
+                />
+                {errors.bonusCorrectionAmount && <p className="text-xs text-destructive">{errors.bonusCorrectionAmount}</p>}
               </div>
 
-              {/* Amount (only for Bonus) */}
-              {bonusCorrectionType === 'Bonus' && (
-                <div className="space-y-2">
-                  <Label>Amount ({currency})</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="0.00"
-                    value={bonusCorrectionAmount}
-                    onChange={(e) => setBonusCorrectionAmount(e.target.value)}
-                    className={cn(errors.bonusCorrectionAmount && 'border-destructive')}
-                  />
-                  {errors.bonusCorrectionAmount && <p className="text-xs text-destructive">{errors.bonusCorrectionAmount}</p>}
-                </div>
-              )}
-
               <div className="space-y-2">
-                <Label>{bonusCorrectionType === 'Bonus' ? 'Description' : 'Describe the correction needed'}</Label>
+                <Label>Description</Label>
                 <Textarea
-                  placeholder={bonusCorrectionType === 'Bonus' ? 'Reason for bonus request' : 'What needs to be corrected?'}
+                  placeholder="Reason for bonus request"
                   value={bonusCorrectionReason}
                   onChange={(e) => setBonusCorrectionReason(e.target.value)}
                   className={cn(errors.bonusCorrectionReason && 'border-destructive')}
