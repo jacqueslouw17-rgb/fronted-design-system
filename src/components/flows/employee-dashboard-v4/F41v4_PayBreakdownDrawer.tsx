@@ -87,8 +87,12 @@ export const F41v4_PayBreakdownDrawer = ({
   const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
   
-  // Only adjustments go in "Pending requests" - leave is managed separately
-  const hasRequests = adjustments.length > 0;
+  // Calculate pending adjustments total
+  const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
+  const pendingAdjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
+  const hasAdjustments = pendingAdjustments.length > 0;
+  const adjustedNet = estimatedNet + pendingAdjustmentTotal;
+  
   const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
 
   return (
@@ -159,6 +163,29 @@ export const F41v4_PayBreakdownDrawer = ({
                   </span>
                 </div>
               ))}
+              
+              {/* Pending Adjustments integrated into Earnings */}
+              {pendingAdjustments.map((adj) => (
+                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-amber-50/50 dark:bg-amber-500/5 border border-amber-200/50 dark:border-amber-500/20">
+                  <div className="flex items-center gap-2">
+                    <Receipt className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-foreground">{adj.type}</span>
+                      {adj.label && (
+                        <span className="text-xs text-muted-foreground">· {adj.label}</span>
+                      )}
+                    </div>
+                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
+                      {adj.status === 'Pending' ? 'Pending' : 'Approved'}
+                    </Badge>
+                  </div>
+                  {adj.amount && (
+                    <span className="text-sm font-medium text-amber-700 dark:text-amber-400 tabular-nums">
+                      +{formatCurrency(adj.amount, currency)}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -198,12 +225,39 @@ export const F41v4_PayBreakdownDrawer = ({
 
           <Separator />
 
-          {/* Net Pay Summary */}
-          <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-gradient-to-br from-primary/[0.05] to-secondary/[0.03] border border-border/30">
-            <span className="text-sm font-medium text-foreground">Estimated net pay</span>
-            <span className="text-lg font-semibold text-foreground tabular-nums">
-              {formatCurrency(estimatedNet, currency)}
-            </span>
+          {/* Net Pay Summary - Enhanced with adjustments */}
+          <div className="py-4 px-4 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">Estimated net pay</span>
+              <div className="text-right">
+                {hasAdjustments ? (
+                  <div className="space-y-1">
+                    {/* Adjusted Net - Primary */}
+                    <div className="flex items-center gap-2 justify-end">
+                      <span className="text-lg font-bold text-foreground tabular-nums">
+                        {formatCurrency(adjustedNet, currency)}
+                      </span>
+                      <Badge className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30">
+                        +{formatCurrency(pendingAdjustmentTotal, currency)}
+                      </Badge>
+                    </div>
+                    {/* Base Net - Secondary */}
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      Base: {formatCurrency(estimatedNet, currency)}
+                    </p>
+                  </div>
+                ) : (
+                  <span className="text-lg font-semibold text-foreground tabular-nums">
+                    {formatCurrency(estimatedNet, currency)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {hasAdjustments && (
+              <p className="text-[11px] text-muted-foreground mt-2 pt-2 border-t border-border/30">
+                Includes {pendingAdjustments.length} pending {pendingAdjustments.length === 1 ? 'request' : 'requests'} awaiting approval
+              </p>
+            )}
           </div>
 
           {/* Make Adjustments CTA - below net pay for context */}
@@ -220,45 +274,8 @@ export const F41v4_PayBreakdownDrawer = ({
             </button>
           )}
 
-          {/* Submitted Adjustments (expenses, overtime, bonus/correction) */}
-          {hasRequests && (
-            <>
-              <Separator />
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                  Pending requests
-                </h3>
-                <div className="space-y-2">
-                  {adjustments.map((adj) => (
-                    <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                      <div className="flex items-center gap-2">
-                        <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
-                        <div className="flex flex-col">
-                          <span className="text-sm text-foreground">{adj.type}</span>
-                          {adj.label && (
-                            <span className="text-xs text-muted-foreground">{adj.label}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {adj.amount && (
-                          <span className="text-sm font-medium tabular-nums">
-                            {formatCurrency(adj.amount, currency)}
-                          </span>
-                        )}
-                        <Badge variant="outline" className={getStatusBadgeClass(adj.status)}>
-                          {adj.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
           <p className="text-xs text-muted-foreground text-center">
-            This is an estimate. Final pay may vary based on adjustments and approvals.
+            This is an estimate. Final pay may vary based on approvals.
           </p>
         </div>
       </SheetContent>
