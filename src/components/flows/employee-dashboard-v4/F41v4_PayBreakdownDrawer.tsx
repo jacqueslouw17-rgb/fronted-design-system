@@ -87,8 +87,11 @@ export const F41v4_PayBreakdownDrawer = ({
   const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
   
-  // Calculate pending adjustments total
+  // Separate adjustments by type
   const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
+  const overtimeAdjustments = pendingAdjustments.filter(adj => adj.type === 'Overtime');
+  const otherAdjustments = pendingAdjustments.filter(adj => adj.type !== 'Overtime'); // Expense, Bonus, Correction
+  
   const pendingAdjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
   const hasAdjustments = pendingAdjustments.length > 0;
   const adjustedNet = estimatedNet + pendingAdjustmentTotal;
@@ -164,23 +167,18 @@ export const F41v4_PayBreakdownDrawer = ({
                 </div>
               ))}
               
-              {/* Pending Adjustments integrated into Earnings */}
-              {pendingAdjustments.map((adj) => (
-                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-amber-50/50 dark:bg-amber-500/5 border border-amber-200/50 dark:border-amber-500/20">
+              {/* Overtime adjustments in Earnings */}
+              {overtimeAdjustments.map((adj) => (
+                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-primary/20">
                   <div className="flex items-center gap-2">
-                    <Receipt className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-foreground">{adj.type}</span>
-                      {adj.label && (
-                        <span className="text-xs text-muted-foreground">· {adj.label}</span>
-                      )}
-                    </div>
+                    <span className="text-sm text-foreground">Overtime</span>
+                    {adj.hours && <span className="text-xs text-muted-foreground">· {adj.hours}h</span>}
                     <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
                       {adj.status === 'Pending' ? 'Pending' : 'Approved'}
                     </Badge>
                   </div>
                   {adj.amount && (
-                    <span className="text-sm font-medium text-amber-700 dark:text-amber-400 tabular-nums">
+                    <span className="text-sm font-medium text-accent-green-text tabular-nums">
                       +{formatCurrency(adj.amount, currency)}
                     </span>
                   )}
@@ -222,6 +220,33 @@ export const F41v4_PayBreakdownDrawer = ({
               ))}
             </div>
           </div>
+
+          {/* Other Adjustments (Expense, Bonus, Correction) - below deductions */}
+          {otherAdjustments.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Adjustments
+              </h3>
+              <div className="space-y-2">
+                {otherAdjustments.map((adj) => (
+                  <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-foreground">{adj.type}</span>
+                      {adj.label && <span className="text-xs text-muted-foreground">· {adj.label}</span>}
+                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
+                        {adj.status === 'Pending' ? 'Pending' : 'Approved'}
+                      </Badge>
+                    </div>
+                    {adj.amount && (
+                      <span className="text-sm font-medium text-accent-green-text tabular-nums">
+                        +{formatCurrency(adj.amount, currency)}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Separator />
 
