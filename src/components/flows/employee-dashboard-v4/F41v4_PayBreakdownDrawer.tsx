@@ -128,12 +128,12 @@ const BreakdownRow = ({
         </Badge>
       )}
     </div>
-    <div className="flex items-center shrink-0 ml-4 overflow-hidden">
+    <div className="relative flex items-center shrink-0 ml-4">
       <span className={cn(
         "tabular-nums text-right font-mono transition-all duration-200",
         isTotal ? "text-sm font-semibold" : "text-sm",
         isPositive ? "text-foreground" : "text-muted-foreground",
-        canRemove && "group-hover:-translate-x-6 group-hover:text-destructive/70"
+        canRemove && "group-hover:opacity-0"
       )}>
         {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
       </span>
@@ -143,7 +143,7 @@ const BreakdownRow = ({
             e.stopPropagation();
             onRemove();
           }}
-          className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
+          className="absolute inset-0 flex items-center justify-end opacity-0 group-hover:opacity-100 text-destructive transition-opacity duration-200"
           aria-label="Withdraw request"
         >
           <X className="h-4 w-4" />
