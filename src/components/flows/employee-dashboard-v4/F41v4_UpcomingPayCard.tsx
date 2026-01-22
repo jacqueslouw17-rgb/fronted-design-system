@@ -199,10 +199,12 @@ export const F41v4_UpcomingPayCard = () => {
     cutoffDate,
     daysUntilClose,
     isCutoffSoon,
+    resubmittedRejectionIds,
     withdrawAdjustment,
     withdrawLeaveRequest,
     withdrawSubmission,
-    setPayrollStatus
+    setPayrollStatus,
+    markRejectionResubmitted
   } = useF41v4_DashboardStore();
 
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
@@ -584,9 +586,13 @@ export const F41v4_UpcomingPayCard = () => {
         } 
         leaveRequests={leaveRequests}
         payrollStatus={effectiveStatus}
+        windowState={windowState}
+        resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={withdrawAdjustment}
         onResubmitAdjustment={(id) => {
+          // Mark this rejection as resubmitted so it hides from "Needs attention"
+          markRejectionResubmitted(id);
           // Close breakdown drawer and open expense form
           setBreakdownDrawerOpen(false);
           // Open adjustment modal with expense type pre-selected, mark as from breakdown for return navigation
