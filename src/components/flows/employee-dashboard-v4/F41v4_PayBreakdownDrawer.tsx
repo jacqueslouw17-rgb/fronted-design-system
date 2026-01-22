@@ -7,9 +7,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Plus, Clock, X, AlertTriangle, MessageSquare, RotateCcw } from 'lucide-react';
+import { Lock, Plus, Clock, X, AlertTriangle, MessageSquare, RotateCcw, Info } from 'lucide-react';
 import { format } from 'date-fns';
-import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
+import type { Adjustment, LeaveRequest, PayrollStatus, WindowState } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
 
 interface LineItem {
@@ -29,6 +29,8 @@ interface PayBreakdownDrawerProps {
   adjustments?: Adjustment[];
   leaveRequests?: LeaveRequest[];
   payrollStatus?: PayrollStatus;
+  windowState?: WindowState;
+  resubmittedRejectionIds?: string[];
   onMakeAdjustment?: () => void;
   onWithdrawAdjustment?: (id: string) => void;
   onResubmitAdjustment?: (id: string) => void;
@@ -172,6 +174,7 @@ const RejectedItemCard = ({
   amount,
   currency,
   reason,
+  isCutoffPassed,
   onResubmit,
   onContact
 }: {
@@ -180,6 +183,7 @@ const RejectedItemCard = ({
   amount: number;
   currency: string;
   reason?: string;
+  isCutoffPassed?: boolean;
   onResubmit?: () => void;
   onContact?: () => void;
 }) => (
@@ -225,6 +229,13 @@ const RejectedItemCard = ({
             </Button>
           )}
         </div>
+        {/* Cycle info message */}
+        {isCutoffPassed && (
+          <div className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
+            <Info className="h-3 w-3 shrink-0" />
+            <span>Resubmission will be queued for next pay cycle</span>
+          </div>
+        )}
       </div>
     </div>
   </div>
@@ -240,6 +251,8 @@ export const F41v4_PayBreakdownDrawer = ({
   adjustments = [],
   leaveRequests = [],
   payrollStatus = 'draft',
+  windowState = 'OPEN',
+  resubmittedRejectionIds = [],
   onMakeAdjustment,
   onWithdrawAdjustment,
   onResubmitAdjustment
@@ -247,9 +260,12 @@ export const F41v4_PayBreakdownDrawer = ({
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   
-  // Separate adjustments by status
+  // Separate adjustments by status, filtering out resubmitted rejections
   const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
-  const rejectedAdjustments = adjustments.filter(adj => adj.status === 'Admin rejected');
+  const rejectedAdjustments = adjustments.filter(
+    adj => adj.status === 'Admin rejected' && !resubmittedRejectionIds.includes(adj.id)
+  );
+  const isCutoffPassed = windowState === 'CLOSED';
   const overtimeAdjustments = pendingAdjustments.filter(adj => adj.type === 'Overtime');
   const otherAdjustments = pendingAdjustments.filter(adj => adj.type !== 'Overtime');
   
@@ -304,6 +320,7 @@ export const F41v4_PayBreakdownDrawer = ({
                     amount={adj.amount || 0}
                     currency={currency}
                     reason={adj.rejectionReason || "This request couldn't be approved. Please check the details and resubmit."}
+                    isCutoffPassed={isCutoffPassed}
                     onResubmit={onResubmitAdjustment ? () => onResubmitAdjustment(adj.id) : undefined}
                     onContact={handleContactManager}
                   />

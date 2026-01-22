@@ -86,6 +86,9 @@ interface F41v4_DashboardState {
   adjustments: Adjustment[];
   leaveRequests: LeaveRequest[];
   
+  // Track resubmitted rejected items (hide from "Needs attention")
+  resubmittedRejectionIds: string[];
+  
   // Computed
   daysUntilClose: number;
   cutoffDate: string;
@@ -104,6 +107,7 @@ interface F41v4_DashboardActions {
   addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
   withdrawLeaveRequest: (id: string) => void;
+  markRejectionResubmitted: (id: string) => void;
   reset: () => void;
 }
 
@@ -143,6 +147,7 @@ const initialState: F41v4_DashboardState = {
   confirmed: false,
   adjustments: [],
   leaveRequests: [],
+  resubmittedRejectionIds: [],
   daysUntilClose: 3,
   cutoffDate: '15 Jan',
   isCutoffSoon: false,
@@ -198,6 +203,10 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   withdrawLeaveRequest: (id) => set((state) => ({
     leaveRequests: state.leaveRequests.filter((leave) => leave.id !== id),
+  })),
+  
+  markRejectionResubmitted: (id) => set((state) => ({
+    resubmittedRejectionIds: [...state.resubmittedRejectionIds, id],
   })),
   
   reset: () => set(initialState),
