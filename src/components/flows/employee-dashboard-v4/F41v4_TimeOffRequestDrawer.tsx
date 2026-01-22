@@ -455,19 +455,6 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
             </AnimatePresence>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              Notes <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any context for your manager..."
-              rows={2}
-              className="resize-none bg-muted/30 border-border/60 focus:border-primary/50"
-            />
-          </div>
 
           {/* Info callout */}
           <p className="text-xs text-muted-foreground text-center px-4">
