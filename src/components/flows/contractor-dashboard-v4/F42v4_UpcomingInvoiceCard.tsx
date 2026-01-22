@@ -475,7 +475,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors self-start"
                     >
                       <FileText className="h-3.5 w-3.5" />
-                      {invoiceStatus === 'approved' ? 'Preview' : 'Breakdown'}
+                      Breakdown
                       <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
