@@ -1,16 +1,15 @@
 /**
  * Flow 4.1 — Employee Dashboard v4
- * Pay Breakdown Drawer - shows earnings, deductions, and submitted adjustments/leave
+ * Pay Breakdown Drawer - Premium receipt-style breakdown
  */
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Lock, Calendar, Receipt, Plus, Check, Plane } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Lock, Plus, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
+import { cn } from '@/lib/utils';
 
 interface LineItem {
   label: string;
@@ -37,7 +36,7 @@ const formatCurrency = (amount: number, currency: string) => {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2
-  }).format(amount);
+  }).format(Math.abs(amount));
 };
 
 const formatDateRange = (startDate: string, endDate: string) => {
@@ -55,17 +54,76 @@ const formatDateRange = (startDate: string, endDate: string) => {
   return `${format(start, 'MMM d')} – ${format(end, 'MMM d')}`;
 };
 
-const getStatusBadgeClass = (status: string) => {
-  switch (status) {
-    case 'Admin approved':
-      return 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30';
-    case 'Admin rejected':
-      return 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30';
-    case 'Pending':
-    default:
-      return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30';
-  }
-};
+// Line item row component for consistent styling
+const BreakdownRow = ({ 
+  label, 
+  amount, 
+  currency, 
+  isPositive = true,
+  isLocked = false,
+  badge,
+  sublabel,
+  isTotal = false,
+  className
+}: { 
+  label: string;
+  amount: number;
+  currency: string;
+  isPositive?: boolean;
+  isLocked?: boolean;
+  badge?: { label: string; variant: 'pending' | 'approved' };
+  sublabel?: string;
+  isTotal?: boolean;
+  className?: string;
+}) => (
+  <div className={cn(
+    "flex items-center justify-between py-2",
+    isTotal && "pt-3 mt-1 border-t border-dashed border-border/50",
+    className
+  )}>
+    <div className="flex items-center gap-2 min-w-0 flex-1">
+      <span className={cn(
+        "truncate",
+        isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"
+      )}>
+        {label}
+      </span>
+      {sublabel && (
+        <span className="text-xs text-muted-foreground/70 truncate">· {sublabel}</span>
+      )}
+      {isLocked && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Lock className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">Set by your company</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+      {badge && (
+        <Badge 
+          variant="outline" 
+          className={cn(
+            "text-[10px] px-1.5 py-0 shrink-0",
+            badge.variant === 'pending' 
+              ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
+              : "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+          )}
+        >
+          {badge.label}
+        </Badge>
+      )}
+    </div>
+    <span className={cn(
+      "tabular-nums text-right shrink-0 ml-4 font-mono",
+      isTotal ? "text-sm font-semibold" : "text-sm",
+      isPositive ? "text-foreground" : "text-muted-foreground"
+    )}>
+      {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
+    </span>
+  </div>
+);
 
 export const F41v4_PayBreakdownDrawer = ({
   open,
@@ -81,16 +139,17 @@ export const F41v4_PayBreakdownDrawer = ({
 }: PayBreakdownDrawerProps) => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
-  const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
-  
-  // Only show approved leave in the breakdown (pending stays in dashboard Time Off section)
-  const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
-  const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
   
   // Separate adjustments by type
   const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
   const overtimeAdjustments = pendingAdjustments.filter(adj => adj.type === 'Overtime');
-  const otherAdjustments = pendingAdjustments.filter(adj => adj.type !== 'Overtime'); // Expense, Bonus, Correction
+  const otherAdjustments = pendingAdjustments.filter(adj => adj.type !== 'Overtime');
+  
+  // Calculate totals
+  const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
+  const totalOtherAdjustments = otherAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
+  const totalOvertimeAdjustments = overtimeAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
+  const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
   
   const pendingAdjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
   const hasAdjustments = pendingAdjustments.length > 0;
@@ -100,221 +159,161 @@ export const F41v4_PayBreakdownDrawer = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="pb-4">
-          <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-          <SheetDescription className="text-sm text-muted-foreground">
-            {periodLabel}
-          </SheetDescription>
+      <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
+        {/* Header */}
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+            <Badge variant="outline" className="text-xs font-normal">
+              {periodLabel}
+            </Badge>
+          </div>
         </SheetHeader>
 
-        <div className="space-y-6">
-          {/* Approved Time Off Summary - Read-only */}
-          {approvedLeave.length > 0 && (
-            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20">
-                  <Plane className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                  Approved time off
-                </h3>
-                <Badge variant="outline" className="ml-auto bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30 text-xs">
-                  <Check className="h-3 w-3 mr-1" />
-                  {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'}
-                </Badge>
-              </div>
-              <div className="space-y-2">
-                {approvedLeave.map((leave) => (
-                  <div key={leave.id} className="flex items-center justify-between text-sm">
-                    <span className="text-emerald-700 dark:text-emerald-300">{leave.leaveType}</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 text-xs">
-                      {formatDateRange(leave.startDate, leave.endDate)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-emerald-600/70 dark:text-emerald-400/60 mt-3 pt-2 border-t border-emerald-200/50 dark:border-emerald-500/20">
-                This is already approved and will be included in payroll
-              </p>
-            </div>
-          )}
-
+        {/* Receipt-style content */}
+        <div className="px-6 py-5 space-y-6">
+          
           {/* Earnings Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
               Earnings
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-0">
               {earnings.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{item.label}</span>
-                    {item.locked && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Lock className="h-3 w-3 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Set by your company</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                  <span className="text-sm font-medium text-accent-green-text tabular-nums">
-                    +{formatCurrency(item.amount, currency)}
-                  </span>
-                </div>
+                <BreakdownRow
+                  key={idx}
+                  label={item.label}
+                  amount={item.amount}
+                  currency={currency}
+                  isLocked={item.locked}
+                  isPositive
+                />
               ))}
-              
-              {/* Expense/Bonus/Correction - just additional earning lines */}
               {otherAdjustments.map((adj) => (
-                <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{adj.type}</span>
-                    {adj.label && <span className="text-xs text-muted-foreground">· {adj.label}</span>}
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
-                      {adj.status === 'Pending' ? 'Pending' : 'Approved'}
-                    </Badge>
-                  </div>
-                  {adj.amount && (
-                    <span className="text-sm font-medium text-accent-green-text tabular-nums">
-                      +{formatCurrency(adj.amount, currency)}
-                    </span>
-                  )}
-                </div>
+                <BreakdownRow
+                  key={adj.id}
+                  label={adj.type}
+                  sublabel={adj.label}
+                  amount={adj.amount || 0}
+                  currency={currency}
+                  isPositive
+                  badge={{
+                    label: adj.status === 'Pending' ? 'Pending' : 'Approved',
+                    variant: adj.status === 'Pending' ? 'pending' : 'approved'
+                  }}
+                />
               ))}
-              
-              {/* Earnings Total */}
-              <div className="flex items-center justify-between pt-2 mt-1 border-t border-border/30">
-                <span className="text-sm font-medium text-muted-foreground">Total earnings</span>
-                <span className="text-sm font-semibold text-accent-green-text tabular-nums">
-                  +{formatCurrency(
-                    earnings.reduce((sum, item) => sum + item.amount, 0) + 
-                    otherAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0),
-                    currency
-                  )}
-                </span>
-              </div>
+              <BreakdownRow
+                label="Total earnings"
+                amount={totalEarnings + totalOtherAdjustments}
+                currency={currency}
+                isPositive
+                isTotal
+              />
             </div>
-          </div>
+          </section>
 
           {/* Deductions Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
               Deductions
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-0">
               {deductions.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{item.label}</span>
-                    {item.locked && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Lock className="h-3 w-3 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Set by your company</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                  <span className="text-sm font-medium text-destructive tabular-nums">
-                    {formatCurrency(item.amount, currency)}
-                  </span>
-                </div>
+                <BreakdownRow
+                  key={idx}
+                  label={item.label}
+                  amount={Math.abs(item.amount)}
+                  currency={currency}
+                  isLocked={item.locked}
+                  isPositive={false}
+                />
               ))}
-              
-              {/* Deductions Total */}
-              <div className="flex items-center justify-between pt-2 mt-1 border-t border-border/30">
-                <span className="text-sm font-medium text-muted-foreground">Total deductions</span>
-                <span className="text-sm font-semibold text-destructive tabular-nums">
-                  -{formatCurrency(totalDeductions, currency)}
-                </span>
-              </div>
+              <BreakdownRow
+                label="Total deductions"
+                amount={totalDeductions}
+                currency={currency}
+                isPositive={false}
+                isTotal
+              />
             </div>
-          </div>
+          </section>
 
-          {/* Overtime Section - separate */}
+          {/* Overtime Section */}
           {overtimeAdjustments.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <section>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5" />
                 Overtime
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-0">
                 {overtimeAdjustments.map((adj) => (
-                  <div key={adj.id} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-foreground">{adj.hours}h logged</span>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getStatusBadgeClass(adj.status)}`}>
-                        {adj.status === 'Pending' ? 'Pending' : 'Approved'}
-                      </Badge>
-                    </div>
-                    {adj.amount && (
-                      <span className="text-sm font-medium text-accent-green-text tabular-nums">
-                        +{formatCurrency(adj.amount, currency)}
-                      </span>
-                    )}
-                  </div>
+                  <BreakdownRow
+                    key={adj.id}
+                    label={`${adj.hours}h logged`}
+                    amount={adj.amount || 0}
+                    currency={currency}
+                    isPositive
+                    badge={{
+                      label: adj.status === 'Pending' ? 'Pending' : 'Approved',
+                      variant: adj.status === 'Pending' ? 'pending' : 'approved'
+                    }}
+                  />
                 ))}
-              </div>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Net Pay Summary - Enhanced with adjustments */}
-          <div className="py-4 px-4 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">Estimated net pay</span>
-              <div className="text-right">
-                {hasAdjustments ? (
-                  <div className="space-y-1">
-                    {/* Adjusted Net - Primary */}
-                    <div className="flex items-center gap-2 justify-end">
-                      <span className="text-lg font-bold text-foreground tabular-nums">
-                        {formatCurrency(adjustedNet, currency)}
-                      </span>
-                      <Badge className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30">
-                        +{formatCurrency(pendingAdjustmentTotal, currency)}
-                      </Badge>
-                    </div>
-                    {/* Base Net - Secondary */}
-                    <p className="text-xs text-muted-foreground tabular-nums">
-                      Base: {formatCurrency(estimatedNet, currency)}
-                    </p>
-                  </div>
-                ) : (
-                  <span className="text-lg font-semibold text-foreground tabular-nums">
-                    {formatCurrency(estimatedNet, currency)}
-                  </span>
+                {overtimeAdjustments.length > 1 && (
+                  <BreakdownRow
+                    label="Total overtime"
+                    amount={totalOvertimeAdjustments}
+                    currency={currency}
+                    isPositive
+                    isTotal
+                  />
                 )}
               </div>
+            </section>
+          )}
+        </div>
+
+        {/* Net Pay Footer - Sticky feel */}
+        <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
+          {/* Main net pay */}
+          <div className="flex items-start justify-between mb-1">
+            <div>
+              <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+              {hasAdjustments && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Includes {pendingAdjustments.length} pending {pendingAdjustments.length === 1 ? 'adjustment' : 'adjustments'}
+                </p>
+              )}
             </div>
-            {hasAdjustments && (
-              <p className="text-[11px] text-muted-foreground mt-2 pt-2 border-t border-border/30">
-                Includes {pendingAdjustments.length} pending {pendingAdjustments.length === 1 ? 'request' : 'requests'} awaiting approval
+            <div className="text-right">
+              <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
+                {formatCurrency(hasAdjustments ? adjustedNet : estimatedNet, currency)}
               </p>
-            )}
+              {hasAdjustments && (
+                <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
+                  Base: {formatCurrency(estimatedNet, currency)}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Make Adjustments CTA - below net pay for context */}
+          {/* CTA */}
           {canMakeAdjustments && (
             <button
               onClick={() => {
                 onMakeAdjustment();
                 onOpenChange(false);
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-dashed border-primary/30 text-sm font-medium text-primary hover:bg-primary/5 hover:border-primary/50 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              Request a change for this period
+              Request a change
             </button>
           )}
 
-          <p className="text-xs text-muted-foreground text-center">
-            This is an estimate. Final pay may vary based on approvals.
+          <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
+            This is an estimate. Final pay may vary.
           </p>
         </div>
       </SheetContent>
