@@ -26,24 +26,16 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v4_DashboardStore, type AdjustmentType, type LeaveType, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
+import { useF41v4_DashboardStore, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, AlertCircle, Check, ChevronRight } from 'lucide-react';
-import { format, differenceInBusinessDays, isAfter, isBefore, parseISO, startOfMonth, endOfMonth } from 'date-fns';
+import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, Check } from 'lucide-react';
+import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 
-// TimeOffCard component - shows approved leave summary with add more option
-const TimeOffCard = ({ 
-  onSelect, 
-  leaveRequests 
-}: { 
-  onSelect: () => void; 
-  leaveRequests: LeaveRequest[];
-}) => {
+// TimeOffSummary component - read-only display of approved leave for this pay period
+const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) => {
   const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
-  const pendingLeave = leaveRequests.filter(l => l.status === 'Pending');
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
-  const totalPendingDays = pendingLeave.reduce((sum, l) => sum + l.totalDays, 0);
   
   const formatDateRange = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
@@ -54,62 +46,44 @@ const TimeOffCard = ({
     return `${format(start, 'MMM d')}–${format(end, 'd')}`;
   };
   
+  // Don't render if no approved leave
+  if (approvedLeave.length === 0) {
+    return null;
+  }
+  
   return (
-    <button
-      onClick={onSelect}
-      className="w-full p-4 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/[0.04] to-transparent hover:border-primary/40 hover:from-primary/[0.06] transition-all text-left group"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
-            <Plane className="h-5 w-5 text-primary" />
+    <div className="p-4 rounded-xl border border-border/60 bg-gradient-to-br from-emerald-500/[0.04] to-transparent">
+      <div className="flex items-start gap-3">
+        <div className="p-2.5 rounded-lg bg-emerald-500/10">
+          <Plane className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold text-foreground">Time off</span>
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
+              <Check className="h-2.5 w-2.5 mr-0.5" />
+              {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'} approved
+            </Badge>
           </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground">Time off</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-            </div>
-            
-            {/* Approved leave summary */}
-            {approvedLeave.length > 0 ? (
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
-                    <Check className="h-2.5 w-2.5 mr-0.5" />
-                    {totalApprovedDays}d approved
-                  </Badge>
-                  {totalPendingDays > 0 && (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
-                      {totalPendingDays}d pending
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-x-2 gap-y-0.5">
-                  {approvedLeave.slice(0, 2).map((leave) => (
-                    <span key={leave.id} className="text-[11px] text-muted-foreground">
-                      {leave.leaveType} · {formatDateRange(leave.startDate, leave.endDate)}
-                    </span>
-                  ))}
-                  {approvedLeave.length > 2 && (
-                    <span className="text-[11px] text-muted-foreground">
-                      +{approvedLeave.length - 2} more
-                    </span>
-                  )}
-                </div>
+          
+          {/* List approved leave */}
+          <div className="space-y-1.5 mt-2">
+            {approvedLeave.map((leave) => (
+              <div key={leave.id} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{leave.leaveType}</span>
+                <span className="text-foreground font-medium tabular-nums">
+                  {formatDateRange(leave.startDate, leave.endDate)}
+                </span>
               </div>
-            ) : pendingLeave.length > 0 ? (
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
-                  {totalPendingDays}d pending
-                </Badge>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">Log approved leave for payroll</p>
-            )}
+            ))}
           </div>
+          
+          <p className="text-[11px] text-muted-foreground/70 mt-3 pt-2 border-t border-border/30">
+            Approved leave will be reflected in payroll
+          </p>
         </div>
       </div>
-    </button>
+    </div>
   );
 };
 
@@ -124,7 +98,7 @@ interface F41v4_AdjustmentModalProps {
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
-const leaveTypes: LeaveType[] = ['Annual leave', 'Sick leave', 'Unpaid leave', 'Other'];
+
 
 // Pay period bounds (mock - in real app would come from store)
 const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
@@ -132,13 +106,6 @@ const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
 const payPeriodLabel = 'Jan 1 – Jan 31';
 
 const requestTypeOptions = [
-  { 
-    id: 'leave' as RequestType, 
-    label: 'Time off', 
-    description: 'Log approved leave',
-    icon: Plane,
-    disabled: false 
-  },
   { 
     id: 'expense' as RequestType, 
     label: 'Expense', 
@@ -163,7 +130,7 @@ const requestTypeOptions = [
 ];
 
 export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, onBack }: F41v4_AdjustmentModalProps) => {
-  const { addAdjustment, addLeaveRequest, periodLabel, leaveRequests } = useF41v4_DashboardStore();
+  const { addAdjustment, leaveRequests } = useF41v4_DashboardStore();
   
   // Selection state
   const [selectedType, setSelectedType] = useState<RequestType>(null);
@@ -186,27 +153,9 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [bonusCorrectionReason, setBonusCorrectionReason] = useState('');
   const [bonusCorrectionAttachment, setBonusCorrectionAttachment] = useState<File | null>(null);
   
-  // Leave form state
-  const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
-  const [leaveDateScope, setLeaveDateScope] = useState<'this-period' | 'different'>('this-period');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [leaveReason, setLeaveReason] = useState('');
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Check if dates are outside pay period
-  const isDateOutsidePeriod = (date: Date | undefined) => {
-    if (!date) return false;
-    return isBefore(date, payPeriodStart) || isAfter(date, payPeriodEnd);
-  };
-  
-  const hasDateWarning = isDateOutsidePeriod(startDate) || isDateOutsidePeriod(endDate);
-
-  // Calculate total days
-  const totalDays = startDate && endDate 
-    ? Math.max(1, differenceInBusinessDays(endDate, startDate) + 1)
-    : 0;
 
   const resetForm = () => {
     setSelectedType(initialType);
@@ -222,11 +171,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setBonusCorrectionAmount('');
     setBonusCorrectionReason('');
     setBonusCorrectionAttachment(null);
-    setLeaveType('Annual leave');
-    setLeaveDateScope('this-period');
-    setStartDate(undefined);
-    setEndDate(undefined);
-    setLeaveReason('');
     setErrors({});
   };
 
@@ -324,16 +268,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateLeave = () => {
-    const newErrors: Record<string, string> = {};
-    if (!startDate) newErrors.startDate = 'Start date is required';
-    if (!endDate) newErrors.endDate = 'End date is required';
-    if (startDate && endDate && endDate < startDate) {
-      newErrors.endDate = 'End date must be after start date';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   // Submit handlers
   const handleSubmitExpense = () => {
@@ -382,20 +316,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     handleClose();
   };
 
-  const handleSubmitLeave = () => {
-    if (!validateLeave()) return;
-
-    addLeaveRequest({
-      leaveType,
-      startDate: startDate!.toISOString(),
-      endDate: endDate!.toISOString(),
-      totalDays,
-      reason: leaveReason.trim() || undefined,
-    });
-
-    toast.success("Leave request submitted for review.");
-    handleClose();
-  };
 
   // Render file upload component
   const renderFileUpload = (
@@ -496,243 +416,36 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         <div className="py-6">
           {/* Type Selection Grid */}
           {selectedType === null && (
-            <div className="space-y-3">
-              {/* Time Off card with approved leave preview */}
-              <TimeOffCard 
-                onSelect={() => setSelectedType('leave')}
-                leaveRequests={leaveRequests}
-              />
+            <div className="space-y-4">
+              {/* Approved Time Off - Read-only summary */}
+              <TimeOffSummary leaveRequests={leaveRequests} />
               
-              {/* Other adjustment types */}
-              <div className="grid grid-cols-3 gap-2">
-                {requestTypeOptions.filter(o => o.id !== 'leave').map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => setSelectedType(option.id)}
-                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
-                    >
-                      <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-foreground">{option.label}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+              {/* Adjustment types */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Submit a request</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {requestTypeOptions.map((option) => {
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => setSelectedType(option.id)}
+                        className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                      >
+                        <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                          <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-foreground">{option.label}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Leave Form */}
-          {selectedType === 'leave' && (
-            <div className="space-y-5">
-              {/* Scoped intro text */}
-              <p className="text-xs text-muted-foreground">
-                This updates your pay for the selected dates. Only log leave that's already approved.
-              </p>
-
-              {/* Leave Type */}
-              <div className="space-y-2">
-                <Label>Leave type</Label>
-                <Select value={leaveType} onValueChange={(v) => setLeaveType(v as LeaveType)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select leave type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {leaveTypes.map((lt) => (
-                      <SelectItem key={lt} value={lt}>{lt}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Date Scope Selection */}
-              <div className="space-y-2">
-                <Label>Date range</Label>
-                <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLeaveDateScope('this-period');
-                      // Reset dates when switching to this period
-                      setStartDate(undefined);
-                      setEndDate(undefined);
-                    }}
-                    className={cn(
-                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
-                      leaveDateScope === 'this-period'
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    This pay period
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLeaveDateScope('different')}
-                    className={cn(
-                      'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all',
-                      leaveDateScope === 'different'
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    Different dates
-                  </button>
-                </div>
-              </div>
-
-              {/* Date Range - only show if "Different dates" is selected */}
-              {leaveDateScope === 'different' && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label>Start date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full justify-start text-left font-normal',
-                            !startDate && 'text-muted-foreground',
-                            errors.startDate && 'border-destructive'
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {startDate ? format(startDate, 'MMM d') : 'Select'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={startDate}
-                          onSelect={setStartDate}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>End date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full justify-start text-left font-normal',
-                            !endDate && 'text-muted-foreground',
-                            errors.endDate && 'border-destructive'
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {endDate ? format(endDate, 'MMM d') : 'Select'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={endDate}
-                          onSelect={setEndDate}
-                          disabled={(date) => startDate ? date < startDate : false}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
-                  </div>
-                </div>
-              )}
-
-              {/* This pay period - show date range summary */}
-              {leaveDateScope === 'this-period' && (
-                <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Period</span>
-                    <span className="text-sm font-medium text-foreground">{payPeriodLabel}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    Leave will be applied within this pay period.
-                  </p>
-                </div>
-              )}
-
-              {/* Warning if dates outside period - only when different dates selected */}
-              {leaveDateScope === 'different' && hasDateWarning && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30">
-                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                    These dates fall outside the current payroll period. Your pay will be adjusted accordingly in the relevant cycle.
-                  </p>
-                </div>
-              )}
-
-              {/* Total Days input for this-period, read-only display for different dates */}
-              {leaveDateScope === 'this-period' ? (
-                <div className="space-y-2">
-                  <Label>Number of days</Label>
-                  <Input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    placeholder="1"
-                    value={startDate && endDate ? totalDays.toString() : ''}
-                    onChange={(e) => {
-                      // For this-period, we calculate dates based on days input
-                      const days = parseFloat(e.target.value) || 0;
-                      if (days > 0) {
-                        const start = payPeriodStart;
-                        const end = new Date(start);
-                        end.setDate(start.getDate() + days - 1);
-                        setStartDate(start);
-                        setEndDate(end);
-                      }
-                    }}
-                    className={cn(errors.startDate && 'border-destructive')}
-                  />
-                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
-                </div>
-              ) : (
-                startDate && endDate && (
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Total days</span>
-                      <span className="text-sm font-medium text-foreground">
-                        {totalDays} {totalDays === 1 ? 'day' : 'days'}
-                      </span>
-                    </div>
-                  </div>
-                )
-              )}
-
-              {/* Reason (optional) */}
-              <div className="space-y-2">
-                <Label htmlFor="leaveReason">Notes (optional)</Label>
-                <Textarea
-                  id="leaveReason"
-                  placeholder="Additional details"
-                  value={leaveReason}
-                  onChange={(e) => setLeaveReason(e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              {/* Submit */}
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitLeave} className="flex-1">
-                  Log time off
-                </Button>
-              </div>
-            </div>
-          )}
 
           {/* Expense Form */}
           {selectedType === 'expense' && (
