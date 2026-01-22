@@ -117,6 +117,7 @@ interface F41v4_AdjustmentModalProps {
   onOpenChange: (open: boolean) => void;
   currency: string;
   initialType?: RequestType;
+  initialExpenseCategory?: string; // Pre-fill expense category (e.g., for resubmit)
   onBack?: () => void; // Called when back is pressed at type selection level
 }
 
@@ -160,7 +161,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, onBack }: F41v4_AdjustmentModalProps) => {
+export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', onBack }: F41v4_AdjustmentModalProps) => {
   const { addAdjustment, leaveRequests } = useF41v4_DashboardStore();
   
   // Selection state
@@ -168,7 +169,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   
   // Expense form state - multiple line items
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
-    { id: crypto.randomUUID(), category: '', amount: '', receipt: null }
+    { id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }
   ]);
   
   // Legacy single expense state (kept for compatibility)
@@ -195,8 +196,8 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseItems([{ id: crypto.randomUUID(), category: '', amount: '', receipt: null }]);
-    setExpenseCategory('');
+    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }]);
+    setExpenseCategory(initialExpenseCategory);
     setExpenseAmount('');
     setExpenseDescription('');
     setExpenseReceipt(null);
@@ -251,12 +252,15 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   // Check if we should show back arrow at type selection level
   const showBackAtSelection = selectedType === null && onBack;
 
-  // Set initial type when modal opens
+  // Set initial type and pre-fill when modal opens
   useEffect(() => {
     if (open && initialType) {
       setSelectedType(initialType);
     }
-  }, [open, initialType]);
+    if (open && initialExpenseCategory) {
+      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: '', receipt: null }]);
+    }
+  }, [open, initialType, initialExpenseCategory]);
 
   // Reset errors when switching types
   useEffect(() => {
