@@ -334,6 +334,12 @@ export const F41v4_UpcomingPayCard = () => {
                     Approved on {formatSubmittedTimestamp(approvedAt)}
                   </p>
                 )}
+                {/* Cutoff passed message */}
+                {windowState === 'CLOSED' && (
+                  <p className="text-sm text-muted-foreground">
+                    Cut-off passed — new requests will be included in next pay period.
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3 mt-2">
