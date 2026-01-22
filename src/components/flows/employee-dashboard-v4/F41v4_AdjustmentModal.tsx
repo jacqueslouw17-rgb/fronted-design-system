@@ -559,43 +559,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {errors.overtimeHours && <p className="text-xs text-destructive">{errors.overtimeHours}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label>Date worked (optional)</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !overtimeDate && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {overtimeDate ? format(overtimeDate, 'MMM d, yyyy') : 'Select date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={overtimeDate}
-                      onSelect={setOvertimeDate}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Notes (optional)</Label>
-                <Textarea
-                  placeholder="Additional details"
-                  value={overtimeNotes}
-                  onChange={(e) => setOvertimeNotes(e.target.value)}
-                  rows={2}
-                />
-              </div>
-
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 Overtime is reviewed by your company before payroll approval. Rate per company policy.
               </p>
