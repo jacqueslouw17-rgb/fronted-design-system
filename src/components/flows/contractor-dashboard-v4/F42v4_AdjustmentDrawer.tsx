@@ -68,7 +68,7 @@ const getRequestTypeOptions = (contractType: F42v4_ContractType) => {
     },
     { 
       id: 'bonus' as ContractorRequestType, 
-      label: 'Bonus / Commission', 
+      label: 'Commission', 
       description: 'Request additional pay',
       icon: Gift 
     },
@@ -309,11 +309,11 @@ export const F42v4_AdjustmentDrawer = ({
 
     addAdjustment({
       type: 'Bonus',
-      label: 'Bonus/Commission',
+      label: 'Commission',
       amount: parseFloat(bonusAmount),
     });
 
-    toast.success("Bonus request submitted for review.");
+    toast.success("Commission request submitted for review.");
     handleClose();
   };
 
@@ -414,14 +414,14 @@ export const F42v4_AdjustmentDrawer = ({
                 {selectedType === null && 'Request an adjustment'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'additional-hours' && 'Additional hours'}
-                {selectedType === 'bonus' && 'Bonus / Commission'}
+                {selectedType === 'bonus' && 'Commission request'}
                 {selectedType === 'correction' && 'Correction request'}
               </SheetTitle>
               <SheetDescription>
                 {selectedType === null && 'Submit an adjustment for the current invoice cycle.'}
                 {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
                 {selectedType === 'additional-hours' && 'Log extra hours worked.'}
-                {selectedType === 'bonus' && 'Request a bonus or commission payment.'}
+                {selectedType === 'bonus' && 'Request a commission payment.'}
                 {selectedType === 'correction' && 'Flag an error to be corrected.'}
               </SheetDescription>
             </div>
