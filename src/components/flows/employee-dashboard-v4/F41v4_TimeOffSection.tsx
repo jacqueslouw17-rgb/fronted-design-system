@@ -72,7 +72,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 pb-3">
+          <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10">
                 <Sun className="h-4 w-4 text-primary" />
