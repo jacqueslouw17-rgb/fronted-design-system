@@ -184,19 +184,26 @@ export const F41v4_PayBreakdownDrawer = ({
                   )}
                 </div>
               ))}
+              
+              {/* Earnings Total */}
+              <div className="flex items-center justify-between pt-2 mt-1 border-t border-border/30">
+                <span className="text-sm font-medium text-muted-foreground">Total earnings</span>
+                <span className="text-sm font-semibold text-accent-green-text tabular-nums">
+                  +{formatCurrency(
+                    earnings.reduce((sum, item) => sum + item.amount, 0) + 
+                    otherAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0),
+                    currency
+                  )}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Deductions Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Deductions
-              </h3>
-              <span className="text-sm font-medium text-destructive tabular-nums">
-                -{formatCurrency(totalDeductions, currency)}
-              </span>
-            </div>
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Deductions
+            </h3>
             <div className="space-y-2">
               {deductions.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/30">
@@ -218,6 +225,14 @@ export const F41v4_PayBreakdownDrawer = ({
                   </span>
                 </div>
               ))}
+              
+              {/* Deductions Total */}
+              <div className="flex items-center justify-between pt-2 mt-1 border-t border-border/30">
+                <span className="text-sm font-medium text-muted-foreground">Total deductions</span>
+                <span className="text-sm font-semibold text-destructive tabular-nums">
+                  -{formatCurrency(totalDeductions, currency)}
+                </span>
+              </div>
             </div>
           </div>
 
