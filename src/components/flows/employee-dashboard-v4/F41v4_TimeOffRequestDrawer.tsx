@@ -4,7 +4,7 @@
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -14,20 +14,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore, type LeaveType } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Plane, Check, Minus, Plus, Sun, Sparkles } from 'lucide-react';
-import { format, differenceInBusinessDays, addDays } from 'date-fns';
+import { CalendarIcon, Plane, Check, Sun, Sparkles } from 'lucide-react';
+import { format, differenceInBusinessDays } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface F41v4_TimeOffRequestDrawerProps {
@@ -49,12 +42,15 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   
   // Form state with smart defaults
   const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Derived dates from range
+  const startDate = dateRange?.from;
+  const endDate = dateRange?.to ?? dateRange?.from; // Single day = from only
 
   // Calculate total days
   const calculatedDays = startDate && endDate 
@@ -63,8 +59,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
 
   const resetForm = () => {
     setLeaveType('Annual leave');
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setDateRange(undefined);
     setNotes('');
     setErrors({});
     setIsSubmitting(false);
@@ -78,11 +73,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!startDate) newErrors.startDate = 'Required';
-    if (!endDate) newErrors.endDate = 'Required';
-    if (startDate && endDate && endDate < startDate) {
-      newErrors.endDate = 'Must be after start';
-    }
+    if (!dateRange?.from) newErrors.dates = 'Please select dates';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -206,88 +197,49 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
             </div>
           </div>
 
-          {/* Date Selection */}
+          {/* Date Range Selection - Single Calendar */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">When?</Label>
-            <div className="flex gap-3">
-              {/* Start Date */}
-              <div className="flex-1 space-y-1.5">
-                <span className="text-xs text-muted-foreground">From</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal h-12',
-                        !startDate && 'text-muted-foreground',
-                        errors.startDate && 'border-destructive'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {startDate ? format(startDate, 'EEE, MMM d') : 'Select date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={(date) => {
-                        setStartDate(date);
-                        if (date && (!endDate || endDate < date)) {
-                          setEndDate(date);
-                        }
-                      }}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* End Date */}
-              <div className="flex-1 space-y-1.5">
-                <span className="text-xs text-muted-foreground">To</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal h-12',
-                        !endDate && 'text-muted-foreground',
-                        errors.endDate && 'border-destructive'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {endDate ? format(endDate, 'EEE, MMM d') : 'Select date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      initialFocus
-                      disabled={(date) => startDate ? date < startDate : false}
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Click once for a single day, or click two dates for a range
+            </p>
             
-            {/* Days summary */}
+            <div className={cn(
+              "rounded-xl border-2 overflow-hidden transition-colors",
+              errors.dates ? "border-destructive" : "border-border/60"
+            )}>
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                numberOfMonths={1}
+                className="p-3 pointer-events-auto w-full"
+              />
+            </div>
+
+            {/* Selected range display */}
             <AnimatePresence>
-              {calculatedDays > 0 && (
+              {dateRange?.from && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20"
+                  className="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20"
                 >
-                  <Plane className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">
-                    {calculatedDays} {calculatedDays === 1 ? 'business day' : 'business days'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4 text-primary" />
+                    <span className="text-sm text-foreground">
+                      {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                        ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
+                        : format(dateRange.from, 'EEE, MMM d, yyyy')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Plane className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-sm font-medium text-primary">
+                      {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
+                    </span>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -317,7 +269,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
         <div className="sticky bottom-0 p-6 pt-4 bg-gradient-to-t from-background via-background to-transparent">
           <Button 
             onClick={handleSubmit}
-            disabled={isSubmitting || !startDate || !endDate}
+            disabled={isSubmitting || !dateRange?.from}
             className="w-full h-12 text-base font-medium"
             size="lg"
           >
