@@ -1,10 +1,11 @@
 /**
  * Flow 4.1 — Employee Dashboard v4
  * Dedicated Time Off Request Drawer - Premium, streamlined leave request form
+ * With country-aware holidays and business day calculations
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -14,14 +15,23 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore, type LeaveType } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Plane, Check, Sun, Sparkles } from 'lucide-react';
-import { format, differenceInBusinessDays } from 'date-fns';
+import { CalendarIcon, Plane, Check, Sun, Sparkles, AlertTriangle, MapPin, Info } from 'lucide-react';
+import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  fetchCountryRules,
+  calculateBusinessDays,
+  validateLeaveRequest,
+  getWeekendDayNames,
+  type CountryRules,
+  type Holiday,
+} from '@/utils/countryLeaveUtils';
 
 interface F41v4_TimeOffRequestDrawerProps {
   open: boolean;
@@ -35,12 +45,30 @@ const leaveTypes: { value: LeaveType; label: string; icon: string }[] = [
   { value: 'Other', label: 'Other', icon: '📝' },
 ];
 
-// No date restrictions - allow past dates for missed leave
+// Country display names
+const COUNTRY_NAMES: Record<string, string> = {
+  NO: 'Norway',
+  PH: 'Philippines',
+  US: 'United States',
+  GB: 'United Kingdom',
+  DE: 'Germany',
+  FR: 'France',
+  AE: 'UAE',
+  SA: 'Saudi Arabia',
+  IN: 'India',
+  AU: 'Australia',
+  SG: 'Singapore',
+  JP: 'Japan',
+};
 
 export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOffRequestDrawerProps) => {
-  const { addLeaveRequest } = useF41v4_DashboardStore();
+  const { addLeaveRequest, employeeCountry, leaveRequests } = useF41v4_DashboardStore();
   
-  // Form state with smart defaults
+  // Country rules state
+  const [countryRules, setCountryRules] = useState<CountryRules | null>(null);
+  const [isLoadingRules, setIsLoadingRules] = useState(false);
+  
+  // Form state
   const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [notes, setNotes] = useState('');
@@ -48,14 +76,71 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Derived dates from range
-  const startDate = dateRange?.from;
-  const endDate = dateRange?.to ?? dateRange?.from; // Single day = from only
+  // Load country rules when drawer opens
+  useEffect(() => {
+    if (open && employeeCountry && !countryRules) {
+      setIsLoadingRules(true);
+      fetchCountryRules(employeeCountry)
+        .then(rules => {
+          if (rules) setCountryRules(rules);
+        })
+        .finally(() => setIsLoadingRules(false));
+    }
+  }, [open, employeeCountry, countryRules]);
 
-  // Calculate total days
-  const calculatedDays = startDate && endDate 
-    ? Math.max(1, differenceInBusinessDays(endDate, startDate) + 1)
-    : 0;
+  // Derived dates
+  const startDate = dateRange?.from;
+  const endDate = dateRange?.to ?? dateRange?.from;
+
+  // Calculate used annual leave from existing requests
+  const usedAnnualLeave = useMemo(() => {
+    return leaveRequests
+      .filter(l => l.leaveType === 'Annual leave' && l.status !== 'Admin rejected')
+      .reduce((sum, l) => sum + l.totalDays, 0);
+  }, [leaveRequests]);
+
+  // Calculate business days with country rules
+  const calculatedDays = useMemo(() => {
+    if (!startDate || !endDate) return 0;
+    if (countryRules) {
+      return calculateBusinessDays(
+        startDate,
+        endDate,
+        countryRules.weekendDays,
+        countryRules.holidays
+      );
+    }
+    // Fallback to standard calculation
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  }, [startDate, endDate, countryRules]);
+
+  // Validation with country rules
+  const validation = useMemo(() => {
+    if (!startDate || !endDate || !countryRules) return null;
+    return validateLeaveRequest(startDate, endDate, countryRules, usedAnnualLeave);
+  }, [startDate, endDate, countryRules, usedAnnualLeave]);
+
+  // Get holiday dates for calendar highlighting
+  const holidayDates = useMemo(() => {
+    if (!countryRules) return new Set<string>();
+    return new Set(countryRules.holidays.map(h => h.date));
+  }, [countryRules]);
+
+  // Get holidays in the selected range for display
+  const holidaysInRange = useMemo(() => {
+    if (!startDate || !endDate || !countryRules) return [];
+    const holidays: Holiday[] = [];
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const dateStr = current.toISOString().split('T')[0];
+      const holiday = countryRules.holidays.find(h => h.date === dateStr);
+      if (holiday) holidays.push(holiday);
+      current.setDate(current.getDate() + 1);
+    }
+    return holidays;
+  }, [startDate, endDate, countryRules]);
 
   const resetForm = () => {
     setLeaveType('Annual leave');
@@ -82,8 +167,6 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 600));
 
     addLeaveRequest({
@@ -97,11 +180,22 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
     setIsSubmitting(false);
     setShowSuccess(true);
     
-    // Show success briefly then close
     setTimeout(() => {
       toast.success('Time off request submitted');
       handleClose();
     }, 1500);
+  };
+
+  // Custom day content to show holidays
+  const modifiers = useMemo(() => {
+    if (!countryRules) return {};
+    return {
+      holiday: countryRules.holidays.map(h => new Date(h.date)),
+    };
+  }, [countryRules]);
+
+  const modifiersClassNames = {
+    holiday: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-medium',
   };
 
   // Success state
@@ -135,7 +229,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
             <div className="text-center space-y-2">
               <h3 className="text-xl font-semibold text-foreground">Request submitted</h3>
               <p className="text-sm text-muted-foreground">
-                {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'} of {leaveType.toLowerCase()}
+                {calculatedDays} business {calculatedDays === 1 ? 'day' : 'days'} of {leaveType.toLowerCase()}
               </p>
               <p className="text-xs text-muted-foreground/70">
                 {startDate && endDate && (
@@ -161,16 +255,41 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
                 <Sun className="h-5 w-5 text-primary" />
               </div>
-              <div>
+              <div className="flex-1">
                 <SheetTitle className="text-lg">Request time off</SheetTitle>
-                <p className="text-sm text-muted-foreground">Past or upcoming leave</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {COUNTRY_NAMES[employeeCountry] || employeeCountry} rules apply
+                  </span>
+                  {isLoadingRules && (
+                    <span className="text-xs text-muted-foreground/60">Loading holidays...</span>
+                  )}
+                </div>
               </div>
             </div>
+            
+            {/* Country info badges */}
+            {countryRules && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Badge variant="secondary" className="text-xs font-normal">
+                  Weekend: {getWeekendDayNames(countryRules.weekendDays)}
+                </Badge>
+                {countryRules.maxAnnualLeave > 0 && (
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    Annual allowance: {countryRules.maxAnnualLeave} days
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="text-xs font-normal">
+                  {countryRules.holidays.length} public holidays
+                </Badge>
+              </div>
+            )}
           </SheetHeader>
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Leave Type Selection - Visual cards */}
+          {/* Leave Type Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">What type of leave?</Label>
             <div className="grid grid-cols-2 gap-2">
@@ -197,7 +316,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
             </div>
           </div>
 
-          {/* Date Range Selection - Single Calendar */}
+          {/* Date Range Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">When?</Label>
@@ -211,7 +330,10 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
               )}
             </div>
             <p className="text-xs text-muted-foreground -mt-1">
-              Tap a date for single day, or two dates for a range
+              Tap a date for single day, or two dates for a range. 
+              {countryRules && (
+                <span className="text-amber-600 dark:text-amber-400"> Holidays are highlighted.</span>
+              )}
             </p>
             
             <div className={cn(
@@ -224,6 +346,8 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                   selected={dateRange}
                   onSelect={setDateRange}
                   numberOfMonths={2}
+                  modifiers={modifiers}
+                  modifiersClassNames={modifiersClassNames}
                   className="pointer-events-auto"
                   classNames={{
                     months: "flex flex-col sm:flex-row gap-4 sm:gap-6",
@@ -252,13 +376,25 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                     ),
                     day_range_end: "day-range-end",
                     day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-lg",
-                    day_today: "bg-primary/10 text-foreground font-semibold",
+                    day_today: "ring-2 ring-primary/30 text-foreground font-semibold",
                     day_outside: "text-muted-foreground/40 aria-selected:bg-primary/5 aria-selected:text-muted-foreground",
                     day_disabled: "text-muted-foreground/30",
                     day_range_middle: "aria-selected:bg-primary/10 aria-selected:text-foreground rounded-none",
                     day_hidden: "invisible",
                   }}
                 />
+              </div>
+              
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-4 py-2 px-4 border-t border-border/40 bg-muted/20">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-500/30 border border-amber-300 dark:border-amber-500/50" />
+                  <span className="text-xs text-muted-foreground">Public holiday</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded ring-2 ring-primary/30" />
+                  <span className="text-xs text-muted-foreground">Today</span>
+                </div>
               </div>
             </div>
 
@@ -269,22 +405,51 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20"
+                  className="space-y-2"
                 >
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4 text-primary" />
-                    <span className="text-sm text-foreground">
-                      {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
-                        ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
-                        : format(dateRange.from, 'EEE, MMM d, yyyy')}
-                    </span>
+                  <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-primary" />
+                      <span className="text-sm text-foreground">
+                        {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                          ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
+                          : format(dateRange.from, 'EEE, MMM d, yyyy')}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Plane className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-sm font-medium text-primary">
+                        {calculatedDays} business {calculatedDays === 1 ? 'day' : 'days'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Plane className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-sm font-medium text-primary">
-                      {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
-                    </span>
-                  </div>
+
+                  {/* Holidays in range */}
+                  {holidaysInRange.length > 0 && (
+                    <div className="flex items-start gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+                      <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                      <div className="text-xs text-amber-700 dark:text-amber-300">
+                        <span className="font-medium">Includes {holidaysInRange.length} holiday{holidaysInRange.length > 1 ? 's' : ''}:</span>
+                        <span className="ml-1">
+                          {holidaysInRange.map(h => h.localName).join(', ')}
+                        </span>
+                        <span className="block mt-0.5 text-amber-600/80 dark:text-amber-400/80">
+                          These won't be deducted from your leave balance.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Validation warnings */}
+                  {validation?.warnings.map((warning, i) => (
+                    <div 
+                      key={i}
+                      className="flex items-start gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20"
+                    >
+                      <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                      <span className="text-xs text-amber-700 dark:text-amber-300">{warning}</span>
+                    </div>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
