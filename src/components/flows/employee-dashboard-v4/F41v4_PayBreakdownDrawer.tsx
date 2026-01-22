@@ -419,16 +419,6 @@ export const F41v4_PayBreakdownDrawer = ({
 
         {/* Net Pay Footer - Sticky feel */}
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-          {/* Rejection summary banner */}
-          {hasRejections && (
-            <div className="mb-4 p-3 rounded-lg bg-destructive/5 border border-destructive/20 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
-              <p className="text-xs text-destructive">
-                {rejectedAdjustments.length} {rejectedAdjustments.length === 1 ? 'request was' : 'requests were'} not approved. See details above.
-              </p>
-            </div>
-          )}
-          
           {/* Main net pay */}
           <div className="flex items-start justify-between mb-1">
             <div>
