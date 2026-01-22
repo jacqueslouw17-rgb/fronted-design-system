@@ -3,6 +3,9 @@
  * Request Adjustment Drawer (right-side panel)
  * 
  * ALIGNED: Matches F41v4_AdjustmentModal card-based UI patterns.
+ * - Batch expense support with multiple line items
+ * - Simplified forms (removed notes/description fields)
+ * - Compact inline layout
  */
 
 import { useState, useEffect } from 'react';
@@ -37,16 +40,22 @@ interface F42v4_AdjustmentDrawerProps {
   currency: string;
   contractType: F42v4_ContractType;
   initialType?: ContractorRequestType;
-  initialExpenseCategory?: string; // Pre-fill expense category (e.g., for resubmit)
-  initialExpenseAmount?: string; // Pre-fill expense amount (e.g., for resubmit)
-  onBack?: () => void; // Called when back is pressed at type selection level
+  initialExpenseCategory?: string;
+  initialExpenseAmount?: string;
+  onBack?: () => void;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
 
+// Expense line item type for multi-expense submissions
+interface ExpenseLineItem {
+  id: string;
+  category: string;
+  amount: string;
+  receipt: File | null;
+}
+
 // Invoice period bounds (mock - in real app would come from store)
-const invoicePeriodStart = new Date(2025, 11, 1); // Dec 1, 2025
-const invoicePeriodEnd = new Date(2025, 11, 31); // Dec 31, 2025
 const invoicePeriodLabel = 'Dec 1 – Dec 31';
 
 const getRequestTypeOptions = (contractType: F42v4_ContractType) => {
@@ -99,19 +108,16 @@ export const F42v4_AdjustmentDrawer = ({
   // Selection state
   const [selectedType, setSelectedType] = useState<ContractorRequestType>(null);
   
-  // Expense form state
-  const [expenseCategory, setExpenseCategory] = useState(initialExpenseCategory);
-  const [expenseAmount, setExpenseAmount] = useState(initialExpenseAmount);
-  const [expenseDescription, setExpenseDescription] = useState('');
-  const [expenseReceipt, setExpenseReceipt] = useState<File | null>(null);
+  // Expense form state - multiple line items
+  const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
+    { id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }
+  ]);
   
   // Additional hours form state
   const [hours, setHours] = useState('');
-  const [hoursMemo, setHoursMemo] = useState('');
   
   // Bonus form state
   const [bonusAmount, setBonusAmount] = useState('');
-  const [bonusDescription, setBonusDescription] = useState('');
   
   // Correction form state
   const [correctionDescription, setCorrectionDescription] = useState('');
@@ -123,17 +129,28 @@ export const F42v4_AdjustmentDrawer = ({
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseCategory(initialExpenseCategory);
-    setExpenseAmount(initialExpenseAmount);
-    setExpenseDescription('');
-    setExpenseReceipt(null);
+    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
     setHours('');
-    setHoursMemo('');
     setBonusAmount('');
-    setBonusDescription('');
     setCorrectionDescription('');
     setCorrectionAttachment(null);
     setErrors({});
+  };
+
+  // Expense line item helpers
+  const addExpenseItem = () => {
+    setExpenseItems(prev => [...prev, { id: crypto.randomUUID(), category: '', amount: '', receipt: null }]);
+  };
+
+  const removeExpenseItem = (id: string) => {
+    if (expenseItems.length === 1) return;
+    setExpenseItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateExpenseItem = (id: string, field: keyof ExpenseLineItem, value: string | File | null) => {
+    setExpenseItems(prev => prev.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
   };
 
   const handleClose = () => {
@@ -166,8 +183,7 @@ export const F42v4_AdjustmentDrawer = ({
       setSelectedType(initialType);
     }
     if (open && (initialExpenseCategory || initialExpenseAmount)) {
-      setExpenseCategory(initialExpenseCategory);
-      setExpenseAmount(initialExpenseAmount);
+      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
     }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
@@ -205,14 +221,27 @@ export const F42v4_AdjustmentDrawer = ({
   };
 
   // Validation functions
-  const validateExpense = () => {
+  const validateExpenseItems = () => {
     const newErrors: Record<string, string> = {};
-    if (!expenseCategory) newErrors.expenseCategory = 'Category is required';
-    if (!expenseAmount || parseFloat(expenseAmount) <= 0) newErrors.expenseAmount = 'Amount must be greater than 0';
-    if (!expenseDescription.trim()) newErrors.expenseDescription = 'Description is required';
-    if (!expenseReceipt) newErrors.expenseReceipt = 'Receipt is required';
+    let hasError = false;
+    
+    expenseItems.forEach((item, index) => {
+      if (!item.category) {
+        newErrors[`expense_${index}_category`] = 'Required';
+        hasError = true;
+      }
+      if (!item.amount || parseFloat(item.amount) <= 0) {
+        newErrors[`expense_${index}_amount`] = 'Required';
+        hasError = true;
+      }
+      if (!item.receipt) {
+        newErrors[`expense_${index}_receipt`] = 'Receipt required';
+        hasError = true;
+      }
+    });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasError;
   };
 
   const validateAdditionalHours = () => {
@@ -225,7 +254,6 @@ export const F42v4_AdjustmentDrawer = ({
   const validateBonus = () => {
     const newErrors: Record<string, string> = {};
     if (!bonusAmount || parseFloat(bonusAmount) <= 0) newErrors.bonusAmount = 'Amount must be greater than 0';
-    if (!bonusDescription.trim()) newErrors.bonusDescription = 'Description is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -238,19 +266,22 @@ export const F42v4_AdjustmentDrawer = ({
   };
 
   // Submit handlers
-  const handleSubmitExpense = () => {
-    if (!validateExpense()) return;
+  const handleSubmitExpenses = () => {
+    if (!validateExpenseItems()) return;
 
-    addAdjustment({
-      type: 'Expense',
-      label: expenseCategory,
-      amount: parseFloat(expenseAmount),
-      description: expenseDescription,
-      category: expenseCategory,
-      receiptUrl: expenseReceipt ? URL.createObjectURL(expenseReceipt) : undefined,
+    // Submit each expense item
+    expenseItems.forEach(item => {
+      addAdjustment({
+        type: 'Expense',
+        label: item.category,
+        amount: parseFloat(item.amount),
+        category: item.category,
+        receiptUrl: item.receipt ? URL.createObjectURL(item.receipt) : undefined,
+      });
     });
 
-    toast.success("Expense submitted for review.");
+    const count = expenseItems.length;
+    toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
     
     // Return to breakdown drawer if requested
@@ -266,7 +297,6 @@ export const F42v4_AdjustmentDrawer = ({
       type: 'Additional hours',
       label: `${hours}h`,
       amount: null,
-      description: hoursMemo,
       hours: parseFloat(hours),
     });
 
@@ -281,7 +311,6 @@ export const F42v4_AdjustmentDrawer = ({
       type: 'Bonus',
       label: 'Bonus/Commission',
       amount: parseFloat(bonusAmount),
-      description: bonusDescription,
     });
 
     toast.success("Bonus request submitted for review.");
@@ -424,52 +453,158 @@ export const F42v4_AdjustmentDrawer = ({
             </div>
           )}
 
-          {/* Expense Form */}
+          {/* Expense Form - Multiple Items */}
           {selectedType === 'expense' && (
             <div className="space-y-5">
               <InvoicePeriodBadge />
 
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={expenseCategory} onValueChange={setExpenseCategory}>
-                  <SelectTrigger className={cn(errors.expenseCategory && 'border-destructive')}>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {expenseCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.expenseCategory && <p className="text-xs text-destructive">{errors.expenseCategory}</p>}
+              {/* Expense Line Items */}
+              <div className="space-y-3">
+                {expenseItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button - only show if more than 1 item */}
+                    {expenseItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeExpenseItem(item.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+
+                    {/* Item number badge */}
+                    {expenseItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Expense {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Category & Amount row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Category</Label>
+                        <Select 
+                          value={item.category} 
+                          onValueChange={(val) => updateExpenseItem(item.id, 'category', val)}
+                        >
+                          <SelectTrigger className={cn(
+                            "h-9",
+                            errors[`expense_${index}_category`] && 'border-destructive'
+                          )}>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {expenseCategories.map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Amount ({currency})</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          placeholder="0.00"
+                          value={item.amount}
+                          onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`expense_${index}_amount`] && 'border-destructive'
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Receipt upload - compact */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Receipt</Label>
+                      {item.receipt ? (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {item.receipt.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs text-foreground truncate flex-1">
+                            {item.receipt.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateExpenseItem(item.id, 'receipt', null)}
+                            className="p-1 rounded hover:bg-muted"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className={cn(
+                          "flex items-center gap-2 p-2 rounded-lg border border-dashed cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]",
+                          errors[`expense_${index}_receipt`] ? 'border-destructive' : 'border-border/60'
+                        )}>
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload receipt</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                updateExpenseItem(item.id, 'receipt', file);
+                                setErrors(prev => {
+                                  const { [`expense_${index}_receipt`]: _, ...rest } = prev;
+                                  return rest;
+                                });
+                              }
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add another expense button */}
+                <button
+                  type="button"
+                  onClick={addExpenseItem}
+                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Add another expense
+                </button>
               </div>
 
-              <div className="space-y-2">
-                <Label>Amount ({currency})</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={expenseAmount}
-                  onChange={(e) => setExpenseAmount(e.target.value)}
-                  className={cn(errors.expenseAmount && 'border-destructive')}
-                />
-                {errors.expenseAmount && <p className="text-xs text-destructive">{errors.expenseAmount}</p>}
-              </div>
+              {/* Total summary - only show if multiple items */}
+              {expenseItems.length > 1 && expenseItems.some(item => item.amount) && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <span className="text-sm text-muted-foreground">Total ({expenseItems.length} items)</span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {currency} {expenseItems
+                      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
+                      .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  placeholder="Brief description of the expense"
-                  value={expenseDescription}
-                  onChange={(e) => setExpenseDescription(e.target.value)}
-                  className={cn(errors.expenseDescription && 'border-destructive')}
-                />
-                {errors.expenseDescription && <p className="text-xs text-destructive">{errors.expenseDescription}</p>}
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitExpenses} className="flex-1">
+                  Submit {expenseItems.length > 1 ? `${expenseItems.length} expenses` : 'expense'}
+                </Button>
               </div>
-
-              {renderFileUpload(expenseReceipt, setExpenseReceipt, 'expenseReceipt', true)}
             </div>
           )}
 
@@ -492,19 +627,18 @@ export const F42v4_AdjustmentDrawer = ({
                 {errors.hours && <p className="text-xs text-destructive">{errors.hours}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label>Memo (optional)</Label>
-                <Textarea
-                  placeholder="Additional notes about the work"
-                  value={hoursMemo}
-                  onChange={(e) => setHoursMemo(e.target.value)}
-                />
-              </div>
+              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                Your rate applies automatically; final amount will be calculated.
+              </p>
 
-              <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                <p className="text-xs text-muted-foreground">
-                  Your rate applies automatically; final amount will be calculated.
-                </p>
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitAdditionalHours} className="flex-1">
+                  Submit request
+                </Button>
               </div>
             </div>
           )}
@@ -528,21 +662,18 @@ export const F42v4_AdjustmentDrawer = ({
                 {errors.bonusAmount && <p className="text-xs text-destructive">{errors.bonusAmount}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  placeholder="Reason for bonus/commission request"
-                  value={bonusDescription}
-                  onChange={(e) => setBonusDescription(e.target.value)}
-                  className={cn(errors.bonusDescription && 'border-destructive')}
-                />
-                {errors.bonusDescription && <p className="text-xs text-destructive">{errors.bonusDescription}</p>}
-              </div>
+              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                Subject to admin approval.
+              </p>
 
-              <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                <p className="text-xs text-muted-foreground">
-                  Subject to admin approval.
-                </p>
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitBonus} className="flex-1">
+                  Submit request
+                </Button>
               </div>
             </div>
           )}
@@ -564,29 +695,19 @@ export const F42v4_AdjustmentDrawer = ({
               </div>
 
               {renderFileUpload(correctionAttachment, setCorrectionAttachment, 'correctionAttachment', false)}
+
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitCorrection} className="flex-1">
+                  Submit request
+                </Button>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Fixed bottom actions - only show when a type is selected */}
-        {selectedType && (
-          <div className="flex gap-3 pt-4 border-t border-border/40 mt-auto">
-            <Button variant="outline" onClick={handleClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => {
-                if (selectedType === 'expense') handleSubmitExpense();
-                if (selectedType === 'additional-hours') handleSubmitAdditionalHours();
-                if (selectedType === 'bonus') handleSubmitBonus();
-                if (selectedType === 'correction') handleSubmitCorrection();
-              }} 
-              className="flex-1"
-            >
-              Submit
-            </Button>
-          </div>
-        )}
       </SheetContent>
     </Sheet>
   );
