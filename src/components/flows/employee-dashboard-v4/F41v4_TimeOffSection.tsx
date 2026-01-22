@@ -79,7 +79,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Time off</h3>
-                <p className="text-xs text-muted-foreground">This pay period</p>
+                <p className="text-xs text-muted-foreground">All time off requests</p>
               </div>
             </div>
             
