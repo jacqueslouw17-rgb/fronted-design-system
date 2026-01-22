@@ -153,7 +153,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto border-l-0 sm:border-l p-0">
+      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto border-l-0 sm:border-l p-0">
         {/* Hero Header */}
         <div className="bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] p-6 pb-8">
           <SheetHeader className="space-y-3">
@@ -218,15 +218,15 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
               "rounded-xl border bg-card overflow-hidden transition-colors",
               errors.dates ? "border-destructive" : "border-border/60"
             )}>
-              <div className="flex items-center justify-center py-2">
+              <div className="flex items-center justify-center py-3 px-2">
                 <Calendar
                   mode="range"
                   selected={dateRange}
                   onSelect={setDateRange}
-                  numberOfMonths={1}
+                  numberOfMonths={2}
                   className="pointer-events-auto"
                   classNames={{
-                    months: "flex flex-col",
+                    months: "flex flex-col sm:flex-row gap-4 sm:gap-6",
                     month: "space-y-3",
                     caption: "flex justify-center pt-1 relative items-center h-10",
                     caption_label: "text-sm font-semibold text-foreground",
