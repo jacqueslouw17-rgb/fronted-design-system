@@ -571,6 +571,7 @@ export const F41v4_UpcomingPayCard = () => {
         leaveRequests={leaveRequests}
         payrollStatus={payrollStatus}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
+        onWithdrawAdjustment={withdrawAdjustment}
       />
 
       <F41v4_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />

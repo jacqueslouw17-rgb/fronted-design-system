@@ -6,7 +6,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Plus, Clock } from 'lucide-react';
+import { Lock, Plus, Clock, X } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,7 @@ interface PayBreakdownDrawerProps {
   leaveRequests?: LeaveRequest[];
   payrollStatus?: PayrollStatus;
   onMakeAdjustment?: () => void;
+  onWithdrawAdjustment?: (id: string) => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -64,6 +65,8 @@ const BreakdownRow = ({
   badge,
   sublabel,
   isTotal = false,
+  onRemove,
+  canRemove = false,
   className
 }: { 
   label: string;
@@ -74,11 +77,14 @@ const BreakdownRow = ({
   badge?: { label: string; variant: 'pending' | 'approved' };
   sublabel?: string;
   isTotal?: boolean;
+  onRemove?: () => void;
+  canRemove?: boolean;
   className?: string;
 }) => (
   <div className={cn(
-    "flex items-center justify-between py-2",
-    isTotal && "pt-3 mt-1 border-t border-dashed border-border/50",
+    "group flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
+    canRemove && "hover:bg-muted/50",
+    isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0 hover:bg-transparent",
     className
   )}>
     <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -115,13 +121,31 @@ const BreakdownRow = ({
         </Badge>
       )}
     </div>
-    <span className={cn(
-      "tabular-nums text-right shrink-0 ml-4 font-mono",
-      isTotal ? "text-sm font-semibold" : "text-sm",
-      isPositive ? "text-foreground" : "text-muted-foreground"
-    )}>
-      {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
-    </span>
+    <div className="flex items-center gap-2 shrink-0 ml-4">
+      <span className={cn(
+        "tabular-nums text-right font-mono",
+        isTotal ? "text-sm font-semibold" : "text-sm",
+        isPositive ? "text-foreground" : "text-muted-foreground"
+      )}>
+        {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
+      </span>
+      {canRemove && onRemove && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={onRemove}
+              className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+              aria-label="Remove adjustment"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">Remove</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
   </div>
 );
 
@@ -135,7 +159,8 @@ export const F41v4_PayBreakdownDrawer = ({
   adjustments = [],
   leaveRequests = [],
   payrollStatus = 'draft',
-  onMakeAdjustment
+  onMakeAdjustment,
+  onWithdrawAdjustment
 }: PayBreakdownDrawerProps) => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
@@ -156,6 +181,7 @@ export const F41v4_PayBreakdownDrawer = ({
   const adjustedNet = estimatedNet + pendingAdjustmentTotal;
   
   const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
+  const canRemoveAdjustments = payrollStatus === 'draft' && onWithdrawAdjustment;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -201,6 +227,8 @@ export const F41v4_PayBreakdownDrawer = ({
                     label: adj.status === 'Pending' ? 'Pending' : 'Approved',
                     variant: adj.status === 'Pending' ? 'pending' : 'approved'
                   }}
+                  canRemove={canRemoveAdjustments && adj.status === 'Pending'}
+                  onRemove={() => onWithdrawAdjustment?.(adj.id)}
                 />
               ))}
               <BreakdownRow
@@ -258,6 +286,8 @@ export const F41v4_PayBreakdownDrawer = ({
                       label: adj.status === 'Pending' ? 'Pending' : 'Approved',
                       variant: adj.status === 'Pending' ? 'pending' : 'approved'
                     }}
+                    canRemove={canRemoveAdjustments && adj.status === 'Pending'}
+                    onRemove={() => onWithdrawAdjustment?.(adj.id)}
                   />
                 ))}
                 {overtimeAdjustments.length > 1 && (
