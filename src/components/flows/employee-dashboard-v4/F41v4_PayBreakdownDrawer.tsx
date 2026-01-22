@@ -83,19 +83,25 @@ const BreakdownRow = ({
 }) => (
   <div className={cn(
     "group flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
-    canRemove && "hover:bg-muted/50",
+    canRemove && "hover:bg-destructive/5 cursor-pointer",
     isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0 hover:bg-transparent",
     className
   )}>
     <div className="flex items-center gap-2 min-w-0 flex-1">
       <span className={cn(
         "truncate",
-        isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"
+        isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
+        canRemove && "group-hover:text-destructive/80 transition-colors"
       )}>
         {label}
       </span>
       {sublabel && (
-        <span className="text-xs text-muted-foreground/70 truncate">· {sublabel}</span>
+        <span className={cn(
+          "text-xs text-muted-foreground/70 truncate transition-colors",
+          canRemove && "group-hover:text-destructive/60"
+        )}>
+          · {sublabel}
+        </span>
       )}
       {isLocked && (
         <Tooltip>
@@ -111,39 +117,37 @@ const BreakdownRow = ({
         <Badge 
           variant="outline" 
           className={cn(
-            "text-[10px] px-1.5 py-0 shrink-0",
+            "text-[10px] px-1.5 py-0 shrink-0 transition-opacity",
             badge.variant === 'pending' 
               ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
-              : "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+              : "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+            canRemove && "group-hover:opacity-0"
           )}
         >
           {badge.label}
         </Badge>
       )}
     </div>
-    <div className="flex items-center gap-2 shrink-0 ml-4">
+    <div className="flex items-center shrink-0 ml-4 overflow-hidden">
       <span className={cn(
-        "tabular-nums text-right font-mono",
+        "tabular-nums text-right font-mono transition-all duration-200",
         isTotal ? "text-sm font-semibold" : "text-sm",
-        isPositive ? "text-foreground" : "text-muted-foreground"
+        isPositive ? "text-foreground" : "text-muted-foreground",
+        canRemove && "group-hover:-translate-x-6 group-hover:text-destructive/70"
       )}>
         {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
       </span>
       {canRemove && onRemove && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={onRemove}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
-              aria-label="Remove adjustment"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-xs">Remove</p>
-          </TooltipContent>
-        </Tooltip>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
+          aria-label="Withdraw request"
+        >
+          <X className="h-4 w-4" />
+        </button>
       )}
     </div>
   </div>
