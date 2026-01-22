@@ -40,6 +40,7 @@ export interface Adjustment {
   hours?: number;
   receiptUrl?: string;
   submittedAt: string;
+  rejectionReason?: string;
 }
 
 export interface LeaveRequest {
@@ -51,6 +52,7 @@ export interface LeaveRequest {
   reason?: string;
   status: LeaveStatus;
   submittedAt: string;
+  rejectionReason?: string;
 }
 
 interface F41v4_DashboardState {

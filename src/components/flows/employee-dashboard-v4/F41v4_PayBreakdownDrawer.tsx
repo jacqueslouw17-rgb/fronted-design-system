@@ -6,7 +6,8 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Plus, Clock, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Lock, Plus, Clock, X, AlertTriangle, MessageSquare, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ interface PayBreakdownDrawerProps {
   payrollStatus?: PayrollStatus;
   onMakeAdjustment?: () => void;
   onWithdrawAdjustment?: (id: string) => void;
+  onResubmitAdjustment?: (id: string) => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -67,6 +69,7 @@ const BreakdownRow = ({
   isTotal = false,
   onRemove,
   canRemove = false,
+  isRejected = false,
   className
 }: { 
   label: string;
@@ -74,24 +77,30 @@ const BreakdownRow = ({
   currency: string;
   isPositive?: boolean;
   isLocked?: boolean;
-  badge?: { label: string; variant: 'pending' | 'approved' };
+  badge?: { label: string; variant: 'pending' | 'approved' | 'rejected' };
   sublabel?: string;
   isTotal?: boolean;
   onRemove?: () => void;
   canRemove?: boolean;
+  isRejected?: boolean;
   className?: string;
 }) => (
   <div className={cn(
     "group flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
     canRemove && "hover:bg-destructive/5 cursor-pointer",
     isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0 hover:bg-transparent",
+    isRejected && "opacity-60",
     className
   )}>
     <div className="flex items-center gap-2 min-w-0 flex-1">
+      {isRejected && (
+        <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
+      )}
       <span className={cn(
         "truncate",
         isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
-        canRemove && "group-hover:text-destructive/80 transition-colors"
+        canRemove && "group-hover:text-destructive/80 transition-colors",
+        isRejected && "line-through"
       )}>
         {label}
       </span>
@@ -120,7 +129,9 @@ const BreakdownRow = ({
             "text-[10px] px-1.5 py-0 shrink-0 transition-opacity",
             badge.variant === 'pending' 
               ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
-              : "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+              : badge.variant === 'approved'
+              ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+              : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
             canRemove && "group-hover:opacity-0"
           )}
         >
@@ -133,7 +144,8 @@ const BreakdownRow = ({
         "whitespace-nowrap tabular-nums text-right font-mono transition-transform duration-200",
         isTotal ? "text-sm font-semibold" : "text-sm",
         isPositive ? "text-foreground" : "text-muted-foreground",
-        canRemove && "group-hover:-translate-x-6"
+        canRemove && "group-hover:-translate-x-6",
+        isRejected && "line-through"
       )}>
         {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
       </span>
@@ -153,6 +165,71 @@ const BreakdownRow = ({
   </div>
 );
 
+// Rejected item card with context and actions
+const RejectedItemCard = ({
+  type,
+  label,
+  amount,
+  currency,
+  reason,
+  onResubmit,
+  onContact
+}: {
+  type: string;
+  label?: string;
+  amount: number;
+  currency: string;
+  reason?: string;
+  onResubmit?: () => void;
+  onContact?: () => void;
+}) => (
+  <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+    <div className="flex items-start gap-2.5">
+      <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-sm font-medium text-foreground truncate">{type}</span>
+            {label && <span className="text-xs text-muted-foreground truncate">· {label}</span>}
+          </div>
+          <span className="text-sm font-mono tabular-nums text-muted-foreground line-through shrink-0">
+            {formatCurrency(amount, currency)}
+          </span>
+        </div>
+        {reason && (
+          <p className="text-xs text-destructive/80 leading-relaxed">
+            "{reason}"
+          </p>
+        )}
+        <div className="flex items-center gap-2 pt-1">
+          {onResubmit && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-7 text-xs gap-1.5 hover:bg-primary/5 hover:text-primary hover:border-primary/30"
+              onClick={onResubmit}
+            >
+              <RotateCcw className="h-3 w-3" />
+              Resubmit
+            </Button>
+          )}
+          {onContact && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 text-xs gap-1.5 text-muted-foreground"
+              onClick={onContact}
+            >
+              <MessageSquare className="h-3 w-3" />
+              Contact manager
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export const F41v4_PayBreakdownDrawer = ({
   open,
   onOpenChange,
@@ -164,13 +241,15 @@ export const F41v4_PayBreakdownDrawer = ({
   leaveRequests = [],
   payrollStatus = 'draft',
   onMakeAdjustment,
-  onWithdrawAdjustment
+  onWithdrawAdjustment,
+  onResubmitAdjustment
 }: PayBreakdownDrawerProps) => {
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
   
-  // Separate adjustments by type
+  // Separate adjustments by status
   const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
+  const rejectedAdjustments = adjustments.filter(adj => adj.status === 'Admin rejected');
   const overtimeAdjustments = pendingAdjustments.filter(adj => adj.type === 'Overtime');
   const otherAdjustments = pendingAdjustments.filter(adj => adj.type !== 'Overtime');
   
@@ -182,10 +261,16 @@ export const F41v4_PayBreakdownDrawer = ({
   
   const pendingAdjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
   const hasAdjustments = pendingAdjustments.length > 0;
+  const hasRejections = rejectedAdjustments.length > 0;
   const adjustedNet = estimatedNet + pendingAdjustmentTotal;
   
   const canMakeAdjustments = payrollStatus === 'draft' && onMakeAdjustment;
   const canRemoveAdjustments = payrollStatus === 'draft' && onWithdrawAdjustment;
+
+  const handleContactManager = () => {
+    // In a real app, this would open email or messaging
+    window.open('mailto:manager@company.com?subject=Question about rejected adjustment');
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -203,6 +288,30 @@ export const F41v4_PayBreakdownDrawer = ({
         {/* Receipt-style content */}
         <div className="px-6 py-5 space-y-6">
           
+          {/* Rejected Adjustments Section - Show first for visibility */}
+          {hasRejections && (
+            <section>
+              <h3 className="text-xs font-semibold text-destructive uppercase tracking-widest mb-3 flex items-center gap-2">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Needs attention ({rejectedAdjustments.length})
+              </h3>
+              <div className="space-y-2">
+                {rejectedAdjustments.map((adj) => (
+                  <RejectedItemCard
+                    key={adj.id}
+                    type={adj.type}
+                    label={adj.label}
+                    amount={adj.amount || 0}
+                    currency={currency}
+                    reason={adj.rejectionReason || "This request couldn't be approved. Please check the details and resubmit."}
+                    onResubmit={onResubmitAdjustment ? () => onResubmitAdjustment(adj.id) : undefined}
+                    onContact={handleContactManager}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Earnings Section */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
@@ -310,6 +419,16 @@ export const F41v4_PayBreakdownDrawer = ({
 
         {/* Net Pay Footer - Sticky feel */}
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
+          {/* Rejection summary banner */}
+          {hasRejections && (
+            <div className="mb-4 p-3 rounded-lg bg-destructive/5 border border-destructive/20 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+              <p className="text-xs text-destructive">
+                {rejectedAdjustments.length} {rejectedAdjustments.length === 1 ? 'request was' : 'requests were'} not approved. See details above.
+              </p>
+            </div>
+          )}
+          
           {/* Main net pay */}
           <div className="flex items-start justify-between mb-1">
             <div>
