@@ -425,21 +425,20 @@ export const F42v4_AdjustmentDrawer = ({
         <div className="flex-1 py-6 overflow-y-auto">
           {/* Type Selection Grid */}
           {selectedType === null && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-2">
               {requestTypeOptions.map((option) => {
                 const Icon = option.icon;
                 return (
                   <button
                     key={option.id}
                     onClick={() => setSelectedType(option.id)}
-                    className="flex flex-col items-center gap-3 p-5 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
                   >
-                    <div className="p-3 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                      <Icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                      <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{option.label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{option.description}</p>
+                      <p className="text-xs font-medium text-foreground">{option.label}</p>
                     </div>
                   </button>
                 );
