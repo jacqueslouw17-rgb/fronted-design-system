@@ -152,6 +152,7 @@ export const F41v4_UpcomingPayCard = () => {
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentModalInitialType, setAdjustmentModalInitialType] = useState<RequestType>(null);
   const [adjustmentModalInitialCategory, setAdjustmentModalInitialCategory] = useState('');
+  const [adjustmentModalInitialAmount, setAdjustmentModalInitialAmount] = useState('');
   const [adjustmentModalFromBreakdown, setAdjustmentModalFromBreakdown] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [noChangesDialogOpen, setNoChangesDialogOpen] = useState(false);
@@ -168,10 +169,11 @@ export const F41v4_UpcomingPayCard = () => {
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
 
-  // Helper to open adjustment modal with specific type and optional category
-  const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false, category: string = '') => {
+  // Helper to open adjustment modal with specific type and optional pre-fill data
+  const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false, category: string = '', amount: string = '') => {
     setAdjustmentModalInitialType(type);
     setAdjustmentModalInitialCategory(category);
+    setAdjustmentModalInitialAmount(amount);
     setAdjustmentModalFromBreakdown(fromBreakdown);
     setAdjustmentModalOpen(true);
   };
@@ -180,6 +182,7 @@ export const F41v4_UpcomingPayCard = () => {
     if (!open) {
       setAdjustmentModalInitialType(null);
       setAdjustmentModalInitialCategory('');
+      setAdjustmentModalInitialAmount('');
       setAdjustmentModalFromBreakdown(false);
     }
   };
@@ -555,6 +558,7 @@ export const F41v4_UpcomingPayCard = () => {
         currency={currency} 
         initialType={adjustmentModalInitialType}
         initialExpenseCategory={adjustmentModalInitialCategory}
+        initialExpenseAmount={adjustmentModalInitialAmount}
         onBack={adjustmentModalFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined}
       />
 
@@ -595,13 +599,13 @@ export const F41v4_UpcomingPayCard = () => {
         resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={withdrawAdjustment}
-        onResubmitAdjustment={(id, category) => {
+        onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
-          // Close breakdown drawer and open expense form with pre-filled category
+          // Close breakdown drawer and open expense form with all fields pre-filled
           setBreakdownDrawerOpen(false);
-          // Open adjustment modal with expense type pre-selected and category pre-filled
-          openAdjustmentModal('expense', true, category || '');
+          // Open adjustment modal with expense type pre-selected, category and amount pre-filled
+          openAdjustmentModal('expense', true, category || '', amount || '');
         }}
       />
 
