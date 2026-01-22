@@ -168,6 +168,8 @@ export const F41v4_UpcomingPayCard = () => {
 
   // Demo state toggle - for simulating rejected state
   const [demoRejected, setDemoRejected] = useState(false);
+  // Track if user has resubmitted from rejected state (transitions to "in review")
+  const [hasResubmittedFromRejected, setHasResubmittedFromRejected] = useState(false);
 
   // Helper to open adjustment modal with specific type and optional pre-fill data
   const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false, category: string = '', amount: string = '') => {
@@ -224,8 +226,10 @@ export const F41v4_UpcomingPayCard = () => {
     }
   }, [payrollStatus, setPayrollStatus]);
 
-  // Calculate effective status (demo override for rejected)
-  const effectiveStatus = demoRejected ? 'rejected' as const : payrollStatus;
+  // Calculate effective status (demo override for rejected, but transition to submitted if resubmitted)
+  const effectiveStatus = demoRejected 
+    ? (hasResubmittedFromRejected ? 'submitted' as const : 'rejected' as const) 
+    : payrollStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
@@ -364,10 +368,22 @@ export const F41v4_UpcomingPayCard = () => {
               {(payrollStatus === 'submitted' || payrollStatus === 'approved') && <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
                   <div className="flex rounded-md overflow-hidden border border-border/50">
-                    <button onClick={() => setDemoRejected(false)} className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}>
+                    <button 
+                      onClick={() => {
+                        setDemoRejected(false);
+                        setHasResubmittedFromRejected(false);
+                      }} 
+                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}
+                    >
                       Approved
                     </button>
-                    <button onClick={() => setDemoRejected(true)} className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground')}>
+                    <button 
+                      onClick={() => {
+                        setDemoRejected(true);
+                        setHasResubmittedFromRejected(false);
+                      }} 
+                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground')}
+                    >
                       Rejected
                     </button>
                   </div>
@@ -388,8 +404,8 @@ export const F41v4_UpcomingPayCard = () => {
                 </p>}
             </div>}
           
-          {/* Rejection panel - only when demo rejected is active */}
-          {demoRejected && <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
+          {/* Rejection panel - only when demo rejected is active and not yet resubmitted */}
+          {demoRejected && !hasResubmittedFromRejected && <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-2">
@@ -602,6 +618,10 @@ export const F41v4_UpcomingPayCard = () => {
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
+          // Transition from rejected to "in review" if we're in demo rejected state
+          if (demoRejected) {
+            setHasResubmittedFromRejected(true);
+          }
           // Close breakdown drawer and open expense form with all fields pre-filled
           setBreakdownDrawerOpen(false);
           // Open adjustment modal with expense type pre-selected, category and amount pre-filled
