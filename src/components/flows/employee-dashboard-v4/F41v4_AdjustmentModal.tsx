@@ -26,10 +26,92 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v4_DashboardStore, type AdjustmentType, type LeaveType } from '@/stores/F41v4_DashboardStore';
+import { useF41v4_DashboardStore, type AdjustmentType, type LeaveType, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, AlertCircle } from 'lucide-react';
+import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, AlertCircle, Check, ChevronRight } from 'lucide-react';
 import { format, differenceInBusinessDays, isAfter, isBefore, parseISO, startOfMonth, endOfMonth } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+
+// TimeOffCard component - shows approved leave summary with add more option
+const TimeOffCard = ({ 
+  onSelect, 
+  leaveRequests 
+}: { 
+  onSelect: () => void; 
+  leaveRequests: LeaveRequest[];
+}) => {
+  const approvedLeave = leaveRequests.filter(l => l.status === 'Admin approved');
+  const pendingLeave = leaveRequests.filter(l => l.status === 'Pending');
+  const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
+  const totalPendingDays = pendingLeave.reduce((sum, l) => sum + l.totalDays, 0);
+  
+  const formatDateRange = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start.toDateString() === end.toDateString()) {
+      return format(start, 'MMM d');
+    }
+    return `${format(start, 'MMM d')}–${format(end, 'd')}`;
+  };
+  
+  return (
+    <button
+      onClick={onSelect}
+      className="w-full p-4 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/[0.04] to-transparent hover:border-primary/40 hover:from-primary/[0.06] transition-all text-left group"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
+            <Plane className="h-5 w-5 text-primary" />
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground">Time off</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            </div>
+            
+            {/* Approved leave summary */}
+            {approvedLeave.length > 0 ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
+                    <Check className="h-2.5 w-2.5 mr-0.5" />
+                    {totalApprovedDays}d approved
+                  </Badge>
+                  {totalPendingDays > 0 && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
+                      {totalPendingDays}d pending
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+                  {approvedLeave.slice(0, 2).map((leave) => (
+                    <span key={leave.id} className="text-[11px] text-muted-foreground">
+                      {leave.leaveType} · {formatDateRange(leave.startDate, leave.endDate)}
+                    </span>
+                  ))}
+                  {approvedLeave.length > 2 && (
+                    <span className="text-[11px] text-muted-foreground">
+                      +{approvedLeave.length - 2} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : pendingLeave.length > 0 ? (
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
+                  {totalPendingDays}d pending
+                </Badge>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Log approved leave for payroll</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+};
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
 
@@ -53,9 +135,9 @@ const requestTypeOptions = [
   { 
     id: 'leave' as RequestType, 
     label: 'Time off', 
-    description: 'Now managed from dashboard',
+    description: 'Log approved leave',
     icon: Plane,
-    disabled: true 
+    disabled: false 
   },
   { 
     id: 'expense' as RequestType, 
@@ -81,7 +163,7 @@ const requestTypeOptions = [
 ];
 
 export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, onBack }: F41v4_AdjustmentModalProps) => {
-  const { addAdjustment, addLeaveRequest, periodLabel } = useF41v4_DashboardStore();
+  const { addAdjustment, addLeaveRequest, periodLabel, leaveRequests } = useF41v4_DashboardStore();
   
   // Selection state
   const [selectedType, setSelectedType] = useState<RequestType>(null);
@@ -414,44 +496,33 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         <div className="py-6">
           {/* Type Selection Grid */}
           {selectedType === null && (
-            <div className="grid grid-cols-2 gap-3">
-              {requestTypeOptions.map((option) => {
-                const Icon = option.icon;
-                const isDisabled = option.disabled;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => !isDisabled && setSelectedType(option.id)}
-                    disabled={isDisabled}
-                    className={cn(
-                      "flex flex-col items-center gap-3 p-5 rounded-xl border transition-all text-center",
-                      isDisabled 
-                        ? "border-border/30 bg-muted/30 cursor-not-allowed opacity-60"
-                        : "border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] group"
-                    )}
-                  >
-                    <div className={cn(
-                      "p-3 rounded-lg transition-colors",
-                      isDisabled ? "bg-muted/30" : "bg-muted/50 group-hover:bg-primary/10"
-                    )}>
-                      <Icon className={cn(
-                        "h-5 w-5 transition-colors",
-                        isDisabled ? "text-muted-foreground/50" : "text-muted-foreground group-hover:text-primary"
-                      )} />
-                    </div>
-                    <div>
-                      <p className={cn(
-                        "text-sm font-medium",
-                        isDisabled ? "text-muted-foreground" : "text-foreground"
-                      )}>{option.label}</p>
-                      <p className={cn(
-                        "text-xs mt-0.5",
-                        isDisabled ? "text-muted-foreground/70 italic" : "text-muted-foreground"
-                      )}>{option.description}</p>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="space-y-3">
+              {/* Time Off card with approved leave preview */}
+              <TimeOffCard 
+                onSelect={() => setSelectedType('leave')}
+                leaveRequests={leaveRequests}
+              />
+              
+              {/* Other adjustment types */}
+              <div className="grid grid-cols-3 gap-2">
+                {requestTypeOptions.filter(o => o.id !== 'leave').map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => setSelectedType(option.id)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                    >
+                      <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">{option.label}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
