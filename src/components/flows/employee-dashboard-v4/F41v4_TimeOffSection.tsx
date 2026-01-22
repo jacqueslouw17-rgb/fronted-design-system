@@ -168,13 +168,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                 </p>
               )}
             </div>
-          ) : (
-            <div className="px-4 pb-4">
-              <p className="text-xs text-muted-foreground text-center py-2 px-4 rounded-lg bg-muted/30 border border-border/30">
-                No time off logged for this period
-              </p>
-            </div>
-          )}
+          ) : null}
         </CardContent>
       </Card>
       
