@@ -26,193 +26,14 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v4_DashboardStore, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
+import { useF41v4_DashboardStore } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, CalendarIcon, ArrowLeft, Plane, Receipt, Clock, Gift, Check } from 'lucide-react';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 
-// TimeOffSummary component - read-only display of *approved* leave impacting this pay period.
-// Always renders (with a calm placeholder) so employees can find it reliably.
-
-interface ProcessedLeave {
-  id: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  totalDays: number;
-  spansPeriods: boolean;
-  hasRemainingDays: boolean;
-}
-
-const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) => {
-  const [simulateApproved, setSimulateApproved] = useState(false);
-  
-  const realApprovedLeave = leaveRequests.filter((l) => l.status === 'Admin approved');
-  
-  // Mock approved leave for simulation - includes a split scenario
-  const mockApprovedLeave: LeaveRequest[] = [
-    {
-      id: 'mock-1',
-      leaveType: 'Annual leave',
-      startDate: '2026-01-28',
-      endDate: '2026-02-03', // Spans into February
-      totalDays: 7,
-      status: 'Admin approved',
-      submittedAt: new Date().toISOString(),
-    },
-    {
-      id: 'mock-2',
-      leaveType: 'Sick leave',
-      startDate: '2026-01-20',
-      endDate: '2026-01-20',
-      totalDays: 1,
-      status: 'Admin approved',
-      submittedAt: new Date().toISOString(),
-    },
-  ];
-  
-  // Use simulated data if toggle is on
-  const approvedLeave = simulateApproved ? mockApprovedLeave : realApprovedLeave;
-
-  // Process leave to split by pay period and calculate days within current period
-  const processLeaveForPeriod = (leave: LeaveRequest): ProcessedLeave | null => {
-    const leaveStart = new Date(leave.startDate);
-    const leaveEnd = new Date(leave.endDate);
-    
-    // Check if leave overlaps with current pay period at all
-    if (leaveEnd < payPeriodStart || leaveStart > payPeriodEnd) {
-      return null; // No overlap
-    }
-    
-    // Calculate the portion within this pay period
-    const effectiveStart = leaveStart < payPeriodStart ? payPeriodStart : leaveStart;
-    const effectiveEnd = leaveEnd > payPeriodEnd ? payPeriodEnd : leaveEnd;
-    
-    // Calculate days within this period (inclusive)
-    const daysInPeriod = Math.floor((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    
-    // Check if it spans multiple periods
-    const spansPeriods = leaveStart < payPeriodStart || leaveEnd > payPeriodEnd;
-    const hasRemainingDays = leaveEnd > payPeriodEnd;
-    
-    return {
-      id: leave.id,
-      leaveType: leave.leaveType,
-      startDate: effectiveStart.toISOString(),
-      endDate: effectiveEnd.toISOString(),
-      totalDays: daysInPeriod,
-      spansPeriods,
-      hasRemainingDays,
-    };
-  };
-
-  // Process all approved leave
-  const processedLeave = approvedLeave
-    .map(processLeaveForPeriod)
-    .filter((l): l is ProcessedLeave => l !== null);
-  
-  const totalApprovedDays = processedLeave.reduce((sum, l) => sum + l.totalDays, 0);
-  const hasAnySpanning = processedLeave.some(l => l.spansPeriods);
-  const hasRemainingNextPeriod = processedLeave.some(l => l.hasRemainingDays);
-
-  const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (start.toDateString() === end.toDateString()) return format(start, 'MMM d');
-    if (start.getMonth() === end.getMonth()) {
-      return `${format(start, 'MMM d')}–${format(end, 'd')}`;
-    }
-    return `${format(start, 'MMM d')}–${format(end, 'MMM d')}`;
-  };
-
-  return (
-    <section
-      aria-label="Approved time off summary"
-      className="p-4 rounded-xl border border-border/60 bg-card/50"
-    >
-      <div className="flex items-start gap-3">
-        <div className="p-2.5 rounded-lg bg-muted/50 border border-border/40">
-          <Plane className="h-5 w-5 text-foreground" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <p className="text-sm font-semibold text-foreground">Time off</p>
-              <p className="text-xs text-muted-foreground">Approved (this pay period)</p>
-            </div>
-
-            {processedLeave.length > 0 && (
-              <Badge
-                variant="outline"
-                className="bg-muted/40 text-[10px] px-1.5 py-0"
-              >
-                <Check className="h-2.5 w-2.5 mr-0.5" />
-                {totalApprovedDays} {totalApprovedDays === 1 ? 'day' : 'days'} approved
-              </Badge>
-            )}
-          </div>
-
-          {processedLeave.length > 0 ? (
-            <div className="space-y-1.5 mt-3">
-              {processedLeave.slice(0, 3).map((leave) => (
-                <div key={leave.id} className="space-y-0.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-muted-foreground truncate">{leave.leaveType}</span>
-                      {leave.spansPeriods && (
-                        <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
-                          Spans pay periods
-                        </Badge>
-                      )}
-                    </div>
-                    <span className="text-foreground font-medium tabular-nums shrink-0 ml-2">
-                      {formatDateRange(leave.startDate, leave.endDate)} · {leave.totalDays}d
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {processedLeave.length > 3 && (
-                <p className="text-[11px] text-muted-foreground">
-                  +{processedLeave.length - 3} more
-                </p>
-              )}
-
-              {hasRemainingNextPeriod && (
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-2">
-                  Remaining days will appear next pay period.
-                </p>
-              )}
-
-              <p className="text-[11px] text-muted-foreground/70 mt-3 pt-2 border-t border-border/30">
-                This is already approved and will be included in payroll.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-3">
-              <p className="text-sm text-foreground">No approved time off this period</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Approved leave will show here once confirmed and will be included in payroll.
-              </p>
-            </div>
-          )}
-          
-          {/* Simulate toggle - for tech demo only */}
-          <div className="mt-4 pt-3 border-t border-dashed border-border/40">
-            <button
-              type="button"
-              onClick={() => setSimulateApproved(!simulateApproved)}
-              className="text-[10px] font-mono text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-            >
-              [tech] {simulateApproved ? 'Show empty' : 'Simulate split'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
+// Note: TimeOffSummary has been moved to the main dashboard TimeOffSection component.
+// This modal now only handles payroll-related adjustments (expense/overtime/bonus).
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
 
@@ -579,14 +400,12 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             <div>
               <SheetTitle>
                 {selectedType === null && 'Request a change'}
-                {selectedType === 'leave' && 'Log time off'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
               </SheetTitle>
               <SheetDescription>
-                {selectedType === null && 'Request a change for this pay period.'}
-                {selectedType === 'leave' && 'Log approved time off so payroll reflects it correctly.'}
+                {selectedType === null && 'Submit expenses, overtime, or bonus requests for this pay period.'}
                 {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
                 {selectedType === 'overtime' && 'Log overtime hours worked.'}
                 {selectedType === 'bonus-correction' && 'Request a bonus for this pay period.'}
@@ -596,34 +415,28 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         </SheetHeader>
 
         <div className="py-6">
-          {/* Type Selection Grid */}
+          {/* Type Selection Grid - Payroll adjustments only (Time off is on main dashboard) */}
           {selectedType === null && (
-            <div className="space-y-4">
-              {/* Approved Time Off - Read-only summary */}
-              <TimeOffSummary leaveRequests={leaveRequests} />
-              
-              {/* Adjustment types */}
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Submit a request</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {requestTypeOptions.map((option) => {
-                    const Icon = option.icon;
-                    return (
-                      <button
-                        key={option.id}
-                        onClick={() => setSelectedType(option.id)}
-                        className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
-                      >
-                        <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                          <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-foreground">{option.label}</p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">What would you like to submit?</p>
+              <div className="grid grid-cols-3 gap-2">
+                {requestTypeOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => setSelectedType(option.id)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                    >
+                      <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">{option.label}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
