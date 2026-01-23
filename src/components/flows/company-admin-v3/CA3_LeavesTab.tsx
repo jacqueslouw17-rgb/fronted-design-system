@@ -236,21 +236,21 @@ export const CA3_LeavesTab: React.FC = () => {
     switch (status) {
       case "pending":
         return (
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+          <Badge variant="outline" className="bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20">
             <Clock className="h-3 w-3 mr-1" />
             Pending approval
           </Badge>
         );
       case "approved":
         return (
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+          <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
             <Check className="h-3 w-3 mr-1" />
             Approved
           </Badge>
         );
       case "rejected":
         return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
+          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
             <X className="h-3 w-3 mr-1" />
             Rejected
           </Badge>
@@ -278,12 +278,12 @@ export const CA3_LeavesTab: React.FC = () => {
       <div className="flex items-center gap-3">
         <Badge variant="outline" className={cn(
           "text-xs px-2.5 py-1",
-          pendingCount > 0 ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-muted text-muted-foreground"
+          pendingCount > 0 ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" : "bg-muted text-muted-foreground"
         )}>
           <Clock className="h-3 w-3 mr-1" />
           Pending ({pendingCount})
         </Badge>
-        <Badge variant="outline" className="text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border-emerald-200">
+        <Badge variant="outline" className="text-xs px-2.5 py-1 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
           <Check className="h-3 w-3 mr-1" />
           Approved ({approvedCount})
         </Badge>
@@ -422,91 +422,109 @@ export const CA3_LeavesTab: React.FC = () => {
 
       {/* Review Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent className="sm:max-w-md">
+        <SheetContent side="right" className="w-full sm:max-w-[420px] overflow-y-auto p-0">
           {selectedLeave && (
             <>
-              <SheetHeader className="pb-4">
+              {/* Header */}
+              <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <SheetTitle className="text-lg font-semibold">Leave request</SheetTitle>
+                  {getLeaveTypeBadge(selectedLeave.leaveType)}
+                </div>
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                       {selectedLeave.employeeName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <SheetTitle className="text-left">{selectedLeave.employeeName}</SheetTitle>
-                    <SheetDescription className="text-left">
-                      {countryFlags[selectedLeave.employeeCountry]} {selectedLeave.employeeCountry}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{selectedLeave.employeeName}</p>
+                    <SheetDescription className="text-xs text-muted-foreground">
+                      {countryFlags[selectedLeave.employeeCountry]} {selectedLeave.employeeCountry} · {selectedLeave.employeeType === "employee" ? "Employee" : "Contractor"}
                     </SheetDescription>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  {getLeaveTypeBadge(selectedLeave.leaveType)}
                   {getStatusBadge(selectedLeave.status)}
                 </div>
               </SheetHeader>
 
-              <div className="space-y-6 py-4">
-                {/* Key Details */}
-                <div className="space-y-4">
+              {/* Content */}
+              <div className="px-6 py-5 space-y-6">
+                {/* Dates & Duration Section */}
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                    Dates & duration
+                  </h3>
                   <div className="bg-muted/30 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Dates</span>
-                      <span className="font-medium text-foreground">
+                      <span className="font-medium text-foreground tabular-nums">
                         {formatDateRange(selectedLeave.startDate, selectedLeave.endDate)}
                       </span>
                     </div>
+                    <Separator className="bg-border/30" />
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Duration</span>
-                      <span className="font-medium text-foreground">
+                      <span className="font-medium text-foreground tabular-nums">
                         {selectedLeave.totalDays} working {selectedLeave.totalDays === 1 ? 'day' : 'days'}
                       </span>
                     </div>
                     {selectedLeave.reason && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Reason</span>
-                        <span className="font-medium text-foreground text-right max-w-[180px]">
-                          {selectedLeave.reason}
-                        </span>
-                      </div>
+                      <>
+                        <Separator className="bg-border/30" />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Reason</span>
+                          <span className="font-medium text-foreground text-right max-w-[180px]">
+                            {selectedLeave.reason}
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
+                </section>
 
-                  {/* Pay period impact */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Pay period impact</p>
-                    <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
-                      <p className="text-sm text-foreground">
-                        {selectedLeave.spansPeriods 
-                          ? "Split across payroll cycles automatically"
-                          : "Included in payroll for this pay period"
-                        }
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Global considerations */}
-                  <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
-                    <p className="text-xs text-muted-foreground">
-                      Public holidays and weekends are calculated based on the employee's country rules. Non-working days are excluded automatically where applicable.
+                {/* Pay Period Impact Section */}
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                    Pay period impact
+                  </h3>
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
+                    <p className="text-sm text-foreground">
+                      {selectedLeave.spansPeriods 
+                        ? "Split across payroll cycles automatically"
+                        : "Included in payroll for this pay period"
+                      }
                     </p>
+                    {selectedLeave.spansPeriods && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Days will be allocated to the respective pay periods based on their occurrence.
+                      </p>
+                    )}
                   </div>
+                </section>
+
+                {/* Global considerations note */}
+                <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
+                  <p className="text-xs text-muted-foreground">
+                    Public holidays and weekends are calculated based on the employee's country rules. Non-working days are excluded automatically where applicable.
+                  </p>
                 </div>
 
                 {/* Rejection reason display */}
                 {selectedLeave.status === "rejected" && selectedLeave.rejectionReason && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Rejection reason</p>
-                    <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 border border-red-200 dark:border-red-500/20">
-                      <p className="text-sm text-red-700 dark:text-red-400">{selectedLeave.rejectionReason}</p>
+                  <section>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                      Rejection reason
+                    </h3>
+                    <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+                      <p className="text-sm text-destructive">{selectedLeave.rejectionReason}</p>
                     </div>
-                  </div>
+                  </section>
                 )}
 
                 {/* Rejection form */}
                 {isRejecting && (
-                  <div className="space-y-3 pt-2">
-                    <Separator />
-                    <p className="text-sm font-medium text-foreground">Reject request?</p>
+                  <section className="space-y-3 pt-2 border-t border-border/40">
+                    <h3 className="text-sm font-medium text-foreground pt-3">Reject request?</h3>
                     <div className="space-y-2">
                       <Label htmlFor="rejection-reason" className="text-xs text-muted-foreground">
                         Reason for rejection
@@ -519,7 +537,7 @@ export const CA3_LeavesTab: React.FC = () => {
                         className="min-h-[80px] resize-none"
                       />
                     </div>
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex gap-3 pt-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
@@ -532,23 +550,23 @@ export const CA3_LeavesTab: React.FC = () => {
                         size="sm" 
                         onClick={handleReject}
                         disabled={!rejectionReason.trim()}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                        className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                       >
                         Reject request
                       </Button>
                     </div>
-                  </div>
+                  </section>
                 )}
               </div>
 
-              {/* Actions - only for pending */}
+              {/* Actions Footer - only for pending */}
               {selectedLeave.status === "pending" && !isRejecting && (
-                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border/40 bg-background">
+                <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
                   <div className="flex gap-3">
                     <Button 
                       variant="outline" 
                       onClick={() => setIsRejecting(true)}
-                      className="flex-1 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
+                      className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                     >
                       Reject
                     </Button>
