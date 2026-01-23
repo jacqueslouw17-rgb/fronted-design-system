@@ -249,14 +249,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className={cn(
-          "px-4 py-3 flex items-center gap-3 hover:bg-muted/30 transition-colors cursor-pointer group",
-          submission.status === "rejected" && "bg-destructive/5"
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group",
+          submission.status === "rejected" && "border-destructive/20 bg-destructive/5"
         )}
         onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
-        <Avatar className="h-8 w-8 flex-shrink-0">
-          <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+        <Avatar className="h-7 w-7 flex-shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
             {getInitials(submission.workerName)}
           </AvatarFallback>
         </Avatar>
@@ -269,7 +269,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground leading-tight">
             <span>{submission.workerCountry}</span>
             <span className="text-muted-foreground/40">·</span>
             {submission.submissions.slice(0, 2).map((sub, idx) => {
@@ -287,7 +287,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         </div>
 
         {/* Right side: Amount + Status */}
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {/* Impact Amount */}
           {submission.totalImpact ? (
             <p className="text-sm font-semibold text-foreground tabular-nums">
@@ -307,7 +307,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <span className="hidden sm:inline">{status.label}</span>
           </div>
 
-          <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
       </motion.div>
     );
@@ -379,26 +379,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               </TabsList>
             </div>
 
-            <div className="max-h-[420px] overflow-y-auto divide-y divide-border/40">
-              <TabsContent value="all" className="mt-0">
+            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
+              <TabsContent value="all" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
                   {filteredSubmissions.map((s, i) => renderSubmissionRow(s, i === filteredSubmissions.length - 1))}
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="pending" className="mt-0">
+              <TabsContent value="pending" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
                   {filteredSubmissions.filter(s => s.status === "pending").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="approved" className="mt-0">
+              <TabsContent value="approved" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
                   {filteredSubmissions.filter(s => s.status === "approved").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="rejected" className="mt-0">
+              <TabsContent value="rejected" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
                   {filteredSubmissions.filter(s => s.status === "rejected").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
                 </AnimatePresence>
