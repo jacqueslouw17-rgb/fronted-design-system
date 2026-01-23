@@ -616,7 +616,10 @@ export const F41v4_UpcomingPayCard = () => {
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
-        onWithdrawAdjustment={withdrawAdjustment}
+        onWithdrawAdjustment={(id) => {
+          setWithdrawTarget({ type: 'adjustment', id });
+          setWithdrawDialogOpen(true);
+        }}
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
