@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Calendar, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,8 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export type SubmissionType = "timesheet" | "expenses" | "bonus" | "leave" | "overtime" | "adjustment";
+// Note: Leave is handled separately in the Leaves tab, not here
+export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 
 // Line item for pay breakdown
@@ -75,13 +76,14 @@ interface CA3_SubmissionsViewProps {
   onClose?: () => void;
 }
 
+// Note: Leave is not included here - it's managed in the separate Leaves tab
 const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; label: string; color: string }> = {
   timesheet: { icon: Clock, label: "Timesheet", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
-  expenses: { icon: Receipt, label: "Expenses", color: "bg-primary/10 text-primary border-primary/20" },
+  expenses: { icon: Receipt, label: "Expense", color: "bg-primary/10 text-primary border-primary/20" },
   bonus: { icon: Award, label: "Bonus", color: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
-  leave: { icon: Calendar, label: "Leave", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" },
   overtime: { icon: Timer, label: "Overtime", color: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
   adjustment: { icon: FileText, label: "Adjustment", color: "bg-muted text-muted-foreground border-border/50" },
+  correction: { icon: FileText, label: "Correction", color: "bg-muted text-muted-foreground border-border/50" },
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {

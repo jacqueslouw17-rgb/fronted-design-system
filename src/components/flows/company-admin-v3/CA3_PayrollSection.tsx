@@ -47,9 +47,10 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "Social Security", amount: -580, locked: true },
     ],
     submissions: [
-      { type: "leave", days: 2, description: "Personal time", status: "approved" },
+      { type: "bonus", amount: 500, currency: "EUR", description: "Q4 performance bonus", status: "pending" },
     ],
-    status: "approved",
+    status: "pending",
+    totalImpact: 500,
     currency: "EUR",
   },
   {
