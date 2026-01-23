@@ -373,8 +373,8 @@ const CompanyAdminDashboardV3: React.FC = () => {
   const {
     getSettings
   } = useCountrySettings();
-  const [viewMode, setViewMode] = useState<"workers" | "payroll" | "batch-review">("workers");
-  const [workersSearchQuery, setWorkersSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"payroll" | "batch-review">("payroll");
+  // workersSearchQuery removed - Workers table removed from this flow
 
   // Batch Review State
   const [currentBatch, setCurrentBatch] = useState<CA_PaymentBatch | null>(null);
@@ -3593,15 +3593,7 @@ You can ask me about:
                   // }
                   />
 
-                    {/* View Mode Switch - only show when not in batch review */}
-                    {viewMode !== "batch-review" && <div className="flex items-center justify-center py-2">
-                        <Tabs value={viewMode} onValueChange={value => setViewMode(value as "workers" | "payroll")}>
-                          <TabsList className="grid w-[280px] grid-cols-2">
-                            <TabsTrigger value="workers">Workers</TabsTrigger>
-                            <TabsTrigger value="payroll">Payroll</TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                      </div>}
+                    {/* View Mode removed - Payroll is the default and only view */}
                     
                     {/* Breadcrumb for Batch Review */}
                     {viewMode === "batch-review" && <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
@@ -3612,164 +3604,9 @@ You can ask me about:
                         <span className="text-foreground font-medium">Payment Batch Review (Nov 2025)</span>
                       </div>}
 
-                    {/* Conditional View */}
-                    <div className="pt-6">
-                      {viewMode === "workers" ? (/* Certified Workers List */
-                    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-                          <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h3 className="text-lg font-semibold">Certified workers</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {(() => {
-                                const certifiedWorkers = [{
-                                  id: "1",
-                                  name: "Maria Santos",
-                                  role: "Senior Backend Engineer",
-                                  country: "Philippines",
-                                  countryFlag: "🇵🇭",
-                                  employmentType: "Contractor" as const,
-                                  salary: "PHP 85,000/mo",
-                                  status: "Certified"
-                                }, {
-                                  id: "2",
-                                  name: "John Chen",
-                                  role: "Product Designer",
-                                  country: "Singapore",
-                                  countryFlag: "🇸🇬",
-                                  employmentType: "Employee" as const,
-                                  salary: "SGD 6,500/mo",
-                                  status: "Certified"
-                                }, {
-                                  id: "3",
-                                  name: "Sarah Williams",
-                                  role: "Frontend Developer",
-                                  country: "United Kingdom",
-                                  countryFlag: "🇬🇧",
-                                  employmentType: "Contractor" as const,
-                                  salary: "GBP 4,800/mo",
-                                  status: "Certified"
-                                }];
-                                const filtered = workersSearchQuery.trim() ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase())) : certifiedWorkers;
-                                return filtered.length === 0 && workersSearchQuery ? "No workers match your search" : `${filtered.length} certified worker${filtered.length !== 1 ? "s" : ""}`;
-                              })()}
-                                </p>
-                              </div>
-                              <div className="relative w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="Search workers..." value={workersSearchQuery} onChange={e => setWorkersSearchQuery(e.target.value)} className="pl-9 bg-background/60" />
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="p-6">
-                            {(() => {
-                          const certifiedWorkers = [{
-                            id: "1",
-                            name: "Maria Santos",
-                            role: "Senior Backend Engineer",
-                            country: "Philippines",
-                            countryFlag: "🇵🇭",
-                            employmentType: "Contractor" as const,
-                            salary: "PHP 85,000/mo",
-                            status: "Certified"
-                          }, {
-                            id: "2",
-                            name: "John Chen",
-                            role: "Product Designer",
-                            country: "Singapore",
-                            countryFlag: "🇸🇬",
-                            employmentType: "Employee" as const,
-                            salary: "SGD 6,500/mo",
-                            status: "Certified"
-                          }, {
-                            id: "3",
-                            name: "Sarah Williams",
-                            role: "Frontend Developer",
-                            country: "United Kingdom",
-                            countryFlag: "🇬🇧",
-                            employmentType: "Contractor" as const,
-                            salary: "GBP 4,800/mo",
-                            status: "Certified"
-                          }];
-                          const filteredWorkers = workersSearchQuery.trim() ? certifiedWorkers.filter(w => w.name.toLowerCase().includes(workersSearchQuery.toLowerCase()) || w.role.toLowerCase().includes(workersSearchQuery.toLowerCase())) : certifiedWorkers;
-                          const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase();
-                          const handleDownloadContract = (workerName: string) => {
-                            toast.info(`Downloading contract bundle for ${workerName}...`);
-                          };
-                          if (certifiedWorkers.length === 0) {
-                            return <div className="flex flex-col items-center justify-center py-16 px-6">
-                                    <div className="rounded-full bg-primary/5 p-5 mb-5">
-                                      <Users className="h-10 w-10 text-primary/40" />
-                                    </div>
-                                    <h3 className="text-xl font-semibold mb-2 text-foreground">
-                                      No certified workers yet
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground/80 text-center max-w-sm leading-relaxed">
-                                      Once Fronted completes contracting and certification for your hires,
-                                      they'll appear here automatically.
-                                    </p>
-                                  </div>;
-                          }
-                          if (filteredWorkers.length === 0) {
-                            return <div className="flex flex-col items-center justify-center py-12 px-6">
-                                    <Search className="h-10 w-10 text-muted-foreground/40 mb-4" />
-                                    <p className="text-sm text-muted-foreground text-center">
-                                      No workers found matching "{workersSearchQuery}"
-                                    </p>
-                                  </div>;
-                          }
-                          return <div className="space-y-3">
-                                  {filteredWorkers.map(worker => <div key={worker.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
-                                      <div className="flex items-center gap-4 flex-1">
-                                        {/* Avatar */}
-                                        <Avatar className="h-10 w-10">
-                                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                                            {getInitials(worker.name)}
-                                          </AvatarFallback>
-                                        </Avatar>
-
-                                        {/* Worker info */}
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <p className="text-sm font-medium text-foreground">
-                                              {worker.name}
-                                            </p>
-                                            <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
-                                              {worker.status}
-                                            </Badge>
-                                          </div>
-                                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                            <span>{worker.role}</span>
-                                            <span className="flex items-center gap-1">
-                                              <span>{worker.countryFlag}</span>
-                                              <span>{worker.country}</span>
-                                            </span>
-                                            <Badge variant="secondary" className="text-xs">
-                                              {worker.employmentType}
-                                            </Badge>
-                                            {worker.salary && <span className="font-medium">{worker.salary}</span>}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      {/* Action buttons */}
-                                      <div className="flex items-center gap-1 ml-4 flex-shrink-0">
-                                        <Tooltip>
-                                          <TooltipTrigger asChild>
-                                            <Button size="sm" variant="ghost" onClick={() => handleDownloadContract(worker.name)} className="text-muted-foreground hover:text-foreground h-8 w-8 p-0">
-                                              <Download className="h-4 w-4" />
-                                            </Button>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p>Download contract bundle</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </div>
-                                    </div>)}
-                                </div>;
-                        })()}
-                          </CardContent>
-                        </Card>) : viewMode === "payroll" ? (/* Payroll with Period-Based States */
+                    {/* Payroll Content - Main Dashboard View */}
+                    <div className="pt-4">
+                      {viewMode === "payroll" ? (/* Payroll with Period-Based States */
                     <div className="space-y-6">
                           {/* Period content removed - dropdown moved into cards */}
 
