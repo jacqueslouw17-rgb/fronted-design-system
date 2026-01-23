@@ -30,11 +30,11 @@ const nextPeriodEnd = new Date(2026, 1, 28); // Feb 28, 2026
 const getGlobalLeaveLabel = (leaveType: string): string => {
   switch (leaveType) {
     case 'Annual leave':
-      return 'Paid leave';
+      return 'Vacation';
     case 'Sick leave':
-      return 'Sick leave';
+      return 'Sick';
     case 'Unpaid leave':
-      return 'Unpaid leave';
+      return 'Unpaid';
     default:
       return 'Leave';
   }
@@ -46,10 +46,13 @@ interface ProcessedLeave {
   displayLabel: string;
   startDate: Date;
   endDate: Date;
-  workdays: number;
+  totalDays: number;
+  daysInCurrentPeriod: number;
+  daysInNextPeriod: number;
   status: LeaveRequest['status'];
   spansPeriods: boolean;
-  originalId?: string; // For split rows
+  isInCurrentPeriod: boolean;
+  isInLater: boolean;
 }
 
 export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionProps) => {
@@ -59,11 +62,17 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   
   const canWithdraw = payrollStatus === 'draft';
   
-  // Process leave into two groups: This pay period & Next pay period
-  // Split spanning leave into separate rows per period
-  const { thisPeriodLeave, nextPeriodLeave, pendingCount } = useMemo(() => {
-    const thisPeriod: ProcessedLeave[] = [];
-    const nextPeriod: ProcessedLeave[] = [];
+  // Mock balance data (would come from store/API in real app)
+  const balance = {
+    vacation: 12,
+    sick: 6,
+  };
+  
+  // Process leave into two groups: In this pay period & Later
+  // Keep spanning leave as single rows with full range
+  const { inThisPeriod, later, pendingCount } = useMemo(() => {
+    const thisPeriodList: ProcessedLeave[] = [];
+    const laterList: ProcessedLeave[] = [];
     let pending = 0;
     
     leaveRequests.forEach((leave) => {
@@ -79,73 +88,52 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       
       const displayLabel = getGlobalLeaveLabel(leave.leaveType);
       
-      if (spansPeriods) {
-        // Split into two rows - one for each period
-        // Current period portion
-        const currentPeriodDays = Math.ceil(
-          (Math.min(leaveEnd.getTime(), currentPeriodEnd.getTime()) - 
-           Math.max(leaveStart.getTime(), currentPeriodStart.getTime())) / (1000 * 60 * 60 * 24)
-        ) + 1;
-        
-        thisPeriod.push({
-          id: `${leave.id}-current`,
-          originalId: leave.id,
-          leaveType: leave.leaveType,
-          displayLabel,
-          startDate: new Date(Math.max(leaveStart.getTime(), currentPeriodStart.getTime())),
-          endDate: new Date(Math.min(leaveEnd.getTime(), currentPeriodEnd.getTime())),
-          workdays: Math.min(currentPeriodDays, leave.totalDays),
-          status: leave.status,
-          spansPeriods: true,
-        });
-        
-        // Next period portion
-        const nextPeriodDays = leave.totalDays - currentPeriodDays;
-        if (nextPeriodDays > 0) {
-          nextPeriod.push({
-            id: `${leave.id}-next`,
-            originalId: leave.id,
-            leaveType: leave.leaveType,
-            displayLabel,
-            startDate: nextPeriodStart,
-            endDate: new Date(Math.min(leaveEnd.getTime(), nextPeriodEnd.getTime())),
-            workdays: nextPeriodDays,
-            status: leave.status,
-            spansPeriods: true,
-          });
-        }
-      } else if (overlapsCurrentPeriod) {
-        thisPeriod.push({
-          id: leave.id,
-          leaveType: leave.leaveType,
-          displayLabel,
-          startDate: leaveStart,
-          endDate: leaveEnd,
-          workdays: leave.totalDays,
-          status: leave.status,
-          spansPeriods: false,
-        });
+      // Calculate days in each period for spanning leave
+      let daysInCurrentPeriod = 0;
+      let daysInNextPeriod = 0;
+      
+      if (overlapsCurrentPeriod) {
+        const effectiveStart = new Date(Math.max(leaveStart.getTime(), currentPeriodStart.getTime()));
+        const effectiveEnd = new Date(Math.min(leaveEnd.getTime(), currentPeriodEnd.getTime()));
+        daysInCurrentPeriod = Math.ceil((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      
+      if (overlapsNextPeriod) {
+        const effectiveStart = new Date(Math.max(leaveStart.getTime(), nextPeriodStart.getTime()));
+        const effectiveEnd = new Date(Math.min(leaveEnd.getTime(), nextPeriodEnd.getTime()));
+        daysInNextPeriod = Math.ceil((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      
+      const processedLeave: ProcessedLeave = {
+        id: leave.id,
+        leaveType: leave.leaveType,
+        displayLabel,
+        startDate: leaveStart,
+        endDate: leaveEnd,
+        totalDays: leave.totalDays,
+        daysInCurrentPeriod,
+        daysInNextPeriod,
+        status: leave.status,
+        spansPeriods,
+        isInCurrentPeriod: overlapsCurrentPeriod,
+        isInLater: !overlapsCurrentPeriod && (overlapsNextPeriod || leaveStart > currentPeriodEnd),
+      };
+      
+      // Place in appropriate group (show spanning in current period)
+      if (overlapsCurrentPeriod) {
+        thisPeriodList.push(processedLeave);
       } else if (overlapsNextPeriod || leaveStart > currentPeriodEnd) {
-        nextPeriod.push({
-          id: leave.id,
-          leaveType: leave.leaveType,
-          displayLabel,
-          startDate: leaveStart,
-          endDate: leaveEnd,
-          workdays: leave.totalDays,
-          status: leave.status,
-          spansPeriods: false,
-        });
+        laterList.push(processedLeave);
       }
     });
     
     // Sort by start date
-    thisPeriod.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
-    nextPeriod.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+    thisPeriodList.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+    laterList.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     
     return {
-      thisPeriodLeave: thisPeriod,
-      nextPeriodLeave: nextPeriod,
+      inThisPeriod: thisPeriodList,
+      later: laterList,
       pendingCount: pending,
     };
   }, [leaveRequests]);
@@ -161,11 +149,12 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     return `${format(startDate, 'MMM d')}–${format(endDate, 'MMM d')}`;
   };
 
-  // Format days display (supports half days) - using "workdays" for global clarity
+  // Format days display (supports half days)
   const formatDays = (days: number) => {
-    if (days === 0.5) return '0.5 workday';
-    if (days === 1) return '1 workday';
-    return `${days} workdays`;
+    if (days === 0.5) return '0.5 day';
+    if (days === 1) return '1 day';
+    if (days === 1.5) return '1.5 days';
+    return `${days} days`;
   };
 
   const handleWithdrawClick = (e: React.MouseEvent, leaveId: string) => {
@@ -177,18 +166,18 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   const handleConfirmWithdraw = () => {
     if (withdrawTargetId) {
       withdrawLeaveRequest(withdrawTargetId);
-      toast.success('Time off request withdrawn');
+      toast.success('Leave request withdrawn');
       setWithdrawTargetId(null);
     }
   };
 
-  // Get status badge - only for non-approved states
+  // Get status badge
   const getStatusBadge = (status: LeaveRequest['status']) => {
     switch (status) {
       case 'Pending':
         return (
           <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
-            Pending
+            Pending approval
           </Badge>
         );
       case 'Admin rejected':
@@ -197,17 +186,21 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
             Rejected
           </Badge>
         );
-      // Approved is the default state - no badge needed
+      case 'Admin approved':
+        return (
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
+            Approved
+          </Badge>
+        );
       default:
         return null;
     }
   };
 
-  // Render a leave row
+  // Render a leave row - single row with full range, no splitting
   const renderLeaveRow = (leave: ProcessedLeave) => {
     const isPending = leave.status === 'Pending';
     const isRejected = leave.status === 'Admin rejected';
-    const withdrawId = leave.originalId || leave.id;
     
     const bgClass = isPending
       ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/10'
@@ -219,56 +212,65 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       <div 
         key={leave.id}
         className={cn(
-          "group flex items-center gap-2.5 px-2.5 py-2 rounded-md border transition-colors",
+          "group flex flex-col gap-1 px-2.5 py-2 rounded-md border transition-colors",
           bgClass
         )}
       >
-        {/* Main row: Type · Date range · Days · Status (if needed) · Spans tag */}
-        <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-          <span className="text-xs font-medium text-foreground">
-            {leave.displayLabel}
-          </span>
-          <span className="text-[10px] text-muted-foreground/50">·</span>
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {formatDateRange(leave.startDate, leave.endDate)}
-          </span>
-          <span className="text-[10px] text-muted-foreground/50">·</span>
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {formatDays(leave.workdays)}
-          </span>
-          {getStatusBadge(leave.status)}
-          {leave.spansPeriods && (
-            <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/40 text-[9px] px-1 py-0">
-              Spans periods
-            </Badge>
+        {/* Main row: Type · Date range · Days · Status */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0 flex-wrap">
+            <span className="text-xs font-medium text-foreground">
+              {leave.displayLabel}
+            </span>
+            <span className="text-[10px] text-muted-foreground/50">·</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatDateRange(leave.startDate, leave.endDate)}
+            </span>
+            <span className="text-[10px] text-muted-foreground/50">·</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatDays(leave.totalDays)}
+            </span>
+            {getStatusBadge(leave.status)}
+            {leave.spansPeriods && (
+              <Badge variant="outline" className="bg-primary/5 text-primary/80 border-primary/20 text-[9px] px-1.5 py-0">
+                Spans pay periods
+              </Badge>
+            )}
+          </div>
+          
+          {/* Withdraw button for pending items */}
+          {canWithdraw && leave.status === 'Pending' && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => handleWithdrawClick(e, leave.id)}
+                  className={cn(
+                    "p-1 rounded opacity-0 group-hover:opacity-100 transition-all",
+                    "hover:bg-amber-100 dark:hover:bg-amber-500/20"
+                  )}
+                  aria-label="Withdraw request"
+                >
+                  <X className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                Withdraw request
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
         
-        {/* Withdraw button for pending items */}
-        {canWithdraw && leave.status === 'Pending' && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={(e) => handleWithdrawClick(e, withdrawId)}
-                className={cn(
-                  "p-1 rounded opacity-0 group-hover:opacity-100 transition-all",
-                  "hover:bg-amber-100 dark:hover:bg-amber-500/20"
-                )}
-                aria-label="Withdraw request"
-              >
-                <X className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
-              Withdraw request
-            </TooltipContent>
-          </Tooltip>
+        {/* Helper text for spanning periods */}
+        {leave.spansPeriods && leave.daysInCurrentPeriod > 0 && leave.daysInNextPeriod > 0 && (
+          <p className="text-[10px] text-muted-foreground/70 pl-0.5">
+            {leave.daysInCurrentPeriod}d in this period · {leave.daysInNextPeriod}d next period
+          </p>
         )}
       </div>
     );
   };
 
-  const hasAnyLeave = thisPeriodLeave.length > 0 || nextPeriodLeave.length > 0;
+  const hasAnyLeave = inThisPeriod.length > 0 || later.length > 0;
 
   return (
     <>
@@ -283,10 +285,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Leave requests</h3>
                 <p className="text-xs text-muted-foreground">
-                  {hasAnyLeave && pendingCount > 0 
-                    ? `Requests that affect payroll · ${pendingCount} pending`
-                    : 'Requests that affect payroll'
-                  }
+                  Your submitted and approved leave
                 </p>
               </div>
             </div>
@@ -301,30 +300,44 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
             </Button>
           </div>
           
+          {/* Balance line - subtle */}
+          <div className="px-4 pb-2">
+            <p className="text-[11px] text-muted-foreground/70">
+              Balance: <span className="text-foreground/70">{balance.vacation} Vacation</span> · <span className="text-foreground/70">{balance.sick} Sick</span>
+            </p>
+          </div>
+          
           {/* Content */}
           <div className="px-4 pb-4 space-y-3">
             {hasAnyLeave ? (
               <>
-                {/* This pay period */}
-                {thisPeriodLeave.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                      This pay period
-                    </p>
-                    <div className="space-y-1">
-                      {thisPeriodLeave.map(leave => renderLeaveRow(leave))}
+                {/* In this pay period */}
+                {inThisPeriod.length > 0 && (
+                  <div className="space-y-1.5">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide cursor-default inline-flex items-center gap-1">
+                          In this pay period
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        Jan 1 – Jan 31
+                      </TooltipContent>
+                    </Tooltip>
+                    <div className="space-y-1.5">
+                      {inThisPeriod.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
                 )}
                 
-                {/* Next pay period */}
-                {nextPeriodLeave.length > 0 && (
-                  <div className="space-y-1">
+                {/* Later / Upcoming */}
+                {later.length > 0 && (
+                  <div className="space-y-1.5">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                      Next pay period
+                      Later
                     </p>
-                    <div className="space-y-1">
-                      {nextPeriodLeave.map(leave => renderLeaveRow(leave))}
+                    <div className="space-y-1.5">
+                      {later.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
                 )}
@@ -333,7 +346,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               <div className="py-6 text-center">
                 <p className="text-sm text-foreground/80">No leave requests</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Request leave anytime and we'll track it here.
+                  Submit a request anytime — we'll track it here.
                 </p>
               </div>
             )}
