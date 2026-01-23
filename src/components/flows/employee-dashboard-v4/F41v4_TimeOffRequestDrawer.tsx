@@ -476,17 +476,21 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                         type="button"
                         onClick={() => setIsHalfDay(!isHalfDay)}
                         className={cn(
-                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 transition-colors",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
-                          isHalfDay ? "bg-primary" : "bg-muted"
+                          isHalfDay 
+                            ? "bg-primary border-transparent" 
+                            : "bg-muted-foreground/20 border-border"
                         )}
                         role="switch"
                         aria-checked={isHalfDay}
                       >
                         <span
                           className={cn(
-                            "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
-                            isHalfDay ? "translate-x-4" : "translate-x-0"
+                            "pointer-events-none block h-4 w-4 rounded-full shadow-md ring-0 transition-transform",
+                            isHalfDay 
+                              ? "translate-x-4 bg-primary-foreground" 
+                              : "translate-x-0 bg-foreground/70"
                           )}
                         />
                       </button>
