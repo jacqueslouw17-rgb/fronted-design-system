@@ -10,6 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,12 +90,6 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   rejected: { icon: X, label: "Rejected", color: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
-const rejectReasons = [
-  "Missing documentation",
-  "Amount exceeds policy limit",
-  "Duplicate submission",
-  "Incorrect category",
-];
 
 // Receipt-style breakdown row
 const BreakdownRow = ({ 
@@ -188,7 +184,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showCustomReason, setShowCustomReason] = useState(false);
-  const [customReason, setCustomReason] = useState("");
 
   // Computed counts
   const pendingCount = submissions.filter(s => s.status === "pending").length;
@@ -609,86 +604,61 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {selectedSubmission.status === "pending" ? (
                     <div className="space-y-3">
                       {!showCustomReason ? (
-                        <div className="flex gap-2">
-                          <Button 
-                            className="flex-1 gap-1.5"
-                            onClick={handleApproveFromDrawer}
-                          >
-                            <Check className="h-4 w-4" />
-                            Approve
-                          </Button>
+                        <div className="flex gap-3">
                           <Button 
                             variant="outline"
-                            className="flex-1 gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                            className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                             onClick={() => setShowCustomReason(true)}
                           >
-                            <X className="h-4 w-4" />
                             Reject
+                          </Button>
+                          <Button 
+                            className="flex-1"
+                            onClick={handleApproveFromDrawer}
+                          >
+                            Approve
                           </Button>
                         </div>
                       ) : (
-                        /* Expanded rejection flow */
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-foreground">Select reason</p>
-                            <button
+                        /* Simplified rejection flow - matching leave pattern */
+                        <div className="space-y-3 pt-2 border-t border-border/40">
+                          <h3 className="text-sm font-medium text-foreground pt-3">Reject request?</h3>
+                          <div className="space-y-2">
+                            <Label htmlFor="rejection-reason" className="text-xs text-muted-foreground">
+                              Reason for rejection
+                            </Label>
+                            <Textarea
+                              id="rejection-reason"
+                              placeholder="Add a short reason (visible to employee)"
+                              value={rejectReason}
+                              onChange={(e) => setRejectReason(e.target.value)}
+                              className="min-h-[80px] resize-none"
+                            />
+                          </div>
+                          <div className="flex gap-3 pt-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
                               onClick={() => {
                                 setShowCustomReason(false);
-                                setCustomReason("");
                                 setRejectReason("");
                               }}
-                              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                              className="flex-1"
                             >
                               Cancel
-                            </button>
+                            </Button>
+                            <Button 
+                              size="sm"
+                              onClick={() => {
+                                handleRejectFromDrawer();
+                                setShowCustomReason(false);
+                              }}
+                              disabled={!rejectReason.trim()}
+                              className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                            >
+                              Reject request
+                            </Button>
                           </div>
-                          
-                          {/* Quick select pills */}
-                          <div className="flex flex-wrap gap-1.5">
-                            {rejectReasons.map((reason) => (
-                              <button
-                                key={reason}
-                                onClick={() => setRejectReason(reason)}
-                                className={cn(
-                                  "text-xs px-2.5 py-1.5 rounded-md border transition-all",
-                                  rejectReason === reason
-                                    ? "border-destructive/60 bg-destructive/10 text-destructive"
-                                    : "border-border/60 text-muted-foreground hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                                )}
-                              >
-                                {reason}
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Custom reason input */}
-                          <Input
-                            placeholder="Or type a custom reason..."
-                            value={customReason}
-                            onChange={(e) => {
-                              setCustomReason(e.target.value);
-                              if (e.target.value) setRejectReason("");
-                            }}
-                            className="h-9 text-sm"
-                          />
-
-                          {/* Confirm rejection button */}
-                          <Button
-                            variant="destructive"
-                            className="w-full gap-2"
-                            disabled={!rejectReason && !customReason.trim()}
-                            onClick={() => {
-                              if (customReason.trim()) {
-                                setRejectReason(customReason.trim());
-                              }
-                              handleRejectFromDrawer();
-                              setShowCustomReason(false);
-                              setCustomReason("");
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                            Confirm rejection
-                          </Button>
                         </div>
                       )}
                     </div>
