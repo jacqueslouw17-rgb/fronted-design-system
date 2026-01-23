@@ -129,8 +129,8 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       </div>
 
       {/* Worker List */}
-      <CardContent className="p-0">
-        <div className="max-h-[380px] overflow-y-auto divide-y divide-border/40">
+      <CardContent className="p-4">
+        <div className="max-h-[380px] overflow-y-auto space-y-1.5">
           {sortedWorkers.map((worker) => {
             const statusConfig = getStatusConfig(worker.status);
             const StatusIcon = statusConfig.icon;
@@ -141,13 +141,13 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <div 
                 key={worker.id}
                 className={cn(
-                  "px-6 py-3 flex items-center gap-4",
-                  needsAttention && "bg-amber-500/5"
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors",
+                  needsAttention && "border-amber-500/30 bg-amber-500/5"
                 )}
               >
                 {/* Avatar */}
-                <Avatar className="h-9 w-9 flex-shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                <Avatar className="h-7 w-7 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
                     {getInitials(worker.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -159,9 +159,9 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
                     <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                   </div>
                   {needsAttention && worker.errorMessage ? (
-                    <p className="text-xs text-amber-600 truncate">{worker.errorMessage}</p>
+                    <p className="text-[11px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
                   ) : (
-                    <p className="text-xs text-muted-foreground">{worker.country}</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">{worker.country}</p>
                   )}
                 </div>
 
