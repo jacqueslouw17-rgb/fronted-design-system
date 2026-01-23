@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Calendar, Timer, Award, ChevronRight, Check, X, Users, Briefcase } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Calendar, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,20 +24,38 @@ import { toast } from "sonner";
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "leave" | "overtime" | "adjustment";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 
+// Line item for pay breakdown
+interface PayLineItem {
+  label: string;
+  amount: number;
+  type: 'Earnings' | 'Deduction';
+  locked?: boolean;
+}
+
+// Submitted adjustment from worker
+interface SubmittedAdjustment {
+  type: SubmissionType;
+  amount?: number;
+  currency?: string;
+  description?: string;
+  hours?: number;
+  days?: number;
+  status?: 'pending' | 'approved';
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
   workerName: string;
   workerCountry: string;
   workerType: "employee" | "contractor";
-  submissions: {
-    type: SubmissionType;
-    amount?: number;
-    currency?: string;
-    description?: string;
-    hours?: number;
-    days?: number;
-  }[];
+  // Full pay context
+  lineItems?: PayLineItem[];
+  basePay?: number;
+  estimatedNet?: number;
+  periodLabel?: string;
+  // Submitted adjustments
+  submissions: SubmittedAdjustment[];
   status: SubmissionStatus;
   totalImpact?: number;
   currency?: string;
@@ -56,17 +75,17 @@ interface CA3_SubmissionsViewProps {
 
 const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; label: string; color: string }> = {
   timesheet: { icon: Clock, label: "Timesheet", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
-  expenses: { icon: Receipt, label: "Expenses", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+  expenses: { icon: Receipt, label: "Expenses", color: "bg-primary/10 text-primary border-primary/20" },
   bonus: { icon: Award, label: "Bonus", color: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
-  leave: { icon: Calendar, label: "Leave", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  leave: { icon: Calendar, label: "Leave", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" },
   overtime: { icon: Timer, label: "Overtime", color: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
-  adjustment: { icon: FileText, label: "Adjustment", color: "bg-slate-500/10 text-slate-600 border-slate-500/20" },
+  adjustment: { icon: FileText, label: "Adjustment", color: "bg-muted text-muted-foreground border-border/50" },
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
-  pending: { icon: Clock, label: "Pending", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  pending: { icon: Clock, label: "Pending", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" },
   approved: { icon: CheckCircle2, label: "Approved", color: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  rejected: { icon: X, label: "Rejected", color: "bg-red-500/10 text-red-600 border-red-500/20" },
+  rejected: { icon: X, label: "Rejected", color: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
 const rejectReasons = [
@@ -75,6 +94,86 @@ const rejectReasons = [
   "Duplicate submission",
   "Incorrect category",
 ];
+
+// Receipt-style breakdown row
+const BreakdownRow = ({ 
+  label, 
+  amount, 
+  currency, 
+  isPositive = true,
+  isLocked = false,
+  badge,
+  sublabel,
+  isTotal = false,
+  className
+}: { 
+  label: string;
+  amount: number;
+  currency: string;
+  isPositive?: boolean;
+  isLocked?: boolean;
+  badge?: { label: string; variant: 'pending' | 'approved' };
+  sublabel?: string;
+  isTotal?: boolean;
+  className?: string;
+}) => {
+  const formatAmount = (amt: number, curr: string) => {
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
+    return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  return (
+    <div className={cn(
+      "flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
+      isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0",
+      className
+    )}>
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <span className={cn(
+          "truncate",
+          isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"
+        )}>
+          {label}
+        </span>
+        {sublabel && (
+          <span className="text-xs text-muted-foreground/70 truncate">
+            · {sublabel}
+          </span>
+        )}
+        {isLocked && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Lock className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">Statutory deduction</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+        {badge && (
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "text-[10px] px-1.5 py-0 shrink-0",
+              badge.variant === 'pending' 
+                ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20"
+                : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
+            )}
+          >
+            {badge.label}
+          </Badge>
+        )}
+      </div>
+      <span className={cn(
+        "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4",
+        isTotal ? "text-sm font-semibold text-foreground" : "text-sm",
+        isPositive ? "text-foreground" : "text-muted-foreground"
+      )}>
+        {isPositive ? '' : '−'}{formatAmount(amount, currency)}
+      </span>
+    </div>
+  );
+};
 
 export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   submissions,
@@ -151,7 +250,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         exit={{ opacity: 0 }}
         className={cn(
           "px-4 py-3 flex items-center gap-3 hover:bg-muted/30 transition-colors cursor-pointer group",
-          submission.status === "rejected" && "bg-red-500/5"
+          submission.status === "rejected" && "bg-destructive/5"
         )}
         onClick={() => handleRowClick(submission)}
       >
@@ -201,8 +300,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           {/* Status */}
           <div className={cn("flex items-center gap-1 text-xs", 
             submission.status === "approved" && "text-accent-green-text",
-            submission.status === "pending" && "text-amber-600",
-            submission.status === "rejected" && "text-red-600"
+            submission.status === "pending" && "text-accent-amber-text",
+            submission.status === "rejected" && "text-destructive"
           )}>
             <StatusIcon className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{status.label}</span>
@@ -273,7 +372,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   Approved ({approvedCount})
                 </TabsTrigger>
                 {rejectedCount > 0 && (
-                  <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
+                  <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-destructive">
                     Rejected ({rejectedCount})
                   </TabsTrigger>
                 )}
@@ -309,215 +408,303 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Submission Detail Drawer - Receipt style */}
+      {/* Worker Pay Breakdown Drawer - Full receipt style */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="right" className="w-full sm:max-w-[420px] overflow-y-auto p-0">
-          {selectedSubmission && (
-            <>
-              {/* Header - matching worker dashboard style */}
-              <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                      {getInitials(selectedSubmission.workerName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <SheetTitle className="text-base font-semibold">{selectedSubmission.workerName}</SheetTitle>
-                    <SheetDescription className="text-xs text-muted-foreground">
-                      {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
-                    </SheetDescription>
+          {selectedSubmission && (() => {
+            // Calculate breakdown data
+            const earnings = selectedSubmission.lineItems?.filter(item => item.type === 'Earnings') || [];
+            const deductions = selectedSubmission.lineItems?.filter(item => item.type === 'Deduction') || [];
+            const pendingAdjustments = selectedSubmission.submissions.filter(s => s.status === 'pending' || !s.status);
+            const currency = selectedSubmission.currency || 'USD';
+            
+            const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
+            const adjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
+            const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
+            
+            const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
+            const adjustedNet = baseNet + adjustmentTotal;
+            const hasAdjustments = pendingAdjustments.length > 0;
+            
+            return (
+              <>
+                {/* Header with period badge */}
+                <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+                    <Badge variant="outline" className="text-xs font-normal">
+                      {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
+                    </Badge>
                   </div>
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "text-xs shrink-0",
-                      selectedSubmission.status === "approved" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
-                      selectedSubmission.status === "pending" && "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20",
-                      selectedSubmission.status === "rejected" && "bg-destructive/10 text-destructive border-destructive/20"
-                    )}
-                  >
-                    {statusConfig[selectedSubmission.status].label}
-                  </Badge>
-                </div>
-              </SheetHeader>
+                  <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                        {getInitials(selectedSubmission.workerName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{selectedSubmission.workerName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
+                      </p>
+                    </div>
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "text-xs shrink-0",
+                        statusConfig[selectedSubmission.status].color
+                      )}
+                    >
+                      {statusConfig[selectedSubmission.status].label}
+                    </Badge>
+                  </div>
+                </SheetHeader>
 
-              {/* Receipt-style content */}
-              <div className="px-6 py-5 space-y-5">
-                
-                {/* Submissions breakdown - receipt style rows */}
-                <section>
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                    Submitted items
-                  </h3>
-                  <div className="space-y-1">
-                    {selectedSubmission.submissions.map((sub, idx) => {
-                      const config = submissionTypeConfig[sub.type];
-                      const Icon = config.icon;
-                      return (
-                        <div 
-                          key={idx} 
-                          className="flex items-center justify-between py-2.5 -mx-2 px-2 rounded-md hover:bg-muted/30 transition-colors"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <div className={cn("p-1.5 rounded-md", config.color.replace('text-', 'bg-').split(' ')[0])}>
-                              <Icon className="h-3.5 w-3.5" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <span className="text-sm text-foreground">{config.label}</span>
-                              {sub.description && (
-                                <p className="text-xs text-muted-foreground truncate">{sub.description}</p>
-                              )}
-                              {sub.hours && (
-                                <p className="text-xs text-muted-foreground">{sub.hours} hours</p>
-                              )}
-                              {sub.days && (
-                                <p className="text-xs text-muted-foreground">{sub.days} days</p>
-                              )}
-                            </div>
-                          </div>
-                          {sub.amount && (
-                            <span className="text-sm font-medium tabular-nums text-foreground ml-4">
-                              +{formatCurrency(sub.amount, sub.currency || selectedSubmission.currency)}
-                            </span>
-                          )}
+                {/* Receipt-style content */}
+                <div className="px-6 py-5 space-y-6">
+                  
+                  {/* EARNINGS Section */}
+                  <section>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                      Earnings
+                    </h3>
+                    <div className="space-y-0">
+                      {/* Base earnings */}
+                      {earnings.map((item, idx) => (
+                        <BreakdownRow
+                          key={idx}
+                          label={item.label}
+                          amount={item.amount}
+                          currency={currency}
+                          isLocked={item.locked}
+                          isPositive
+                        />
+                      ))}
+                      {/* Pending adjustments (Expenses, Bonus) that add to earnings */}
+                      {pendingAdjustments
+                        .filter(adj => adj.type === 'expenses' || adj.type === 'bonus')
+                        .map((adj, idx) => (
+                          <BreakdownRow
+                            key={`adj-${idx}`}
+                            label={submissionTypeConfig[adj.type].label}
+                            sublabel={adj.description}
+                            amount={adj.amount || 0}
+                            currency={adj.currency || currency}
+                            isPositive
+                            badge={{
+                              label: adj.status === 'approved' ? 'Approved' : 'Pending',
+                              variant: adj.status === 'approved' ? 'approved' : 'pending'
+                            }}
+                          />
+                        ))}
+                      {/* Total Earnings */}
+                      <BreakdownRow
+                        label="Total earnings"
+                        amount={totalEarnings + adjustmentTotal}
+                        currency={currency}
+                        isPositive
+                        isTotal
+                      />
+                    </div>
+                  </section>
+
+                  {/* DEDUCTIONS Section */}
+                  {deductions.length > 0 && (
+                    <section>
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                        Deductions
+                      </h3>
+                      <div className="space-y-0">
+                        {deductions.map((item, idx) => (
+                          <BreakdownRow
+                            key={idx}
+                            label={item.label}
+                            amount={Math.abs(item.amount)}
+                            currency={currency}
+                            isLocked={item.locked}
+                            isPositive={false}
+                          />
+                        ))}
+                        <BreakdownRow
+                          label="Total deductions"
+                          amount={totalDeductions}
+                          currency={currency}
+                          isPositive={false}
+                          isTotal
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  {/* OVERTIME Section (if any) */}
+                  {pendingAdjustments.filter(adj => adj.type === 'overtime').length > 0 && (
+                    <section>
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <Timer className="h-3.5 w-3.5" />
+                        Overtime
+                      </h3>
+                      <div className="space-y-0">
+                        {pendingAdjustments
+                          .filter(adj => adj.type === 'overtime')
+                          .map((adj, idx) => (
+                            <BreakdownRow
+                              key={idx}
+                              label={`${adj.hours || 0}h logged`}
+                              sublabel={adj.description}
+                              amount={adj.amount || 0}
+                              currency={currency}
+                              isPositive
+                              badge={{
+                                label: adj.status === 'approved' ? 'Approved' : 'Pending',
+                                variant: adj.status === 'approved' ? 'approved' : 'pending'
+                              }}
+                            />
+                          ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Rejection reason if rejected */}
+                  {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
+                    <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                      <div className="flex items-start gap-2.5">
+                        <X className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-destructive">Rejected</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {selectedSubmission.rejectionReason}
+                          </p>
                         </div>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                {/* Impact total - receipt footer style */}
-                {selectedSubmission.totalImpact && (
-                  <div className="pt-3 border-t border-dashed border-border/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Total impact</span>
-                      <span className="text-lg font-semibold text-primary tabular-nums">
-                        +{formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
-                      </span>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      Applied to {selectedSubmission.workerType === "employee" ? "net pay" : "invoice total"}
-                    </p>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                {/* Show rejection reason for rejected submissions */}
-                {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
-                  <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                    <div className="flex items-start gap-2.5">
-                      <X className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-destructive">Rejected</p>
+                {/* Net Pay Footer + Actions */}
+                <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
+                  {/* Net pay summary */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+                      {hasAdjustments && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {selectedSubmission.rejectionReason}
+                          Includes {pendingAdjustments.length} pending adjustment{pendingAdjustments.length !== 1 ? 's' : ''}
                         </p>
-                      </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
+                        {formatCurrency(adjustedNet, currency)}
+                      </p>
+                      {hasAdjustments && (
+                        <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
+                          Base: {formatCurrency(baseNet, currency)}
+                        </p>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Footer with actions - sticky feel */}
-              <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-                {selectedSubmission.status === "pending" ? (
-                  <div className="space-y-4">
-                    {!showCustomReason ? (
-                      <div className="flex gap-2">
-                        <Button 
-                          className="flex-1 gap-1.5"
-                          onClick={handleApproveFromDrawer}
-                        >
-                          <Check className="h-4 w-4" />
-                          Approve
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          className="flex-1 gap-1.5 text-destructive border-destructive/30 hover:bg-red-100 hover:text-red-700 hover:border-destructive/50"
-                          onClick={() => setShowCustomReason(true)}
-                        >
-                          <X className="h-4 w-4" />
-                          Reject
-                        </Button>
-                      </div>
-                    ) : (
-                      /* Expanded rejection flow */
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">Select reason</p>
-                          <button
+                  {/* Action buttons */}
+                  {selectedSubmission.status === "pending" ? (
+                    <div className="space-y-3">
+                      {!showCustomReason ? (
+                        <div className="flex gap-2">
+                          <Button 
+                            className="flex-1 gap-1.5"
+                            onClick={handleApproveFromDrawer}
+                          >
+                            <Check className="h-4 w-4" />
+                            Approve
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            className="flex-1 gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                            onClick={() => setShowCustomReason(true)}
+                          >
+                            <X className="h-4 w-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      ) : (
+                        /* Expanded rejection flow */
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-foreground">Select reason</p>
+                            <button
+                              onClick={() => {
+                                setShowCustomReason(false);
+                                setCustomReason("");
+                                setRejectReason("");
+                              }}
+                              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          
+                          {/* Quick select pills */}
+                          <div className="flex flex-wrap gap-1.5">
+                            {rejectReasons.map((reason) => (
+                              <button
+                                key={reason}
+                                onClick={() => setRejectReason(reason)}
+                                className={cn(
+                                  "text-xs px-2.5 py-1.5 rounded-md border transition-all",
+                                  rejectReason === reason
+                                    ? "border-destructive/60 bg-destructive/10 text-destructive"
+                                    : "border-border/60 text-muted-foreground hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                )}
+                              >
+                                {reason}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Custom reason input */}
+                          <Input
+                            placeholder="Or type a custom reason..."
+                            value={customReason}
+                            onChange={(e) => {
+                              setCustomReason(e.target.value);
+                              if (e.target.value) setRejectReason("");
+                            }}
+                            className="h-9 text-sm"
+                          />
+
+                          {/* Confirm rejection button */}
+                          <Button
+                            variant="destructive"
+                            className="w-full gap-2"
+                            disabled={!rejectReason && !customReason.trim()}
                             onClick={() => {
+                              if (customReason.trim()) {
+                                setRejectReason(customReason.trim());
+                              }
+                              handleRejectFromDrawer();
                               setShowCustomReason(false);
                               setCustomReason("");
-                              setRejectReason("");
                             }}
-                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            Cancel
-                          </button>
+                            <X className="h-4 w-4" />
+                            Confirm rejection
+                          </Button>
                         </div>
-                        
-                        {/* Quick select pills */}
-                        <div className="flex flex-wrap gap-1.5">
-                          {rejectReasons.map((reason) => (
-                            <button
-                              key={reason}
-                              onClick={() => setRejectReason(reason)}
-                              className={cn(
-                                "text-xs px-2.5 py-1.5 rounded-md border transition-all",
-                                rejectReason === reason
-                                  ? "border-destructive/60 bg-destructive/10 text-destructive"
-                                  : "border-border/60 text-muted-foreground hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                              )}
-                            >
-                              {reason}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Custom reason input */}
-                        <Input
-                          placeholder="Or type a custom reason..."
-                          value={customReason}
-                          onChange={(e) => {
-                            setCustomReason(e.target.value);
-                            if (e.target.value) setRejectReason("");
-                          }}
-                          className="h-9 text-sm"
-                        />
-
-                        {/* Confirm rejection button */}
-                        <Button
-                          variant="destructive"
-                          className="w-full gap-2"
-                          disabled={!rejectReason && !customReason.trim()}
-                          onClick={() => {
-                            if (customReason.trim()) {
-                              setRejectReason(customReason.trim());
-                            }
-                            handleRejectFromDrawer();
-                            setShowCustomReason(false);
-                            setCustomReason("");
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                          Confirm rejection
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setDrawerOpen(false)}
-                  >
-                    Close
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
+                      )}
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      Close
+                    </Button>
+                  )}
+                </div>
+              </>
+            );
+          })()}
         </SheetContent>
       </Sheet>
     </>
