@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock } from "lucide-react";
+import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -187,20 +187,29 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     toast.success("Audit PDF downloaded");
   };
 
-  // Render landing view (before entering workflow)
-  const renderLandingView = () => (
+  // Render summary card (used in both landing and track views)
+  const renderSummaryCard = (isSubmitted: boolean = false) => (
     <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
       <CardContent className="py-6 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">Review and submit payroll for this period</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Review and submit payroll for this period"}
+            </p>
           </div>
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-            <Clock className="h-3 w-3 mr-1" />
-            In review
-          </Badge>
+          {isSubmitted ? (
+            <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Submitted
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+              <Clock className="h-3 w-3 mr-1" />
+              In review
+            </Badge>
+          )}
         </div>
 
         {/* Metrics Grid */}
@@ -247,7 +256,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         </div>
 
         {/* Footer Stats */}
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30 mb-6">
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
           <span>Employees: <strong className="text-foreground">4</strong></span>
           <span className="text-border">·</span>
           <span>Contractors: <strong className="text-foreground">5</strong></span>
@@ -255,18 +264,39 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           <span>Currencies: <strong className="text-foreground">3</strong></span>
         </div>
 
-        {/* CTA */}
-        <div className="flex items-center justify-between pt-2">
-          <p className="text-xs text-muted-foreground">
-            Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
-          </p>
-          <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
-            Continue to submissions
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        {/* CTA - only in landing view */}
+        {!isSubmitted && (
+          <div className="flex items-center justify-between pt-4 mt-2">
+            <p className="text-xs text-muted-foreground">
+              Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
+            </p>
+            <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+              Continue to submissions
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
+  );
+
+  // Render landing view (before entering workflow)
+  const renderLandingView = () => renderSummaryCard(false);
+
+  // Render track view with summary card above
+  const renderTrackView = () => (
+    <div className="space-y-6">
+      {/* Summary card with submitted status */}
+      {renderSummaryCard(true)}
+      
+      {/* Tracking view below */}
+      <CA3_TrackingView
+        workers={trackingWorkers}
+        onExportCSV={handleExportCSV}
+        onDownloadAuditPDF={handleDownloadAuditPDF}
+        onClose={() => setHasEnteredWorkflow(false)}
+      />
+    </div>
   );
 
   // Render step content
@@ -302,15 +332,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         );
 
       case "track":
-        return (
-          <CA3_TrackingView
-            workers={trackingWorkers}
-            onExportCSV={handleExportCSV}
-            onDownloadAuditPDF={handleDownloadAuditPDF}
-            onBack={() => setCurrentStep("submit")}
-            onClose={() => setHasEnteredWorkflow(false)}
-          />
-        );
+        return null; // Track view is rendered separately with summary card
 
       default:
         return null;
@@ -322,11 +344,29 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     return renderLandingView();
   }
 
+  // Track view - summary card with tracking below
+  if (currentStep === "track") {
+    return (
+      <>
+        {renderTrackView()}
+        {/* Submit Confirmation Modal */}
+        <CA3_SubmitConfirmationModal
+          open={submitModalOpen}
+          onOpenChange={setSubmitModalOpen}
+          onConfirm={handleConfirmSubmit}
+          employeeCount={4}
+          contractorCount={5}
+          totalAmount="$128,592"
+        />
+      </>
+    );
+  }
+
   // Workflow view - with stepper
   return (
     <div className="space-y-6">
       {/* Stepper - hidden after submission */}
-      {currentStep !== "track" && !isPayrollSubmitted && (
+      {!isPayrollSubmitted && (
         <CA3_PayrollStepper
           currentStep={currentStep}
           completedSteps={completedSteps}
