@@ -430,7 +430,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               <>
                 {/* Header with period badge */}
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 mb-3">
                     <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
                     <Badge variant="outline" className="text-xs font-normal">
                       {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}

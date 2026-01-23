@@ -263,7 +263,7 @@ export const F42v4_InvoiceBreakdownDrawer = ({
       <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
         {/* Header */}
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <SheetTitle className="text-lg font-semibold">Invoice breakdown</SheetTitle>
             <Badge variant="outline" className="text-xs font-normal">
               {periodLabel}
