@@ -190,32 +190,40 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Render summary card (used in both landing and track views)
   const renderSummaryCard = (isSubmitted: boolean = false) => (
     <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-      <CardContent className="py-6 px-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+      <CardContent className="py-5 px-6">
+        {/* Header - Title left, Status badge + CTA right */}
+        <div className="flex items-start justify-between mb-5">
           <div>
             <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
             <p className="text-sm text-muted-foreground mt-0.5">
               {isSubmitted ? "Payroll submitted to Fronted for processing" : "Review and submit payroll for this period"}
             </p>
           </div>
-          {isSubmitted ? (
-            <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Submitted
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-              <Clock className="h-3 w-3 mr-1" />
-              In review
-            </Badge>
-          )}
+          <div className="flex items-center gap-3">
+            {isSubmitted ? (
+              <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Submitted
+              </Badge>
+            ) : (
+              <>
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                  <Clock className="h-3 w-3 mr-1" />
+                  In review
+                </Badge>
+                <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+                  Continue to submissions
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-4">
           {/* Gross Pay */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
+          <div className="bg-background rounded-xl p-4 border border-border/40">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <DollarSign className="h-4 w-4 text-primary" />
               <span className="text-sm">Gross Pay</span>
@@ -225,7 +233,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           </div>
 
           {/* Net Pay */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
+          <div className="bg-background rounded-xl p-4 border border-border/40">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <Receipt className="h-4 w-4 text-primary" />
               <span className="text-sm">Net Pay</span>
@@ -235,7 +243,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           </div>
 
           {/* Fronted Fees */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
+          <div className="bg-background rounded-xl p-4 border border-border/40">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <Building2 className="h-4 w-4 text-primary" />
               <span className="text-sm">Fronted Fees</span>
@@ -245,7 +253,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           </div>
 
           {/* Total Cost */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
+          <div className="bg-background rounded-xl p-4 border border-border/40">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               <span className="text-sm">Total Cost</span>
@@ -255,27 +263,23 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           </div>
         </div>
 
-        {/* Footer Stats */}
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
-          <span>Employees: <strong className="text-foreground">4</strong></span>
-          <span className="text-border">·</span>
-          <span>Contractors: <strong className="text-foreground">5</strong></span>
-          <span className="text-border">·</span>
-          <span>Currencies: <strong className="text-foreground">3</strong></span>
-        </div>
-
-        {/* CTA - only in landing view */}
-        {!isSubmitted && (
-          <div className="flex items-center justify-between pt-4 mt-2">
+        {/* Footer - Stats centered, deadline on left */}
+        <div className="flex items-center justify-between pt-3 border-t border-border/30">
+          {!isSubmitted ? (
             <p className="text-xs text-muted-foreground">
               Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
             </p>
-            <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
-              Continue to submissions
-              <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span>Employees: <strong className="text-foreground">4</strong></span>
+            <span className="text-border">·</span>
+            <span>Contractors: <strong className="text-foreground">5</strong></span>
+            <span className="text-border">·</span>
+            <span>Currencies: <strong className="text-foreground">3</strong></span>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
