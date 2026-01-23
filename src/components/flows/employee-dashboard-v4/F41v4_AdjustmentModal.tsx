@@ -417,27 +417,24 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         <div className="py-6">
           {/* Type Selection Grid - Payroll adjustments only (Time off is on main dashboard) */}
           {selectedType === null && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">What would you like to submit?</p>
-              <div className="grid grid-cols-3 gap-2">
-                {requestTypeOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => setSelectedType(option.id)}
-                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
-                    >
-                      <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-foreground">{option.label}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="grid grid-cols-3 gap-2">
+              {requestTypeOptions.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => setSelectedType(option.id)}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
+                  >
+                    <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
+                      <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-foreground">{option.label}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
 
