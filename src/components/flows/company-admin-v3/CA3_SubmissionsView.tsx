@@ -560,19 +560,59 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </section>
                   )}
 
-                  {/* Rejection reason if rejected */}
+                  {/* Rejection reason display if rejected */}
                   {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
-                    <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                      <div className="flex items-start gap-2.5">
-                        <X className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-destructive">Rejected</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {selectedSubmission.rejectionReason}
-                          </p>
-                        </div>
+                    <section>
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                        Rejection reason
+                      </h3>
+                      <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
+                        <p className="text-sm text-destructive">{selectedSubmission.rejectionReason}</p>
                       </div>
-                    </div>
+                    </section>
+                  )}
+
+                  {/* Rejection form - matching leave pattern */}
+                  {showCustomReason && (
+                    <section className="space-y-3 pt-2 border-t border-border/40">
+                      <h3 className="text-sm font-medium text-foreground pt-3">Reject request?</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="rejection-reason" className="text-xs text-muted-foreground">
+                          Reason for rejection
+                        </Label>
+                        <Textarea
+                          id="rejection-reason"
+                          placeholder="Add a short reason (visible to employee)"
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          className="min-h-[80px] resize-none"
+                        />
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setShowCustomReason(false);
+                            setRejectReason("");
+                          }}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          size="sm"
+                          onClick={() => {
+                            handleRejectFromDrawer();
+                            setShowCustomReason(false);
+                          }}
+                          disabled={!rejectReason.trim()}
+                          className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                          Reject request
+                        </Button>
+                      </div>
+                    </section>
                   )}
                 </div>
 
@@ -600,69 +640,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Action buttons */}
-                  {selectedSubmission.status === "pending" ? (
-                    <div className="space-y-3">
-                      {!showCustomReason ? (
-                        <div className="flex gap-3">
-                          <Button 
-                            variant="outline"
-                            className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                            onClick={() => setShowCustomReason(true)}
-                          >
-                            Reject
-                          </Button>
-                          <Button 
-                            className="flex-1"
-                            onClick={handleApproveFromDrawer}
-                          >
-                            Approve
-                          </Button>
-                        </div>
-                      ) : (
-                        /* Simplified rejection flow - matching leave pattern */
-                        <div className="space-y-3 pt-2 border-t border-border/40">
-                          <h3 className="text-sm font-medium text-foreground pt-3">Reject request?</h3>
-                          <div className="space-y-2">
-                            <Label htmlFor="rejection-reason" className="text-xs text-muted-foreground">
-                              Reason for rejection
-                            </Label>
-                            <Textarea
-                              id="rejection-reason"
-                              placeholder="Add a short reason (visible to employee)"
-                              value={rejectReason}
-                              onChange={(e) => setRejectReason(e.target.value)}
-                              className="min-h-[80px] resize-none"
-                            />
-                          </div>
-                          <div className="flex gap-3 pt-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => {
-                                setShowCustomReason(false);
-                                setRejectReason("");
-                              }}
-                              className="flex-1"
-                            >
-                              Cancel
-                            </Button>
-                            <Button 
-                              size="sm"
-                              onClick={() => {
-                                handleRejectFromDrawer();
-                                setShowCustomReason(false);
-                              }}
-                              disabled={!rejectReason.trim()}
-                              className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                            >
-                              Reject request
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                  {/* Action buttons - hidden when rejecting, matching leave pattern */}
+                  {selectedSubmission.status === "pending" && !showCustomReason && (
+                    <div className="flex gap-3">
+                      <Button 
+                        variant="outline"
+                        className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                        onClick={() => setShowCustomReason(true)}
+                      >
+                        Reject
+                      </Button>
+                      <Button 
+                        className="flex-1"
+                        onClick={handleApproveFromDrawer}
+                      >
+                        Approve
+                      </Button>
                     </div>
-                  ) : (
+                  )}
+                  
+                  {selectedSubmission.status !== "pending" && (
                     <Button 
                       variant="outline" 
                       className="w-full"
