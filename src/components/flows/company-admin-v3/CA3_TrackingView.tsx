@@ -81,12 +81,16 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Payment Progress</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-sm text-muted-foreground">Payment Progress</p>
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium">In review</span>
+            </div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-semibold text-foreground tabular-nums">{completedCount}</span>
               <span className="text-lg text-muted-foreground">of {workers.length}</span>
               <span className="text-sm text-muted-foreground">payments completed</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">Submit before Jan 25, 2026 — 5 days remaining</p>
           </div>
           <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
