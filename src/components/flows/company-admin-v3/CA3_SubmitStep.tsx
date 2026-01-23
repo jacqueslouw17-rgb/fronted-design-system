@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,9 @@ interface CA3_SubmitStepProps {
   trackingWorkers?: TrackingWorker[];
   onExportCSV?: () => void;
   onDownloadAuditPDF?: () => void;
+  // Navigation
+  onBack?: () => void;
+  onClose?: () => void;
 }
 
 export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
@@ -42,6 +45,8 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   trackingWorkers = [],
   onExportCSV = () => {},
   onDownloadAuditPDF = () => {},
+  onBack,
+  onClose,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -153,6 +158,37 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
     <div className="min-h-[calc(100vh-280px)] relative">
       {/* Background gradient - extends full height */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-secondary/[0.02] pointer-events-none rounded-xl" />
+      
+      {/* Navigation bar - only show if not submitted */}
+      {!isSubmitted && (onBack || onClose) && (
+        <div className="relative flex items-center justify-between mb-4">
+          <div>
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Back to Submissions
+              </Button>
+            )}
+          </div>
+          <div>
+            {onClose && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onClose}
+                className="h-9 text-xs"
+              >
+                Close
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left Panel: Batch Overview OR Track List */}
