@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -324,17 +324,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <SheetTitle className="text-base font-semibold">{selectedSubmission.workerName}</SheetTitle>
-                    <p className="text-xs text-muted-foreground">
+                    <SheetDescription className="text-xs text-muted-foreground">
                       {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
-                    </p>
+                    </SheetDescription>
                   </div>
                   <Badge 
                     variant="outline" 
                     className={cn(
                       "text-xs shrink-0",
-                      selectedSubmission.status === "approved" && "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400",
-                      selectedSubmission.status === "pending" && "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400",
-                      selectedSubmission.status === "rejected" && "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400"
+                      selectedSubmission.status === "approved" && "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20",
+                      selectedSubmission.status === "pending" && "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20",
+                      selectedSubmission.status === "rejected" && "bg-destructive/10 text-destructive border-destructive/20"
                     )}
                   >
                     {statusConfig[selectedSubmission.status].label}
