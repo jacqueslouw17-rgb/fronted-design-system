@@ -39,11 +39,10 @@ interface ProcessedLeave {
 }
 
 export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionProps) => {
-  const { leaveRequests, withdrawLeaveRequest, payrollStatus, addLeaveRequest } = useF41v4_DashboardStore();
+  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v4_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const [showDevTools, setShowDevTools] = useState(false);
   
   const canWithdraw = payrollStatus === 'draft';
   
@@ -284,39 +283,6 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               </div>
             )}
             
-            {/* Dev tools toggle */}
-            <div className="pt-3 mt-3 border-t border-border/30">
-              <button
-                onClick={() => setShowDevTools(!showDevTools)}
-                className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-              >
-                [tech] {showDevTools ? 'Hide' : 'Show'} simulation
-              </button>
-              
-              {showDevTools && (
-                <div className="mt-2 p-2 rounded-lg bg-muted/30 border border-border/30 space-y-2">
-                  <p className="text-[10px] text-muted-foreground font-medium">Simulate leave data:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-6 text-[10px] px-2"
-                      onClick={() => {
-                        addLeaveRequest({
-                          leaveType: 'Annual leave',
-                          startDate: '2026-01-20',
-                          endDate: '2026-01-21',
-                          totalDays: 2,
-                          reason: 'Test approved leave',
-                        });
-                      }}
-                    >
-                      + Pending leave
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </CardContent>
       </Card>
