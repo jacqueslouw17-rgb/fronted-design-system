@@ -481,20 +481,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       {/* Pending adjustments (Expenses, Bonus) that add to earnings */}
                       {pendingAdjustments
                         .filter(adj => adj.type === 'expenses' || adj.type === 'bonus')
-                        .map((adj, idx) => (
-                          <BreakdownRow
-                            key={`adj-${idx}`}
-                            label={submissionTypeConfig[adj.type].label}
-                            sublabel={adj.description}
-                            amount={adj.amount || 0}
-                            currency={adj.currency || currency}
-                            isPositive
-                            badge={{
-                              label: adj.status === 'approved' ? 'Approved' : 'Pending',
-                              variant: adj.status === 'approved' ? 'approved' : 'pending'
-                            }}
-                          />
-                        ))}
+                        .map((adj, idx) => {
+                          const config = submissionTypeConfig[adj.type as SubmissionType];
+                          if (!config) return null;
+                          return (
+                            <BreakdownRow
+                              key={`adj-${idx}`}
+                              label={config.label}
+                              sublabel={adj.description}
+                              amount={adj.amount || 0}
+                              currency={adj.currency || currency}
+                              isPositive
+                              badge={{
+                                label: adj.status === 'approved' ? 'Approved' : 'Pending',
+                                variant: adj.status === 'approved' ? 'approved' : 'pending'
+                              }}
+                            />
+                          );
+                        })}
                       {/* Total Earnings */}
                       <BreakdownRow
                         label="Total earnings"
