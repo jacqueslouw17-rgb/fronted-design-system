@@ -379,13 +379,15 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Workflow view - with stepper
   return (
     <div className="space-y-6">
-      {/* Stepper - always visible during workflow */}
-      <CA3_PayrollStepper
-        currentStep={currentStep}
-        completedSteps={completedSteps}
-        onStepClick={handleStepClick}
-        pendingSubmissions={pendingSubmissions}
-      />
+      {/* Stepper - hidden after submission */}
+      {!isPayrollSubmitted && (
+        <CA3_PayrollStepper
+          currentStep={currentStep}
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+          pendingSubmissions={pendingSubmissions}
+        />
+      )}
 
       {/* Step Content */}
       <div>
