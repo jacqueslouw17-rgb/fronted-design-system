@@ -219,31 +219,29 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       <div 
         key={leave.id}
         className={cn(
-          "group flex items-start gap-3 p-3 rounded-lg border transition-colors",
+          "group flex items-center gap-2.5 px-2.5 py-2 rounded-md border transition-colors",
           bgClass
         )}
       >
-        <div className="flex-1 min-w-0">
-          {/* Main row: Type · Date range · Days · Status (if needed) · Spans tag */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium text-foreground">
-              {leave.displayLabel}
-            </span>
-            <span className="text-xs text-muted-foreground/50">·</span>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {formatDateRange(leave.startDate, leave.endDate)}
-            </span>
-            <span className="text-xs text-muted-foreground/50">·</span>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {formatDays(leave.workdays)}
-            </span>
-            {getStatusBadge(leave.status)}
-            {leave.spansPeriods && (
-              <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/40 text-[10px] px-1.5 py-0">
-                Spans periods
-              </Badge>
-            )}
-          </div>
+        {/* Main row: Type · Date range · Days · Status (if needed) · Spans tag */}
+        <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+          <span className="text-xs font-medium text-foreground">
+            {leave.displayLabel}
+          </span>
+          <span className="text-[10px] text-muted-foreground/50">·</span>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDateRange(leave.startDate, leave.endDate)}
+          </span>
+          <span className="text-[10px] text-muted-foreground/50">·</span>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDays(leave.workdays)}
+          </span>
+          {getStatusBadge(leave.status)}
+          {leave.spansPeriods && (
+            <Badge variant="outline" className="bg-muted/30 text-muted-foreground border-border/40 text-[9px] px-1 py-0">
+              Spans periods
+            </Badge>
+          )}
         </div>
         
         {/* Withdraw button for pending items */}
@@ -253,12 +251,12 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               <button
                 onClick={(e) => handleWithdrawClick(e, withdrawId)}
                 className={cn(
-                  "p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all",
+                  "p-1 rounded opacity-0 group-hover:opacity-100 transition-all",
                   "hover:bg-amber-100 dark:hover:bg-amber-500/20"
                 )}
                 aria-label="Withdraw request"
               >
-                <X className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                <X className="h-3 w-3 text-amber-600 dark:text-amber-400" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
@@ -304,16 +302,16 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
           </div>
           
           {/* Content */}
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-4 pb-4 space-y-3">
             {hasAnyLeave ? (
               <>
                 {/* This pay period */}
                 {thisPeriodLeave.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                       This pay period
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {thisPeriodLeave.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
@@ -321,11 +319,11 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                 
                 {/* Next pay period */}
                 {nextPeriodLeave.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                       Next pay period
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {nextPeriodLeave.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
