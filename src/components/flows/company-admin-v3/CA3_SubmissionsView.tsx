@@ -309,133 +309,142 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         </CardContent>
       </Card>
 
-      {/* Submission Detail Drawer */}
+      {/* Submission Detail Drawer - Receipt style */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetContent side="right" className="w-full sm:max-w-[420px] overflow-y-auto p-0">
           {selectedSubmission && (
             <>
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-3">
+              {/* Header - matching worker dashboard style */}
+              <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
+                <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback className="text-xs bg-muted/40">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
                       {getInitials(selectedSubmission.workerName)}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <span className="text-base">{selectedSubmission.workerName}</span>
-                    <p className="text-xs text-muted-foreground font-normal">
+                  <div className="flex-1 min-w-0">
+                    <SheetTitle className="text-base font-semibold">{selectedSubmission.workerName}</SheetTitle>
+                    <p className="text-xs text-muted-foreground">
                       {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
                     </p>
                   </div>
-                </SheetTitle>
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "text-xs shrink-0",
+                      selectedSubmission.status === "approved" && "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400",
+                      selectedSubmission.status === "pending" && "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400",
+                      selectedSubmission.status === "rejected" && "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400"
+                    )}
+                  >
+                    {statusConfig[selectedSubmission.status].label}
+                  </Badge>
+                </div>
               </SheetHeader>
 
-              <div className="mt-6 space-y-5">
-                <div>
-                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                    Submissions this cycle
-                  </h4>
-                  
-                  <div className="space-y-2">
+              {/* Receipt-style content */}
+              <div className="px-6 py-5 space-y-5">
+                
+                {/* Submissions breakdown - receipt style rows */}
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                    Submitted items
+                  </h3>
+                  <div className="space-y-1">
                     {selectedSubmission.submissions.map((sub, idx) => {
                       const config = submissionTypeConfig[sub.type];
                       const Icon = config.icon;
                       return (
                         <div 
                           key={idx} 
-                          className="p-4 rounded-lg border border-border bg-card"
+                          className="flex items-center justify-between py-2.5 -mx-2 px-2 rounded-md hover:bg-muted/30 transition-colors"
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <Badge variant="outline" className={cn("text-xs gap-1.5", config.color)}>
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className={cn("p-1.5 rounded-md", config.color.replace('text-', 'bg-').split(' ')[0])}>
                               <Icon className="h-3.5 w-3.5" />
-                              {config.label}
-                            </Badge>
-                            {sub.amount && (
-                              <span className="text-sm font-semibold">
-                                {formatCurrency(sub.amount, sub.currency || selectedSubmission.currency)}
-                              </span>
-                            )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-sm text-foreground">{config.label}</span>
+                              {sub.description && (
+                                <p className="text-xs text-muted-foreground truncate">{sub.description}</p>
+                              )}
+                              {sub.hours && (
+                                <p className="text-xs text-muted-foreground">{sub.hours} hours</p>
+                              )}
+                              {sub.days && (
+                                <p className="text-xs text-muted-foreground">{sub.days} days</p>
+                              )}
+                            </div>
                           </div>
-                          {sub.description && (
-                            <p className="text-sm text-muted-foreground">{sub.description}</p>
-                          )}
-                          {sub.hours && (
-                            <p className="text-sm text-muted-foreground">{sub.hours} hours</p>
-                          )}
-                          {sub.days && (
-                            <p className="text-sm text-muted-foreground">{sub.days} days</p>
+                          {sub.amount && (
+                            <span className="text-sm font-medium tabular-nums text-foreground ml-4">
+                              +{formatCurrency(sub.amount, sub.currency || selectedSubmission.currency)}
+                            </span>
                           )}
                         </div>
                       );
                     })}
                   </div>
-                </div>
+                </section>
 
+                {/* Impact total - receipt footer style */}
                 {selectedSubmission.totalImpact && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/10">
-                      <span className="text-sm text-muted-foreground">Total impact</span>
-                      <span className="text-lg font-semibold text-primary">
-                        {formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
+                  <div className="pt-3 border-t border-dashed border-border/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Total impact</span>
+                      <span className="text-lg font-semibold text-primary tabular-nums">
+                        +{formatCurrency(selectedSubmission.totalImpact, selectedSubmission.currency)}
                       </span>
                     </div>
-                  </>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Applied to {selectedSubmission.workerType === "employee" ? "net pay" : "invoice total"}
+                    </p>
+                  </div>
                 )}
 
                 {/* Show rejection reason for rejected submissions */}
                 {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
-                  <>
-                    <Separator />
-                    <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
-                      <div className="flex items-start gap-3">
-                        <div className="p-1.5 rounded-full bg-destructive/10">
-                          <X className="h-4 w-4 text-destructive" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-destructive">Rejected</p>
-                          <p className="text-sm text-muted-foreground mt-0.5">
-                            {selectedSubmission.rejectionReason}
-                          </p>
-                        </div>
+                  <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                    <div className="flex items-start gap-2.5">
+                      <X className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-destructive">Rejected</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {selectedSubmission.rejectionReason}
+                        </p>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
-
               </div>
 
-              <SheetFooter className="mt-6 flex-col gap-4">
-                {selectedSubmission.status === "pending" && (
-                  <div className="space-y-4 w-full">
-                    {/* Two clear action buttons side by side */}
+              {/* Footer with actions - sticky feel */}
+              <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
+                {selectedSubmission.status === "pending" ? (
+                  <div className="space-y-4">
                     {!showCustomReason ? (
-                      <>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm"
-                            className="flex-1 gap-1.5 h-9"
-                            onClick={handleApproveFromDrawer}
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                            Approve
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 gap-1.5 h-9 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-                            onClick={() => setShowCustomReason(true)}
-                          >
-                            <X className="h-3.5 w-3.5" />
-                            Reject
-                          </Button>
-                        </div>
-                      </>
+                      <div className="flex gap-2">
+                        <Button 
+                          className="flex-1 gap-1.5"
+                          onClick={handleApproveFromDrawer}
+                        >
+                          <Check className="h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="flex-1 gap-1.5 text-destructive border-destructive/30 hover:bg-red-100 hover:text-red-700 hover:border-destructive/50"
+                          onClick={() => setShowCustomReason(true)}
+                        >
+                          <X className="h-4 w-4" />
+                          Reject
+                        </Button>
+                      </div>
                     ) : (
                       /* Expanded rejection flow */
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">Select rejection reason</p>
+                          <p className="text-sm font-medium text-foreground">Select reason</p>
                           <button
                             onClick={() => {
                               setShowCustomReason(false);
@@ -449,16 +458,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         </div>
                         
                         {/* Quick select pills */}
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {rejectReasons.map((reason) => (
                             <button
                               key={reason}
                               onClick={() => setRejectReason(reason)}
-                              className={`text-xs px-3 py-2 rounded-lg border transition-all ${
+                              className={cn(
+                                "text-xs px-2.5 py-1.5 rounded-md border transition-all",
                                 rejectReason === reason
                                   ? "border-destructive/60 bg-destructive/10 text-destructive"
                                   : "border-border/60 text-muted-foreground hover:border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                              }`}
+                              )}
                             >
                               {reason}
                             </button>
@@ -466,22 +476,20 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         </div>
 
                         {/* Custom reason input */}
-                        <div className="space-y-2">
-                          <Input
-                            placeholder="Or type a custom reason..."
-                            value={customReason}
-                            onChange={(e) => {
-                              setCustomReason(e.target.value);
-                              if (e.target.value) setRejectReason("");
-                            }}
-                            className="h-10 text-sm"
-                          />
-                        </div>
+                        <Input
+                          placeholder="Or type a custom reason..."
+                          value={customReason}
+                          onChange={(e) => {
+                            setCustomReason(e.target.value);
+                            if (e.target.value) setRejectReason("");
+                          }}
+                          className="h-9 text-sm"
+                        />
 
                         {/* Confirm rejection button */}
                         <Button
                           variant="destructive"
-                          className="w-full gap-2 h-11"
+                          className="w-full gap-2"
                           disabled={!rejectReason && !customReason.trim()}
                           onClick={() => {
                             if (customReason.trim()) {
@@ -493,13 +501,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           }}
                         >
                           <X className="h-4 w-4" />
-                          Confirm Rejection
+                          Confirm rejection
                         </Button>
                       </div>
                     )}
                   </div>
-                )}
-                {selectedSubmission.status !== "pending" && (
+                ) : (
                   <Button 
                     variant="outline" 
                     className="w-full"
@@ -508,7 +515,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     Close
                   </Button>
                 )}
-              </SheetFooter>
+              </div>
             </>
           )}
         </SheetContent>
