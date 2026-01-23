@@ -273,112 +273,115 @@ export const CA3_LeavesTab: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Summary Header */}
-      <div className="flex items-center gap-3">
-        <Badge variant="outline" className={cn(
-          "text-xs px-2.5 py-1",
-          pendingCount > 0 ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" : "bg-muted text-muted-foreground"
-        )}>
-          <Clock className="h-3 w-3 mr-1" />
-          Pending ({pendingCount})
-        </Badge>
-        <Badge variant="outline" className="text-xs px-2.5 py-1 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-          <Check className="h-3 w-3 mr-1" />
-          Approved ({approvedCount})
-        </Badge>
-        <Badge variant="outline" className="text-xs px-2.5 py-1 bg-muted text-muted-foreground">
-          <X className="h-3 w-3 mr-1" />
-          Rejected ({rejectedCount})
-        </Badge>
-      </div>
+    <>
+      <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm p-4 space-y-4">
+        {/* Header Row: Status badges + Search & Filters */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Status badges */}
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={cn(
+              "text-xs px-2 py-0.5",
+              pendingCount > 0 ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" : "bg-muted text-muted-foreground"
+            )}>
+              <Clock className="h-3 w-3 mr-1" />
+              {pendingCount} pending
+            </Badge>
+            <Badge variant="outline" className="text-xs px-2 py-0.5 bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+              <Check className="h-3 w-3 mr-1" />
+              {approvedCount} approved
+            </Badge>
+            <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted text-muted-foreground">
+              <X className="h-3 w-3 mr-1" />
+              {rejectedCount} rejected
+            </Badge>
+          </div>
 
-      {/* Search & Filters */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search employee..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9"
-          />
+          {/* Search & Filters */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-8 w-[140px] text-sm"
+              />
+            </div>
+            
+            <Select value={countryFilter} onValueChange={setCountryFilter}>
+              <SelectTrigger className="w-[120px] h-8 text-xs">
+                <Globe className="h-3 w-3 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All countries</SelectItem>
+                {countries.map(country => (
+                  <SelectItem key={country} value={country}>
+                    {countryFlags[country]} {country}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[110px] h-8 text-xs">
+                <Filter className="h-3 w-3 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={leaveTypeFilter} onValueChange={setLeaveTypeFilter}>
+              <SelectTrigger className="w-[100px] h-8 text-xs">
+                <Calendar className="h-3 w-3 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="Annual">Annual</SelectItem>
+                <SelectItem value="Sick">Sick</SelectItem>
+                <SelectItem value="Unpaid">Unpaid</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        
-        <Select value={countryFilter} onValueChange={setCountryFilter}>
-          <SelectTrigger className="w-[140px] h-9">
-            <Globe className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All countries</SelectItem>
-            {countries.map(country => (
-              <SelectItem key={country} value={country}>
-                {countryFlags[country]} {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px] h-9">
-            <Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={leaveTypeFilter} onValueChange={setLeaveTypeFilter}>
-          <SelectTrigger className="w-[140px] h-9">
-            <Calendar className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="Leave type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            <SelectItem value="Annual">Annual</SelectItem>
-            <SelectItem value="Sick">Sick</SelectItem>
-            <SelectItem value="Unpaid">Unpaid</SelectItem>
-            <SelectItem value="Other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Leave Request List */}
-      <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm p-4">
+        {/* Leave Request List */}
         {filteredRequests.length === 0 ? (
-          <div className="py-12 text-center">
-            <Calendar className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
+          <div className="py-10 text-center">
+            <Calendar className="h-7 w-7 text-muted-foreground/50 mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">No leave requests found</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {filteredRequests.map((leave) => (
               <div 
                 key={leave.id}
-                className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors"
               >
                 {/* Employee Info */}
-                <div className="flex items-center gap-3 min-w-[200px]">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                <div className="flex items-center gap-2.5 min-w-[180px]">
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
                       {leave.employeeName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{leave.employeeName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {countryFlags[leave.employeeCountry]} {leave.employeeCountry} · {countryTimezones[leave.employeeCountry]}
+                    <p className="text-sm font-medium text-foreground leading-tight">{leave.employeeName}</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">
+                      {countryFlags[leave.employeeCountry]} {leave.employeeCountry}
                     </p>
                   </div>
                 </div>
 
                 {/* Leave Details */}
-                <div className="flex-1 flex items-center gap-4">
+                <div className="flex-1 flex items-center gap-3">
                   {getLeaveTypeBadge(leave.leaveType)}
                   
                   <span className="text-sm text-foreground tabular-nums">
@@ -386,18 +389,18 @@ export const CA3_LeavesTab: React.FC = () => {
                   </span>
                   
                   <span className="text-xs text-muted-foreground tabular-nums">
-                    {leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}
+                    {leave.totalDays}d
                   </span>
                   
                   {leave.spansPeriods && (
-                    <Badge variant="outline" className="text-[10px] bg-muted/50 text-muted-foreground border-border/50">
-                      Spans pay periods
+                    <Badge variant="outline" className="text-[10px] py-0 bg-muted/50 text-muted-foreground border-border/50">
+                      Spans periods
                     </Badge>
                   )}
                 </div>
 
                 {/* Status & Action */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {getStatusBadge(leave.status)}
                   
                   {leave.status === "pending" && (
@@ -405,10 +408,10 @@ export const CA3_LeavesTab: React.FC = () => {
                       variant="ghost" 
                       size="sm" 
                       onClick={() => handleReview(leave)}
-                      className="gap-1 text-primary hover:text-primary"
+                      className="h-7 px-2 gap-1 text-xs text-primary hover:text-primary"
                     >
                       Review
-                      <ChevronRight className="h-3.5 w-3.5" />
+                      <ChevronRight className="h-3 w-3" />
                     </Button>
                   )}
                 </div>
@@ -581,7 +584,7 @@ export const CA3_LeavesTab: React.FC = () => {
           )}
         </SheetContent>
       </Sheet>
-    </div>
+    </>
   );
 };
 
