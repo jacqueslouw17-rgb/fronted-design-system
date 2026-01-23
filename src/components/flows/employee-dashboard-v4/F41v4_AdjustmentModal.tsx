@@ -88,7 +88,7 @@ const requestTypeOptions = [
 ];
 
 export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', onBack }: F41v4_AdjustmentModalProps) => {
-  const { addAdjustment, leaveRequests } = useF41v4_DashboardStore();
+  const { addAdjustment } = useF41v4_DashboardStore();
   
   // Selection state
   const [selectedType, setSelectedType] = useState<RequestType>(null);
