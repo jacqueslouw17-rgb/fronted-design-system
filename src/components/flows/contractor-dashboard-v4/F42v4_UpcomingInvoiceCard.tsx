@@ -505,6 +505,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
                 {formatDate(nextInvoiceDate)}
               </p>
               <p className="text-xs text-muted-foreground mt-1.5">Expected invoice date</p>
+              <p className="text-[10px] text-muted-foreground/50 mt-2">Last paid: $4,120 (Dec 2025)</p>
             </div>
           </div>
 
