@@ -35,7 +35,34 @@ import { Badge } from '@/components/ui/badge';
 // TimeOffSummary component - read-only display of *approved* leave impacting this pay period.
 // Always renders (with a calm placeholder) so employees can find it reliably.
 const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) => {
-  const approvedLeave = leaveRequests.filter((l) => l.status === 'Admin approved');
+  const [simulateApproved, setSimulateApproved] = useState(false);
+  
+  const realApprovedLeave = leaveRequests.filter((l) => l.status === 'Admin approved');
+  
+  // Mock approved leave for simulation
+  const mockApprovedLeave: LeaveRequest[] = [
+    {
+      id: 'mock-1',
+      leaveType: 'Annual leave',
+      startDate: '2026-01-12',
+      endDate: '2026-01-13',
+      totalDays: 2,
+      status: 'Admin approved',
+      submittedAt: new Date().toISOString(),
+    },
+    {
+      id: 'mock-2',
+      leaveType: 'Sick leave',
+      startDate: '2026-01-20',
+      endDate: '2026-01-20',
+      totalDays: 1,
+      status: 'Admin approved',
+      submittedAt: new Date().toISOString(),
+    },
+  ];
+  
+  // Use simulated data if toggle is on and no real approved leave exists
+  const approvedLeave = simulateApproved ? mockApprovedLeave : realApprovedLeave;
   const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
 
   const formatDateRange = (startDate: string, endDate: string) => {
@@ -104,6 +131,17 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
               </p>
             </div>
           )}
+          
+          {/* Simulate toggle - for tech demo only */}
+          <div className="mt-4 pt-3 border-t border-dashed border-border/40">
+            <button
+              type="button"
+              onClick={() => setSimulateApproved(!simulateApproved)}
+              className="text-[10px] font-mono text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            >
+              [tech] {simulateApproved ? 'Show empty' : 'Simulate approved'}
+            </button>
+          </div>
         </div>
       </div>
     </section>
