@@ -198,7 +198,18 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
     holiday: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-medium',
   };
 
-  // Success state
+  // Pay period bounds for context display
+  const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
+  const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
+  const payPeriodLabel = `${format(payPeriodStart, 'MMM d')} – ${format(payPeriodEnd, 'MMM d')}`;
+  
+  // Check if selected dates span pay periods
+  const spansPayPeriods = useMemo(() => {
+    if (!startDate || !endDate) return false;
+    return startDate < payPeriodStart || endDate > payPeriodEnd;
+  }, [startDate, endDate]);
+
+  // Success state - AFTER all hooks
   if (showSuccess) {
     return (
       <Sheet open={open} onOpenChange={handleClose}>
@@ -244,17 +255,6 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
       </Sheet>
     );
   }
-
-  // Pay period bounds for context display
-  const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
-  const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
-  const payPeriodLabel = `${format(payPeriodStart, 'MMM d')} – ${format(payPeriodEnd, 'MMM d')}`;
-  
-  // Check if selected dates span pay periods
-  const spansPayPeriods = useMemo(() => {
-    if (!startDate || !endDate) return false;
-    return startDate < payPeriodStart || endDate > payPeriodEnd;
-  }, [startDate, endDate]);
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
