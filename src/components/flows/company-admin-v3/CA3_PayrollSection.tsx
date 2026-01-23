@@ -209,7 +209,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               )}
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Submit before Jan 25, 2026 — 5 days remaining"}
+              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Workers have 3 days left to submit"}
             </p>
           </div>
           <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">

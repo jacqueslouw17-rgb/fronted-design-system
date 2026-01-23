@@ -137,7 +137,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }
   };
 
-  const renderSubmissionRow = (submission: WorkerSubmission) => {
+  const renderSubmissionRow = (submission: WorkerSubmission, isLast: boolean = false) => {
     const status = statusConfig[submission.status];
     const StatusIcon = status.icon;
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
@@ -146,74 +146,66 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       <motion.div
         key={submission.id}
         layout
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98 }}
-        className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className={cn(
+          "px-4 py-3 flex items-center gap-3 hover:bg-muted/30 transition-colors cursor-pointer group",
+          submission.status === "rejected" && "bg-red-500/5"
+        )}
         onClick={() => handleRowClick(submission)}
       >
-        <div className="flex items-center gap-4 flex-1">
-          {/* Avatar */}
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-              {getInitials(submission.workerName)}
-            </AvatarFallback>
-          </Avatar>
+        {/* Avatar */}
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+            {getInitials(submission.workerName)}
+          </AvatarFallback>
+        </Avatar>
 
-          {/* Worker Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-foreground">
-                {submission.workerName}
-              </span>
-              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <TypeIcon className="h-3 w-3" />
-                {submission.workerType === "employee" ? "Employee" : "Contractor"}
-              </span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>{submission.workerCountry}</span>
-              {/* Submission type chips */}
-              <div className="flex items-center gap-1">
-                {submission.submissions.slice(0, 2).map((sub, idx) => {
-                  const config = submissionTypeConfig[sub.type];
-                  const Icon = config.icon;
-                  return (
-                    <Badge key={idx} variant="secondary" className="text-[10px] gap-1 px-1.5 py-0">
-                      <Icon className="h-3 w-3" />
-                      {config.label}
-                    </Badge>
-                  );
-                })}
-                {submission.submissions.length > 2 && (
-                  <span className="text-[10px] text-muted-foreground">
-                    +{submission.submissions.length - 2}
-                  </span>
-                )}
-              </div>
-            </div>
+        {/* Worker Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-foreground truncate">
+              {submission.workerName}
+            </span>
+            <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{submission.workerCountry}</span>
+            <span className="text-muted-foreground/40">·</span>
+            {submission.submissions.slice(0, 2).map((sub, idx) => {
+              const config = submissionTypeConfig[sub.type];
+              return (
+                <span key={idx} className="text-muted-foreground">
+                  {config.label}{idx < Math.min(submission.submissions.length, 2) - 1 && ", "}
+                </span>
+              );
+            })}
+            {submission.submissions.length > 2 && (
+              <span>+{submission.submissions.length - 2}</span>
+            )}
           </div>
         </div>
 
         {/* Right side: Amount + Status */}
-        <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+        <div className="flex items-center gap-4 flex-shrink-0">
           {/* Impact Amount */}
           {submission.totalImpact ? (
-            <p className="text-sm font-medium text-foreground min-w-[70px] text-right">
+            <p className="text-sm font-semibold text-foreground tabular-nums">
               {formatCurrency(submission.totalImpact, submission.currency)}
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground min-w-[70px] text-right">—</p>
+            <p className="text-xs text-muted-foreground">—</p>
           )}
 
           {/* Status */}
-          <div className={cn("flex items-center gap-1 text-xs min-w-[70px]", 
+          <div className={cn("flex items-center gap-1 text-xs", 
             submission.status === "approved" && "text-accent-green-text",
             submission.status === "pending" && "text-amber-600",
             submission.status === "rejected" && "text-red-600"
           )}>
             <StatusIcon className="h-3.5 w-3.5" />
-            {status.label}
+            <span className="hidden sm:inline">{status.label}</span>
           </div>
 
           <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
@@ -275,49 +267,53 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-5">
+        <CardContent className="p-0">
           {/* Tabbed view */}
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="h-9 bg-muted/30 p-1 mb-4">
-              <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                All ({submissions.length})
-              </TabsTrigger>
-              <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                Pending ({pendingCount})
-              </TabsTrigger>
-              <TabsTrigger value="approved" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                Approved ({approvedCount})
-              </TabsTrigger>
-              {rejectedCount > 0 && (
-                <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
-                  Rejected ({rejectedCount})
+            <div className="px-5 pt-4 pb-3 border-b border-border/40">
+              <TabsList className="h-8 bg-muted/30 p-0.5">
+                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  All ({submissions.length})
                 </TabsTrigger>
-              )}
-            </TabsList>
+                <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Pending ({pendingCount})
+                </TabsTrigger>
+                <TabsTrigger value="approved" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Approved ({approvedCount})
+                </TabsTrigger>
+                {rejectedCount > 0 && (
+                  <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-red-600">
+                    Rejected ({rejectedCount})
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </div>
 
-            <TabsContent value="all" className="mt-0 space-y-2">
-              <AnimatePresence mode="popLayout">
-                {filteredSubmissions.map(renderSubmissionRow)}
-              </AnimatePresence>
-            </TabsContent>
+            <div className="max-h-[420px] overflow-y-auto divide-y divide-border/40">
+              <TabsContent value="all" className="mt-0">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.map((s, i) => renderSubmissionRow(s, i === filteredSubmissions.length - 1))}
+                </AnimatePresence>
+              </TabsContent>
 
-            <TabsContent value="pending" className="mt-0 space-y-2">
-              <AnimatePresence mode="popLayout">
-                {filteredSubmissions.filter(s => s.status === "pending").map(renderSubmissionRow)}
-              </AnimatePresence>
-            </TabsContent>
+              <TabsContent value="pending" className="mt-0">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.status === "pending").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
+                </AnimatePresence>
+              </TabsContent>
 
-            <TabsContent value="approved" className="mt-0 space-y-2">
-              <AnimatePresence mode="popLayout">
-                {filteredSubmissions.filter(s => s.status === "approved").map(renderSubmissionRow)}
-              </AnimatePresence>
-            </TabsContent>
+              <TabsContent value="approved" className="mt-0">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.status === "approved").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
+                </AnimatePresence>
+              </TabsContent>
 
-            <TabsContent value="rejected" className="mt-0 space-y-2">
-              <AnimatePresence mode="popLayout">
-                {filteredSubmissions.filter(s => s.status === "rejected").map(renderSubmissionRow)}
-              </AnimatePresence>
-            </TabsContent>
+              <TabsContent value="rejected" className="mt-0">
+                <AnimatePresence mode="popLayout">
+                  {filteredSubmissions.filter(s => s.status === "rejected").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
+                </AnimatePresence>
+              </TabsContent>
+            </div>
           </Tabs>
         </CardContent>
       </Card>
