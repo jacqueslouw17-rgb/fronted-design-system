@@ -265,11 +265,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               {onClose && (
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={onClose}
-                  className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
+                  className="h-9 text-xs"
                 >
-                  <X className="h-4 w-4" />
+                  Close
                 </Button>
               )}
             </div>

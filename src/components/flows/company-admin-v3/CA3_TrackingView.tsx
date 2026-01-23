@@ -25,12 +25,14 @@ interface CA3_TrackingViewProps {
   workers: TrackingWorker[];
   onExportCSV: () => void;
   onDownloadAuditPDF: () => void;
+  onClose?: () => void;
 }
 
 export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   workers,
   onExportCSV,
   onDownloadAuditPDF,
+  onClose,
 }) => {
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
@@ -125,6 +127,21 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   };
 
   return (
+    <div className="space-y-4">
+      {/* Navigation */}
+      {onClose && (
+        <div className="flex items-center justify-end">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            className="h-9 text-xs"
+          >
+            Close
+          </Button>
+        </div>
+      )}
+      
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
         <div className="flex items-center justify-between">
@@ -215,6 +232,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </Tabs>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
