@@ -34,19 +34,30 @@ import { Badge } from '@/components/ui/badge';
 
 // TimeOffSummary component - read-only display of *approved* leave impacting this pay period.
 // Always renders (with a calm placeholder) so employees can find it reliably.
+
+interface ProcessedLeave {
+  id: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  spansPeriods: boolean;
+  hasRemainingDays: boolean;
+}
+
 const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) => {
   const [simulateApproved, setSimulateApproved] = useState(false);
   
   const realApprovedLeave = leaveRequests.filter((l) => l.status === 'Admin approved');
   
-  // Mock approved leave for simulation
+  // Mock approved leave for simulation - includes a split scenario
   const mockApprovedLeave: LeaveRequest[] = [
     {
       id: 'mock-1',
       leaveType: 'Annual leave',
-      startDate: '2026-01-12',
-      endDate: '2026-01-13',
-      totalDays: 2,
+      startDate: '2026-01-28',
+      endDate: '2026-02-03', // Spans into February
+      totalDays: 7,
       status: 'Admin approved',
       submittedAt: new Date().toISOString(),
     },
@@ -61,15 +72,58 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
     },
   ];
   
-  // Use simulated data if toggle is on and no real approved leave exists
+  // Use simulated data if toggle is on
   const approvedLeave = simulateApproved ? mockApprovedLeave : realApprovedLeave;
-  const totalApprovedDays = approvedLeave.reduce((sum, l) => sum + l.totalDays, 0);
+
+  // Process leave to split by pay period and calculate days within current period
+  const processLeaveForPeriod = (leave: LeaveRequest): ProcessedLeave | null => {
+    const leaveStart = new Date(leave.startDate);
+    const leaveEnd = new Date(leave.endDate);
+    
+    // Check if leave overlaps with current pay period at all
+    if (leaveEnd < payPeriodStart || leaveStart > payPeriodEnd) {
+      return null; // No overlap
+    }
+    
+    // Calculate the portion within this pay period
+    const effectiveStart = leaveStart < payPeriodStart ? payPeriodStart : leaveStart;
+    const effectiveEnd = leaveEnd > payPeriodEnd ? payPeriodEnd : leaveEnd;
+    
+    // Calculate days within this period (inclusive)
+    const daysInPeriod = Math.floor((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Check if it spans multiple periods
+    const spansPeriods = leaveStart < payPeriodStart || leaveEnd > payPeriodEnd;
+    const hasRemainingDays = leaveEnd > payPeriodEnd;
+    
+    return {
+      id: leave.id,
+      leaveType: leave.leaveType,
+      startDate: effectiveStart.toISOString(),
+      endDate: effectiveEnd.toISOString(),
+      totalDays: daysInPeriod,
+      spansPeriods,
+      hasRemainingDays,
+    };
+  };
+
+  // Process all approved leave
+  const processedLeave = approvedLeave
+    .map(processLeaveForPeriod)
+    .filter((l): l is ProcessedLeave => l !== null);
+  
+  const totalApprovedDays = processedLeave.reduce((sum, l) => sum + l.totalDays, 0);
+  const hasAnySpanning = processedLeave.some(l => l.spansPeriods);
+  const hasRemainingNextPeriod = processedLeave.some(l => l.hasRemainingDays);
 
   const formatDateRange = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start.toDateString() === end.toDateString()) return format(start, 'MMM d');
-    return `${format(start, 'MMM d')}–${format(end, 'd')}`;
+    if (start.getMonth() === end.getMonth()) {
+      return `${format(start, 'MMM d')}–${format(end, 'd')}`;
+    }
+    return `${format(start, 'MMM d')}–${format(end, 'MMM d')}`;
   };
 
   return (
@@ -89,7 +143,7 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
               <p className="text-xs text-muted-foreground">Approved (this pay period)</p>
             </div>
 
-            {approvedLeave.length > 0 && (
+            {processedLeave.length > 0 && (
               <Badge
                 variant="outline"
                 className="bg-muted/40 text-[10px] px-1.5 py-0"
@@ -100,19 +154,34 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
             )}
           </div>
 
-          {approvedLeave.length > 0 ? (
+          {processedLeave.length > 0 ? (
             <div className="space-y-1.5 mt-3">
-              {approvedLeave.slice(0, 3).map((leave) => (
-                <div key={leave.id} className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground truncate">{leave.leaveType}</span>
-                  <span className="text-foreground font-medium tabular-nums shrink-0">
-                    {formatDateRange(leave.startDate, leave.endDate)}
-                  </span>
+              {processedLeave.slice(0, 3).map((leave) => (
+                <div key={leave.id} className="space-y-0.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-muted-foreground truncate">{leave.leaveType}</span>
+                      {leave.spansPeriods && (
+                        <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
+                          Spans pay periods
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-foreground font-medium tabular-nums shrink-0 ml-2">
+                      {formatDateRange(leave.startDate, leave.endDate)} · {leave.totalDays}d
+                    </span>
+                  </div>
                 </div>
               ))}
-              {approvedLeave.length > 3 && (
+              {processedLeave.length > 3 && (
                 <p className="text-[11px] text-muted-foreground">
-                  +{approvedLeave.length - 3} more
+                  +{processedLeave.length - 3} more
+                </p>
+              )}
+
+              {hasRemainingNextPeriod && (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-2">
+                  Remaining days will appear next pay period.
                 </p>
               )}
 
@@ -124,10 +193,7 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
             <div className="mt-3">
               <p className="text-sm text-foreground">No approved time off this period</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Pending requests stay in the dashboard until approved.
-              </p>
-              <p className="text-[11px] text-muted-foreground/70 mt-2">
-                Example: 2 days approved · Jan 12–13
+                Approved leave will show here once confirmed and will be included in payroll.
               </p>
             </div>
           )}
@@ -139,7 +205,7 @@ const TimeOffSummary = ({ leaveRequests }: { leaveRequests: LeaveRequest[] }) =>
               onClick={() => setSimulateApproved(!simulateApproved)}
               className="text-[10px] font-mono text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             >
-              [tech] {simulateApproved ? 'Show empty' : 'Simulate approved'}
+              [tech] {simulateApproved ? 'Show empty' : 'Simulate split'}
             </button>
           </div>
         </div>
