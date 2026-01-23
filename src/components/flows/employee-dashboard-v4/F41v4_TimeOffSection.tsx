@@ -212,17 +212,17 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     const isPending = variant === 'pending';
     const isMuted = variant === 'muted';
     
-    const bgClass = isApproved 
-      ? 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/10'
-      : isPending
-        ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/10'
-        : 'bg-muted/30 dark:bg-muted/10 border-border/40';
+    // Approved = neutral row with subtle green indicator
+    // Pending = amber to draw attention
+    const bgClass = isPending
+      ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/10'
+      : 'bg-muted/20 dark:bg-muted/5 border-border/30';
     
     const iconBgClass = isApproved
-      ? 'bg-emerald-100 dark:bg-emerald-500/20'
+      ? 'bg-emerald-100/70 dark:bg-emerald-500/15'
       : isPending
         ? 'bg-amber-100 dark:bg-amber-500/20'
-        : 'bg-muted dark:bg-muted/30';
+        : 'bg-muted/50 dark:bg-muted/20';
     
     const iconColorClass = isApproved
       ? 'text-emerald-600 dark:text-emerald-400'
@@ -264,33 +264,24 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
           
           {/* Status/context badges */}
           {leave.spansPeriods && leave.timeContext === 'current' && (
-            <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
+            <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-border/50 text-[9px] px-1 py-0 shrink-0">
               +{leave.remainingDays}d next period
             </Badge>
           )}
-          {isPending && leave.timeContext === 'current' && (
-            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+          {isPending && (
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
               Awaiting approval
-            </span>
+            </Badge>
           )}
           {leave.timeContext === 'continuation' && (
-            <Badge variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[9px] px-1 py-0 shrink-0">
+            <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-border/50 text-[9px] px-1 py-0 shrink-0">
               Continues from Jan
             </Badge>
           )}
-          {leave.timeContext === 'upcoming' && (
-            <>
-              {leave.spansPeriods && (
-                <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
-                  Spans months
-                </Badge>
-              )}
-            </>
-          )}
-          {leave.status === 'Pending' && leave.timeContext !== 'current' && (
-            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-              Awaiting approval
-            </span>
+          {leave.timeContext === 'upcoming' && leave.spansPeriods && (
+            <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-border/50 text-[9px] px-1 py-0 shrink-0">
+              Spans months
+            </Badge>
           )}
         </div>
         
