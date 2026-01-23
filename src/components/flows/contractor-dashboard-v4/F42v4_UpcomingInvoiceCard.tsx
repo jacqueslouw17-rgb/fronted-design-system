@@ -315,9 +315,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-xl font-semibold">Upcoming invoice</CardTitle>
-                <span className="text-sm text-muted-foreground">·</span>
-                <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
+                <CardTitle className="text-xl font-semibold">Upcoming invoice ({periodMonth})</CardTitle>
               </div>
               {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
@@ -446,7 +444,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <Wallet className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm font-medium text-muted-foreground">Invoice total</p>
+                        <p className="text-sm font-medium text-muted-foreground">Invoice preview</p>
                       </div>
                       
                       {hasAdjustments ? (
@@ -478,7 +476,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
                           <p className="text-3xl font-bold text-foreground tracking-tight">
                             {formatCurrency(invoiceTotal, currency)}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1.5">Based on your contract</p>
+                          <div className="space-y-0.5 mt-1.5">
+                            <p className="text-xs text-muted-foreground">Final amount confirmed on invoice</p>
+                            <p className="text-[10px] text-muted-foreground/60">May change if edits are made before approval</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -486,8 +487,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
                       onClick={() => setBreakdownDrawerOpen(true)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors self-start"
                     >
-                      <FileText className="h-3.5 w-3.5" />
-                      Breakdown
+                      What's included
                       <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
