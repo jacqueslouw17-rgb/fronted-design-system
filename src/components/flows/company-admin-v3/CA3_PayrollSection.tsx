@@ -197,9 +197,9 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
               {isSubmitted ? (
-                <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Submitted
+                <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Processing
                 </Badge>
               ) : (
                 <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
@@ -212,10 +212,12 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
               {isSubmitted ? "Payroll submitted to Fronted for processing" : "Workers have 3 days left to submit"}
             </p>
           </div>
-          <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
-            Continue to submissions
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
+          {!isSubmitted && (
+            <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+              Continue to submissions
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          )}
         </div>
 
         {/* Metrics Grid */}
