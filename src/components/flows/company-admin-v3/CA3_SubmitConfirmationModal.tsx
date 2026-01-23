@@ -71,17 +71,20 @@ export const CA3_SubmitConfirmationModal: React.FC<CA3_SubmitConfirmationModalPr
           <div className="space-y-2.5">
             <div className="flex items-center gap-2.5 text-sm">
               <CheckCircle2 className="h-4 w-4 text-accent-green-text flex-shrink-0" />
-              <span className="text-muted-foreground">Fronted processes payments (2-3 days)</span>
+              <span className="text-muted-foreground">Fronted reviews & processes (2-3 days)</span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
               <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="text-muted-foreground">FX rates locked immediately</span>
+              <span className="text-muted-foreground">FX rates locked at time of payout</span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
               <Info className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">Track status in real-time</span>
             </div>
           </div>
+          <p className="text-[10px] text-muted-foreground text-center">
+            Final amount may vary slightly based on FX rates at payment time.
+          </p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
