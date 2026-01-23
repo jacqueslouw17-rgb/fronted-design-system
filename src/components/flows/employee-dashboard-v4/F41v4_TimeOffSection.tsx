@@ -127,10 +127,12 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
 
   const hasAnyLeave = processedApproved.length > 0 || processedPending.length > 0;
   
-  // Limit display to 2 items unless "View all" is clicked
-  const displayLimit = 2;
-  const visibleApproved = showAll ? processedApproved : processedApproved.slice(0, displayLimit);
-  const remainingCount = processedApproved.length + processedPending.length - displayLimit;
+  // Display limits - approved capped at 2, but always show all pending
+  const approvedLimit = 2;
+  const visibleApproved = showAll ? processedApproved : processedApproved.slice(0, approvedLimit);
+  const visiblePending = processedPending; // Always show all pending requests
+  const totalItems = processedApproved.length + processedPending.length;
+  const hasMoreApproved = processedApproved.length > approvedLimit;
 
   return (
     <>
@@ -205,7 +207,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                 ))}
                 
                 {/* Pending Leave List */}
-                {(showAll ? processedPending : processedPending.slice(0, Math.max(0, displayLimit - processedApproved.length))).map((leave) => (
+                {visiblePending.map((leave) => (
                   <div 
                     key={leave.id}
                     className="group flex items-center gap-3 p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10"
@@ -245,16 +247,16 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                   </div>
                 ))}
                 
-                {/* View all / Show less */}
-                {!showAll && remainingCount > 0 && (
+                {/* View all / Show less - only for approved items */}
+                {!showAll && hasMoreApproved && (
                   <button
                     onClick={() => setShowAll(true)}
                     className="text-xs text-primary hover:text-primary/80 transition-colors pt-1"
                   >
-                    View all ({processedApproved.length + processedPending.length} total)
+                    View all approved ({processedApproved.length} total)
                   </button>
                 )}
-                {showAll && (processedApproved.length + processedPending.length) > displayLimit && (
+                {showAll && hasMoreApproved && (
                   <button
                     onClick={() => setShowAll(false)}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors pt-1"
