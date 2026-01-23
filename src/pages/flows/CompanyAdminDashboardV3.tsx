@@ -13,6 +13,7 @@ import AgentHeaderTags from "@/components/agent/AgentHeaderTags";
 import FloatingKurtButton from "@/components/FloatingKurtButton";
 import CountryRulesDrawer from "@/components/payroll/CountryRulesDrawer";
 import { CA3_PayrollSection } from "@/components/flows/company-admin-v3/CA3_PayrollSection";
+import { CA3_LeavesTab } from "@/components/flows/company-admin-v3/CA3_LeavesTab";
 import { CA_PayrollOverviewCard } from "@/components/flows/company-admin-v2/CA_PayrollOverviewCard";
 import { CA_ReviewFXTotalsCard } from "@/components/flows/company-admin-v2/CA_ReviewFXTotalsCard";
 import { CA_ResolveItemsDrawer } from "@/components/flows/company-admin-v2/CA_ResolveItemsDrawer";
@@ -374,6 +375,8 @@ const CompanyAdminDashboardV3: React.FC = () => {
     getSettings
   } = useCountrySettings();
   const [viewMode, setViewMode] = useState<"payroll" | "batch-review">("payroll");
+  // Main dashboard tab state
+  const [activeTab, setActiveTab] = useState<"payroll" | "leaves">("payroll");
   // workersSearchQuery removed - Workers table removed from this flow
 
   // Batch Review State
@@ -3593,10 +3596,36 @@ You can ask me about:
                   // }
                   />
 
-                    {/* View Mode removed - Payroll is the default and only view */}
-                    
-                    {/* Breadcrumb for Batch Review */}
-                    {viewMode === "batch-review" && <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                    {/* Elegant Tab Navigation */}
+                    <div className="pt-4 pb-2">
+                      <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted/30 border border-border/30">
+                        <button
+                          onClick={() => setActiveTab("payroll")}
+                          className={cn(
+                            "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
+                            activeTab === "payroll"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          Payroll
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("leaves")}
+                          className={cn(
+                            "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
+                            activeTab === "leaves"
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          Leaves
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Breadcrumb for Batch Review - only in Payroll tab */}
+                    {activeTab === "payroll" && viewMode === "batch-review" && <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                         <Button variant="link" className="h-auto p-0 text-muted-foreground hover:text-foreground" onClick={handleBackToPayroll}>
                           Payroll
                         </Button>
@@ -3604,9 +3633,15 @@ You can ask me about:
                         <span className="text-foreground font-medium">Payment Batch Review (Nov 2025)</span>
                       </div>}
 
-                    {/* Payroll Content - Main Dashboard View */}
+                    {/* Tab Content */}
                     <div className="pt-4">
-                      {viewMode === "payroll" ? (/* Payroll with Period-Based States */
+                      {/* LEAVES TAB */}
+                      {activeTab === "leaves" && (
+                        <CA3_LeavesTab />
+                      )}
+
+                      {/* PAYROLL TAB */}
+                      {activeTab === "payroll" && (viewMode === "payroll" ? (/* Payroll with Period-Based States */
                     <div className="space-y-6">
                           {/* Period content removed - dropdown moved into cards */}
 
@@ -3845,7 +3880,7 @@ You can ask me about:
                               {/* Request Changes Modal */}
                               <CA_RequestChangesModal open={requestChangesModalOpen} onOpenChange={setRequestChangesModalOpen} onSubmit={handleRequestChanges} />
                             </div>}
-                        </div>) : null}
+                        </div>) : null)}
                     </div>
 
                     {/* Payment Detail Drawer */}

@@ -8,3 +8,4 @@ export * from "./CA3_TopSummary";
 export * from "./CA3_TrackingView";
 export * from "./CA3_SubmissionsView";
 export * from "./CA3_PayrollSection";
+export * from "./CA3_LeavesTab";
