@@ -89,13 +89,13 @@ const F41v4_EmployeeDashboardPage = () => {
               </main>
             </AgentLayout>
           </div>
+          
+          {/* Dedicated Time Off Request Drawer - at root level for proper z-index */}
+          <F41v4_TimeOffRequestDrawer 
+            open={timeOffDrawerOpen} 
+            onOpenChange={setTimeOffDrawerOpen} 
+          />
         </div>
-        
-        {/* Dedicated Time Off Request Drawer */}
-        <F41v4_TimeOffRequestDrawer 
-          open={timeOffDrawerOpen} 
-          onOpenChange={setTimeOffDrawerOpen} 
-        />
       </TooltipProvider>
     </RoleLensProvider>
   );
