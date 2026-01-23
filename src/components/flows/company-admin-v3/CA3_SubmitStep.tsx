@@ -50,6 +50,12 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   onClose,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRefreshingFx, setIsRefreshingFx] = useState(false);
+
+  const handleRefreshFx = () => {
+    setIsRefreshingFx(true);
+    setTimeout(() => setIsRefreshingFx(false), 1200);
+  };
 
   // Track view calculations
   const employees = trackingWorkers.filter(w => w.type === "employee");
@@ -210,9 +216,13 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                   <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
                     <div className="flex items-center justify-between mb-1">
                       <p className="text-xs text-primary/70">Estimated total payout</p>
-                      <button className="flex items-center gap-1 text-[10px] text-primary/60 hover:text-primary transition-colors">
-                        <RefreshCw className="h-2.5 w-2.5" />
-                        Refresh FX
+                      <button 
+                        onClick={handleRefreshFx}
+                        disabled={isRefreshingFx}
+                        className="flex items-center gap-1 text-[10px] text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
+                      >
+                        <RefreshCw className={cn("h-2.5 w-2.5", isRefreshingFx && "animate-spin")} />
+                        {isRefreshingFx ? "Refreshing..." : "Refresh FX"}
                       </button>
                     </div>
                     <p className="text-3xl font-semibold text-primary tracking-tight">{totalCost}</p>
