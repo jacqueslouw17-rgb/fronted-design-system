@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck, ChevronLeft } from "lucide-react";
+import { Send, Users, Briefcase, CheckCircle2, Globe, Clock, Download, FileText, XCircle, AlertTriangle, ShieldCheck, ChevronLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -207,23 +207,68 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                   </div>
 
                   {/* Total payout - Hero with breakdown */}
-                  <div className="p-5 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-                    <p className="text-xs text-primary/70 mb-1">Total payout</p>
-                    <p className="text-3xl font-semibold text-primary tracking-tight">{totalCost}</p>
+                  <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
+                    {/* Header with estimate disclaimer */}
+                    <div className="px-5 py-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b border-border/40">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-0.5">Estimated total payout</p>
+                          <p className="text-3xl font-semibold text-foreground tracking-tight">{totalCost}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Base currency</p>
+                          <p className="text-sm font-medium text-foreground">USD</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Based on current FX rates. Final amount may vary at time of payment.
+                      </p>
+                    </div>
                     
-                    {/* Elegant receipt-style breakdown */}
-                    <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Gross pay</span>
-                        <span className="text-foreground tabular-nums">$124,800</span>
+                    {/* FX Rates section */}
+                    <div className="px-5 py-4 border-b border-border/40">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs font-medium text-foreground">Exchange rates</span>
+                        </div>
+                        <button className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
+                          <RefreshCw className="h-3 w-3" />
+                          Refresh rates
+                        </button>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Fronted fees</span>
-                        <span className="text-foreground tabular-nums">$3,792</span>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                          <span className="text-xs text-muted-foreground">EUR/USD</span>
+                          <span className="text-xs font-medium text-foreground tabular-nums">1.0847</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                          <span className="text-xs text-muted-foreground">PHP/USD</span>
+                          <span className="text-xs font-medium text-foreground tabular-nums">0.0176</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                          <span className="text-xs text-muted-foreground">NOK/USD</span>
+                          <span className="text-xs font-medium text-foreground tabular-nums">0.0891</span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
-                        <span className="text-primary/80 font-medium">Net payout</span>
-                        <span className="text-primary font-medium tabular-nums">$128,592</span>
+                      <p className="text-[10px] text-muted-foreground mt-2">
+                        Rates as of Jan 22, 2026 09:15 UTC · Powered by Fronted Treasury
+                      </p>
+                    </div>
+                    
+                    {/* Breakdown */}
+                    <div className="px-5 py-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Gross pay (all currencies)</span>
+                        <span className="text-foreground tabular-nums font-medium">$124,800</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Fronted processing fees</span>
+                        <span className="text-foreground tabular-nums font-medium">$3,792</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm pt-2 border-t border-border/40">
+                        <span className="text-foreground font-medium">Net payout</span>
+                        <span className="text-primary font-semibold tabular-nums">$128,592</span>
                       </div>
                     </div>
                   </div>
