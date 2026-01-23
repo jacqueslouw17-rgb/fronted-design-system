@@ -105,48 +105,39 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
       <div 
         key={worker.id}
         className={cn(
-          "p-3.5 rounded-lg border bg-card/80",
-          isFailed ? "border-amber-500/30" : "border-border/60"
+          "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30",
+          isFailed && "border-amber-500/30 bg-amber-500/5"
         )}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-                {getInitials(worker.name)}
-              </AvatarFallback>
-            </Avatar>
+        {/* Avatar */}
+        <Avatar className="h-6 w-6 flex-shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
+            {getInitials(worker.name)}
+          </AvatarFallback>
+        </Avatar>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-sm font-medium text-foreground">{worker.name}</p>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <TypeIcon className="h-3 w-3" />
-                  {worker.type === "employee" ? "Employee" : "Contractor"}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">{worker.country}</p>
-            </div>
+        {/* Name & Country */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
+            <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
           </div>
-
-          <div className="flex items-center gap-4 ml-4 flex-shrink-0">
-            <p className="text-sm font-medium text-foreground min-w-[90px] text-right tabular-nums">
-              {formatCurrency(worker.amount, worker.currency)}
-            </p>
-
-            <div className={cn("flex items-center gap-1.5 text-xs min-w-[110px]", statusConfig.color)}>
-              <StatusIcon className="h-3.5 w-3.5" />
-              {statusConfig.label}
-            </div>
-          </div>
+          {isFailed && worker.errorMessage && (
+            <p className="text-[10px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
+          )}
         </div>
 
-        {isFailed && worker.errorMessage && (
-          <div className="mt-3 pt-3 border-t border-amber-500/10 flex items-start gap-2">
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-muted-foreground">{worker.errorMessage}</p>
-          </div>
-        )}
+        {/* Amount */}
+        <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
+          {formatCurrency(worker.amount, worker.currency)}
+        </p>
+
+        {/* Status */}
+        <div className={cn("flex items-center gap-1 text-[11px] min-w-[80px]", statusConfig.color)}>
+          <StatusIcon className="h-3 w-3" />
+          {statusConfig.label}
+        </div>
       </div>
     );
   };
@@ -364,19 +355,19 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                       )}
                     </TabsList>
 
-                    <TabsContent value="all" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
+                    <TabsContent value="all" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {filteredWorkers.map(renderWorkerRow)}
                     </TabsContent>
 
-                    <TabsContent value="employees" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
+                    <TabsContent value="employees" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {employees.filter(w => filteredWorkers.includes(w)).map(renderWorkerRow)}
                     </TabsContent>
 
-                    <TabsContent value="contractors" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
+                    <TabsContent value="contractors" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {contractors.filter(w => filteredWorkers.includes(w)).map(renderWorkerRow)}
                     </TabsContent>
 
-                    <TabsContent value="attention" className="mt-0 space-y-2 max-h-[400px] overflow-y-auto">
+                    <TabsContent value="attention" className="mt-0 space-y-1 max-h-[400px] overflow-y-auto">
                       {filteredWorkers.filter(w => w.status === "failed").map(renderWorkerRow)}
                     </TabsContent>
                   </Tabs>

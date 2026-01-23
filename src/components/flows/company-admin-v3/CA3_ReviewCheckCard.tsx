@@ -74,30 +74,27 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
 
   return (
     <div 
-      className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
+      className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-border/30 bg-card hover:bg-muted/30 transition-colors cursor-pointer group"
     >
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-3 flex-1">
         {/* Worker Avatar */}
-        <Avatar className="h-10 w-10">
-          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+        <Avatar className="h-7 w-7">
+          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
             {getInitials(check.workerName)}
           </AvatarFallback>
         </Avatar>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-1.5">
             <span className="text-sm font-medium text-foreground">
               {check.workerName}
             </span>
-            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <TypeIcon className="h-3 w-3" />
-              {check.workerType === "employee" ? "Employee" : "Contractor"}
-            </span>
+            <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            <span className="text-[11px] text-muted-foreground">· {check.workerCountry}</span>
           </div>
           
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{check.workerCountry}</span>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground leading-tight">
             <Badge variant="secondary" className={cn("text-[10px] gap-1 px-1.5 py-0", config.iconColor)}>
               <Icon className="h-3 w-3" />
               {check.title}
@@ -107,19 +104,19 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+      <div className="flex items-center gap-2 ml-3 flex-shrink-0">
         {check.canFixNow && check.severity === "blocking" && (
           <Button 
             size="sm" 
             variant="outline"
-            className="h-8 text-xs gap-1.5"
+            className="h-7 text-xs gap-1"
             onClick={(e) => {
               e.stopPropagation();
               onFixNow(check);
             }}
           >
             Fix
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3 w-3" />
           </Button>
         )}
         
@@ -127,13 +124,13 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
           <Button 
             size="sm" 
             variant="ghost"
-            className="h-8 text-xs gap-1.5"
+            className="h-7 text-xs gap-1"
             onClick={(e) => {
               e.stopPropagation();
               onAcknowledge(check);
             }}
           >
-            <Check className="h-3.5 w-3.5" />
+            <Check className="h-3 w-3" />
             OK
           </Button>
         )}
@@ -142,7 +139,7 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
           <Button 
             size="sm" 
             variant="ghost"
-            className="h-8 text-xs text-muted-foreground hover:text-foreground"
+            className="h-7 text-xs text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.stopPropagation();
               onSkip(check);
@@ -152,7 +149,7 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
           </Button>
         )}
         
-        <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </div>
   );
