@@ -3596,32 +3596,14 @@ You can ask me about:
                   // }
                   />
 
-                    {/* Elegant Tab Navigation */}
-                    <div className="pt-4 pb-2">
-                      <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted/30 border border-border/30">
-                        <button
-                          onClick={() => setActiveTab("payroll")}
-                          className={cn(
-                            "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
-                            activeTab === "payroll"
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          Payroll
-                        </button>
-                        <button
-                          onClick={() => setActiveTab("leaves")}
-                          className={cn(
-                            "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
-                            activeTab === "leaves"
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          Leaves
-                        </button>
-                      </div>
+                    {/* Elegant Tab Navigation - Centered Pill Style */}
+                    <div className="flex items-center justify-center py-4">
+                      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "payroll" | "leaves")}>
+                        <TabsList className="grid w-[240px] grid-cols-2">
+                          <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                          <TabsTrigger value="leaves">Leaves</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
                     </div>
 
                     {/* Breadcrumb for Batch Review - only in Payroll tab */}
