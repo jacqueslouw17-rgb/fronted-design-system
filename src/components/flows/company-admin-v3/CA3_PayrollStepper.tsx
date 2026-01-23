@@ -2,7 +2,7 @@ import React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CA3_PayrollStep = "review" | "submissions" | "submit" | "track";
+export type CA3_PayrollStep = "submissions" | "submit" | "track";
 
 interface StepConfig {
   id: CA3_PayrollStep;
@@ -10,7 +10,6 @@ interface StepConfig {
 }
 
 const steps: StepConfig[] = [
-  { id: "review", label: "Review" },
   { id: "submissions", label: "Submissions" },
   { id: "submit", label: "Submit" },
   { id: "track", label: "Track" },
@@ -31,7 +30,7 @@ export const CA3_PayrollStepper: React.FC<CA3_PayrollStepperProps> = ({
   pendingSubmissions = 0,
   isSubmitted = false,
 }) => {
-  const stepOrder: CA3_PayrollStep[] = ["review", "submissions", "submit", "track"];
+  const stepOrder: CA3_PayrollStep[] = ["submissions", "submit", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const getStepState = (step: CA3_PayrollStep): "completed" | "active" | "upcoming" | "locked" => {

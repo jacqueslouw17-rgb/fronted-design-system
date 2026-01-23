@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-import { CA3_TopSummary, PayrollStatus } from "./CA3_TopSummary";
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 import { CA3_SubmissionsView, WorkerSubmission } from "./CA3_SubmissionsView";
 import { CA3_SubmitConfirmationModal } from "./CA3_SubmitConfirmationModal";
@@ -107,8 +108,11 @@ interface CA3_PayrollSectionProps {
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
-  // Step state - 4 steps now (removed checks)
-  const [currentStep, setCurrentStep] = useState<CA3_PayrollStep>("review");
+  // Workflow entered state - start on landing view
+  const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
+  
+  // Step state - 3 steps now (Submissions, Submit, Track)
+  const [currentStep, setCurrentStep] = useState<CA3_PayrollStep>("submissions");
   const [completedSteps, setCompletedSteps] = useState<CA3_PayrollStep[]>([]);
   
   // Submissions state
@@ -126,25 +130,19 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
 
-  // Get current payroll status based on step
-  const getPayrollStatus = (): PayrollStatus => {
-    if (currentStep === "track") return "processing";
-    if (currentStep === "submit") return "ready";
-    return "in-review";
-  };
-
   const handleStepClick = (step: CA3_PayrollStep) => {
     if (completedSteps.includes(step) || step === currentStep) {
       setCurrentStep(step);
     }
   };
 
-  // Navigation handlers
-  const goToSubmissions = () => {
-    setCompletedSteps(prev => [...prev, "review"]);
+  // Enter workflow
+  const handleEnterWorkflow = () => {
+    setHasEnteredWorkflow(true);
     setCurrentStep("submissions");
   };
 
+  // Navigation handlers
   const goToSubmit = () => {
     setCompletedSteps(prev => [...prev, "submissions"]);
     setCurrentStep("submit");
@@ -189,41 +187,91 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     toast.success("Audit PDF downloaded");
   };
 
+  // Render landing view (before entering workflow)
+  const renderLandingView = () => (
+    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+      <CardContent className="py-6 px-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Review and submit payroll for this period</p>
+          </div>
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+            <Clock className="h-3 w-3 mr-1" />
+            In review
+          </Badge>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {/* Gross Pay */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              <span className="text-sm">Gross Pay</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">$124.9K</p>
+            <p className="text-xs text-muted-foreground mt-1">Total base salaries</p>
+          </div>
+
+          {/* Net Pay */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <Receipt className="h-4 w-4 text-primary" />
+              <span className="text-sm">Net Pay</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">$98.5K</p>
+            <p className="text-xs text-muted-foreground mt-1">After deductions</p>
+          </div>
+
+          {/* Fronted Fees */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              <span className="text-sm">Fronted Fees</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">$3,742</p>
+            <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
+          </div>
+
+          {/* Total Cost */}
+          <div className="bg-primary/[0.04] rounded-xl p-4">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span className="text-sm">Total Cost</span>
+            </div>
+            <p className="text-2xl font-semibold text-foreground">$128.6K</p>
+            <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
+          </div>
+        </div>
+
+        {/* Footer Stats */}
+        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30 mb-6">
+          <span>Employees: <strong className="text-foreground">4</strong></span>
+          <span className="text-border">·</span>
+          <span>Contractors: <strong className="text-foreground">5</strong></span>
+          <span className="text-border">·</span>
+          <span>Currencies: <strong className="text-foreground">3</strong></span>
+        </div>
+
+        {/* CTA */}
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-muted-foreground">
+            Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
+          </p>
+          <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+            Continue to submissions
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   // Render step content
   const renderStepContent = () => {
     switch (currentStep) {
-      case "review":
-        return (
-          <div className="space-y-4">
-            {/* Top Summary */}
-            <CA3_TopSummary
-              payPeriod={payPeriod}
-              companyName="Acme Corp"
-              grossPay={124850}
-              netPay={98500}
-              frontedFees={3742}
-              totalCost={128592}
-              employeeCount={4}
-              contractorCount={5}
-              currencyCount={3}
-              status={getPayrollStatus()}
-              paymentRails={["SEPA", "Local", "SWIFT"]}
-              processingTime="2-3 days"
-            />
-
-            {/* Continue action */}
-            <div className="flex items-center justify-between pt-2">
-              <p className="text-xs text-muted-foreground">
-                Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
-              </p>
-              <Button onClick={goToSubmissions} size="sm" className="gap-1.5">
-                Continue to Submissions
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        );
-
       case "submissions":
         return (
           <CA3_SubmissionsView
@@ -264,6 +312,12 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     }
   };
 
+  // Landing view - no stepper, just summary card
+  if (!hasEnteredWorkflow) {
+    return renderLandingView();
+  }
+
+  // Workflow view - with stepper
   return (
     <div className="space-y-6">
       {/* Stepper - hidden after submission */}
