@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export type WorkerPaymentStatus = "paid" | "posted" | "processing" | "failed" | "queued" | "sent";
@@ -155,31 +156,30 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
   }
 
   return (
-    <div className="min-h-[calc(100vh-280px)] relative">
-      {/* Background gradient - extends full height */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-secondary/[0.02] pointer-events-none rounded-xl" />
-      
-      {/* Navigation bar - only show if not submitted */}
-      {!isSubmitted && (onBack || onClose) && (
-        <div className="relative flex items-center justify-between mb-4">
-          <div>
-            {onBack && (
+    <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {!isSubmitted && onBack && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onBack}
-                className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground -ml-2"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
-                Back to Submissions
+                Submissions
               </Button>
             )}
+            <h3 className="text-base font-medium text-foreground">
+              {isSubmitted ? "Payment Status" : "Submit Batch"}
+            </h3>
           </div>
-          <div>
+          <div className="flex items-center gap-3">
             {onClose && (
               <Button
-                variant="secondary"
                 size="sm"
+                variant="secondary"
                 onClick={onClose}
                 className="h-9 text-xs"
               >
@@ -188,13 +188,13 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             )}
           </div>
         </div>
-      )}
-      
-      <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left Panel: Batch Overview OR Track List */}
-        <div className="lg:col-span-3">
-          <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-            {!isSubmitted ? (
+      </CardHeader>
+      <CardContent className="p-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left Panel: Batch Overview OR Track List */}
+          <div className="lg:col-span-3">
+            <div className="rounded-xl border border-border/40 bg-background/50 overflow-hidden">
+              {!isSubmitted ? (
               /* Batch Overview - Pre-submit */
               <>
                 <div className="border-b border-border/40 py-4 px-5">
@@ -460,8 +460,9 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
