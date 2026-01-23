@@ -245,6 +245,17 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
     );
   }
 
+  // Pay period bounds for context display
+  const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
+  const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
+  const payPeriodLabel = `${format(payPeriodStart, 'MMM d')} – ${format(payPeriodEnd, 'MMM d')}`;
+  
+  // Check if selected dates span pay periods
+  const spansPayPeriods = useMemo(() => {
+    if (!startDate || !endDate) return false;
+    return startDate < payPeriodStart || endDate > payPeriodEnd;
+  }, [startDate, endDate]);
+
   return (
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto border-l-0 sm:border-l p-0">
@@ -269,22 +280,24 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
               </div>
             </div>
             
-            {/* Country info badges */}
-            {countryRules && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Badge variant="secondary" className="text-xs font-normal">
-                  Weekend: {getWeekendDayNames(countryRules.weekendDays)}
-                </Badge>
-                {countryRules.maxAnnualLeave > 0 && (
+            {/* Pay period context */}
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Badge variant="outline" className="text-xs font-normal bg-background/50">
+                Pay period: {payPeriodLabel}
+              </Badge>
+              {countryRules && (
+                <>
                   <Badge variant="secondary" className="text-xs font-normal">
-                    Annual allowance: {countryRules.maxAnnualLeave} days
+                    Weekend: {getWeekendDayNames(countryRules.weekendDays)}
                   </Badge>
-                )}
-                <Badge variant="secondary" className="text-xs font-normal">
-                  {countryRules.holidays.length} public holidays
-                </Badge>
-              </div>
-            )}
+                  {countryRules.maxAnnualLeave > 0 && (
+                    <Badge variant="secondary" className="text-xs font-normal">
+                      Annual allowance: {countryRules.maxAnnualLeave} days
+                    </Badge>
+                  )}
+                </>
+              )}
+            </div>
           </SheetHeader>
         </div>
 
@@ -439,6 +452,16 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                       )}
                     </div>
                   </div>
+
+                  {/* Spans pay periods warning */}
+                  {spansPayPeriods && (
+                    <div className="flex items-start gap-2 py-2 px-3 rounded-lg bg-muted/50 border border-border/40">
+                      <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <span className="text-xs text-muted-foreground">
+                        This request spans pay periods. Days will be split across payroll cycles automatically.
+                      </span>
+                    </div>
+                  )}
 
                   {/* Holidays in range */}
                   {holidaysInRange.length > 0 && (
