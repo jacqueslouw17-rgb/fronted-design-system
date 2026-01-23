@@ -71,6 +71,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   // Form state
   const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [isHalfDay, setIsHalfDay] = useState(false);
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +92,9 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   // Derived dates
   const startDate = dateRange?.from;
   const endDate = dateRange?.to ?? dateRange?.from;
+  
+  // Check if single day selected (enables half-day option)
+  const isSingleDay = startDate && endDate && startDate.toDateString() === endDate.toDateString();
 
   // Calculate used annual leave from existing requests
   const usedAnnualLeave = useMemo(() => {
@@ -102,19 +106,25 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   // Calculate business days with country rules
   const calculatedDays = useMemo(() => {
     if (!startDate || !endDate) return 0;
+    let days = 0;
     if (countryRules) {
-      return calculateBusinessDays(
+      days = calculateBusinessDays(
         startDate,
         endDate,
         countryRules.weekendDays,
         countryRules.holidays
       );
+    } else {
+      // Fallback to standard calculation
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     }
-    // Fallback to standard calculation
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays;
-  }, [startDate, endDate, countryRules]);
+    // Apply half-day modifier for single day selection
+    if (isSingleDay && isHalfDay && days === 1) {
+      return 0.5;
+    }
+    return days;
+  }, [startDate, endDate, countryRules, isSingleDay, isHalfDay]);
 
   // Validation with country rules
   const validation = useMemo(() => {
@@ -145,6 +155,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   const resetForm = () => {
     setLeaveType('Annual leave');
     setDateRange(undefined);
+    setIsHalfDay(false);
     setNotes('');
     setErrors({});
     setIsSubmitting(false);
@@ -434,7 +445,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                       <div className="flex items-center gap-1.5">
                         <Plane className="h-3.5 w-3.5 text-primary" />
                         <span className="text-sm font-medium text-primary">
-                          {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
+                          {calculatedDays === 0.5 ? '0.5 day' : `${calculatedDays} ${calculatedDays === 1 ? 'day' : 'days'}`}
                         </span>
                       </div>
                       {/* Show remaining balance for Annual leave */}
@@ -453,6 +464,34 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                       )}
                     </div>
                   </div>
+                  
+                  {/* Half-day toggle - only for single day selection */}
+                  {isSingleDay && (
+                    <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/40">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-foreground">Half day only</span>
+                        <span className="text-xs text-muted-foreground">(0.5 day)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsHalfDay(!isHalfDay)}
+                        className={cn(
+                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
+                          isHalfDay ? "bg-primary" : "bg-muted"
+                        )}
+                        role="switch"
+                        aria-checked={isHalfDay}
+                      >
+                        <span
+                          className={cn(
+                            "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform",
+                            isHalfDay ? "translate-x-4" : "translate-x-0"
+                          )}
+                        />
+                      </button>
+                    </div>
+                  )}
 
                   {/* Spans pay periods warning */}
                   {spansPayPeriods && (
