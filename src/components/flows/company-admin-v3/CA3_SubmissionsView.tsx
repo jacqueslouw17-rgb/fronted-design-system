@@ -560,6 +560,30 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </section>
                   )}
 
+                  {/* Estimated net pay - above rejection section */}
+                  <section className="pt-2 border-t border-border/40">
+                    <div className="flex items-start justify-between py-3">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+                        {hasAdjustments && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Includes {pendingAdjustments.length} pending adjustment{pendingAdjustments.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
+                          {formatCurrency(adjustedNet, currency)}
+                        </p>
+                        {hasAdjustments && (
+                          <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
+                            Base: {formatCurrency(baseNet, currency)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
                   {/* Rejection reason display if rejected */}
                   {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
                     <section>
@@ -618,27 +642,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                 {/* Net Pay Footer + Actions */}
                 <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-                  {/* Net pay summary */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Estimated net pay</p>
-                      {hasAdjustments && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Includes {pendingAdjustments.length} pending adjustment{pendingAdjustments.length !== 1 ? 's' : ''}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
-                        {formatCurrency(adjustedNet, currency)}
-                      </p>
-                      {hasAdjustments && (
-                        <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
-                          Base: {formatCurrency(baseNet, currency)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
 
                   {/* Action buttons - hidden when rejecting, matching leave pattern */}
                   {selectedSubmission.status === "pending" && !showCustomReason && (
