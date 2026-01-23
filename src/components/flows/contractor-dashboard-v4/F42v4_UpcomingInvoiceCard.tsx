@@ -671,7 +671,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
         onMakeAdjustment={() => openAdjustmentDrawer(null, true)}
-        onWithdrawAdjustment={withdrawAdjustment}
+        onWithdrawAdjustment={(id) => {
+          setWithdrawTargetId(id);
+          setWithdrawDialogOpen(true);
+        }}
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
