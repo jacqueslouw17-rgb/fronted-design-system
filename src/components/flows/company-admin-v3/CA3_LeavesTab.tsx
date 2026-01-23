@@ -27,6 +27,8 @@ const countryFlags: Record<string, string> = {
   "Philippines": "🇵🇭",
   "Denmark": "🇩🇰",
   "Finland": "🇫🇮",
+  "UAE": "🇦🇪",
+  "Saudi Arabia": "🇸🇦",
 };
 
 // Timezone hints
@@ -47,40 +49,50 @@ export interface LeaveRequest {
   employeeId: string;
   employeeName: string;
   employeeCountry: string;
+  employeeCountryCode: string; // ISO code for country rules
   employeeType: "employee" | "contractor";
   leaveType: LeaveType;
   startDate: string;
   endDate: string;
-  totalDays: number;
+  totalDays: number; // Supports decimals like 0.5 for half-days
+  daysInCurrentPeriod?: number; // For spanning leave
+  daysInNextPeriod?: number; // For spanning leave
   reason?: string;
   status: LeaveStatus;
   spansPeriods?: boolean;
   submittedAt: string;
   rejectionReason?: string;
+  weekendDays?: string; // e.g., "Sat–Sun" or "Fri–Sat"
+  holidaysExcluded?: number; // Number of holidays excluded from count
 }
 
-// Mock data
+// Mock data with half-day support and country rules awareness
 const mockLeaveRequests: LeaveRequest[] = [
   {
     id: "leave-1",
     employeeId: "emp-1",
     employeeName: "Maria Santos",
     employeeCountry: "Philippines",
+    employeeCountryCode: "PH",
     employeeType: "employee",
     leaveType: "Annual",
     startDate: "2026-01-28",
     endDate: "2026-02-02",
     totalDays: 4,
+    daysInCurrentPeriod: 2,
+    daysInNextPeriod: 2,
     reason: "Family vacation",
     status: "pending",
     spansPeriods: true,
     submittedAt: "2026-01-15T10:00:00.000Z",
+    weekendDays: "Sat–Sun",
   },
   {
     id: "leave-2",
     employeeId: "emp-2",
     employeeName: "Alex Hansen",
     employeeCountry: "Norway",
+    employeeCountryCode: "NO",
     employeeType: "employee",
     leaveType: "Sick",
     startDate: "2026-01-20",
@@ -89,12 +101,14 @@ const mockLeaveRequests: LeaveRequest[] = [
     reason: "Medical appointment",
     status: "pending",
     submittedAt: "2026-01-18T08:30:00.000Z",
+    weekendDays: "Sat–Sun",
   },
   {
     id: "leave-3",
     employeeId: "emp-3",
     employeeName: "Erik Lindqvist",
     employeeCountry: "Sweden",
+    employeeCountryCode: "SE",
     employeeType: "employee",
     leaveType: "Annual",
     startDate: "2026-02-15",
@@ -102,26 +116,31 @@ const mockLeaveRequests: LeaveRequest[] = [
     totalDays: 4,
     status: "approved",
     submittedAt: "2026-01-10T14:00:00.000Z",
+    weekendDays: "Sat–Sun",
+    holidaysExcluded: 1,
   },
   {
     id: "leave-4",
     employeeId: "emp-4",
     employeeName: "Priya Sharma",
     employeeCountry: "India",
+    employeeCountryCode: "IN",
     employeeType: "employee",
     leaveType: "Unpaid",
     startDate: "2026-01-25",
     endDate: "2026-01-25",
-    totalDays: 1,
-    reason: "Personal matter",
+    totalDays: 0.5, // Half-day request
+    reason: "Personal matter (morning only)",
     status: "pending",
     submittedAt: "2026-01-20T09:00:00.000Z",
+    weekendDays: "Sat–Sun",
   },
   {
     id: "leave-5",
     employeeId: "emp-5",
     employeeName: "Lars Nielsen",
     employeeCountry: "Denmark",
+    employeeCountryCode: "DK",
     employeeType: "employee",
     leaveType: "Annual",
     startDate: "2026-01-10",
@@ -130,12 +149,14 @@ const mockLeaveRequests: LeaveRequest[] = [
     status: "rejected",
     rejectionReason: "Conflicts with project deadline",
     submittedAt: "2026-01-05T11:00:00.000Z",
+    weekendDays: "Sat–Sun",
   },
   {
     id: "leave-6",
     employeeId: "emp-6",
     employeeName: "Mika Virtanen",
     employeeCountry: "Finland",
+    employeeCountryCode: "FI",
     employeeType: "employee",
     leaveType: "Sick",
     startDate: "2026-01-22",
@@ -144,6 +165,23 @@ const mockLeaveRequests: LeaveRequest[] = [
     reason: "Flu",
     status: "approved",
     submittedAt: "2026-01-21T07:00:00.000Z",
+    weekendDays: "Sat–Sun",
+  },
+  {
+    id: "leave-7",
+    employeeId: "emp-7",
+    employeeName: "Ahmed Al-Rashid",
+    employeeCountry: "UAE",
+    employeeCountryCode: "AE",
+    employeeType: "employee",
+    leaveType: "Annual",
+    startDate: "2026-01-27",
+    endDate: "2026-01-27",
+    totalDays: 1,
+    reason: "Personal day",
+    status: "pending",
+    submittedAt: "2026-01-22T09:00:00.000Z",
+    weekendDays: "Fri–Sat", // UAE weekend
   },
 ];
 
@@ -399,8 +437,14 @@ export const CA3_LeavesTab: React.FC = () => {
                     </span>
                     
                     <span className="text-xs text-muted-foreground tabular-nums">
-                      {leave.totalDays}d
+                      {leave.totalDays === 0.5 ? '0.5d' : leave.totalDays === 1.5 ? '1.5d' : `${leave.totalDays}d`}
                     </span>
+                    
+                    {leave.totalDays === 0.5 && (
+                      <Badge variant="outline" className="text-[10px] py-0 bg-primary/5 text-primary/80 border-primary/20">
+                        Half day
+                      </Badge>
+                    )}
                     
                     {leave.spansPeriods && (
                       <Badge variant="outline" className="text-[10px] py-0 bg-muted/50 text-muted-foreground border-border/50">
@@ -467,7 +511,12 @@ export const CA3_LeavesTab: React.FC = () => {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Duration</span>
                       <span className="font-medium text-foreground tabular-nums">
-                        {selectedLeave.totalDays} working {selectedLeave.totalDays === 1 ? 'day' : 'days'}
+                        {selectedLeave.totalDays === 0.5 
+                          ? '0.5 day (half day)' 
+                          : selectedLeave.totalDays === 1.5
+                            ? '1.5 days'
+                            : `${selectedLeave.totalDays} working ${selectedLeave.totalDays === 1 ? 'day' : 'days'}`
+                        }
                       </span>
                     </div>
                     {selectedLeave.reason && (
@@ -489,27 +538,54 @@ export const CA3_LeavesTab: React.FC = () => {
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
                     Pay period impact
                   </h3>
-                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/10 space-y-2">
                     <p className="text-sm text-foreground">
                       {selectedLeave.spansPeriods 
                         ? "Split across payroll cycles automatically"
                         : "Included in payroll for this pay period"
                       }
                     </p>
-                    {selectedLeave.spansPeriods && (
-                      <p className="text-xs text-muted-foreground mt-2">
+                    {selectedLeave.spansPeriods && selectedLeave.daysInCurrentPeriod && selectedLeave.daysInNextPeriod && (
+                      <p className="text-xs text-primary/80 font-medium">
+                        {selectedLeave.daysInCurrentPeriod}d this period · {selectedLeave.daysInNextPeriod}d next period
+                      </p>
+                    )}
+                    {selectedLeave.spansPeriods && !selectedLeave.daysInCurrentPeriod && (
+                      <p className="text-xs text-muted-foreground">
                         Days will be allocated to the respective pay periods based on their occurrence.
                       </p>
                     )}
                   </div>
                 </section>
 
-                {/* Global considerations note */}
-                <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
-                  <p className="text-xs text-muted-foreground">
-                    Public holidays and weekends are calculated based on the employee's country rules. Non-working days are excluded automatically where applicable.
-                  </p>
-                </div>
+                {/* Country rules info */}
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                    Country rules applied
+                  </h3>
+                  <div className="bg-muted/20 rounded-lg p-4 border border-border/30 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Weekend</span>
+                      <span className="text-foreground">
+                        {selectedLeave.weekendDays || 'Sat–Sun'}
+                      </span>
+                    </div>
+                    {selectedLeave.holidaysExcluded !== undefined && selectedLeave.holidaysExcluded > 0 && (
+                      <>
+                        <Separator className="bg-border/30" />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Holidays excluded</span>
+                          <span className="text-foreground">
+                            {selectedLeave.holidaysExcluded} public {selectedLeave.holidaysExcluded === 1 ? 'holiday' : 'holidays'}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <p className="text-[11px] text-muted-foreground/70 pt-1">
+                      Non-working days are excluded from the count based on {selectedLeave.employeeCountry} labor rules.
+                    </p>
+                  </div>
+                </section>
 
                 {/* Rejection reason display */}
                 {selectedLeave.status === "rejected" && selectedLeave.rejectionReason && (
