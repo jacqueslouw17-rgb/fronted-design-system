@@ -21,28 +21,22 @@ import { format } from "date-fns";
 
 // Country flag mapping
 const countryFlags: Record<string, string> = {
-  "Norway": "🇳🇴",
-  "Philippines": "🇵🇭",
   "India": "🇮🇳",
-  "Germany": "🇩🇪",
-  "France": "🇫🇷",
-  "Portugal": "🇵🇹",
-  "Italy": "🇮🇹",
-  "United Kingdom": "🇬🇧",
-  "United States": "🇺🇸",
+  "Norway": "🇳🇴",
+  "Sweden": "🇸🇪",
+  "Philippines": "🇵🇭",
+  "Denmark": "🇩🇰",
+  "Finland": "🇫🇮",
 };
 
 // Timezone hints
 const countryTimezones: Record<string, string> = {
-  "Norway": "CET",
-  "Philippines": "PHT",
   "India": "IST",
-  "Germany": "CET",
-  "France": "CET",
-  "Portugal": "WET",
-  "Italy": "CET",
-  "United Kingdom": "GMT",
-  "United States": "EST",
+  "Norway": "CET",
+  "Sweden": "CET",
+  "Philippines": "PHT",
+  "Denmark": "CET",
+  "Finland": "EET",
 };
 
 export type LeaveStatus = "pending" | "approved" | "rejected";
@@ -99,8 +93,8 @@ const mockLeaveRequests: LeaveRequest[] = [
   {
     id: "leave-3",
     employeeId: "emp-3",
-    employeeName: "Sophie Laurent",
-    employeeCountry: "France",
+    employeeName: "Erik Lindqvist",
+    employeeCountry: "Sweden",
     employeeType: "employee",
     leaveType: "Annual",
     startDate: "2026-02-15",
@@ -126,8 +120,8 @@ const mockLeaveRequests: LeaveRequest[] = [
   {
     id: "leave-5",
     employeeId: "emp-5",
-    employeeName: "Jonas Schmidt",
-    employeeCountry: "Germany",
+    employeeName: "Lars Nielsen",
+    employeeCountry: "Denmark",
     employeeType: "employee",
     leaveType: "Annual",
     startDate: "2026-01-10",
@@ -136,6 +130,20 @@ const mockLeaveRequests: LeaveRequest[] = [
     status: "rejected",
     rejectionReason: "Conflicts with project deadline",
     submittedAt: "2026-01-05T11:00:00.000Z",
+  },
+  {
+    id: "leave-6",
+    employeeId: "emp-6",
+    employeeName: "Mika Virtanen",
+    employeeCountry: "Finland",
+    employeeType: "employee",
+    leaveType: "Sick",
+    startDate: "2026-01-22",
+    endDate: "2026-01-23",
+    totalDays: 2,
+    reason: "Flu",
+    status: "approved",
+    submittedAt: "2026-01-21T07:00:00.000Z",
   },
 ];
 
