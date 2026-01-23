@@ -359,6 +359,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                   selected={dateRange}
                   onSelect={setDateRange}
                   numberOfMonths={2}
+                  defaultMonth={payPeriodStart}
                   modifiers={modifiers}
                   modifiersClassNames={modifiersClassNames}
                   className="pointer-events-auto"
