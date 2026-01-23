@@ -130,7 +130,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
       {/* Worker List */}
       <CardContent className="p-4">
-        <div className="max-h-[380px] overflow-y-auto space-y-1.5">
+        <div className="max-h-[380px] overflow-y-auto space-y-1">
           {sortedWorkers.map((worker) => {
             const statusConfig = getStatusConfig(worker.status);
             const StatusIcon = statusConfig.icon;
@@ -141,27 +141,26 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <div 
                 key={worker.id}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors",
+                  "flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-card border border-border/30",
                   needsAttention && "border-amber-500/30 bg-amber-500/5"
                 )}
               >
                 {/* Avatar */}
-                <Avatar className="h-7 w-7 flex-shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                <Avatar className="h-6 w-6 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
                     {getInitials(worker.name)}
                   </AvatarFallback>
                 </Avatar>
 
                 {/* Name & Country */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
                     <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
                   </div>
-                  {needsAttention && worker.errorMessage ? (
-                    <p className="text-[11px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
-                  ) : (
-                    <p className="text-[11px] text-muted-foreground leading-tight">{worker.country}</p>
+                  {needsAttention && worker.errorMessage && (
+                    <p className="text-[10px] text-amber-600 truncate leading-tight">{worker.errorMessage}</p>
                   )}
                 </div>
 
@@ -172,7 +171,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
 
                 {/* Status Pill */}
                 <div className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0",
+                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0",
                   statusConfig.bg,
                   statusConfig.color
                 )}>
