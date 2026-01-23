@@ -120,29 +120,21 @@ const BreakdownRow = ({
     return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const isPending = badge?.variant === 'pending';
-  
   return (
     <div className={cn(
       "flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
       isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0",
-      // Highlight pending items with amber background
-      isPending && "bg-accent-amber-fill/10 border border-accent-amber-outline/30 mx-0 px-3 my-1",
       className
     )}>
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <span className={cn(
           "truncate",
-          isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
-          isPending && "text-foreground font-medium"
+          isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"
         )}>
           {label}
         </span>
         {sublabel && (
-          <span className={cn(
-            "text-xs truncate",
-            isPending ? "text-accent-amber-text/80" : "text-muted-foreground/70"
-          )}>
+          <span className="text-xs text-muted-foreground/70 truncate">
             · {sublabel}
           </span>
         )}
@@ -160,9 +152,9 @@ const BreakdownRow = ({
           <Badge 
             variant="outline" 
             className={cn(
-              "text-[10px] px-1.5 py-0 shrink-0 font-medium",
+              "text-[10px] px-1.5 py-0 shrink-0",
               badge.variant === 'pending' 
-                ? "bg-accent-amber-fill text-white border-accent-amber-outline"
+                ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20"
                 : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
             )}
           >
@@ -173,8 +165,7 @@ const BreakdownRow = ({
       <span className={cn(
         "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4",
         isTotal ? "text-sm font-semibold text-foreground" : "text-sm",
-        isPositive ? "text-foreground" : "text-muted-foreground",
-        isPending && "font-semibold text-accent-amber-text"
+        isPositive ? "text-foreground" : "text-muted-foreground"
       )}>
         {isPositive ? '' : '−'}{formatAmount(amount, currency)}
       </span>
