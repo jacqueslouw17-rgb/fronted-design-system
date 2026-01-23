@@ -144,7 +144,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               </Button>
             )}
             <h3 className="text-base font-medium text-foreground">Payment Status</h3>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-3">
               <div className="flex items-center gap-1.5 text-xs">
                 <CheckCircle2 className="h-3.5 w-3.5 text-accent-green-text" />
                 <span className="font-medium">{completedCount}</span>
