@@ -430,8 +430,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                         {leaves.map(leave => 
                           renderLeaveRow(
                             leave, 
-                            leave.status === 'Pending' ? 'pending' : 
-                            leave.timeContext === 'continuation' ? 'approved' : 'muted'
+                            leave.status === 'Pending' ? 'pending' : 'approved'
                           )
                         )}
                       </div>
