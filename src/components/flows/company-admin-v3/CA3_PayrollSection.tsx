@@ -307,6 +307,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             workers={trackingWorkers}
             onExportCSV={handleExportCSV}
             onDownloadAuditPDF={handleDownloadAuditPDF}
+            onBack={() => setCurrentStep("submit")}
             onClose={() => setHasEnteredWorkflow(false)}
           />
         );

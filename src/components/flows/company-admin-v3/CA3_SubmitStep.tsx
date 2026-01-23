@@ -159,16 +159,15 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             {!isSubmitted && onBack && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={onBack}
-                className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground -ml-2"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Submissions
+                <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
             <h3 className="text-base font-medium text-foreground">
