@@ -326,9 +326,7 @@ export const F41v4_UpcomingPayCard = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-xl font-semibold">Current pay period</CardTitle>
-                <span className="text-sm text-muted-foreground">·</span>
-                <span className="text-sm font-medium text-foreground/70">{periodMonth}</span>
+                <CardTitle className="text-xl font-semibold">This pay period ({periodMonth})</CardTitle>
               </div>
               {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
@@ -443,7 +441,7 @@ export const F41v4_UpcomingPayCard = () => {
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <Wallet className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm font-medium text-muted-foreground">Estimated net pay</p>
+                        <p className="text-sm font-medium text-muted-foreground">Pay preview</p>
                       </div>
                       
                       {hasAdjustments ? (
@@ -467,8 +465,9 @@ export const F41v4_UpcomingPayCard = () => {
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span className="line-through opacity-70">{formatCurrency(estimatedNet, currency)}</span>
                             <span>·</span>
-                            <span>System calculated</span>
+                            <span>Base amount</span>
                           </div>
+                          <p className="text-[10px] text-muted-foreground/70">Final amount confirmed on payslip</p>
                         </div>
                       ) : (
                         <>
@@ -477,17 +476,20 @@ export const F41v4_UpcomingPayCard = () => {
                           </p>
                           {demoRejected ? (
                             <p className="text-xs text-muted-foreground/70 mt-1.5">
-                              Estimated net pay will update once changes are approved.
+                              Pay preview will update once changes are approved.
                             </p>
                           ) : (
-                            <p className="text-xs text-muted-foreground mt-1">After taxes & deductions</p>
+                            <div className="space-y-0.5">
+                              <p className="text-xs text-muted-foreground">Final amount confirmed on payslip</p>
+                              <p className="text-[10px] text-muted-foreground/60">May change if edits are made before approval</p>
+                            </div>
                           )}
                         </>
                       )}
                     </div>
                     <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0">
                       <FileText className="h-3.5 w-3.5" />
-                      {effectiveStatus === 'approved' ? 'Preview' : 'Breakdown'}
+                      {effectiveStatus === 'approved' ? 'Preview' : 'See what\'s included'}
                       <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
