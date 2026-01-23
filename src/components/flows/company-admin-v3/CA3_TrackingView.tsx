@@ -127,21 +127,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Navigation */}
-      {onClose && (
-        <div className="flex items-center justify-end">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onClose}
-            className="h-9 text-xs"
-          >
-            Close
-          </Button>
-        </div>
-      )}
-      
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
         <div className="flex items-center justify-between">
@@ -169,7 +154,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={onExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
               <Download className="h-3.5 w-3.5" />
               CSV
@@ -178,6 +163,16 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
               <FileText className="h-3.5 w-3.5" />
               Audit
             </Button>
+            {onClose && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={onClose}
+                className="h-9 text-xs"
+              >
+                Close
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -232,7 +227,6 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         </Tabs>
       </CardContent>
     </Card>
-    </div>
   );
 };
 
