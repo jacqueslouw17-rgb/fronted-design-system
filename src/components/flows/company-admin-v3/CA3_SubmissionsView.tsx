@@ -226,15 +226,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search workers..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9 w-56 bg-background/60"
-                />
-              </div>
               {pendingCount > 0 && (
                 <Button 
                   size="sm" 
