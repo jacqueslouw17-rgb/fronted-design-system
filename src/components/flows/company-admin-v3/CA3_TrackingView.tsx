@@ -106,7 +106,7 @@ export const CA3_TrackingView: React.FC<CA3_TrackingViewProps> = ({
         
         {/* Progress bar */}
         <div className="space-y-2">
-          <Progress value={progressPercent} className="h-2" />
+          <Progress value={progressPercent} className="h-1" />
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
               <div className="h-2 w-2 rounded-full bg-accent-green" />
