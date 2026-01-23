@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sun, Check, Clock, X } from 'lucide-react';
+import { Sun, Clock, X } from 'lucide-react';
 import { useF41v4_DashboardStore, type LeaveRequest } from '@/stores/F41v4_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -42,9 +42,9 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   
   const canWithdraw = payrollStatus === 'draft';
   
-  // Process leave into two simple groups
-  const { approvedCurrentPeriod, upcomingPending, summaryStats } = useMemo(() => {
-    const approved: ProcessedLeave[] = [];
+  // Process leave into two groups: This pay period & Upcoming
+  const { thisPeriodLeave, upcomingLeave, summaryStats } = useMemo(() => {
+    const thisPeriod: ProcessedLeave[] = [];
     const upcoming: ProcessedLeave[] = [];
     
     leaveRequests.forEach((leave) => {
@@ -55,6 +55,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       // Check if any part overlaps with current period
       const overlapsCurrentPeriod = leaveStart <= payPeriodEnd && leaveEnd >= payPeriodStart;
       const spansPeriods = overlapsCurrentPeriod && (leaveStart < payPeriodStart || leaveEnd > payPeriodEnd);
+      const isFuture = leaveStart > payPeriodEnd;
       
       const processedLeave: ProcessedLeave = {
         id: leave.id,
@@ -67,27 +68,28 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
         isInCurrentPeriod: overlapsCurrentPeriod,
       };
       
-      // Approved items in current period go to first group
-      if (overlapsCurrentPeriod && leave.status === 'Admin approved') {
-        approved.push(processedLeave);
-      } else {
-        // Everything else (pending, future) goes to second group
+      // Items in current period go to "This pay period"
+      if (overlapsCurrentPeriod) {
+        thisPeriod.push(processedLeave);
+      } else if (isFuture) {
+        // Future items go to "Upcoming"
         upcoming.push(processedLeave);
       }
     });
     
     // Sort by start date
-    approved.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+    thisPeriod.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     upcoming.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     
     // Calculate summary stats
-    const approvedCount = approved.length;
-    const pendingCount = upcoming.filter(l => l.status === 'Pending').length;
+    const thisPeriodCount = thisPeriod.length;
+    const upcomingCount = upcoming.length;
+    const pendingCount = [...thisPeriod, ...upcoming].filter(l => l.status === 'Pending').length;
     
     return {
-      approvedCurrentPeriod: approved,
-      upcomingPending: upcoming,
-      summaryStats: { approvedCount, pendingCount },
+      thisPeriodLeave: thisPeriod,
+      upcomingLeave: upcoming,
+      summaryStats: { thisPeriodCount, upcomingCount, pendingCount },
     };
   }, [leaveRequests]);
   
@@ -102,11 +104,11 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     return `${format(startDate, 'MMM d')}–${format(endDate, 'MMM d')}`;
   };
 
-  // Format days display (supports half days)
+  // Format days display (supports half days) - using "workdays" for global clarity
   const formatDays = (days: number) => {
-    if (days === 0.5) return '0.5 day';
-    if (days === 1) return '1 day';
-    return `${days} days`;
+    if (days === 0.5) return '0.5 workday';
+    if (days === 1) return '1 workday';
+    return `${days} workdays`;
   };
 
   const handleWithdrawClick = (e: React.MouseEvent, leaveId: string) => {
@@ -123,15 +125,9 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     }
   };
 
-  // Get status badge
+  // Get status badge - only for non-approved states
   const getStatusBadge = (status: LeaveRequest['status']) => {
     switch (status) {
-      case 'Admin approved':
-        return (
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] px-1.5 py-0">
-            Approved
-          </Badge>
-        );
       case 'Pending':
         return (
           <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] px-1.5 py-0">
@@ -144,6 +140,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
             Rejected
           </Badge>
         );
+      // Approved is the default state - no badge needed
       default:
         return null;
     }
@@ -152,25 +149,13 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   // Render a leave row
   const renderLeaveRow = (leave: ProcessedLeave) => {
     const isPending = leave.status === 'Pending';
-    const isApproved = leave.status === 'Admin approved';
+    const isRejected = leave.status === 'Admin rejected';
     
     const bgClass = isPending
       ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-100 dark:border-amber-500/10'
-      : 'bg-muted/20 dark:bg-muted/5 border-border/30';
-    
-    const iconBgClass = isApproved
-      ? 'bg-emerald-100/70 dark:bg-emerald-500/15'
-      : isPending
-        ? 'bg-amber-100 dark:bg-amber-500/20'
-        : 'bg-muted/50 dark:bg-muted/20';
-    
-    const iconColorClass = isApproved
-      ? 'text-emerald-600 dark:text-emerald-400'
-      : isPending
-        ? 'text-amber-600 dark:text-amber-400'
-        : 'text-muted-foreground';
-    
-    const Icon = isApproved ? Check : Clock;
+      : isRejected
+        ? 'bg-destructive/5 dark:bg-destructive/5 border-destructive/10 dark:border-destructive/10'
+        : 'bg-muted/20 dark:bg-muted/5 border-border/30';
     
     return (
       <div 
@@ -180,12 +165,8 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
           bgClass
         )}
       >
-        <div className={cn("p-1.5 rounded-md mt-0.5", iconBgClass)}>
-          <Icon className={cn("h-3 w-3", iconColorClass)} />
-        </div>
-        
         <div className="flex-1 min-w-0">
-          {/* Main row: Type · Date range · Days */}
+          {/* Main row: Type · Date range · Days · Status (if needed) */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium text-foreground">
               {leave.leaveType}
@@ -201,10 +182,10 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
             {getStatusBadge(leave.status)}
           </div>
           
-          {/* Sublabel for spans */}
+          {/* Sublabel for spans - simplified message */}
           {leave.spansPeriods && (
             <p className="text-[11px] text-muted-foreground mt-1">
-              Spans pay periods, payroll will include only the days in this period.
+              Only this period's days affect payroll.
             </p>
           )}
         </div>
@@ -233,7 +214,22 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     );
   };
 
-  const hasAnyLeave = approvedCurrentPeriod.length > 0 || upcomingPending.length > 0;
+  const hasAnyLeave = thisPeriodLeave.length > 0 || upcomingLeave.length > 0;
+
+  // Build summary text
+  const buildSummaryText = () => {
+    const parts: string[] = [];
+    if (summaryStats.thisPeriodCount > 0) {
+      parts.push(`This period: ${summaryStats.thisPeriodCount}`);
+    }
+    if (summaryStats.upcomingCount > 0) {
+      parts.push(`Upcoming: ${summaryStats.upcomingCount}`);
+    }
+    if (summaryStats.pendingCount > 0) {
+      parts.push(`Pending: ${summaryStats.pendingCount}`);
+    }
+    return parts.join(' · ');
+  };
 
   return (
     <>
@@ -247,7 +243,11 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Time off</h3>
-                <p className="text-xs text-muted-foreground">Your approved and pending leave</p>
+                {hasAnyLeave ? (
+                  <p className="text-xs text-muted-foreground">{buildSummaryText()}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Your approved and pending leave</p>
+                )}
               </div>
             </div>
             
@@ -261,62 +261,39 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
             </Button>
           </div>
           
-          {/* Summary stats */}
-          {hasAnyLeave && (
-            <div className="px-4 pb-3">
-              <p className="text-xs text-muted-foreground">
-                {summaryStats.approvedCount > 0 && (
-                  <span className="inline-flex items-center gap-1">
-                    <Check className="h-3 w-3 text-emerald-600" />
-                    {summaryStats.approvedCount} approved
-                  </span>
-                )}
-                {summaryStats.approvedCount > 0 && summaryStats.pendingCount > 0 && (
-                  <span className="mx-1.5">·</span>
-                )}
-                {summaryStats.pendingCount > 0 && (
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-amber-600" />
-                    {summaryStats.pendingCount} pending
-                  </span>
-                )}
-              </p>
-            </div>
-          )}
-          
           {/* Content */}
           <div className="px-4 pb-4 space-y-4">
             {hasAnyLeave ? (
               <>
-                {/* Approved (this pay period) */}
-                {approvedCurrentPeriod.length > 0 && (
+                {/* This pay period */}
+                {thisPeriodLeave.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                      Approved (this pay period)
+                      This pay period
                     </p>
                     <div className="space-y-2">
-                      {approvedCurrentPeriod.map(leave => renderLeaveRow(leave))}
+                      {thisPeriodLeave.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
                 )}
                 
-                {/* Upcoming / Pending */}
-                {upcomingPending.length > 0 && (
+                {/* Upcoming */}
+                {upcomingLeave.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                      Upcoming / Pending
+                      Upcoming
                     </p>
                     <div className="space-y-2">
-                      {upcomingPending.map(leave => renderLeaveRow(leave))}
+                      {upcomingLeave.map(leave => renderLeaveRow(leave))}
                     </div>
                   </div>
                 )}
               </>
             ) : (
               <div className="py-6 text-center">
-                <p className="text-sm text-muted-foreground">No time off scheduled</p>
-                <p className="text-xs text-muted-foreground/70 mt-1">
-                  Click "Request time off" to submit a leave request
+                <p className="text-sm text-foreground/80">No time off yet</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Request time off anytime and we'll track it here.
                 </p>
               </div>
             )}
