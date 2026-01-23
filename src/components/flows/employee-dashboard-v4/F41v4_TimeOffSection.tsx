@@ -25,7 +25,7 @@ interface F41v4_TimeOffSectionProps {
 const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
 const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
 
-type TimeContext = 'current' | 'upcoming' | 'past';
+type TimeContext = 'current' | 'upcoming' | 'past' | 'continuation';
 
 interface ProcessedLeave {
   id: string;
@@ -40,6 +40,8 @@ interface ProcessedLeave {
   hasRemainingDays: boolean;
   status: LeaveRequest['status'];
   timeContext: TimeContext;
+  isContinuation?: boolean;
+  parentId?: string;
 }
 
 export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionProps) => {
@@ -51,71 +53,129 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   
   const canWithdraw = payrollStatus === 'draft';
   
-  // Process all leave with time context
-  const processLeave = (leave: LeaveRequest): ProcessedLeave => {
-    const leaveStart = new Date(leave.startDate);
-    const leaveEnd = new Date(leave.endDate);
+  // Process and categorize all leave, including continuations
+  const { currentLeave, otherLeave, totalApprovedDays, hasRemainingNextPeriod } = useMemo(() => {
+    const currentItems: ProcessedLeave[] = [];
+    const otherItems: ProcessedLeave[] = [];
     
-    // Determine time context
-    let timeContext: TimeContext;
-    if (leaveEnd < payPeriodStart) {
-      timeContext = 'past';
-    } else if (leaveStart > payPeriodEnd) {
-      timeContext = 'upcoming';
-    } else {
-      timeContext = 'current';
-    }
+    leaveRequests.forEach((leave) => {
+      const leaveStart = new Date(leave.startDate);
+      const leaveEnd = new Date(leave.endDate);
+      
+      // Determine base time context
+      const isFullyPast = leaveEnd < payPeriodStart;
+      const isFullyUpcoming = leaveStart > payPeriodEnd;
+      const overlapsCurrentPeriod = !isFullyPast && !isFullyUpcoming;
+      
+      if (isFullyPast) {
+        // Entirely in the past
+        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        otherItems.push({
+          id: leave.id,
+          leaveType: leave.leaveType,
+          startDate: leaveStart,
+          endDate: leaveEnd,
+          effectiveStartDate: leaveStart,
+          effectiveEndDate: leaveEnd,
+          totalDays,
+          daysInPeriod: totalDays,
+          spansPeriods: false,
+          hasRemainingDays: false,
+          status: leave.status,
+          timeContext: 'past',
+        });
+      } else if (isFullyUpcoming) {
+        // Entirely in the future - check if it spans multiple future periods
+        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        // For demo, Feb is next period (Feb 1 - Feb 28)
+        const nextPeriodEnd = new Date(2026, 1, 28);
+        const spansFuturePeriods = leaveEnd > nextPeriodEnd;
+        
+        otherItems.push({
+          id: leave.id,
+          leaveType: leave.leaveType,
+          startDate: leaveStart,
+          endDate: leaveEnd,
+          effectiveStartDate: leaveStart,
+          effectiveEndDate: leaveEnd,
+          totalDays,
+          daysInPeriod: totalDays,
+          spansPeriods: spansFuturePeriods,
+          hasRemainingDays: false,
+          status: leave.status,
+          timeContext: 'upcoming',
+        });
+      } else if (overlapsCurrentPeriod) {
+        // Overlaps current period - calculate portion in this period
+        const effectiveStart = leaveStart < payPeriodStart ? payPeriodStart : leaveStart;
+        const effectiveEnd = leaveEnd > payPeriodEnd ? payPeriodEnd : leaveEnd;
+        const daysInPeriod = Math.floor((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const spansPeriods = leaveStart < payPeriodStart || leaveEnd > payPeriodEnd;
+        const hasRemainingDays = leaveEnd > payPeriodEnd;
+        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        
+        // Add to current period
+        currentItems.push({
+          id: leave.id,
+          leaveType: leave.leaveType,
+          startDate: leaveStart,
+          endDate: leaveEnd,
+          effectiveStartDate: effectiveStart,
+          effectiveEndDate: effectiveEnd,
+          totalDays,
+          daysInPeriod,
+          spansPeriods,
+          hasRemainingDays,
+          status: leave.status,
+          timeContext: 'current',
+        });
+        
+        // If there are remaining days after this period, add a continuation entry
+        if (hasRemainingDays) {
+          const continuationStart = new Date(payPeriodEnd);
+          continuationStart.setDate(continuationStart.getDate() + 1); // Feb 1
+          const continuationDays = Math.floor((leaveEnd.getTime() - continuationStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          
+          otherItems.push({
+            id: `${leave.id}-continuation`,
+            leaveType: leave.leaveType,
+            startDate: continuationStart,
+            endDate: leaveEnd,
+            effectiveStartDate: continuationStart,
+            effectiveEndDate: leaveEnd,
+            totalDays: continuationDays,
+            daysInPeriod: continuationDays,
+            spansPeriods: false,
+            hasRemainingDays: false,
+            status: leave.status,
+            timeContext: 'continuation',
+            isContinuation: true,
+            parentId: leave.id,
+          });
+        }
+      }
+    });
     
-    // Calculate the portion within this pay period (for current period items)
-    let effectiveStart = leaveStart;
-    let effectiveEnd = leaveEnd;
-    let daysInPeriod = 0;
-    let spansPeriods = false;
-    let hasRemainingDays = false;
+    // Sort other items by date
+    otherItems.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     
-    if (timeContext === 'current') {
-      effectiveStart = leaveStart < payPeriodStart ? payPeriodStart : leaveStart;
-      effectiveEnd = leaveEnd > payPeriodEnd ? payPeriodEnd : leaveEnd;
-      daysInPeriod = Math.floor((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      spansPeriods = leaveStart < payPeriodStart || leaveEnd > payPeriodEnd;
-      hasRemainingDays = leaveEnd > payPeriodEnd;
-    }
-    
-    // Calculate total days
-    const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    // Calculate totals for current period
+    const currentApproved = currentItems.filter(l => l.status === 'Admin approved');
+    const currentPending = currentItems.filter(l => l.status === 'Pending');
+    const approvedDays = currentApproved.reduce((sum, l) => sum + l.daysInPeriod, 0);
+    const hasRemaining = currentApproved.some(l => l.hasRemainingDays) || currentPending.some(l => l.hasRemainingDays);
     
     return {
-      id: leave.id,
-      leaveType: leave.leaveType,
-      startDate: leaveStart,
-      endDate: leaveEnd,
-      effectiveStartDate: effectiveStart,
-      effectiveEndDate: effectiveEnd,
-      totalDays,
-      daysInPeriod,
-      spansPeriods,
-      hasRemainingDays,
-      status: leave.status,
-      timeContext,
+      currentLeave: currentItems,
+      otherLeave: otherItems,
+      totalApprovedDays: approvedDays,
+      hasRemainingNextPeriod: hasRemaining,
     };
-  };
-  
-  // Process and categorize all leave
-  const allProcessedLeave = useMemo(() => {
-    return leaveRequests.map(processLeave);
   }, [leaveRequests]);
   
-  // Separate by time context and status
-  const currentApproved = allProcessedLeave.filter(l => l.timeContext === 'current' && l.status === 'Admin approved');
-  const currentPending = allProcessedLeave.filter(l => l.timeContext === 'current' && l.status === 'Pending');
-  const upcomingLeave = allProcessedLeave.filter(l => l.timeContext === 'upcoming');
-  const pastLeave = allProcessedLeave.filter(l => l.timeContext === 'past');
-  
-  const otherLeave = [...upcomingLeave, ...pastLeave].sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
-  
-  // Calculate totals for current period
-  const totalApprovedDays = currentApproved.reduce((sum, l) => sum + l.daysInPeriod, 0);
-  const hasRemainingNextPeriod = currentApproved.some(l => l.hasRemainingDays) || currentPending.some(l => l.hasRemainingDays);
+  // Separate current by status
+  const currentApproved = currentLeave.filter(l => l.status === 'Admin approved');
+  const currentPending = currentLeave.filter(l => l.status === 'Pending');
   
   // Display limits
   const approvedLimit = 2;
@@ -219,7 +279,12 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               Pending
             </span>
           )}
-          {leave.timeContext === 'upcoming' && (
+          {leave.timeContext === 'continuation' && (
+            <Badge variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[9px] px-1 py-0 shrink-0">
+              Continues from Jan
+            </Badge>
+          )}
+          {leave.timeContext === 'upcoming' && !leave.isContinuation && (
             <Badge variant="outline" className="bg-primary/5 text-primary/70 border-primary/20 text-[9px] px-1 py-0 shrink-0">
               Upcoming
             </Badge>
