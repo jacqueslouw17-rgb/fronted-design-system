@@ -154,7 +154,7 @@ const BreakdownRow = ({
             className={cn(
               "text-[10px] px-1.5 py-0 shrink-0",
               badge.variant === 'pending' 
-                ? "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20"
+                ? "bg-orange-500/15 text-orange-600 border-orange-500/30"
                 : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
             )}
           >
@@ -446,15 +446,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
                       </p>
                     </div>
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "text-xs shrink-0",
-                        statusConfig[selectedSubmission.status].color
-                      )}
-                    >
-                      {statusConfig[selectedSubmission.status].label}
-                    </Badge>
                   </div>
                 </SheetHeader>
 
