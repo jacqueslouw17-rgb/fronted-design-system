@@ -82,9 +82,6 @@ export const CA3_SubmitConfirmationModal: React.FC<CA3_SubmitConfirmationModalPr
               <span className="text-muted-foreground">Track status in real-time</span>
             </div>
           </div>
-          <p className="text-[10px] text-muted-foreground text-center">
-            Final amount may vary slightly based on FX rates at payment time.
-          </p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
