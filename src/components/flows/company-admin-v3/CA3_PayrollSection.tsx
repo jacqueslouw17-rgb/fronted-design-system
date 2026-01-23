@@ -194,22 +194,28 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
+              {isSubmitted ? (
+                <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Submitted
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                  <Clock className="h-3 w-3 mr-1" />
+                  In review
+                </Badge>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Review and submit payroll for this period"}
+              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Submit before Jan 25, 2026 — 5 days remaining"}
             </p>
           </div>
-          {isSubmitted ? (
-            <Badge variant="outline" className="bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Submitted
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-              <Clock className="h-3 w-3 mr-1" />
-              In review
-            </Badge>
-          )}
+          <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+            Continue to submissions
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Button>
         </div>
 
         {/* Metrics Grid */}
@@ -265,17 +271,6 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         </div>
 
         {/* CTA - only in landing view */}
-        {!isSubmitted && (
-          <div className="flex items-center justify-between pt-4 mt-2">
-            <p className="text-xs text-muted-foreground">
-              Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining
-            </p>
-            <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
-              Continue to submissions
-              <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
