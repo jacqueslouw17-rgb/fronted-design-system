@@ -147,7 +147,7 @@ const initialState: F41v4_DashboardState = {
   confirmed: false,
   adjustments: [],
   leaveRequests: [
-    // Sample approved leave for demo
+    // Sample approved leave for demo - 2 days
     {
       id: 'leave-demo-1',
       leaveType: 'Annual leave' as LeaveType,
@@ -156,16 +156,6 @@ const initialState: F41v4_DashboardState = {
       totalDays: 2,
       status: 'Admin approved' as LeaveStatus,
       submittedAt: '2026-01-05T10:00:00.000Z',
-    },
-    // Sample leave that spans pay periods
-    {
-      id: 'leave-demo-2',
-      leaveType: 'Sick leave' as LeaveType,
-      startDate: '2026-01-28',
-      endDate: '2026-02-03',
-      totalDays: 5,
-      status: 'Admin approved' as LeaveStatus,
-      submittedAt: '2026-01-20T10:00:00.000Z',
     },
   ],
   resubmittedRejectionIds: [],
