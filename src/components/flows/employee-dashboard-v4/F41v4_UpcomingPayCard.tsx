@@ -488,8 +488,7 @@ export const F41v4_UpcomingPayCard = () => {
                       )}
                     </div>
                     <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0">
-                      <FileText className="h-3.5 w-3.5" />
-                      {effectiveStatus === 'approved' ? 'Preview' : 'See what\'s included'}
+                      {effectiveStatus === 'approved' ? 'Preview' : "What's included"}
                       <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
