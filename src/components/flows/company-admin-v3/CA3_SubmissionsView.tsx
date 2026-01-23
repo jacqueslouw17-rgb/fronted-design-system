@@ -51,6 +51,7 @@ interface CA3_SubmissionsViewProps {
   onFlag: (submission: WorkerSubmission, reason: string) => void;
   onApproveAll: () => void;
   onContinue: () => void;
+  onClose?: () => void;
 }
 
 const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; label: string; color: string }> = {
@@ -81,6 +82,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   onFlag,
   onApproveAll,
   onContinue,
+  onClose,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
@@ -260,6 +262,16 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 Continue to Submit
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
+              {onClose && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onClose}
+                  className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
