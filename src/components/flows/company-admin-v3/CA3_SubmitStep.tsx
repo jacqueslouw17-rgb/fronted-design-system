@@ -196,14 +196,6 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
               {!isSubmitted ? (
               /* Batch Overview - Pre-submit */
               <>
-                <div className="border-b border-border/40 py-4 px-5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle2 className="h-4 w-4 text-accent-green-text" />
-                    <h3 className="text-sm font-medium text-foreground">Batch Overview</h3>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Ready to submit for processing</p>
-                </div>
-                
                 <div className="p-5 space-y-5">
                   {/* Pre-flight validation message */}
                   <div className="flex items-center gap-2.5 py-3 px-4 rounded-lg bg-accent-green-fill/5 border border-accent-green-outline/20">
