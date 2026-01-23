@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
+import { ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -315,20 +315,32 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
         );
 
       case "submit":
+        // Show summary card + submit button, then tracking below after submission
         return (
-          <CA3_SubmitStep
-            totalCost="$128,592"
-            employeeCount={4}
-            contractorCount={5}
-            currencyCount={3}
-            isSubmitted={isPayrollSubmitted}
-            onRequestSubmit={handleOpenSubmitModal}
-            trackingWorkers={trackingWorkers}
-            onExportCSV={handleExportCSV}
-            onDownloadAuditPDF={handleDownloadAuditPDF}
-            onBack={() => setCurrentStep("submissions")}
-            onClose={() => setHasEnteredWorkflow(false)}
-          />
+          <div className="space-y-6">
+            {/* Summary card with submit button */}
+            {renderSummaryCard(isPayrollSubmitted)}
+            
+            {/* Submit button - only before submission */}
+            {!isPayrollSubmitted && (
+              <div className="flex items-center justify-end">
+                <Button onClick={handleOpenSubmitModal} size="lg" className="h-11 px-6 gap-2">
+                  <Send className="h-4 w-4" />
+                  Submit to Fronted
+                </Button>
+              </div>
+            )}
+            
+            {/* Tracking view - only after submission */}
+            {isPayrollSubmitted && (
+              <CA3_TrackingView
+                workers={trackingWorkers}
+                onExportCSV={handleExportCSV}
+                onDownloadAuditPDF={handleDownloadAuditPDF}
+                onClose={() => setHasEnteredWorkflow(false)}
+              />
+            )}
+          </div>
         );
 
       case "track":
