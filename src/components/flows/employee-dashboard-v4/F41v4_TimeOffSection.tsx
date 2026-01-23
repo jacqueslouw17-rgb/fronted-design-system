@@ -25,157 +25,150 @@ interface F41v4_TimeOffSectionProps {
 const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
 const payPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
 
-type TimeContext = 'current' | 'upcoming' | 'past' | 'continuation';
+type TimeContext = 'current' | 'upcoming' | 'continuation';
 
 interface ProcessedLeave {
   id: string;
   leaveType: string;
   startDate: Date;
   endDate: Date;
-  effectiveStartDate: Date;
-  effectiveEndDate: Date;
+  displayStartDate: Date;
+  displayEndDate: Date;
+  displayDays: number;
   totalDays: number;
-  daysInPeriod: number;
   spansPeriods: boolean;
-  hasRemainingDays: boolean;
+  remainingDays: number;
   status: LeaveRequest['status'];
   timeContext: TimeContext;
-  isContinuation?: boolean;
-  parentId?: string;
+  periodLabel?: string; // e.g., "February", "March"
 }
 
+// Get month label for a date
+const getMonthLabel = (date: Date): string => {
+  return format(date, 'MMMM');
+};
+
 export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionProps) => {
-  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v4_DashboardStore();
+  const { leaveRequests, withdrawLeaveRequest, payrollStatus, windowState } = useF41v4_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   const [showAllCurrent, setShowAllCurrent] = useState(false);
-  const [showOtherLeave, setShowOtherLeave] = useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   
   const canWithdraw = payrollStatus === 'draft';
+  const isWindowOpen = windowState === 'OPEN';
   
-  // Process and categorize all leave, including continuations
-  const { currentLeave, otherLeave, totalApprovedDays, hasRemainingNextPeriod } = useMemo(() => {
+  // Process and categorize all leave
+  const { currentPeriodLeave, upcomingLeave, totalApprovedDays, upcomingByMonth } = useMemo(() => {
     const currentItems: ProcessedLeave[] = [];
-    const otherItems: ProcessedLeave[] = [];
+    const upcomingItems: ProcessedLeave[] = [];
     
     leaveRequests.forEach((leave) => {
       const leaveStart = new Date(leave.startDate);
       const leaveEnd = new Date(leave.endDate);
+      const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       
-      // Determine base time context
-      const isFullyPast = leaveEnd < payPeriodStart;
-      const isFullyUpcoming = leaveStart > payPeriodEnd;
-      const overlapsCurrentPeriod = !isFullyPast && !isFullyUpcoming;
+      // Check if any part overlaps with current period
+      const overlapsCurrentPeriod = leaveStart <= payPeriodEnd && leaveEnd >= payPeriodStart;
+      const isFullyFuture = leaveStart > payPeriodEnd;
       
-      if (isFullyPast) {
-        // Entirely in the past
-        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        otherItems.push({
-          id: leave.id,
-          leaveType: leave.leaveType,
-          startDate: leaveStart,
-          endDate: leaveEnd,
-          effectiveStartDate: leaveStart,
-          effectiveEndDate: leaveEnd,
-          totalDays,
-          daysInPeriod: totalDays,
-          spansPeriods: false,
-          hasRemainingDays: false,
-          status: leave.status,
-          timeContext: 'past',
-        });
-      } else if (isFullyUpcoming) {
-        // Entirely in the future - check if it spans multiple future periods
-        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        // For demo, Feb is next period (Feb 1 - Feb 28)
-        const nextPeriodEnd = new Date(2026, 1, 28);
-        const spansFuturePeriods = leaveEnd > nextPeriodEnd;
-        
-        otherItems.push({
-          id: leave.id,
-          leaveType: leave.leaveType,
-          startDate: leaveStart,
-          endDate: leaveEnd,
-          effectiveStartDate: leaveStart,
-          effectiveEndDate: leaveEnd,
-          totalDays,
-          daysInPeriod: totalDays,
-          spansPeriods: spansFuturePeriods,
-          hasRemainingDays: false,
-          status: leave.status,
-          timeContext: 'upcoming',
-        });
-      } else if (overlapsCurrentPeriod) {
-        // Overlaps current period - calculate portion in this period
+      if (overlapsCurrentPeriod) {
+        // Calculate portion in this period
         const effectiveStart = leaveStart < payPeriodStart ? payPeriodStart : leaveStart;
         const effectiveEnd = leaveEnd > payPeriodEnd ? payPeriodEnd : leaveEnd;
         const daysInPeriod = Math.floor((effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const spansPeriods = leaveStart < payPeriodStart || leaveEnd > payPeriodEnd;
-        const hasRemainingDays = leaveEnd > payPeriodEnd;
-        const totalDays = Math.floor((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const spansPeriods = leaveEnd > payPeriodEnd;
+        const remainingDays = spansPeriods ? totalDays - daysInPeriod : 0;
         
-        // Add to current period
         currentItems.push({
           id: leave.id,
           leaveType: leave.leaveType,
           startDate: leaveStart,
           endDate: leaveEnd,
-          effectiveStartDate: effectiveStart,
-          effectiveEndDate: effectiveEnd,
+          displayStartDate: effectiveStart,
+          displayEndDate: effectiveEnd,
+          displayDays: daysInPeriod,
           totalDays,
-          daysInPeriod,
           spansPeriods,
-          hasRemainingDays,
+          remainingDays,
           status: leave.status,
           timeContext: 'current',
         });
         
-        // If there are remaining days after this period, add a continuation entry
-        if (hasRemainingDays) {
+        // If spans into future, also add continuation to upcoming
+        if (spansPeriods) {
           const continuationStart = new Date(payPeriodEnd);
-          continuationStart.setDate(continuationStart.getDate() + 1); // Feb 1
-          const continuationDays = Math.floor((leaveEnd.getTime() - continuationStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          continuationStart.setDate(continuationStart.getDate() + 1);
           
-          otherItems.push({
+          upcomingItems.push({
             id: `${leave.id}-continuation`,
             leaveType: leave.leaveType,
             startDate: continuationStart,
             endDate: leaveEnd,
-            effectiveStartDate: continuationStart,
-            effectiveEndDate: leaveEnd,
-            totalDays: continuationDays,
-            daysInPeriod: continuationDays,
+            displayStartDate: continuationStart,
+            displayEndDate: leaveEnd,
+            displayDays: remainingDays,
+            totalDays: remainingDays,
             spansPeriods: false,
-            hasRemainingDays: false,
+            remainingDays: 0,
             status: leave.status,
             timeContext: 'continuation',
-            isContinuation: true,
-            parentId: leave.id,
+            periodLabel: getMonthLabel(continuationStart),
           });
         }
+      } else if (isFullyFuture) {
+        // Check if it spans multiple future months
+        const startMonth = leaveStart.getMonth();
+        const endMonth = leaveEnd.getMonth();
+        const spansFutureMonths = startMonth !== endMonth || leaveStart.getFullYear() !== leaveEnd.getFullYear();
+        
+        upcomingItems.push({
+          id: leave.id,
+          leaveType: leave.leaveType,
+          startDate: leaveStart,
+          endDate: leaveEnd,
+          displayStartDate: leaveStart,
+          displayEndDate: leaveEnd,
+          displayDays: totalDays,
+          totalDays,
+          spansPeriods: spansFutureMonths,
+          remainingDays: 0,
+          status: leave.status,
+          timeContext: 'upcoming',
+          periodLabel: getMonthLabel(leaveStart),
+        });
       }
+      // Note: Past leave (before current period) is not shown - it's already processed
     });
     
-    // Sort other items by date
-    otherItems.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+    // Sort items
+    currentItems.sort((a, b) => a.displayStartDate.getTime() - b.displayStartDate.getTime());
+    upcomingItems.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     
-    // Calculate totals for current period
-    const currentApproved = currentItems.filter(l => l.status === 'Admin approved');
-    const currentPending = currentItems.filter(l => l.status === 'Pending');
-    const approvedDays = currentApproved.reduce((sum, l) => sum + l.daysInPeriod, 0);
-    const hasRemaining = currentApproved.some(l => l.hasRemainingDays) || currentPending.some(l => l.hasRemainingDays);
+    // Group upcoming by month for display
+    const byMonth = upcomingItems.reduce((acc, leave) => {
+      const month = leave.periodLabel || 'Unknown';
+      if (!acc[month]) acc[month] = [];
+      acc[month].push(leave);
+      return acc;
+    }, {} as Record<string, ProcessedLeave[]>);
+    
+    // Calculate approved days in current period
+    const approvedDays = currentItems
+      .filter(l => l.status === 'Admin approved')
+      .reduce((sum, l) => sum + l.displayDays, 0);
     
     return {
-      currentLeave: currentItems,
-      otherLeave: otherItems,
+      currentPeriodLeave: currentItems,
+      upcomingLeave: upcomingItems,
       totalApprovedDays: approvedDays,
-      hasRemainingNextPeriod: hasRemaining,
+      upcomingByMonth: byMonth,
     };
   }, [leaveRequests]);
   
   // Separate current by status
-  const currentApproved = currentLeave.filter(l => l.status === 'Admin approved');
-  const currentPending = currentLeave.filter(l => l.status === 'Pending');
+  const currentApproved = currentPeriodLeave.filter(l => l.status === 'Admin approved');
+  const currentPending = currentPeriodLeave.filter(l => l.status === 'Pending');
   
   // Display limits
   const approvedLimit = 2;
@@ -183,8 +176,9 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
   const hasMoreApproved = currentApproved.length > approvedLimit;
   
   const hasCurrentLeave = currentApproved.length > 0 || currentPending.length > 0;
-  const hasOtherLeave = otherLeave.length > 0;
-  const hasAnyLeave = hasCurrentLeave || hasOtherLeave;
+  const hasUpcomingLeave = upcomingLeave.length > 0;
+  const hasSpanningLeave = currentPeriodLeave.some(l => l.spansPeriods);
+  const hasAnyLeave = hasCurrentLeave || hasUpcomingLeave;
   
   // Format date range for display
   const formatDateRange = (startDate: Date, endDate: Date, includeYear = false) => {
@@ -238,10 +232,10 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     
     const Icon = isApproved ? Check : isPending ? Clock : Calendar;
     
-    // For current period, show effective dates; for other, show full dates
-    const displayStart = leave.timeContext === 'current' ? leave.effectiveStartDate : leave.startDate;
-    const displayEnd = leave.timeContext === 'current' ? leave.effectiveEndDate : leave.endDate;
-    const displayDays = leave.timeContext === 'current' ? leave.daysInPeriod : leave.totalDays;
+    // Use the processed display dates
+    const displayStart = leave.displayStartDate;
+    const displayEnd = leave.displayEndDate;
+    const displayDays = leave.displayDays;
     const showYear = leave.timeContext !== 'current';
     
     return (
@@ -271,12 +265,12 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
           {/* Status/context badges */}
           {leave.spansPeriods && leave.timeContext === 'current' && (
             <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
-              Spans pay periods
+              +{leave.remainingDays}d next period
             </Badge>
           )}
           {isPending && leave.timeContext === 'current' && (
             <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-              Pending
+              Awaiting approval
             </span>
           )}
           {leave.timeContext === 'continuation' && (
@@ -284,19 +278,18 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               Continues from Jan
             </Badge>
           )}
-          {leave.timeContext === 'upcoming' && !leave.isContinuation && (
-            <Badge variant="outline" className="bg-primary/5 text-primary/70 border-primary/20 text-[9px] px-1 py-0 shrink-0">
-              Upcoming
-            </Badge>
-          )}
-          {leave.timeContext === 'past' && (
-            <Badge variant="outline" className="bg-muted text-muted-foreground border-border/50 text-[9px] px-1 py-0 shrink-0">
-              Past
-            </Badge>
+          {leave.timeContext === 'upcoming' && (
+            <>
+              {leave.spansPeriods && (
+                <Badge variant="outline" className="bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[9px] px-1 py-0 shrink-0">
+                  Spans months
+                </Badge>
+              )}
+            </>
           )}
           {leave.status === 'Pending' && leave.timeContext !== 'current' && (
-            <span className="text-xs text-amber-600 dark:text-amber-400">
-              · Pending
+            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+              Awaiting approval
             </span>
           )}
         </div>
@@ -390,11 +383,11 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
                   )}
                   
                   {/* Spanning pay periods helper */}
-                  {hasRemainingNextPeriod && (
+                  {hasSpanningLeave && (
                     <div className="flex items-start gap-2 pt-2 mt-1">
                       <ArrowRight className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
                       <p className="text-[11px] text-muted-foreground">
-                        Some leave continues into the next pay period
+                        See continuation below in upcoming leave
                       </p>
                     </div>
                   )}
@@ -406,31 +399,43 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
               )}
             </div>
             
-            {/* OTHER LEAVE Section (Upcoming + Past) */}
-            {hasOtherLeave && (
+            {/* UPCOMING LEAVE Section */}
+            {hasUpcomingLeave && (
               <div className="pt-3 border-t border-border/30">
                 <button
-                  onClick={() => setShowOtherLeave(!showOtherLeave)}
+                  onClick={() => setShowUpcoming(!showUpcoming)}
                   className="flex items-center justify-between w-full group"
                 >
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                    Other scheduled leave
+                    Upcoming leave
                   </p>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-background">
-                      {otherLeave.length} {otherLeave.length === 1 ? 'request' : 'requests'}
+                      {upcomingLeave.length} {upcomingLeave.length === 1 ? 'scheduled' : 'scheduled'}
                     </Badge>
                     <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                      {showOtherLeave ? '−' : '+'}
+                      {showUpcoming ? '−' : '+'}
                     </span>
                   </div>
                 </button>
                 
-                {showOtherLeave && (
-                  <div className="space-y-1.5 mt-2">
-                    {otherLeave.map(leave => 
-                      renderLeaveRow(leave, leave.status === 'Pending' ? 'pending' : 'muted')
-                    )}
+                {showUpcoming && (
+                  <div className="space-y-3 mt-3">
+                    {/* Group by month */}
+                    {Object.entries(upcomingByMonth).map(([month, leaves]) => (
+                      <div key={month} className="space-y-1.5">
+                        <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide">
+                          {month}
+                        </p>
+                        {leaves.map(leave => 
+                          renderLeaveRow(
+                            leave, 
+                            leave.status === 'Pending' ? 'pending' : 
+                            leave.timeContext === 'continuation' ? 'approved' : 'muted'
+                          )
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
