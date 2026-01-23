@@ -87,7 +87,7 @@ const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; la
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
-  pending: { icon: Clock, label: "Pending", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20" },
+  pending: { icon: Clock, label: "Pending", color: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
   approved: { icon: CheckCircle2, label: "Approved", color: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
   rejected: { icon: X, label: "Rejected", color: "bg-destructive/10 text-destructive border-destructive/20" },
 };
