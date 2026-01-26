@@ -390,13 +390,6 @@ export const F41v4_UpcomingPayCard = () => {
                     Approved on {formatSubmittedTimestamp(approvedAt)}
                   </p>
                 )}
-                {/* Partial rejection indicator - when some adjustments are rejected but not the entire payroll */}
-                {hasPartialRejections && !demoFullRejection && (
-                  <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    {rejectedAdjustmentsCount} {rejectedAdjustmentsCount === 1 ? 'request' : 'requests'} need{rejectedAdjustmentsCount === 1 ? 's' : ''} attention
-                  </p>
-                )}
                 {/* Cutoff passed message */}
                 {windowState === 'CLOSED' && !hasResubmittedFromRejected && (
                   <p className="text-sm text-muted-foreground">
@@ -444,18 +437,10 @@ export const F41v4_UpcomingPayCard = () => {
                   </div>
                 </div>
               )}
-              {/* Partial rejection badge */}
-              {hasPartialRejections && !demoFullRejection && (
-                <Badge className="text-sm px-3 py-1 bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">
-                  {rejectedAdjustmentsCount} rejected
-                </Badge>
-              )}
-              {/* Main status badge - only show if no partial rejections or full rejection */}
-              {(!hasPartialRejections || demoFullRejection) && (
-                <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
-                  {statusConfig.label}
-                </Badge>
-              )}
+              {/* Main status badge - always show */}
+              <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+                {statusConfig.label}
+              </Badge>
             </div>
           </div>
 
@@ -507,62 +492,71 @@ export const F41v4_UpcomingPayCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Wallet className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm font-medium text-muted-foreground">Pay preview</p>
+                <div className={cn(
+                  "p-5 rounded-xl border transition-colors",
+                  hasPartialRejections 
+                    ? "bg-gradient-to-br from-amber-500/[0.06] to-amber-600/[0.04] border-amber-300/40 dark:border-amber-500/20" 
+                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
+                )}>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm font-medium text-muted-foreground">Pay preview</p>
+                    </div>
+                    {hasPartialRejections ? (
+                      <button
+                        onClick={() => setBreakdownDrawerOpen(true)}
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30 hover:bg-amber-200 dark:hover:bg-amber-500/30 transition-colors"
+                      >
+                        <AlertCircle className="h-3 w-3" />
+                        {rejectedAdjustmentsCount} rejected
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setBreakdownDrawerOpen(true)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
+                      >
+                        What's included
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {hasAdjustments ? (
+                    <div className="space-y-2">
+                      {/* Adjusted Net - Primary display */}
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <p className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
+                          {formatCurrency(adjustedNet, currency)}
+                        </p>
+                        <Badge className={cn(
+                          "text-[10px] px-1.5 py-0.5 shrink-0",
+                          isPositiveAdjustment 
+                            ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                            : "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
+                        )}>
+                          {isPositiveAdjustment ? '+' : ''}{formatCurrency(pendingAdjustmentTotal, currency)}
+                        </Badge>
                       </div>
                       
-                      {hasAdjustments ? (
-                        <div className="space-y-2">
-                          {/* Adjusted Net - Primary display */}
-                          <div className="flex items-baseline gap-2">
-                            <p className="text-3xl font-bold text-foreground tracking-tight">
-                              {formatCurrency(adjustedNet, currency)}
-                            </p>
-                            <Badge className={cn(
-                              "text-[10px] px-1.5 py-0.5",
-                              isPositiveAdjustment 
-                                ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
-                                : "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
-                            )}>
-                              {isPositiveAdjustment ? '+' : ''}{formatCurrency(pendingAdjustmentTotal, currency)}
-                            </Badge>
-                          </div>
-                          
-                          {/* Original System Net - Secondary display */}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="line-through opacity-70">{formatCurrency(estimatedNet, currency)}</span>
-                            <span>·</span>
-                            <span>Base amount</span>
-                          </div>
-                          <p className="text-[10px] text-muted-foreground/70">Final amount confirmed on payslip</p>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-3xl font-bold text-foreground tracking-tight">
-                            {formatCurrency(estimatedNet, currency)}
-                          </p>
-                          {demoFullRejection ? (
-                            <p className="text-xs text-muted-foreground/70 mt-1.5">
-                              Pay preview will update once changes are approved.
-                            </p>
-                          ) : (
-                            <div className="space-y-0.5">
-                              <p className="text-xs text-muted-foreground">Final amount confirmed on payslip</p>
-                              <p className="text-[10px] text-muted-foreground/60">May change if edits are made before approval</p>
-                            </div>
-                          )}
-                        </>
-                      )}
+                      {/* Original System Net - Secondary display */}
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="line-through opacity-70 tabular-nums">{formatCurrency(estimatedNet, currency)}</span>
+                        <span>·</span>
+                        <span>Base amount</span>
+                      </div>
                     </div>
-                    <button onClick={() => setBreakdownDrawerOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0">
-                      {effectiveStatus === 'approved' ? 'Preview' : "What's included"}
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  ) : (
+                    <div>
+                      <p className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
+                        {formatCurrency(estimatedNet, currency)}
+                      </p>
+                      <div className="space-y-0.5 mt-1.5">
+                        <p className="text-xs text-muted-foreground">Final amount confirmed on payslip</p>
+                        <p className="text-[10px] text-muted-foreground/60">May change if edits are made before approval</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}
