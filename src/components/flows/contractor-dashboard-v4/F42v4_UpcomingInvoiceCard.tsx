@@ -493,18 +493,18 @@ export const F42v4_UpcomingInvoiceCard = () => {
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <p className="text-sm font-medium text-muted-foreground">Invoice preview</p>
-                      {hasPartialRejections && (
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
-                          {rejectedAdjustmentsCount} rejected
-                        </span>
-                      )}
                     </div>
                     <button
                       onClick={() => setBreakdownDrawerOpen(true)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 text-primary hover:bg-primary/10"
+                      className={cn(
+                        "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
+                        hasPartialRejections 
+                          ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
+                          : "text-muted-foreground/70 hover:text-foreground"
+                      )}
                     >
-                      What's included
-                      <ChevronRight className="h-3.5 w-3.5" />
+                      {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
+                      <ChevronRight className="h-3 w-3" />
                     </button>
                   </div>
                   {hasAdjustments ? (
