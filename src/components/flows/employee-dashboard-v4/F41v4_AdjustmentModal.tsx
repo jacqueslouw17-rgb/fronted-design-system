@@ -148,8 +148,6 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
     setErrors({});
   };
-    setErrors({});
-  };
 
   // Expense line item helpers
   const addExpenseItem = () => {
