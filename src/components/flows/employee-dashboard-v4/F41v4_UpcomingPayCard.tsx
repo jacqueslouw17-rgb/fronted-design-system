@@ -166,12 +166,8 @@ export const F41v4_UpcomingPayCard = () => {
   } | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
 
-  // Demo state toggle - for simulating partial rejection (individual adjustments rejected, not entire payroll)
+  // Demo state toggle - for simulating partial rejection (individual adjustments rejected)
   const [demoPartialRejection, setDemoPartialRejection] = useState(false);
-  // Demo state for full rejection (entire payroll rejected by admin)
-  const [demoFullRejection, setDemoFullRejection] = useState(false);
-  // Track if user has resubmitted from rejected state (transitions to "in review")
-  const [hasResubmittedFromRejected, setHasResubmittedFromRejected] = useState(false);
 
   // Helper to open adjustment modal with specific type and optional pre-fill data
   const openAdjustmentModal = (type: RequestType = null, fromBreakdown: boolean = false, category: string = '', amount: string = '') => {
@@ -248,7 +244,7 @@ export const F41v4_UpcomingPayCard = () => {
   const rejectedAdjustmentsCount = allAdjustments.filter(
     adj => adj.status === 'Admin rejected' && !resubmittedRejectionIds.includes(adj.id)
   ).length;
-  const hasPartialRejections = rejectedAdjustmentsCount > 0 && !demoFullRejection;
+  const hasPartialRejections = rejectedAdjustmentsCount > 0;
 
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
   useEffect(() => {
@@ -261,10 +257,7 @@ export const F41v4_UpcomingPayCard = () => {
     }
   }, [payrollStatus, setPayrollStatus]);
 
-  // Calculate effective status (demo override for rejected, but transition to submitted if resubmitted)
-  const effectiveStatus = demoFullRejection 
-    ? (hasResubmittedFromRejected ? 'submitted' as const : 'rejected' as const) 
-    : payrollStatus;
+  const effectiveStatus = payrollStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
   const isWindowOpen = windowState === 'OPEN';
   const isNone = windowState === 'NONE';
@@ -366,7 +359,7 @@ export const F41v4_UpcomingPayCard = () => {
               {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
                 {/* Draft state - show deadline countdown when window is open */}
-                {!demoFullRejection && payrollStatus === 'draft' && windowState === 'OPEN' && (
+                {payrollStatus === 'draft' && windowState === 'OPEN' && (
                   <p className="text-sm text-muted-foreground">
                     Submit by <span className="font-medium text-foreground">{cutoffDate}</span>
                     <span className="mx-1.5">·</span>
@@ -378,20 +371,19 @@ export const F41v4_UpcomingPayCard = () => {
                     </span>
                   </p>
                 )}
-                {/* Show submitted timestamp - for actual submitted OR resubmitted from rejected */}
-                {((!demoFullRejection && payrollStatus === 'submitted' && submittedAt) || 
-                  (demoFullRejection && hasResubmittedFromRejected)) && (
+                {/* Show submitted timestamp */}
+                {payrollStatus === 'submitted' && submittedAt && (
                   <p className="text-sm text-muted-foreground">
                     Submitted for review
                   </p>
                 )}
-                {!demoFullRejection && payrollStatus === 'approved' && approvedAt && (
+                {payrollStatus === 'approved' && approvedAt && (
                   <p className="text-sm text-muted-foreground">
                     Approved on {formatSubmittedTimestamp(approvedAt)}
                   </p>
                 )}
                 {/* Cutoff passed message */}
-                {windowState === 'CLOSED' && !hasResubmittedFromRejected && (
+                {windowState === 'CLOSED' && (
                   <p className="text-sm text-muted-foreground">
                     Cut-off passed — new requests will be included in next pay period.
                   </p>
@@ -400,39 +392,21 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
             <div className="flex items-center gap-3 mt-2">
               {/* Demo state toggle - only show after submission (submitted/approved states) */}
-              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && !hasResubmittedFromRejected && (
+              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && (
                 <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
                   <div className="flex rounded-md overflow-hidden border border-border/50">
                     <button 
-                      onClick={() => {
-                        setDemoPartialRejection(false);
-                        setDemoFullRejection(false);
-                        setHasResubmittedFromRejected(false);
-                      }} 
-                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoPartialRejection && !demoFullRejection ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}
+                      onClick={() => setDemoPartialRejection(false)} 
+                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoPartialRejection ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}
                     >
                       Approved
                     </button>
                     <button 
-                      onClick={() => {
-                        setDemoPartialRejection(true);
-                        setDemoFullRejection(false);
-                        setHasResubmittedFromRejected(false);
-                      }} 
-                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoPartialRejection && !demoFullRejection ? 'bg-amber-500/10 text-amber-600' : 'bg-transparent text-muted-foreground hover:text-foreground')}
+                      onClick={() => setDemoPartialRejection(true)} 
+                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoPartialRejection ? 'bg-amber-500/10 text-amber-600' : 'bg-transparent text-muted-foreground hover:text-foreground')}
                     >
                       Partial
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setDemoPartialRejection(false);
-                        setDemoFullRejection(true);
-                        setHasResubmittedFromRejected(false);
-                      }} 
-                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoFullRejection ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground')}
-                    >
-                      Rejected
                     </button>
                   </div>
                 </div>
@@ -447,7 +421,7 @@ export const F41v4_UpcomingPayCard = () => {
           </div>
 
           {/* Returned reason block - only when applicable */}
-          {payrollStatus === 'returned' && returnedReason && !demoFullRejection && (
+          {payrollStatus === 'returned' && returnedReason && (
             <div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
               <p className="text-sm text-amber-700 dark:text-amber-400">
                 <span className="font-medium">Admin note:</span> {returnedReason}
@@ -459,8 +433,6 @@ export const F41v4_UpcomingPayCard = () => {
               )}
             </div>
           )}
-          
-          {/* Full Rejection panel removed - now shown in breakdown drawer */}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -477,16 +449,12 @@ export const F41v4_UpcomingPayCard = () => {
               const adjustedNet = estimatedNet + pendingAdjustmentTotal;
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
-              const isFullRejection = demoFullRejection && !hasResubmittedFromRejected;
-
               return (
                 <div className={cn(
                   "p-5 rounded-xl border",
-                  isFullRejection
-                    ? "bg-red-50/60 dark:bg-red-500/[0.06] border-red-200/60 dark:border-red-500/20"
-                    : hasPartialRejections 
-                      ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
-                      : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
+                  hasPartialRejections 
+                    ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
+                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
                 )}>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
@@ -497,14 +465,12 @@ export const F41v4_UpcomingPayCard = () => {
                       onClick={() => setBreakdownDrawerOpen(true)}
                       className={cn(
                         "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
-                        isFullRejection
-                          ? "text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                          : hasPartialRejections 
-                            ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
-                            : "text-muted-foreground/70 hover:text-foreground"
+                        hasPartialRejections 
+                          ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
+                          : "text-muted-foreground/70 hover:text-foreground"
                       )}
                     >
-                      {isFullRejection ? "Rejected" : hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
+                      {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
                       <ChevronRight className="h-3 w-3" />
                     </button>
                   </div>
@@ -600,7 +566,7 @@ export const F41v4_UpcomingPayCard = () => {
             </div>}
 
           {/* Primary + Secondary Actions - only show for draft state */}
-          {!demoFullRejection && payrollStatus === 'draft' && (
+          {payrollStatus === 'draft' && (
             <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button onClick={handlePrimaryAction} className="flex-1">
@@ -656,7 +622,6 @@ export const F41v4_UpcomingPayCard = () => {
         payrollStatus={effectiveStatus}
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
-        isFullRejection={demoFullRejection && !hasResubmittedFromRejected}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={(id) => {
           setWithdrawTarget({ type: 'adjustment', id });
@@ -665,10 +630,6 @@ export const F41v4_UpcomingPayCard = () => {
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
-          // Transition from rejected to "in review" if we're in demo partial rejection state
-          if (demoPartialRejection || demoFullRejection) {
-            setHasResubmittedFromRejected(true);
-          }
           // Close breakdown drawer and open expense form with all fields pre-filled
           setBreakdownDrawerOpen(false);
           // Open adjustment modal with expense type pre-selected, category and amount pre-filled
