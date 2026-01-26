@@ -39,10 +39,10 @@ interface F41v4_TimeOffRequestDrawerProps {
 }
 
 const leaveTypes: { value: LeaveType; label: string; icon: string }[] = [
-  { value: 'Annual leave', label: 'Annual leave', icon: '🌴' },
-  { value: 'Sick leave', label: 'Sick leave', icon: '🏥' },
-  { value: 'Unpaid leave', label: 'Unpaid leave', icon: '📋' },
-  { value: 'Other', label: 'Other', icon: '📝' },
+  { value: 'Vacation', label: 'Vacation', icon: '🌴' },
+  { value: 'Sick', label: 'Sick', icon: '🤒' },
+  { value: 'Compassionate', label: 'Compassionate', icon: '💜' },
+  { value: 'Maternity', label: 'Maternity', icon: '🏝️' },
 ];
 
 // Country display names
@@ -69,7 +69,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   const [isLoadingRules, setIsLoadingRules] = useState(false);
   
   // Form state
-  const [leaveType, setLeaveType] = useState<LeaveType>('Annual leave');
+  const [leaveType, setLeaveType] = useState<LeaveType>('Vacation');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isHalfDay, setIsHalfDay] = useState(false);
   const [notes, setNotes] = useState('');
@@ -96,10 +96,10 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   // Check if single day selected (enables half-day option)
   const isSingleDay = startDate && endDate && startDate.toDateString() === endDate.toDateString();
 
-  // Calculate used annual leave from existing requests
-  const usedAnnualLeave = useMemo(() => {
+  // Calculate used vacation leave from existing requests
+  const usedVacationLeave = useMemo(() => {
     return leaveRequests
-      .filter(l => l.leaveType === 'Annual leave' && l.status !== 'Admin rejected')
+      .filter(l => l.leaveType === 'Vacation' && l.status !== 'Admin rejected')
       .reduce((sum, l) => sum + l.totalDays, 0);
   }, [leaveRequests]);
 
@@ -129,8 +129,8 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   // Validation with country rules
   const validation = useMemo(() => {
     if (!startDate || !endDate || !countryRules) return null;
-    return validateLeaveRequest(startDate, endDate, countryRules, usedAnnualLeave);
-  }, [startDate, endDate, countryRules, usedAnnualLeave]);
+    return validateLeaveRequest(startDate, endDate, countryRules, usedVacationLeave);
+  }, [startDate, endDate, countryRules, usedVacationLeave]);
 
   // Get holiday dates for calendar highlighting
   const holidayDates = useMemo(() => {
@@ -153,7 +153,7 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
   }, [startDate, endDate, countryRules]);
 
   const resetForm = () => {
-    setLeaveType('Annual leave');
+    setLeaveType('Vacation');
     setDateRange(undefined);
     setIsHalfDay(false);
     setNotes('');
@@ -448,17 +448,17 @@ export const F41v4_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v4_TimeOff
                           {calculatedDays === 0.5 ? '0.5 day' : `${calculatedDays} ${calculatedDays === 1 ? 'day' : 'days'}`}
                         </span>
                       </div>
-                      {/* Show remaining balance for Annual leave */}
-                      {leaveType === 'Annual leave' && countryRules && countryRules.maxAnnualLeave > 0 && (
+                      {/* Show remaining balance for Vacation leave */}
+                      {leaveType === 'Vacation' && countryRules && countryRules.maxAnnualLeave > 0 && (
                         <>
                           <span className="text-muted-foreground/40">·</span>
                           <span className={cn(
                             "text-sm",
-                            countryRules.maxAnnualLeave - usedAnnualLeave - calculatedDays < 0 
+                            countryRules.maxAnnualLeave - usedVacationLeave - calculatedDays < 0 
                               ? "text-destructive font-medium" 
                               : "text-muted-foreground"
                           )}>
-                            {countryRules.maxAnnualLeave - usedAnnualLeave - calculatedDays} left
+                            {countryRules.maxAnnualLeave - usedVacationLeave - calculatedDays} left
                           </span>
                         </>
                       )}

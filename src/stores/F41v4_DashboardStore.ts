@@ -14,7 +14,7 @@ export type PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'f
 export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
 export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
 export type AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
-export type LeaveType = 'Annual leave' | 'Sick leave' | 'Unpaid leave' | 'Other';
+export type LeaveType = 'Vacation' | 'Sick' | 'Compassionate' | 'Maternity';
 export type LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 
 export interface LineItem {
@@ -150,7 +150,7 @@ const initialState: F41v4_DashboardState = {
     // Sample approved leave - single day in current period
     {
       id: 'leave-demo-1',
-      leaveType: 'Annual leave' as LeaveType,
+      leaveType: 'Vacation' as LeaveType,
       startDate: '2026-01-15',
       endDate: '2026-01-15',
       totalDays: 1,
@@ -160,21 +160,21 @@ const initialState: F41v4_DashboardState = {
     // Sample leave spanning pay periods (Jan 30 - Feb 2)
     {
       id: 'leave-demo-2',
-      leaveType: 'Annual leave' as LeaveType,
+      leaveType: 'Vacation' as LeaveType,
       startDate: '2026-01-30',
       endDate: '2026-02-02',
       totalDays: 4,
       status: 'Admin approved' as LeaveStatus,
       submittedAt: '2026-01-20T10:00:00.000Z',
     },
-    // Sample upcoming leave (future - Feb, within period)
+    // Sample pending leave (future - Feb)
     {
       id: 'leave-demo-3',
-      leaveType: 'Annual leave' as LeaveType,
+      leaveType: 'Vacation' as LeaveType,
       startDate: '2026-02-15',
-      endDate: '2026-02-18',
-      totalDays: 4,
-      status: 'Admin approved' as LeaveStatus,
+      endDate: '2026-02-17',
+      totalDays: 2,
+      status: 'Pending' as LeaveStatus,
       submittedAt: '2026-01-10T10:00:00.000Z',
     },
   ],
