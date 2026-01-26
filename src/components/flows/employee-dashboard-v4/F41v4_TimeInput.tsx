@@ -3,7 +3,7 @@
  * Auto-moves cursor from hours to minutes after 2 digits
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TimeInputProps {
@@ -33,6 +33,14 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
 
   // Track if we're actively editing to prevent external value overwrites
   const isEditingRef = useRef(false);
+
+  // Keep local state in sync with the controlled `value`, but never while typing.
+  useEffect(() => {
+    if (isEditingRef.current) return;
+    const { hours, minutes } = parseValue(value);
+    setLocalHours(hours);
+    setLocalMinutes(minutes);
+  }, [value, parseValue]);
 
   const notifyChange = useCallback((h: string, m: string) => {
     if (h || m) {
@@ -68,6 +76,7 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
     if (val.length === 2) {
       setTimeout(() => {
         minuteRef.current?.focus();
+        minuteRef.current?.select();
       }, 0);
     }
   };
@@ -96,6 +105,7 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
     if (e.key === 'ArrowRight' || e.key === ':') {
       e.preventDefault();
       minuteRef.current?.focus();
+      minuteRef.current?.select();
     }
   };
 
@@ -103,18 +113,23 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
     if (e.key === 'ArrowLeft' || (e.key === 'Backspace' && localMinutes === '')) {
       e.preventDefault();
       hourRef.current?.focus();
+      hourRef.current?.select();
     }
   };
 
-  // Only pad values when leaving the entire component
-  const handleContainerBlur = (e: React.FocusEvent) => {
-    // Check if focus is moving outside the container
-    if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+  // Only pad values when leaving the entire component.
+  // NOTE: `relatedTarget` is unreliable on some browsers/mobile, so we check `document.activeElement`.
+  const handleContainerBlur = () => {
+    setTimeout(() => {
+      const active = document.activeElement;
+      const stillInside = !!containerRef.current && !!active && containerRef.current.contains(active);
+      if (stillInside) return;
+
       isEditingRef.current = false;
-      
+
       let paddedHours = localHours;
       let paddedMinutes = localMinutes;
-      
+
       if (localHours.length === 1) {
         paddedHours = localHours.padStart(2, '0');
         setLocalHours(paddedHours);
@@ -123,11 +138,11 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
         paddedMinutes = localMinutes.padStart(2, '0');
         setLocalMinutes(paddedMinutes);
       }
-      
+
       if (paddedHours !== localHours || paddedMinutes !== localMinutes) {
         notifyChange(paddedHours, paddedMinutes);
       }
-    }
+    }, 0);
   };
 
   return (
@@ -149,6 +164,7 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
         value={localHours}
         onChange={handleHoursChange}
         onKeyDown={handleHoursKeyDown}
+        onFocus={(e) => e.currentTarget.select()}
         className="w-8 h-8 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums rounded focus:bg-muted/50 transition-colors"
         maxLength={2}
         aria-label="Hours"
@@ -162,6 +178,7 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
         value={localMinutes}
         onChange={handleMinutesChange}
         onKeyDown={handleMinutesKeyDown}
+        onFocus={(e) => e.currentTarget.select()}
         className="w-8 h-8 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums rounded focus:bg-muted/50 transition-colors"
         maxLength={2}
         aria-label="Minutes"
