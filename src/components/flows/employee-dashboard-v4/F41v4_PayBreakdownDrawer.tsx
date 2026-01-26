@@ -340,10 +340,7 @@ export const F41v4_PayBreakdownDrawer = ({
                   amount={adj.amount || 0}
                   currency={currency}
                   isPositive
-                  badge={{
-                    label: adj.status === 'Pending' ? 'Pending' : 'Approved',
-                    variant: adj.status === 'Pending' ? 'pending' : 'approved'
-                  }}
+                  badge={adj.status === 'Pending' ? { label: 'Pending', variant: 'pending' as const } : undefined}
                   canRemove={canRemoveAdjustments && adj.status === 'Pending'}
                   onRemove={() => onWithdrawAdjustment?.(adj.id)}
                 />
@@ -399,10 +396,7 @@ export const F41v4_PayBreakdownDrawer = ({
                     amount={adj.amount || 0}
                     currency={currency}
                     isPositive
-                    badge={{
-                      label: adj.status === 'Pending' ? 'Pending' : 'Approved',
-                      variant: adj.status === 'Pending' ? 'pending' : 'approved'
-                    }}
+                    badge={adj.status === 'Pending' ? { label: 'Pending', variant: 'pending' as const } : undefined}
                     canRemove={canRemoveAdjustments && adj.status === 'Pending'}
                     onRemove={() => onWithdrawAdjustment?.(adj.id)}
                   />
