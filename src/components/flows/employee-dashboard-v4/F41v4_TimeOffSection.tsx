@@ -170,7 +170,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
     }
   };
 
-  // Render a simple leave row
+  // Render a dense, bordered leave row (matching CA3 tracking view pattern)
   const renderLeaveRow = (leave: ProcessedLeave) => {
     const isPending = leave.status === 'Pending';
     
@@ -178,38 +178,38 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       <div 
         key={leave.id}
         className={cn(
-          "group flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors",
+          "group flex items-center gap-2.5 px-2.5 py-2 rounded-lg border transition-colors",
           isPending 
-            ? "bg-amber-50/80 dark:bg-amber-500/10 border border-amber-100/80 dark:border-amber-500/20" 
-            : "bg-muted/30 dark:bg-muted/10"
+            ? "bg-amber-50/50 dark:bg-amber-500/5 border-amber-200/60 dark:border-amber-500/20" 
+            : "bg-muted/30 dark:bg-muted/10 border-border/20"
         )}
       >
         {/* Leave type */}
-        <span className="text-sm font-medium text-foreground min-w-[100px]">
+        <span className="text-xs font-medium text-foreground min-w-[90px]">
           {leave.leaveType}
         </span>
         
         {/* Separator */}
-        <span className="text-muted-foreground/40">·</span>
+        <span className="text-muted-foreground/40 text-xs">·</span>
         
         {/* Date range */}
-        <span className="text-sm text-muted-foreground tabular-nums">
+        <span className="text-xs text-muted-foreground tabular-nums">
           {formatDateRange(leave.startDate, leave.endDate)}
         </span>
         
         {/* Separator */}
-        <span className="text-muted-foreground/40">·</span>
+        <span className="text-muted-foreground/40 text-xs">·</span>
         
         {/* Duration */}
-        <span className="text-sm text-muted-foreground tabular-nums">
+        <span className="text-xs text-muted-foreground tabular-nums">
           {formatDays(leave.totalDays)}
         </span>
         
-        {/* Status badge */}
-        {getStatusBadge(leave.status)}
-        
         {/* Spacer */}
         <div className="flex-1" />
+        
+        {/* Status badge */}
+        {getStatusBadge(leave.status)}
         
         {/* Withdraw button for pending items */}
         {canWithdraw && leave.status === 'Pending' && (
