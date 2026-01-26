@@ -426,10 +426,12 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </div>
                 </div>
               )}
-              {/* Main status badge - always show */}
-              <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
-                {statusConfig.label}
-              </Badge>
+              {/* Main status badge - hide if partial rejections exist */}
+              {!hasPartialRejections && (
+                <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+                  {statusConfig.label}
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -481,22 +483,27 @@ export const F42v4_UpcomingInvoiceCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
+                <div className={cn(
+                  "p-5 rounded-xl border",
+                  hasPartialRejections 
+                    ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
+                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
+                )}>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <p className="text-sm font-medium text-muted-foreground">Invoice preview</p>
+                      {hasPartialRejections && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
+                          {rejectedAdjustmentsCount} rejected
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={() => setBreakdownDrawerOpen(true)}
-                      className={cn(
-                        "flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0",
-                        hasPartialRejections 
-                          ? "text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20"
-                          : "text-primary hover:bg-primary/10"
-                      )}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 text-primary hover:bg-primary/10"
                     >
-                      {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
+                      What's included
                       <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
