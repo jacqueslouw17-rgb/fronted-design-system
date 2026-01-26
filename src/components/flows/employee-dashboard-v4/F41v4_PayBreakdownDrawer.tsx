@@ -176,7 +176,7 @@ const RejectedRow = ({
   onResubmit?: () => void;
   onContact?: () => void;
 }) => (
-  <div className="my-2 py-3 px-3 -mx-2 rounded-lg bg-amber-50/60 dark:bg-amber-500/[0.05] border-l-2 border-amber-400">
+  <div className="py-3 px-3 -mx-2 rounded-lg bg-accent-yellow-fill border border-accent-yellow-outline/25 border-l-2">
     {/* Main row - aligned with other items */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -192,7 +192,7 @@ const RejectedRow = ({
       </div>
     </div>
     {/* Reason */}
-    <p className="text-xs text-amber-700 dark:text-amber-400/80 mt-2 leading-relaxed">
+    <p className="text-xs text-accent-yellow-text mt-2 leading-relaxed">
       {reason}
     </p>
     {/* Actions - below reason */}
@@ -200,7 +200,7 @@ const RejectedRow = ({
       {onResubmit && (
         <button 
           onClick={onResubmit}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border border-accent-yellow-outline/35 bg-background text-accent-yellow-text hover:bg-accent-yellow-fill transition-colors"
         >
           <RotateCcw className="h-3 w-3" />
           Resubmit
@@ -209,7 +209,7 @@ const RejectedRow = ({
       {onContact && (
         <button 
           onClick={onContact}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="text-xs text-accent-yellow-text/80 hover:text-accent-yellow-text transition-colors"
         >
           Contact manager
         </button>
@@ -345,18 +345,22 @@ export const F41v4_PayBreakdownDrawer = ({
                 />
               ))}
               {/* Rejected adjustments inline */}
-              {rejectedOtherAdjustments.map((adj) => (
-                <RejectedRow
-                  key={adj.id}
-                  type={adj.type}
-                  label={adj.label}
-                  amount={adj.amount || 0}
-                  currency={currency}
-                  reason={adj.rejectionReason || 'Please check and resubmit.'}
-                  onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                  onContact={handleContactManager}
-                />
-              ))}
+              {rejectedOtherAdjustments.length > 0 && (
+                <div className="mt-3 space-y-3">
+                  {rejectedOtherAdjustments.map((adj) => (
+                    <RejectedRow
+                      key={adj.id}
+                      type={adj.type}
+                      label={adj.label}
+                      amount={adj.amount || 0}
+                      currency={currency}
+                      reason={adj.rejectionReason || 'Please check and resubmit.'}
+                      onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                      onContact={handleContactManager}
+                    />
+                  ))}
+                </div>
+              )}
               <BreakdownRow
                 label="Total earnings"
                 amount={totalEarnings + totalOtherAdjustments}
@@ -414,18 +418,22 @@ export const F41v4_PayBreakdownDrawer = ({
                   />
                 ))}
                 {/* Rejected overtime inline */}
-                {rejectedOvertimeAdjustments.map((adj) => (
-                  <RejectedRow
-                    key={adj.id}
-                    type="Overtime"
-                    label={`${adj.hours}h logged`}
-                    amount={adj.amount || 0}
-                    currency={currency}
-                    reason={adj.rejectionReason || 'Please check and resubmit.'}
-                    onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                    onContact={handleContactManager}
-                  />
-                ))}
+                {rejectedOvertimeAdjustments.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {rejectedOvertimeAdjustments.map((adj) => (
+                      <RejectedRow
+                        key={adj.id}
+                        type="Overtime"
+                        label={`${adj.hours}h logged`}
+                        amount={adj.amount || 0}
+                        currency={currency}
+                        reason={adj.rejectionReason || 'Please check and resubmit.'}
+                        onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                        onContact={handleContactManager}
+                      />
+                    ))}
+                  </div>
+                )}
                 {overtimeAdjustments.length > 1 && (
                   <BreakdownRow
                     label="Total overtime"
