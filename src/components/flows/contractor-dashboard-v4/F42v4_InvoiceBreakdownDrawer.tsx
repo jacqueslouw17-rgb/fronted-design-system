@@ -136,8 +136,8 @@ const BreakdownRow = ({
   </div>
 );
 
-// Rejected item card with enhanced UI
-const RejectedItemCard = ({
+// Inline rejected item row - aligned with list but visually distinct
+const RejectedRow = ({
   type,
   label,
   amount,
@@ -145,7 +145,6 @@ const RejectedItemCard = ({
   reason,
   onResubmit,
   onContact,
-  isCutoffPassed
 }: {
   type: string;
   label?: string;
@@ -154,57 +153,47 @@ const RejectedItemCard = ({
   reason: string;
   onResubmit?: () => void;
   onContact?: () => void;
-  isCutoffPassed?: boolean;
 }) => (
-  <div className="group relative rounded-xl border border-amber-200/60 dark:border-amber-500/20 bg-gradient-to-br from-amber-50/80 to-amber-50/40 dark:from-amber-500/[0.06] dark:to-amber-500/[0.02] p-3.5 transition-all hover:border-amber-300/80 dark:hover:border-amber-500/30">
-    {/* Top row: Type + Amount */}
-    <div className="flex items-start justify-between gap-3 mb-2">
-      <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
-          <AlertTriangle className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-foreground">{type}</p>
-          {label && <p className="text-xs text-muted-foreground">{label}</p>}
-        </div>
+  <div className="py-2 -mx-2 px-2 rounded-lg bg-amber-50/50 dark:bg-amber-500/[0.04] border-l-2 border-amber-400">
+    {/* Main row - aligned with other items */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <span className="text-sm text-foreground">{type}</span>
+        {label && (
+          <span className="text-xs text-muted-foreground/70">· {label}</span>
+        )}
       </div>
-      <p className="text-sm font-medium text-muted-foreground/60 line-through tabular-nums font-mono">
-        {formatCurrency(amount, currency)}
-      </p>
+      <div className="shrink-0 ml-4 min-w-[9rem] text-right">
+        <span className="text-sm text-muted-foreground/50 line-through tabular-nums font-mono">
+          +{formatCurrency(amount, currency)}
+        </span>
+      </div>
     </div>
-    
-    {/* Reason */}
-    <p className="text-xs text-muted-foreground leading-relaxed mb-3 pl-8">
-      {reason}
-    </p>
-    
-    {/* Actions */}
-    <div className="flex items-center gap-2 pl-8">
-      {onResubmit && (
-        <button 
-          onClick={onResubmit}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <RotateCcw className="h-3 w-3" />
-          Resubmit
-        </button>
-      )}
-      {onContact && (
-        <button 
-          onClick={onContact}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-        >
-          Contact manager
-        </button>
-      )}
-    </div>
-    
-    {/* Cutoff notice */}
-    {isCutoffPassed && (
-      <p className="text-[10px] text-amber-600/70 dark:text-amber-400/60 mt-2 pl-8">
-        Will be queued for next invoice cycle
+    {/* Reason + actions */}
+    <div className="mt-1.5 flex items-center justify-between gap-4">
+      <p className="text-xs text-amber-700 dark:text-amber-400/80 truncate flex-1">
+        {reason}
       </p>
-    )}
+      <div className="flex items-center gap-2 shrink-0">
+        {onResubmit && (
+          <button 
+            onClick={onResubmit}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <RotateCcw className="h-2.5 w-2.5" />
+            Resubmit
+          </button>
+        )}
+        {onContact && (
+          <button 
+            onClick={onContact}
+            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Contact
+          </button>
+        )}
+      </div>
+    </div>
   </div>
 );
 
@@ -234,7 +223,6 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   const rejectedAdjustments = adjustments.filter(
     adj => adj.status === 'Admin rejected' && !resubmittedRejectionIds.includes(adj.id)
   );
-  const isCutoffPassed = windowState === 'CLOSED';
   
   // Separate by type
   const earningsAdjustments = activeAdjustments.filter(adj => adj.type === 'Expense' || adj.type === 'Bonus');
@@ -329,24 +317,19 @@ export const F42v4_InvoiceBreakdownDrawer = ({
                   onRemove={() => onWithdrawAdjustment?.(adj.id)}
                 />
               ))}
-              {/* Rejected earnings adjustments with enhanced card UI */}
-              {rejectedEarningsAdjustments.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {rejectedEarningsAdjustments.map((adj) => (
-                    <RejectedItemCard
-                      key={adj.id}
-                      type={adj.type}
-                      label={adj.label}
-                      amount={adj.amount || 0}
-                      currency={currency}
-                      reason={adj.rejectionReason || 'Please check and resubmit.'}
-                      onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                      onContact={handleContactManager}
-                      isCutoffPassed={isCutoffPassed}
-                    />
-                  ))}
-                </div>
-              )}
+              {/* Rejected earnings adjustments inline */}
+              {rejectedEarningsAdjustments.map((adj) => (
+                <RejectedRow
+                  key={adj.id}
+                  type={adj.type}
+                  label={adj.label}
+                  amount={adj.amount || 0}
+                  currency={currency}
+                  reason={adj.rejectionReason || 'Please check and resubmit.'}
+                  onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                  onContact={handleContactManager}
+                />
+              ))}
               <BreakdownRow
                 label="Total earnings"
                 amount={totalEarnings + earningsAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)}
@@ -377,24 +360,19 @@ export const F42v4_InvoiceBreakdownDrawer = ({
                     onRemove={() => onWithdrawAdjustment?.(adj.id)}
                   />
                 ))}
-                {/* Rejected hours with enhanced card UI */}
-                {rejectedHoursAdjustments.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {rejectedHoursAdjustments.map((adj) => (
-                      <RejectedItemCard
-                        key={adj.id}
-                        type="Additional hours"
-                        label={`${adj.hours}h logged`}
-                        amount={adj.amount || 0}
-                        currency={currency}
-                        reason={adj.rejectionReason || 'Please check and resubmit.'}
-                        onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                        onContact={handleContactManager}
-                        isCutoffPassed={isCutoffPassed}
-                      />
-                    ))}
-                  </div>
-                )}
+                {/* Rejected hours inline */}
+                {rejectedHoursAdjustments.map((adj) => (
+                  <RejectedRow
+                    key={adj.id}
+                    type="Additional hours"
+                    label={`${adj.hours}h logged`}
+                    amount={adj.amount || 0}
+                    currency={currency}
+                    reason={adj.rejectionReason || 'Please check and resubmit.'}
+                    onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                    onContact={handleContactManager}
+                  />
+                ))}
               </div>
             </section>
           )}
