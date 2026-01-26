@@ -492,34 +492,24 @@ export const F41v4_UpcomingPayCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className={cn(
-                  "p-5 rounded-xl border transition-colors",
-                  hasPartialRejections 
-                    ? "bg-gradient-to-br from-amber-500/[0.06] to-amber-600/[0.04] border-amber-300/40 dark:border-amber-500/20" 
-                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
-                )}>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <p className="text-sm font-medium text-muted-foreground">Pay preview</p>
                     </div>
-                    {hasPartialRejections ? (
-                      <button
-                        onClick={() => setBreakdownDrawerOpen(true)}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30 hover:bg-amber-200 dark:hover:bg-amber-500/30 transition-colors"
-                      >
-                        <AlertCircle className="h-3 w-3" />
-                        {rejectedAdjustmentsCount} rejected
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setBreakdownDrawerOpen(true)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
-                      >
-                        What's included
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setBreakdownDrawerOpen(true)}
+                      className={cn(
+                        "flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors shrink-0",
+                        hasPartialRejections 
+                          ? "text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20"
+                          : "text-primary hover:bg-primary/10"
+                      )}
+                    >
+                      {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                   
                   {hasAdjustments ? (
