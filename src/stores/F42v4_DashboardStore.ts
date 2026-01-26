@@ -120,22 +120,46 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
     approvedAt: undefined,
   }),
   
-  setInvoiceStatus: (status) => set((state) => ({ 
-    invoiceStatus: status,
-    approvedAt: status === 'approved' ? new Date().toISOString() : state.approvedAt,
-  })),
+  setInvoiceStatus: (status) =>
+    set((state) => {
+      const isApprovedOrLater = status === 'approved' || status === 'finalised';
+
+      // If the invoice is approved, there should be no "Pending" items.
+      // Convert any pending requests to admin-approved to keep the UI consistent.
+      const nextAdjustments = isApprovedOrLater
+        ? state.adjustments.map((adj) =>
+            adj.status === 'Pending' ? { ...adj, status: 'Admin approved' as const } : adj
+          )
+        : state.adjustments;
+
+      return {
+        invoiceStatus: status,
+        submittedAt: status === 'submitted' ? new Date().toISOString() : state.submittedAt,
+        approvedAt: isApprovedOrLater ? state.approvedAt ?? new Date().toISOString() : state.approvedAt,
+        adjustments: nextAdjustments,
+      };
+    }),
   
-  addAdjustment: (adjustment) => set((state) => ({
-    adjustments: [
-      ...state.adjustments,
-      {
-        ...adjustment,
-        id: `adj-${Date.now()}`,
-        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-        submittedAt: new Date().toISOString(),
-      },
-    ],
-  })),
+  addAdjustment: (adjustment) =>
+    set((state) => {
+      const isApprovedOrLater = state.invoiceStatus === 'approved' || state.invoiceStatus === 'finalised';
+      const nextInvoiceStatus: F42v4_InvoiceStatus = isApprovedOrLater ? 'submitted' : state.invoiceStatus;
+
+      return {
+        invoiceStatus: nextInvoiceStatus,
+        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
+        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
+        adjustments: [
+          ...state.adjustments,
+          {
+            ...adjustment,
+            id: `adj-${Date.now()}`,
+            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+            submittedAt: new Date().toISOString(),
+          },
+        ],
+      };
+    }),
   
   withdrawAdjustment: (id) => set((state) => ({
     adjustments: state.adjustments.filter((adj) => adj.id !== id),

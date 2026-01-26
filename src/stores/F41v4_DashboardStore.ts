@@ -195,38 +195,77 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
   
-  setPayrollStatus: (status) => set((state) => ({ 
-    payrollStatus: status,
-    approvedAt: status === 'approved' ? new Date().toISOString() : state.approvedAt
-  })),
+  setPayrollStatus: (status) => set((state) => {
+    const isApprovedOrLater = status === 'approved' || status === 'finalised';
+
+    // If the run is approved, there should be no "Pending" items.
+    // Convert any pending requests to admin-approved to keep the UI consistent.
+    const nextAdjustments = isApprovedOrLater
+      ? state.adjustments.map((adj) =>
+          adj.status === 'Pending' ? { ...adj, status: 'Admin approved' as const } : adj
+        )
+      : state.adjustments;
+
+    const nextLeaves = isApprovedOrLater
+      ? state.leaveRequests.map((leave) =>
+          leave.status === 'Pending' ? { ...leave, status: 'Admin approved' as const } : leave
+        )
+      : state.leaveRequests;
+
+    return {
+      payrollStatus: status,
+      approvedAt: isApprovedOrLater ? state.approvedAt ?? new Date().toISOString() : state.approvedAt,
+      adjustments: nextAdjustments,
+      leaveRequests: nextLeaves,
+    };
+  }),
   
   confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted', submittedAt: new Date().toISOString() }),
   
   withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false, submittedAt: undefined, approvedAt: undefined }),
   
-  addAdjustment: (adjustment) => set((state) => ({
-    adjustments: [
-      ...state.adjustments,
-      {
-        ...adjustment,
-        id: `adj-${Date.now()}`,
-        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-        submittedAt: new Date().toISOString(),
-      },
-    ],
-  })),
+  addAdjustment: (adjustment) =>
+    set((state) => {
+      const isApprovedOrLater = state.payrollStatus === 'approved' || state.payrollStatus === 'finalised';
+      // If a new request is submitted after approval (e.g. resubmission), the run is no longer "Approved".
+      const nextPayrollStatus: PayrollStatus = isApprovedOrLater ? 'submitted' : state.payrollStatus;
+
+      return {
+        payrollStatus: nextPayrollStatus,
+        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
+        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
+        adjustments: [
+          ...state.adjustments,
+          {
+            ...adjustment,
+            id: `adj-${Date.now()}`,
+            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+            submittedAt: new Date().toISOString(),
+          },
+        ],
+      };
+    }),
   
-  addLeaveRequest: (leave) => set((state) => ({
-    leaveRequests: [
-      ...state.leaveRequests,
-      {
-        ...leave,
-        id: `leave-${Date.now()}`,
-        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-        submittedAt: new Date().toISOString(),
-      },
-    ],
-  })),
+  addLeaveRequest: (leave) =>
+    set((state) => {
+      const isApprovedOrLater = state.payrollStatus === 'approved' || state.payrollStatus === 'finalised';
+      const nextPayrollStatus: PayrollStatus = isApprovedOrLater ? 'submitted' : state.payrollStatus;
+
+      return {
+        payrollStatus: nextPayrollStatus,
+        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
+        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
+        leaveRequests: [
+          ...state.leaveRequests,
+          {
+            ...leave,
+            id: `leave-${Date.now()}`,
+            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+            submittedAt: new Date().toISOString(),
+          },
+        ],
+      };
+    }),
   
   withdrawAdjustment: (id) => set((state) => ({
     adjustments: state.adjustments.filter((adj) => adj.id !== id),
