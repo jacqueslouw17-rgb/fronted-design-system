@@ -176,7 +176,7 @@ const RejectedRow = ({
   onResubmit?: () => void;
   onContact?: () => void;
 }) => (
-  <div className="py-2 -mx-2 px-2 rounded-lg bg-amber-50/50 dark:bg-amber-500/[0.04] border-l-2 border-amber-400">
+  <div className="my-2 py-3 px-3 -mx-2 rounded-lg bg-amber-50/60 dark:bg-amber-500/[0.05] border-l-2 border-amber-400">
     {/* Main row - aligned with other items */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -191,30 +191,29 @@ const RejectedRow = ({
         </span>
       </div>
     </div>
-    {/* Reason + actions */}
-    <div className="mt-1.5 flex items-center justify-between gap-4">
-      <p className="text-xs text-amber-700 dark:text-amber-400/80 truncate flex-1">
-        {reason}
-      </p>
-      <div className="flex items-center gap-2 shrink-0">
-        {onResubmit && (
-          <button 
-            onClick={onResubmit}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <RotateCcw className="h-2.5 w-2.5" />
-            Resubmit
-          </button>
-        )}
-        {onContact && (
-          <button 
-            onClick={onContact}
-            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Contact
-          </button>
-        )}
-      </div>
+    {/* Reason */}
+    <p className="text-xs text-amber-700 dark:text-amber-400/80 mt-2 leading-relaxed">
+      {reason}
+    </p>
+    {/* Actions - below reason */}
+    <div className="flex items-center gap-3 mt-2.5">
+      {onResubmit && (
+        <button 
+          onClick={onResubmit}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          <RotateCcw className="h-3 w-3" />
+          Resubmit
+        </button>
+      )}
+      {onContact && (
+        <button 
+          onClick={onContact}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Contact manager
+        </button>
+      )}
     </div>
   </div>
 );
