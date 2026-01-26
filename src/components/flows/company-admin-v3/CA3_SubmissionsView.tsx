@@ -74,6 +74,7 @@ interface CA3_SubmissionsViewProps {
   onApproveAll: () => void;
   onContinue: () => void;
   onClose?: () => void;
+  pendingCount?: number; // If provided, blocks continue when > 0
 }
 
 // Note: Leave is not included here - it's managed in the separate Leaves tab
@@ -180,6 +181,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   onApproveAll,
   onContinue,
   onClose,
+  pendingCount: externalPendingCount,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<WorkerSubmission | null>(null);
@@ -188,9 +190,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [showCustomReason, setShowCustomReason] = useState(false);
 
   // Computed counts
-  const pendingCount = submissions.filter(s => s.status === "pending").length;
+  const internalPendingCount = submissions.filter(s => s.status === "pending").length;
+  const pendingCount = externalPendingCount ?? internalPendingCount;
   const approvedCount = submissions.filter(s => s.status === "approved").length;
   const rejectedCount = submissions.filter(s => s.status === "rejected").length;
+  
+  // Can continue only when no pending submissions
+  const canContinue = pendingCount === 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
@@ -333,14 +339,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   Approve all safe
                 </Button>
               )}
-              <Button 
-                size="sm"
-                onClick={onContinue}
-                className="h-9 text-xs gap-1.5"
-              >
-                Continue to Submit
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button 
+                      size="sm"
+                      onClick={onContinue}
+                      disabled={!canContinue}
+                      className="h-9 text-xs gap-1.5"
+                    >
+                      Continue to Submit
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canContinue && (
+                  <TooltipContent side="bottom" className="max-w-[200px]">
+                    <p className="text-xs">Resolve all {pendingCount} pending submission{pendingCount !== 1 ? 's' : ''} before continuing</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
               {onClose && (
                 <Button
                   size="sm"
