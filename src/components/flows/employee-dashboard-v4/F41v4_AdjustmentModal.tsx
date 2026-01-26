@@ -233,13 +233,13 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const handleBack = () => {
-    // If we're at type selection level and have onBack, call it
-    if (selectedType === null && onBack) {
+    // If we have onBack callback (came from breakdown drawer), always use it
+    if (onBack) {
       handleClose();
       onBack();
       return;
     }
-    // If opened with initialType, close instead of going back to selection
+    // Otherwise, if opened with initialType, close instead of going back to selection
     if (initialType) {
       handleClose();
     } else {
