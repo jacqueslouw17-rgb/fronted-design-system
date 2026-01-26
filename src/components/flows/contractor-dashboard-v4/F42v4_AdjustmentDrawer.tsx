@@ -30,7 +30,11 @@ import {
 import { toast } from 'sonner';
 import { useF42v4_DashboardStore, type F42v4_AdjustmentType, type F42v4_ContractType } from '@/stores/F42v4_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertCircle } from 'lucide-react';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertCircle, Calendar } from 'lucide-react';
+import { F41v4_TimeInput } from '@/components/flows/employee-dashboard-v4/F41v4_TimeInput';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 export type ContractorRequestType = 'expense' | 'additional-hours' | 'bonus' | 'correction' | null;
 
@@ -53,6 +57,15 @@ interface ExpenseLineItem {
   category: string;
   amount: string;
   receipt: File | null;
+}
+
+// Additional hours line item for multi-entry submissions
+interface AdditionalHoursLineItem {
+  id: string;
+  date: Date | undefined;
+  startTime: string;
+  endTime: string;
+  calculatedHours: number;
 }
 
 // Invoice period bounds (mock - in real app would come from store)
@@ -107,8 +120,10 @@ export const F42v4_AdjustmentDrawer = ({
     { id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }
   ]);
   
-  // Additional hours form state
-  const [hours, setHours] = useState('');
+  // Additional hours form state - multiple line items
+  const [additionalHoursItems, setAdditionalHoursItems] = useState<AdditionalHoursLineItem[]>([
+    { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }
+  ]);
   
   // Bonus form state
   const [bonusAmount, setBonusAmount] = useState('');
@@ -124,7 +139,7 @@ export const F42v4_AdjustmentDrawer = ({
   const resetForm = () => {
     setSelectedType(initialType);
     setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
-    setHours('');
+    setAdditionalHoursItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusAmount('');
     setCorrectionDescription('');
     setCorrectionAttachment(null);
@@ -146,6 +161,54 @@ export const F42v4_AdjustmentDrawer = ({
       item.id === id ? { ...item, [field]: value } : item
     ));
   };
+
+  // Additional hours line item helpers
+  const addAdditionalHoursItem = () => {
+    setAdditionalHoursItems(prev => [...prev, { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
+  };
+
+  const removeAdditionalHoursItem = (id: string) => {
+    if (additionalHoursItems.length === 1) return;
+    setAdditionalHoursItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateAdditionalHoursItem = (id: string, field: keyof AdditionalHoursLineItem, value: Date | undefined | string | number) => {
+    setAdditionalHoursItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const updated = { ...item, [field]: value };
+      
+      // Auto-calculate hours when times change
+      if (field === 'startTime' || field === 'endTime') {
+        updated.calculatedHours = calculateHours(
+          field === 'startTime' ? value as string : item.startTime,
+          field === 'endTime' ? value as string : item.endTime
+        );
+      }
+      
+      return updated;
+    }));
+  };
+
+  // Calculate hours from start/end time
+  const calculateHours = (start: string, end: string): number => {
+    if (!start || !end || start.length < 5 || end.length < 5) return 0;
+    
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+    
+    let startMinutes = startH * 60 + startM;
+    let endMinutes = endH * 60 + endM;
+    
+    // Handle overnight shifts
+    if (endMinutes <= startMinutes) {
+      endMinutes += 24 * 60;
+    }
+    
+    return Math.round((endMinutes - startMinutes) / 60 * 100) / 100;
+  };
+
+  // Calculate total additional hours
+  const totalAdditionalHours = additionalHoursItems.reduce((sum, item) => sum + item.calculatedHours, 0);
 
   const handleClose = () => {
     resetForm();
@@ -238,11 +301,31 @@ export const F42v4_AdjustmentDrawer = ({
     return !hasError;
   };
 
-  const validateAdditionalHours = () => {
+  const validateAdditionalHoursItems = () => {
     const newErrors: Record<string, string> = {};
-    if (!hours || parseFloat(hours) <= 0) newErrors.hours = 'Hours must be greater than 0';
+    let hasError = false;
+    
+    additionalHoursItems.forEach((item, index) => {
+      if (!item.date) {
+        newErrors[`additional_${index}_date`] = 'Required';
+        hasError = true;
+      }
+      if (!item.startTime || item.startTime.length < 5) {
+        newErrors[`additional_${index}_startTime`] = 'Required';
+        hasError = true;
+      }
+      if (!item.endTime || item.endTime.length < 5) {
+        newErrors[`additional_${index}_endTime`] = 'Required';
+        hasError = true;
+      }
+      if (item.startTime && item.endTime && item.calculatedHours <= 0) {
+        newErrors[`additional_${index}_endTime`] = 'End must be after start';
+        hasError = true;
+      }
+    });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasError;
   };
 
   const validateBonus = () => {
@@ -285,17 +368,29 @@ export const F42v4_AdjustmentDrawer = ({
   };
 
   const handleSubmitAdditionalHours = () => {
-    if (!validateAdditionalHours()) return;
+    if (!validateAdditionalHoursItems()) return;
 
-    addAdjustment({
-      type: 'Additional hours',
-      label: `${hours}h`,
-      amount: null,
-      hours: parseFloat(hours),
+    // Submit each additional hours item
+    additionalHoursItems.forEach((item, index) => {
+      addAdjustment({
+        type: 'Additional hours',
+        label: additionalHoursItems.length > 1 
+          ? `${item.calculatedHours}h (Entry #${index + 1})`
+          : `${item.calculatedHours}h`,
+        amount: null,
+        hours: item.calculatedHours,
+      });
     });
 
-    toast.success("Additional hours submitted for review.");
+    const count = additionalHoursItems.length;
+    const totalHrs = totalAdditionalHours;
+    toast.success(`${count} time entr${count > 1 ? 'ies' : 'y'} submitted (${totalHrs}h total).`);
     handleClose();
+    
+    // Return to breakdown drawer if requested
+    if (onBack) {
+      onBack();
+    }
   };
 
   const handleSubmitBonus = () => {
@@ -601,24 +696,121 @@ export const F42v4_AdjustmentDrawer = ({
             </div>
           )}
 
-          {/* Additional Hours Form */}
+          {/* Additional Hours Form - Multi-entry */}
           {selectedType === 'additional-hours' && (
             <div className="space-y-5">
               <InvoicePeriodBadge />
 
-              <div className="space-y-2">
-                <Label>Hours</Label>
-                <Input
-                  type="number"
-                  step="0.5"
-                  min="0.5"
-                  placeholder="0"
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  className={cn(errors.hours && 'border-destructive')}
-                />
-                {errors.hours && <p className="text-xs text-destructive">{errors.hours}</p>}
+              {/* Additional Hours Line Items */}
+              <div className="space-y-3">
+                {additionalHoursItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button - only show if more than 1 item */}
+                    {additionalHoursItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeAdditionalHoursItem(item.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+
+                    {/* Item number badge */}
+                    {additionalHoursItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Entry {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Date picker */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal h-9",
+                              !item.date && "text-muted-foreground",
+                              errors[`additional_${index}_date`] && "border-destructive"
+                            )}
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            {item.date ? format(item.date, 'PPP') : 'Select date'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={item.date}
+                            onSelect={(date) => updateAdditionalHoursItem(item.id, 'date', date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* Start & End Time row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Start time</Label>
+                        <F41v4_TimeInput
+                          value={item.startTime}
+                          onChange={(val) => updateAdditionalHoursItem(item.id, 'startTime', val)}
+                          hasError={!!errors[`additional_${index}_startTime`]}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">End time</Label>
+                        <F41v4_TimeInput
+                          value={item.endTime}
+                          onChange={(val) => updateAdditionalHoursItem(item.id, 'endTime', val)}
+                          hasError={!!errors[`additional_${index}_endTime`]}
+                        />
+                        {errors[`additional_${index}_endTime`] && (
+                          <p className="text-xs text-destructive">{errors[`additional_${index}_endTime`]}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Calculated hours display */}
+                    {item.calculatedHours > 0 && (
+                      <div className="flex items-center justify-end pt-1">
+                        <span className="text-xs text-muted-foreground">
+                          = <span className="font-medium text-foreground tabular-nums">{item.calculatedHours}h</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add another entry button */}
+                <button
+                  type="button"
+                  onClick={addAdditionalHoursItem}
+                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Add another entry
+                </button>
               </div>
+
+              {/* Total summary - only show if multiple items or has calculated hours */}
+              {additionalHoursItems.length > 1 && totalAdditionalHours > 0 && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <span className="text-sm text-muted-foreground">Total ({additionalHoursItems.length} entries)</span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {totalAdditionalHours}h
+                  </span>
+                </div>
+              )}
 
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 Your rate applies automatically; final amount will be calculated.
@@ -630,7 +822,7 @@ export const F42v4_AdjustmentDrawer = ({
                   Cancel
                 </Button>
                 <Button onClick={handleSubmitAdditionalHours} className="flex-1">
-                  Submit request
+                  Submit {additionalHoursItems.length > 1 ? `${additionalHoursItems.length} entries` : 'request'}
                 </Button>
               </div>
             </div>
