@@ -460,23 +460,7 @@ export const F41v4_UpcomingPayCard = () => {
             </div>
           )}
           
-          {/* Full Rejection panel - only when entire payroll is rejected and not yet resubmitted */}
-          {demoFullRejection && !hasResubmittedFromRejected && (
-            <div className="mt-4 p-4 rounded-lg bg-destructive/5 border border-destructive/20">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">This pay period was not approved</p>
-                  <p className="text-sm text-muted-foreground">
-                    Please speak with your manager to resolve any issues. You can resubmit for the next payroll run.
-                  </p>
-                  <p className="text-xs text-muted-foreground/70">
-                    Submit before Feb 15 to be included in the February payroll.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Full Rejection panel removed - now shown in breakdown drawer */}
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -493,12 +477,16 @@ export const F41v4_UpcomingPayCard = () => {
               const adjustedNet = estimatedNet + pendingAdjustmentTotal;
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
+              const isFullRejection = demoFullRejection && !hasResubmittedFromRejected;
+
               return (
                 <div className={cn(
                   "p-5 rounded-xl border",
-                  hasPartialRejections 
-                    ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
-                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
+                  isFullRejection
+                    ? "bg-red-50/60 dark:bg-red-500/[0.06] border-red-200/60 dark:border-red-500/20"
+                    : hasPartialRejections 
+                      ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
+                      : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
                 )}>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
@@ -509,12 +497,14 @@ export const F41v4_UpcomingPayCard = () => {
                       onClick={() => setBreakdownDrawerOpen(true)}
                       className={cn(
                         "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
-                        hasPartialRejections 
-                          ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
-                          : "text-muted-foreground/70 hover:text-foreground"
+                        isFullRejection
+                          ? "text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                          : hasPartialRejections 
+                            ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
+                            : "text-muted-foreground/70 hover:text-foreground"
                       )}
                     >
-                      {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
+                      {isFullRejection ? "Rejected" : hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
                       <ChevronRight className="h-3 w-3" />
                     </button>
                   </div>
@@ -666,6 +656,7 @@ export const F41v4_UpcomingPayCard = () => {
         payrollStatus={effectiveStatus}
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
+        isFullRejection={demoFullRejection && !hasResubmittedFromRejected}
         onMakeAdjustment={() => openAdjustmentModal(null, true)}
         onWithdrawAdjustment={(id) => {
           setWithdrawTarget({ type: 'adjustment', id });

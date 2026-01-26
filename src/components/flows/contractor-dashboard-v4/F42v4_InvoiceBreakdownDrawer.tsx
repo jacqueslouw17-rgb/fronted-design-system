@@ -4,11 +4,13 @@
  * Aligned with F41v4_PayBreakdownDrawer patterns
  */
 
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Plus, Clock, X } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Lock, Plus, Clock, X, ChevronDown, AlertCircle, MessageCircle } from 'lucide-react';
 import type { F42v4_Adjustment, F42v4_LineItem, F42v4_InvoiceStatus, F42v4_WindowState } from '@/stores/F42v4_DashboardStore';
 import { cn } from '@/lib/utils';
 
@@ -23,9 +25,11 @@ interface InvoiceBreakdownDrawerProps {
   invoiceStatus?: F42v4_InvoiceStatus;
   windowState?: F42v4_WindowState;
   resubmittedRejectionIds?: string[];
+  isFullRejection?: boolean;
   onMakeAdjustment?: () => void;
   onWithdrawAdjustment?: (id: string) => void;
   onResubmitAdjustment?: (id: string, category?: string, amount?: string) => void;
+  onContactManager?: () => void;
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -189,10 +193,14 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   invoiceStatus = 'draft',
   windowState = 'OPEN',
   resubmittedRejectionIds = [],
+  isFullRejection = false,
   onMakeAdjustment,
   onWithdrawAdjustment,
-  onResubmitAdjustment
+  onResubmitAdjustment,
+  onContactManager
 }: InvoiceBreakdownDrawerProps) => {
+  const [breakdownExpanded, setBreakdownExpanded] = useState(!isFullRejection);
+  
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   
   // Separate adjustments by status, filtering out resubmitted rejections
@@ -213,7 +221,11 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   const canRemoveAdjustments = invoiceStatus === 'draft' && onWithdrawAdjustment;
 
   const handleContactManager = () => {
-    window.open('mailto:manager@company.com?subject=Question about rejected adjustment');
+    if (onContactManager) {
+      onContactManager();
+    } else {
+      window.open('mailto:manager@company.com?subject=Question about my invoice');
+    }
   };
 
   return (
@@ -229,8 +241,50 @@ export const F42v4_InvoiceBreakdownDrawer = ({
           </div>
         </SheetHeader>
 
-        {/* Receipt-style content */}
-        <div className="px-6 py-5 space-y-6">
+        {/* Full Rejection Message - Prominent when fully rejected */}
+        {isFullRejection && (
+          <div className="px-6 py-5 border-b border-border/40">
+            <div className="p-4 rounded-xl bg-red-50/80 dark:bg-red-500/[0.08] border border-red-200/60 dark:border-red-500/20">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-red-100 dark:bg-red-500/20">
+                  <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="text-sm font-medium text-foreground">This invoice was not approved</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Please speak with your manager to resolve any issues. You can resubmit for the next invoice cycle.
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">
+                    Submit before Feb 15 to be included in the February invoice cycle.
+                  </p>
+                  <button 
+                    onClick={handleContactManager}
+                    className="mt-2 flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Contact manager
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Collapsible Breakdown */}
+        <Collapsible open={breakdownExpanded} onOpenChange={setBreakdownExpanded}>
+          <CollapsibleTrigger className="w-full px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors border-b border-border/40">
+            <span className="text-sm font-medium text-foreground">
+              {isFullRejection ? 'View breakdown' : 'Breakdown'}
+            </span>
+            <ChevronDown className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+              breakdownExpanded && "rotate-180"
+            )} />
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            {/* Receipt-style content */}
+            <div className="px-6 py-5 space-y-6">
 
           {/* Earnings Section */}
           <section>
@@ -318,7 +372,9 @@ export const F42v4_InvoiceBreakdownDrawer = ({
               </div>
             </section>
           )}
-        </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Invoice Total Footer - Sticky feel */}
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
