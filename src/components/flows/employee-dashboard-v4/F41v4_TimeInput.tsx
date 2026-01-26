@@ -107,7 +107,7 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
   return (
     <div 
       className={cn(
-        "flex items-center h-9 rounded-md border bg-background px-3 text-sm ring-offset-background",
+        "flex items-center h-10 rounded-md border bg-background px-3 text-sm ring-offset-background",
         "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
         hasError ? "border-destructive" : "border-input",
         className
@@ -122,10 +122,12 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
         onChange={handleHoursChange}
         onKeyDown={handleHoursKeyDown}
         onBlur={handleHoursBlur}
-        className="w-6 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums"
+        onFocus={(e) => e.target.select()}
+        className="w-8 h-8 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums rounded focus:bg-muted/50 transition-colors"
         maxLength={2}
+        aria-label="Hours"
       />
-      <span className="text-muted-foreground mx-0.5">:</span>
+      <span className="text-muted-foreground mx-1 select-none">:</span>
       <input
         ref={minuteRef}
         type="text"
@@ -135,8 +137,10 @@ export const F41v4_TimeInput = ({ value, onChange, className, hasError }: TimeIn
         onChange={handleMinutesChange}
         onKeyDown={handleMinutesKeyDown}
         onBlur={handleMinutesBlur}
-        className="w-6 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums"
+        onFocus={(e) => e.target.select()}
+        className="w-8 h-8 bg-transparent text-center outline-none placeholder:text-muted-foreground tabular-nums rounded focus:bg-muted/50 transition-colors"
         maxLength={2}
+        aria-label="Minutes"
       />
     </div>
   );
