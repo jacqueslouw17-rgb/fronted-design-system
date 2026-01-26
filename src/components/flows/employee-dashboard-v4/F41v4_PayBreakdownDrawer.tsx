@@ -3,13 +3,10 @@
  * Pay Breakdown Drawer - Premium receipt-style breakdown
  */
 
-import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Lock, Plus, Clock, X, ChevronDown, AlertCircle, MessageCircle } from 'lucide-react';
+import { Lock, Plus, Clock, X, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus, WindowState } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
@@ -33,7 +30,6 @@ interface PayBreakdownDrawerProps {
   payrollStatus?: PayrollStatus;
   windowState?: WindowState;
   resubmittedRejectionIds?: string[];
-  isFullRejection?: boolean;
   onMakeAdjustment?: () => void;
   onWithdrawAdjustment?: (id: string) => void;
   onResubmitAdjustment?: (id: string, category?: string, amount?: string) => void;
@@ -216,13 +212,11 @@ export const F41v4_PayBreakdownDrawer = ({
   payrollStatus = 'draft',
   windowState = 'OPEN',
   resubmittedRejectionIds = [],
-  isFullRejection = false,
   onMakeAdjustment,
   onWithdrawAdjustment,
   onResubmitAdjustment,
   onContactManager
 }: PayBreakdownDrawerProps) => {
-  const [breakdownExpanded, setBreakdownExpanded] = useState(!isFullRejection);
   
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const deductions = lineItems.filter(item => item.type === 'Deduction');
@@ -271,50 +265,56 @@ export const F41v4_PayBreakdownDrawer = ({
           </div>
         </SheetHeader>
 
-        {/* Full Rejection Message - Prominent when fully rejected */}
-        {isFullRejection && (
-          <div className="px-6 py-5 border-b border-border/40">
-            <div className="p-4 rounded-xl bg-red-50/80 dark:bg-red-500/[0.08] border border-red-200/60 dark:border-red-500/20">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-full bg-red-100 dark:bg-red-500/20">
-                  <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+        {/* Needs Attention Section - Show rejected items prominently */}
+        {hasRejections && (
+          <div className="px-6 py-4 border-b border-border/40 bg-amber-50/50 dark:bg-amber-500/[0.04]">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <h3 className="text-sm font-medium text-foreground">Needs attention</h3>
+              <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">
+                {rejectedAdjustments.length} {rejectedAdjustments.length === 1 ? 'item' : 'items'}
+              </Badge>
+            </div>
+            <div className="space-y-3">
+              {rejectedAdjustments.map((adj) => (
+                <div key={adj.id} className="p-3 rounded-lg bg-background/80 border border-border/40">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{adj.type}</p>
+                      {adj.label && <p className="text-xs text-muted-foreground">{adj.label}</p>}
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground/70 line-through tabular-nums">
+                      {formatCurrency(adj.amount || 0, currency)}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic mb-2">"{adj.rejectionReason || 'Please check and resubmit.'}"</p>
+                  <div className="flex items-center gap-3">
+                    {onResubmitAdjustment && (
+                      <button 
+                        onClick={() => onResubmitAdjustment(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
+                        Resubmit
+                      </button>
+                    )}
+                    <button 
+                      onClick={handleContactManager}
+                      className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      Contact manager
+                    </button>
+                  </div>
+                  {isCutoffPassed && (
+                    <p className="text-[10px] text-muted-foreground/60 mt-2">Resubmission queued for next cycle</p>
+                  )}
                 </div>
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm font-medium text-foreground">This pay period was not approved</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Contact your manager to resolve this. You can resubmit for the next cycle.
-                  </p>
-                  <p className="text-xs text-muted-foreground/70">
-                    Submit before Feb 15 to be included in the February payroll.
-                  </p>
-                  <button 
-                    onClick={handleContactManager}
-                    className="mt-2 flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    Contact manager
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Collapsible Breakdown */}
-        <Collapsible open={breakdownExpanded} onOpenChange={setBreakdownExpanded}>
-          <CollapsibleTrigger className="w-full px-6 py-4 flex items-center justify-between hover:bg-muted/30 transition-colors border-b border-border/40">
-            <span className="text-sm font-medium text-foreground">
-              {isFullRejection ? 'View breakdown' : 'Breakdown'}
-            </span>
-            <ChevronDown className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-              breakdownExpanded && "rotate-180"
-            )} />
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent>
-            {/* Receipt-style content */}
-            <div className="px-6 py-5 space-y-6">
+        {/* Receipt-style breakdown */}
+        <div className="px-6 py-5 space-y-6">
 
           {/* Earnings Section */}
           <section>
@@ -346,23 +346,6 @@ export const F41v4_PayBreakdownDrawer = ({
                   }}
                   canRemove={canRemoveAdjustments && adj.status === 'Pending'}
                   onRemove={() => onWithdrawAdjustment?.(adj.id)}
-                />
-              ))}
-              {/* Rejected adjustments inline */}
-              {rejectedAdjustments.map((adj) => (
-                <BreakdownRow
-                  key={adj.id}
-                  label={adj.type}
-                  sublabel={adj.label}
-                  amount={adj.amount || 0}
-                  currency={currency}
-                  isPositive
-                  isRejected
-                  badge={{ label: 'Rejected', variant: 'rejected' }}
-                  rejectionReason={adj.rejectionReason || "Please check and resubmit."}
-                  isCutoffPassed={isCutoffPassed}
-                  onResubmit={onResubmitAdjustment ? () => onResubmitAdjustment(adj.id, adj.category || adj.label, String(adj.amount || '')) : undefined}
-                  onContact={handleContactManager}
                 />
               ))}
               <BreakdownRow
@@ -436,9 +419,7 @@ export const F41v4_PayBreakdownDrawer = ({
               </div>
             </section>
           )}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        </div>
 
         {/* Net Pay Footer - Sticky feel */}
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
