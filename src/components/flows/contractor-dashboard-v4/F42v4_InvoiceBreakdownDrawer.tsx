@@ -60,10 +60,13 @@ const BreakdownRow = ({
   onRemove?: () => void;
   canRemove?: boolean;
 }) => (
-  <div className="py-2 -mx-2 px-2 rounded-md">
+  <div className={cn(
+    "py-2 -mx-2 px-2 rounded-md transition-colors",
+    canRemove && "hover:bg-muted/50"
+  )}>
     <div className={cn(
       "group flex items-center justify-between transition-colors",
-      canRemove && "hover:bg-destructive/5 cursor-pointer rounded-md -mx-2 px-2"
+      canRemove && "cursor-pointer"
     )}>
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <div className="flex flex-col min-w-0">
