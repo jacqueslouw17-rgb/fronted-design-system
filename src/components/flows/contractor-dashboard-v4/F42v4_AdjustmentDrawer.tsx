@@ -55,6 +55,7 @@ const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
 interface ExpenseLineItem {
   id: string;
   category: string;
+  otherCategory: string; // For "Other" category specification
   amount: string;
   receipt: File | null;
 }
@@ -117,7 +118,7 @@ export const F42v4_AdjustmentDrawer = ({
   
   // Expense form state - multiple line items
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
-    { id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }
+    { id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }
   ]);
   
   // Additional hours form state - multiple line items
@@ -138,7 +139,7 @@ export const F42v4_AdjustmentDrawer = ({
 
   const resetForm = () => {
     setSelectedType(initialType);
-    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
+    setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     setAdditionalHoursItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusAmount('');
     setCorrectionDescription('');
@@ -148,7 +149,7 @@ export const F42v4_AdjustmentDrawer = ({
 
   // Expense line item helpers
   const addExpenseItem = () => {
-    setExpenseItems(prev => [...prev, { id: crypto.randomUUID(), category: '', amount: '', receipt: null }]);
+    setExpenseItems(prev => [...prev, { id: crypto.randomUUID(), category: '', otherCategory: '', amount: '', receipt: null }]);
   };
 
   const removeExpenseItem = (id: string) => {
@@ -240,7 +241,7 @@ export const F42v4_AdjustmentDrawer = ({
       setSelectedType(initialType);
     }
     if (open && (initialExpenseCategory || initialExpenseAmount)) {
-      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, amount: initialExpenseAmount, receipt: null }]);
+      setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
@@ -285,6 +286,11 @@ export const F42v4_AdjustmentDrawer = ({
     expenseItems.forEach((item, index) => {
       if (!item.category) {
         newErrors[`expense_${index}_category`] = 'Required';
+        hasError = true;
+      }
+      // Validate "Other" category requires specification
+      if (item.category === 'Other' && !item.otherCategory.trim()) {
+        newErrors[`expense_${index}_otherCategory`] = 'Please specify';
         hasError = true;
       }
       if (!item.amount || parseFloat(item.amount) <= 0) {
@@ -579,7 +585,13 @@ export const F42v4_AdjustmentDrawer = ({
                         <Label className="text-xs">Category</Label>
                         <Select 
                           value={item.category} 
-                          onValueChange={(val) => updateExpenseItem(item.id, 'category', val)}
+                          onValueChange={(val) => {
+                            updateExpenseItem(item.id, 'category', val);
+                            // Clear otherCategory if switching away from Other
+                            if (val !== 'Other') {
+                              updateExpenseItem(item.id, 'otherCategory', '');
+                            }
+                          }}
                         >
                           <SelectTrigger className={cn(
                             "h-9",
@@ -611,6 +623,26 @@ export const F42v4_AdjustmentDrawer = ({
                         />
                       </div>
                     </div>
+
+                    {/* Other category specification - show only when "Other" is selected */}
+                    {item.category === 'Other' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Specify category</Label>
+                        <Input
+                          type="text"
+                          placeholder="e.g., Office supplies"
+                          value={item.otherCategory}
+                          onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`expense_${index}_otherCategory`] && 'border-destructive'
+                          )}
+                        />
+                        {errors[`expense_${index}_otherCategory`] && (
+                          <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
+                        )}
+                      </div>
+                    )}
 
                     {/* Receipt upload - compact */}
                     <div className="space-y-1.5">
