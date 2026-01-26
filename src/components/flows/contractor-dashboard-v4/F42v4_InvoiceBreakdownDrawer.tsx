@@ -7,7 +7,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Plus, Clock, X, AlertCircle } from 'lucide-react';
+import { Lock, Plus, Clock, X } from 'lucide-react';
 import type { F42v4_Adjustment, F42v4_LineItem, F42v4_InvoiceStatus, F42v4_WindowState } from '@/stores/F42v4_DashboardStore';
 import { cn } from '@/lib/utils';
 
@@ -197,19 +197,27 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   
-  // Separate adjustments by status, filtering out resubmitted rejections
-  const pendingAdjustments = adjustments.filter(adj => adj.status === 'Pending' || adj.status === 'Admin approved');
+  // Get all adjustments that should show (approved or pending), excluding resubmitted rejections
+  const activeAdjustments = adjustments.filter(
+    adj => (adj.status === 'Pending' || adj.status === 'Admin approved') 
+  );
   const rejectedAdjustments = adjustments.filter(
     adj => adj.status === 'Admin rejected' && !resubmittedRejectionIds.includes(adj.id)
   );
   const isCutoffPassed = windowState === 'CLOSED';
   
-  // Calculate totals
+  // Separate by type
+  const earningsAdjustments = activeAdjustments.filter(adj => adj.type === 'Expense' || adj.type === 'Bonus');
+  const hoursAdjustments = activeAdjustments.filter(adj => adj.type === 'Additional hours');
+  const rejectedEarningsAdjustments = rejectedAdjustments.filter(adj => adj.type === 'Expense' || adj.type === 'Bonus');
+  const rejectedHoursAdjustments = rejectedAdjustments.filter(adj => adj.type === 'Additional hours');
+  
+  // Calculate totals (only from active, not rejected)
   const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
-  const pendingAdjustmentTotal = pendingAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
-  const hasAdjustments = pendingAdjustments.length > 0;
+  const activeAdjustmentTotal = activeAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0);
+  const hasAdjustments = activeAdjustments.length > 0;
   const hasRejections = rejectedAdjustments.length > 0;
-  const adjustedTotal = invoiceTotal + pendingAdjustmentTotal;
+  const adjustedTotal = invoiceTotal + activeAdjustmentTotal;
   
   const canMakeAdjustments = invoiceStatus === 'draft' && onMakeAdjustment;
   const canRemoveAdjustments = invoiceStatus === 'draft' && onWithdrawAdjustment;
@@ -222,66 +230,37 @@ export const F42v4_InvoiceBreakdownDrawer = ({
     }
   };
 
+  // Helper to get badge for adjustment (only show for truly pending items)
+  const getAdjustmentBadge = (adj: F42v4_Adjustment) => {
+    if (adj.status === 'Pending') {
+      return { label: 'Pending', variant: 'pending' as const };
+    }
+    // Admin approved items don't need a badge - they're finalized
+    return undefined;
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
         {/* Header */}
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-          <div className="flex items-center gap-2">
-            <SheetTitle className="text-lg font-semibold">Invoice breakdown</SheetTitle>
-            <Badge variant="outline" className="text-xs font-normal">
-              {periodLabel}
-            </Badge>
-          </div>
-        </SheetHeader>
-
-        {/* Needs Attention Section - Show rejected items prominently */}
-        {hasRejections && (
-          <div className="px-6 py-4 border-b border-border/40 bg-amber-50/50 dark:bg-amber-500/[0.04]">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <h3 className="text-sm font-medium text-foreground">Needs attention</h3>
-              <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">
-                {rejectedAdjustments.length} {rejectedAdjustments.length === 1 ? 'item' : 'items'}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SheetTitle className="text-lg font-semibold">Invoice breakdown</SheetTitle>
+              <Badge variant="outline" className="text-xs font-normal">
+                {periodLabel}
               </Badge>
             </div>
-            <div className="space-y-3">
-              {rejectedAdjustments.map((adj) => (
-                <div key={adj.id} className="p-3 rounded-lg bg-background/80 border border-border/40">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{adj.type}</p>
-                      {adj.label && <p className="text-xs text-muted-foreground">{adj.label}</p>}
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground/70 line-through tabular-nums">
-                      {formatCurrency(adj.amount || 0, currency)}
-                    </p>
-                  </div>
-                  <p className="text-xs text-muted-foreground italic mb-2">"{adj.rejectionReason || 'Please check and resubmit.'}"</p>
-                  <div className="flex items-center gap-3">
-                    {onResubmitAdjustment && (
-                      <button 
-                        onClick={() => onResubmitAdjustment(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                        className="text-xs font-medium text-primary hover:underline"
-                      >
-                        Resubmit
-                      </button>
-                    )}
-                    <button 
-                      onClick={handleContactManager}
-                      className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                    >
-                      Contact manager
-                    </button>
-                  </div>
-                  {isCutoffPassed && (
-                    <p className="text-[10px] text-muted-foreground/60 mt-2">Resubmission queued for next cycle</p>
-                  )}
-                </div>
-              ))}
-            </div>
+            {hasRejections && (
+              <Badge 
+                variant="outline" 
+                className="text-[10px] bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
+              >
+                {rejectedAdjustments.length} needs attention
+              </Badge>
+            )}
           </div>
-        )}
+        </SheetHeader>
 
         {/* Receipt-style breakdown */}
         <div className="px-6 py-5 space-y-6">
@@ -302,7 +281,8 @@ export const F42v4_InvoiceBreakdownDrawer = ({
                   isPositive
                 />
               ))}
-              {pendingAdjustments.filter(adj => adj.type === 'Expense' || adj.type === 'Bonus').map((adj) => (
+              {/* Active earnings adjustments (pending or approved) */}
+              {earningsAdjustments.map((adj) => (
                 <BreakdownRow
                   key={adj.id}
                   label={adj.type}
@@ -310,14 +290,31 @@ export const F42v4_InvoiceBreakdownDrawer = ({
                   amount={adj.amount || 0}
                   currency={currency}
                   isPositive
-                  badge={adj.status === 'Pending' ? { label: 'Pending', variant: 'pending' as const } : undefined}
+                  badge={getAdjustmentBadge(adj)}
                   canRemove={canRemoveAdjustments && adj.status === 'Pending'}
                   onRemove={() => onWithdrawAdjustment?.(adj.id)}
                 />
               ))}
+              {/* Rejected earnings adjustments inline */}
+              {rejectedEarningsAdjustments.map((adj) => (
+                <BreakdownRow
+                  key={adj.id}
+                  label={adj.type}
+                  meta={adj.label}
+                  amount={adj.amount || 0}
+                  currency={currency}
+                  isPositive
+                  isRejected
+                  rejectionReason={adj.rejectionReason || 'Please check and resubmit.'}
+                  onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                  onContact={handleContactManager}
+                  isCutoffPassed={isCutoffPassed}
+                  className="bg-amber-50/40 dark:bg-amber-500/[0.03] border-l-2 border-amber-400/60"
+                />
+              ))}
               <BreakdownRow
                 label="Total earnings"
-                amount={totalEarnings + pendingAdjustments.filter(adj => adj.type === 'Expense' || adj.type === 'Bonus').reduce((sum, adj) => sum + (adj.amount || 0), 0)}
+                amount={totalEarnings + earningsAdjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)}
                 currency={currency}
                 isPositive
                 isTotal
@@ -326,23 +323,39 @@ export const F42v4_InvoiceBreakdownDrawer = ({
           </section>
 
           {/* Additional Hours Section */}
-          {pendingAdjustments.filter(adj => adj.type === 'Additional hours').length > 0 && (
+          {(hoursAdjustments.length > 0 || rejectedHoursAdjustments.length > 0) && (
             <section>
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5" />
                 Additional hours
               </h3>
               <div className="space-y-0">
-                {pendingAdjustments.filter(adj => adj.type === 'Additional hours').map((adj) => (
+                {hoursAdjustments.map((adj) => (
                   <BreakdownRow
                     key={adj.id}
                     label={`${adj.hours}h logged`}
                     amount={adj.amount || 0}
                     currency={currency}
                     isPositive
-                    badge={adj.status === 'Pending' ? { label: 'Pending', variant: 'pending' as const } : undefined}
+                    badge={getAdjustmentBadge(adj)}
                     canRemove={canRemoveAdjustments && adj.status === 'Pending'}
                     onRemove={() => onWithdrawAdjustment?.(adj.id)}
+                  />
+                ))}
+                {/* Rejected hours inline */}
+                {rejectedHoursAdjustments.map((adj) => (
+                  <BreakdownRow
+                    key={adj.id}
+                    label={`${adj.hours}h logged`}
+                    amount={adj.amount || 0}
+                    currency={currency}
+                    isPositive
+                    isRejected
+                    rejectionReason={adj.rejectionReason || 'Please check and resubmit.'}
+                    onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                    onContact={handleContactManager}
+                    isCutoffPassed={isCutoffPassed}
+                    className="bg-amber-50/40 dark:bg-amber-500/[0.03] border-l-2 border-amber-400/60"
                   />
                 ))}
               </div>
@@ -358,7 +371,7 @@ export const F42v4_InvoiceBreakdownDrawer = ({
               <p className="text-sm font-medium text-foreground">Estimated invoice total</p>
               {hasAdjustments && (
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Includes {pendingAdjustments.length} pending {pendingAdjustments.length === 1 ? 'adjustment' : 'adjustments'}
+                  Includes {activeAdjustments.filter(a => a.status === 'Pending').length > 0 ? `${activeAdjustments.filter(a => a.status === 'Pending').length} pending` : ''}{activeAdjustments.filter(a => a.status === 'Admin approved').length > 0 ? `${activeAdjustments.filter(a => a.status === 'Pending').length > 0 ? ' + ' : ''}${activeAdjustments.filter(a => a.status === 'Admin approved').length} approved` : ''} {activeAdjustments.length === 1 ? 'adjustment' : 'adjustments'}
                 </p>
               )}
             </div>
