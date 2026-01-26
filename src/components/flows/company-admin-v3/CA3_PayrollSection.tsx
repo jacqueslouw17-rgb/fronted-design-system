@@ -358,6 +358,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             onApproveAll={handleApproveAllSafe}
             onContinue={goToSubmit}
             onClose={() => setHasEnteredWorkflow(false)}
+            pendingCount={pendingSubmissions}
           />
         );
 
