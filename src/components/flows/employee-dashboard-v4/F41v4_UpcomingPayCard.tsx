@@ -411,8 +411,12 @@ export const F41v4_UpcomingPayCard = () => {
                   </div>
                 </div>
               )}
-              {/* Main status badge - hide if partial rejections exist */}
-              {!hasPartialRejections && (
+              {/* Main status badge - show "In review" when partial rejections exist */}
+              {hasPartialRejections ? (
+                <Badge className="text-sm px-3 py-1 bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                  In review
+                </Badge>
+              ) : (
                 <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
                   {statusConfig.label}
                 </Badge>
