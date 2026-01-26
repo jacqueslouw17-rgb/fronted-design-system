@@ -370,13 +370,6 @@ export const F42v4_UpcomingInvoiceCard = () => {
                     Approved on {formatSubmittedTimestamp(approvedAt)}
                   </p>
                 )}
-                {/* Partial rejection indicator - when some adjustments are rejected but not the entire invoice */}
-                {hasPartialRejections && !demoFullRejection && (
-                  <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    {rejectedAdjustmentsCount} {rejectedAdjustmentsCount === 1 ? 'request' : 'requests'} need{rejectedAdjustmentsCount === 1 ? 's' : ''} attention
-                  </p>
-                )}
                 {/* Cutoff passed message */}
                 {windowState === 'CLOSED' && !hasResubmittedFromRejected && (
                   <p className="text-sm text-muted-foreground">
@@ -433,18 +426,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </div>
                 </div>
               )}
-              {/* Partial rejection badge */}
-              {hasPartialRejections && !demoFullRejection && (
-                <Badge className="text-sm px-3 py-1 bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">
-                  {rejectedAdjustmentsCount} rejected
-                </Badge>
-              )}
-              {/* Main status badge - only show if no partial rejections or full rejection */}
-              {(!hasPartialRejections || demoFullRejection) && (
-                <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
-                  {statusConfig.label}
-                </Badge>
-              )}
+              {/* Main status badge - always show */}
+              <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+                {statusConfig.label}
+              </Badge>
             </div>
           </div>
 
@@ -496,19 +481,34 @@ export const F42v4_UpcomingInvoiceCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className="p-5 rounded-xl bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border border-border/40">
+                <div className={cn(
+                  "p-5 rounded-xl border transition-colors",
+                  hasPartialRejections 
+                    ? "bg-gradient-to-br from-amber-500/[0.06] to-amber-600/[0.04] border-amber-300/40 dark:border-amber-500/20" 
+                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
+                )}>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <p className="text-sm font-medium text-muted-foreground">Invoice preview</p>
                     </div>
-                    <button
-                      onClick={() => setBreakdownDrawerOpen(true)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
-                    >
-                      What's included
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
+                    {hasPartialRejections ? (
+                      <button
+                        onClick={() => setBreakdownDrawerOpen(true)}
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30 hover:bg-amber-200 dark:hover:bg-amber-500/30 transition-colors"
+                      >
+                        <AlertCircle className="h-3 w-3" />
+                        {rejectedAdjustmentsCount} rejected
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setBreakdownDrawerOpen(true)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors shrink-0"
+                      >
+                        What's included
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                   
                   {hasAdjustments ? (
