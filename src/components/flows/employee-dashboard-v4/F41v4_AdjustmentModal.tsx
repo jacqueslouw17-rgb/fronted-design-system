@@ -57,6 +57,15 @@ interface ExpenseLineItem {
   receipt: File | null;
 }
 
+// Overtime line item type for multi-overtime submissions
+interface OvertimeLineItem {
+  id: string;
+  date: Date | undefined;
+  startTime: string;
+  endTime: string;
+  calculatedHours: number;
+}
+
 
 // Pay period bounds (mock - in real app would come from store)
 const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
@@ -105,10 +114,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [expenseReceipt, setExpenseReceipt] = useState<File | null>(null);
   const [expenseNotes, setExpenseNotes] = useState('');
   
-  // Overtime form state
-  const [overtimeHours, setOvertimeHours] = useState('');
-  const [overtimeDate, setOvertimeDate] = useState<Date | undefined>(undefined);
-  const [overtimeNotes, setOvertimeNotes] = useState('');
+  // Overtime form state - multiple line items with date/time
+  const [overtimeItems, setOvertimeItems] = useState<OvertimeLineItem[]>([
+    { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }
+  ]);
   
   // Bonus/Correction form state
   const [bonusCorrectionType, setBonusCorrectionType] = useState<'Bonus' | 'Correction'>('Bonus');
@@ -128,9 +137,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseDescription('');
     setExpenseReceipt(null);
     setExpenseNotes('');
-    setOvertimeHours('');
-    setOvertimeDate(undefined);
-    setOvertimeNotes('');
+    setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusCorrectionType('Bonus');
     setBonusCorrectionAmount('');
     setBonusCorrectionReason('');
@@ -152,6 +159,51 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
+  };
+
+  // Overtime line item helpers
+  const addOvertimeItem = () => {
+    setOvertimeItems(prev => [...prev, { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
+  };
+
+  const removeOvertimeItem = (id: string) => {
+    if (overtimeItems.length === 1) return;
+    setOvertimeItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  // Calculate hours from start/end time
+  const calculateHours = (startTime: string, endTime: string): number => {
+    if (!startTime || !endTime) return 0;
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
+    
+    let startMinutes = startH * 60 + startM;
+    let endMinutes = endH * 60 + endM;
+    
+    // Handle overnight shifts (end time before start time)
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
+    }
+    
+    const diffMinutes = endMinutes - startMinutes;
+    return Math.round((diffMinutes / 60) * 100) / 100; // Round to 2 decimal places
+  };
+
+  const updateOvertimeItem = (id: string, field: keyof OvertimeLineItem, value: string | Date | undefined) => {
+    setOvertimeItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      
+      const updated = { ...item, [field]: value };
+      
+      // Recalculate hours if time fields changed
+      if (field === 'startTime' || field === 'endTime') {
+        const startTime = field === 'startTime' ? (value as string) : item.startTime;
+        const endTime = field === 'endTime' ? (value as string) : item.endTime;
+        updated.calculatedHours = calculateHours(startTime, endTime);
+      }
+      
+      return updated;
+    }));
   };
 
   const handleClose = () => {
@@ -245,11 +297,31 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return !hasError;
   };
 
-  const validateOvertime = () => {
+  const validateOvertimeItems = () => {
     const newErrors: Record<string, string> = {};
-    if (!overtimeHours || parseFloat(overtimeHours) <= 0) newErrors.overtimeHours = 'Hours must be greater than 0';
+    let hasError = false;
+    
+    overtimeItems.forEach((item, index) => {
+      if (!item.date) {
+        newErrors[`overtime_${index}_date`] = 'Required';
+        hasError = true;
+      }
+      if (!item.startTime) {
+        newErrors[`overtime_${index}_startTime`] = 'Required';
+        hasError = true;
+      }
+      if (!item.endTime) {
+        newErrors[`overtime_${index}_endTime`] = 'Required';
+        hasError = true;
+      }
+      if (item.startTime && item.endTime && item.calculatedHours <= 0) {
+        newErrors[`overtime_${index}_endTime`] = 'End must be after start';
+        hasError = true;
+      }
+    });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasError;
   };
 
   const validateBonusCorrection = () => {
@@ -290,17 +362,23 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   };
 
   const handleSubmitOvertime = () => {
-    if (!validateOvertime()) return;
+    if (!validateOvertimeItems()) return;
 
-    addAdjustment({
-      type: 'Overtime',
-      label: `${overtimeHours}h`,
-      amount: null,
-      description: overtimeNotes,
-      hours: parseFloat(overtimeHours),
+    // Submit each overtime entry
+    overtimeItems.forEach(item => {
+      const dateLabel = item.date ? format(item.date, 'MMM d') : '';
+      addAdjustment({
+        type: 'Overtime',
+        label: `${item.calculatedHours}h on ${dateLabel}`,
+        amount: null,
+        description: `${item.startTime} – ${item.endTime}`,
+        hours: item.calculatedHours,
+      });
     });
 
-    toast.success("Overtime submitted for review.");
+    const totalHours = overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0);
+    const count = overtimeItems.length;
+    toast.success(`${count} overtime entr${count > 1 ? 'ies' : 'y'} submitted (${totalHours}h total).`);
     handleClose();
   };
 
@@ -594,24 +672,133 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             </div>
           )}
 
-          {/* Overtime Form */}
+          {/* Overtime Form - Multiple Items with Date/Time */}
           {selectedType === 'overtime' && (
             <div className="space-y-5">
               <PayPeriodBadge />
 
-              <div className="space-y-2">
-                <Label>Hours</Label>
-                <Input
-                  type="number"
-                  step="0.5"
-                  min="0.5"
-                  placeholder="0"
-                  value={overtimeHours}
-                  onChange={(e) => setOvertimeHours(e.target.value)}
-                  className={cn(errors.overtimeHours && 'border-destructive')}
-                />
-                {errors.overtimeHours && <p className="text-xs text-destructive">{errors.overtimeHours}</p>}
+              {/* Overtime Line Items */}
+              <div className="space-y-3">
+                {overtimeItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button - only show if more than 1 item */}
+                    {overtimeItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeOvertimeItem(item.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+
+                    {/* Item number badge */}
+                    {overtimeItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Entry {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Date picker */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full h-9 justify-start text-left font-normal",
+                              !item.date && "text-muted-foreground",
+                              errors[`overtime_${index}_date`] && 'border-destructive'
+                            )}
+                          >
+                            {item.date ? format(item.date, 'PPP') : <span>Select date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={item.date}
+                            onSelect={(date) => updateOvertimeItem(item.id, 'date', date)}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                            disabled={(date) => date > new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* Start & End Time row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Start time</Label>
+                        <Input
+                          type="time"
+                          value={item.startTime}
+                          onChange={(e) => updateOvertimeItem(item.id, 'startTime', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`overtime_${index}_startTime`] && 'border-destructive'
+                          )}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">End time</Label>
+                        <Input
+                          type="time"
+                          value={item.endTime}
+                          onChange={(e) => updateOvertimeItem(item.id, 'endTime', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`overtime_${index}_endTime`] && 'border-destructive'
+                          )}
+                        />
+                        {errors[`overtime_${index}_endTime`] && (
+                          <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Auto-calculated hours display */}
+                    {item.calculatedHours > 0 && (
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-primary/5 border border-primary/20">
+                        <span className="text-xs text-muted-foreground">Duration</span>
+                        <span className="text-sm font-semibold text-primary tabular-nums">
+                          {item.calculatedHours}h
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add another overtime button */}
+                <button
+                  type="button"
+                  onClick={addOvertimeItem}
+                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Add another entry
+                </button>
               </div>
+
+              {/* Total summary - only show if multiple items or hours calculated */}
+              {(overtimeItems.length > 1 || overtimeItems.some(item => item.calculatedHours > 0)) && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <span className="text-sm text-muted-foreground">
+                    Total {overtimeItems.length > 1 ? `(${overtimeItems.length} entries)` : ''}
+                  </span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0)}h
+                  </span>
+                </div>
+              )}
 
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 Overtime is reviewed by your company before payroll approval. Rate per company policy.
@@ -623,7 +810,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                   Cancel
                 </Button>
                 <Button onClick={handleSubmitOvertime} className="flex-1">
-                  Submit request
+                  Submit {overtimeItems.length > 1 ? `${overtimeItems.length} entries` : 'request'}
                 </Button>
               </div>
             </div>
