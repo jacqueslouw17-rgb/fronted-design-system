@@ -6,7 +6,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Plus, Clock, X } from 'lucide-react';
+import { Lock, Plus, Clock, X, AlertTriangle, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Adjustment, LeaveRequest, PayrollStatus, WindowState } from '@/stores/F41v4_DashboardStore';
 import { cn } from '@/lib/utils';
@@ -71,12 +71,6 @@ const BreakdownRow = ({
   isTotal = false,
   onRemove,
   canRemove = false,
-  isRejected = false,
-  rejectionReason,
-  onResubmit,
-  onContact,
-  isCutoffPassed,
-  className
 }: { 
   label: string;
   amount: number;
@@ -88,14 +82,8 @@ const BreakdownRow = ({
   isTotal?: boolean;
   onRemove?: () => void;
   canRemove?: boolean;
-  isRejected?: boolean;
-  rejectionReason?: string;
-  onResubmit?: () => void;
-  onContact?: () => void;
-  isCutoffPassed?: boolean;
-  className?: string;
 }) => (
-  <div className={cn("py-2 -mx-2 px-2 rounded-md", className)}>
+  <div className="py-2 -mx-2 px-2 rounded-md">
     <div className={cn(
       "group flex items-center justify-between transition-colors",
       canRemove && "hover:bg-destructive/5 cursor-pointer rounded-md -mx-2 px-2"
@@ -104,8 +92,7 @@ const BreakdownRow = ({
         <span className={cn(
           "truncate",
           isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
-          canRemove && "group-hover:text-destructive/80 transition-colors",
-          isRejected && "line-through opacity-60"
+          canRemove && "group-hover:text-destructive/80 transition-colors"
         )}>
           {label}
         </span>
@@ -149,8 +136,7 @@ const BreakdownRow = ({
           "whitespace-nowrap tabular-nums text-right font-mono transition-transform duration-200",
           isTotal ? "text-sm font-semibold" : "text-sm",
           isPositive ? "text-foreground" : "text-muted-foreground",
-          canRemove && "group-hover:-translate-x-6",
-          isRejected && "line-through opacity-60"
+          canRemove && "group-hover:-translate-x-6"
         )}>
           {isPositive ? '' : '−'}{formatCurrency(amount, currency)}
         </span>
@@ -169,33 +155,77 @@ const BreakdownRow = ({
       </div>
       {isTotal && <div className="border-t border-dashed border-border/50 absolute left-0 right-0 top-0" />}
     </div>
-    {/* Inline rejection details */}
-    {isRejected && rejectionReason && (
-      <div className="mt-1.5 pl-0 space-y-1.5">
-        <p className="text-xs text-muted-foreground/80 italic">"{rejectionReason}"</p>
-        <div className="flex items-center gap-2">
-          {onResubmit && (
-            <button 
-              onClick={onResubmit}
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              Resubmit
-            </button>
-          )}
-          {onResubmit && onContact && <span className="text-muted-foreground/50">·</span>}
-          {onContact && (
-            <button 
-              onClick={onContact}
-              className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-            >
-              Contact manager
-            </button>
-          )}
+  </div>
+);
+
+// Rejected item card with enhanced UI
+const RejectedItemCard = ({
+  type,
+  label,
+  amount,
+  currency,
+  reason,
+  onResubmit,
+  onContact,
+  isCutoffPassed
+}: {
+  type: string;
+  label?: string;
+  amount: number;
+  currency: string;
+  reason: string;
+  onResubmit?: () => void;
+  onContact?: () => void;
+  isCutoffPassed?: boolean;
+}) => (
+  <div className="group relative rounded-xl border border-amber-200/60 dark:border-amber-500/20 bg-gradient-to-br from-amber-50/80 to-amber-50/40 dark:from-amber-500/[0.06] dark:to-amber-500/[0.02] p-3.5 transition-all hover:border-amber-300/80 dark:hover:border-amber-500/30">
+    {/* Top row: Type + Amount */}
+    <div className="flex items-start justify-between gap-3 mb-2">
+      <div className="flex items-center gap-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+          <AlertTriangle className="h-3 w-3 text-amber-600 dark:text-amber-400" />
         </div>
-        {isCutoffPassed && (
-          <p className="text-[10px] text-muted-foreground/60">Resubmission queued for next cycle</p>
-        )}
+        <div>
+          <p className="text-sm font-medium text-foreground">{type}</p>
+          {label && <p className="text-xs text-muted-foreground">{label}</p>}
+        </div>
       </div>
+      <p className="text-sm font-medium text-muted-foreground/60 line-through tabular-nums font-mono">
+        {formatCurrency(amount, currency)}
+      </p>
+    </div>
+    
+    {/* Reason */}
+    <p className="text-xs text-muted-foreground leading-relaxed mb-3 pl-8">
+      {reason}
+    </p>
+    
+    {/* Actions */}
+    <div className="flex items-center gap-2 pl-8">
+      {onResubmit && (
+        <button 
+          onClick={onResubmit}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          <RotateCcw className="h-3 w-3" />
+          Resubmit
+        </button>
+      )}
+      {onContact && (
+        <button 
+          onClick={onContact}
+          className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+        >
+          Contact manager
+        </button>
+      )}
+    </div>
+    
+    {/* Cutoff notice */}
+    {isCutoffPassed && (
+      <p className="text-[10px] text-amber-600/70 dark:text-amber-400/60 mt-2 pl-8">
+        Will be queued for next pay cycle
+      </p>
     )}
   </div>
 );
@@ -272,22 +302,19 @@ export const F41v4_PayBreakdownDrawer = ({
       <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
         {/* Header */}
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-              <Badge variant="outline" className="text-xs font-normal">
-                {periodLabel}
-              </Badge>
-            </div>
-            {hasRejections && (
-              <Badge 
-                variant="outline" 
-                className="text-[10px] bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
-              >
-                {rejectedAdjustments.length} needs attention
-              </Badge>
-            )}
+          <div className="flex items-center gap-2">
+            <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+            <Badge variant="outline" className="text-xs font-normal">
+              {periodLabel}
+            </Badge>
           </div>
+          {/* Minimal rejection notice */}
+          {hasRejections && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 flex items-center gap-1.5">
+              <AlertTriangle className="h-3 w-3" />
+              {rejectedAdjustments.length} {rejectedAdjustments.length === 1 ? 'item needs' : 'items need'} your attention below
+            </p>
+          )}
         </SheetHeader>
 
         {/* Receipt-style breakdown */}
@@ -323,23 +350,24 @@ export const F41v4_PayBreakdownDrawer = ({
                   onRemove={() => onWithdrawAdjustment?.(adj.id)}
                 />
               ))}
-              {/* Rejected adjustments inline with visual treatment */}
-              {rejectedOtherAdjustments.map((adj) => (
-                <BreakdownRow
-                  key={adj.id}
-                  label={adj.type}
-                  sublabel={adj.label}
-                  amount={adj.amount || 0}
-                  currency={currency}
-                  isPositive
-                  isRejected
-                  rejectionReason={adj.rejectionReason || 'Please check and resubmit.'}
-                  onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                  onContact={handleContactManager}
-                  isCutoffPassed={isCutoffPassed}
-                  className="bg-amber-50/40 dark:bg-amber-500/[0.03] border-l-2 border-amber-400/60"
-                />
-              ))}
+              {/* Rejected adjustments with enhanced card UI */}
+              {rejectedOtherAdjustments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {rejectedOtherAdjustments.map((adj) => (
+                    <RejectedItemCard
+                      key={adj.id}
+                      type={adj.type}
+                      label={adj.label}
+                      amount={adj.amount || 0}
+                      currency={currency}
+                      reason={adj.rejectionReason || 'Please check and resubmit.'}
+                      onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                      onContact={handleContactManager}
+                      isCutoffPassed={isCutoffPassed}
+                    />
+                  ))}
+                </div>
+              )}
               <BreakdownRow
                 label="Total earnings"
                 amount={totalEarnings + totalOtherAdjustments}
@@ -396,22 +424,24 @@ export const F41v4_PayBreakdownDrawer = ({
                     onRemove={() => onWithdrawAdjustment?.(adj.id)}
                   />
                 ))}
-                {/* Rejected overtime inline */}
-                {rejectedOvertimeAdjustments.map((adj) => (
-                  <BreakdownRow
-                    key={adj.id}
-                    label={`${adj.hours}h logged`}
-                    amount={adj.amount || 0}
-                    currency={currency}
-                    isPositive
-                    isRejected
-                    rejectionReason={adj.rejectionReason || 'Please check and resubmit.'}
-                    onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
-                    onContact={handleContactManager}
-                    isCutoffPassed={isCutoffPassed}
-                    className="bg-amber-50/40 dark:bg-amber-500/[0.03] border-l-2 border-amber-400/60"
-                  />
-                ))}
+                {/* Rejected overtime with enhanced card UI */}
+                {rejectedOvertimeAdjustments.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {rejectedOvertimeAdjustments.map((adj) => (
+                      <RejectedItemCard
+                        key={adj.id}
+                        type="Overtime"
+                        label={`${adj.hours}h logged`}
+                        amount={adj.amount || 0}
+                        currency={currency}
+                        reason={adj.rejectionReason || 'Please check and resubmit.'}
+                        onResubmit={() => onResubmitAdjustment?.(adj.id, adj.category || adj.label, String(adj.amount || ''))}
+                        onContact={handleContactManager}
+                        isCutoffPassed={isCutoffPassed}
+                      />
+                    ))}
+                  </div>
+                )}
                 {overtimeAdjustments.length > 1 && (
                   <BreakdownRow
                     label="Total overtime"
