@@ -178,7 +178,7 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       <div 
         key={leave.id}
         className={cn(
-          "group flex items-center gap-2.5 px-2.5 py-2 rounded-lg border transition-colors",
+          "group flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors",
           isPending 
             ? "bg-amber-50/50 dark:bg-amber-500/5 border-amber-200/60 dark:border-amber-500/20" 
             : "bg-muted/30 dark:bg-muted/10 border-border/20"
@@ -205,11 +205,11 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
           {formatDays(leave.totalDays)}
         </span>
         
-        {/* Spacer */}
-        <div className="flex-1" />
-        
         {/* Status badge */}
         {getStatusBadge(leave.status)}
+        
+        {/* Spacer */}
+        <div className="flex-1" />
         
         {/* Withdraw button for pending items */}
         {canWithdraw && leave.status === 'Pending' && (
