@@ -134,6 +134,9 @@ export const F42v4_AdjustmentDrawer = ({
   const [correctionAttachment, setCorrectionAttachment] = useState<File | null>(null);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Track which date popover is open (by item id)
+  const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
   const requestTypeOptions = getRequestTypeOptions(contractType);
 
@@ -763,7 +766,10 @@ export const F42v4_AdjustmentDrawer = ({
                     {/* Date picker */}
                     <div className="space-y-1.5">
                       <Label className="text-xs">Date</Label>
-                      <Popover>
+                      <Popover
+                        open={openDatePopoverId === item.id}
+                        onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
+                      >
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -781,8 +787,12 @@ export const F42v4_AdjustmentDrawer = ({
                           <CalendarComponent
                             mode="single"
                             selected={item.date}
-                            onSelect={(date) => updateAdditionalHoursItem(item.id, 'date', date)}
+                            onSelect={(date) => {
+                              updateAdditionalHoursItem(item.id, 'date', date);
+                              setOpenDatePopoverId(null); // Auto-close on selection
+                            }}
                             initialFocus
+                            className="p-3 pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>

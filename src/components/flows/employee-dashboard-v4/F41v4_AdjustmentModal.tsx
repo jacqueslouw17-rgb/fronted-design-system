@@ -135,6 +135,9 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Track which date popover is open (by item id)
+  const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
 
   const resetForm = () => {
@@ -767,7 +770,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     {/* Date picker */}
                     <div className="space-y-1.5">
                       <Label className="text-xs">Date</Label>
-                      <Popover>
+                      <Popover 
+                        open={openDatePopoverId === item.id} 
+                        onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
+                      >
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -784,7 +790,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                           <Calendar
                             mode="single"
                             selected={item.date}
-                            onSelect={(date) => updateOvertimeItem(item.id, 'date', date)}
+                            onSelect={(date) => {
+                              updateOvertimeItem(item.id, 'date', date);
+                              setOpenDatePopoverId(null); // Auto-close on selection
+                            }}
                             initialFocus
                             className="p-3 pointer-events-auto"
                             disabled={(date) => date > new Date()}
