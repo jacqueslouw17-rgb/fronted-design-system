@@ -248,8 +248,16 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   };
 
   // Helper to get badge for adjustment
-  // Pending items always show the "Pending" badge so users can track their status
+  // Show "Pending" badge only when there are partial rejections (items needing attention)
+  // When fully approved with no rejections, all items are effectively approved - no badge needed
+  const isInvoiceApprovedOrLater = invoiceStatus === 'approved' || invoiceStatus === 'finalised';
+  
   const getAdjustmentBadge = (adj: F42v4_Adjustment) => {
+    // If invoice is approved AND no rejections, hide all badges
+    if (isInvoiceApprovedOrLater && !hasRejections) {
+      return undefined;
+    }
+    // Show pending badge for pending items (especially after resubmission in partial rejection)
     if (adj.status === 'Pending') {
       return { label: 'Pending', variant: 'pending' as const };
     }

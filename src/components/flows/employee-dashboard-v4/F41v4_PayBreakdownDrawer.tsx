@@ -276,8 +276,16 @@ export const F41v4_PayBreakdownDrawer = ({
   };
 
   // Helper to get badge for adjustment
-  // Pending items always show the "Pending" badge so users can track their status
+  // Show "Pending" badge only when there are partial rejections (items needing attention)
+  // When fully approved with no rejections, all items are effectively approved - no badge needed
+  const isPayrollApprovedOrLater = payrollStatus === 'approved' || payrollStatus === 'finalised';
+  
   const getAdjustmentBadge = (adj: Adjustment) => {
+    // If payroll is approved AND no rejections, hide all badges
+    if (isPayrollApprovedOrLater && !hasRejections) {
+      return undefined;
+    }
+    // Show pending badge for pending items (especially after resubmission in partial rejection)
     if (adj.status === 'Pending') {
       return { label: 'Pending', variant: 'pending' as const };
     }
