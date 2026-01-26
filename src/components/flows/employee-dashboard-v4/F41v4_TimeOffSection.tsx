@@ -26,24 +26,11 @@ const currentPeriodEnd = new Date(2026, 0, 31); // Jan 31, 2026
 const nextPeriodStart = new Date(2026, 1, 1); // Feb 1, 2026
 const nextPeriodEnd = new Date(2026, 1, 28); // Feb 28, 2026
 
-// Map leave types to global-friendly labels
-const getGlobalLeaveLabel = (leaveType: string): string => {
-  switch (leaveType) {
-    case 'Annual leave':
-      return 'Vacation';
-    case 'Sick leave':
-      return 'Sick';
-    case 'Unpaid leave':
-      return 'Unpaid';
-    default:
-      return 'Leave';
-  }
-};
+// Leave types now use direct labels (Vacation, Sick, Compassionate, Maternity)
 
 interface ProcessedLeave {
   id: string;
   leaveType: string;
-  displayLabel: string;
   startDate: Date;
   endDate: Date;
   totalDays: number;
@@ -82,11 +69,8 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       // Check overlaps with each period
       const overlapsCurrentPeriod = leaveStart <= currentPeriodEnd && leaveEnd >= currentPeriodStart;
       const overlapsNextPeriod = leaveStart <= nextPeriodEnd && leaveEnd >= nextPeriodStart;
-      const spansPeriods = overlapsCurrentPeriod && overlapsNextPeriod;
       
       if (leave.status === 'Pending') pending++;
-      
-      const displayLabel = getGlobalLeaveLabel(leave.leaveType);
       
       // Calculate days in each period for spanning leave
       let daysInCurrentPeriod = 0;
@@ -107,14 +91,13 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
       leaveList.push({
         id: leave.id,
         leaveType: leave.leaveType,
-        displayLabel,
         startDate: leaveStart,
         endDate: leaveEnd,
         totalDays: leave.totalDays,
         daysInCurrentPeriod,
         daysInNextPeriod,
         status: leave.status,
-        spansPeriods,
+        spansPeriods: overlapsCurrentPeriod && overlapsNextPeriod,
         isInCurrentPeriod: overlapsCurrentPeriod,
         isInLater: !overlapsCurrentPeriod && (overlapsNextPeriod || leaveStart > currentPeriodEnd),
       });
@@ -202,8 +185,8 @@ export const F41v4_TimeOffSection = ({ onRequestTimeOff }: F41v4_TimeOffSectionP
         )}
       >
         {/* Leave type */}
-        <span className="text-sm font-medium text-foreground min-w-[70px]">
-          {leave.displayLabel}
+        <span className="text-sm font-medium text-foreground min-w-[100px]">
+          {leave.leaveType}
         </span>
         
         {/* Separator */}
