@@ -158,8 +158,10 @@ export const F42v4_UpcomingInvoiceCard = () => {
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
 
-  // Demo state toggle - for simulating rejected state
-  const [demoRejected, setDemoRejected] = useState(false);
+  // Demo state toggle - for simulating partial rejection (individual adjustments rejected, not entire invoice)
+  const [demoPartialRejection, setDemoPartialRejection] = useState(false);
+  // Demo state for full rejection (entire invoice rejected by admin)
+  const [demoFullRejection, setDemoFullRejection] = useState(false);
   // Track if user has resubmitted from rejected state (transitions to "in review")
   const [hasResubmittedFromRejected, setHasResubmittedFromRejected] = useState(false);
 
@@ -206,6 +208,29 @@ export const F42v4_UpcomingInvoiceCard = () => {
     markRejectionResubmitted,
   } = useF42v4_DashboardStore();
 
+  // Demo: add mock rejected adjustments when partial rejection is enabled
+  const mockRejectedAdjustments: F42v4_Adjustment[] = demoPartialRejection ? [
+    {
+      id: 'mock-rejected-1',
+      type: 'Expense',
+      label: 'Client lunch receipt',
+      amount: 120,
+      status: 'Admin rejected',
+      category: 'Meals',
+      submittedAt: new Date().toISOString(),
+      rejectionReason: 'Receipt is not legible. Please upload a clearer copy.'
+    }
+  ] : [];
+
+  // Combine real adjustments with mock rejected ones for demo
+  const allAdjustments = [...adjustments, ...mockRejectedAdjustments];
+  
+  // Calculate rejected adjustments (excluding already resubmitted ones)
+  const rejectedAdjustmentsCount = allAdjustments.filter(
+    adj => adj.status === 'Admin rejected' && !resubmittedRejectionIds.includes(adj.id)
+  ).length;
+  const hasPartialRejections = rejectedAdjustmentsCount > 0 && !demoFullRejection;
+
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
   useEffect(() => {
     if (invoiceStatus === 'submitted') {
@@ -218,7 +243,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
   }, [invoiceStatus, setInvoiceStatus]);
 
   // Calculate effective status (demo override for rejected, but transition to submitted if resubmitted)
-  const effectiveStatus = demoRejected 
+  const effectiveStatus = demoFullRejection 
     ? (hasResubmittedFromRejected ? 'submitted' as const : 'rejected' as const) 
     : invoiceStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
@@ -320,7 +345,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
               {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
                 {/* Draft state - show deadline countdown when window is open */}
-                {!demoRejected && invoiceStatus === 'draft' && windowState === 'OPEN' && (
+                {!demoFullRejection && invoiceStatus === 'draft' && windowState === 'OPEN' && (
                   <p className="text-sm text-muted-foreground">
                     Submit by <span className="font-medium text-foreground">{cutoffDate}</span>
                     <span className="mx-1.5">·</span>
@@ -333,15 +358,22 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </p>
                 )}
                 {/* Show submitted timestamp - for actual submitted OR resubmitted from rejected */}
-                {((!demoRejected && invoiceStatus === 'submitted' && submittedAt) || 
-                  (demoRejected && hasResubmittedFromRejected)) && (
+                {((!demoFullRejection && invoiceStatus === 'submitted' && submittedAt) || 
+                  (demoFullRejection && hasResubmittedFromRejected)) && (
                   <p className="text-sm text-muted-foreground">
                     Submitted for review
                   </p>
                 )}
-                {!demoRejected && invoiceStatus === 'approved' && approvedAt && (
+                {!demoFullRejection && invoiceStatus === 'approved' && approvedAt && (
                   <p className="text-sm text-muted-foreground">
                     Approved on {formatSubmittedTimestamp(approvedAt)}
+                  </p>
+                )}
+                {/* Partial rejection indicator - when some adjustments are rejected but not the entire invoice */}
+                {hasPartialRejections && !demoFullRejection && (
+                  <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {rejectedAdjustmentsCount} {rejectedAdjustmentsCount === 1 ? 'request' : 'requests'} need{rejectedAdjustmentsCount === 1 ? 's' : ''} attention
                   </p>
                 )}
                 {/* Cutoff passed message */}
@@ -360,24 +392,39 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   <div className="flex rounded-md overflow-hidden border border-border/50">
                     <button
                       onClick={() => {
-                        setDemoRejected(false);
+                        setDemoPartialRejection(false);
+                        setDemoFullRejection(false);
                         setHasResubmittedFromRejected(false);
                       }}
                       className={cn(
                         'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                        !demoRejected ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground'
+                        !demoPartialRejection && !demoFullRejection ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground'
                       )}
                     >
                       Approved
                     </button>
                     <button
                       onClick={() => {
-                        setDemoRejected(true);
+                        setDemoPartialRejection(true);
+                        setDemoFullRejection(false);
                         setHasResubmittedFromRejected(false);
                       }}
                       className={cn(
                         'px-2 py-0.5 text-[10px] font-medium transition-colors',
-                        demoRejected ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground'
+                        demoPartialRejection && !demoFullRejection ? 'bg-amber-500/10 text-amber-600' : 'bg-transparent text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      Partial
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDemoPartialRejection(false);
+                        setDemoFullRejection(true);
+                        setHasResubmittedFromRejected(false);
+                      }}
+                      className={cn(
+                        'px-2 py-0.5 text-[10px] font-medium transition-colors',
+                        demoFullRejection ? 'bg-destructive/10 text-destructive' : 'bg-transparent text-muted-foreground hover:text-foreground'
                       )}
                     >
                       Rejected
@@ -385,14 +432,23 @@ export const F42v4_UpcomingInvoiceCard = () => {
                   </div>
                 </div>
               )}
-              <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
-                {statusConfig.label}
-              </Badge>
+              {/* Partial rejection badge */}
+              {hasPartialRejections && !demoFullRejection && (
+                <Badge className="text-sm px-3 py-1 bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">
+                  {rejectedAdjustmentsCount} rejected
+                </Badge>
+              )}
+              {/* Main status badge - only show if no partial rejections or full rejection */}
+              {(!hasPartialRejections || demoFullRejection) && (
+                <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
+                  {statusConfig.label}
+                </Badge>
+              )}
             </div>
           </div>
 
           {/* Returned reason block - only when applicable */}
-          {invoiceStatus === 'returned' && returnedReason && !demoRejected && (
+          {invoiceStatus === 'returned' && returnedReason && !demoFullRejection && (
             <div className="mt-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
               <p className="text-sm text-orange-700 dark:text-orange-400">
                 <span className="font-medium">Admin note:</span> {returnedReason}
@@ -405,11 +461,11 @@ export const F42v4_UpcomingInvoiceCard = () => {
             </div>
           )}
 
-          {/* Rejection panel - only when demo rejected is active and not yet resubmitted */}
-          {demoRejected && !hasResubmittedFromRejected && (
-            <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border/40">
+          {/* Full Rejection panel - only when entire invoice is rejected and not yet resubmitted */}
+          {demoFullRejection && !hasResubmittedFromRejected && (
+            <div className="mt-4 p-4 rounded-lg bg-destructive/5 border border-destructive/20">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <AlertCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-foreground">This invoice was not approved</p>
                   <p className="text-sm text-muted-foreground">
@@ -587,7 +643,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
           )}
 
           {/* Primary + Secondary Actions - only show for draft state and not rejected */}
-          {!demoRejected && invoiceStatus === 'draft' && (
+          {!demoFullRejection && invoiceStatus === 'draft' && (
             <div className="space-y-3 pt-2">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button onClick={handlePrimaryAction} className="flex-1">
@@ -652,22 +708,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
         currency={currency}
         invoiceTotal={invoiceTotal}
         periodLabel={periodLabel}
-        adjustments={demoRejected 
-          ? [
-              ...adjustments,
-              {
-                id: 'demo-rejected-1',
-                type: 'Expense' as const,
-                label: 'Client lunch receipt',
-                category: 'Meals',
-                amount: 120,
-                status: 'Admin rejected' as const,
-                submittedAt: new Date().toISOString(),
-                rejectionReason: 'Receipt is unclear. Please upload a clearer photo showing the itemized costs.'
-              }
-            ] 
-          : adjustments
-        }
+        adjustments={allAdjustments}
         invoiceStatus={effectiveStatus}
         windowState={windowState}
         resubmittedRejectionIds={resubmittedRejectionIds}
@@ -679,8 +720,8 @@ export const F42v4_UpcomingInvoiceCard = () => {
         onResubmitAdjustment={(id, category, amount) => {
           // Mark this rejection as resubmitted so it hides from "Needs attention"
           markRejectionResubmitted(id);
-          // Transition from rejected to "in review" if we're in demo rejected state
-          if (demoRejected) {
+          // Transition from rejected to "in review" if we're in demo partial rejection state
+          if (demoPartialRejection || demoFullRejection) {
             setHasResubmittedFromRejected(true);
           }
           // Close breakdown drawer and open expense form with all fields pre-filled
