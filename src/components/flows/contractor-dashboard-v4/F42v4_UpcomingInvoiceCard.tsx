@@ -528,71 +528,7 @@ export const F42v4_UpcomingInvoiceCard = () => {
             </div>
           </div>
 
-          {/* Changes Summary - Only show if there are changes */}
-          {adjustments.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Your changes (this cycle)
-              </p>
-              <div className="flex flex-wrap gap-2" role="list" aria-label="Your changes this cycle">
-                {adjustments.map((adj) => (
-                  <div
-                    key={adj.id}
-                    className={cn(
-                      'group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all',
-                      getAdjustmentStatusColor(adj.status),
-                      isRemovable(adj.status) ? 'pr-1.5 group-hover:pr-2' : ''
-                    )}
-                    role="listitem"
-                  >
-                    <button
-                      onClick={() => setSelectedAdjustment(adj)}
-                      aria-label={`${adj.type}${adj.amount !== null ? `, ${formatCurrency(adj.amount, currency)}` : ''}${adj.type === 'Additional hours' && adj.hours ? `, ${adj.hours} hours` : ''}, status: ${adj.status}. Click to view details.`}
-                      className="inline-flex items-center gap-1.5 focus:outline-none"
-                    >
-                      <span>{adj.type}</span>
-                      {adj.category && (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          <span>{adj.category}</span>
-                        </>
-                      )}
-                      {adj.amount !== null && (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          <span>{formatCurrency(adj.amount, currency)}</span>
-                        </>
-                      )}
-                      {adj.type === 'Additional hours' && adj.hours && (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          <span>+{adj.hours}h</span>
-                        </>
-                      )}
-                      <span aria-hidden="true">·</span>
-                      <span className="opacity-70">{adj.status}</span>
-                    </button>
-                    {isRemovable(adj.status) && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleWithdrawClick(e, adj.id)}
-                            className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-current"
-                            aria-label="Withdraw request"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">
-                          Withdraw request
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Changes Summary removed - all pending/approved items visible in breakdown drawer */}
 
           {/* Primary + Secondary Actions - only show for draft state */}
           {invoiceStatus === 'draft' && (

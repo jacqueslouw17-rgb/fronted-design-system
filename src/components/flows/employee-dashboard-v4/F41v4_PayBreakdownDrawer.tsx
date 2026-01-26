@@ -292,7 +292,10 @@ export const F41v4_PayBreakdownDrawer = ({
     if (adj.status === 'Pending') {
       return { label: 'Pending', variant: 'pending' as const };
     }
-    // Admin approved items don't need a badge - they're finalized
+    // Show approved badge for approved items (when there are still pending items or rejections)
+    if (adj.status === 'Admin approved') {
+      return { label: 'Approved', variant: 'approved' as const };
+    }
     return undefined;
   };
 
