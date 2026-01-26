@@ -13,6 +13,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { F41v4_UpcomingPayCard, F41v4_TimeOffSection, F41v4_TimeOffRequestDrawer } from "@/components/flows/employee-dashboard-v4";
 
 const F41v4_EmployeeDashboardPage = () => {
@@ -77,14 +78,35 @@ const F41v4_EmployeeDashboardPage = () => {
                     showInput={false} 
                   />
 
-                  {/* Main Content */}
-                  <div className="space-y-4">
-                    {/* Upcoming Pay Card - T-5 Confirmation */}
-                    <F41v4_UpcomingPayCard />
-                    
-                    {/* Time Off Section - First-class dashboard block */}
-                    <F41v4_TimeOffSection onRequestTimeOff={() => setTimeOffDrawerOpen(true)} />
-                  </div>
+                  {/* Payroll / Leaves Tab Toggle */}
+                  <Tabs defaultValue="payroll" className="w-full">
+                    <div className="flex justify-center mb-6">
+                      <TabsList className="bg-muted/50 p-1 rounded-full">
+                        <TabsTrigger 
+                          value="payroll" 
+                          className="rounded-full px-6 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        >
+                          Payroll
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="leaves" 
+                          className="rounded-full px-6 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        >
+                          Leaves
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    {/* Payroll Tab Content */}
+                    <TabsContent value="payroll" className="space-y-4 mt-0">
+                      <F41v4_UpcomingPayCard />
+                    </TabsContent>
+
+                    {/* Leaves Tab Content */}
+                    <TabsContent value="leaves" className="space-y-4 mt-0">
+                      <F41v4_TimeOffSection onRequestTimeOff={() => setTimeOffDrawerOpen(true)} />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </main>
             </AgentLayout>
