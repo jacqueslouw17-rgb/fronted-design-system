@@ -282,14 +282,14 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
           </div>
 
-          {/* Net Pay */}
+          {/* Total Adjustments */}
           <div className="bg-primary/[0.04] rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
               <Receipt className="h-4 w-4 text-primary" />
-              <span className="text-sm">Net Pay</span>
+              <span className="text-sm">Adjustments</span>
             </div>
-            <p className="text-2xl font-semibold text-foreground">$98.5K</p>
-            <p className="text-xs text-muted-foreground mt-1">After deductions</p>
+            <p className="text-2xl font-semibold text-foreground">$8.2K</p>
+            <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
           </div>
 
           {/* Fronted Fees */}
