@@ -252,7 +252,7 @@ export const F42v4_InvoiceBreakdownDrawer = ({
                 <div className="flex-1 space-y-2">
                   <p className="text-sm font-medium text-foreground">This invoice was not approved</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Please speak with your manager to resolve any issues. You can resubmit for the next invoice cycle.
+                    Contact your manager to resolve this. You can resubmit for the next cycle.
                   </p>
                   <p className="text-xs text-muted-foreground/70">
                     Submit before Feb 15 to be included in the February invoice cycle.
