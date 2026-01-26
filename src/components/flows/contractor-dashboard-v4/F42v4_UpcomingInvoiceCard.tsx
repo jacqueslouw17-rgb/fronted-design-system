@@ -3,6 +3,7 @@
  * Upcoming Invoice Card with 5-status UX
  * Aligned with Flow 4.1 Employee Dashboard v2 patterns
  * 
+ * Features: Partial rejection + full rejection demo states
  * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
