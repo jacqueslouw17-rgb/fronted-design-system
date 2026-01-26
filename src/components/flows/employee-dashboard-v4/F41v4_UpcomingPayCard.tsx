@@ -219,10 +219,10 @@ export const F41v4_UpcomingPayCard = () => {
     {
       id: 'mock-rejected-1',
       type: 'Expense',
-      label: 'Office supplies',
+      label: 'Office equipment',
       amount: 1500,
       status: 'Admin rejected',
-      category: 'Office supplies',
+      category: 'Equipment',
       submittedAt: new Date().toISOString(),
       rejectionReason: 'Receipt is not legible. Please upload a clearer copy.'
     },
@@ -232,6 +232,7 @@ export const F41v4_UpcomingPayCard = () => {
       label: 'Q4 Performance',
       amount: 5000,
       status: 'Admin rejected',
+      category: 'Bonus',
       submittedAt: new Date().toISOString(),
       rejectionReason: 'Bonus was not pre-approved by manager.'
     }
