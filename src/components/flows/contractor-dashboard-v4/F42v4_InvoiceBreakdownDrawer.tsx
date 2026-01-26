@@ -154,7 +154,7 @@ const RejectedRow = ({
   onResubmit?: () => void;
   onContact?: () => void;
 }) => (
-  <div className="py-3 px-3 -mx-2 rounded-lg bg-accent-yellow-fill border border-accent-yellow-outline/25 border-l-2">
+  <div className="py-3 px-3 -mx-2 rounded-lg bg-amber-50/60 dark:bg-amber-500/[0.05] border-l-2 border-amber-400">
     {/* Main row - aligned with other items */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -170,7 +170,7 @@ const RejectedRow = ({
       </div>
     </div>
     {/* Reason */}
-    <p className="text-xs text-accent-yellow-text mt-2 leading-relaxed">
+    <p className="text-xs text-amber-700 dark:text-amber-400/80 mt-2 leading-relaxed">
       {reason}
     </p>
     {/* Actions - below reason */}
@@ -178,7 +178,7 @@ const RejectedRow = ({
       {onResubmit && (
         <button 
           onClick={onResubmit}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border border-accent-yellow-outline/35 bg-background text-accent-yellow-text hover:bg-accent-yellow-fill transition-colors"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <RotateCcw className="h-3 w-3" />
           Resubmit
@@ -187,7 +187,7 @@ const RejectedRow = ({
       {onContact && (
         <button 
           onClick={onContact}
-          className="text-xs text-accent-yellow-text/80 hover:text-accent-yellow-text transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           Contact manager
         </button>
