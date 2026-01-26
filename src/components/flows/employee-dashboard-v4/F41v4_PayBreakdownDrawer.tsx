@@ -276,14 +276,8 @@ export const F41v4_PayBreakdownDrawer = ({
   };
 
   // Helper to get badge for adjustment
-  // Only show "Pending" if payroll is still in draft/submitted state (not yet approved)
-  const isPayrollApprovedOrLater = payrollStatus === 'approved' || payrollStatus === 'finalised';
-  
+  // Pending items always show the "Pending" badge so users can track their status
   const getAdjustmentBadge = (adj: Adjustment) => {
-    // Once payroll is approved, all items are effectively approved - no badge needed
-    if (isPayrollApprovedOrLater) {
-      return undefined;
-    }
     if (adj.status === 'Pending') {
       return { label: 'Pending', variant: 'pending' as const };
     }

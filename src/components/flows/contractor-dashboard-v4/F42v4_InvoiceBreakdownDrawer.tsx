@@ -248,14 +248,8 @@ export const F42v4_InvoiceBreakdownDrawer = ({
   };
 
   // Helper to get badge for adjustment
-  // Only show "Pending" if invoice is still in draft/submitted state (not yet approved)
-  const isInvoiceApprovedOrLater = invoiceStatus === 'approved' || invoiceStatus === 'finalised';
-  
+  // Pending items always show the "Pending" badge so users can track their status
   const getAdjustmentBadge = (adj: F42v4_Adjustment) => {
-    // Once invoice is approved, all items are effectively approved - no badge needed
-    if (isInvoiceApprovedOrLater) {
-      return undefined;
-    }
     if (adj.status === 'Pending') {
       return { label: 'Pending', variant: 'pending' as const };
     }
