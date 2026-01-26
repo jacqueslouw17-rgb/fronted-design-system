@@ -67,6 +67,13 @@ interface OvertimeLineItem {
   calculatedHours: number;
 }
 
+// Bonus line item type for multi-bonus submissions
+interface BonusLineItem {
+  id: string;
+  amount: string;
+  attachment: File | null;
+}
+
 
 // Pay period bounds (mock - in real app would come from store)
 const payPeriodStart = new Date(2026, 0, 1); // Jan 1, 2026
@@ -120,11 +127,10 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }
   ]);
   
-  // Bonus/Correction form state
-  const [bonusCorrectionType, setBonusCorrectionType] = useState<'Bonus' | 'Correction'>('Bonus');
-  const [bonusCorrectionAmount, setBonusCorrectionAmount] = useState('');
-  const [bonusCorrectionReason, setBonusCorrectionReason] = useState('');
-  const [bonusCorrectionAttachment, setBonusCorrectionAttachment] = useState<File | null>(null);
+  // Bonus form state - multiple line items
+  const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
+    { id: crypto.randomUUID(), amount: '', attachment: null }
+  ]);
   
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -139,10 +145,9 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseReceipt(null);
     setExpenseNotes('');
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
-    setBonusCorrectionType('Bonus');
-    setBonusCorrectionAmount('');
-    setBonusCorrectionReason('');
-    setBonusCorrectionAttachment(null);
+    setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setErrors({});
+  };
     setErrors({});
   };
 
@@ -205,6 +210,22 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       
       return updated;
     }));
+  };
+
+  // Bonus line item helpers
+  const addBonusItem = () => {
+    setBonusItems(prev => [...prev, { id: crypto.randomUUID(), amount: '', attachment: null }]);
+  };
+
+  const removeBonusItem = (id: string) => {
+    if (bonusItems.length === 1) return;
+    setBonusItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateBonusItem = (id: string, field: keyof BonusLineItem, value: string | File | null) => {
+    setBonusItems(prev => prev.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
   };
 
   const handleClose = () => {
@@ -325,15 +346,19 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return !hasError;
   };
 
-  const validateBonusCorrection = () => {
+  const validateBonusItems = () => {
     const newErrors: Record<string, string> = {};
-    if (bonusCorrectionType === 'Bonus') {
-      if (!bonusCorrectionAmount || parseFloat(bonusCorrectionAmount) <= 0) {
-        newErrors.bonusCorrectionAmount = 'Amount must be greater than 0';
+    let hasError = false;
+    
+    bonusItems.forEach((item, index) => {
+      if (!item.amount || parseFloat(item.amount) <= 0) {
+        newErrors[`bonus_${index}_amount`] = 'Required';
+        hasError = true;
       }
-    }
+    });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasError;
   };
 
 
@@ -383,18 +408,22 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     handleClose();
   };
 
-  const handleSubmitBonusCorrection = () => {
-    if (!validateBonusCorrection()) return;
+  const handleSubmitBonus = () => {
+    if (!validateBonusItems()) return;
 
-    addAdjustment({
-      type: bonusCorrectionType,
-      label: bonusCorrectionType === 'Bonus' ? 'Bonus request' : 'Correction',
-      amount: bonusCorrectionType === 'Bonus' ? parseFloat(bonusCorrectionAmount) : null,
-      description: bonusCorrectionReason,
-      receiptUrl: bonusCorrectionAttachment ? URL.createObjectURL(bonusCorrectionAttachment) : undefined,
+    // Submit each bonus item
+    bonusItems.forEach((item, index) => {
+      addAdjustment({
+        type: 'Bonus',
+        label: bonusItems.length > 1 ? `Bonus request #${index + 1}` : 'Bonus request',
+        amount: parseFloat(item.amount),
+        receiptUrl: item.attachment ? URL.createObjectURL(item.attachment) : undefined,
+      });
     });
 
-    toast.success(`${bonusCorrectionType} request submitted for review.`);
+    const count = bonusItems.length;
+    const total = bonusItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    toast.success(`${count} bonus request${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
   };
 
@@ -812,27 +841,124 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             </div>
           )}
 
-          {/* Bonus Form */}
+          {/* Bonus Form - Multiple Items */}
           {selectedType === 'bonus-correction' && (
             <div className="space-y-5">
               <PayPeriodBadge />
 
-              {/* Amount */}
-              <div className="space-y-2">
-                <Label>Amount ({currency})</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={bonusCorrectionAmount}
-                  onChange={(e) => setBonusCorrectionAmount(e.target.value)}
-                  className={cn(errors.bonusCorrectionAmount && 'border-destructive')}
-                />
-                {errors.bonusCorrectionAmount && <p className="text-xs text-destructive">{errors.bonusCorrectionAmount}</p>}
+              {/* Bonus Line Items */}
+              <div className="space-y-3">
+                {bonusItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button - only show if more than 1 item */}
+                    {bonusItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeBonusItem(item.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+
+                    {/* Item number badge */}
+                    {bonusItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Bonus {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Amount */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Amount ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="0.00"
+                        value={item.amount}
+                        onChange={(e) => updateBonusItem(item.id, 'amount', e.target.value)}
+                        className={cn(
+                          "h-9",
+                          errors[`bonus_${index}_amount`] && 'border-destructive'
+                        )}
+                      />
+                      {errors[`bonus_${index}_amount`] && (
+                        <p className="text-xs text-destructive">{errors[`bonus_${index}_amount`]}</p>
+                      )}
+                    </div>
+
+                    {/* Attachment upload - compact */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Attachment (optional)</Label>
+                      {item.attachment ? (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {item.attachment.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs text-foreground truncate flex-1">
+                            {item.attachment.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateBonusItem(item.id, 'attachment', null)}
+                            className="p-1 rounded hover:bg-muted"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-2 p-2 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload document</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                updateBonusItem(item.id, 'attachment', file);
+                              }
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add another bonus button */}
+                <button
+                  type="button"
+                  onClick={addBonusItem}
+                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Add another bonus
+                </button>
               </div>
 
-              {renderFileUpload(bonusCorrectionAttachment, setBonusCorrectionAttachment, 'bonusCorrectionAttachment', false)}
+              {/* Total summary - only show if multiple items or has amount */}
+              {(bonusItems.length > 1 || bonusItems.some(item => item.amount)) && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <span className="text-sm text-muted-foreground">
+                    Total {bonusItems.length > 1 ? `(${bonusItems.length} requests)` : ''}
+                  </span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {currency} {bonusItems
+                      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
+                      .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
 
               <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
                 This request is subject to admin approval before being included.
@@ -843,8 +969,8 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 <Button variant="outline" onClick={handleBack} className="flex-1">
                   Cancel
                 </Button>
-                <Button onClick={handleSubmitBonusCorrection} className="flex-1">
-                  Submit request
+                <Button onClick={handleSubmitBonus} className="flex-1">
+                  Submit {bonusItems.length > 1 ? `${bonusItems.length} requests` : 'request'}
                 </Button>
               </div>
             </div>
