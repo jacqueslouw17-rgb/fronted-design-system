@@ -200,7 +200,7 @@ const RejectedRow = ({
       {onResubmit && (
         <button 
           onClick={onResubmit}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors"
         >
           <RotateCcw className="h-3 w-3" />
           Resubmit
@@ -209,7 +209,7 @@ const RejectedRow = ({
       {onContact && (
         <button 
           onClick={onContact}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="text-xs text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 transition-colors"
         >
           Contact manager
         </button>
