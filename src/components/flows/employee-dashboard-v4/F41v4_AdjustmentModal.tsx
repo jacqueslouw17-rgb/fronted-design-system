@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { F41v4_TimeInput } from './F41v4_TimeInput';
 
 // Note: TimeOffSummary has been moved to the main dashboard TimeOffSection component.
 // This modal now only handles payroll-related adjustments (expense/overtime/bonus).
@@ -737,27 +738,22 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Start time</Label>
-                        <Input
-                          type="time"
+                        <F41v4_TimeInput
                           value={item.startTime}
-                          onChange={(e) => updateOvertimeItem(item.id, 'startTime', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`overtime_${index}_startTime`] && 'border-destructive'
-                          )}
+                          onChange={(val) => updateOvertimeItem(item.id, 'startTime', val)}
+                          hasError={!!errors[`overtime_${index}_startTime`]}
                         />
+                        {errors[`overtime_${index}_startTime`] && (
+                          <p className="text-xs text-destructive">{errors[`overtime_${index}_startTime`]}</p>
+                        )}
                       </div>
 
                       <div className="space-y-1.5">
                         <Label className="text-xs">End time</Label>
-                        <Input
-                          type="time"
+                        <F41v4_TimeInput
                           value={item.endTime}
-                          onChange={(e) => updateOvertimeItem(item.id, 'endTime', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`overtime_${index}_endTime`] && 'border-destructive'
-                          )}
+                          onChange={(val) => updateOvertimeItem(item.id, 'endTime', val)}
+                          hasError={!!errors[`overtime_${index}_endTime`]}
                         />
                         {errors[`overtime_${index}_endTime`] && (
                           <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
