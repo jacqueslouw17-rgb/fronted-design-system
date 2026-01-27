@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { type F41v5_Adjustment } from '@/stores/F41v5_DashboardStore';
-import { FileText, Image, Clock } from 'lucide-react';
+import { FileText, Clock, AlertTriangle } from 'lucide-react';
 
 interface F41v5_AdjustmentDetailModalProps {
   adjustment: F41v5_Adjustment | null;
@@ -57,6 +57,7 @@ export const F41v5_AdjustmentDetailModal = ({ adjustment, onClose, currency }: F
   if (!adjustment) return null;
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);
+  const isRejected = adjustment.status === 'Admin rejected';
 
   return (
     <Dialog open={!!adjustment} onOpenChange={() => onClose()}>
@@ -69,6 +70,17 @@ export const F41v5_AdjustmentDetailModal = ({ adjustment, onClose, currency }: F
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Rejection Reason Notice */}
+          {isRejected && adjustment.rejectionReason && (
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-destructive">Rejected by admin</p>
+                <p className="text-sm text-destructive/80 dark:text-destructive/90">{adjustment.rejectionReason}</p>
+              </div>
+            </div>
+          )}
+
           {/* Amount */}
           {adjustment.amount !== null && (
             <div className="space-y-1">
