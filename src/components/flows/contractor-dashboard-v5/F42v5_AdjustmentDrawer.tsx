@@ -247,14 +247,24 @@ export const F42v5_AdjustmentDrawer = ({
     if (open && initialType) {
       setSelectedType(initialType);
     }
-    if (open && (initialExpenseCategory || initialExpenseAmount)) {
+    if (open && initialType === 'expense' && (initialExpenseCategory || initialExpenseAmount)) {
       setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
     // Pre-fill bonus amount for resubmissions
     if (open && initialType === 'bonus' && initialExpenseAmount) {
       setBonusAmount(initialExpenseAmount);
     }
-  }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
+    // Pre-fill additional hours for resubmissions
+    if (open && initialType === 'additional-hours' && initialHours) {
+      setAdditionalHoursItems([{ 
+        id: crypto.randomUUID(), 
+        date: undefined, 
+        startTime: '', 
+        endTime: '', 
+        calculatedHours: initialHours 
+      }]);
+    }
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours]);
 
   // Reset errors when switching types
   useEffect(() => {
@@ -758,6 +768,15 @@ export const F42v5_AdjustmentDrawer = ({
           {selectedType === 'additional-hours' && (
             <div className="space-y-5">
               <InvoicePeriodBadge />
+
+              {/* Resubmission helper - show previously rejected hours */}
+              {rejectedId && initialHours && (
+                <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Previously rejected: <span className="font-semibold">{initialHours}h</span>. Please re-enter the date and times below.
+                  </p>
+                </div>
+              )}
 
               {/* Additional Hours Line Items */}
               <div className="space-y-3">
