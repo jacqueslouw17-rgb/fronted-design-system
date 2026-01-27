@@ -76,7 +76,7 @@ const getRequestTypeOptions = (contractType: F42v4_ContractType) => {
   const options = [
     { 
       id: 'expense' as ContractorRequestType, 
-      label: 'Expense', 
+      label: 'Expense Reimbursements', 
       description: 'Submit a reimbursement',
       icon: Receipt 
     },
