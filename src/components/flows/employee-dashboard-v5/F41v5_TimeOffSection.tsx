@@ -244,12 +244,16 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
           )}
         </div>
         
-        {/* Rejection reason */}
+        {/* Rejection reason - expandable on hover/focus */}
         {isRejected && leave.rejectionReason && (
-          <div className="px-2.5 pb-2">
-            <p className="text-xs text-destructive/80 dark:text-destructive/90 bg-destructive/5 dark:bg-destructive/10 rounded px-2 py-1.5 border-l-2 border-destructive/30">
-              {leave.rejectionReason}
-            </p>
+          <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] group-focus-within:grid-rows-[1fr] transition-[grid-template-rows] duration-200">
+            <div className="overflow-hidden">
+              <div className="px-2.5 pb-2 pt-0.5">
+                <p className="text-xs text-destructive/80 dark:text-destructive/90 bg-destructive/5 dark:bg-destructive/10 rounded px-2 py-1.5 border-l-2 border-destructive/30">
+                  {leave.rejectionReason}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
