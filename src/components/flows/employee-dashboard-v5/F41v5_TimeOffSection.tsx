@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info, X } from 'lucide-react';
+import { Info, X, RotateCcw } from 'lucide-react';
 import { useF41v5_DashboardStore, type F41v5_LeaveRequest } from '@/stores/F41v5_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,11 @@ interface ProcessedLeave {
   spansPeriods: boolean;
   isInCurrentPeriod: boolean;
   isInLater: boolean;
+  rejectionReason?: string;
+}
+
+interface F41v5_TimeOffSectionProps {
+  onRequestTimeOff: () => void;
 }
 
 export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionProps) => {
@@ -53,11 +58,16 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
     { emoji: '🏝️', label: 'maternity', value: 90 },
   ];
   
-  const { allLeave, pendingCount } = useMemo(() => {
+  // Filter to only show pending and rejected (hide approved once processed)
+  const { visibleLeave, pendingCount, rejectedCount } = useMemo(() => {
     const leaveList: ProcessedLeave[] = [];
     let pending = 0;
+    let rejected = 0;
     
     leaveRequests.forEach((leave) => {
+      // Only show pending and rejected, hide approved
+      if (leave.status === 'Admin approved') return;
+      
       const leaveStart = new Date(leave.startDate);
       const leaveEnd = new Date(leave.endDate);
       
@@ -65,6 +75,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
       const overlapsNextPeriod = leaveStart <= nextPeriodEnd && leaveEnd >= nextPeriodStart;
       
       if (leave.status === 'Pending') pending++;
+      if (leave.status === 'Admin rejected') rejected++;
       
       let daysInCurrentPeriod = 0;
       let daysInNextPeriod = 0;
@@ -93,14 +104,16 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
         spansPeriods: overlapsCurrentPeriod && overlapsNextPeriod,
         isInCurrentPeriod: overlapsCurrentPeriod,
         isInLater: !overlapsCurrentPeriod && (overlapsNextPeriod || leaveStart > currentPeriodEnd),
+        rejectionReason: leave.rejectionReason,
       });
     });
     
     leaveList.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
     
     return {
-      allLeave: leaveList,
+      visibleLeave: leaveList,
       pendingCount: pending,
+      rejectedCount: rejected,
     };
   }, [leaveRequests]);
   
@@ -161,55 +174,83 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
 
   const renderLeaveRow = (leave: ProcessedLeave) => {
     const isPending = leave.status === 'Pending';
+    const isRejected = leave.status === 'Admin rejected';
     
     return (
       <div 
         key={leave.id}
         className={cn(
-          "group flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors",
+          "group rounded-lg border transition-colors",
           isPending 
             ? "bg-amber-50/50 dark:bg-amber-500/5 border-amber-200/60 dark:border-amber-500/20" 
-            : "bg-muted/30 dark:bg-muted/10 border-border/20"
+            : isRejected
+              ? "bg-destructive/5 dark:bg-destructive/5 border-destructive/20"
+              : "bg-muted/30 dark:bg-muted/10 border-border/20"
         )}
       >
-        <span className="text-xs font-medium text-foreground min-w-[90px]">
-          {leave.leaveType}
-        </span>
+        <div className="flex items-center gap-2 px-2.5 py-2">
+          <span className="text-xs font-medium text-foreground min-w-[90px]">
+            {leave.leaveType}
+          </span>
+          
+          <span className="text-muted-foreground/40 text-xs">·</span>
+          
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDateRange(leave.startDate, leave.endDate)}
+          </span>
+          
+          <span className="text-muted-foreground/40 text-xs">·</span>
+          
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDays(leave.totalDays)}
+          </span>
+          
+          {getStatusBadge(leave.status)}
+          
+          <div className="flex-1" />
+          
+          {/* Pending: show withdraw on hover */}
+          {canWithdraw && isPending && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => handleWithdrawClick(e, leave.id)}
+                  className={cn(
+                    "p-1 rounded opacity-0 group-hover:opacity-100 transition-all",
+                    "hover:bg-amber-100 dark:hover:bg-amber-500/20"
+                  )}
+                  aria-label="Withdraw request"
+                >
+                  <X className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                Withdraw request
+              </TooltipContent>
+            </Tooltip>
+          )}
+          
+          {/* Rejected: show resubmit button */}
+          {isRejected && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onRequestTimeOff()}
+              className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-500/20"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Resubmit
+            </Button>
+          )}
+        </div>
         
-        <span className="text-muted-foreground/40 text-xs">·</span>
-        
-        <span className="text-xs text-muted-foreground tabular-nums">
-          {formatDateRange(leave.startDate, leave.endDate)}
-        </span>
-        
-        <span className="text-muted-foreground/40 text-xs">·</span>
-        
-        <span className="text-xs text-muted-foreground tabular-nums">
-          {formatDays(leave.totalDays)}
-        </span>
-        
-        {getStatusBadge(leave.status)}
-        
-        <div className="flex-1" />
-        
-        {canWithdraw && leave.status === 'Pending' && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={(e) => handleWithdrawClick(e, leave.id)}
-                className={cn(
-                  "p-1 rounded opacity-0 group-hover:opacity-100 transition-all",
-                  "hover:bg-amber-100 dark:hover:bg-amber-500/20"
-                )}
-                aria-label="Withdraw request"
-              >
-                <X className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
-              Withdraw request
-            </TooltipContent>
-          </Tooltip>
+        {/* Rejection reason */}
+        {isRejected && leave.rejectionReason && (
+          <div className="px-2.5 pb-2">
+            <p className="text-xs text-destructive/80 dark:text-destructive/90 bg-destructive/5 dark:bg-destructive/10 rounded px-2 py-1.5 border-l-2 border-destructive/30">
+              {leave.rejectionReason}
+            </p>
+          </div>
         )}
       </div>
     );
@@ -253,11 +294,11 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
           </div>
           
           <div className="space-y-2">
-            {allLeave.length > 0 ? (
-              allLeave.map(leave => renderLeaveRow(leave))
+            {visibleLeave.length > 0 ? (
+              visibleLeave.map(leave => renderLeaveRow(leave))
             ) : (
               <div className="py-8 text-center">
-                <p className="text-sm text-foreground/80">No leave requests</p>
+                <p className="text-sm text-foreground/80">No pending leave requests</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Submit a request anytime — we'll track it here.
                 </p>

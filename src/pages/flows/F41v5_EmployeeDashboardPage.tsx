@@ -14,21 +14,54 @@ import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { F41v5_UpcomingPayCard, F41v5_TimeOffSection, F41v5_TimeOffRequestDrawer } from "@/components/flows/employee-dashboard-v5";
+import { 
+  F41v5_UpcomingPayCard, 
+  F41v5_TimeOffSection, 
+  F41v5_TimeOffRequestDrawer,
+  F41v5_AdjustmentsSection,
+  F41v5_AdjustmentModal
+} from "@/components/flows/employee-dashboard-v5";
+import type { RequestType } from "@/components/flows/employee-dashboard-v5/F41v5_AdjustmentModal";
 
 const F41v5_EmployeeDashboardPage = () => {
   const [timeOffDrawerOpen, setTimeOffDrawerOpen] = useState(false);
+  const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
+  const [adjustmentInitialType, setAdjustmentInitialType] = useState<RequestType>(null);
+  const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
+  const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
 
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
     role: "Senior Backend Engineer",
     salary: "$85,000",
-    currency: "USD",
+    currency: "PHP",
     startDate: "March 15, 2024",
     noticePeriod: "30 days",
     pto: "25 days",
     country: "Philippines"
+  };
+
+  // Handler to open adjustment modal with optional pre-fill
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string) => {
+    const typeMap: Record<string, RequestType> = {
+      'expense': 'expense',
+      'overtime': 'overtime',
+      'bonus': 'bonus-correction'
+    };
+    setAdjustmentInitialType(type ? typeMap[type] || null : null);
+    setAdjustmentInitialCategory(category || '');
+    setAdjustmentInitialAmount(amount || '');
+    setAdjustmentModalOpen(true);
+  };
+
+  const handleAdjustmentModalClose = (open: boolean) => {
+    setAdjustmentModalOpen(open);
+    if (!open) {
+      setAdjustmentInitialType(null);
+      setAdjustmentInitialCategory('');
+      setAdjustmentInitialAmount('');
+    }
   };
 
   // One-time success animation on load
@@ -100,6 +133,7 @@ const F41v5_EmployeeDashboardPage = () => {
                     {/* Payroll Tab Content */}
                     <TabsContent value="payroll" className="space-y-4 mt-0">
                       <F41v5_UpcomingPayCard />
+                      <F41v5_AdjustmentsSection onRequestAdjustment={handleRequestAdjustment} />
                     </TabsContent>
 
                     {/* Leaves Tab Content */}
@@ -116,6 +150,16 @@ const F41v5_EmployeeDashboardPage = () => {
           <F41v5_TimeOffRequestDrawer 
             open={timeOffDrawerOpen} 
             onOpenChange={setTimeOffDrawerOpen} 
+          />
+          
+          {/* Adjustment Modal - at root level for proper z-index */}
+          <F41v5_AdjustmentModal
+            open={adjustmentModalOpen}
+            onOpenChange={handleAdjustmentModalClose}
+            currency={candidateProfile.currency}
+            initialType={adjustmentInitialType}
+            initialExpenseCategory={adjustmentInitialCategory}
+            initialExpenseAmount={adjustmentInitialAmount}
           />
         </div>
       </TooltipProvider>

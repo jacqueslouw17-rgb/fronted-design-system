@@ -12,3 +12,4 @@ export { F42v5_WithdrawDialog } from './F42v5_WithdrawDialog';
 export { F42v5_WithdrawSubmissionDialog } from './F42v5_WithdrawSubmissionDialog';
 export { F42v5_InvoiceHistoryDrawer } from './F42v5_InvoiceHistoryDrawer';
 export { F42v5_InvoiceBreakdownDrawer } from './F42v5_InvoiceBreakdownDrawer';
+export { F42v5_AdjustmentsSection } from './F42v5_AdjustmentsSection';

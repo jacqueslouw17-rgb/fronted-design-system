@@ -384,20 +384,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
             </div>
           </div>
 
-          {/* Changes Summary removed - all pending/approved items visible in breakdown drawer */}
-
-          {/* Primary + Secondary Actions - only show for draft state */}
-          {invoiceStatus === 'draft' && <div className="space-y-3 pt-2">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button onClick={handlePrimaryAction} className="flex-1">
-                  {statusConfig.primaryAction}
-                </Button>
-                
-                {statusConfig.secondaryAction && <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
-                    {statusConfig.secondaryAction}
-                  </Button>}
-              </div>
-            </div>}
+          {/* Action buttons removed - adjustments handled by separate section */}
         </CardContent>
       </Card>
 

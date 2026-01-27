@@ -7,16 +7,28 @@
  * INDEPENDENT: Changes here do NOT affect v4 or any other flow.
  */
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F42v5_UpcomingInvoiceCard } from "@/components/flows/contractor-dashboard-v5";
+import { 
+  F42v5_UpcomingInvoiceCard,
+  F42v5_AdjustmentsSection,
+  F42v5_AdjustmentDrawer
+} from "@/components/flows/contractor-dashboard-v5";
+import { useF42v5_DashboardStore } from "@/stores/F42v5_DashboardStore";
+import type { ContractorRequestType } from "@/components/flows/contractor-dashboard-v5/F42v5_AdjustmentDrawer";
 
 const F42v5_ContractorDashboardPage = () => {
+  const { currency, contractType } = useF42v5_DashboardStore();
+  const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
+  const [adjustmentInitialType, setAdjustmentInitialType] = useState<ContractorRequestType>(null);
+  const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
+  const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
+
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
@@ -27,6 +39,28 @@ const F42v5_ContractorDashboardPage = () => {
     noticePeriod: "30 days",
     pto: "25 days",
     country: "Philippines"
+  };
+
+  // Handler to open adjustment drawer with optional pre-fill
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string) => {
+    const typeMap: Record<string, ContractorRequestType> = {
+      'expense': 'expense',
+      'hours': 'additional-hours',
+      'commission': 'bonus'
+    };
+    setAdjustmentInitialType(type ? typeMap[type] || null : null);
+    setAdjustmentInitialCategory(category || '');
+    setAdjustmentInitialAmount(amount || '');
+    setAdjustmentDrawerOpen(true);
+  };
+
+  const handleAdjustmentDrawerClose = (open: boolean) => {
+    setAdjustmentDrawerOpen(open);
+    if (!open) {
+      setAdjustmentInitialType(null);
+      setAdjustmentInitialCategory('');
+      setAdjustmentInitialAmount('');
+    }
   };
 
   // One-time success animation on load
@@ -77,14 +111,28 @@ const F42v5_ContractorDashboardPage = () => {
                   />
 
                   {/* Main Content */}
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {/* Upcoming Invoice Card - Primary Focus */}
                     <F42v5_UpcomingInvoiceCard />
+                    
+                    {/* Adjustments Section */}
+                    <F42v5_AdjustmentsSection onRequestAdjustment={handleRequestAdjustment} />
                   </div>
                 </div>
               </main>
             </AgentLayout>
           </div>
+          
+          {/* Adjustment Drawer - at root level for proper z-index */}
+          <F42v5_AdjustmentDrawer
+            open={adjustmentDrawerOpen}
+            onOpenChange={handleAdjustmentDrawerClose}
+            currency={currency}
+            contractType={contractType}
+            initialType={adjustmentInitialType}
+            initialExpenseCategory={adjustmentInitialCategory}
+            initialExpenseAmount={adjustmentInitialAmount}
+          />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
