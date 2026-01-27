@@ -520,7 +520,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {selectedType === 'bonus-correction' && 'Bonus request'}
               </SheetTitle>
               <SheetDescription>
-                {selectedType === null && 'Submit expenses, overtime, or bonus requests for this pay period.'}
+                {selectedType === null && 'Submit an adjustment for the current pay cycle.'}
                 {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
                 {selectedType === 'overtime' && 'Log overtime hours worked.'}
                 {selectedType === 'bonus-correction' && 'Request a bonus for this pay period.'}

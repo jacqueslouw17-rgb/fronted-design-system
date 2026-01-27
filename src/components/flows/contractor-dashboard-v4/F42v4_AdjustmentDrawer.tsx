@@ -509,7 +509,7 @@ export const F42v4_AdjustmentDrawer = ({
             )}
             <div>
               <SheetTitle>
-                {selectedType === null && 'Request an adjustment'}
+                {selectedType === null && 'Request adjustments'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'additional-hours' && 'Additional hours'}
                 {selectedType === 'bonus' && 'Commission request'}
