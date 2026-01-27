@@ -351,17 +351,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
 
       <F42v5_AdjustmentDetailDrawer adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} onCancelRequest={handleCancelFromDrawer} currency={currency} isWindowOpen={isWindowOpen && invoiceStatus === 'draft'} />
 
-      <F42v5_InvoiceBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} invoiceTotal={invoiceTotal} periodLabel={periodLabel} adjustments={adjustments} invoiceStatus={effectiveStatus} windowState={windowState} resubmittedRejectionIds={resubmittedRejectionIds} onMakeAdjustment={() => openAdjustmentDrawer(null, true)} onWithdrawAdjustment={id => {
-      setWithdrawTargetId(id);
-      setWithdrawDialogOpen(true);
-    }} onResubmitAdjustment={(id, category, amount) => {
-      // Mark this rejection as resubmitted so it hides from "Needs attention"
-      markRejectionResubmitted(id);
-      // Close breakdown drawer and open expense form with all fields pre-filled
-      setBreakdownDrawerOpen(false);
-      // Open adjustment drawer with expense type pre-selected, category and amount pre-filled
-      openAdjustmentDrawer('expense', true, category || '', amount || '');
-    }} />
+      <F42v5_InvoiceBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} invoiceTotal={invoiceTotal} periodLabel={periodLabel} />
 
       <F42v5_InvoiceHistoryDrawer open={invoiceHistoryOpen} onOpenChange={setInvoiceHistoryOpen} />
 

@@ -370,20 +370,7 @@ export const F41v5_UpcomingPayCard = () => {
 
       <F41v5_PayslipHistoryDrawer open={payslipDrawerOpen} onOpenChange={setPayslipDrawerOpen} />
 
-      <F41v5_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} adjustments={adjustments} leaveRequests={leaveRequests} payrollStatus={effectiveStatus} windowState={windowState} resubmittedRejectionIds={resubmittedRejectionIds} onMakeAdjustment={() => openAdjustmentModal(null, true)} onWithdrawAdjustment={id => {
-      setWithdrawTarget({
-        type: 'adjustment',
-        id
-      });
-      setWithdrawDialogOpen(true);
-    }} onResubmitAdjustment={(id, category, amount) => {
-      // Mark this rejection as resubmitted so it hides from "Needs attention"
-      markRejectionResubmitted(id);
-      // Close breakdown drawer and open expense form with all fields pre-filled
-      setBreakdownDrawerOpen(false);
-      // Open adjustment modal with expense type pre-selected, category and amount pre-filled
-      openAdjustmentModal('expense', true, category || '', amount || '');
-    }} />
+      <F41v5_PayBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} estimatedNet={estimatedNet} periodLabel={periodLabel} />
 
       <F41v5_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} requestType={withdrawTarget?.type || 'adjustment'} />
 
