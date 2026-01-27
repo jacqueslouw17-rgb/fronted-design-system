@@ -426,7 +426,7 @@ export const F41v5_PayBreakdownDrawer = ({
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
           <div className="flex items-start justify-between mb-1">
             <div>
-              <p className="text-sm font-medium text-foreground">Estimated net pay</p>
+              <p className="text-sm font-medium text-foreground">Net pay</p>
               {hasAdjustments && (() => {
                 const pendingCount = activeAdjustments.filter(a => a.status === 'Pending').length;
                 const approvedCount = activeAdjustments.filter(a => a.status === 'Admin approved').length;
