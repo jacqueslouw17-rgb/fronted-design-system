@@ -151,19 +151,19 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
     switch (status) {
       case 'Pending':
         return (
-          <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 text-[11px] px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 text-[11px] px-2 py-0.5 font-medium pointer-events-none">
             Pending approval
           </Badge>
         );
       case 'Admin rejected':
         return (
-          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[11px] px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[11px] px-2 py-0.5 font-medium pointer-events-none">
             Rejected
           </Badge>
         );
       case 'Admin approved':
         return (
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[11px] px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[11px] px-2 py-0.5 font-medium pointer-events-none">
             Approved
           </Badge>
         );
@@ -236,7 +236,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
               variant="ghost"
               size="sm"
               onClick={() => onRequestTimeOff()}
-              className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-500/20"
+              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:text-destructive dark:hover:bg-destructive/20"
             >
               <RotateCcw className="h-3 w-3 mr-1" />
               Resubmit

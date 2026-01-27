@@ -81,13 +81,13 @@ export const F42v5_AdjustmentsSection = ({ onRequestAdjustment }: F42v5_Adjustme
     switch (status) {
       case 'Pending':
         return (
-          <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 text-[11px] px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 text-[11px] px-2 py-0.5 font-medium pointer-events-none">
             Pending approval
           </Badge>
         );
       case 'Admin rejected':
         return (
-          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[11px] px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[11px] px-2 py-0.5 font-medium pointer-events-none">
             Rejected
           </Badge>
         );
