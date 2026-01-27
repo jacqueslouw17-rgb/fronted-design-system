@@ -290,10 +290,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Invoice Total Tile - Static historical amount */}
-            <div 
-              onClick={() => setBreakdownDrawerOpen(true)} 
-              className="p-5 rounded-xl border cursor-pointer transition-all duration-200 bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60"
-            >
+            <div onClick={() => setBreakdownDrawerOpen(true)} className="p-5 rounded-xl border cursor-pointer transition-all duration-200 bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -330,15 +327,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
           </div>
 
           {/* Tax Responsibility Note */}
-          <div className="p-4 rounded-lg bg-muted/30 border border-border/30 flex items-start gap-3">
-            <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Taxes are your responsibility</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                As a contractor, you are responsible for managing and paying applicable taxes.
-              </p>
-            </div>
-          </div>
+          
 
           {/* Action buttons removed - adjustments handled by separate section */}
         </CardContent>
