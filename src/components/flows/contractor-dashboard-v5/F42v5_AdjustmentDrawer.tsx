@@ -74,8 +74,6 @@ interface AdditionalHoursLineItem {
   calculatedHours: number;
 }
 
-// Invoice period bounds (mock - in real app would come from store)
-const invoicePeriodLabel = 'Dec 1 – Dec 31';
 
 const getRequestTypeOptions = (contractType: F42v5_ContractType) => {
   const options = [
@@ -527,18 +525,6 @@ export const F42v5_AdjustmentDrawer = ({
     </div>
   );
 
-  // Invoice period badge
-  const InvoicePeriodBadge = () => (
-    <div className="p-3 rounded-lg bg-muted/50 border border-border/40 mb-5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Invoice period</span>
-        <span className="text-sm font-medium text-foreground">{invoicePeriodLabel}</span>
-      </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        Adjustments submitted after the cut-off may be processed in the next invoice cycle.
-      </p>
-    </div>
-  );
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
@@ -612,8 +598,6 @@ export const F42v5_AdjustmentDrawer = ({
           {/* Expense Form - Multiple Items */}
           {selectedType === 'expense' && (
             <div className="space-y-5">
-              <InvoicePeriodBadge />
-
               {/* Expense Line Items */}
               <div className="space-y-3">
                 {expenseItems.map((item, index) => (
@@ -793,8 +777,6 @@ export const F42v5_AdjustmentDrawer = ({
           {/* Additional Hours Form - Multi-entry */}
           {selectedType === 'additional-hours' && (
             <div className="space-y-5">
-              <InvoicePeriodBadge />
-
               {/* Additional Hours Line Items */}
               <div className="space-y-3">
                 {additionalHoursItems.map((item, index) => (
@@ -932,8 +914,6 @@ export const F42v5_AdjustmentDrawer = ({
           {/* Bonus Form */}
           {selectedType === 'bonus' && (
             <div className="space-y-5">
-              <InvoicePeriodBadge />
-
               <div className="space-y-2">
                 <Label>Amount ({currency})</Label>
                 <Input
@@ -967,8 +947,6 @@ export const F42v5_AdjustmentDrawer = ({
           {/* Correction Form */}
           {selectedType === 'correction' && (
             <div className="space-y-5">
-              <InvoicePeriodBadge />
-
               <div className="space-y-2">
                 <Label>Requested change</Label>
                 <Textarea
