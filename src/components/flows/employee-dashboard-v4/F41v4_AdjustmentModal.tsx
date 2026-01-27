@@ -514,7 +514,7 @@ export const F41v4_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
             )}
             <div>
               <SheetTitle>
-                {selectedType === null && 'Request a change'}
+                {selectedType === null && 'Request adjustments'}
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
