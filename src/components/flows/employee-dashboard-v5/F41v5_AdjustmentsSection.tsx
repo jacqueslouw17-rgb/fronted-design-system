@@ -127,20 +127,11 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
         )}
       >
         <div className="flex items-center gap-2 px-2.5 py-2">
-          <span className="text-xs font-medium text-foreground min-w-[80px]">
+          <span className="text-xs font-medium text-foreground">
             {getTypeLabel(adj.type)}
           </span>
           
           <span className="text-muted-foreground/40 text-xs">·</span>
-          
-          {adj.label && (
-            <>
-              <span className="text-xs text-muted-foreground truncate max-w-[120px]">
-                {adj.label}
-              </span>
-              <span className="text-muted-foreground/40 text-xs">·</span>
-            </>
-          )}
           
           <span className="text-xs text-foreground font-medium tabular-nums">
             {formatAmount(adj.amount)}
