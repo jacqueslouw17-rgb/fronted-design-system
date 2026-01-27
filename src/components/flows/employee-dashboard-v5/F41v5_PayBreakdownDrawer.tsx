@@ -163,7 +163,7 @@ export const F41v5_PayBreakdownDrawer = ({
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm font-medium text-foreground">Net pay</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Paid on Jan 5, 2026</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Paid on Dec 31, 2025</p>
             </div>
             <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
               {formatCurrency(estimatedNet, currency)}
