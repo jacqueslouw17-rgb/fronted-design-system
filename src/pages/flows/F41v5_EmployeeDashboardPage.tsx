@@ -25,6 +25,8 @@ import type { RequestType } from "@/components/flows/employee-dashboard-v5/F41v5
 
 const F41v5_EmployeeDashboardPage = () => {
   const [timeOffDrawerOpen, setTimeOffDrawerOpen] = useState(false);
+  const [timeOffRejectedId, setTimeOffRejectedId] = useState<string | undefined>(undefined);
+  const [timeOffRejectionReason, setTimeOffRejectionReason] = useState<string | undefined>(undefined);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentInitialType, setAdjustmentInitialType] = useState<RequestType>(null);
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
@@ -79,7 +81,20 @@ const F41v5_EmployeeDashboardPage = () => {
     }
   };
 
-  // One-time success animation on load
+  // Handler to open time off drawer with optional rejection data
+  const handleRequestTimeOff = (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => {
+    setTimeOffRejectedId(rejectedId);
+    setTimeOffRejectionReason(rejectionReason);
+    setTimeOffDrawerOpen(true);
+  };
+
+  const handleTimeOffDrawerClose = (open: boolean) => {
+    setTimeOffDrawerOpen(open);
+    if (!open) {
+      setTimeOffRejectedId(undefined);
+      setTimeOffRejectionReason(undefined);
+    }
+  };
   useEffect(() => {
     setTimeout(() => {
       confetti({
@@ -153,7 +168,7 @@ const F41v5_EmployeeDashboardPage = () => {
 
                     {/* Leaves Tab Content */}
                     <TabsContent value="leaves" className="space-y-4 mt-0">
-                      <F41v5_TimeOffSection onRequestTimeOff={() => setTimeOffDrawerOpen(true)} />
+                      <F41v5_TimeOffSection onRequestTimeOff={handleRequestTimeOff} />
                     </TabsContent>
                   </Tabs>
                 </div>
@@ -164,7 +179,9 @@ const F41v5_EmployeeDashboardPage = () => {
           {/* Dedicated Time Off Request Drawer - at root level for proper z-index */}
           <F41v5_TimeOffRequestDrawer 
             open={timeOffDrawerOpen} 
-            onOpenChange={setTimeOffDrawerOpen} 
+            onOpenChange={handleTimeOffDrawerClose}
+            rejectedId={timeOffRejectedId}
+            rejectionReason={timeOffRejectionReason}
           />
           
           {/* Adjustment Modal - at root level for proper z-index */}

@@ -34,6 +34,8 @@ import {
 interface F41v5_TimeOffRequestDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  rejectedId?: string;
+  rejectionReason?: string;
 }
 
 const leaveTypes: { value: F41v5_LeaveType; label: string; icon: string }[] = [
@@ -58,8 +60,8 @@ const COUNTRY_NAMES: Record<string, string> = {
   JP: 'Japan',
 };
 
-export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v5_TimeOffRequestDrawerProps) => {
-  const { addLeaveRequest, employeeCountry, leaveRequests } = useF41v5_DashboardStore();
+export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange, rejectedId, rejectionReason }: F41v5_TimeOffRequestDrawerProps) => {
+  const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v5_DashboardStore();
   
   const [countryRules, setCountryRules] = useState<CountryRules | null>(null);
   const [isLoadingRules, setIsLoadingRules] = useState(false);
@@ -290,6 +292,17 @@ export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange }: F41v5_TimeOff
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Rejection notification for resubmissions */}
+          {!!rejectedId && rejectionReason && (
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-destructive">Rejected by admin</p>
+                <p className="text-sm text-destructive/80">{rejectionReason}</p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <Label className="text-sm font-medium">What type of leave?</Label>
             <div className="grid grid-cols-2 gap-2">
