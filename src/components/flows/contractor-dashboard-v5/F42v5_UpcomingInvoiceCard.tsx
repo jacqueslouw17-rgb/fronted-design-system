@@ -334,7 +334,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-xl font-semibold">Upcoming invoice ({periodMonth})</CardTitle>
+                <CardTitle className="text-xl font-semibold">The last invoice (December 2025)</CardTitle>
               </div>
               {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
