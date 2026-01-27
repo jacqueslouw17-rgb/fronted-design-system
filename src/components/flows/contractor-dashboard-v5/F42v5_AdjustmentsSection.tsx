@@ -222,9 +222,7 @@ export const F42v5_AdjustmentsSection = ({ onRequestAdjustment }: F42v5_Adjustme
             {visibleAdjustments.length > 0 ? (
               visibleAdjustments.map(adj => renderAdjustmentRow(adj))
             ) : (
-              <div className="py-4 text-center">
-                <p className="text-sm text-muted-foreground">No pending adjustments</p>
-              </div>
+              <div className="py-2" />
             )}
           </div>
         </CardContent>

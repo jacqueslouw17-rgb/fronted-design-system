@@ -301,9 +301,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
             {visibleLeave.length > 0 ? (
               visibleLeave.map(leave => renderLeaveRow(leave))
             ) : (
-              <div className="py-4 text-center">
-                <p className="text-sm text-muted-foreground">No pending leave requests</p>
-              </div>
+              <div className="py-2" />
             )}
           </div>
         </CardContent>
