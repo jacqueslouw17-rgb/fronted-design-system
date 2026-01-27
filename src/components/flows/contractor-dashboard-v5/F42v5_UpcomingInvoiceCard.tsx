@@ -407,7 +407,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
             {/* Paid Date Tile */}
             <div 
               onClick={() => setInvoiceHistoryOpen(true)}
-              className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/50 hover:border-border/60"
+              className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/70 hover:border-border/60"
             >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
