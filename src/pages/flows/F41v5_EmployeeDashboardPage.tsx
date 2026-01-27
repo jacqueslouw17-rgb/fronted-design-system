@@ -30,6 +30,9 @@ const F41v5_EmployeeDashboardPage = () => {
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
   const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
   const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
+  const [adjustmentInitialDate, setAdjustmentInitialDate] = useState<string | undefined>(undefined);
+  const [adjustmentInitialStartTime, setAdjustmentInitialStartTime] = useState<string | undefined>(undefined);
+  const [adjustmentInitialEndTime, setAdjustmentInitialEndTime] = useState<string | undefined>(undefined);
   const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
 
   const candidateProfile = {
@@ -45,7 +48,7 @@ const F41v5_EmployeeDashboardPage = () => {
   };
 
   // Handler to open adjustment modal with optional pre-fill
-  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => {
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => {
     const typeMap: Record<string, RequestType> = {
       'expense': 'expense',
       'overtime': 'overtime',
@@ -55,6 +58,9 @@ const F41v5_EmployeeDashboardPage = () => {
     setAdjustmentInitialCategory(category || '');
     setAdjustmentInitialAmount(amount || '');
     setAdjustmentInitialHours(hours);
+    setAdjustmentInitialDate(date);
+    setAdjustmentInitialStartTime(startTime);
+    setAdjustmentInitialEndTime(endTime);
     setAdjustmentRejectedId(rejectedId);
     setAdjustmentModalOpen(true);
   };
@@ -66,6 +72,9 @@ const F41v5_EmployeeDashboardPage = () => {
       setAdjustmentInitialCategory('');
       setAdjustmentInitialAmount('');
       setAdjustmentInitialHours(undefined);
+      setAdjustmentInitialDate(undefined);
+      setAdjustmentInitialStartTime(undefined);
+      setAdjustmentInitialEndTime(undefined);
       setAdjustmentRejectedId(undefined);
     }
   };
@@ -167,6 +176,9 @@ const F41v5_EmployeeDashboardPage = () => {
             initialExpenseCategory={adjustmentInitialCategory}
             initialExpenseAmount={adjustmentInitialAmount}
             initialHours={adjustmentInitialHours}
+            initialDate={adjustmentInitialDate}
+            initialStartTime={adjustmentInitialStartTime}
+            initialEndTime={adjustmentInitialEndTime}
             rejectedId={adjustmentRejectedId}
           />
         </div>

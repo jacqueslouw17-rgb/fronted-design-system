@@ -17,7 +17,7 @@ import { F41v5_WithdrawDialog } from './F41v5_WithdrawDialog';
 import { toast } from 'sonner';
 
 interface F41v5_AdjustmentsSectionProps {
-  onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => void;
+  onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => void;
 }
 
 export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_AdjustmentsSectionProps) => {
@@ -79,7 +79,10 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
       adj.category || '',
       adj.amount?.toString() || '',
       adj.id,
-      adj.hours
+      adj.hours,
+      adj.date,
+      adj.startTime,
+      adj.endTime
     );
   };
 

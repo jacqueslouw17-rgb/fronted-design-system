@@ -38,6 +38,10 @@ export interface F41v5_Adjustment {
   description?: string;
   category?: string;
   hours?: number;
+  // For overtime resubmissions
+  date?: string;
+  startTime?: string;
+  endTime?: string;
   receiptUrl?: string;
   submittedAt: string;
   rejectionReason?: string;
@@ -164,6 +168,9 @@ const initialState: F41v5_DashboardState = {
       amount: 3500,
       status: 'Admin rejected' as F41v5_AdjustmentStatus,
       hours: 8,
+      date: '2026-01-11',
+      startTime: '09:00',
+      endTime: '17:00',
       submittedAt: '2026-01-15T10:00:00.000Z',
       rejectionReason: 'Overtime not pre-approved by manager. Please get approval first.',
     },

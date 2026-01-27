@@ -32,6 +32,10 @@ export interface F42v5_Adjustment {
   description?: string;
   category?: string;
   hours?: number;
+  // For additional hours resubmissions
+  date?: string;
+  startTime?: string;
+  endTime?: string;
   receiptUrl?: string;
   submittedAt: string;
   rejectionReason?: string; // Reason for rejection from admin
@@ -116,6 +120,9 @@ const initialState: F42v5_DashboardState = {
       amount: 240,
       status: 'Admin rejected' as F42v5_AdjustmentStatus,
       hours: 8,
+      date: '2026-01-10',
+      startTime: '18:00',
+      endTime: '02:00',
       submittedAt: '2026-01-15T10:00:00.000Z',
       rejectionReason: 'Hours not logged in the system. Please add them to your timesheet first.',
     },
