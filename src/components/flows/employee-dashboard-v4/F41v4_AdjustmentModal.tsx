@@ -84,7 +84,7 @@ const payPeriodLabel = 'Jan 1 – Jan 31';
 const requestTypeOptions = [
   { 
     id: 'expense' as RequestType, 
-    label: 'Expense', 
+    label: 'Expense Reimbursements', 
     description: 'Submit a reimbursement',
     icon: Receipt,
     disabled: false 
