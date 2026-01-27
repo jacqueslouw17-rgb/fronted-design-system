@@ -121,7 +121,12 @@ export const F42v5_AdjustmentDrawer = ({
   rejectedId,
   onBack 
 }: F42v5_AdjustmentDrawerProps) => {
-  const { addAdjustment, markRejectionResubmitted } = useF42v5_DashboardStore();
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF42v5_DashboardStore();
+
+  const rejectedAdjustment = rejectedId
+    ? adjustments.find((adj) => adj.id === rejectedId)
+    : undefined;
+  const rejectionReason = rejectedAdjustment?.rejectionReason;
   
   // Selection state
   const [selectedType, setSelectedType] = useState<ContractorRequestType>(null);
@@ -570,6 +575,17 @@ export const F42v5_AdjustmentDrawer = ({
         </SheetHeader>
 
         <div className="flex-1 py-6 overflow-y-auto">
+          {/* Rejection Reason Notice (shown on resubmission) */}
+          {!!rejectedId && rejectionReason && (
+            <div className="mb-5 flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
+              <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-destructive">Rejected by admin</p>
+                <p className="text-sm text-destructive/80 dark:text-destructive/90">{rejectionReason}</p>
+              </div>
+            </div>
+          )}
+
           {/* Type Selection Grid */}
           {selectedType === null && (
             <div className="grid grid-cols-3 gap-2">
