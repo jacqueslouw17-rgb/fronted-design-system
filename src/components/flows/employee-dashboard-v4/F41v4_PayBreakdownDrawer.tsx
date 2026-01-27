@@ -493,7 +493,7 @@ export const F41v4_PayBreakdownDrawer = ({
               className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-dashed border-primary/30 text-sm font-medium text-primary hover:bg-primary/5 hover:border-primary/50 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              Request a change
+              Request adjustment
             </button>
           )}
 
