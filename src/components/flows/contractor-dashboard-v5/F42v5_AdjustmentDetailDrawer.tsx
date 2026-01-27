@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type F42v5_Adjustment } from '@/stores/F42v5_DashboardStore';
-import { FileText, Clock } from 'lucide-react';
+import { FileText, Clock, AlertTriangle } from 'lucide-react';
 
 interface F42v5_AdjustmentDetailDrawerProps {
   adjustment: F42v5_Adjustment | null;
@@ -68,6 +68,7 @@ export const F42v5_AdjustmentDetailDrawer = ({
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);
   const canCancel = adjustment.status === 'Pending' && isWindowOpen && onCancelRequest;
+  const isRejected = adjustment.status === 'Admin rejected';
 
   return (
     <Sheet open={!!adjustment} onOpenChange={() => onClose()}>
@@ -80,6 +81,17 @@ export const F42v5_AdjustmentDetailDrawer = ({
         </SheetHeader>
 
         <div className="flex-1 space-y-4 py-6 overflow-y-auto">
+          {/* Rejection Reason Notice */}
+          {isRejected && adjustment.rejectionReason && (
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-destructive">Rejected by admin</p>
+                <p className="text-sm text-destructive/80 dark:text-destructive/90">{adjustment.rejectionReason}</p>
+              </div>
+            </div>
+          )}
+
           {/* Amount */}
           {adjustment.amount !== null && (
             <div className="space-y-1">
