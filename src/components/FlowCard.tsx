@@ -395,6 +395,42 @@ export const FlowCard = ({ flowId, onPatternClick }: FlowCardProps) => {
       additionalCount: 0,
       dataModel: null
     },
+    'flow-4.1-employee-dashboard-v5': {
+      path: "/candidate-dashboard-employee-v5",
+      iconColor: "blue",
+      icon: UserCheck,
+      title: "Flow 4.1 Employee Dashboard v3",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v2: Employee-specific dashboard with T-5 payroll confirmation, adjustments, leaves, and pay breakdown. Isolated clone for further development.",
+      steps: "1 view",
+      patterns: "4 patterns",
+      badges: [
+        { label: "T-5 Confirmation", path: "/data-summary" },
+        { label: "Pay Breakdown", path: "/data-summary" },
+        { label: "Leave Management", path: "/data-summary" }
+      ],
+      additionalCount: 1,
+      dataModel: null
+    },
+    'flow-4.2-contractor-dashboard-v5': {
+      path: "/candidate-dashboard-contractor-v5",
+      iconColor: "emerald",
+      icon: UserCheck,
+      title: "Flow 4.2 Contractor Dashboard v3",
+      locked: false,
+      deprecated: false,
+      description: "Editable version of v2: Contractor-specific dashboard with T-5 invoice confirmation, adjustments, and invoice breakdown. Isolated clone for further development.",
+      steps: "1 view",
+      patterns: "4 patterns",
+      badges: [
+        { label: "T-5 Confirmation", path: "/data-summary" },
+        { label: "Invoice Breakdown", path: "/data-summary" },
+        { label: "Adjustment Management", path: "/data-summary" }
+      ],
+      additionalCount: 1,
+      dataModel: null
+    },
     'flow-1-fronted-admin-v3': {
       path: "/flows/fronted-admin-dashboard-v4",
       iconColor: "cyan",
