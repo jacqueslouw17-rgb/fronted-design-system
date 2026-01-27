@@ -16,3 +16,4 @@ export { F41v5_AdjustmentModal } from './F41v5_AdjustmentModal';
 export { F41v5_PayBreakdownDrawer } from './F41v5_PayBreakdownDrawer';
 export { F41v5_TimeOffSection } from './F41v5_TimeOffSection';
 export { F41v5_TimeOffRequestDrawer } from './F41v5_TimeOffRequestDrawer';
+export { F41v5_AdjustmentsSection } from './F41v5_AdjustmentsSection';

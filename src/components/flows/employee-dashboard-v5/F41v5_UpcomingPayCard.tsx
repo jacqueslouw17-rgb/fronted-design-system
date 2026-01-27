@@ -408,18 +408,7 @@ export const F41v5_UpcomingPayCard = () => {
             </div>
           </div>
 
-          {/* Primary + Secondary Actions - only show for draft state */}
-          {payrollStatus === 'draft' && <div className="space-y-3 pt-2">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button onClick={handlePrimaryAction} className="flex-1">
-                  {statusConfig.primaryAction}
-                </Button>
-                
-                {statusConfig.secondaryAction && <Button variant="outline" onClick={handleSecondaryAction} className="flex-1">
-                    {statusConfig.secondaryAction}
-                  </Button>}
-              </div>
-            </div>}
+          {/* Action buttons removed - adjustments handled by separate section */}
 
         </CardContent>
       </Card>

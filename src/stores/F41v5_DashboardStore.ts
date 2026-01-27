@@ -145,9 +145,31 @@ const initialState: F41v5_DashboardState = {
   submittedAt: undefined,
   approvedAt: undefined,
   confirmed: false,
-  adjustments: [],
+  adjustments: [
+    // Mock pending adjustment
+    {
+      id: 'adj-demo-pending-1',
+      type: 'Expense' as F41v5_AdjustmentType,
+      label: 'Team lunch',
+      amount: 2500,
+      status: 'Pending' as F41v5_AdjustmentStatus,
+      category: 'Meals',
+      submittedAt: '2026-01-20T10:00:00.000Z',
+    },
+    // Mock rejected adjustment with reason
+    {
+      id: 'adj-demo-rejected-1',
+      type: 'Overtime' as F41v5_AdjustmentType,
+      label: 'Weekend work',
+      amount: 3500,
+      status: 'Admin rejected' as F41v5_AdjustmentStatus,
+      hours: 8,
+      submittedAt: '2026-01-15T10:00:00.000Z',
+      rejectionReason: 'Overtime not pre-approved by manager. Please get approval first.',
+    },
+  ],
   leaveRequests: [
-    // Sample approved leave - single day in current period
+    // Sample approved leave - will be hidden (only pending/rejected shown)
     {
       id: 'leave-demo-1',
       leaveType: 'Vacation' as F41v5_LeaveType,
@@ -157,25 +179,26 @@ const initialState: F41v5_DashboardState = {
       status: 'Admin approved' as F41v5_LeaveStatus,
       submittedAt: '2026-01-05T10:00:00.000Z',
     },
-    // Sample leave spanning pay periods (Jan 30 - Feb 2)
+    // Sample pending leave
     {
       id: 'leave-demo-2',
-      leaveType: 'Vacation' as F41v5_LeaveType,
-      startDate: '2026-01-30',
-      endDate: '2026-02-02',
-      totalDays: 4,
-      status: 'Admin approved' as F41v5_LeaveStatus,
-      submittedAt: '2026-01-20T10:00:00.000Z',
-    },
-    // Sample pending leave (future - Feb)
-    {
-      id: 'leave-demo-3',
       leaveType: 'Vacation' as F41v5_LeaveType,
       startDate: '2026-02-15',
       endDate: '2026-02-17',
       totalDays: 2,
       status: 'Pending' as F41v5_LeaveStatus,
       submittedAt: '2026-01-10T10:00:00.000Z',
+    },
+    // Sample rejected leave with reason
+    {
+      id: 'leave-demo-3',
+      leaveType: 'Sick' as F41v5_LeaveType,
+      startDate: '2026-01-25',
+      endDate: '2026-01-26',
+      totalDays: 2,
+      status: 'Admin rejected' as F41v5_LeaveStatus,
+      submittedAt: '2026-01-08T10:00:00.000Z',
+      rejectionReason: 'Sick leave requires a medical certificate for more than 1 day.',
     },
   ],
   resubmittedRejectionIds: [],

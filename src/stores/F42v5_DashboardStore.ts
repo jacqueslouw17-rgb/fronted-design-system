@@ -97,7 +97,29 @@ const initialState: F42v5_DashboardState = {
   invoiceStatus: 'draft',
   returnedReason: undefined,
   resubmitDeadline: undefined,
-  adjustments: [],
+  adjustments: [
+    // Mock pending adjustment
+    {
+      id: 'adj-demo-pending-1',
+      type: 'Expense' as F42v5_AdjustmentType,
+      label: 'Client lunch',
+      amount: 85,
+      status: 'Pending' as F42v5_AdjustmentStatus,
+      category: 'Meals',
+      submittedAt: '2026-01-20T10:00:00.000Z',
+    },
+    // Mock rejected adjustment with reason
+    {
+      id: 'adj-demo-rejected-1',
+      type: 'Additional hours' as F42v5_AdjustmentType,
+      label: 'Extra hours',
+      amount: 240,
+      status: 'Admin rejected' as F42v5_AdjustmentStatus,
+      hours: 8,
+      submittedAt: '2026-01-15T10:00:00.000Z',
+      rejectionReason: 'Hours not logged in the system. Please add them to your timesheet first.',
+    },
+  ],
   resubmittedRejectionIds: [],
   cutoffDate: 'Jan 2',
   isCutoffSoon: true,
