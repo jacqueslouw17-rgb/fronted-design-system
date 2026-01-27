@@ -358,7 +358,7 @@ export const F41v5_UpcomingPayCard = () => {
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         {/* Hero Header - Clean & Minimal */}
-        <CardHeader className="py-5 px-6">
+        <CardHeader className="pt-5 pb-4 px-6">
           <h2 className="text-lg font-semibold text-foreground">The last payment (December 2025)</h2>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
