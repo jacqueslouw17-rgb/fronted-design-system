@@ -201,7 +201,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-5">
-          <div className="flex items-start justify-between mb-4">
+          <div className={`flex items-start justify-between ${visibleAdjustments.length > 0 ? 'mb-4' : ''}`}>
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
               <p className="text-sm text-muted-foreground">
@@ -222,13 +222,11 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
             </Button>
           </div>
           
-          <div className="space-y-2">
-            {visibleAdjustments.length > 0 ? (
-              visibleAdjustments.map(adj => renderAdjustmentRow(adj))
-            ) : (
-              <div className="py-2" />
-            )}
-          </div>
+          {visibleAdjustments.length > 0 && (
+            <div className="space-y-2">
+              {visibleAdjustments.map(adj => renderAdjustmentRow(adj))}
+            </div>
+          )}
         </CardContent>
       </Card>
       
