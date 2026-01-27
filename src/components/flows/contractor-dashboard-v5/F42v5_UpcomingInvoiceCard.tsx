@@ -421,7 +421,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
                   View previous →
                 </button>
               </div>
-              <p className="text-3xl font-bold text-foreground tracking-tight">
+              <p className="text-2xl font-semibold text-foreground">
                 Dec 15, 2025
               </p>
               <p className="text-xs text-muted-foreground mt-1.5">Deposited to your account · Next invoice: Feb 15</p>
