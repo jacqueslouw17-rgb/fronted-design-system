@@ -358,10 +358,10 @@ export const F41v5_UpcomingPayCard = () => {
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         {/* Hero Header - Clean & Minimal */}
-        <CardHeader className="pt-5 pb-4 px-6">
+        <CardHeader className="pt-5 pb-2 px-6">
           <h2 className="text-lg font-semibold text-foreground">The last payment (December 2025)</h2>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="px-6 pt-2 pb-6 space-y-6">
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Estimated Net Pay Tile - Enhanced with adjustments comparison */}
