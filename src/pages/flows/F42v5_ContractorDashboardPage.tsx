@@ -28,6 +28,8 @@ const F42v5_ContractorDashboardPage = () => {
   const [adjustmentInitialType, setAdjustmentInitialType] = useState<ContractorRequestType>(null);
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
   const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
+  const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
+  const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
 
   const candidateProfile = {
     name: "Maria Santos",
@@ -42,15 +44,17 @@ const F42v5_ContractorDashboardPage = () => {
   };
 
   // Handler to open adjustment drawer with optional pre-fill
-  const handleRequestAdjustment = (type?: string, category?: string, amount?: string) => {
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => {
     const typeMap: Record<string, ContractorRequestType> = {
       'expense': 'expense',
-      'hours': 'additional-hours',
-      'commission': 'bonus'
+      'additional-hours': 'additional-hours',
+      'bonus': 'bonus'
     };
     setAdjustmentInitialType(type ? typeMap[type] || null : null);
     setAdjustmentInitialCategory(category || '');
     setAdjustmentInitialAmount(amount || '');
+    setAdjustmentInitialHours(hours);
+    setAdjustmentRejectedId(rejectedId);
     setAdjustmentDrawerOpen(true);
   };
 
@@ -60,6 +64,8 @@ const F42v5_ContractorDashboardPage = () => {
       setAdjustmentInitialType(null);
       setAdjustmentInitialCategory('');
       setAdjustmentInitialAmount('');
+      setAdjustmentInitialHours(undefined);
+      setAdjustmentRejectedId(undefined);
     }
   };
 
@@ -132,6 +138,8 @@ const F42v5_ContractorDashboardPage = () => {
             initialType={adjustmentInitialType}
             initialExpenseCategory={adjustmentInitialCategory}
             initialExpenseAmount={adjustmentInitialAmount}
+            initialHours={adjustmentInitialHours}
+            rejectedId={adjustmentRejectedId}
           />
         </div>
       </TooltipProvider>

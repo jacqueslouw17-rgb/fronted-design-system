@@ -46,6 +46,8 @@ interface F42v5_AdjustmentDrawerProps {
   initialType?: ContractorRequestType;
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
+  initialHours?: number;
+  rejectedId?: string;
   onBack?: () => void;
 }
 
@@ -109,9 +111,11 @@ export const F42v5_AdjustmentDrawer = ({
   initialType = null,
   initialExpenseCategory = '',
   initialExpenseAmount = '',
+  initialHours,
+  rejectedId,
   onBack 
 }: F42v5_AdjustmentDrawerProps) => {
-  const { addAdjustment } = useF42v5_DashboardStore();
+  const { addAdjustment, markRejectionResubmitted } = useF42v5_DashboardStore();
   
   // Selection state
   const [selectedType, setSelectedType] = useState<ContractorRequestType>(null);
@@ -246,6 +250,10 @@ export const F42v5_AdjustmentDrawer = ({
     if (open && (initialExpenseCategory || initialExpenseAmount)) {
       setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
+    // Pre-fill bonus amount for resubmissions
+    if (open && initialType === 'bonus' && initialExpenseAmount) {
+      setBonusAmount(initialExpenseAmount);
+    }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
   // Reset errors when switching types
@@ -366,6 +374,11 @@ export const F42v5_AdjustmentDrawer = ({
       });
     });
 
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
+
     const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
@@ -391,6 +404,11 @@ export const F42v5_AdjustmentDrawer = ({
       });
     });
 
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
+
     const count = additionalHoursItems.length;
     const totalHrs = totalAdditionalHours;
     toast.success(`${count} time entr${count > 1 ? 'ies' : 'y'} submitted (${totalHrs}h total).`);
@@ -410,6 +428,11 @@ export const F42v5_AdjustmentDrawer = ({
       label: 'Commission',
       amount: parseFloat(bonusAmount),
     });
+
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
 
     toast.success("Commission request submitted for review.");
     handleClose();
