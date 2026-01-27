@@ -129,21 +129,22 @@ export const F42v5_InvoiceBreakdownDrawer = ({
         </div>
 
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm font-medium text-foreground">Invoice total</p>
-              <button 
-                onClick={handleDownload}
-                className="flex items-center gap-1 text-xs text-muted-foreground/70 mt-1 transition-colors hover:text-foreground hover:underline"
-              >
-                <Download className="h-3 w-3" />
-                Download invoice
-              </button>
+              <p className="text-xs text-muted-foreground mt-0.5">Paid on Jan 5, 2026</p>
             </div>
             <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
               {formatCurrency(invoiceTotal, currency)}
             </p>
           </div>
+          <button 
+            onClick={handleDownload}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border text-sm font-medium text-foreground transition-colors hover:bg-muted/50"
+          >
+            <Download className="h-4 w-4" />
+            Download invoice
+          </button>
         </div>
       </SheetContent>
     </Sheet>
