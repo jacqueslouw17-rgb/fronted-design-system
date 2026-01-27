@@ -66,7 +66,7 @@ const getStatusConfig = (status: PayrollStatus): {
         explanation: 'Review your details and submit for approval.',
         helperText: 'Please review and confirm your pay details before the cut-off.',
         primaryAction: 'Review & submit',
-        secondaryAction: 'Make adjustments'
+        secondaryAction: 'Request adjustments'
       };
     case 'submitted':
       return {
@@ -75,7 +75,7 @@ const getStatusConfig = (status: PayrollStatus): {
         explanation: 'Submitted for review',
         helperText: 'Your company will review this before payroll is finalised.',
         primaryAction: 'Submitted',
-        secondaryAction: 'Make adjustments'
+        secondaryAction: 'Request adjustments'
       };
     case 'returned':
       return {
@@ -100,7 +100,7 @@ const getStatusConfig = (status: PayrollStatus): {
         explanation: 'Payroll approved',
         helperText: 'Your pay is finalised for this period.',
         primaryAction: 'Approved',
-        secondaryAction: 'Make adjustments'
+        secondaryAction: 'Request adjustments'
       };
     case 'finalised':
       return {
