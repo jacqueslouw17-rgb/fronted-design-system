@@ -357,83 +357,10 @@ export const F41v5_UpcomingPayCard = () => {
 
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        {/* Hero Header - Clean & Compact */}
-        <CardHeader className="bg-gradient-to-r from-primary/[0.04] to-secondary/[0.03] border-b border-border/40 pb-4">
-          {/* Header with badge aligned to vertical center of content block */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
-                <CardTitle className="text-xl font-semibold">The last payment (December 2025)</CardTitle>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                {/* Show submitted timestamp */}
-                {payrollStatus === 'submitted' && submittedAt && (
-                  <p className="text-sm text-muted-foreground">
-                    Submitted for review
-                  </p>
-                )}
-                {payrollStatus === 'approved' && approvedAt && (
-                  <p className="text-sm text-muted-foreground">
-                    Approved on {formatSubmittedTimestamp(approvedAt)}
-                  </p>
-                )}
-                {/* Cutoff passed message */}
-                {windowState === 'CLOSED' && (
-                  <p className="text-sm text-muted-foreground">
-                    Cut-off passed — new requests will be included in next pay period.
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-3 mt-2">
-              {/* Demo state toggle - only show after submission (submitted/approved states) */}
-              {(payrollStatus === 'submitted' || payrollStatus === 'approved') && (
-                <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted/50 border border-border/40">
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Preview</span>
-                  <div className="flex rounded-md overflow-hidden border border-border/50">
-                    <button 
-                      onClick={() => setDemoPartialRejection(false)} 
-                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', !demoPartialRejection ? 'bg-primary/10 text-primary' : 'bg-transparent text-muted-foreground hover:text-foreground')}
-                    >
-                      Approved
-                    </button>
-                    <button 
-                      onClick={() => setDemoPartialRejection(true)} 
-                      className={cn('px-2 py-0.5 text-[10px] font-medium transition-colors', demoPartialRejection ? 'bg-amber-500/10 text-amber-600' : 'bg-transparent text-muted-foreground hover:text-foreground')}
-                    >
-                      Partial
-                    </button>
-                  </div>
-                </div>
-              )}
-              {/* Main status badge - show "In review" when partial rejections exist */}
-              {hasPartialRejections ? (
-                <Badge className="text-sm px-3 py-1 bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-                  In review
-                </Badge>
-              ) : (
-                <Badge className={cn('text-sm px-3 py-1', statusConfig.className)}>
-                  {statusConfig.label}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Returned reason block - only when applicable */}
-          {payrollStatus === 'returned' && returnedReason && (
-            <div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
-              <p className="text-sm text-amber-700 dark:text-amber-400">
-                <span className="font-medium">Admin note:</span> {returnedReason}
-              </p>
-              {resubmitDeadline && (
-                <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
-                  Resubmit by: {resubmitDeadline}
-                </p>
-              )}
-            </div>
-          )}
+        {/* Hero Header - Clean & Minimal */}
+        <CardHeader className="py-5 px-6">
+          <p className="text-base font-medium text-muted-foreground">The last payment (December 2025)</p>
         </CardHeader>
-
         <CardContent className="p-6 space-y-6">
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
