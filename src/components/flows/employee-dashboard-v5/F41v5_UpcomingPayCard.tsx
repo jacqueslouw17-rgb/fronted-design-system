@@ -430,6 +430,7 @@ export const F41v5_UpcomingPayCard = () => {
                       <p className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
                         {formatCurrency(estimatedNet, currency)}
                       </p>
+                      <p className="text-xs text-muted-foreground mt-1.5">This was your net pay total for December 2025</p>
                       <p className="text-xs text-muted-foreground mt-1.5">This was your net pay for December 2025</p>
                     </div>
                   )}
@@ -454,7 +455,7 @@ export const F41v5_UpcomingPayCard = () => {
               <p className="text-2xl font-semibold text-foreground">
                 Dec 15, 2025
               </p>
-              <p className="text-xs text-muted-foreground mt-1.5">Deposited to your account</p>
+              <p className="text-xs text-muted-foreground mt-1.5">Deposited to your account · Next pay: Feb 15</p>
             </div>
           </div>
 
