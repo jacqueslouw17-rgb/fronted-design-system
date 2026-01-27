@@ -135,7 +135,7 @@ export const F42v5_AdjustmentsSection = ({ onRequestAdjustment }: F42v5_Adjustme
           <span className="text-muted-foreground/40 text-xs">·</span>
           
           <span className="text-xs text-foreground font-medium tabular-nums">
-            {formatAmount(adj.amount)}
+            {adj.type === 'Additional hours' && adj.hours ? `${adj.hours}h` : formatAmount(adj.amount)}
           </span>
           
           {getStatusBadge(adj.status)}
