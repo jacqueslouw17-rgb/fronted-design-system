@@ -265,13 +265,13 @@ export const useF41v5_DashboardStore = create<F41v5_DashboardState & F41v5_Dashb
         submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
         approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
         adjustments: [
-          ...state.adjustments,
           {
             ...adjustment,
             id: `adj-${Date.now()}`,
             status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
             submittedAt: new Date().toISOString(),
           },
+          ...state.adjustments,
         ],
       };
     }),
