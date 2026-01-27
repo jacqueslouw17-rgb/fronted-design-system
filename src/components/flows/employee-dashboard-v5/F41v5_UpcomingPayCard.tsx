@@ -372,29 +372,31 @@ export const F41v5_UpcomingPayCard = () => {
               const isPositiveAdjustment = pendingAdjustmentTotal > 0;
 
               return (
-                <div className={cn(
-                  "p-5 rounded-xl border",
-                  hasPartialRejections 
-                    ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20" 
-                    : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40"
-                )}>
+                <div 
+                  onClick={() => setBreakdownDrawerOpen(true)}
+                  className={cn(
+                    "p-5 rounded-xl border cursor-pointer transition-all duration-200",
+                    hasPartialRejections 
+                      ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20 hover:bg-amber-100/70 dark:hover:bg-amber-500/[0.12] hover:border-amber-300/70 dark:hover:border-amber-500/30 hover:shadow-md" 
+                      : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60 hover:shadow-md"
+                  )}
+                >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <p className="text-sm font-medium text-muted-foreground">December net pay</p>
                     </div>
-                    <button
-                      onClick={() => setBreakdownDrawerOpen(true)}
+                    <span
                       className={cn(
                         "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
                         hasPartialRejections 
-                          ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
-                          : "text-muted-foreground/70 hover:text-foreground"
+                          ? "text-amber-700 dark:text-amber-400"
+                          : "text-muted-foreground/70"
                       )}
                     >
                       {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
                       <ChevronRight className="h-3 w-3" />
-                    </button>
+                    </span>
                   </div>
                   
                   {hasAdjustments ? (
@@ -433,18 +435,19 @@ export const F41v5_UpcomingPayCard = () => {
             })()}
 
             {/* Paid Date Tile */}
-            <div className="p-5 rounded-xl bg-muted/30 border border-border/40">
+            <div 
+              onClick={() => setPayslipDrawerOpen(true)}
+              className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/50 hover:border-border/60 hover:shadow-md"
+            >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <p className="text-sm font-medium text-muted-foreground">Paid on</p>
                 </div>
-                <button
-                  onClick={() => setPayslipDrawerOpen(true)}
-                  className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
-                >
-                  View previous →
-                </button>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                  View previous
+                  <ChevronRight className="h-3 w-3" />
+                </span>
               </div>
               <p className="text-2xl font-semibold text-foreground">
                 Dec 15, 2025
