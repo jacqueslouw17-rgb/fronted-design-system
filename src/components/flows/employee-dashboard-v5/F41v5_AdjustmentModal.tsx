@@ -228,14 +228,24 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     if (open && initialType) {
       setSelectedType(initialType);
     }
-    if (open && (initialExpenseCategory || initialExpenseAmount)) {
+    if (open && initialType === 'expense' && (initialExpenseCategory || initialExpenseAmount)) {
       setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
     // Pre-fill bonus amount for resubmissions
     if (open && initialType === 'bonus-correction' && initialExpenseAmount) {
       setBonusItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
     }
-  }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
+    // Pre-fill overtime hours for resubmissions
+    if (open && initialType === 'overtime' && initialHours) {
+      setOvertimeItems([{ 
+        id: crypto.randomUUID(), 
+        date: undefined, 
+        startTime: '', 
+        endTime: '', 
+        calculatedHours: initialHours 
+      }]);
+    }
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours]);
 
   useEffect(() => {
     setErrors({});
@@ -689,6 +699,16 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
           {selectedType === 'overtime' && (
             <div className="space-y-5">
               <PayPeriodBadge />
+
+              {/* Resubmission helper - show previously rejected hours */}
+              {rejectedId && initialHours && (
+                <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Previously rejected: <span className="font-semibold">{initialHours}h</span>. Please re-enter the date and times below.
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-3">
                 {overtimeItems.map((item, index) => (
                   <div 
