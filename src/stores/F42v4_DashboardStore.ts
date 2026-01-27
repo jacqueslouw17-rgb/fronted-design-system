@@ -150,13 +150,13 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
         submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
         approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
         adjustments: [
-          ...state.adjustments,
           {
             ...adjustment,
             id: `adj-${Date.now()}`,
             status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
             submittedAt: new Date().toISOString(),
           },
+          ...state.adjustments,
         ],
       };
     }),
