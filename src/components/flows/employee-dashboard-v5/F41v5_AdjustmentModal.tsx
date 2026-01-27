@@ -27,7 +27,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { useF41v5_DashboardStore } from '@/stores/F41v5_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift } from 'lucide-react';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v5_TimeInput } from './F41v5_TimeInput';
@@ -102,7 +102,12 @@ const requestTypeOptions = [
 ];
 
 export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v5_AdjustmentModalProps) => {
-  const { addAdjustment, markRejectionResubmitted } = useF41v5_DashboardStore();
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v5_DashboardStore();
+
+  const rejectedAdjustment = rejectedId
+    ? adjustments.find((adj) => adj.id === rejectedId)
+    : undefined;
+  const rejectionReason = rejectedAdjustment?.rejectionReason;
   
   const [selectedType, setSelectedType] = useState<RequestType>(null);
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
@@ -520,6 +525,17 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         </SheetHeader>
 
         <div className="py-6">
+          {/* Rejection Reason Notice (shown on resubmission) */}
+          {!!rejectedId && rejectionReason && (
+            <div className="mb-5 flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-destructive">Rejected by admin</p>
+                <p className="text-sm text-destructive/80 dark:text-destructive/90">{rejectionReason}</p>
+              </div>
+            </div>
+          )}
+
           {selectedType === null && (
             <div className="grid grid-cols-3 gap-2">
               {requestTypeOptions.map((option) => {
