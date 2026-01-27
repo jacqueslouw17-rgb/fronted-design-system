@@ -377,8 +377,8 @@ export const F41v5_UpcomingPayCard = () => {
                   className={cn(
                     "p-5 rounded-xl border cursor-pointer transition-all duration-200",
                     hasPartialRejections 
-                      ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20 hover:bg-amber-100/70 dark:hover:bg-amber-500/[0.12] hover:border-amber-300/70 dark:hover:border-amber-500/30 hover:shadow-md" 
-                      : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60 hover:shadow-md"
+                      ? "bg-amber-50/60 dark:bg-amber-500/[0.06] border-amber-200/60 dark:border-amber-500/20 hover:bg-amber-100/70 dark:hover:bg-amber-500/[0.12] hover:border-amber-300/70 dark:hover:border-amber-500/30" 
+                      : "bg-gradient-to-br from-primary/[0.06] to-secondary/[0.04] border-border/40 hover:from-primary/[0.12] hover:to-secondary/[0.08] hover:border-border/60"
                   )}
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -437,7 +437,7 @@ export const F41v5_UpcomingPayCard = () => {
             {/* Paid Date Tile */}
             <div 
               onClick={() => setPayslipDrawerOpen(true)}
-              className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/50 hover:border-border/60 hover:shadow-md"
+              className="p-5 rounded-xl bg-muted/30 border border-border/40 cursor-pointer transition-all duration-200 hover:bg-muted/50 hover:border-border/60"
             >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
