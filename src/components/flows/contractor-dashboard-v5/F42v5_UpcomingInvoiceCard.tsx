@@ -328,11 +328,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
   return (
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
-        {/* Hero Header - Clean & Minimal */}
-        <CardHeader className="pt-5 pb-2 px-6">
-          <h2 className="text-lg font-semibold text-foreground">The last invoice (December 2025)</h2>
-        </CardHeader>
-        <CardContent className="px-6 pt-2 pb-6 space-y-6">
+        <CardContent className="px-6 py-6 space-y-6">
           {/* Key Numbers Row - Always visible */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Invoice Total Tile - Enhanced with adjustments comparison */}
@@ -356,7 +352,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-sm font-medium text-muted-foreground">Invoice total</p>
+                      <p className="text-sm font-medium text-muted-foreground">December invoice</p>
                     </div>
                     <button
                       onClick={() => setBreakdownDrawerOpen(true)}
@@ -400,7 +396,6 @@ export const F42v5_UpcomingInvoiceCard = () => {
                       <p className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
                         {formatCurrency(invoiceTotal, currency)}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1.5">This was your invoice total for December 2025</p>
                     </div>
                   )}
                 </div>
