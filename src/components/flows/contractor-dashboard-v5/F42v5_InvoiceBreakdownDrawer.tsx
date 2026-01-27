@@ -383,7 +383,7 @@ export const F42v5_InvoiceBreakdownDrawer = ({
           {/* Main invoice total */}
           <div className="flex items-start justify-between mb-1">
             <div>
-              <p className="text-sm font-medium text-foreground">Estimated invoice total</p>
+              <p className="text-sm font-medium text-foreground">Invoice total</p>
               {hasAdjustments && (() => {
                 const pendingCount = activeAdjustments.filter(a => a.status === 'Pending').length;
                 const approvedCount = activeAdjustments.filter(a => a.status === 'Admin approved').length;
