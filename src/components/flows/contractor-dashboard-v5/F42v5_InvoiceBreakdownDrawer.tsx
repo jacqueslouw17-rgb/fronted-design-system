@@ -6,8 +6,10 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Download } from 'lucide-react';
 import type { F42v5_LineItem } from '@/stores/F42v5_DashboardStore';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface InvoiceBreakdownDrawerProps {
   open: boolean;
@@ -83,6 +85,10 @@ export const F42v5_InvoiceBreakdownDrawer = ({
   const earnings = lineItems.filter(item => item.type === 'Earnings');
   const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
 
+  const handleDownload = () => {
+    toast.success('Downloading invoice...');
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
@@ -124,7 +130,16 @@ export const F42v5_InvoiceBreakdownDrawer = ({
 
         <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
           <div className="flex items-start justify-between">
-            <p className="text-sm font-medium text-foreground">Invoice total</p>
+            <div>
+              <p className="text-sm font-medium text-foreground">Invoice total</p>
+              <button 
+                onClick={handleDownload}
+                className="flex items-center gap-1 text-xs text-muted-foreground/70 mt-1 transition-colors hover:text-foreground hover:underline"
+              >
+                <Download className="h-3 w-3" />
+                Download invoice
+              </button>
+            </div>
             <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
               {formatCurrency(invoiceTotal, currency)}
             </p>
