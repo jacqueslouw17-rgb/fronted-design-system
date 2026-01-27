@@ -17,7 +17,7 @@ import { F41v5_WithdrawDialog } from './F41v5_WithdrawDialog';
 import { toast } from 'sonner';
 
 interface F41v5_TimeOffSectionProps {
-  onRequestTimeOff: () => void;
+  onRequestTimeOff: (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => void;
 }
 
 const currentPeriodStart = new Date(2026, 0, 1);
@@ -41,7 +41,7 @@ interface ProcessedLeave {
 }
 
 interface F41v5_TimeOffSectionProps {
-  onRequestTimeOff: () => void;
+  onRequestTimeOff: (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => void;
 }
 
 export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionProps) => {
@@ -235,7 +235,13 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onRequestTimeOff()}
+              onClick={() => onRequestTimeOff(
+                leave.id,
+                leave.leaveType,
+                format(leave.startDate, 'yyyy-MM-dd'),
+                format(leave.endDate, 'yyyy-MM-dd'),
+                leave.rejectionReason
+              )}
               className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:text-destructive dark:hover:bg-destructive/20"
             >
               <RotateCcw className="h-3 w-3 mr-1" />
@@ -281,7 +287,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
             </div>
             
             <Button 
-              onClick={onRequestTimeOff}
+              onClick={() => onRequestTimeOff()}
               size="sm"
               variant="outline"
               className="shrink-0"
