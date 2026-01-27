@@ -433,6 +433,12 @@ export const F42v4_InvoiceBreakdownDrawer = ({
               Request adjustment
             </button>
           )}
+
+          {adjustments && adjustments.length > 0 && (
+            <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
+              This is an estimate. Final invoice may vary.
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>

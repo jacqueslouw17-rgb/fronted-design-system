@@ -497,9 +497,11 @@ export const F41v4_PayBreakdownDrawer = ({
             </button>
           )}
 
-          <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
-            This is an estimate. Final pay may vary.
-          </p>
+          {adjustments && adjustments.length > 0 && (
+            <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
+              This is an estimate. Final pay may vary.
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>
