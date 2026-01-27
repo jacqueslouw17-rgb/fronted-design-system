@@ -42,6 +42,9 @@ interface F41v5_AdjustmentModalProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
+  initialDate?: string;
+  initialStartTime?: string;
+  initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
 }
@@ -98,7 +101,7 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, rejectedId, onBack }: F41v5_AdjustmentModalProps) => {
+export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v5_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted } = useF41v5_DashboardStore();
   
   const [selectedType, setSelectedType] = useState<RequestType>(null);
@@ -236,16 +239,17 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       setBonusItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
     }
     // Pre-fill overtime hours for resubmissions
-    if (open && initialType === 'overtime' && initialHours) {
+    if (open && initialType === 'overtime') {
+      const parsedDate = initialDate ? new Date(initialDate) : undefined;
       setOvertimeItems([{ 
         id: crypto.randomUUID(), 
-        date: undefined, 
-        startTime: '', 
-        endTime: '', 
-        calculatedHours: initialHours 
+        date: parsedDate, 
+        startTime: initialStartTime || '', 
+        endTime: initialEndTime || '', 
+        calculatedHours: initialHours || 0 
       }]);
     }
-  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours]);
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDate, initialStartTime, initialEndTime]);
 
   useEffect(() => {
     setErrors({});
@@ -384,6 +388,9 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         amount: null,
         description: `${item.startTime} – ${item.endTime}`,
         hours: item.calculatedHours,
+        date: item.date ? format(item.date, 'yyyy-MM-dd') : undefined,
+        startTime: item.startTime,
+        endTime: item.endTime,
       });
     });
 
@@ -699,15 +706,6 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
           {selectedType === 'overtime' && (
             <div className="space-y-5">
               <PayPeriodBadge />
-
-              {/* Resubmission helper - show previously rejected hours */}
-              {rejectedId && initialHours && (
-                <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
-                    Previously rejected: <span className="font-semibold">{initialHours}h</span>. Please re-enter the date and times below.
-                  </p>
-                </div>
-              )}
 
               <div className="space-y-3">
                 {overtimeItems.map((item, index) => (

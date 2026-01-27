@@ -29,6 +29,9 @@ const F42v5_ContractorDashboardPage = () => {
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
   const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
   const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
+  const [adjustmentInitialDate, setAdjustmentInitialDate] = useState<string | undefined>(undefined);
+  const [adjustmentInitialStartTime, setAdjustmentInitialStartTime] = useState<string | undefined>(undefined);
+  const [adjustmentInitialEndTime, setAdjustmentInitialEndTime] = useState<string | undefined>(undefined);
   const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
 
   const candidateProfile = {
@@ -44,7 +47,7 @@ const F42v5_ContractorDashboardPage = () => {
   };
 
   // Handler to open adjustment drawer with optional pre-fill
-  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => {
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => {
     const typeMap: Record<string, ContractorRequestType> = {
       'expense': 'expense',
       'additional-hours': 'additional-hours',
@@ -54,6 +57,9 @@ const F42v5_ContractorDashboardPage = () => {
     setAdjustmentInitialCategory(category || '');
     setAdjustmentInitialAmount(amount || '');
     setAdjustmentInitialHours(hours);
+    setAdjustmentInitialDate(date);
+    setAdjustmentInitialStartTime(startTime);
+    setAdjustmentInitialEndTime(endTime);
     setAdjustmentRejectedId(rejectedId);
     setAdjustmentDrawerOpen(true);
   };
@@ -65,6 +71,9 @@ const F42v5_ContractorDashboardPage = () => {
       setAdjustmentInitialCategory('');
       setAdjustmentInitialAmount('');
       setAdjustmentInitialHours(undefined);
+      setAdjustmentInitialDate(undefined);
+      setAdjustmentInitialStartTime(undefined);
+      setAdjustmentInitialEndTime(undefined);
       setAdjustmentRejectedId(undefined);
     }
   };
@@ -139,6 +148,9 @@ const F42v5_ContractorDashboardPage = () => {
             initialExpenseCategory={adjustmentInitialCategory}
             initialExpenseAmount={adjustmentInitialAmount}
             initialHours={adjustmentInitialHours}
+            initialDate={adjustmentInitialDate}
+            initialStartTime={adjustmentInitialStartTime}
+            initialEndTime={adjustmentInitialEndTime}
             rejectedId={adjustmentRejectedId}
           />
         </div>

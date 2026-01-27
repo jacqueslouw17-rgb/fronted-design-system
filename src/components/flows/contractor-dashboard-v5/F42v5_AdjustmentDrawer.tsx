@@ -47,6 +47,9 @@ interface F42v5_AdjustmentDrawerProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
+  initialDate?: string;
+  initialStartTime?: string;
+  initialEndTime?: string;
   rejectedId?: string;
   onBack?: () => void;
 }
@@ -112,6 +115,9 @@ export const F42v5_AdjustmentDrawer = ({
   initialExpenseCategory = '',
   initialExpenseAmount = '',
   initialHours,
+  initialDate,
+  initialStartTime,
+  initialEndTime,
   rejectedId,
   onBack 
 }: F42v5_AdjustmentDrawerProps) => {
@@ -255,16 +261,17 @@ export const F42v5_AdjustmentDrawer = ({
       setBonusAmount(initialExpenseAmount);
     }
     // Pre-fill additional hours for resubmissions
-    if (open && initialType === 'additional-hours' && initialHours) {
+    if (open && initialType === 'additional-hours') {
+      const parsedDate = initialDate ? new Date(initialDate) : undefined;
       setAdditionalHoursItems([{ 
         id: crypto.randomUUID(), 
-        date: undefined, 
-        startTime: '', 
-        endTime: '', 
-        calculatedHours: initialHours 
+        date: parsedDate, 
+        startTime: initialStartTime || '', 
+        endTime: initialEndTime || '', 
+        calculatedHours: initialHours || 0 
       }]);
     }
-  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours]);
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDate, initialStartTime, initialEndTime]);
 
   // Reset errors when switching types
   useEffect(() => {
@@ -411,6 +418,9 @@ export const F42v5_AdjustmentDrawer = ({
           : `${item.calculatedHours}h`,
         amount: null,
         hours: item.calculatedHours,
+        date: item.date ? format(item.date, 'yyyy-MM-dd') : undefined,
+        startTime: item.startTime,
+        endTime: item.endTime,
       });
     });
 
@@ -768,15 +778,6 @@ export const F42v5_AdjustmentDrawer = ({
           {selectedType === 'additional-hours' && (
             <div className="space-y-5">
               <InvoicePeriodBadge />
-
-              {/* Resubmission helper - show previously rejected hours */}
-              {rejectedId && initialHours && (
-                <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
-                    Previously rejected: <span className="font-semibold">{initialHours}h</span>. Please re-enter the date and times below.
-                  </p>
-                </div>
-              )}
 
               {/* Additional Hours Line Items */}
               <div className="space-y-3">
