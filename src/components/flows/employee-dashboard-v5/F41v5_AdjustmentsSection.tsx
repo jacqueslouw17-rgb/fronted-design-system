@@ -123,7 +123,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
       <div 
         key={adj.id}
         className={cn(
-          "group rounded-lg border transition-colors",
+          "group rounded-lg border transition-all duration-200",
           isPending 
             ? "bg-amber-50/50 dark:bg-amber-500/5 border-amber-200/60 dark:border-amber-500/20" 
             : isRejected
@@ -181,12 +181,16 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
           )}
         </div>
         
-        {/* Rejection reason */}
+        {/* Rejection reason - hidden by default, shown on hover/focus */}
         {isRejected && adj.rejectionReason && (
-          <div className="px-2.5 pb-2">
-            <p className="text-xs text-destructive/80 dark:text-destructive/90 bg-destructive/5 dark:bg-destructive/10 rounded px-2 py-1.5 border-l-2 border-destructive/30">
-              {adj.rejectionReason}
-            </p>
+          <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] group-focus-within:grid-rows-[1fr] transition-[grid-template-rows] duration-200">
+            <div className="overflow-hidden">
+              <div className="px-2.5 pb-2 pt-0.5">
+                <p className="text-xs text-destructive/80 dark:text-destructive/90 bg-destructive/5 dark:bg-destructive/10 rounded px-2 py-1.5 border-l-2 border-destructive/30">
+                  {adj.rejectionReason}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
