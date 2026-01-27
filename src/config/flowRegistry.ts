@@ -260,6 +260,30 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/stores/F42v4_DashboardStore.ts'
     ]
   },
+  'f4.1-employee-dashboard-v5': {
+    id: 'f4.1-employee-dashboard-v5',
+    title: 'Flow 4.1 — Employee Dashboard v5',
+    path: '/candidate-dashboard-employee-v5',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F41v5_EmployeeDashboardPage.tsx',
+      'src/stores/F41v5_DashboardStore.ts'
+    ]
+  },
+  'f4.2-contractor-dashboard-v5': {
+    id: 'f4.2-contractor-dashboard-v5',
+    title: 'Flow 4.2 — Contractor Dashboard v5',
+    path: '/candidate-dashboard-contractor-v5',
+    locked: false,
+    lockedDate: undefined,
+    lockedReason: undefined,
+    filePaths: [
+      'src/pages/flows/F42v5_ContractorDashboardPage.tsx',
+      'src/stores/F42v5_DashboardStore.ts'
+    ]
+  },
   'shared-secure-link-error': {
     id: 'shared-secure-link-error',
     title: 'Shared – Secure Link Error (403)',
