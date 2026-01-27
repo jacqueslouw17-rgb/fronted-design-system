@@ -36,6 +36,9 @@ interface F41v5_TimeOffRequestDrawerProps {
   onOpenChange: (open: boolean) => void;
   rejectedId?: string;
   rejectionReason?: string;
+  initialLeaveType?: string;
+  initialStartDate?: string;
+  initialEndDate?: string;
 }
 
 const leaveTypes: { value: F41v5_LeaveType; label: string; icon: string }[] = [
@@ -60,7 +63,15 @@ const COUNTRY_NAMES: Record<string, string> = {
   JP: 'Japan',
 };
 
-export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange, rejectedId, rejectionReason }: F41v5_TimeOffRequestDrawerProps) => {
+export const F41v5_TimeOffRequestDrawer = ({ 
+  open, 
+  onOpenChange, 
+  rejectedId, 
+  rejectionReason,
+  initialLeaveType,
+  initialStartDate,
+  initialEndDate
+}: F41v5_TimeOffRequestDrawerProps) => {
   const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v5_DashboardStore();
   
   const [countryRules, setCountryRules] = useState<CountryRules | null>(null);
@@ -83,6 +94,25 @@ export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange, rejectedId, rej
         .finally(() => setIsLoadingRules(false));
     }
   }, [open, employeeCountry, countryRules]);
+
+  // Pre-fill form when resubmitting a rejected leave
+  useEffect(() => {
+    if (open && rejectedId && initialLeaveType) {
+      // Pre-fill leave type
+      const validLeaveType = leaveTypes.find(t => t.value === initialLeaveType);
+      if (validLeaveType) {
+        setLeaveType(validLeaveType.value);
+      }
+      
+      // Pre-fill dates
+      if (initialStartDate && initialEndDate) {
+        setDateRange({
+          from: new Date(initialStartDate),
+          to: new Date(initialEndDate)
+        });
+      }
+    }
+  }, [open, rejectedId, initialLeaveType, initialStartDate, initialEndDate]);
 
   const startDate = dateRange?.from;
   const endDate = dateRange?.to ?? dateRange?.from;
@@ -164,6 +194,11 @@ export const F41v5_TimeOffRequestDrawer = ({ open, onOpenChange, rejectedId, rej
 
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 600));
+
+    // If resubmitting, withdraw the old rejected leave first
+    if (rejectedId) {
+      withdrawLeaveRequest(rejectedId);
+    }
 
     addLeaveRequest({
       leaveType,

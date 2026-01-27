@@ -27,6 +27,9 @@ const F41v5_EmployeeDashboardPage = () => {
   const [timeOffDrawerOpen, setTimeOffDrawerOpen] = useState(false);
   const [timeOffRejectedId, setTimeOffRejectedId] = useState<string | undefined>(undefined);
   const [timeOffRejectionReason, setTimeOffRejectionReason] = useState<string | undefined>(undefined);
+  const [timeOffInitialLeaveType, setTimeOffInitialLeaveType] = useState<string | undefined>(undefined);
+  const [timeOffInitialStartDate, setTimeOffInitialStartDate] = useState<string | undefined>(undefined);
+  const [timeOffInitialEndDate, setTimeOffInitialEndDate] = useState<string | undefined>(undefined);
   const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
   const [adjustmentInitialType, setAdjustmentInitialType] = useState<RequestType>(null);
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
@@ -85,6 +88,9 @@ const F41v5_EmployeeDashboardPage = () => {
   const handleRequestTimeOff = (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => {
     setTimeOffRejectedId(rejectedId);
     setTimeOffRejectionReason(rejectionReason);
+    setTimeOffInitialLeaveType(leaveType);
+    setTimeOffInitialStartDate(startDate);
+    setTimeOffInitialEndDate(endDate);
     setTimeOffDrawerOpen(true);
   };
 
@@ -93,6 +99,9 @@ const F41v5_EmployeeDashboardPage = () => {
     if (!open) {
       setTimeOffRejectedId(undefined);
       setTimeOffRejectionReason(undefined);
+      setTimeOffInitialLeaveType(undefined);
+      setTimeOffInitialStartDate(undefined);
+      setTimeOffInitialEndDate(undefined);
     }
   };
   useEffect(() => {
@@ -182,6 +191,9 @@ const F41v5_EmployeeDashboardPage = () => {
             onOpenChange={handleTimeOffDrawerClose}
             rejectedId={timeOffRejectedId}
             rejectionReason={timeOffRejectionReason}
+            initialLeaveType={timeOffInitialLeaveType}
+            initialStartDate={timeOffInitialStartDate}
+            initialEndDate={timeOffInitialEndDate}
           />
           
           {/* Adjustment Modal - at root level for proper z-index */}
