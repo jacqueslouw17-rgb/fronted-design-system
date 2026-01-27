@@ -465,11 +465,19 @@ export const F41v4_PayBreakdownDrawer = ({
           <div className="flex items-start justify-between mb-1">
             <div>
               <p className="text-sm font-medium text-foreground">Estimated net pay</p>
-              {hasAdjustments && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Includes {activeAdjustments.filter(a => a.status === 'Pending').length > 0 ? `${activeAdjustments.filter(a => a.status === 'Pending').length} pending` : ''} {activeAdjustments.filter(a => a.status === 'Admin approved').length > 0 ? `${activeAdjustments.filter(a => a.status === 'Pending').length > 0 ? ' + ' : ''}${activeAdjustments.filter(a => a.status === 'Admin approved').length} approved` : ''} {activeAdjustments.length === 1 ? 'adjustment' : 'adjustments'}
-                </p>
-              )}
+              {hasAdjustments && (() => {
+                const pendingCount = activeAdjustments.filter(a => a.status === 'Pending').length;
+                const approvedCount = activeAdjustments.filter(a => a.status === 'Admin approved').length;
+                const parts: string[] = [];
+                if (pendingCount > 0) parts.push(`${pendingCount} pending`);
+                if (approvedCount > 0) parts.push(`${approvedCount} approved`);
+                const totalCount = pendingCount + approvedCount;
+                return (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Includes {parts.join(' + ')} {totalCount === 1 ? 'adjustment' : 'adjustments'}
+                  </p>
+                );
+              })()}
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
