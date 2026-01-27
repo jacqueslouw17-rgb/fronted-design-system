@@ -41,6 +41,8 @@ interface F41v5_AdjustmentModalProps {
   initialType?: RequestType;
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
+  initialHours?: number;
+  rejectedId?: string;
   onBack?: () => void;
 }
 
@@ -96,8 +98,8 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', onBack }: F41v5_AdjustmentModalProps) => {
-  const { addAdjustment } = useF41v5_DashboardStore();
+export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, rejectedId, onBack }: F41v5_AdjustmentModalProps) => {
+  const { addAdjustment, markRejectionResubmitted } = useF41v5_DashboardStore();
   
   const [selectedType, setSelectedType] = useState<RequestType>(null);
   const [expenseItems, setExpenseItems] = useState<ExpenseLineItem[]>([
@@ -229,6 +231,10 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     if (open && (initialExpenseCategory || initialExpenseAmount)) {
       setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
+    // Pre-fill bonus amount for resubmissions
+    if (open && initialType === 'bonus-correction' && initialExpenseAmount) {
+      setBonusItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount, attachment: null }]);
+    }
   }, [open, initialType, initialExpenseCategory, initialExpenseAmount]);
 
   useEffect(() => {
@@ -343,6 +349,11 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       });
     });
 
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
+
     const count = expenseItems.length;
     toast.success(`${count} expense${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
@@ -366,6 +377,11 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
       });
     });
 
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
+
     const totalHours = overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0);
     const count = overtimeItems.length;
     toast.success(`${count} overtime entr${count > 1 ? 'ies' : 'y'} submitted (${totalHours}h total).`);
@@ -383,6 +399,11 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         receiptUrl: item.attachment ? URL.createObjectURL(item.attachment) : undefined,
       });
     });
+
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
 
     const count = bonusItems.length;
     toast.success(`${count} bonus request${count > 1 ? 's' : ''} submitted for review.`);

@@ -17,7 +17,7 @@ import { F41v5_WithdrawDialog } from './F41v5_WithdrawDialog';
 import { toast } from 'sonner';
 
 interface F41v5_AdjustmentsSectionProps {
-  onRequestAdjustment: (type?: string, category?: string, amount?: string) => void;
+  onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => void;
 }
 
 export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_AdjustmentsSectionProps) => {
@@ -68,16 +68,18 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
   };
 
   const handleResubmit = (adj: F41v5_Adjustment) => {
-    // Open adjustment modal with pre-filled data
+    // Open adjustment modal with pre-filled data including rejected ID
     const typeMap: Record<string, string> = {
       'Expense': 'expense',
       'Overtime': 'overtime',
-      'Bonus': 'bonus'
+      'Bonus': 'bonus-correction'
     };
     onRequestAdjustment(
       typeMap[adj.type] || 'expense',
       adj.category || '',
-      adj.amount?.toString() || ''
+      adj.amount?.toString() || '',
+      adj.id,
+      adj.hours
     );
   };
 

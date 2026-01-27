@@ -29,6 +29,8 @@ const F41v5_EmployeeDashboardPage = () => {
   const [adjustmentInitialType, setAdjustmentInitialType] = useState<RequestType>(null);
   const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
   const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
+  const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
+  const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
 
   const candidateProfile = {
     name: "Maria Santos",
@@ -43,15 +45,17 @@ const F41v5_EmployeeDashboardPage = () => {
   };
 
   // Handler to open adjustment modal with optional pre-fill
-  const handleRequestAdjustment = (type?: string, category?: string, amount?: string) => {
+  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number) => {
     const typeMap: Record<string, RequestType> = {
       'expense': 'expense',
       'overtime': 'overtime',
-      'bonus': 'bonus-correction'
+      'bonus-correction': 'bonus-correction'
     };
     setAdjustmentInitialType(type ? typeMap[type] || null : null);
     setAdjustmentInitialCategory(category || '');
     setAdjustmentInitialAmount(amount || '');
+    setAdjustmentInitialHours(hours);
+    setAdjustmentRejectedId(rejectedId);
     setAdjustmentModalOpen(true);
   };
 
@@ -61,6 +65,8 @@ const F41v5_EmployeeDashboardPage = () => {
       setAdjustmentInitialType(null);
       setAdjustmentInitialCategory('');
       setAdjustmentInitialAmount('');
+      setAdjustmentInitialHours(undefined);
+      setAdjustmentRejectedId(undefined);
     }
   };
 
@@ -160,6 +166,8 @@ const F41v5_EmployeeDashboardPage = () => {
             initialType={adjustmentInitialType}
             initialExpenseCategory={adjustmentInitialCategory}
             initialExpenseAmount={adjustmentInitialAmount}
+            initialHours={adjustmentInitialHours}
+            rejectedId={adjustmentRejectedId}
           />
         </div>
       </TooltipProvider>
