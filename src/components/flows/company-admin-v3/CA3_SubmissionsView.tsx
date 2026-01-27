@@ -94,7 +94,7 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
 };
 
 
-// Receipt-style breakdown row
+// Receipt-style breakdown row - now supports interactive mode for adjustments
 const BreakdownRow = ({ 
   label, 
   amount, 
@@ -102,8 +102,10 @@ const BreakdownRow = ({
   isPositive = true,
   isLocked = false,
   badge,
-  sublabel,
   isTotal = false,
+  isInteractive = false,
+  onApprove,
+  onReject,
   className
 }: { 
   label: string;
@@ -112,8 +114,10 @@ const BreakdownRow = ({
   isPositive?: boolean;
   isLocked?: boolean;
   badge?: { label: string; variant: 'pending' | 'approved' };
-  sublabel?: string;
   isTotal?: boolean;
+  isInteractive?: boolean;
+  onApprove?: () => void;
+  onReject?: () => void;
   className?: string;
 }) => {
   const formatAmount = (amt: number, curr: string) => {
@@ -123,8 +127,9 @@ const BreakdownRow = ({
 
   return (
     <div className={cn(
-      "flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-colors",
+      "flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-all duration-200 group/row",
       isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0",
+      isInteractive && "hover:bg-muted/50 cursor-pointer",
       className
     )}>
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -134,11 +139,6 @@ const BreakdownRow = ({
         )}>
           {label}
         </span>
-        {sublabel && (
-          <span className="text-xs text-muted-foreground/70 truncate">
-            · {sublabel}
-          </span>
-        )}
         {isLocked && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -153,9 +153,9 @@ const BreakdownRow = ({
           <Badge 
             variant="outline" 
             className={cn(
-              "text-[10px] px-1.5 py-0 shrink-0",
+              "text-[11px] px-2 py-0.5 shrink-0 font-medium pointer-events-none",
               badge.variant === 'pending' 
-                ? "bg-orange-500/15 text-orange-600 border-orange-500/30"
+                ? "bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20"
                 : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
             )}
           >
@@ -163,6 +163,49 @@ const BreakdownRow = ({
           </Badge>
         )}
       </div>
+      
+      {/* Action buttons on hover for interactive rows */}
+      {isInteractive && badge?.variant === 'pending' && (
+        <div className="flex items-center gap-1 mr-2 opacity-0 group-hover/row:opacity-100 transition-opacity">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReject?.();
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p className="text-xs">Reject</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-6 w-6 p-0 hover:bg-accent-green-fill/20 hover:text-accent-green-text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onApprove?.();
+                }}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p className="text-xs">Approve</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      )}
+      
       <span className={cn(
         "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4",
         isTotal ? "text-sm font-semibold text-foreground" : "text-sm",
@@ -497,12 +540,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             <BreakdownRow
                               key={`adj-${idx}`}
                               label={config.label}
-                              sublabel={adj.description}
                               amount={adj.amount || 0}
                               currency={adj.currency || currency}
                               isPositive
+                              isInteractive
+                              onApprove={() => {
+                                toast.success(`Approved ${config.label.toLowerCase()}`);
+                              }}
+                              onReject={() => {
+                                toast.info(`Rejected ${config.label.toLowerCase()}`);
+                              }}
                               badge={{
-                                label: adj.status === 'approved' ? 'Approved' : 'Pending',
+                                label: adj.status === 'approved' ? 'Approved' : 'Pending approval',
                                 variant: adj.status === 'approved' ? 'approved' : 'pending'
                               }}
                             />
@@ -561,12 +610,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             <BreakdownRow
                               key={idx}
                               label={`${adj.hours || 0}h logged`}
-                              sublabel={adj.description}
                               amount={adj.amount || 0}
                               currency={currency}
                               isPositive
+                              isInteractive
+                              onApprove={() => {
+                                toast.success('Approved overtime');
+                              }}
+                              onReject={() => {
+                                toast.info('Rejected overtime');
+                              }}
                               badge={{
-                                label: adj.status === 'approved' ? 'Approved' : 'Pending',
+                                label: adj.status === 'approved' ? 'Approved' : 'Pending approval',
                                 variant: adj.status === 'approved' ? 'approved' : 'pending'
                               }}
                             />
@@ -655,37 +710,15 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Net Pay Footer + Actions */}
+                {/* Footer - Close button only, individual adjustments are approved/rejected inline */}
                 <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-
-                  {/* Action buttons - hidden when rejecting, matching leave pattern */}
-                  {selectedSubmission.status === "pending" && !showCustomReason && (
-                    <div className="flex gap-3">
-                      <Button 
-                        variant="outline"
-                        className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                        onClick={() => setShowCustomReason(true)}
-                      >
-                        Reject
-                      </Button>
-                      <Button 
-                        className="flex-1"
-                        onClick={handleApproveFromDrawer}
-                      >
-                        Approve
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {selectedSubmission.status !== "pending" && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => setDrawerOpen(false)}
-                    >
-                      Close
-                    </Button>
-                  )}
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    Close
+                  </Button>
                 </div>
               </>
             );
