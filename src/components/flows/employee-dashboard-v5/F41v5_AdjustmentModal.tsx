@@ -73,9 +73,6 @@ interface BonusLineItem {
   attachment: File | null;
 }
 
-const payPeriodStart = new Date(2026, 0, 1);
-const payPeriodEnd = new Date(2026, 0, 31);
-const payPeriodLabel = 'Jan 1 – Jan 31';
 
 const requestTypeOptions = [
   { 
@@ -480,17 +477,6 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     </div>
   );
 
-  const PayPeriodBadge = () => (
-    <div className="p-3 rounded-lg bg-muted/50 border border-border/40 mb-5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pay period</span>
-        <span className="text-sm font-medium text-foreground">{payPeriodLabel}</span>
-      </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        Requests submitted after the cut-off may be processed in the next payroll.
-      </p>
-    </div>
-  );
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
@@ -560,7 +546,6 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {selectedType === 'expense' && (
             <div className="space-y-5">
-              <PayPeriodBadge />
               <div className="space-y-3">
                 {expenseItems.map((item, index) => (
                   <div 
@@ -721,8 +706,6 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {selectedType === 'overtime' && (
             <div className="space-y-5">
-              <PayPeriodBadge />
-
               <div className="space-y-3">
                 {overtimeItems.map((item, index) => (
                   <div 
@@ -847,7 +830,6 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {selectedType === 'bonus-correction' && (
             <div className="space-y-5">
-              <PayPeriodBadge />
               <div className="space-y-3">
                 {bonusItems.map((item, index) => (
                   <div 
