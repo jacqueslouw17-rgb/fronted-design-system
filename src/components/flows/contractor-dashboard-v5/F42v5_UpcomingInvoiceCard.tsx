@@ -356,7 +356,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-sm font-medium text-muted-foreground">Invoice preview</p>
+                      <p className="text-sm font-medium text-muted-foreground">Invoice total</p>
                     </div>
                     <button
                       onClick={() => setBreakdownDrawerOpen(true)}
@@ -400,27 +400,31 @@ export const F42v5_UpcomingInvoiceCard = () => {
                       <p className="text-3xl font-bold text-foreground tracking-tight tabular-nums">
                         {formatCurrency(invoiceTotal, currency)}
                       </p>
-                      <div className="space-y-0.5 mt-1.5">
-                        <p className="text-xs text-muted-foreground">Final amount confirmed on invoice</p>
-                        <p className="text-[10px] text-muted-foreground/60">May change if edits are made before approval</p>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-1.5">This was your invoice total for December 2025</p>
                     </div>
                   )}
                 </div>
               );
             })()}
 
-            {/* Invoice Date Tile */}
+            {/* Paid Date Tile */}
             <div className="p-5 rounded-xl bg-muted/30 border border-border/40">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-medium text-muted-foreground">Invoice date</p>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm font-medium text-muted-foreground">Paid on</p>
+                </div>
+                <button
+                  onClick={() => setInvoiceHistoryOpen(true)}
+                  className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
+                >
+                  View previous →
+                </button>
               </div>
               <p className="text-2xl font-semibold text-foreground">
-                {formatDate(nextInvoiceDate)}
+                Dec 15, 2025
               </p>
-              <p className="text-xs text-muted-foreground mt-1.5">Expected invoice date</p>
-              <p className="text-[10px] text-muted-foreground/50 mt-2">Last paid: $4,120 (Dec 2025)</p>
+              <p className="text-xs text-muted-foreground mt-1.5">Deposited to your account</p>
             </div>
           </div>
 
@@ -457,16 +461,6 @@ export const F42v5_UpcomingInvoiceCard = () => {
               </div>
             </div>
           )}
-          {/* View previous invoices link */}
-          <div className="text-center">
-            <Button 
-              variant="link" 
-              onClick={() => setInvoiceHistoryOpen(true)}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              View previous invoices
-            </Button>
-          </div>
         </CardContent>
       </Card>
 

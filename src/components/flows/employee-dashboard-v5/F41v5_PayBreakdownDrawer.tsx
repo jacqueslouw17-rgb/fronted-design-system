@@ -5,9 +5,8 @@
  */
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Plus, Clock, X, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Plus, Clock, X, AlertTriangle, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import type { F41v5_Adjustment, F41v5_LeaveRequest, F41v5_PayrollStatus, F41v5_WindowState } from '@/stores/F41v5_DashboardStore';
 import { cn } from '@/lib/utils';
@@ -106,16 +105,6 @@ const BreakdownRow = ({
           )}>
             · {sublabel}
           </span>
-        )}
-        {isLocked && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Lock className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Set by your company</p>
-            </TooltipContent>
-          </Tooltip>
         )}
         {badge && (
           <Badge 
@@ -464,18 +453,6 @@ export const F41v5_PayBreakdownDrawer = ({
             </div>
           </div>
 
-          {canMakeAdjustments && (
-            <button
-              onClick={() => {
-                onMakeAdjustment();
-                onOpenChange(false);
-              }}
-              className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-dashed border-primary/30 text-sm font-medium text-primary hover:bg-primary/5 hover:border-primary/50 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Request adjustment
-            </button>
-          )}
 
           {adjustments && adjustments.length > 0 && (
             <p className="text-[11px] text-muted-foreground/70 text-center mt-4">
