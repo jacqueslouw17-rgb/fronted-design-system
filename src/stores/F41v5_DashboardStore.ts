@@ -123,9 +123,9 @@ const initialState: F41v5_DashboardState = {
   employeeCountry: 'NO',
   
   // Mock data matching the spec
-  nextPayoutDate: '2026-01-31',
-  periodLabel: 'Jan 1 – Jan 31',
-  periodMonth: 'January 2026',
+  nextPayoutDate: '2025-12-31',
+  periodLabel: 'Dec 1 – Dec 31',
+  periodMonth: 'December 2025',
   estimatedNet: 42166.67,
   currency: 'PHP',
   countryRuleLocks: ['Income Tax', 'SSS', 'PhilHealth', 'Pag-IBIG'],
