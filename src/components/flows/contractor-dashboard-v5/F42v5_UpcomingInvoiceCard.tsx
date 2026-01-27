@@ -359,10 +359,10 @@ export const F42v5_UpcomingInvoiceCard = () => {
                     </div>
                     <span
                       className={cn(
-                        "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
+                        "flex items-center gap-1 text-xs font-medium transition-colors shrink-0 hover:underline",
                         hasPartialRejections 
-                          ? "text-amber-700 dark:text-amber-400"
-                          : "text-muted-foreground/70"
+                          ? "text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
+                          : "text-muted-foreground/70 hover:text-foreground"
                       )}
                     >
                       {hasPartialRejections ? `${rejectedAdjustmentsCount} rejected` : "What's included"}
@@ -414,7 +414,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <p className="text-sm font-medium text-muted-foreground">Paid on</p>
                 </div>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground/70 transition-colors hover:text-foreground hover:underline">
                   View previous
                   <ChevronRight className="h-3 w-3" />
                 </span>
