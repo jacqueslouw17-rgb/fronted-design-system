@@ -301,14 +301,8 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
             {visibleLeave.length > 0 ? (
               visibleLeave.map(leave => renderLeaveRow(leave))
             ) : (
-              <div className="py-10 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mb-3">
-                  <CalendarDays className="h-5 w-5 text-muted-foreground/60" />
-                </div>
-                <p className="text-sm font-medium text-foreground/80">No pending leave requests</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Submit a request anytime — we'll track it here.
-                </p>
+              <div className="py-4 text-center">
+                <p className="text-sm text-muted-foreground">No pending leave requests</p>
               </div>
             )}
           </div>

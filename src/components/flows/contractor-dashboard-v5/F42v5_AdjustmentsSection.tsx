@@ -222,14 +222,8 @@ export const F42v5_AdjustmentsSection = ({ onRequestAdjustment }: F42v5_Adjustme
             {visibleAdjustments.length > 0 ? (
               visibleAdjustments.map(adj => renderAdjustmentRow(adj))
             ) : (
-              <div className="py-10 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mb-3">
-                  <Receipt className="h-5 w-5 text-muted-foreground/60" />
-                </div>
-                <p className="text-sm font-medium text-foreground/80">No pending adjustments</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Request an expense, additional hours, or commission anytime.
-                </p>
+              <div className="py-4 text-center">
+                <p className="text-sm text-muted-foreground">No pending adjustments</p>
               </div>
             )}
           </div>
