@@ -336,21 +336,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
               <div className="flex items-center gap-3">
                 <CardTitle className="text-xl font-semibold">The last invoice (December 2025)</CardTitle>
               </div>
-              {/* Helper text with timestamps and deadline */}
               <div className="flex flex-col gap-0.5">
-                {/* Draft state - show deadline countdown when window is open */}
-                {invoiceStatus === 'draft' && windowState === 'OPEN' && (
-                  <p className="text-sm text-muted-foreground">
-                    Submit by <span className="font-medium text-foreground">{cutoffDate}</span>
-                    <span className="mx-1.5">·</span>
-                    <span className={cn(
-                      "font-medium",
-                      daysUntilClose <= 2 ? "text-amber-600 dark:text-amber-400" : "text-foreground"
-                    )}>
-                      {daysUntilClose} {daysUntilClose === 1 ? 'day' : 'days'} left
-                    </span>
-                  </p>
-                )}
                 {/* Show submitted timestamp */}
                 {invoiceStatus === 'submitted' && submittedAt && (
                   <p className="text-sm text-muted-foreground">
