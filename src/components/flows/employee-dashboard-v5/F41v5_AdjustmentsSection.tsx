@@ -177,7 +177,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
               variant="ghost"
               size="sm"
               onClick={() => handleResubmit(adj)}
-              className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-500/20"
+              className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:text-destructive dark:hover:bg-destructive/20"
             >
               <RotateCcw className="h-3 w-3 mr-1" />
               Resubmit
