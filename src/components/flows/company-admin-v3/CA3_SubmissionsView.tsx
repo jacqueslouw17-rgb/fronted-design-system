@@ -135,8 +135,8 @@ const AdjustmentRow = ({
   const isPending = status === 'pending';
 
   return (
-    <div className="-mx-0.5 mb-1">
-      {/* Main row + expanded panel share a continuous border - offset by -mx to align inner content */}
+    <div className="-mx-2 mb-1">
+      {/* Container extends to edges via -mx-2, inner px-2 aligns content with other rows */}
       <div 
         className={cn(
           "rounded-lg transition-all duration-200 overflow-hidden",
@@ -144,7 +144,7 @@ const AdjustmentRow = ({
           !isPending && "border border-transparent"
         )}
       >
-        {/* Main row - py matches BreakdownRow, px compensates for border offset */}
+        {/* Main row */}
         <div 
           className={cn(
             "flex items-center justify-between py-2 px-2 transition-all duration-200",
