@@ -76,7 +76,11 @@ interface AdditionalHoursLineItem {
   calculatedHours: number;
 }
 
-
+// Commission line item for multi-entry submissions
+interface CommissionLineItem {
+  id: string;
+  amount: string;
+}
 const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
   const options = [
     { 
@@ -144,8 +148,10 @@ export const F42v6_AdjustmentDrawer = ({
     { id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }
   ]);
   
-  // Bonus form state
-  const [bonusAmount, setBonusAmount] = useState('');
+  // Commission form state - multiple line items
+  const [commissionItems, setCommissionItems] = useState<CommissionLineItem[]>([
+    { id: crypto.randomUUID(), amount: '' }
+  ]);
   
   // Correction form state
   const [correctionDescription, setCorrectionDescription] = useState('');
@@ -162,7 +168,7 @@ export const F42v6_AdjustmentDrawer = ({
     setSelectedType(initialType);
     setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     setAdditionalHoursItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
-    setBonusAmount('');
+    setCommissionItems([{ id: crypto.randomUUID(), amount: '' }]);
     setCorrectionDescription('');
     setCorrectionAttachment(null);
     setErrors({});
@@ -209,6 +215,22 @@ export const F42v6_AdjustmentDrawer = ({
       
       return updated;
     }));
+  };
+
+  // Commission line item helpers
+  const addCommissionItem = () => {
+    setCommissionItems(prev => [...prev, { id: crypto.randomUUID(), amount: '' }]);
+  };
+
+  const removeCommissionItem = (id: string) => {
+    if (commissionItems.length === 1) return;
+    setCommissionItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateCommissionItem = (id: string, field: keyof CommissionLineItem, value: string) => {
+    setCommissionItems(prev => prev.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
   };
 
   // Calculate hours from start/end time
@@ -264,9 +286,9 @@ export const F42v6_AdjustmentDrawer = ({
     if (open && initialType === 'expense' && (initialExpenseCategory || initialExpenseAmount)) {
       setExpenseItems([{ id: crypto.randomUUID(), category: initialExpenseCategory, otherCategory: '', amount: initialExpenseAmount, receipt: null }]);
     }
-    // Pre-fill bonus amount for resubmissions
+    // Pre-fill commission amount for resubmissions
     if (open && initialType === 'bonus' && initialExpenseAmount) {
-      setBonusAmount(initialExpenseAmount);
+      setCommissionItems([{ id: crypto.randomUUID(), amount: initialExpenseAmount }]);
     }
     // Pre-fill additional hours for resubmissions
     if (open && initialType === 'additional-hours') {
@@ -370,11 +392,19 @@ export const F42v6_AdjustmentDrawer = ({
     return !hasError;
   };
 
-  const validateBonus = () => {
+  const validateCommission = () => {
     const newErrors: Record<string, string> = {};
-    if (!bonusAmount || parseFloat(bonusAmount) <= 0) newErrors.bonusAmount = 'Amount must be greater than 0';
+    let hasError = false;
+    
+    commissionItems.forEach((item, index) => {
+      if (!item.amount || parseFloat(item.amount) <= 0) {
+        newErrors[`commission_${index}_amount`] = 'Amount must be greater than 0';
+        hasError = true;
+      }
+    });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasError;
   };
 
   const validateCorrection = () => {
@@ -449,12 +479,15 @@ export const F42v6_AdjustmentDrawer = ({
   };
 
   const handleSubmitBonus = () => {
-    if (!validateBonus()) return;
+    if (!validateCommission()) return;
 
-    addAdjustment({
-      type: 'Bonus',
-      label: 'Commission',
-      amount: parseFloat(bonusAmount),
+    // Submit each commission item
+    commissionItems.forEach(item => {
+      addAdjustment({
+        type: 'Bonus',
+        label: 'Commission',
+        amount: parseFloat(item.amount),
+      });
     });
 
     // Mark the rejected item as resubmitted if this was a resubmission
@@ -462,7 +495,8 @@ export const F42v6_AdjustmentDrawer = ({
       markRejectionResubmitted(rejectedId);
     }
 
-    toast.success("Commission request submitted for review.");
+    const count = commissionItems.length;
+    toast.success(`${count} commission${count > 1 ? 's' : ''} submitted for review.`);
     handleClose();
   };
 
@@ -759,27 +793,21 @@ export const F42v6_AdjustmentDrawer = ({
                 </button>
               </div>
 
-              {/* Total summary - only show if multiple items */}
-              {expenseItems.length > 1 && expenseItems.some(item => item.amount) && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <span className="text-sm text-muted-foreground">Total ({expenseItems.length} items)</span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
-                    {currency} {expenseItems
-                      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
-                      .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+              {/* Session total - always show when items have amounts */}
+              {expenseItems.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {currency} {expenseItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               )}
 
-              {/* Submit */}
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitExpenses} className="flex-1">
-                  Submit {expenseItems.length > 1 ? `${expenseItems.length} expenses` : 'expense'}
-                </Button>
-              </div>
+              <Button onClick={handleSubmitExpenses} className="w-full">
+                Request adjustment
+              </Button>
             </div>
           )}
 
@@ -894,13 +922,15 @@ export const F42v6_AdjustmentDrawer = ({
                 </button>
               </div>
 
-              {/* Total summary - only show if multiple items or has calculated hours */}
-              {additionalHoursItems.length > 1 && totalAdditionalHours > 0 && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <span className="text-sm text-muted-foreground">Total ({additionalHoursItems.length} entries)</span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
-                    {totalAdditionalHours}h
-                  </span>
+              {/* Session total - always show when has calculated hours */}
+              {additionalHoursItems.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {totalAdditionalHours}h
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -908,48 +938,88 @@ export const F42v6_AdjustmentDrawer = ({
                 Your rate applies automatically; final amount will be calculated.
               </p>
 
-              {/* Submit */}
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitAdditionalHours} className="flex-1">
-                  Submit {additionalHoursItems.length > 1 ? `${additionalHoursItems.length} entries` : 'request'}
-                </Button>
-              </div>
+              <Button onClick={handleSubmitAdditionalHours} className="w-full">
+                Request adjustment
+              </Button>
             </div>
           )}
 
-          {/* Bonus Form */}
+          {/* Commission Form - Multi-entry support matching employee bonus pattern */}
           {selectedType === 'bonus' && (
             <div className="space-y-5">
-              <div className="space-y-2">
-                <Label>Amount ({currency})</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={bonusAmount}
-                  onChange={(e) => setBonusAmount(e.target.value)}
-                  className={cn(errors.bonusAmount && 'border-destructive')}
-                />
-                {errors.bonusAmount && <p className="text-xs text-destructive">{errors.bonusAmount}</p>}
+              <div className="space-y-3">
+                {commissionItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button */}
+                    {commissionItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeCommissionItem(item.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+
+                    {/* Item number badge */}
+                    {commissionItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Commission {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Amount ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="0.00"
+                        value={item.amount}
+                        onChange={(e) => updateCommissionItem(item.id, 'amount', e.target.value)}
+                        className={cn(
+                          "h-9",
+                          errors[`commission_${index}_amount`] && 'border-destructive'
+                        )}
+                      />
+                      {errors[`commission_${index}_amount`] && (
+                        <p className="text-xs text-destructive">{errors[`commission_${index}_amount`]}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Subject to admin approval.
-              </p>
+              {/* Add another commission button */}
+              <button
+                type="button"
+                onClick={addCommissionItem}
+                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
+              >
+                <span className="text-lg leading-none">+</span>
+                Add another commission
+              </button>
 
-              {/* Submit */}
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitBonus} className="flex-1">
-                  Submit request
-                </Button>
-              </div>
+              {/* Session total */}
+              {commissionItems.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {currency} {commissionItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <Button onClick={handleSubmitBonus} className="w-full">
+                Request adjustment
+              </Button>
             </div>
           )}
 
