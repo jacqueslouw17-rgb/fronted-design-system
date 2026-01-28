@@ -582,22 +582,22 @@ const LeaveRow = ({
   return (
     <>
       <div 
-        className="-mx-2 mb-1"
+        className="mb-1"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={cn(
-          "rounded-lg transition-all duration-200 overflow-hidden",
+          "rounded-lg transition-all duration-200 overflow-hidden -mx-2",
           "border border-orange-200/60 dark:border-orange-500/20"
         )}>
           {/* Main row */}
           <div 
-            className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
+            className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm text-muted-foreground">
                   {config.label}
                 </span>
                 <Badge 
@@ -607,7 +607,7 @@ const LeaveRow = ({
                   Pending approval
                 </Badge>
               </div>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground/70">
                 {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
               </span>
             </div>
