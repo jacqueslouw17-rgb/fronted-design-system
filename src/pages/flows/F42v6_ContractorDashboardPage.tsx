@@ -174,12 +174,10 @@ const F42v6_ContractorDashboardPage = () => {
 
                   {/* Tabs: Payroll / Adjustments */}
                   <Tabs defaultValue="payroll" className="w-full">
-                    <div className="flex justify-center mb-4">
-                      <TabsList className="w-[280px]">
-                        <TabsTrigger value="payroll" className="flex-1">Payroll</TabsTrigger>
-                        <TabsTrigger value="adjustments" className="flex-1">Adjustments</TabsTrigger>
-                      </TabsList>
-                    </div>
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                      <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
+                    </TabsList>
 
                     <TabsContent value="payroll" className="mt-0">
                       <F42v6_InvoicesSection 
