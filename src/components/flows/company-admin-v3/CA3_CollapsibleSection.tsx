@@ -63,7 +63,7 @@ export const CollapsibleSection = ({
         )}
       </button>
       
-      {/* Content - no extra padding */}
+      {/* Content - indented to align with header text */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -73,7 +73,7 @@ export const CollapsibleSection = ({
             transition={{ duration: 0.12, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="pt-0.5 pb-1">
+            <div className="pl-4">
               {children}
             </div>
           </motion.div>
