@@ -170,19 +170,10 @@ const AdjustmentRow = ({
             </Badge>
           </div>
           
-          <div className="flex items-center gap-2">
-            <span className="text-sm tabular-nums font-mono text-foreground">
-              +{formatAmount(amount, currency)}
-            </span>
-            {isPending && (
-              <ChevronRight className={cn(
-                "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                isExpanded && "rotate-90"
-              )} />
-            )}
-          </div>
+          <span className="text-sm tabular-nums font-mono text-foreground">
+            +{formatAmount(amount, currency)}
+          </span>
         </div>
-
         {/* Expanded action panel */}
         <AnimatePresence>
           {isExpanded && isPending && (
