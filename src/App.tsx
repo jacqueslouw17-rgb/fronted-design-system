@@ -35,6 +35,8 @@ import F41v5_EmployeeDashboardPage from "./pages/flows/F41v5_EmployeeDashboardPa
 import F42v3_ContractorDashboardPage from "./pages/flows/F42v3_ContractorDashboardPage";
 import F42v4_ContractorDashboardPage from "./pages/flows/F42v4_ContractorDashboardPage";
 import F42v5_ContractorDashboardPage from "./pages/flows/F42v5_ContractorDashboardPage";
+import F41v6_EmployeeDashboardPage from "./pages/flows/F41v6_EmployeeDashboardPage";
+import F42v6_ContractorDashboardPage from "./pages/flows/F42v6_ContractorDashboardPage";
 import CandidateProfileSettingsV2 from "./pages/CandidateProfileSettingsV2";
 import F41v4_ProfileSettings from "./pages/flows/F41v4_ProfileSettings";
 import F42v4_ProfileSettings from "./pages/flows/F42v4_ProfileSettings";

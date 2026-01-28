@@ -1,10 +1,10 @@
 /**
- * Flow 4.2 — Contractor Dashboard v5
+ * Flow 4.2 — Contractor Dashboard v6
  * Upcoming Invoice Card with 5-status UX
  * Aligned with Flow 4.1 Employee Dashboard v2 patterns
  * 
  * Features: Partial rejection + full rejection demo states
- * INDEPENDENT: Changes here do NOT affect v4 or any other flow.
+ * INDEPENDENT: Changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useEffect } from 'react';
@@ -13,16 +13,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronRight, FileText, X, Calendar, Wallet, Clock, AlertCircle, Check } from 'lucide-react';
-import { useF42v5_DashboardStore, type F42v5_InvoiceStatus, type F42v5_Adjustment } from '@/stores/F42v5_DashboardStore';
-import { F42v5_AdjustmentDrawer, type ContractorRequestType } from './F42v5_AdjustmentDrawer';
-import { F42v5_ConfirmInvoiceDialog } from './F42v5_ConfirmInvoiceDialog';
-import { F42v5_AdjustmentDetailDrawer } from './F42v5_AdjustmentDetailDrawer';
-import { F42v5_WithdrawDialog } from './F42v5_WithdrawDialog';
-import { F42v5_WithdrawSubmissionDialog } from './F42v5_WithdrawSubmissionDialog';
-import { F42v5_InvoiceHistoryDrawer } from './F42v5_InvoiceHistoryDrawer';
-import { F42v5_InvoiceBreakdownDrawer } from './F42v5_InvoiceBreakdownDrawer';
+import { useF42v6_DashboardStore, type F42v6_InvoiceStatus, type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
+import { F42v6_AdjustmentDrawer, type ContractorRequestType } from './F42v6_AdjustmentDrawer';
+import { F42v6_ConfirmInvoiceDialog } from './F42v6_ConfirmInvoiceDialog';
+import { F42v6_AdjustmentDetailDrawer } from './F42v6_AdjustmentDetailDrawer';
+import { F42v6_WithdrawDialog } from './F42v6_WithdrawDialog';
+import { F42v6_WithdrawSubmissionDialog } from './F42v6_WithdrawSubmissionDialog';
+import { F42v6_InvoiceHistoryDrawer } from './F42v6_InvoiceHistoryDrawer';
+import { F42v6_InvoiceBreakdownDrawer } from './F42v6_InvoiceBreakdownDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
 const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -30,6 +31,7 @@ const formatCurrency = (amount: number, currency: string) => {
     minimumFractionDigits: 2
   }).format(amount);
 };
+
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
@@ -38,6 +40,7 @@ const formatDate = (dateStr: string) => {
     day: 'numeric'
   });
 };
+
 const formatSubmittedTimestamp = (dateStr: string) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
@@ -51,7 +54,7 @@ const formatSubmittedTimestamp = (dateStr: string) => {
 };
 
 // Status configuration matching employee patterns
-const getStatusConfig = (status: F42v5_InvoiceStatus): {
+const getStatusConfig = (status: F42v6_InvoiceStatus): {
   label: string;
   className: string;
   explanation: string;
@@ -121,7 +124,8 @@ const getStatusConfig = (status: F42v5_InvoiceStatus): {
       };
   }
 };
-const getAdjustmentStatusColor = (status: F42v5_Adjustment['status']) => {
+
+const getAdjustmentStatusColor = (status: F42v6_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
@@ -135,7 +139,8 @@ const getAdjustmentStatusColor = (status: F42v5_Adjustment['status']) => {
       return 'bg-muted text-muted-foreground';
   }
 };
-export const F42v5_UpcomingInvoiceCard = () => {
+
+export const F42v6_UpcomingInvoiceCard = () => {
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
   const [adjustmentDrawerInitialType, setAdjustmentDrawerInitialType] = useState<ContractorRequestType>(null);
   const [adjustmentDrawerInitialCategory, setAdjustmentDrawerInitialCategory] = useState('');
@@ -144,7 +149,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [breakdownDrawerOpen, setBreakdownDrawerOpen] = useState(false);
   const [invoiceHistoryOpen, setInvoiceHistoryOpen] = useState(false);
-  const [selectedAdjustment, setSelectedAdjustment] = useState<F42v5_Adjustment | null>(null);
+  const [selectedAdjustment, setSelectedAdjustment] = useState<F42v6_Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
@@ -157,6 +162,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
     setAdjustmentDrawerFromBreakdown(fromBreakdown);
     setAdjustmentDrawerOpen(true);
   };
+
   const handleAdjustmentDrawerClose = (open: boolean) => {
     setAdjustmentDrawerOpen(open);
     if (!open) {
@@ -166,6 +172,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
       setAdjustmentDrawerFromBreakdown(false);
     }
   };
+
   const {
     nextInvoiceDate,
     periodLabel,
@@ -189,7 +196,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
     withdrawSubmission,
     setInvoiceStatus,
     markRejectionResubmitted
-  } = useF42v5_DashboardStore();
+  } = useF42v6_DashboardStore();
 
   // Auto-transition from 'submitted' to 'approved' after 3 seconds
   useEffect(() => {
@@ -201,6 +208,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
       return () => clearTimeout(timer);
     }
   }, [invoiceStatus, setInvoiceStatus]);
+
   const effectiveStatus = invoiceStatus;
   const statusConfig = getStatusConfig(effectiveStatus);
   const isWindowOpen = windowState === 'OPEN';
@@ -284,6 +292,7 @@ export const F42v5_UpcomingInvoiceCard = () => {
         </CardContent>
       </Card>;
   }
+
   return <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
         <CardContent className="px-6 py-6 space-y-6">
@@ -334,18 +343,18 @@ export const F42v5_UpcomingInvoiceCard = () => {
       </Card>
 
       {/* Modals & Drawers */}
-      <F42v5_AdjustmentDrawer open={adjustmentDrawerOpen} onOpenChange={handleAdjustmentDrawerClose} currency={currency} contractType={contractType} initialType={adjustmentDrawerInitialType} initialExpenseCategory={adjustmentDrawerInitialCategory} initialExpenseAmount={adjustmentDrawerInitialAmount} onBack={adjustmentDrawerFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined} />
+      <F42v6_AdjustmentDrawer open={adjustmentDrawerOpen} onOpenChange={handleAdjustmentDrawerClose} currency={currency} contractType={contractType} initialType={adjustmentDrawerInitialType} initialExpenseCategory={adjustmentDrawerInitialCategory} initialExpenseAmount={adjustmentDrawerInitialAmount} onBack={adjustmentDrawerFromBreakdown ? () => setBreakdownDrawerOpen(true) : undefined} />
 
-      <F42v5_ConfirmInvoiceDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
+      <F42v6_ConfirmInvoiceDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen} periodLabel={periodLabel} />
 
-      <F42v5_AdjustmentDetailDrawer adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} onCancelRequest={handleCancelFromDrawer} currency={currency} isWindowOpen={isWindowOpen && invoiceStatus === 'draft'} />
+      <F42v6_AdjustmentDetailDrawer adjustment={selectedAdjustment} onClose={() => setSelectedAdjustment(null)} onCancelRequest={handleCancelFromDrawer} currency={currency} isWindowOpen={isWindowOpen && invoiceStatus === 'draft'} />
 
-      <F42v5_InvoiceBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} invoiceTotal={invoiceTotal} periodLabel={periodLabel} />
+      <F42v6_InvoiceBreakdownDrawer open={breakdownDrawerOpen} onOpenChange={setBreakdownDrawerOpen} lineItems={lineItems} currency={currency} invoiceTotal={invoiceTotal} periodLabel={periodLabel} />
 
-      <F42v5_InvoiceHistoryDrawer open={invoiceHistoryOpen} onOpenChange={setInvoiceHistoryOpen} />
+      <F42v6_InvoiceHistoryDrawer open={invoiceHistoryOpen} onOpenChange={setInvoiceHistoryOpen} />
 
-      <F42v5_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} />
+      <F42v6_WithdrawDialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen} onConfirm={handleConfirmWithdraw} />
 
-      <F42v5_WithdrawSubmissionDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen} onConfirm={withdrawSubmission} />
+      <F42v6_WithdrawSubmissionDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen} onConfirm={withdrawSubmission} />
     </>;
 };

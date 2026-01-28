@@ -57,7 +57,7 @@ const getStatusBadge = (status: F42v5_Adjustment['status']) => {
   }
 };
 
-export const F42v5_AdjustmentDetailDrawer = ({ 
+export const F42v6_AdjustmentDetailDrawer = ({ 
   adjustment, 
   onClose, 
   onCancelRequest,

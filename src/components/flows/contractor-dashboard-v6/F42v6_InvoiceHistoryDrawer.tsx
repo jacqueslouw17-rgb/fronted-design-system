@@ -172,7 +172,7 @@ const getStatusBadge = (status: Invoice['status']) => {
   }
 };
 
-export const F42v5_InvoiceHistoryDrawer = ({
+export const F42v6_InvoiceHistoryDrawer = ({
   open,
   onOpenChange,
 }: F42v5_InvoiceHistoryDrawerProps) => {

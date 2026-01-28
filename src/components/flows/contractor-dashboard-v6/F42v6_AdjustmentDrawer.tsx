@@ -104,7 +104,7 @@ const getRequestTypeOptions = (contractType: F42v5_ContractType) => {
   return options;
 };
 
-export const F42v5_AdjustmentDrawer = ({ 
+export const F42v6_AdjustmentDrawer = ({ 
   open, 
   onOpenChange, 
   currency, 

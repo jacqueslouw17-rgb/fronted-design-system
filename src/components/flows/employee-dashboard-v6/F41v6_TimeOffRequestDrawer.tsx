@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v5
+ * Flow 4.1 — Employee Dashboard v6
  * Dedicated Time Off Request Drawer - Premium, streamlined leave request form
- * INDEPENDENT: This is a complete clone - changes here do NOT affect v4 or any other flow.
+ * INDEPENDENT: This is a complete clone - changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v5_DashboardStore, type F41v5_LeaveType } from '@/stores/F41v5_DashboardStore';
+import { useF41v6_DashboardStore, type F41v6_LeaveType } from '@/stores/F41v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, Plane, Check, Sun, Sparkles, AlertTriangle, MapPin, Info } from 'lucide-react';
 import { format } from 'date-fns';
@@ -31,7 +31,7 @@ import {
   type Holiday,
 } from '@/utils/countryLeaveUtils';
 
-interface F41v5_TimeOffRequestDrawerProps {
+interface F41v6_TimeOffRequestDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rejectedId?: string;
@@ -41,7 +41,7 @@ interface F41v5_TimeOffRequestDrawerProps {
   initialEndDate?: string;
 }
 
-const leaveTypes: { value: F41v5_LeaveType; label: string; icon: string }[] = [
+const leaveTypes: { value: F41v6_LeaveType; label: string; icon: string }[] = [
   { value: 'Vacation', label: 'Vacation', icon: '🌴' },
   { value: 'Sick', label: 'Sick', icon: '🤒' },
   { value: 'Compassionate', label: 'Compassionate', icon: '💜' },
@@ -63,7 +63,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   JP: 'Japan',
 };
 
-export const F41v5_TimeOffRequestDrawer = ({ 
+export const F41v6_TimeOffRequestDrawer = ({ 
   open, 
   onOpenChange, 
   rejectedId, 
@@ -71,12 +71,12 @@ export const F41v5_TimeOffRequestDrawer = ({
   initialLeaveType,
   initialStartDate,
   initialEndDate
-}: F41v5_TimeOffRequestDrawerProps) => {
-  const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v5_DashboardStore();
+}: F41v6_TimeOffRequestDrawerProps) => {
+  const { addLeaveRequest, employeeCountry, leaveRequests, withdrawLeaveRequest } = useF41v6_DashboardStore();
   
   const [countryRules, setCountryRules] = useState<CountryRules | null>(null);
   const [isLoadingRules, setIsLoadingRules] = useState(false);
-  const [leaveType, setLeaveType] = useState<F41v5_LeaveType>('Vacation');
+  const [leaveType, setLeaveType] = useState<F41v6_LeaveType>('Vacation');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isHalfDay, setIsHalfDay] = useState(false);
   const [notes, setNotes] = useState('');
@@ -445,140 +445,99 @@ export const F41v5_TimeOffRequestDrawer = ({
               </div>
             </div>
 
-            <AnimatePresence>
-              {dateRange?.from && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/[0.04] border border-primary/20">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4 text-primary" />
-                      <span className="text-sm text-foreground">
-                        {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
-                          ? `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`
-                          : format(dateRange.from, 'EEE, MMM d, yyyy')}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <Plane className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-sm font-medium text-primary">
-                          {calculatedDays === 0.5 ? '0.5 day' : `${calculatedDays} ${calculatedDays === 1 ? 'day' : 'days'}`}
-                        </span>
-                      </div>
-                      {leaveType === 'Vacation' && countryRules && countryRules.maxAnnualLeave > 0 && (
-                        <>
-                          <span className="text-muted-foreground/40">·</span>
-                          <span className={cn(
-                            "text-sm",
-                            countryRules.maxAnnualLeave - usedVacationLeave - calculatedDays < 0 
-                              ? "text-destructive font-medium" 
-                              : "text-muted-foreground"
-                          )}>
-                            {countryRules.maxAnnualLeave - usedVacationLeave - calculatedDays} left
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {isSingleDay && (
-                    <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 border border-border/40">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-foreground">Half day only</span>
-                        <span className="text-xs text-muted-foreground">(0.5 day)</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsHalfDay(!isHalfDay)}
-                        className={cn(
-                          "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 transition-colors",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
-                          isHalfDay 
-                            ? "bg-primary border-transparent" 
-                            : "bg-muted-foreground/20 border-border"
-                        )}
-                        role="switch"
-                        aria-checked={isHalfDay}
-                      >
-                        <span
-                          className={cn(
-                            "pointer-events-none block h-4 w-4 rounded-full shadow-md ring-0 transition-transform",
-                            isHalfDay 
-                              ? "translate-x-4 bg-primary-foreground" 
-                              : "translate-x-0 bg-foreground/70"
-                          )}
-                        />
-                      </button>
-                    </div>
-                  )}
-
-                  {spansPayPeriods && (
-                    <div className="flex items-start gap-2 py-2 px-3 rounded-lg bg-muted/50 border border-border/40">
-                      <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <span className="text-xs text-muted-foreground">
-                        This request spans pay periods. Days will be split across payroll cycles automatically.
-                      </span>
-                    </div>
-                  )}
-
-                  {holidaysInRange.length > 0 && (
-                    <div className="flex items-start gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
-                      <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                      <div className="text-xs text-amber-700 dark:text-amber-300">
-                        <span className="font-medium">Includes {holidaysInRange.length} holiday{holidaysInRange.length > 1 ? 's' : ''}:</span>
-                        <span className="ml-1">
-                          {holidaysInRange.map(h => h.localName).join(', ')}
-                        </span>
-                        <span className="block mt-0.5 text-amber-600/80 dark:text-amber-400/80">
-                          These won't be deducted from your leave balance.
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {validation?.warnings.map((warning, i) => (
-                    <div 
-                      key={i}
-                      className="flex items-start gap-2 py-2 px-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20"
-                    >
-                      <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                      <span className="text-xs text-amber-700 dark:text-amber-300">{warning}</span>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {errors.dates && (
+              <p className="text-xs text-destructive">{errors.dates}</p>
+            )}
           </div>
 
-          <p className="text-xs text-muted-foreground text-center px-4">
-            Once approved, this time off will be reflected in your payroll
-          </p>
+          {/* Selection summary */}
+          {dateRange?.from && (
+            <div className="space-y-3">
+              <div className="p-4 rounded-xl bg-muted/30 border border-border/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Selected dates</span>
+                  <span className="text-sm font-medium">
+                    {startDate && endDate && (
+                      isSingleDay 
+                        ? format(startDate, 'MMM d, yyyy')
+                        : `${format(startDate, 'MMM d')} – ${format(endDate, 'MMM d, yyyy')}`
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Business days</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
+                  </span>
+                </div>
+                
+                {/* Half day toggle for single days */}
+                {isSingleDay && (
+                  <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                    <span className="text-sm text-muted-foreground">Half day?</span>
+                    <button
+                      onClick={() => setIsHalfDay(!isHalfDay)}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                        isHalfDay 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      )}
+                    >
+                      {isHalfDay ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Holidays in range */}
+                {holidaysInRange.length > 0 && (
+                  <div className="pt-2 border-t border-border/40">
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mb-1.5">
+                      Holidays excluded from count:
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {holidaysInRange.map((h, i) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20">
+                          {h.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pay period split warning */}
+                {spansPayPeriods && (
+                  <div className="flex items-start gap-2 pt-2 border-t border-border/40">
+                    <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <p className="text-xs text-muted-foreground">
+                      This leave spans multiple pay periods and will be split automatically on your payslips.
+                    </p>
+                  </div>
+                )}
+
+                {/* Validation warnings */}
+                {validation && !validation.isValid && (
+                  <div className="flex items-start gap-2 pt-2 border-t border-border/40">
+                    <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      {validation.warnings?.[0] || 'Leave request may exceed available balance'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="sticky bottom-0 p-6 pt-4 bg-gradient-to-t from-background via-background to-transparent">
-          <Button 
+        {/* Footer */}
+        <div className="sticky bottom-0 p-6 pt-4 border-t border-border/40 bg-gradient-to-t from-background via-background to-background/80">
+          <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !dateRange?.from}
-            className="w-full h-12 text-base font-medium"
+            disabled={!dateRange?.from || isSubmitting}
+            className="w-full"
             size="lg"
           >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sun className="h-4 w-4" />
-                </motion.div>
-                Submitting...
-              </span>
-            ) : (
-              'Submit request'
-            )}
+            {isSubmitting ? 'Submitting...' : 'Submit request'}
           </Button>
         </div>
       </SheetContent>
