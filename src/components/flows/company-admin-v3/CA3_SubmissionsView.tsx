@@ -688,17 +688,44 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             const deductions = selectedSubmission.lineItems?.filter(item => item.type === 'Deduction') || [];
             // Get all adjustments (pending, approved, rejected)
             const allAdjustments = selectedSubmission.submissions;
-            const pendingAdjustments = allAdjustments.filter(s => s.status === 'pending' || !s.status);
-            const approvedAdjustments = allAdjustments.filter(s => s.status === 'approved');
             const currency = selectedSubmission.currency || 'USD';
             
+            // Calculate statuses based on local state
+            const getEffectiveStatus = (idx: number, originalStatus?: AdjustmentItemStatus): AdjustmentItemStatus => {
+              return getAdjustmentStatus(selectedSubmission.id, idx, originalStatus).status;
+            };
+            
+            // Count pending adjustments based on current state
+            const currentPendingCount = allAdjustments.filter((adj, idx) => {
+              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
+              return effectiveStatus === 'pending';
+            }).length;
+            
+            // Calculate adjustment total (only approved adjustments count toward net pay)
+            const approvedAdjustmentTotal = allAdjustments.reduce((sum, adj, idx) => {
+              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
+              if (effectiveStatus === 'approved') {
+                return sum + (adj.amount || 0);
+              }
+              return sum;
+            }, 0);
+            
+            // Pending adjustments still show in estimate but clearly marked
+            const pendingAdjustmentTotal = allAdjustments.reduce((sum, adj, idx) => {
+              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
+              if (effectiveStatus === 'pending') {
+                return sum + (adj.amount || 0);
+              }
+              return sum;
+            }, 0);
+            
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
-            // Only count approved and pending (not rejected) for totals
-            const adjustmentTotal = [...pendingAdjustments, ...approvedAdjustments].reduce((sum, adj) => sum + (adj.amount || 0), 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
-            const adjustedNet = baseNet + adjustmentTotal;
+            // Net pay = base + approved adjustments (pending shown separately)
+            const adjustedNet = baseNet + approvedAdjustmentTotal + pendingAdjustmentTotal;
+            const confirmedNet = baseNet + approvedAdjustmentTotal;
             const hasAdjustments = allAdjustments.length > 0;
             
             return (
@@ -776,7 +803,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       {/* Total Earnings */}
                       <BreakdownRow
                         label="Total earnings"
-                        amount={totalEarnings + adjustmentTotal}
+                        amount={totalEarnings + approvedAdjustmentTotal + pendingAdjustmentTotal}
                         currency={currency}
                         isPositive
                         isTotal
@@ -854,9 +881,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <div className="flex items-start justify-between py-3">
                       <div>
                         <p className="text-sm font-medium text-foreground">Estimated net pay</p>
-                        {hasAdjustments && pendingAdjustments.length > 0 && (
+                        {currentPendingCount > 0 && (
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Includes {pendingAdjustments.length} pending adjustment{pendingAdjustments.length !== 1 ? 's' : ''}
+                            Includes {currentPendingCount} pending adjustment{currentPendingCount !== 1 ? 's' : ''}
                           </p>
                         )}
                       </div>
@@ -864,7 +891,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
                           {formatCurrency(adjustedNet, currency)}
                         </p>
-                        {hasAdjustments && (
+                        {(approvedAdjustmentTotal > 0 || currentPendingCount > 0) && (
                           <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
                             Base: {formatCurrency(baseNet, currency)}
                           </p>
