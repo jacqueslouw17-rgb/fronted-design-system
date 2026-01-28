@@ -250,107 +250,98 @@ const AdjustmentRow = ({
     );
   }
 
-  // Pending state - clean, aligned with other rows
+  // Pending state - clean inline row, no box
   return (
     <>
       <div 
-        className={cn(
-          "rounded transition-all duration-150 overflow-hidden my-0.5",
-          "border border-orange-300/40 dark:border-orange-500/25",
-          "bg-orange-50/50 dark:bg-orange-500/[0.06]"
-        )}
+        className="flex items-center justify-between py-2 cursor-pointer hover:bg-muted/30 -mx-1 px-1 rounded transition-colors"
+        onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
       >
-        {/* Main row - same padding as BreakdownRow */}
-        <div 
-          className="flex items-center justify-between py-2 px-2.5 cursor-pointer hover:bg-orange-100/50 dark:hover:bg-orange-500/10 transition-colors"
-          onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-        >
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-sm text-foreground">{label}</span>
-            <span className="text-[9px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-              pending
-            </span>
-          </div>
-          
-          <span className="text-sm tabular-nums font-mono text-foreground ml-3">
-            +{formatAmount(amount, currency)}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm text-foreground">{label}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+            pending
           </span>
         </div>
-        {/* Expanded action panel */}
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.12, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="border-t border-orange-200/60 dark:border-orange-500/15 px-2.5 py-2.5">
-                {!showRejectForm ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRejectForm(true);
-                      }}
-                      className="flex-1 h-7 text-[11px] gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
-                    >
-                      <X className="h-3 w-3" />
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleApproveClick();
-                      }}
-                      className="flex-1 h-7 text-[11px] gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                      <Check className="h-3 w-3" />
-                      Approve
-                    </Button>
-                  </div>
-                ) : (
-                <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                  <Textarea
-                    placeholder="Reason for rejection..."
-                    value={rejectReasonInput}
-                    onChange={(e) => setRejectReasonInput(e.target.value)}
-                    className="min-h-[60px] resize-none text-sm"
-                    autoFocus
-                  />
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setShowRejectForm(false);
-                        setRejectReasonInput("");
-                      }}
-                      className="flex-1 h-7 text-[11px]"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={handleRejectClick}
-                      disabled={!rejectReasonInput.trim()}
-                      className="flex-1 h-7 text-[11px] bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                    >
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        
+        <span className="text-sm tabular-nums font-mono text-foreground ml-3">
+          +{formatAmount(amount, currency)}
+        </span>
       </div>
-
+      
+      {/* Expanded action panel - appears below */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="py-2 pl-0">
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRejectForm(true);
+                    }}
+                    className="flex-1 h-7 text-[11px] gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+                  >
+                    <X className="h-3 w-3" />
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApproveClick();
+                    }}
+                    className="flex-1 h-7 text-[11px] gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Check className="h-3 w-3" />
+                    Approve
+                  </Button>
+                </div>
+              ) : (
+              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                <Textarea
+                  placeholder="Reason for rejection..."
+                  value={rejectReasonInput}
+                  onChange={(e) => setRejectReasonInput(e.target.value)}
+                  className="min-h-[60px] resize-none text-sm"
+                  autoFocus
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowRejectForm(false);
+                      setRejectReasonInput("");
+                    }}
+                    className="flex-1 h-7 text-[11px]"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleRejectClick}
+                    disabled={!rejectReasonInput.trim()}
+                    className="flex-1 h-7 text-[11px] bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  >
+                    Reject
+                  </Button>
+                </div>
+              </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Confirmation Dialogs */}
       <CA3_ApproveDialog
         open={showApproveDialog}
