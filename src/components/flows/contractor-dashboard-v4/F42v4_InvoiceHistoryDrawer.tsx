@@ -1,8 +1,6 @@
 /**
- * Flow 4.2 — Contractor Dashboard v4
+ * Flow 4.2 — Contractor Dashboard v3
  * Previous Invoices History Drawer (right-side panel)
- * 
- * ISOLATED: Complete copy from v3 - changes here do NOT affect v3.
  */
 
 import {
@@ -26,7 +24,7 @@ interface Invoice {
   status: 'paid' | 'processing' | 'pending';
 }
 
-interface F42v4_InvoiceHistoryDrawerProps {
+interface F42v3_InvoiceHistoryDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -99,10 +97,10 @@ const getStatusBadge = (status: Invoice['status']) => {
   }
 };
 
-export const F42v4_InvoiceHistoryDrawer = ({
+export const F42v3_InvoiceHistoryDrawer = ({
   open,
   onOpenChange,
-}: F42v4_InvoiceHistoryDrawerProps) => {
+}: F42v3_InvoiceHistoryDrawerProps) => {
   const handleDownload = (invoice: Invoice) => {
     toast.success(`Downloading invoice for ${invoice.period}...`);
   };
