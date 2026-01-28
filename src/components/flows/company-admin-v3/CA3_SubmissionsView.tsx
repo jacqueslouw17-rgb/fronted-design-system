@@ -403,6 +403,12 @@ const BreakdownRow = ({
   );
 };
 
+// Track adjustment statuses locally within the drawer
+interface AdjustmentState {
+  status: AdjustmentItemStatus;
+  rejectionReason?: string;
+}
+
 export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   submissions,
   onApprove,
@@ -417,6 +423,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showCustomReason, setShowCustomReason] = useState(false);
+  
+  // Local state for adjustment statuses within the drawer (keyed by submissionId-adjustmentIndex)
+  const [adjustmentStates, setAdjustmentStates] = useState<Record<string, AdjustmentState>>({});
 
   // Computed counts
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
@@ -444,6 +453,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const formatCurrency = (amount: number, currency: string = "USD") => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
     return `${symbols[currency] || currency}${amount.toLocaleString()}`;
+  };
+
+  // Get the current status for an adjustment (local state overrides original)
+  const getAdjustmentStatus = (submissionId: string, adjIndex: number, originalStatus?: AdjustmentItemStatus): AdjustmentState => {
+    const key = `${submissionId}-${adjIndex}`;
+    if (adjustmentStates[key]) {
+      return adjustmentStates[key];
+    }
+    return { status: originalStatus || 'pending' };
+  };
+
+  // Update adjustment status
+  const updateAdjustmentStatus = (submissionId: string, adjIndex: number, newState: AdjustmentState) => {
+    const key = `${submissionId}-${adjIndex}`;
+    setAdjustmentStates(prev => ({
+      ...prev,
+      [key]: newState
+    }));
   };
 
   const handleRowClick = (submission: WorkerSubmission) => {
@@ -726,20 +753,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         .map((adj, idx) => {
                           const config = submissionTypeConfig[adj.type as SubmissionType];
                           if (!config) return null;
-                          const adjStatus: AdjustmentItemStatus = adj.status || 'pending';
+                          const adjState = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
                           return (
                             <AdjustmentRow
                               key={`adj-${idx}`}
                               label={config.label}
                               amount={adj.amount || 0}
                               currency={adj.currency || currency}
-                              status={adjStatus}
-                              rejectionReason={adj.rejectionReason}
+                              status={adjState.status}
+                              rejectionReason={adjState.rejectionReason || adj.rejectionReason}
                               onApprove={() => {
+                                updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'approved' });
                                 toast.success(`Approved ${config.label.toLowerCase()}`);
                               }}
                               onReject={(reason) => {
-                                toast.info(`Rejected ${config.label.toLowerCase()}: ${reason}`);
+                                updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'rejected', rejectionReason: reason });
+                                toast.info(`Rejected ${config.label.toLowerCase()}`);
                               }}
                             />
                           );
@@ -794,20 +823,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         {allAdjustments
                           .filter(adj => adj.type === 'overtime')
                           .map((adj, idx) => {
-                            const adjStatus: AdjustmentItemStatus = adj.status || 'pending';
+                            // Use a unique index for overtime adjustments
+                            const overtimeIdx = allAdjustments.filter(a => a.type === 'expenses' || a.type === 'bonus').length + idx;
+                            const adjState = getAdjustmentStatus(selectedSubmission.id, overtimeIdx, adj.status as AdjustmentItemStatus);
                             return (
                               <AdjustmentRow
                                 key={idx}
                                 label={`Overtime (${adj.hours || 0}h logged)`}
                                 amount={adj.amount || 0}
                                 currency={currency}
-                                status={adjStatus}
-                                rejectionReason={adj.rejectionReason}
+                                status={adjState.status}
+                                rejectionReason={adjState.rejectionReason || adj.rejectionReason}
                                 onApprove={() => {
+                                  updateAdjustmentStatus(selectedSubmission.id, overtimeIdx, { status: 'approved' });
                                   toast.success('Approved overtime');
                                 }}
                                 onReject={(reason) => {
-                                  toast.info(`Rejected overtime: ${reason}`);
+                                  updateAdjustmentStatus(selectedSubmission.id, overtimeIdx, { status: 'rejected', rejectionReason: reason });
+                                  toast.info('Rejected overtime');
                                 }}
                               />
                             );
