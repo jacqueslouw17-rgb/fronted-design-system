@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
-import { CA3_SubmissionsView, WorkerSubmission } from "./CA3_SubmissionsView";
+import { CA3_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA3_SubmissionsView";
 import { CA3_SubmitConfirmationModal } from "./CA3_SubmitConfirmationModal";
 import { CA3_TrackingView, TrackingWorker } from "./CA3_TrackingView";
 import { CA3_SubmitStep } from "./CA3_SubmitStep";
@@ -74,6 +74,20 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "overtime", hours: 8, description: "Project deadline", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending" },
     ],
+    // Pending leave requests for this pay period
+    pendingLeaves: [
+      {
+        id: "leave-maria-1",
+        leaveType: "Annual",
+        startDate: "2026-01-20",
+        endDate: "2026-01-22",
+        totalDays: 3,
+        daysInThisPeriod: 3,
+        reason: "Family vacation",
+        status: "pending",
+        dailyRate: 2272.73, // 50000 / 22 working days
+      },
+    ],
     status: "pending",
     totalImpact: 4712,
     currency: "PHP",
@@ -95,6 +109,20 @@ const mockSubmissions: WorkerSubmission[] = [
     ],
     submissions: [
       { type: "expenses", amount: 1200, currency: "NOK", description: "Home office equipment", status: "pending" },
+    ],
+    // Pending unpaid leave (affects pay)
+    pendingLeaves: [
+      {
+        id: "leave-alex-1",
+        leaveType: "Unpaid",
+        startDate: "2026-01-15",
+        endDate: "2026-01-15",
+        totalDays: 0.5,
+        daysInThisPeriod: 0.5,
+        reason: "Personal appointment (morning)",
+        status: "pending",
+        dailyRate: 2954.55, // 65000 / 22 working days
+      },
     ],
     status: "pending",
     totalImpact: 1200,

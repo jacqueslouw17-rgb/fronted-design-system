@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,13 +22,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog } from "./CA3_ConfirmationDialogs";
 
-// Note: Leave is handled separately in the Leaves tab, not here
+// Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
+// can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
 // Worker-level status: pending = has adjustments needing review, ready = all reviewed
 export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
+// Re-use LeaveType from LeavesTab (not exported here to avoid conflict)
+type LeaveTypeLocal = "Annual" | "Sick" | "Unpaid" | "Other";
 
 // Line item for pay breakdown
 interface PayLineItem {
@@ -50,6 +54,20 @@ interface SubmittedAdjustment {
   rejectionReason?: string;
 }
 
+// Leave request that falls within this pay period
+export interface PendingLeaveItem {
+  id: string;
+  leaveType: LeaveTypeLocal;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  daysInThisPeriod: number; // Days affecting this pay period
+  reason?: string;
+  status: AdjustmentItemStatus;
+  rejectionReason?: string;
+  dailyRate?: number; // For calculating unpaid leave deduction
+}
+
 export interface WorkerSubmission {
   id: string;
   workerId: string;
@@ -63,6 +81,8 @@ export interface WorkerSubmission {
   periodLabel?: string;
   // Submitted adjustments
   submissions: SubmittedAdjustment[];
+  // Pending leave requests in this pay period
+  pendingLeaves?: PendingLeaveItem[];
   status: SubmissionStatus;
   totalImpact?: number;
   currency?: string;
@@ -88,6 +108,13 @@ const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; la
   overtime: { icon: Timer, label: "Overtime", color: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
   adjustment: { icon: FileText, label: "Adjustment", color: "bg-muted text-muted-foreground border-border/50" },
   correction: { icon: FileText, label: "Correction", color: "bg-muted text-muted-foreground border-border/50" },
+};
+
+const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: string; color: string; affectsPay: boolean }> = {
+  Annual: { icon: Palmtree, label: "Annual Leave", color: "bg-primary/10 text-primary border-primary/20", affectsPay: false },
+  Sick: { icon: Calendar, label: "Sick Leave", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20", affectsPay: false },
+  Unpaid: { icon: Calendar, label: "Unpaid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: true },
+  Other: { icon: Calendar, label: "Other Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: false },
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
@@ -402,7 +429,256 @@ const BreakdownRow = ({
   );
 };
 
-// Track adjustment statuses locally within the drawer
+// Interactive leave row with expandable approve/reject UI
+const LeaveRow = ({ 
+  leave,
+  currency,
+  onApprove,
+  onReject,
+}: { 
+  leave: PendingLeaveItem;
+  currency: string;
+  onApprove: () => void;
+  onReject: (reason: string) => void;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectReasonInput, setRejectReasonInput] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const config = leaveTypeConfig[leave.leaveType];
+  const LeaveIcon = config.icon;
+  
+  const formatAmount = (amt: number, curr: string) => {
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
+    return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const formatDateRange = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    if (start === end) {
+      return format(startDate, "d MMM");
+    }
+    if (startDate.getMonth() === endDate.getMonth()) {
+      return `${format(startDate, "d")}–${format(endDate, "d MMM")}`;
+    }
+    return `${format(startDate, "d MMM")}–${format(endDate, "d MMM")}`;
+  };
+
+  // Calculate deduction for unpaid leave
+  const deductionAmount = config.affectsPay && leave.dailyRate 
+    ? leave.daysInThisPeriod * leave.dailyRate 
+    : 0;
+
+  const isPending = leave.status === 'pending';
+  const isRejected = leave.status === 'rejected';
+  const isApproved = leave.status === 'approved';
+
+  // Approved state - clean display
+  if (isApproved) {
+    return (
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <LeaveIcon className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
+          </span>
+          <span className="text-xs text-muted-foreground/70">
+            ({formatDateRange(leave.startDate, leave.endDate)})
+          </span>
+        </div>
+        {deductionAmount > 0 ? (
+          <span className="text-sm tabular-nums font-mono text-muted-foreground">
+            −{formatAmount(deductionAmount, currency)}
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground italic">No pay impact</span>
+        )}
+      </div>
+    );
+  }
+
+  // Rejected state
+  if (isRejected) {
+    return (
+      <div 
+        className="-mx-2 mb-1"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
+          <div className="flex items-center justify-between py-2 px-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <LeaveIcon className="h-3.5 w-3.5 text-muted-foreground/50" />
+              <span className="text-sm text-muted-foreground line-through">
+                {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
+              </span>
+              <Badge 
+                variant="outline" 
+                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
+              >
+                Rejected
+              </Badge>
+            </div>
+          </div>
+          
+          <AnimatePresence>
+            {isHovered && leave.rejectionReason && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/20">
+                  <p className="text-xs text-destructive/80">
+                    <span className="font-medium">Reason:</span> {leave.rejectionReason}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  }
+
+  // Pending state - interactive
+  return (
+    <div className="-mx-2 mb-1">
+      <div className={cn(
+        "rounded-lg transition-all duration-200 overflow-hidden",
+        "border border-accent-amber-outline/40"
+      )}>
+        {/* Main row */}
+        <div 
+          className="flex items-center justify-between py-2 px-2 bg-accent-amber-fill/5 cursor-pointer hover:bg-accent-amber-fill/10 transition-all duration-200"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <LeaveIcon className="h-3.5 w-3.5 text-accent-amber-text" />
+            <span className="text-sm text-muted-foreground">
+              {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
+            </span>
+            <span className="text-xs text-muted-foreground/70">
+              ({formatDateRange(leave.startDate, leave.endDate)})
+            </span>
+            <Badge 
+              variant="outline" 
+              className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-accent-amber-fill/15 text-accent-amber-text border-accent-amber-outline/30 pointer-events-none"
+            >
+              Pending approval
+            </Badge>
+          </div>
+          
+          {deductionAmount > 0 ? (
+            <span className="text-sm tabular-nums font-mono text-foreground">
+              −{formatAmount(deductionAmount, currency)}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground italic">No pay impact</span>
+          )}
+        </div>
+
+        {/* Expanded action panel */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="bg-accent-amber-fill/5 border-t border-accent-amber-outline/20 px-3 py-2.5">
+                {leave.reason && (
+                  <p className="text-xs text-muted-foreground mb-2.5">
+                    <span className="font-medium">Reason:</span> {leave.reason}
+                  </p>
+                )}
+                {!showRejectForm ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRejectForm(true);
+                      }}
+                      className="flex-1 h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onApprove();
+                        setIsExpanded(false);
+                      }}
+                      className="flex-1 h-8 text-xs gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Approve
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">
+                        Reason for rejection (sent to worker)
+                      </Label>
+                      <Textarea
+                        placeholder="Explain why this leave is being rejected..."
+                        value={rejectReasonInput}
+                        onChange={(e) => setRejectReasonInput(e.target.value)}
+                        className="min-h-[70px] resize-none text-sm"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setShowRejectForm(false);
+                          setRejectReasonInput("");
+                        }}
+                        className="flex-1 h-8 text-xs"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (rejectReasonInput.trim()) {
+                            onReject(rejectReasonInput);
+                            setIsExpanded(false);
+                            setShowRejectForm(false);
+                            setRejectReasonInput("");
+                          }
+                        }}
+                        disabled={!rejectReasonInput.trim()}
+                        className="flex-1 h-8 text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                      >
+                        Reject leave
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+// Track adjustment and leave statuses locally within the drawer
 interface AdjustmentState {
   status: AdjustmentItemStatus;
   rejectionReason?: string;
@@ -425,6 +701,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   // Local state for adjustment statuses within the drawer (keyed by submissionId-adjustmentIndex)
   const [adjustmentStates, setAdjustmentStates] = useState<Record<string, AdjustmentState>>({});
+  // Local state for leave statuses (keyed by submissionId-leaveId)
+  const [leaveStates, setLeaveStates] = useState<Record<string, AdjustmentState>>({});
 
   // Computed counts
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
@@ -471,6 +749,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }));
   };
 
+  // Get the current status for a leave (local state overrides original)
+  const getLeaveStatus = (submissionId: string, leaveId: string, originalStatus?: AdjustmentItemStatus): AdjustmentState => {
+    const key = `${submissionId}-leave-${leaveId}`;
+    if (leaveStates[key]) {
+      return leaveStates[key];
+    }
+    return { status: originalStatus || 'pending' };
+  };
+
+  // Update leave status
+  const updateLeaveStatus = (submissionId: string, leaveId: string, newState: AdjustmentState) => {
+    const key = `${submissionId}-leave-${leaveId}`;
+    setLeaveStates(prev => ({
+      ...prev,
+      [key]: newState
+    }));
+  };
+
   const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
     setDrawerOpen(true);
@@ -497,14 +793,23 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
     
     // Count pending adjustments for this worker (considering local state overrides)
-    const workerPendingCount = submission.submissions.filter((adj, idx) => {
+    const pendingAdjustmentCount = submission.submissions.filter((adj, idx) => {
       const key = `${submission.id}-${idx}`;
       const localState = adjustmentStates[key];
       const effectiveStatus = localState?.status || adj.status || 'pending';
       return effectiveStatus === 'pending' && typeof adj.amount === 'number';
     }).length;
     
-    // Derive effective worker status: if no pending adjustments remain, worker is "ready"
+    // Count pending leaves for this worker
+    const pendingLeaveCount = (submission.pendingLeaves || []).filter((leave) => {
+      const leaveState = getLeaveStatus(submission.id, leave.id, leave.status);
+      return leaveState.status === 'pending';
+    }).length;
+    
+    // Total pending items (adjustments + leaves)
+    const workerPendingCount = pendingAdjustmentCount + pendingLeaveCount;
+    
+    // Derive effective worker status: if no pending items remain, worker is "ready"
     const effectiveWorkerStatus: SubmissionStatus = workerPendingCount > 0 ? "pending" : "ready";
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
@@ -547,6 +852,13 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             })}
             {submission.submissions.length > 2 && (
               <span>+{submission.submissions.length - 2}</span>
+            )}
+            {/* Show leave indicator if pending leaves exist */}
+            {pendingLeaveCount > 0 && (
+              <>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="text-accent-amber-text">{pendingLeaveCount} leave</span>
+              </>
             )}
           </div>
         </div>
@@ -685,16 +997,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             // (E.g., timesheets without an `amount` are informational and should not block or affect totals.)
             const moneyAdjustments = adjustmentEntries.filter(({ adj }) => typeof adj.amount === 'number' && (adj.amount ?? 0) !== 0);
             
+            // Get pending leaves for this worker
+            const pendingLeaves = selectedSubmission.pendingLeaves || [];
+            
             // Calculate statuses based on local state
             const getEffectiveStatus = (originalIdx: number, originalStatus?: AdjustmentItemStatus): AdjustmentItemStatus => {
               return getAdjustmentStatus(selectedSubmission.id, originalIdx, originalStatus).status;
             };
             
             // Count pending adjustments based on current state
-            const currentPendingCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
+            const pendingAdjustmentCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
               const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
               return effectiveStatus === 'pending';
             }).length;
+            
+            // Count pending leaves based on current state
+            const pendingLeaveCount = pendingLeaves.filter((leave) => {
+              const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+              return leaveState.status === 'pending';
+            }).length;
+            
+            // Total pending items
+            const currentPendingCount = pendingAdjustmentCount + pendingLeaveCount;
             
             // Only approved adjustments should change the displayed net pay.
             // Pending adjustments remain visible as line items + the count label.
@@ -703,13 +1027,23 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               return effectiveStatus === 'approved' ? sum + (adj.amount || 0) : sum;
             }, 0);
             
+            // Calculate approved unpaid leave deductions
+            const approvedLeaveDeduction = pendingLeaves.reduce((sum, leave) => {
+              const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+              if (leaveState.status === 'approved' && leaveTypeConfig[leave.leaveType].affectsPay && leave.dailyRate) {
+                return sum + (leave.daysInThisPeriod * leave.dailyRate);
+              }
+              return sum;
+            }, 0);
+            
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
             // Net pay updates only when items are approved.
-            const adjustedNet = baseNet + approvedAdjustmentTotal;
+            const adjustedNet = baseNet + approvedAdjustmentTotal - approvedLeaveDeduction;
             const hasAdjustments = allAdjustments.length > 0;
+            const hasLeaves = pendingLeaves.length > 0;
             
             return (
               <>
@@ -859,6 +1193,43 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </section>
                   )}
 
+                  {/* LEAVE Section - for pending leaves in this pay period */}
+                  {hasLeaves && (
+                    <section>
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <Palmtree className="h-3.5 w-3.5" />
+                        Leave in this period
+                      </h3>
+                      <p className="text-xs text-muted-foreground mb-3 -mt-1">
+                        Pending leave requests affecting this pay period
+                      </p>
+                      <div className="space-y-0">
+                        {pendingLeaves.map((leave) => {
+                          const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                          return (
+                            <LeaveRow
+                              key={leave.id}
+                              leave={{
+                                ...leave,
+                                status: leaveState.status,
+                                rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
+                              }}
+                              currency={currency}
+                              onApprove={() => {
+                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+                                toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                              }}
+                              onReject={(reason) => {
+                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+                                toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
                   {/* Estimated net pay - above rejection section */}
                   <section className="pt-2 border-t border-border/40">
                     <div className={cn(
@@ -869,7 +1240,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <p className="text-sm font-medium text-foreground">Estimated net pay</p>
                         {currentPendingCount > 0 && (
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Includes {currentPendingCount} pending adjustment{currentPendingCount !== 1 ? 's' : ''}
+                            {pendingAdjustmentCount > 0 && pendingLeaveCount > 0 
+                              ? `${pendingAdjustmentCount} pending adjustment${pendingAdjustmentCount !== 1 ? 's' : ''} · ${pendingLeaveCount} pending leave${pendingLeaveCount !== 1 ? 's' : ''}`
+                              : pendingLeaveCount > 0 
+                                ? `${pendingLeaveCount} pending leave${pendingLeaveCount !== 1 ? 's' : ''}`
+                                : `${pendingAdjustmentCount} pending adjustment${pendingAdjustmentCount !== 1 ? 's' : ''}`
+                            }
                           </p>
                         )}
                       </div>
@@ -877,7 +1253,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
                           {formatCurrency(adjustedNet, currency)}
                         </p>
-                        {approvedAdjustmentTotal > 0 && (
+                        {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0) && (
                           <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
                             Base: {formatCurrency(baseNet, currency)}
                           </p>
