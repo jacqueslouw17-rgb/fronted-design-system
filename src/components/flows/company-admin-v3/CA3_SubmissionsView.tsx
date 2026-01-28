@@ -182,6 +182,7 @@ const AdjustmentRow = ({
     toggleExpand(); // Close on reject
     setShowRejectForm(false);
     setRejectReasonInput("");
+  };
 
   const isPending = status === 'pending';
   const isRejected = status === 'rejected';
