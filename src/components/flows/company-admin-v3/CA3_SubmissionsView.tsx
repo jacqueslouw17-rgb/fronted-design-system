@@ -776,25 +776,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       ))}
                       {/* All adjustments (Expenses, Bonus) that add to earnings */}
                       {allAdjustments
-                        .filter(adj => adj.type === 'expenses' || adj.type === 'bonus')
-                        .map((adj, idx) => {
+                        .map((adj, originalIdx) => ({ adj, originalIdx }))
+                        .filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus')
+                        .map(({ adj, originalIdx }) => {
                           const config = submissionTypeConfig[adj.type as SubmissionType];
                           if (!config) return null;
-                          const adjState = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                          const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                           return (
                             <AdjustmentRow
-                              key={`adj-${idx}`}
+                              key={`adj-${originalIdx}`}
                               label={config.label}
                               amount={adj.amount || 0}
                               currency={adj.currency || currency}
                               status={adjState.status}
                               rejectionReason={adjState.rejectionReason || adj.rejectionReason}
                               onApprove={() => {
-                                updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'approved' });
+                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
                                 toast.success(`Approved ${config.label.toLowerCase()}`);
                               }}
                               onReject={(reason) => {
-                                updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'rejected', rejectionReason: reason });
+                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
                                 toast.info(`Rejected ${config.label.toLowerCase()}`);
                               }}
                             />
@@ -848,25 +849,24 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </h3>
                       <div className="space-y-0">
                         {allAdjustments
-                          .filter(adj => adj.type === 'overtime')
-                          .map((adj, idx) => {
-                            // Use a unique index for overtime adjustments
-                            const overtimeIdx = allAdjustments.filter(a => a.type === 'expenses' || a.type === 'bonus').length + idx;
-                            const adjState = getAdjustmentStatus(selectedSubmission.id, overtimeIdx, adj.status as AdjustmentItemStatus);
+                          .map((adj, originalIdx) => ({ adj, originalIdx }))
+                          .filter(({ adj }) => adj.type === 'overtime')
+                          .map(({ adj, originalIdx }) => {
+                            const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             return (
                               <AdjustmentRow
-                                key={idx}
+                                key={originalIdx}
                                 label={`Overtime (${adj.hours || 0}h logged)`}
                                 amount={adj.amount || 0}
                                 currency={currency}
                                 status={adjState.status}
                                 rejectionReason={adjState.rejectionReason || adj.rejectionReason}
                                 onApprove={() => {
-                                  updateAdjustmentStatus(selectedSubmission.id, overtimeIdx, { status: 'approved' });
+                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
                                   toast.success('Approved overtime');
                                 }}
                                 onReject={(reason) => {
-                                  updateAdjustmentStatus(selectedSubmission.id, overtimeIdx, { status: 'rejected', rejectionReason: reason });
+                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
                                   toast.info('Rejected overtime');
                                 }}
                               />
