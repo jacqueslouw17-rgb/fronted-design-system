@@ -601,82 +601,141 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {/* Expense Form */}
           {selectedType === 'expense' && (
-            <div className="space-y-4">
-              {expenseItems.map((item, index) => (
-                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {expenseItems.length > 1 ? `Expense ${index + 1}` : 'Expense details'}
-                    </span>
+            <div className="space-y-5">
+              {/* Expense Line Items */}
+              <div className="space-y-3">
+                {expenseItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button - only show if more than 1 item */}
                     {expenseItems.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={() => removeExpenseItem(item.id)}
-                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
                       >
-                        <X className="h-4 w-4" />
-                      </Button>
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
                     )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Select
-                      value={item.category}
-                      onValueChange={(value) => updateExpenseItem(item.id, 'category', value)}
-                    >
-                      <SelectTrigger className={errors[`expense_${index}_category`] ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {expenseCategories.map((cat) => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors[`expense_${index}_category`] && (
-                      <p className="text-xs text-destructive">{errors[`expense_${index}_category`]}</p>
+                    {/* Item number badge */}
+                    {expenseItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Expense {index + 1}
+                        </span>
+                      </div>
                     )}
-                  </div>
 
-                  {item.category === 'Other' && (
-                    <div className="space-y-2">
-                      <Label>Specify category</Label>
-                      <Input
-                        value={item.otherCategory}
-                        onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
-                        placeholder="Enter category name"
-                        className={errors[`expense_${index}_otherCategory`] ? 'border-destructive' : ''}
-                      />
-                      {errors[`expense_${index}_otherCategory`] && (
-                        <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
+                    {/* Category & Amount row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Category</Label>
+                        <Select 
+                          value={item.category} 
+                          onValueChange={(val) => {
+                            updateExpenseItem(item.id, 'category', val);
+                            if (val !== 'Other') {
+                              updateExpenseItem(item.id, 'otherCategory', '');
+                            }
+                          }}
+                        >
+                          <SelectTrigger className={cn(
+                            "h-9",
+                            errors[`expense_${index}_category`] && 'border-destructive'
+                          )}>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {expenseCategories.map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Amount ({currency})</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          placeholder="0.00"
+                          value={item.amount}
+                          onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`expense_${index}_amount`] && 'border-destructive'
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Other category specification */}
+                    {item.category === 'Other' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Specify category</Label>
+                        <Input
+                          type="text"
+                          placeholder="e.g., Office supplies"
+                          value={item.otherCategory}
+                          onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
+                          className={cn(
+                            "h-9",
+                            errors[`expense_${index}_otherCategory`] && 'border-destructive'
+                          )}
+                        />
+                        {errors[`expense_${index}_otherCategory`] && (
+                          <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Receipt upload - compact */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Receipt</Label>
+                      {item.receipt ? (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {item.receipt.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs flex-1 truncate">{item.receipt.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateExpenseItem(item.id, 'receipt', null)}
+                            className="p-0.5 hover:bg-muted rounded"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className={cn(
+                          "flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed cursor-pointer transition-colors",
+                          errors[`expense_${index}_receipt`] 
+                            ? "border-destructive bg-destructive/5" 
+                            : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
+                        )}>
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload receipt</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) updateExpenseItem(item.id, 'receipt', file);
+                            }}
+                          />
+                        </label>
                       )}
                     </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label>Amount ({currency})</Label>
-                    <Input
-                      type="number"
-                      value={item.amount}
-                      onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
-                      placeholder="0.00"
-                      className={errors[`expense_${index}_amount`] ? 'border-destructive' : ''}
-                    />
-                    {errors[`expense_${index}_amount`] && (
-                      <p className="text-xs text-destructive">{errors[`expense_${index}_amount`]}</p>
-                    )}
                   </div>
-
-                  {renderFileUpload(
-                    item.receipt,
-                    (file) => updateExpenseItem(item.id, 'receipt', file),
-                    `expense_${index}_receipt`,
-                    true
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
 
               <Button
                 variant="outline"
@@ -706,92 +765,99 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {/* Overtime Form */}
           {selectedType === 'overtime' && (
-            <div className="space-y-4">
-              {overtimeItems.map((item, index) => (
-                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {overtimeItems.length > 1 ? `Entry ${index + 1}` : 'Overtime details'}
-                    </span>
+            <div className="space-y-5">
+              <div className="space-y-3">
+                {overtimeItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button */}
                     {overtimeItems.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={() => removeOvertimeItem(item.id)}
-                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
                       >
-                        <X className="h-4 w-4" />
-                      </Button>
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
                     )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label>Date</Label>
-                    <Popover
-                      open={openDatePopoverId === item.id}
-                      onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
-                    >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !item.date && "text-muted-foreground",
-                            errors[`overtime_${index}_date`] && "border-destructive"
-                          )}
-                        >
-                          {item.date ? format(item.date, 'PPP') : 'Select date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={item.date}
-                          onSelect={(date) => {
-                            updateOvertimeItem(item.id, 'date', date);
-                            setOpenDatePopoverId(null);
-                          }}
-                          initialFocus
+                    {/* Item number badge */}
+                    {overtimeItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Entry {index + 1}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Date picker */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Date</Label>
+                      <Popover
+                        open={openDatePopoverId === item.id}
+                        onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full h-9 justify-start text-left font-normal",
+                              !item.date && "text-muted-foreground",
+                              errors[`overtime_${index}_date`] && "border-destructive"
+                            )}
+                          >
+                            {item.date ? format(item.date, 'MMM d, yyyy') : 'Select date'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={item.date}
+                            onSelect={(date) => {
+                              updateOvertimeItem(item.id, 'date', date);
+                              setOpenDatePopoverId(null);
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* Start & End Time row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Start time</Label>
+                        <F41v6_TimeInput
+                          value={item.startTime}
+                          onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
+                          hasError={!!errors[`overtime_${index}_startTime`]}
                         />
-                      </PopoverContent>
-                    </Popover>
-                    {errors[`overtime_${index}_date`] && (
-                      <p className="text-xs text-destructive">{errors[`overtime_${index}_date`]}</p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">End time</Label>
+                        <F41v6_TimeInput
+                          value={item.endTime}
+                          onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
+                          hasError={!!errors[`overtime_${index}_endTime`]}
+                        />
+                        {errors[`overtime_${index}_endTime`] && (
+                          <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Hours badge */}
+                    {item.calculatedHours > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {item.calculatedHours}h calculated
+                      </Badge>
                     )}
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Start time</Label>
-                      <F41v6_TimeInput
-                        value={item.startTime}
-                        onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
-                        hasError={!!errors[`overtime_${index}_startTime`]}
-                      />
-                      {errors[`overtime_${index}_startTime`] && (
-                        <p className="text-xs text-destructive">{errors[`overtime_${index}_startTime`]}</p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label>End time</Label>
-                      <F41v6_TimeInput
-                        value={item.endTime}
-                        onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
-                        hasError={!!errors[`overtime_${index}_endTime`]}
-                      />
-                      {errors[`overtime_${index}_endTime`] && (
-                        <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {item.calculatedHours > 0 && (
-                    <Badge variant="secondary" className="text-xs">
-                      {item.calculatedHours}h calculated
-                    </Badge>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
 
               <Button
                 variant="outline"
@@ -821,47 +887,88 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {/* Bonus Form */}
           {selectedType === 'bonus-correction' && (
-            <div className="space-y-4">
-              {bonusItems.map((item, index) => (
-                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {bonusItems.length > 1 ? `Bonus ${index + 1}` : 'Bonus details'}
-                    </span>
+            <div className="space-y-5">
+              <div className="space-y-3">
+                {bonusItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
+                  >
+                    {/* Remove button */}
                     {bonusItems.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={() => removeBonusItem(item.id)}
-                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
                       >
-                        <X className="h-4 w-4" />
-                      </Button>
+                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
                     )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label>Amount ({currency})</Label>
-                    <Input
-                      type="number"
-                      value={item.amount}
-                      onChange={(e) => updateBonusItem(item.id, 'amount', e.target.value)}
-                      placeholder="0.00"
-                      className={errors[`bonus_${index}_amount`] ? 'border-destructive' : ''}
-                    />
-                    {errors[`bonus_${index}_amount`] && (
-                      <p className="text-xs text-destructive">{errors[`bonus_${index}_amount`]}</p>
+                    {/* Item number badge */}
+                    {bonusItems.length > 1 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                          Bonus {index + 1}
+                        </span>
+                      </div>
                     )}
-                  </div>
 
-                  {renderFileUpload(
-                    item.attachment,
-                    (file) => updateBonusItem(item.id, 'attachment', file),
-                    `bonus_${index}_attachment`,
-                    false
-                  )}
-                </div>
-              ))}
+                    {/* Amount */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Amount ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="0.00"
+                        value={item.amount}
+                        onChange={(e) => updateBonusItem(item.id, 'amount', e.target.value)}
+                        className={cn(
+                          "h-9",
+                          errors[`bonus_${index}_amount`] && 'border-destructive'
+                        )}
+                      />
+                    </div>
+
+                    {/* Attachment upload - compact */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Attachment (optional)</Label>
+                      {item.attachment ? (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
+                          {item.attachment.type.startsWith('image/') ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs flex-1 truncate">{item.attachment.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateBonusItem(item.id, 'attachment', null)}
+                            className="p-0.5 hover:bg-muted rounded"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center justify-center gap-2 p-3 rounded-lg border border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/[0.02] cursor-pointer transition-colors">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload file</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) updateBonusItem(item.id, 'attachment', file);
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
               <Button
                 variant="outline"
@@ -891,12 +998,10 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
           {/* Unpaid Leave Form */}
           {selectedType === 'unpaid-leave' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg border border-border/60 space-y-4">
-                <span className="text-sm font-medium">Unpaid leave details</span>
-                
-                <div className="space-y-2">
-                  <Label>Number of days</Label>
+            <div className="space-y-5">
+              <div className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Number of days</Label>
                   <Input
                     type="number"
                     min="0.5"
@@ -905,13 +1010,16 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                     value={unpaidLeaveDays}
                     onChange={(e) => setUnpaidLeaveDays(e.target.value)}
                     placeholder="e.g. 2"
-                    className={errors['unpaid_leave_days'] ? 'border-destructive' : ''}
+                    className={cn(
+                      "h-9",
+                      errors['unpaid_leave_days'] && 'border-destructive'
+                    )}
                   />
                   {errors['unpaid_leave_days'] && (
                     <p className="text-xs text-destructive">{errors['unpaid_leave_days']}</p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Enter the number of days (supports half days, e.g. 1.5)
+                    Supports half days (e.g. 1.5)
                   </p>
                 </div>
               </div>
