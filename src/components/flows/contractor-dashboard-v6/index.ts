@@ -13,3 +13,5 @@ export { F42v6_WithdrawSubmissionDialog } from './F42v6_WithdrawSubmissionDialog
 export { F42v6_InvoiceHistoryDrawer } from './F42v6_InvoiceHistoryDrawer';
 export { F42v6_InvoiceBreakdownDrawer } from './F42v6_InvoiceBreakdownDrawer';
 export { F42v6_AdjustmentsSection } from './F42v6_AdjustmentsSection';
+export { F42v6_InvoiceHeroCard } from './F42v6_InvoiceHeroCard';
+export { F42v6_InvoicesSection } from './F42v6_InvoicesSection';
