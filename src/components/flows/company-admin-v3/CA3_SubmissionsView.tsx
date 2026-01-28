@@ -926,33 +926,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             </span>
             <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground leading-tight">
-            <span>{submission.workerCountry}</span>
-            {/* Only show submission types for pending workers */}
-            {effectiveWorkerStatus === "pending" && (
-              <>
-                <span className="text-muted-foreground/40">·</span>
-                {submission.submissions.slice(0, 2).map((sub, idx) => {
-                  const config = submissionTypeConfig[sub.type];
-                  return (
-                    <span key={idx} className="text-muted-foreground">
-                      {config.label}{idx < Math.min(submission.submissions.length, 2) - 1 && ", "}
-                    </span>
-                  );
-                })}
-                {submission.submissions.length > 2 && (
-                  <span>+{submission.submissions.length - 2}</span>
-                )}
-                {/* Show leave indicator if pending leaves exist */}
-                {pendingLeaveCount > 0 && (
-                  <>
-                    <span className="text-muted-foreground/40">·</span>
-                    <span className="text-orange-600 dark:text-orange-400">{pendingLeaveCount} leave</span>
-                  </>
-                )}
-              </>
-            )}
-          </div>
+          <span className="text-[11px] text-muted-foreground leading-tight">
+            {submission.workerCountry}
+          </span>
         </div>
 
         {/* Right side: Amount + Status */}
