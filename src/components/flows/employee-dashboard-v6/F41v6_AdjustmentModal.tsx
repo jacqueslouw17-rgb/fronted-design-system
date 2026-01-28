@@ -737,14 +737,15 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
+              {/* Add another expense button */}
+              <button
+                type="button"
                 onClick={addExpenseItem}
-                className="w-full"
+                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
               >
-                + Add another expense
-              </Button>
+                <span className="text-lg leading-none">+</span>
+                Add another expense
+              </button>
 
               {expenseItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
@@ -859,14 +860,15 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
+              {/* Add another entry button */}
+              <button
+                type="button"
                 onClick={addOvertimeItem}
-                className="w-full"
+                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
               >
-                + Add another entry
-              </Button>
+                <span className="text-lg leading-none">+</span>
+                Add another entry
+              </button>
 
               {overtimeItems.some(item => item.calculatedHours > 0) && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
@@ -970,14 +972,15 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
+              {/* Add another bonus button */}
+              <button
+                type="button"
                 onClick={addBonusItem}
-                className="w-full"
+                className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
               >
-                + Add another bonus
-              </Button>
+                <span className="text-lg leading-none">+</span>
+                Add another bonus
+              </button>
 
               {bonusItems.length > 0 && (
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
