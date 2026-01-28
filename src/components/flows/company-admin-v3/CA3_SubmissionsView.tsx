@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree, Filter, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog } from "./CA3_ConfirmationDialogs";
+import { CollapsibleSection } from "./CA3_CollapsibleSection";
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
@@ -767,6 +769,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Track which item is currently expanded (only one at a time)
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   
+  // Pending filter - when true, hide approved items
+  const [showPendingOnly, setShowPendingOnly] = useState(false);
+  
   // Local state for adjustment statuses within the drawer (keyed by submissionId-adjustmentIndex)
   const [adjustmentStates, setAdjustmentStates] = useState<Record<string, AdjustmentState>>({});
   // Local state for leave statuses (keyed by submissionId-leaveId)
@@ -1115,15 +1120,49 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             const hasAdjustments = allAdjustments.length > 0;
             const hasLeaves = pendingLeaves.length > 0;
             
+            // Count items by status for each section
+            const getAdjustmentCounts = (types: string[]) => {
+              const filtered = allAdjustments
+                .map((adj, idx) => ({ adj, idx }))
+                .filter(({ adj }) => types.includes(adj.type));
+              
+              let pending = 0, approved = 0, rejected = 0;
+              filtered.forEach(({ adj, idx }) => {
+                const status = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus).status;
+                if (status === 'pending') pending++;
+                else if (status === 'approved') approved++;
+                else if (status === 'rejected') rejected++;
+              });
+              return { pending, approved, rejected, total: filtered.length };
+            };
+            
+            const earningAdjCounts = getAdjustmentCounts(['expenses', 'bonus']);
+            const overtimeCounts = getAdjustmentCounts(['overtime']);
+            
+            const leaveCounts = {
+              pending: pendingLeaveCount,
+              approved: pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'approved').length,
+              rejected: pendingLeaves.filter(l => getLeaveStatus(selectedSubmission.id, l.id, l.status).status === 'rejected').length,
+              total: pendingLeaves.length
+            };
+            
+            // Filter items based on showPendingOnly
+            const shouldShowItem = (status: AdjustmentItemStatus) => {
+              if (!showPendingOnly) return true;
+              return status === 'pending' || status === 'rejected';
+            };
+            
             return (
               <>
                 {/* Header with period badge */}
                 <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-                  <div className="flex items-center gap-2 mb-3">
-                    <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-                    <Badge variant="outline" className="text-xs font-normal">
-                      {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
-                    </Badge>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
+                      </Badge>
+                    </div>
                   </div>
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   <div className="flex items-center gap-3">
@@ -1139,19 +1178,47 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Pending filter toggle */}
+                  {currentPendingCount > 0 && (
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                      <div className="flex items-center gap-2">
+                        <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Show pending only</span>
+                      </div>
+                      <Switch
+                        checked={showPendingOnly}
+                        onCheckedChange={setShowPendingOnly}
+                        className="h-4 w-7"
+                      />
+                    </div>
+                  )}
                 </SheetHeader>
 
-                {/* Receipt-style content */}
-                <div className="px-6 py-5 space-y-6" onClick={() => setExpandedItemId(null)}>
+                {/* Receipt-style content with collapsible sections */}
+                <div className="px-6 py-5 space-y-4" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* EARNINGS Section */}
-                  <section>
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                      Earnings
-                    </h3>
+                  {/* Summary banner when items need action */}
+                  {currentPendingCount > 0 && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/60 dark:border-orange-500/20">
+                      <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                      <span className="text-xs text-orange-700 dark:text-orange-300">
+                        {currentPendingCount} item{currentPendingCount !== 1 ? 's' : ''} need{currentPendingCount === 1 ? 's' : ''} your review
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* EARNINGS Section - Collapsible */}
+                  <CollapsibleSection
+                    title="Earnings"
+                    defaultOpen={!showPendingOnly || earningAdjCounts.pending > 0}
+                    pendingCount={earningAdjCounts.pending}
+                    approvedCount={earnings.length + earningAdjCounts.approved}
+                    rejectedCount={earningAdjCounts.rejected}
+                  >
                     <div className="space-y-0">
-                      {/* Base earnings */}
-                      {earnings.map((item, idx) => (
+                      {/* Base earnings - always show unless filtering */}
+                      {!showPendingOnly && earnings.map((item, idx) => (
                         <BreakdownRow
                           key={idx}
                           label={item.label}
@@ -1161,10 +1228,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           isPositive
                         />
                       ))}
-                      {/* All adjustments (Expenses, Bonus) that add to earnings */}
+                      {/* Adjustments (Expenses, Bonus) */}
                       {allAdjustments
                         .map((adj, originalIdx) => ({ adj, originalIdx }))
                         .filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus')
+                        .filter(({ adj, originalIdx }) => {
+                          const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                          return shouldShowItem(status);
+                        })
                         .map(({ adj, originalIdx }) => {
                           const config = submissionTypeConfig[adj.type as SubmissionType];
                           if (!config) return null;
@@ -1193,22 +1264,25 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           );
                         })}
                       {/* Total Earnings */}
-                      <BreakdownRow
-                        label="Total earnings"
-                        amount={totalEarnings + approvedAdjustmentTotal}
-                        currency={currency}
-                        isPositive
-                        isTotal
-                      />
+                      {!showPendingOnly && (
+                        <BreakdownRow
+                          label="Total earnings"
+                          amount={totalEarnings + approvedAdjustmentTotal}
+                          currency={currency}
+                          isPositive
+                          isTotal
+                        />
+                      )}
                     </div>
-                  </section>
+                  </CollapsibleSection>
 
-                  {/* DEDUCTIONS Section */}
-                  {deductions.length > 0 && (
-                    <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                        Deductions
-                      </h3>
+                  {/* DEDUCTIONS Section - Collapsible */}
+                  {deductions.length > 0 && !showPendingOnly && (
+                    <CollapsibleSection
+                      title="Deductions"
+                      defaultOpen={false}
+                      approvedCount={deductions.length}
+                    >
                       <div className="space-y-0">
                         {deductions.map((item, idx) => (
                           <BreakdownRow
@@ -1228,19 +1302,26 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           isTotal
                         />
                       </div>
-                    </section>
+                    </CollapsibleSection>
                   )}
 
-                  {/* OVERTIME Section (if any) */}
-                  {allAdjustments.filter(adj => adj.type === 'overtime').length > 0 && (
-                    <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                        Overtime
-                      </h3>
+                  {/* OVERTIME Section - Collapsible */}
+                  {overtimeCounts.total > 0 && (
+                    <CollapsibleSection
+                      title="Overtime"
+                      defaultOpen={overtimeCounts.pending > 0}
+                      pendingCount={overtimeCounts.pending}
+                      approvedCount={overtimeCounts.approved}
+                      rejectedCount={overtimeCounts.rejected}
+                    >
                       <div className="space-y-0">
                         {allAdjustments
                           .map((adj, originalIdx) => ({ adj, originalIdx }))
                           .filter(({ adj }) => adj.type === 'overtime')
+                          .filter(({ adj, originalIdx }) => {
+                            const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                            return shouldShowItem(status);
+                          })
                           .map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
                             const itemId = `overtime-${originalIdx}`;
@@ -1267,44 +1348,52 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             );
                           })}
                       </div>
-                    </section>
+                    </CollapsibleSection>
                   )}
 
-                  {/* LEAVE Section - for pending leaves in this pay period */}
+                  {/* LEAVE Section - Collapsible */}
                   {hasLeaves && (
-                    <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                        Leave in this period
-                      </h3>
+                    <CollapsibleSection
+                      title="Leave in this period"
+                      defaultOpen={leaveCounts.pending > 0}
+                      pendingCount={leaveCounts.pending}
+                      approvedCount={leaveCounts.approved}
+                      rejectedCount={leaveCounts.rejected}
+                    >
                       <div className="space-y-0">
-                        {pendingLeaves.map((leave) => {
-                          const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                          const itemId = `leave-${leave.id}`;
-                          return (
-                            <div key={itemId} data-expandable-item>
-                              <LeaveRow
-                                leave={{
-                                  ...leave,
-                                  status: leaveState.status,
-                                  rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
-                                }}
-                                currency={currency}
-                                isExpanded={expandedItemId === itemId}
-                                onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
-                                onApprove={() => {
-                                  updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
-                                  toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                                }}
-                                onReject={(reason) => {
-                                  updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
-                                  toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                                }}
-                              />
-                            </div>
-                          );
-                        })}
+                        {pendingLeaves
+                          .filter((leave) => {
+                            const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
+                            return shouldShowItem(status);
+                          })
+                          .map((leave) => {
+                            const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                            const itemId = `leave-${leave.id}`;
+                            return (
+                              <div key={itemId} data-expandable-item>
+                                <LeaveRow
+                                  leave={{
+                                    ...leave,
+                                    status: leaveState.status,
+                                    rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
+                                  }}
+                                  currency={currency}
+                                  isExpanded={expandedItemId === itemId}
+                                  onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                  onApprove={() => {
+                                    updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+                                    toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                  }}
+                                  onReject={(reason) => {
+                                    updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+                                    toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
                       </div>
-                    </section>
+                    </CollapsibleSection>
                   )}
 
                   {/* Estimated net pay - above rejection section */}
