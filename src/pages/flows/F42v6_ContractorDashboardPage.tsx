@@ -1,84 +1,161 @@
 /**
- * Flow 4.2 — Contractor Dashboard v6 Page
- * INDEPENDENT from v5 and all other flows.
+ * Flow 4.2 — Contractor Dashboard v6
+ * 
+ * Contractor-specific dashboard with invoice status states and adjustment workflow.
+ * Aligned with Flow 4.1 Employee Dashboard v2 patterns.
+ * 
+ * INDEPENDENT: Changes here do NOT affect v5 or any other flow.
  */
 
-import { useState } from 'react';
-import { F42v6_UpcomingInvoiceCard, F42v6_AdjustmentsSection, F42v6_AdjustmentDrawer } from '@/components/flows/contractor-dashboard-v6';
-import type { ContractorRequestType } from '@/components/flows/contractor-dashboard-v6/F42v6_AdjustmentDrawer';
-import { useF42v6_DashboardStore } from '@/stores/F42v6_DashboardStore';
+import { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
+import Topbar from "@/components/dashboard/Topbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { RoleLensProvider } from "@/contexts/RoleLensContext";
+import { AgentHeader } from "@/components/agent/AgentHeader";
+import { AgentLayout } from "@/components/agent/AgentLayout";
+import { 
+  F42v6_UpcomingInvoiceCard,
+  F42v6_AdjustmentsSection,
+  F42v6_AdjustmentDrawer
+} from "@/components/flows/contractor-dashboard-v6";
+import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
+import type { ContractorRequestType } from "@/components/flows/contractor-dashboard-v6/F42v6_AdjustmentDrawer";
 
 const F42v6_ContractorDashboardPage = () => {
   const { currency, contractType } = useF42v6_DashboardStore();
-  
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
-  const [adjustmentType, setAdjustmentType] = useState<ContractorRequestType>(null);
-  const [adjustmentCategory, setAdjustmentCategory] = useState('');
-  const [adjustmentAmount, setAdjustmentAmount] = useState('');
-  const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>();
-  const [adjustmentHours, setAdjustmentHours] = useState<number | undefined>();
-  const [adjustmentDate, setAdjustmentDate] = useState<string | undefined>();
-  const [adjustmentStartTime, setAdjustmentStartTime] = useState<string | undefined>();
-  const [adjustmentEndTime, setAdjustmentEndTime] = useState<string | undefined>();
+  const [adjustmentInitialType, setAdjustmentInitialType] = useState<ContractorRequestType>(null);
+  const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
+  const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
+  const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
+  const [adjustmentInitialDate, setAdjustmentInitialDate] = useState<string | undefined>(undefined);
+  const [adjustmentInitialStartTime, setAdjustmentInitialStartTime] = useState<string | undefined>(undefined);
+  const [adjustmentInitialEndTime, setAdjustmentInitialEndTime] = useState<string | undefined>(undefined);
+  const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
 
+  const candidateProfile = {
+    name: "Maria Santos",
+    firstName: "Maria",
+    role: "Senior Backend Engineer",
+    salary: "$85,000",
+    currency: "USD",
+    startDate: "March 15, 2024",
+    noticePeriod: "30 days",
+    pto: "25 days",
+    country: "Philippines"
+  };
+
+  // Handler to open adjustment drawer with optional pre-fill
   const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => {
     const typeMap: Record<string, ContractorRequestType> = {
       'expense': 'expense',
       'additional-hours': 'additional-hours',
       'bonus': 'bonus'
     };
-    setAdjustmentType(type ? typeMap[type] || null : null);
-    setAdjustmentCategory(category || '');
-    setAdjustmentAmount(amount || '');
+    setAdjustmentInitialType(type ? typeMap[type] || null : null);
+    setAdjustmentInitialCategory(category || '');
+    setAdjustmentInitialAmount(amount || '');
+    setAdjustmentInitialHours(hours);
+    setAdjustmentInitialDate(date);
+    setAdjustmentInitialStartTime(startTime);
+    setAdjustmentInitialEndTime(endTime);
     setAdjustmentRejectedId(rejectedId);
-    setAdjustmentHours(hours);
-    setAdjustmentDate(date);
-    setAdjustmentStartTime(startTime);
-    setAdjustmentEndTime(endTime);
     setAdjustmentDrawerOpen(true);
   };
 
   const handleAdjustmentDrawerClose = (open: boolean) => {
     setAdjustmentDrawerOpen(open);
     if (!open) {
-      setAdjustmentType(null);
-      setAdjustmentCategory('');
-      setAdjustmentAmount('');
+      setAdjustmentInitialType(null);
+      setAdjustmentInitialCategory('');
+      setAdjustmentInitialAmount('');
+      setAdjustmentInitialHours(undefined);
+      setAdjustmentInitialDate(undefined);
+      setAdjustmentInitialStartTime(undefined);
+      setAdjustmentInitialEndTime(undefined);
       setAdjustmentRejectedId(undefined);
-      setAdjustmentHours(undefined);
-      setAdjustmentDate(undefined);
-      setAdjustmentStartTime(undefined);
-      setAdjustmentEndTime(undefined);
     }
   };
 
+  // One-time success animation on load
+  useEffect(() => {
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: {
+          y: 0.6
+        }
+      });
+    }, 300);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Contractor Dashboard v6</h1>
-          <p className="text-sm text-muted-foreground mt-1">Independent clone for iteration</p>
+    <RoleLensProvider initialRole="contractor">
+      <TooltipProvider>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Topbar 
+            userName={candidateProfile.name} 
+            profileSettingsUrl="/flows/contractor-profile-settings-v6?returnUrl=/candidate-dashboard-contractor-v6" 
+            dashboardUrl="/candidate-dashboard-contractor-v6" 
+          />
+
+          <div className="flex-1">
+            <AgentLayout context="Contractor Dashboard v6">
+              <main className="flex-1 min-h-screen bg-gradient-to-br from-primary/[0.08] via-secondary/[0.05] to-accent/[0.06] text-foreground relative overflow-hidden">
+                {/* Static background */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-secondary/[0.02] to-accent/[0.03]" />
+                  <div className="absolute -top-20 -left-24 w-[36rem] h-[36rem] rounded-full blur-3xl opacity-10" style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.05))'
+                  }} />
+                  <div className="absolute -bottom-24 -right-28 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-8" style={{
+                    background: 'linear-gradient(225deg, hsl(var(--accent) / 0.06), hsl(var(--primary) / 0.04))'
+                  }} />
+                </div>
+
+                <div className="max-w-5xl mx-auto p-8 pb-32 space-y-6 relative z-10">
+                  {/* Agent Header */}
+                  <AgentHeader 
+                    title={`Welcome back, ${candidateProfile.firstName}!`} 
+                    subtitle="Candidate Dashboard — Contractor" 
+                    showPulse={true} 
+                    isActive={false} 
+                    showInput={false} 
+                  />
+
+                  {/* Main Content */}
+                  <div className="space-y-4">
+                    {/* Upcoming Invoice Card - Primary Focus */}
+                    <F42v6_UpcomingInvoiceCard />
+                    
+                    {/* Adjustments Section */}
+                    <F42v6_AdjustmentsSection onRequestAdjustment={handleRequestAdjustment} />
+                  </div>
+                </div>
+              </main>
+            </AgentLayout>
+          </div>
+          
+          {/* Adjustment Drawer - at root level for proper z-index */}
+          <F42v6_AdjustmentDrawer
+            open={adjustmentDrawerOpen}
+            onOpenChange={handleAdjustmentDrawerClose}
+            currency={currency}
+            contractType={contractType}
+            initialType={adjustmentInitialType}
+            initialExpenseCategory={adjustmentInitialCategory}
+            initialExpenseAmount={adjustmentInitialAmount}
+            initialHours={adjustmentInitialHours}
+            initialDate={adjustmentInitialDate}
+            initialStartTime={adjustmentInitialStartTime}
+            initialEndTime={adjustmentInitialEndTime}
+            rejectedId={adjustmentRejectedId}
+          />
         </div>
-        
-        <F42v6_UpcomingInvoiceCard />
-        <F42v6_AdjustmentsSection onRequestAdjustment={handleRequestAdjustment} />
-        
-        <F42v6_AdjustmentDrawer
-          open={adjustmentDrawerOpen}
-          onOpenChange={handleAdjustmentDrawerClose}
-          currency={currency}
-          contractType={contractType}
-          initialType={adjustmentType}
-          initialExpenseCategory={adjustmentCategory}
-          initialExpenseAmount={adjustmentAmount}
-          rejectedId={adjustmentRejectedId}
-          initialHours={adjustmentHours}
-          initialDate={adjustmentDate}
-          initialStartTime={adjustmentStartTime}
-          initialEndTime={adjustmentEndTime}
-        />
-      </div>
-    </div>
+      </TooltipProvider>
+    </RoleLensProvider>
   );
 };
 
