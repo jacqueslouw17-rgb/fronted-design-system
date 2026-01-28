@@ -32,7 +32,7 @@ export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "
 export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Re-use LeaveType from LeavesTab (not exported here to avoid conflict)
-type LeaveTypeLocal = "Annual" | "Sick" | "Unpaid" | "Other";
+type LeaveTypeLocal = "Annual" | "Sick" | "Unpaid" | "Compassionate" | "Maternity" | "Other";
 
 // Line item for pay breakdown
 interface PayLineItem {
@@ -114,6 +114,8 @@ const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: 
   Annual: { icon: Palmtree, label: "Annual Leave", color: "bg-primary/10 text-primary border-primary/20", affectsPay: false },
   Sick: { icon: Calendar, label: "Sick Leave", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20", affectsPay: false },
   Unpaid: { icon: Calendar, label: "Unpaid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: true },
+  Compassionate: { icon: Calendar, label: "Compassionate Leave", color: "bg-purple-500/10 text-purple-600 border-purple-500/20", affectsPay: false },
+  Maternity: { icon: Calendar, label: "Maternity Leave", color: "bg-pink-500/10 text-pink-600 border-pink-500/20", affectsPay: false },
   Other: { icon: Calendar, label: "Other Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: false },
 };
 

@@ -164,9 +164,90 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending" },
     ],
+    // Sick leave example (paid - no pay impact)
+    pendingLeaves: [
+      {
+        id: "leave-jonas-1",
+        leaveType: "Sick",
+        startDate: "2026-01-08",
+        endDate: "2026-01-09",
+        totalDays: 2,
+        daysInThisPeriod: 2,
+        reason: "Flu recovery",
+        status: "pending",
+      },
+    ],
     status: "pending",
     totalImpact: 890,
     currency: "EUR",
+  },
+  {
+    id: "sub-7",
+    workerId: "8",
+    workerName: "Priya Sharma",
+    workerCountry: "India",
+    workerType: "employee",
+    periodLabel: "Jan 1 – Jan 31",
+    basePay: 150000,
+    estimatedNet: 112500,
+    lineItems: [
+      { type: "Earnings", label: "Base Salary", amount: 150000, locked: false },
+      { type: "Deduction", label: "Income Tax", amount: -22500, locked: true },
+      { type: "Deduction", label: "PF Employee", amount: -12000, locked: true },
+      { type: "Deduction", label: "ESI", amount: -3000, locked: true },
+    ],
+    submissions: [],
+    // Compassionate leave example (paid - no pay impact)
+    pendingLeaves: [
+      {
+        id: "leave-priya-1",
+        leaveType: "Compassionate",
+        startDate: "2026-01-13",
+        endDate: "2026-01-14",
+        totalDays: 2,
+        daysInThisPeriod: 2,
+        reason: "Family bereavement",
+        status: "pending",
+      },
+    ],
+    status: "pending",
+    totalImpact: 0,
+    currency: "INR",
+  },
+  {
+    id: "sub-8",
+    workerId: "9",
+    workerName: "Lisa Chen",
+    workerCountry: "Sweden",
+    workerType: "employee",
+    periodLabel: "Jan 1 – Jan 31",
+    basePay: 55000,
+    estimatedNet: 38500,
+    lineItems: [
+      { type: "Earnings", label: "Base Salary", amount: 55000, locked: false },
+      { type: "Deduction", label: "Income Tax", amount: -11000, locked: true },
+      { type: "Deduction", label: "Pension", amount: -3850, locked: true },
+      { type: "Deduction", label: "Social Security", amount: -1650, locked: true },
+    ],
+    submissions: [
+      { type: "bonus", amount: 5000, currency: "SEK", description: "Q4 performance bonus", status: "pending" },
+    ],
+    // Maternity leave example (paid - no pay impact)
+    pendingLeaves: [
+      {
+        id: "leave-lisa-1",
+        leaveType: "Maternity",
+        startDate: "2026-01-27",
+        endDate: "2026-02-28",
+        totalDays: 23,
+        daysInThisPeriod: 3,
+        reason: "Maternity leave starting",
+        status: "pending",
+      },
+    ],
+    status: "pending",
+    totalImpact: 5000,
+    currency: "SEK",
   },
 ];
 
