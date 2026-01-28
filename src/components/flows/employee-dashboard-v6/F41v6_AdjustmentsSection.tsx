@@ -14,7 +14,6 @@ import { useF41v6_DashboardStore, type F41v6_Adjustment } from '@/stores/F41v6_D
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
-import { toast } from 'sonner';
 
 interface F41v6_AdjustmentsSectionProps {
   onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string, days?: number) => void;
@@ -62,7 +61,6 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
   const handleConfirmWithdraw = () => {
     if (withdrawTargetId) {
       withdrawAdjustment(withdrawTargetId);
-      toast.success('Adjustment withdrawn');
       setWithdrawTargetId(null);
     }
   };
