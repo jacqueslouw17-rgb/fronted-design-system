@@ -93,19 +93,179 @@ const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: s
   rejected: { icon: X, label: "Rejected", color: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
+// Interactive adjustment row with expandable approve/reject UI
+const AdjustmentRow = ({ 
+  label, 
+  amount, 
+  currency, 
+  status,
+  onApprove,
+  onReject,
+}: { 
+  label: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'approved';
+  onApprove: () => void;
+  onReject: (reason: string) => void;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
-// Receipt-style breakdown row - now supports interactive mode for adjustments
+  const formatAmount = (amt: number, curr: string) => {
+    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
+    return `${symbols[curr] || curr}${Math.abs(amt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const handleApprove = () => {
+    onApprove();
+    setIsExpanded(false);
+  };
+
+  const handleReject = () => {
+    if (rejectReason.trim()) {
+      onReject(rejectReason);
+      setIsExpanded(false);
+      setShowRejectForm(false);
+      setRejectReason("");
+    }
+  };
+
+  const isPending = status === 'pending';
+
+  return (
+    <div className="mb-2">
+      {/* Main row */}
+      <div 
+        className={cn(
+          "flex items-center justify-between py-3 px-3 -mx-3 rounded-lg transition-all duration-200",
+          isPending && "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-200/60 dark:border-orange-500/20 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 hover:border-orange-300 dark:hover:border-orange-500/30",
+          !isPending && "bg-muted/30",
+          isExpanded && isPending && "rounded-b-none border-b-0"
+        )}
+        onClick={() => isPending && setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <span className="text-sm font-medium text-foreground">
+            {label}
+          </span>
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "text-[11px] px-2 py-0.5 shrink-0 font-medium",
+              isPending 
+                ? "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30"
+                : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
+            )}
+          >
+            {isPending ? 'Pending approval' : 'Approved'}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold tabular-nums font-mono text-foreground">
+            +{formatAmount(amount, currency)}
+          </span>
+          {isPending && (
+            <ChevronRight className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+              isExpanded && "rotate-90"
+            )} />
+          )}
+        </div>
+      </div>
+
+      {/* Expanded action panel */}
+      <AnimatePresence>
+        {isExpanded && isPending && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="bg-orange-50/30 dark:bg-orange-500/5 border border-t-0 border-orange-200/60 dark:border-orange-500/20 rounded-b-lg px-3 py-3">
+              {!showRejectForm ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRejectForm(true);
+                    }}
+                    className="flex-1 h-9 text-sm border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                  >
+                    <X className="h-4 w-4 mr-1.5" />
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApprove();
+                    }}
+                    className="flex-1 h-9 text-sm bg-accent-green-fill hover:bg-accent-green-fill/90 text-white"
+                  >
+                    <Check className="h-4 w-4 mr-1.5" />
+                    Approve
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">
+                      Reason for rejection (sent to worker)
+                    </Label>
+                    <Textarea
+                      placeholder="Explain why this adjustment is being rejected..."
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      className="min-h-[70px] resize-none text-sm"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReason("");
+                      }}
+                      className="flex-1 h-8 text-xs"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleReject}
+                      disabled={!rejectReason.trim()}
+                      className="flex-1 h-8 text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                      Reject adjustment
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Simple static breakdown row for non-interactive items
 const BreakdownRow = ({ 
   label, 
   amount, 
   currency, 
   isPositive = true,
   isLocked = false,
-  badge,
   isTotal = false,
-  isInteractive = false,
-  onApprove,
-  onReject,
   className
 }: { 
   label: string;
@@ -113,11 +273,7 @@ const BreakdownRow = ({
   currency: string;
   isPositive?: boolean;
   isLocked?: boolean;
-  badge?: { label: string; variant: 'pending' | 'approved' };
   isTotal?: boolean;
-  isInteractive?: boolean;
-  onApprove?: () => void;
-  onReject?: () => void;
   className?: string;
 }) => {
   const formatAmount = (amt: number, curr: string) => {
@@ -127,9 +283,8 @@ const BreakdownRow = ({
 
   return (
     <div className={cn(
-      "flex items-center justify-between py-2 -mx-2 px-2 rounded-md transition-all duration-200 group/row",
-      isTotal && "pt-3 mt-1 border-t border-dashed border-border/50 mx-0 px-0",
-      isInteractive && "hover:bg-muted/50 cursor-pointer",
+      "flex items-center justify-between py-2",
+      isTotal && "pt-3 mt-1 border-t border-dashed border-border/50",
       className
     )}>
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -149,62 +304,7 @@ const BreakdownRow = ({
             </TooltipContent>
           </Tooltip>
         )}
-        {badge && (
-          <Badge 
-            variant="outline" 
-            className={cn(
-              "text-[11px] px-2 py-0.5 shrink-0 font-medium pointer-events-none",
-              badge.variant === 'pending' 
-                ? "bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20"
-                : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
-            )}
-          >
-            {badge.label}
-          </Badge>
-        )}
       </div>
-      
-      {/* Action buttons on hover for interactive rows */}
-      {isInteractive && badge?.variant === 'pending' && (
-        <div className="flex items-center gap-1 mr-2 opacity-0 group-hover/row:opacity-100 transition-opacity">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReject?.();
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">Reject</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                className="h-6 w-6 p-0 hover:bg-accent-green-fill/20 hover:text-accent-green-text"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onApprove?.();
-                }}
-              >
-                <Check className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">Approve</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      )}
       
       <span className={cn(
         "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4",
@@ -537,22 +637,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           const config = submissionTypeConfig[adj.type as SubmissionType];
                           if (!config) return null;
                           return (
-                            <BreakdownRow
+                            <AdjustmentRow
                               key={`adj-${idx}`}
                               label={config.label}
                               amount={adj.amount || 0}
                               currency={adj.currency || currency}
-                              isPositive
-                              isInteractive
+                              status={adj.status === 'approved' ? 'approved' : 'pending'}
                               onApprove={() => {
                                 toast.success(`Approved ${config.label.toLowerCase()}`);
                               }}
-                              onReject={() => {
-                                toast.info(`Rejected ${config.label.toLowerCase()}`);
-                              }}
-                              badge={{
-                                label: adj.status === 'approved' ? 'Approved' : 'Pending approval',
-                                variant: adj.status === 'approved' ? 'approved' : 'pending'
+                              onReject={(reason) => {
+                                toast.info(`Rejected ${config.label.toLowerCase()}: ${reason}`);
                               }}
                             />
                           );
@@ -607,22 +702,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         {pendingAdjustments
                           .filter(adj => adj.type === 'overtime')
                           .map((adj, idx) => (
-                            <BreakdownRow
+                            <AdjustmentRow
                               key={idx}
-                              label={`${adj.hours || 0}h logged`}
+                              label={`Overtime (${adj.hours || 0}h logged)`}
                               amount={adj.amount || 0}
                               currency={currency}
-                              isPositive
-                              isInteractive
+                              status={adj.status === 'approved' ? 'approved' : 'pending'}
                               onApprove={() => {
                                 toast.success('Approved overtime');
                               }}
-                              onReject={() => {
-                                toast.info('Rejected overtime');
-                              }}
-                              badge={{
-                                label: adj.status === 'approved' ? 'Approved' : 'Pending approval',
-                                variant: adj.status === 'approved' ? 'approved' : 'pending'
+                              onReject={(reason) => {
+                                toast.info(`Rejected overtime: ${reason}`);
                               }}
                             />
                           ))}
