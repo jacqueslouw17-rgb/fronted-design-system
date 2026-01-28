@@ -1,17 +1,17 @@
 /**
  * Flow 4.1 — Employee Dashboard v6
- * Payout breakdown drawer showing earnings, deductions, and net pay
+ * Payout breakdown side panel showing earnings, deductions, and net pay
  */
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { Download } from "lucide-react";
 
 interface F41v6_PayoutBreakdownDrawerProps {
   open: boolean;
@@ -49,25 +49,25 @@ export const F41v6_PayoutBreakdownDrawer = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full sm:max-w-[420px] overflow-y-auto p-0">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
           <div className="flex items-center gap-2">
-            <DialogTitle className="text-lg font-semibold">What's included</DialogTitle>
+            <SheetTitle className="text-lg font-semibold">What's included</SheetTitle>
             <Badge variant="secondary" className="text-xs">Dec 2025</Badge>
           </div>
           <p className="text-sm text-muted-foreground">Payout breakdown for December 15, 2025</p>
-        </DialogHeader>
+        </SheetHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="px-6 py-5 space-y-6">
           {/* Earnings Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Earnings</h3>
-            <div className="space-y-2">
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Earnings</h3>
+            <div className="space-y-0">
               {earnings.map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-1">
-                  <span className="text-sm text-foreground">{item.label}</span>
-                  <span className="text-sm font-medium tabular-nums">{formatAmount(item.amount)}</span>
+                <div key={index} className="flex justify-between items-center py-2">
+                  <span className="text-sm text-muted-foreground">{item.label}</span>
+                  <span className="text-sm font-medium tabular-nums">+{formatAmount(item.amount)}</span>
                 </div>
               ))}
               <div className="flex justify-between items-center pt-2 border-t border-border/40">
@@ -75,42 +75,43 @@ export const F41v6_PayoutBreakdownDrawer = ({
                 <span className="text-sm font-semibold tabular-nums">{formatAmount(totalEarnings)}</span>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Deductions Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Deductions</h3>
-            <div className="space-y-2">
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Deductions</h3>
+            <div className="space-y-0">
               {deductions.map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-1">
-                  <span className="text-sm text-foreground">{item.label}</span>
-                  <span className="text-sm font-medium tabular-nums text-destructive">-{formatAmount(item.amount)}</span>
+                <div key={index} className="flex justify-between items-center py-2">
+                  <span className="text-sm text-muted-foreground">{item.label}</span>
+                  <span className="text-sm font-medium tabular-nums text-destructive">−{formatAmount(item.amount)}</span>
                 </div>
               ))}
               <div className="flex justify-between items-center pt-2 border-t border-border/40">
                 <span className="text-sm font-medium text-foreground">Total Deductions</span>
-                <span className="text-sm font-semibold tabular-nums text-destructive">-{formatAmount(totalDeductions)}</span>
+                <span className="text-sm font-semibold tabular-nums text-destructive">−{formatAmount(totalDeductions)}</span>
               </div>
             </div>
-          </div>
-
-          {/* Net Pay */}
-          <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
-            <div className="flex justify-between items-center">
-              <span className="text-base font-semibold text-foreground">Net Pay</span>
-              <span className="text-xl font-bold tabular-nums text-foreground">{formatAmount(netPay)}</span>
-            </div>
-          </div>
+          </section>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end pt-2">
-          <Button variant="outline" size="sm" className="gap-2">
+        {/* Net Pay Footer */}
+        <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-sm font-medium text-foreground">Net Pay</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Paid on Dec 15, 2025</p>
+            </div>
+            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
+              {formatAmount(netPay)}
+            </p>
+          </div>
+          <Button variant="outline" className="w-full gap-2">
             <Download className="h-4 w-4" />
             Download payslip
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };

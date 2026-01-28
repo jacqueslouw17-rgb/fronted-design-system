@@ -21,16 +21,16 @@ export const F42v6_InvoiceHeroCard = ({
     <Card className="bg-card/50 backdrop-blur-sm border-border/40 shadow-sm">
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Last Invoice Tile */}
-          <div className="bg-background rounded-xl p-5 border border-border/30">
+          {/* Last Invoice Tile - with light purple tint */}
+          <div className="bg-primary/[0.06] rounded-xl p-5 border border-primary/20">
             <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2 text-primary/80">
                 <FileText className="h-4 w-4" />
                 <span className="text-sm font-medium">Last invoice</span>
               </div>
               <button 
                 onClick={onViewDetails}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1 text-sm text-primary/70 hover:text-primary transition-colors"
               >
                 View details
                 <ChevronRight className="h-4 w-4" />
