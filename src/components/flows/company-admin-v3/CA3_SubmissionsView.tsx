@@ -261,7 +261,7 @@ const AdjustmentRow = ({
           {/* Main row */}
           <div 
             className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
-            onClick={toggleExpand}
+            onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <span className="text-sm text-muted-foreground">
@@ -595,7 +595,7 @@ const LeaveRow = ({
           {/* Main row */}
           <div 
             className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
-            onClick={toggleExpand}
+            onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
           >
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
