@@ -1,6 +1,7 @@
 /**
- * Flow 4.2 — Contractor Dashboard v3
+ * Flow 4.2 — Contractor Dashboard v4
  * Adjustment Detail Drawer (read-only view with cancel option, right-side)
+ * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
 import {
@@ -11,11 +12,11 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { type F42v3_Adjustment } from '@/stores/F42v3_DashboardStore';
+import { type F42v4_Adjustment } from '@/stores/F42v4_DashboardStore';
 import { FileText, Clock } from 'lucide-react';
 
-interface F42v3_AdjustmentDetailDrawerProps {
-  adjustment: F42v3_Adjustment | null;
+interface F42v4_AdjustmentDetailDrawerProps {
+  adjustment: F42v4_Adjustment | null;
   onClose: () => void;
   onCancelRequest?: (id: string) => void;
   currency: string;
@@ -40,7 +41,7 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-const getStatusBadge = (status: F42v3_Adjustment['status']) => {
+const getStatusBadge = (status: F42v4_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Pending</Badge>;
@@ -55,13 +56,13 @@ const getStatusBadge = (status: F42v3_Adjustment['status']) => {
   }
 };
 
-export const F42v3_AdjustmentDetailDrawer = ({ 
+export const F42v4_AdjustmentDetailDrawer = ({ 
   adjustment, 
   onClose, 
   onCancelRequest,
   currency,
   isWindowOpen,
-}: F42v3_AdjustmentDetailDrawerProps) => {
+}: F42v4_AdjustmentDetailDrawerProps) => {
   if (!adjustment) return null;
 
   const isImage = adjustment.receiptUrl?.match(/\.(jpg|jpeg|png)$/i);

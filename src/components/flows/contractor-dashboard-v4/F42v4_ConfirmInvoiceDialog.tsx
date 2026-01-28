@@ -1,6 +1,7 @@
 /**
- * Flow 4.2 — Contractor Dashboard v3
+ * Flow 4.2 — Contractor Dashboard v4
  * Confirm Invoice Dialog
+ * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
 import {
@@ -14,16 +15,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { useF42v3_DashboardStore } from '@/stores/F42v3_DashboardStore';
+import { useF42v4_DashboardStore } from '@/stores/F42v4_DashboardStore';
 
-interface F42v3_ConfirmInvoiceDialogProps {
+interface F42v4_ConfirmInvoiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   periodLabel: string;
 }
 
-export const F42v3_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v3_ConfirmInvoiceDialogProps) => {
-  const { confirmInvoice } = useF42v3_DashboardStore();
+export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v4_ConfirmInvoiceDialogProps) => {
+  const { confirmInvoice } = useF42v4_DashboardStore();
 
   const handleConfirm = () => {
     confirmInvoice();

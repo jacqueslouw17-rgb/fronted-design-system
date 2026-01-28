@@ -1,6 +1,7 @@
 /**
- * Flow 4.2 — Contractor Dashboard v3
+ * Flow 4.2 — Contractor Dashboard v4
  * Request Adjustment Drawer (right-side panel)
+ * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
 import { useState } from 'react';
@@ -23,28 +24,28 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useF42v3_DashboardStore, type F42v3_AdjustmentType, type F42v3_ContractType } from '@/stores/F42v3_DashboardStore';
+import { useF42v4_DashboardStore, type F42v4_AdjustmentType, type F42v4_ContractType } from '@/stores/F42v4_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image } from 'lucide-react';
 
-interface F42v3_AdjustmentDrawerProps {
+interface F42v4_AdjustmentDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
-  contractType: F42v3_ContractType;
+  contractType: F42v4_ContractType;
 }
 
 const expenseCategories = ['Travel', 'Meals', 'Equipment', 'Software', 'Other'];
 
-export const F42v3_AdjustmentDrawer = ({ open, onOpenChange, currency, contractType }: F42v3_AdjustmentDrawerProps) => {
-  const { addAdjustment } = useF42v3_DashboardStore();
+export const F42v4_AdjustmentDrawer = ({ open, onOpenChange, currency, contractType }: F42v4_AdjustmentDrawerProps) => {
+  const { addAdjustment } = useF42v4_DashboardStore();
   
   // Only show "Additional hours" for hourly contracts
-  const adjustmentTypes: F42v3_AdjustmentType[] = contractType === 'hourly' 
+  const adjustmentTypes: F42v4_AdjustmentType[] = contractType === 'hourly' 
     ? ['Expense', 'Additional hours', 'Bonus', 'Correction']
     : ['Expense', 'Bonus', 'Correction'];
   
-  const [type, setType] = useState<F42v3_AdjustmentType>('Expense');
+  const [type, setType] = useState<F42v4_AdjustmentType>('Expense');
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
   const [hours, setHours] = useState('');
