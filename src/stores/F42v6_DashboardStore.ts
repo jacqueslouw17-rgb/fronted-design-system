@@ -118,7 +118,7 @@ const initialState: F42v6_DashboardState = {
       id: 'adj-demo-rejected-1',
       type: 'Additional hours' as F42v6_AdjustmentType,
       label: 'Extra hours',
-      amount: 240,
+      amount: null,
       status: 'Admin rejected' as F42v6_AdjustmentStatus,
       hours: 8,
       date: '2026-01-10',
