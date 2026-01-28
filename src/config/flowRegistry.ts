@@ -248,19 +248,19 @@ export const FLOW_REGISTRY: Record<string, FlowMetadata> = {
       'src/stores/F42v3_DashboardStore.ts'
     ]
   },
-  'f4.2-contractor-dashboard-v4': {
-    id: 'f4.2-contractor-dashboard-v4',
-    title: 'Flow 4.2 — Contractor Dashboard v4',
-    path: '/candidate-dashboard-contractor-v4',
+  'f4.1-employee-dashboard-v4': {
+    id: 'f4.1-employee-dashboard-v4',
+    title: 'Flow 4.1 — Employee Dashboard v4',
+    path: '/candidate-dashboard-employee-v4',
     locked: false,
     lockedDate: undefined,
     lockedReason: undefined,
     filePaths: [
-      'src/pages/flows/F42v4_ContractorDashboardPage.tsx',
-      'src/stores/F42v4_DashboardStore.ts'
+      'src/pages/flows/F41v4_EmployeeDashboardPage.tsx',
+      'src/stores/F41v4_DashboardStore.ts'
     ]
   },
-  'f4.1-employee-dashboard-v5': {
+  'f4.2-contractor-dashboard-v4': {
     id: 'f4.1-employee-dashboard-v5',
     title: 'Flow 4.1 — Employee Dashboard v5',
     path: '/candidate-dashboard-employee-v5',
