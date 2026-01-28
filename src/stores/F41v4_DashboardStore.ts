@@ -1,113 +1,83 @@
 /**
  * Flow 4.1 — Employee Dashboard v4 Store
  * 
- * Namespaced store for Employee Dashboard v4 (UI: v2).
- * Includes 5-status payroll states and adjustment tracking.
+ * Namespaced store for Employee Dashboard v4.
+ * Includes T-5 confirmation and adjustment state.
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
 import { create } from 'zustand';
 
-// New 5-status payroll states
-export type PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
+export type F41v4_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
+export type F41v4_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
+export type F41v4_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
+export type F41v4_LeaveType = 'Annual leave' | 'Sick leave' | 'Unpaid leave' | 'Other';
+export type F41v4_LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 
-export type WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
-export type AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
-export type LeaveType = 'Vacation' | 'Sick' | 'Compassionate' | 'Maternity';
-export type LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
-
-export interface LineItem {
+export interface F41v4_LineItem {
   type: 'Earnings' | 'Deduction';
   label: string;
   amount: number;
   locked: boolean;
 }
 
-export interface EmployerCost {
+export interface F41v4_EmployerCost {
   label: string;
   amount: number;
 }
 
-export interface Adjustment {
+export interface F41v4_Adjustment {
   id: string;
-  type: AdjustmentType;
+  type: F41v4_AdjustmentType;
   label: string;
   amount: number | null;
-  status: AdjustmentStatus;
+  status: F41v4_AdjustmentStatus;
   description?: string;
   category?: string;
   hours?: number;
   receiptUrl?: string;
   submittedAt: string;
-  rejectionReason?: string;
 }
 
-export interface LeaveRequest {
+export interface F41v4_LeaveRequest {
   id: string;
-  leaveType: LeaveType;
+  leaveType: F41v4_LeaveType;
   startDate: string;
   endDate: string;
   totalDays: number;
   reason?: string;
-  status: LeaveStatus;
+  status: F41v4_LeaveStatus;
   submittedAt: string;
-  rejectionReason?: string;
 }
 
 interface F41v4_DashboardState {
   dashboard_context: 'employee_v4';
   isLoading: boolean;
   
-  // Employee info
-  employeeCountry: string;
-  
   // Pay data
   nextPayoutDate: string;
   periodLabel: string;
-  periodMonth: string;
   estimatedNet: number;
   currency: string;
   countryRuleLocks: string[];
-  lineItems: LineItem[];
-  employerCosts: EmployerCost[];
-  windowState: WindowState;
-  
-  // New 5-status state
-  payrollStatus: PayrollStatus;
-  returnedReason?: string;
-  resubmitDeadline?: string;
-  submittedAt?: string; // Timestamp when submission was made
-  approvedAt?: string; // Timestamp when approval was received
-  
-  // Legacy - keeping for backwards compat
+  lineItems: F41v4_LineItem[];
+  employerCosts: F41v4_EmployerCost[];
+  windowState: F41v4_WindowState;
   confirmed: boolean;
-  
-  adjustments: Adjustment[];
-  leaveRequests: LeaveRequest[];
-  
-  // Track resubmitted rejected items (hide from "Needs attention")
-  resubmittedRejectionIds: string[];
+  adjustments: F41v4_Adjustment[];
+  leaveRequests: F41v4_LeaveRequest[];
   
   // Computed
   daysUntilClose: number;
-  cutoffDate: string;
-  isCutoffSoon: boolean;
 }
 
 interface F41v4_DashboardActions {
   setLoading: (loading: boolean) => void;
-  submitForReview: () => void;
-  submitNoChanges: () => void;
-  fixAndResubmit: () => void;
-  setPayrollStatus: (status: PayrollStatus) => void;
   confirmPay: () => void;
-  withdrawSubmission: () => void;
-  addAdjustment: (adjustment: Omit<Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
-  addLeaveRequest: (leave: Omit<LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
+  addAdjustment: (adjustment: Omit<F41v4_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
+  addLeaveRequest: (leave: Omit<F41v4_LeaveRequest, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
   withdrawLeaveRequest: (id: string) => void;
-  markRejectionResubmitted: (id: string) => void;
   reset: () => void;
 }
 
@@ -115,13 +85,9 @@ const initialState: F41v4_DashboardState = {
   dashboard_context: 'employee_v4',
   isLoading: false,
   
-  // Employee info - Norway for demo
-  employeeCountry: 'NO',
-  
   // Mock data matching the spec
-  nextPayoutDate: '2026-01-31',
-  periodLabel: 'Jan 1 – Jan 31',
-  periodMonth: 'January 2026',
+  nextPayoutDate: '2026-01-05',
+  periodLabel: 'Dec 1 – Dec 31',
   estimatedNet: 42166.67,
   currency: 'PHP',
   countryRuleLocks: ['Income Tax', 'SSS', 'PhilHealth', 'Pag-IBIG'],
@@ -139,49 +105,10 @@ const initialState: F41v4_DashboardState = {
     { label: 'Pag-IBIG Employer', amount: 1000 },
   ],
   windowState: 'OPEN',
-  payrollStatus: 'draft',
-  returnedReason: undefined,
-  resubmitDeadline: undefined,
-  submittedAt: undefined,
-  approvedAt: undefined,
   confirmed: false,
   adjustments: [],
-  leaveRequests: [
-    // Sample approved leave - single day in current period
-    {
-      id: 'leave-demo-1',
-      leaveType: 'Vacation' as LeaveType,
-      startDate: '2026-01-15',
-      endDate: '2026-01-15',
-      totalDays: 1,
-      status: 'Admin approved' as LeaveStatus,
-      submittedAt: '2026-01-05T10:00:00.000Z',
-    },
-    // Sample leave spanning pay periods (Jan 30 - Feb 2)
-    {
-      id: 'leave-demo-2',
-      leaveType: 'Vacation' as LeaveType,
-      startDate: '2026-01-30',
-      endDate: '2026-02-02',
-      totalDays: 4,
-      status: 'Admin approved' as LeaveStatus,
-      submittedAt: '2026-01-20T10:00:00.000Z',
-    },
-    // Sample pending leave (future - Feb)
-    {
-      id: 'leave-demo-3',
-      leaveType: 'Vacation' as LeaveType,
-      startDate: '2026-02-15',
-      endDate: '2026-02-17',
-      totalDays: 2,
-      status: 'Pending' as LeaveStatus,
-      submittedAt: '2026-01-10T10:00:00.000Z',
-    },
-  ],
-  resubmittedRejectionIds: [],
+  leaveRequests: [],
   daysUntilClose: 3,
-  cutoffDate: '15 Jan',
-  isCutoffSoon: false,
 };
 
 export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_DashboardActions>((set) => ({
@@ -189,83 +116,31 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  submitForReview: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
+  confirmPay: () => set({ confirmed: true }),
   
-  submitNoChanges: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
+  addAdjustment: (adjustment) => set((state) => ({
+    adjustments: [
+      ...state.adjustments,
+      {
+        ...adjustment,
+        id: `adj-${Date.now()}`,
+        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+        submittedAt: new Date().toISOString(),
+      },
+    ],
+  })),
   
-  fixAndResubmit: () => set({ payrollStatus: 'submitted', confirmed: true, submittedAt: new Date().toISOString() }),
-  
-  setPayrollStatus: (status) => set((state) => {
-    const isApprovedOrLater = status === 'approved' || status === 'finalised';
-
-    // If the run is approved, there should be no "Pending" items.
-    // Convert any pending requests to admin-approved to keep the UI consistent.
-    const nextAdjustments = isApprovedOrLater
-      ? state.adjustments.map((adj) =>
-          adj.status === 'Pending' ? { ...adj, status: 'Admin approved' as const } : adj
-        )
-      : state.adjustments;
-
-    const nextLeaves = isApprovedOrLater
-      ? state.leaveRequests.map((leave) =>
-          leave.status === 'Pending' ? { ...leave, status: 'Admin approved' as const } : leave
-        )
-      : state.leaveRequests;
-
-    return {
-      payrollStatus: status,
-      approvedAt: isApprovedOrLater ? state.approvedAt ?? new Date().toISOString() : state.approvedAt,
-      adjustments: nextAdjustments,
-      leaveRequests: nextLeaves,
-    };
-  }),
-  
-  confirmPay: () => set({ confirmed: true, payrollStatus: 'submitted', submittedAt: new Date().toISOString() }),
-  
-  withdrawSubmission: () => set({ payrollStatus: 'draft', confirmed: false, submittedAt: undefined, approvedAt: undefined }),
-  
-  addAdjustment: (adjustment) =>
-    set((state) => {
-      const isApprovedOrLater = state.payrollStatus === 'approved' || state.payrollStatus === 'finalised';
-      // If a new request is submitted after approval (e.g. resubmission), the run is no longer "Approved".
-      const nextPayrollStatus: PayrollStatus = isApprovedOrLater ? 'submitted' : state.payrollStatus;
-
-      return {
-        payrollStatus: nextPayrollStatus,
-        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
-        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
-        adjustments: [
-          ...state.adjustments,
-          {
-            ...adjustment,
-            id: `adj-${Date.now()}`,
-            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-            submittedAt: new Date().toISOString(),
-          },
-        ],
-      };
-    }),
-  
-  addLeaveRequest: (leave) =>
-    set((state) => {
-      const isApprovedOrLater = state.payrollStatus === 'approved' || state.payrollStatus === 'finalised';
-      const nextPayrollStatus: PayrollStatus = isApprovedOrLater ? 'submitted' : state.payrollStatus;
-
-      return {
-        payrollStatus: nextPayrollStatus,
-        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
-        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
-        leaveRequests: [
-          ...state.leaveRequests,
-          {
-            ...leave,
-            id: `leave-${Date.now()}`,
-            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-            submittedAt: new Date().toISOString(),
-          },
-        ],
-      };
-    }),
+  addLeaveRequest: (leave) => set((state) => ({
+    leaveRequests: [
+      ...state.leaveRequests,
+      {
+        ...leave,
+        id: `leave-${Date.now()}`,
+        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+        submittedAt: new Date().toISOString(),
+      },
+    ],
+  })),
   
   withdrawAdjustment: (id) => set((state) => ({
     adjustments: state.adjustments.filter((adj) => adj.id !== id),
@@ -273,10 +148,6 @@ export const useF41v4_DashboardStore = create<F41v4_DashboardState & F41v4_Dashb
   
   withdrawLeaveRequest: (id) => set((state) => ({
     leaveRequests: state.leaveRequests.filter((leave) => leave.id !== id),
-  })),
-  
-  markRejectionResubmitted: (id) => set((state) => ({
-    resubmittedRejectionIds: [...state.resubmittedRejectionIds, id],
   })),
   
   reset: () => set(initialState),

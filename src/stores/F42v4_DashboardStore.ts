@@ -2,15 +2,13 @@
  * Flow 4.2 — Contractor Dashboard v4 Store
  * 
  * Namespaced store for Contractor Dashboard v4.
- * Includes invoice status states matching employee payroll patterns.
- * 
- * ISOLATED: This is a complete copy from v3 - changes here do NOT affect v3.
+ * Includes T-5 invoice confirmation and adjustment state for contractors.
+ * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
 import { create } from 'zustand';
 
 export type F42v4_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type F42v4_InvoiceStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 export type F42v4_ContractType = 'hourly' | 'fixed';
 export type F42v4_AdjustmentType = 'Expense' | 'Additional hours' | 'Bonus' | 'Correction';
 export type F42v4_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
@@ -34,7 +32,6 @@ export interface F42v4_Adjustment {
   hours?: number;
   receiptUrl?: string;
   submittedAt: string;
-  rejectionReason?: string; // Reason for rejection from admin
 }
 
 interface F42v4_DashboardState {
@@ -44,38 +41,23 @@ interface F42v4_DashboardState {
   // Invoice data
   nextInvoiceDate: string;
   periodLabel: string;
-  periodMonth: string;
   invoiceTotal: number;
   currency: string;
   contractType: F42v4_ContractType;
   lineItems: F42v4_LineItem[];
   windowState: F42v4_WindowState;
-  invoiceStatus: F42v4_InvoiceStatus;
-  returnedReason?: string;
-  resubmitDeadline?: string;
+  confirmed: boolean;
   adjustments: F42v4_Adjustment[];
   
-  // Track resubmitted rejected items (hide from "Needs attention")
-  resubmittedRejectionIds: string[];
-  
-  // Cut-off
-  cutoffDate: string;
-  isCutoffSoon: boolean;
+  // Computed
   daysUntilClose: number;
-  
-  // Timestamps for state transitions
-  submittedAt?: string;
-  approvedAt?: string;
 }
 
 interface F42v4_DashboardActions {
   setLoading: (loading: boolean) => void;
-  submitInvoice: () => void;
-  withdrawSubmission: () => void;
-  setInvoiceStatus: (status: F42v4_InvoiceStatus) => void;
+  confirmInvoice: () => void;
   addAdjustment: (adjustment: Omit<F42v4_Adjustment, 'id' | 'submittedAt' | 'status'>) => void;
   withdrawAdjustment: (id: string) => void;
-  markRejectionResubmitted: (id: string) => void;
   reset: () => void;
 }
 
@@ -86,21 +68,16 @@ const initialState: F42v4_DashboardState = {
   // Mock data matching the spec
   nextInvoiceDate: '2026-01-05',
   periodLabel: 'Dec 1 – Dec 31',
-  periodMonth: 'December',
   invoiceTotal: 4500,
   currency: 'USD',
   contractType: 'hourly', // 'hourly' | 'fixed'
   lineItems: [
-    { type: 'Earnings', label: 'Approved hours', meta: '150 h @ $30/h', amount: 4500, locked: true },
+    { type: 'Earnings', label: 'Approved hours', meta: '152 h @ $30/h', amount: 4560 },
+    { type: 'Adjustment', label: 'Expense (Travel)', amount: -60 },
   ],
   windowState: 'OPEN',
-  invoiceStatus: 'draft',
-  returnedReason: undefined,
-  resubmitDeadline: undefined,
+  confirmed: false,
   adjustments: [],
-  resubmittedRejectionIds: [],
-  cutoffDate: 'Jan 2',
-  isCutoffSoon: true,
   daysUntilClose: 3,
 };
 
@@ -109,64 +86,22 @@ export const useF42v4_DashboardStore = create<F42v4_DashboardState & F42v4_Dashb
   
   setLoading: (loading) => set({ isLoading: loading }),
   
-  submitInvoice: () => set({ 
-    invoiceStatus: 'submitted',
-    submittedAt: new Date().toISOString(),
-  }),
+  confirmInvoice: () => set({ confirmed: true }),
   
-  withdrawSubmission: () => set({ 
-    invoiceStatus: 'draft',
-    submittedAt: undefined,
-    approvedAt: undefined,
-  }),
-  
-  setInvoiceStatus: (status) =>
-    set((state) => {
-      const isApprovedOrLater = status === 'approved' || status === 'finalised';
-
-      // If the invoice is approved, there should be no "Pending" items.
-      // Convert any pending requests to admin-approved to keep the UI consistent.
-      const nextAdjustments = isApprovedOrLater
-        ? state.adjustments.map((adj) =>
-            adj.status === 'Pending' ? { ...adj, status: 'Admin approved' as const } : adj
-          )
-        : state.adjustments;
-
-      return {
-        invoiceStatus: status,
-        submittedAt: status === 'submitted' ? new Date().toISOString() : state.submittedAt,
-        approvedAt: isApprovedOrLater ? state.approvedAt ?? new Date().toISOString() : state.approvedAt,
-        adjustments: nextAdjustments,
-      };
-    }),
-  
-  addAdjustment: (adjustment) =>
-    set((state) => {
-      const isApprovedOrLater = state.invoiceStatus === 'approved' || state.invoiceStatus === 'finalised';
-      const nextInvoiceStatus: F42v4_InvoiceStatus = isApprovedOrLater ? 'submitted' : state.invoiceStatus;
-
-      return {
-        invoiceStatus: nextInvoiceStatus,
-        submittedAt: isApprovedOrLater ? new Date().toISOString() : state.submittedAt,
-        approvedAt: isApprovedOrLater ? undefined : state.approvedAt,
-        adjustments: [
-          {
-            ...adjustment,
-            id: `adj-${Date.now()}`,
-            status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
-            submittedAt: new Date().toISOString(),
-          },
-          ...state.adjustments,
-        ],
-      };
-    }),
+  addAdjustment: (adjustment) => set((state) => ({
+    adjustments: [
+      ...state.adjustments,
+      {
+        ...adjustment,
+        id: `adj-${Date.now()}`,
+        status: state.windowState === 'CLOSED' ? 'Queued for next cycle' : 'Pending',
+        submittedAt: new Date().toISOString(),
+      },
+    ],
+  })),
   
   withdrawAdjustment: (id) => set((state) => ({
     adjustments: state.adjustments.filter((adj) => adj.id !== id),
-  })),
-  
-  markRejectionResubmitted: (id) => set((state) => ({
-    resubmittedRejectionIds: [...state.resubmittedRejectionIds, id],
   })),
   
   reset: () => set(initialState),

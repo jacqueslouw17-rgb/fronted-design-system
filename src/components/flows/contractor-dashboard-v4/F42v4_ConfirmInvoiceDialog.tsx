@@ -1,8 +1,6 @@
 /**
- * Flow 4.2 — Contractor Dashboard v4
- * Confirm Invoice Dialog - matches F41v4 pattern
- * 
- * ISOLATED: Changes here do NOT affect other flows.
+ * Flow 4.2 — Contractor Dashboard v3
+ * Confirm Invoice Dialog
  */
 
 import {
@@ -15,44 +13,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useF42v4_DashboardStore } from '@/stores/F42v4_DashboardStore';
+import { useF42v3_DashboardStore } from '@/stores/F42v3_DashboardStore';
 
-interface F42v4_ConfirmInvoiceDialogProps {
+interface F42v3_ConfirmInvoiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   periodLabel: string;
 }
 
-export const F42v4_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v4_ConfirmInvoiceDialogProps) => {
-  const { submitInvoice } = useF42v4_DashboardStore();
+export const F42v3_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v3_ConfirmInvoiceDialogProps) => {
+  const { confirmInvoice } = useF42v3_DashboardStore();
 
   const handleConfirm = () => {
-    submitInvoice();
-    toast.success("Submitted successfully. Your invoice is under review.");
+    confirmInvoice();
+    toast.success("Invoice confirmed. You're all set.");
     onOpenChange(false);
   };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent 
-        className="sm:max-w-md"
-        onOverlayClick={() => onOpenChange(false)}
-      >
-        {/* Close button */}
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm upcoming invoice</AlertDialogTitle>
           <AlertDialogDescription>
-            You're confirming your invoice for {periodLabel}. You can still request adjustments until the submission window closes.
+            You're confirming your invoice for {periodLabel}. You can still request adjustments until the window closes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
