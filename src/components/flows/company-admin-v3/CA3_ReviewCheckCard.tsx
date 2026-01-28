@@ -116,7 +116,6 @@ export const CA3_ReviewCheckCard: React.FC<CA3_ReviewCheckCardProps> = ({
             }}
           >
             Fix
-            <ChevronRight className="h-3 w-3" />
           </Button>
         )}
         
