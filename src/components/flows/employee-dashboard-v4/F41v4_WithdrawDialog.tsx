@@ -14,7 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { X } from 'lucide-react';
 
 interface F41v4_WithdrawDialogProps {
   open: boolean;
@@ -36,23 +35,18 @@ export const F41v4_WithdrawDialog = ({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent 
-        className="sm:max-w-md"
-        onOverlayClick={() => onOpenChange(false)}
-      >
-        {/* Close button */}
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Withdraw this request?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will remove your pending {requestType === 'leave' ? 'leave request' : 'pay adjustment'} from this pay cycle. If you still need a change, you can submit a new request before confirmation closes.
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <p>
+                This will remove your pending {requestType === 'leave' ? 'leave request' : 'pay adjustment'} from this pay cycle.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                If you still need a change, you can submit a new request before confirmation closes.
+              </p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

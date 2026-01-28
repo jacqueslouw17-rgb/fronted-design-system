@@ -1,6 +1,6 @@
 /**
  * Flow 4.1 — Employee Dashboard v4
- * Confirm Pay Dialog - Review & Submit flow
+ * Confirm Pay Dialog
  * INDEPENDENT from v3 - changes here do not affect other flows.
  */
 
@@ -14,7 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useF41v4_DashboardStore } from '@/stores/F41v4_DashboardStore';
 
@@ -25,43 +24,27 @@ interface F41v4_ConfirmPayDialogProps {
 }
 
 export const F41v4_ConfirmPayDialog = ({ open, onOpenChange, periodLabel }: F41v4_ConfirmPayDialogProps) => {
-  const { submitForReview, payrollStatus } = useF41v4_DashboardStore();
-
-  const isResubmit = payrollStatus === 'returned';
+  const { confirmPay } = useF41v4_DashboardStore();
 
   const handleConfirm = () => {
-    submitForReview();
-    toast.success(
-      isResubmit 
-        ? "Resubmitted successfully. Your payroll is now under review."
-        : "Submitted successfully. Your payroll is now under review."
-    );
+    confirmPay();
+    toast.success("Pay confirmed. You're all set.");
     onOpenChange(false);
   };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent onOverlayClick={() => onOpenChange(false)}>
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {isResubmit ? 'Resubmit for review?' : 'Submit for review?'}
-          </AlertDialogTitle>
+          <AlertDialogTitle>Confirm upcoming pay</AlertDialogTitle>
           <AlertDialogDescription>
-            You're confirming your details for {periodLabel} are correct. 
-            Your company will review and approve before payroll is processed.
+            You're confirming the base calculation for {periodLabel}. You can still request adjustments until the window closes.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>
-            {isResubmit ? 'Resubmit' : 'Submit'}
+            Confirm
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
