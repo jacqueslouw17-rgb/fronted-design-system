@@ -1160,8 +1160,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {/* OVERTIME Section (if any) */}
                   {allAdjustments.filter(adj => adj.type === 'overtime').length > 0 && (
                     <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Timer className="h-3.5 w-3.5" />
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
                         Overtime
                       </h3>
                       <div className="space-y-0">
@@ -1173,7 +1172,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                             return (
                               <AdjustmentRow
                                 key={originalIdx}
-                                label={`Overtime (${adj.hours || 0}h logged)`}
+                                label={`${adj.hours || 0}h logged`}
                                 amount={adj.amount || 0}
                                 currency={currency}
                                 status={adjState.status}
@@ -1196,13 +1195,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   {/* LEAVE Section - for pending leaves in this pay period */}
                   {hasLeaves && (
                     <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <Palmtree className="h-3.5 w-3.5" />
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
                         Leave in this period
                       </h3>
-                      <p className="text-xs text-muted-foreground mb-3 -mt-1">
-                        Pending leave requests affecting this pay period
-                      </p>
                       <div className="space-y-0">
                         {pendingLeaves.map((leave) => {
                           const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
