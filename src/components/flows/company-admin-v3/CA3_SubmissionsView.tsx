@@ -206,23 +206,23 @@ const AdjustmentRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-2 mb-2"
+        className="mb-1.5"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
+        <div className="rounded-md overflow-hidden border border-destructive/40 bg-destructive/5">
           {/* Main row */}
-          <div className="flex items-center justify-between py-2 px-2">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center justify-between py-2.5 px-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge 
                 variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
+                className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-destructive/10 text-destructive border-destructive/40"
               >
                 Rejected
               </Badge>
             </div>
-            <span className="text-sm tabular-nums font-mono text-muted-foreground line-through">
+            <span className="text-sm tabular-nums font-mono text-muted-foreground/60 line-through">
               +{formatAmount(amount, currency)}
             </span>
           </div>
@@ -237,8 +237,8 @@ const AdjustmentRow = ({
                 transition={{ duration: 0.15, ease: "easeOut" }}
                 className="overflow-hidden"
               >
-                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/20">
-                  <p className="text-xs text-destructive/80">
+                <div className="px-3 py-2 bg-destructive/10 border-t border-destructive/30">
+                  <p className="text-xs text-destructive/90">
                     <span className="font-medium">Reason:</span> {rejectionReason}
                   </p>
                 </div>
@@ -253,31 +253,32 @@ const AdjustmentRow = ({
   // Pending state - orange styling with expandable approve/reject
   return (
     <>
-      <div className="-mx-2 mb-2">
+      <div className="mb-1.5">
         <div 
           className={cn(
-            "rounded-lg transition-all duration-200 overflow-hidden",
-            "border border-orange-200/60 dark:border-orange-500/20"
+            "rounded-md transition-all duration-200 overflow-hidden",
+            "border border-orange-300/50 dark:border-orange-500/30",
+            "bg-orange-50/60 dark:bg-orange-500/[0.08]"
           )}
         >
           {/* Main row */}
           <div 
-            className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
+            className="flex items-center justify-between py-2.5 px-3 cursor-pointer hover:bg-orange-100/60 dark:hover:bg-orange-500/15 transition-colors"
             onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
           >
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <span className="text-sm font-medium text-foreground">
                 {label}
               </span>
               <Badge 
                 variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
+                className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-orange-200/80 text-orange-800 border-orange-400/50 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/40"
               >
-                Pending approval
+                Pending
               </Badge>
             </div>
             
-            <span className="text-sm tabular-nums font-mono text-foreground">
+            <span className="text-sm tabular-nums font-mono font-semibold text-foreground">
               +{formatAmount(amount, currency)}
             </span>
           </div>
@@ -291,7 +292,7 @@ const AdjustmentRow = ({
                 transition={{ duration: 0.15, ease: "easeOut" }}
                 className="overflow-hidden"
               >
-                <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
+                <div className="border-t border-orange-300/40 dark:border-orange-500/20 px-3 py-3">
                   {!showRejectForm ? (
                     <div className="flex items-center gap-2">
                       <Button
@@ -582,63 +583,51 @@ const LeaveRow = ({
     );
   }
 
-  // Pending state - interactive (matches AdjustmentRow orange styling)
+  // Pending state - interactive (matches AdjustmentRow styling)
   return (
     <>
       <div 
-        className="mb-2"
+        className="mb-1.5"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={cn(
-          "rounded-lg transition-all duration-200 overflow-hidden -mx-2",
-          "border border-orange-200/60 dark:border-orange-500/20"
+          "rounded-md transition-all duration-200 overflow-hidden",
+          "border border-orange-300/50 dark:border-orange-500/30",
+          "bg-orange-50/60 dark:bg-orange-500/[0.08]"
         )}>
           {/* Main row */}
           <div 
-            className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
+            className="flex items-center justify-between py-2.5 px-3 cursor-pointer hover:bg-orange-100/60 dark:hover:bg-orange-500/15 transition-colors"
             onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
           >
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2.5">
+                <span className="text-sm font-medium text-foreground">
                   {config.label}
                 </span>
                 <Badge 
                   variant="outline" 
-                  className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
+                  className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-orange-200/80 text-orange-800 border-orange-400/50 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/40"
                 >
-                  Pending approval
+                  Pending
                 </Badge>
               </div>
-              <span className="text-xs text-muted-foreground/70">
+              <span className="text-xs text-muted-foreground">
                 {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
               </span>
             </div>
             
-            {/* Right side - amount shown on hover/expanded */}
-            <AnimatePresence>
-              {showDetails && (
-                <motion.div
-                  initial={{ opacity: 0, x: 8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 8 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-2 shrink-0 ml-4"
-                >
-                  {deductionAmount > 0 ? (
-                    <>
-                      <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium">Unpaid</span>
-                      <span className="text-sm tabular-nums font-mono font-medium text-foreground">
-                        −{formatAmount(deductionAmount, currency)}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">No pay impact</span>
-                  )}
-                </motion.div>
+            {/* Right side - always show for pending */}
+            <div className="flex items-center gap-2 shrink-0 ml-4">
+              {deductionAmount > 0 ? (
+                <span className="text-sm tabular-nums font-mono font-semibold text-foreground">
+                  −{formatAmount(deductionAmount, currency)}
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">No pay impact</span>
               )}
-            </AnimatePresence>
+            </div>
           </div>
 
           {/* Expanded action panel */}
@@ -651,7 +640,7 @@ const LeaveRow = ({
                 transition={{ duration: 0.15, ease: "easeOut" }}
                 className="overflow-hidden"
               >
-                <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
+                <div className="border-t border-orange-300/40 dark:border-orange-500/20 px-3 py-3">
                   {leave.reason && (
                     <p className="text-xs text-muted-foreground mb-2.5">
                       <span className="font-medium">Reason:</span> {leave.reason}
@@ -1196,14 +1185,14 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 </SheetHeader>
 
                 {/* Receipt-style content with collapsible sections */}
-                <div className="px-6 py-5 space-y-4" onClick={() => setExpandedItemId(null)}>
+                <div className="px-5 py-4 space-y-2" onClick={() => setExpandedItemId(null)}>
                   
                   {/* Summary banner when items need action */}
                   {currentPendingCount > 0 && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-50/80 dark:bg-orange-500/10 border border-orange-200/60 dark:border-orange-500/20">
-                      <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                      <span className="text-xs text-orange-700 dark:text-orange-300">
-                        {currentPendingCount} item{currentPendingCount !== 1 ? 's' : ''} need{currentPendingCount === 1 ? 's' : ''} your review
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-orange-100/70 dark:bg-orange-500/15 border border-orange-300/50 dark:border-orange-500/30 mb-3">
+                      <Clock className="h-3.5 w-3.5 text-orange-700 dark:text-orange-400" />
+                      <span className="text-xs font-medium text-orange-800 dark:text-orange-300">
+                        {currentPendingCount} item{currentPendingCount !== 1 ? 's' : ''} pending review
                       </span>
                     </div>
                   )}
