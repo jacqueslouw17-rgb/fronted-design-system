@@ -12,7 +12,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F41v6_PayoutHeroCard, F41v6_PayslipsSection, F41v6_PayoutBreakdownDrawer } from "@/components/flows/employee-dashboard-v6";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  F41v6_PayoutHeroCard, 
+  F41v6_PayslipsSection, 
+  F41v6_PayoutBreakdownDrawer,
+  F41v6_AdjustmentsSection,
+  F41v6_AdjustmentModal
+} from "@/components/flows/employee-dashboard-v6";
 
 interface PayslipData {
   id: string;
@@ -99,6 +106,17 @@ const payslipsData: PayslipData[] = [
 const F41v6_EmployeeDashboardPage = () => {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState<PayslipData>(payslipsData[0]);
+  const [adjustmentModalOpen, setAdjustmentModalOpen] = useState(false);
+  const [adjustmentPrefill, setAdjustmentPrefill] = useState<{
+    type?: string;
+    category?: string;
+    amount?: string;
+    rejectedId?: string;
+    hours?: number;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+  }>({});
 
   const candidateProfile = {
     name: "Maria Santos",
@@ -126,6 +144,20 @@ const F41v6_EmployeeDashboardPage = () => {
 
   const handleDownload = (payslipId: string) => {
     console.log("Download payslip:", payslipId);
+  };
+
+  const handleRequestAdjustment = (
+    type?: string,
+    category?: string,
+    amount?: string,
+    rejectedId?: string,
+    hours?: number,
+    date?: string,
+    startTime?: string,
+    endTime?: string
+  ) => {
+    setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime });
+    setAdjustmentModalOpen(true);
   };
 
   return (
@@ -168,12 +200,29 @@ const F41v6_EmployeeDashboardPage = () => {
                     currency={candidateProfile.currency}
                   />
 
-                  {/* Payslips List */}
-                  <F41v6_PayslipsSection 
-                    currency={candidateProfile.currency}
-                    onDownload={handleDownload}
-                    onViewDetails={handleViewDetails}
-                  />
+                  {/* Tabs: Payroll / Adjustments */}
+                  <Tabs defaultValue="payroll" className="w-full">
+                    <div className="flex justify-center mb-4">
+                      <TabsList className="w-[280px]">
+                        <TabsTrigger value="payroll" className="flex-1">Payroll</TabsTrigger>
+                        <TabsTrigger value="adjustments" className="flex-1">Adjustments</TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    <TabsContent value="payroll" className="mt-0">
+                      <F41v6_PayslipsSection 
+                        currency={candidateProfile.currency}
+                        onDownload={handleDownload}
+                        onViewDetails={handleViewDetails}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="adjustments" className="mt-0">
+                      <F41v6_AdjustmentsSection 
+                        onRequestAdjustment={handleRequestAdjustment}
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </main>
             </AgentLayout>
@@ -189,6 +238,21 @@ const F41v6_EmployeeDashboardPage = () => {
             earnings={selectedPayslip.earnings}
             deductions={selectedPayslip.deductions}
             netPay={selectedPayslip.netPay}
+          />
+
+          {/* Adjustment Modal */}
+          <F41v6_AdjustmentModal
+            open={adjustmentModalOpen}
+            onOpenChange={setAdjustmentModalOpen}
+            currency={candidateProfile.currency}
+            initialType={adjustmentPrefill.type as any}
+            initialExpenseCategory={adjustmentPrefill.category}
+            initialExpenseAmount={adjustmentPrefill.amount}
+            rejectedId={adjustmentPrefill.rejectedId}
+            initialHours={adjustmentPrefill.hours}
+            initialDate={adjustmentPrefill.date}
+            initialStartTime={adjustmentPrefill.startTime}
+            initialEndTime={adjustmentPrefill.endTime}
           />
         </div>
       </TooltipProvider>

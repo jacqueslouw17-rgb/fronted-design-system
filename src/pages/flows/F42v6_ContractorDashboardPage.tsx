@@ -12,7 +12,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F42v6_InvoiceHeroCard, F42v6_InvoicesSection, F42v6_InvoiceBreakdownDrawer } from "@/components/flows/contractor-dashboard-v6";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  F42v6_InvoiceHeroCard, 
+  F42v6_InvoicesSection, 
+  F42v6_InvoiceBreakdownDrawer,
+  F42v6_AdjustmentsSection,
+  F42v6_AdjustmentDrawer
+} from "@/components/flows/contractor-dashboard-v6";
 import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
 
 import type { F42v5_LineItem } from "@/stores/F42v5_DashboardStore";
@@ -72,6 +79,17 @@ const F42v6_ContractorDashboardPage = () => {
   const { currency } = useF42v6_DashboardStore();
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData>(invoicesData[0]);
+  const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
+  const [adjustmentPrefill, setAdjustmentPrefill] = useState<{
+    type?: string;
+    category?: string;
+    amount?: string;
+    rejectedId?: string;
+    hours?: number;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+  }>({});
   
   const candidateProfile = {
     name: "Maria Santos",
@@ -98,6 +116,20 @@ const F42v6_ContractorDashboardPage = () => {
 
   const handleDownload = (invoiceId: string) => {
     console.log("Download invoice:", invoiceId);
+  };
+
+  const handleRequestAdjustment = (
+    type?: string,
+    category?: string,
+    amount?: string,
+    rejectedId?: string,
+    hours?: number,
+    date?: string,
+    startTime?: string,
+    endTime?: string
+  ) => {
+    setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime });
+    setAdjustmentDrawerOpen(true);
   };
 
   return (
@@ -140,12 +172,29 @@ const F42v6_ContractorDashboardPage = () => {
                     currency={currency}
                   />
 
-                  {/* Invoices List */}
-                  <F42v6_InvoicesSection 
-                    currency={currency}
-                    onDownload={handleDownload}
-                    onViewDetails={handleViewDetails}
-                  />
+                  {/* Tabs: Payroll / Adjustments */}
+                  <Tabs defaultValue="payroll" className="w-full">
+                    <div className="flex justify-center mb-4">
+                      <TabsList className="w-[280px]">
+                        <TabsTrigger value="payroll" className="flex-1">Payroll</TabsTrigger>
+                        <TabsTrigger value="adjustments" className="flex-1">Adjustments</TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    <TabsContent value="payroll" className="mt-0">
+                      <F42v6_InvoicesSection 
+                        currency={currency}
+                        onDownload={handleDownload}
+                        onViewDetails={handleViewDetails}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="adjustments" className="mt-0">
+                      <F42v6_AdjustmentsSection 
+                        onRequestAdjustment={handleRequestAdjustment}
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </main>
             </AgentLayout>
@@ -159,6 +208,22 @@ const F42v6_ContractorDashboardPage = () => {
             lineItems={selectedInvoice.lineItems}
             invoiceTotal={selectedInvoice.invoiceTotal}
             periodLabel={selectedInvoice.period}
+          />
+
+          {/* Adjustment Drawer */}
+          <F42v6_AdjustmentDrawer
+            open={adjustmentDrawerOpen}
+            onOpenChange={setAdjustmentDrawerOpen}
+            currency={currency}
+            contractType="hourly"
+            initialType={adjustmentPrefill.type as any}
+            initialExpenseCategory={adjustmentPrefill.category}
+            initialExpenseAmount={adjustmentPrefill.amount}
+            rejectedId={adjustmentPrefill.rejectedId}
+            initialHours={adjustmentPrefill.hours}
+            initialDate={adjustmentPrefill.date}
+            initialStartTime={adjustmentPrefill.startTime}
+            initialEndTime={adjustmentPrefill.endTime}
           />
         </div>
       </TooltipProvider>
