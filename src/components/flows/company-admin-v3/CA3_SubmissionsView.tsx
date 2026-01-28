@@ -1172,16 +1172,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* Compact pending banner */}
-                  {currentPendingCount > 0 && (
-                    <div className="flex items-center gap-1.5 py-1.5 mb-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
-                      <span className="text-[11px] font-medium text-orange-700 dark:text-orange-400">
-                        {currentPendingCount} pending
-                      </span>
-                    </div>
-                  )}
-                  
                   {/* EARNINGS Section - Collapsed by default */}
                   <CollapsibleSection
                     title="Earnings"
