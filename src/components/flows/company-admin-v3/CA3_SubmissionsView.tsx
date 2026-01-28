@@ -475,31 +475,35 @@ const LeaveRow = ({
   const isRejected = leave.status === 'rejected';
   const isApproved = leave.status === 'approved';
 
-  // Approved state - clean display
+  // Approved state - clean display with better spacing
   if (isApproved) {
     return (
-      <div className="flex items-center justify-between py-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <LeaveIcon className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
-          </span>
-          <span className="text-xs text-muted-foreground/70">
-            ({formatDateRange(leave.startDate, leave.endDate)})
-          </span>
+      <div className="flex items-center justify-between py-2.5 px-1">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <LeaveIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm text-muted-foreground">
+              {config.label}
+            </span>
+            <span className="text-xs text-muted-foreground/70">
+              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+            </span>
+          </div>
         </div>
-        {deductionAmount > 0 ? (
-          <span className="text-sm tabular-nums font-mono text-muted-foreground">
-            −{formatAmount(deductionAmount, currency)}
-          </span>
-        ) : (
-          <span className="text-xs text-muted-foreground italic">No pay impact</span>
-        )}
+        <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
+          {deductionAmount > 0 ? (
+            <span className="text-sm tabular-nums font-mono text-muted-foreground">
+              −{formatAmount(deductionAmount, currency)}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">No pay impact</span>
+          )}
+        </div>
       </div>
     );
   }
 
-  // Rejected state
+  // Rejected state - with hover reveal for reason
   if (isRejected) {
     return (
       <div 
@@ -508,18 +512,25 @@ const LeaveRow = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
-          <div className="flex items-center justify-between py-2 px-2">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <LeaveIcon className="h-3.5 w-3.5 text-muted-foreground/50" />
-              <span className="text-sm text-muted-foreground line-through">
-                {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
-              </span>
-              <Badge 
-                variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
-              >
-                Rejected
-              </Badge>
+          <div className="flex items-center justify-between py-2.5 px-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <LeaveIcon className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground line-through">
+                    {config.label}
+                  </span>
+                  <Badge 
+                    variant="outline" 
+                    className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
+                  >
+                    Rejected
+                  </Badge>
+                </div>
+                <span className="text-xs text-muted-foreground/50 line-through">
+                  {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+                </span>
+              </div>
             </div>
           </div>
           
@@ -545,41 +556,50 @@ const LeaveRow = ({
     );
   }
 
-  // Pending state - interactive
+  // Pending state - interactive (matches AdjustmentRow orange styling)
   return (
     <div className="-mx-2 mb-1">
       <div className={cn(
         "rounded-lg transition-all duration-200 overflow-hidden",
-        "border border-accent-amber-outline/40"
+        "border border-orange-200/60 dark:border-orange-500/20"
       )}>
         {/* Main row */}
         <div 
-          className="flex items-center justify-between py-2 px-2 bg-accent-amber-fill/5 cursor-pointer hover:bg-accent-amber-fill/10 transition-all duration-200"
+          className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <LeaveIcon className="h-3.5 w-3.5 text-accent-amber-text" />
-            <span className="text-sm text-muted-foreground">
-              {config.label} · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`}
-            </span>
-            <span className="text-xs text-muted-foreground/70">
-              ({formatDateRange(leave.startDate, leave.endDate)})
-            </span>
-            <Badge 
-              variant="outline" 
-              className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-accent-amber-fill/15 text-accent-amber-text border-accent-amber-outline/30 pointer-events-none"
-            >
-              Pending approval
-            </Badge>
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <LeaveIcon className="h-4 w-4 text-orange-600 dark:text-orange-400 shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">
+                  {config.label}
+                </span>
+                <Badge 
+                  variant="outline" 
+                  className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
+                >
+                  Pending approval
+                </Badge>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+              </span>
+            </div>
           </div>
           
-          {deductionAmount > 0 ? (
-            <span className="text-sm tabular-nums font-mono text-foreground">
-              −{formatAmount(deductionAmount, currency)}
-            </span>
-          ) : (
-            <span className="text-xs text-muted-foreground italic">No pay impact</span>
-          )}
+          <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
+            {deductionAmount > 0 ? (
+              <>
+                <span className="text-sm tabular-nums font-mono font-medium text-foreground">
+                  −{formatAmount(deductionAmount, currency)}
+                </span>
+                <span className="text-[10px] text-orange-600 dark:text-orange-400">Unpaid</span>
+              </>
+            ) : (
+              <span className="text-xs text-muted-foreground">No pay impact</span>
+            )}
+          </div>
         </div>
 
         {/* Expanded action panel */}
@@ -592,7 +612,7 @@ const LeaveRow = ({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="overflow-hidden"
             >
-              <div className="bg-accent-amber-fill/5 border-t border-accent-amber-outline/20 px-3 py-2.5">
+              <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
                 {leave.reason && (
                   <p className="text-xs text-muted-foreground mb-2.5">
                     <span className="font-medium">Reason:</span> {leave.reason}
