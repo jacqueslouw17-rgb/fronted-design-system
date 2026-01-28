@@ -107,14 +107,12 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
       case 'Additional hours': return 'Additional hours';
       case 'Bonus': return 'Commission';
       case 'Correction': return 'Correction';
-      case 'Unpaid Leave': return 'Unpaid Leave';
       default: return type;
     }
   };
 
   const getDisplayValue = (adj: F42v6_Adjustment) => {
     if (adj.type === 'Additional hours' && adj.hours) return `${adj.hours}h`;
-    if (adj.type === 'Unpaid Leave' && adj.days) return `${adj.days}d`;
     return formatAmount(adj.amount);
   };
 
