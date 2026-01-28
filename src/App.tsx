@@ -151,6 +151,8 @@ const App = () => (
         <Route path="/candidate-dashboard-contractor-v3" element={<F42v3_ContractorDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v4" element={<F42v4_ContractorDashboardPage />} />
         <Route path="/candidate-dashboard-contractor-v5" element={<F42v5_ContractorDashboardPage />} />
+        <Route path="/candidate-dashboard-employee-v6" element={<F41v6_EmployeeDashboardPage />} />
+        <Route path="/candidate-dashboard-contractor-v6" element={<F42v6_ContractorDashboardPage />} />
         <Route path="/candidate/profile-settings-v2" element={<CandidateProfileSettingsV2 />} />
         <Route path="/flows/employee-profile-settings-v4" element={<F41v4_ProfileSettings />} />
         <Route path="/flows/contractor-profile-settings-v4" element={<F42v4_ProfileSettings />} />
