@@ -5,16 +5,18 @@
  * INDEPENDENT from v5 - changes here do not affect other flows.
  */
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F41v6_PayoutHeroCard, F41v6_PayslipsSection } from "@/components/flows/employee-dashboard-v6";
+import { F41v6_PayoutHeroCard, F41v6_PayslipsSection, F41v6_PayoutBreakdownDrawer } from "@/components/flows/employee-dashboard-v6";
 
 const F41v6_EmployeeDashboardPage = () => {
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
@@ -34,8 +36,7 @@ const F41v6_EmployeeDashboardPage = () => {
   }, []);
 
   const handleViewDetails = () => {
-    // Open breakdown drawer or navigate to details
-    console.log("View details clicked");
+    setBreakdownOpen(true);
   };
 
   const handleDownload = (payslipId: string) => {
@@ -96,6 +97,13 @@ const F41v6_EmployeeDashboardPage = () => {
               </main>
             </AgentLayout>
           </div>
+
+          {/* Breakdown Drawer */}
+          <F41v6_PayoutBreakdownDrawer
+            open={breakdownOpen}
+            onOpenChange={setBreakdownOpen}
+            currency={candidateProfile.currency}
+          />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
