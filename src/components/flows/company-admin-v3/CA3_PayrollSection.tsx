@@ -115,7 +115,7 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "timesheet", hours: 168, description: "October 2024", status: "approved" },
     ],
-    status: "approved",
+    status: "ready",
     currency: "NOK",
   },
   {
@@ -136,10 +136,9 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending" },
     ],
-    status: "rejected",
+    status: "pending",
     totalImpact: 890,
     currency: "EUR",
-    rejectionReason: "Amount exceeds policy limit",
   },
 ];
 
@@ -209,22 +208,23 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
     toast.success("Batch submitted to Fronted for processing");
   };
 
-  // Submission handlers
+  // Submission handlers - worker becomes "ready" when all adjustments reviewed
   const handleApproveSubmission = (submission: WorkerSubmission) => {
     setSubmissions(prev => prev.map(s => 
-      s.id === submission.id ? { ...s, status: "approved" } : s
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
     ));
   };
 
   const handleRejectSubmission = (submission: WorkerSubmission, reason: string) => {
+    // Rejecting an adjustment doesn't block - worker still becomes "ready"
     setSubmissions(prev => prev.map(s => 
-      s.id === submission.id ? { ...s, status: "rejected" } : s
+      s.id === submission.id ? { ...s, status: "ready" as const } : s
     ));
   };
 
   const handleApproveAllSafe = () => {
     setSubmissions(prev => prev.map(s => 
-      s.status === "pending" ? { ...s, status: "approved" } : s
+      s.status === "pending" ? { ...s, status: "ready" as const } : s
     ));
     toast.success("All safe submissions approved");
   };
