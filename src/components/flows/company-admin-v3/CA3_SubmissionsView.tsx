@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree, Filter, Eye, EyeOff } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree, Filter, Eye, EyeOff, ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -742,6 +742,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
+  
+  // Receipt view state
+  const [showReceiptView, setShowReceiptView] = useState(false);
 
   // Computed counts - dynamically calculate based on local state overrides
   const dynamicPendingCount = useMemo(() => {
@@ -1419,6 +1422,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         )}
                       </div>
                     </div>
+                    
+                    {/* View Receipt Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-3 h-9 text-xs gap-1.5"
+                      onClick={() => setShowReceiptView(true)}
+                    >
+                      <Receipt className="h-3.5 w-3.5" />
+                      View receipt
+                    </Button>
                   </section>
 
                   {/* Rejection form - matching leave pattern */}
@@ -1509,6 +1523,140 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   onConfirm={handleBulkReject}
                   pendingCount={currentPendingCount}
                 />
+                
+                {/* Receipt Overlay View */}
+                <AnimatePresence>
+                  {showReceiptView && (
+                    <motion.div
+                      initial={{ x: "100%" }}
+                      animate={{ x: 0 }}
+                      exit={{ x: "100%" }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      className="absolute inset-0 bg-background z-50 flex flex-col"
+                    >
+                      {/* Receipt Header */}
+                      <div className="px-5 pt-5 pb-4 border-b border-border/30">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setShowReceiptView(false)}
+                            className="p-1.5 -ml-1.5 rounded-md hover:bg-muted transition-colors"
+                          >
+                            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+                          </button>
+                          <div className="flex-1">
+                            <h2 className="text-base font-semibold text-foreground">
+                              {selectedSubmission.workerType === "employee" ? "Payslip" : "Invoice"} Preview
+                            </h2>
+                            <p className="text-xs text-muted-foreground">
+                              {selectedSubmission.periodLabel || "January 2025"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Receipt Content - Scrollable */}
+                      <div className="flex-1 overflow-y-auto px-5 py-4">
+                        {/* Worker info card */}
+                        <div className="bg-muted/30 rounded-lg p-4 mb-4 border border-border/30">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                                {getInitials(selectedSubmission.workerName)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-foreground">{selectedSubmission.workerName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Earnings Section */}
+                        <div className="mb-4">
+                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Earnings</h3>
+                          <div className="space-y-1.5">
+                            {earnings.map((item, idx) => (
+                              <div key={idx} className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">{item.label}</span>
+                                <span className="tabular-nums font-mono">{formatCurrency(item.amount, currency)}</span>
+                              </div>
+                            ))}
+                            {/* Approved adjustments */}
+                            {allAdjustments
+                              .filter(adj => adj.type === 'expenses' || adj.type === 'bonus')
+                              .map((adj, idx) => {
+                                const adjState = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+                                if (adjState.status !== 'approved') return null;
+                                const config = submissionTypeConfig[adj.type as SubmissionType];
+                                return (
+                                  <div key={`adj-${idx}`} className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">{config?.label || adj.type}</span>
+                                    <span className="tabular-nums font-mono text-accent-green-text">+{formatCurrency(adj.amount || 0, currency)}</span>
+                                  </div>
+                                );
+                              })}
+                            <div className="flex justify-between text-sm font-medium pt-2 border-t border-dashed border-border/50">
+                              <span>Total Earnings</span>
+                              <span className="tabular-nums font-mono">{formatCurrency(totalEarnings + approvedAdjustmentTotal, currency)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Deductions Section */}
+                        {deductions.length > 0 && (
+                          <div className="mb-4">
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Deductions</h3>
+                            <div className="space-y-1.5">
+                              {deductions.map((item, idx) => (
+                                <div key={idx} className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">{item.label}</span>
+                                  <span className="tabular-nums font-mono text-muted-foreground">−{formatCurrency(Math.abs(item.amount), currency)}</span>
+                                </div>
+                              ))}
+                              <div className="flex justify-between text-sm font-medium pt-2 border-t border-dashed border-border/50">
+                                <span>Total Deductions</span>
+                                <span className="tabular-nums font-mono text-muted-foreground">−{formatCurrency(totalDeductions, currency)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Net Pay */}
+                        <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-foreground">
+                              {selectedSubmission.workerType === "employee" ? "Net Pay" : "Invoice Total"}
+                            </span>
+                            <span className="text-xl font-bold tabular-nums font-mono text-foreground">
+                              {formatCurrency(adjustedNet, currency)}
+                            </span>
+                          </div>
+                          {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0) && (
+                            <p className="text-xs text-muted-foreground mt-1 text-right">
+                              Base: {formatCurrency(baseNet, currency)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Receipt Footer */}
+                      <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-5 py-4">
+                        <Button
+                          className="w-full gap-2"
+                          onClick={() => {
+                            toast.success("Receipt downloaded");
+                            setShowReceiptView(false);
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
+                          Download {selectedSubmission.workerType === "employee" ? "Payslip" : "Invoice"}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </>
             );
           })()}
