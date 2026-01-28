@@ -1216,7 +1216,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly && earningAdjCounts.pending > 0 ? true : undefined}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : false}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1309,7 +1309,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Overtime"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly && overtimeCounts.pending > 0 ? true : undefined}
+                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : false}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved}
                     >
@@ -1352,7 +1352,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Leave"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly && leaveCounts.pending > 0 ? true : undefined}
+                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : false}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved}
                     >
