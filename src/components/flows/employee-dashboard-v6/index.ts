@@ -17,3 +17,5 @@ export { F41v6_PayBreakdownDrawer } from './F41v6_PayBreakdownDrawer';
 export { F41v6_TimeOffSection } from './F41v6_TimeOffSection';
 export { F41v6_TimeOffRequestDrawer } from './F41v6_TimeOffRequestDrawer';
 export { F41v6_AdjustmentsSection } from './F41v6_AdjustmentsSection';
+export { F41v6_PayoutHeroCard } from './F41v6_PayoutHeroCard';
+export { F41v6_PayslipsSection } from './F41v6_PayslipsSection';

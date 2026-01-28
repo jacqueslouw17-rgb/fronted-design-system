@@ -1,95 +1,52 @@
 /**
  * Flow 4.2 — Contractor Dashboard v6
  * 
- * Contractor-specific dashboard with invoice status states and adjustment workflow.
- * Aligned with Flow 4.1 Employee Dashboard v2 patterns.
- * 
- * INDEPENDENT: Changes here do NOT affect v5 or any other flow.
+ * Clean invoice dashboard with hero tiles and invoices list.
+ * INDEPENDENT from v5 - changes here do not affect other flows.
  */
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { 
-  F42v6_UpcomingInvoiceCard,
-  F42v6_AdjustmentsSection,
-  F42v6_AdjustmentDrawer
-} from "@/components/flows/contractor-dashboard-v6";
+import { F42v6_InvoiceHeroCard, F42v6_InvoicesSection } from "@/components/flows/contractor-dashboard-v6";
 import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
-import type { ContractorRequestType } from "@/components/flows/contractor-dashboard-v6/F42v6_AdjustmentDrawer";
 
 const F42v6_ContractorDashboardPage = () => {
-  const { currency, contractType } = useF42v6_DashboardStore();
-  const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
-  const [adjustmentInitialType, setAdjustmentInitialType] = useState<ContractorRequestType>(null);
-  const [adjustmentInitialCategory, setAdjustmentInitialCategory] = useState('');
-  const [adjustmentInitialAmount, setAdjustmentInitialAmount] = useState('');
-  const [adjustmentInitialHours, setAdjustmentInitialHours] = useState<number | undefined>(undefined);
-  const [adjustmentInitialDate, setAdjustmentInitialDate] = useState<string | undefined>(undefined);
-  const [adjustmentInitialStartTime, setAdjustmentInitialStartTime] = useState<string | undefined>(undefined);
-  const [adjustmentInitialEndTime, setAdjustmentInitialEndTime] = useState<string | undefined>(undefined);
-  const [adjustmentRejectedId, setAdjustmentRejectedId] = useState<string | undefined>(undefined);
-
+  const { currency } = useF42v6_DashboardStore();
+  
   const candidateProfile = {
     name: "Maria Santos",
     firstName: "Maria",
     role: "Senior Backend Engineer",
-    salary: "$85,000",
-    currency: "USD",
-    startDate: "March 15, 2024",
-    noticePeriod: "30 days",
-    pto: "25 days",
     country: "Philippines"
   };
 
-  // Handler to open adjustment drawer with optional pre-fill
-  const handleRequestAdjustment = (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => {
-    const typeMap: Record<string, ContractorRequestType> = {
-      'expense': 'expense',
-      'additional-hours': 'additional-hours',
-      'bonus': 'bonus'
-    };
-    setAdjustmentInitialType(type ? typeMap[type] || null : null);
-    setAdjustmentInitialCategory(category || '');
-    setAdjustmentInitialAmount(amount || '');
-    setAdjustmentInitialHours(hours);
-    setAdjustmentInitialDate(date);
-    setAdjustmentInitialStartTime(startTime);
-    setAdjustmentInitialEndTime(endTime);
-    setAdjustmentRejectedId(rejectedId);
-    setAdjustmentDrawerOpen(true);
-  };
-
-  const handleAdjustmentDrawerClose = (open: boolean) => {
-    setAdjustmentDrawerOpen(open);
-    if (!open) {
-      setAdjustmentInitialType(null);
-      setAdjustmentInitialCategory('');
-      setAdjustmentInitialAmount('');
-      setAdjustmentInitialHours(undefined);
-      setAdjustmentInitialDate(undefined);
-      setAdjustmentInitialStartTime(undefined);
-      setAdjustmentInitialEndTime(undefined);
-      setAdjustmentRejectedId(undefined);
-    }
-  };
-
-  // One-time success animation on load
   useEffect(() => {
     setTimeout(() => {
       confetti({
         particleCount: 100,
         spread: 70,
-        origin: {
-          y: 0.6
-        }
+        origin: { y: 0.6 }
       });
     }, 300);
   }, []);
+
+  const handleViewDetails = () => {
+    // Open breakdown drawer or navigate to details
+    console.log("View details clicked");
+  };
+
+  const handleDownload = (invoiceId: string) => {
+    console.log("Download invoice:", invoiceId);
+  };
+
+  const handleDownloadAll = () => {
+    console.log("Download all invoices");
+  };
 
   return (
     <RoleLensProvider initialRole="contractor">
@@ -125,34 +82,22 @@ const F42v6_ContractorDashboardPage = () => {
                     showInput={false} 
                   />
 
-                  {/* Main Content */}
-                  <div className="space-y-4">
-                    {/* Upcoming Invoice Card - Primary Focus */}
-                    <F42v6_UpcomingInvoiceCard />
-                    
-                    {/* Adjustments Section */}
-                    <F42v6_AdjustmentsSection onRequestAdjustment={handleRequestAdjustment} />
-                  </div>
+                  {/* Hero Card with Last/Next Invoice */}
+                  <F42v6_InvoiceHeroCard 
+                    onViewDetails={handleViewDetails}
+                    currency={currency}
+                  />
+
+                  {/* Invoices List */}
+                  <F42v6_InvoicesSection 
+                    currency={currency}
+                    onDownload={handleDownload}
+                    onDownloadAll={handleDownloadAll}
+                  />
                 </div>
               </main>
             </AgentLayout>
           </div>
-          
-          {/* Adjustment Drawer - at root level for proper z-index */}
-          <F42v6_AdjustmentDrawer
-            open={adjustmentDrawerOpen}
-            onOpenChange={handleAdjustmentDrawerClose}
-            currency={currency}
-            contractType={contractType}
-            initialType={adjustmentInitialType}
-            initialExpenseCategory={adjustmentInitialCategory}
-            initialExpenseAmount={adjustmentInitialAmount}
-            initialHours={adjustmentInitialHours}
-            initialDate={adjustmentInitialDate}
-            initialStartTime={adjustmentInitialStartTime}
-            initialEndTime={adjustmentInitialEndTime}
-            rejectedId={adjustmentRejectedId}
-          />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
