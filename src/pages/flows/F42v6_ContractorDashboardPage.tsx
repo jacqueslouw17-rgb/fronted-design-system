@@ -166,20 +166,21 @@ const F42v6_ContractorDashboardPage = () => {
                     showInput={false} 
                   />
 
-                  {/* Hero Card with Last/Next Invoice */}
-                  <F42v6_InvoiceHeroCard 
-                    onViewDetails={handleViewDetails}
-                    currency={currency}
-                  />
-
                   {/* Tabs: Payroll / Adjustments */}
                   <Tabs defaultValue="payroll" className="w-full">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="payroll">Payroll</TabsTrigger>
-                      <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
-                    </TabsList>
+                    <div className="flex justify-center mb-6">
+                      <TabsList>
+                        <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                        <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
+                      </TabsList>
+                    </div>
 
-                    <TabsContent value="payroll" className="mt-0">
+                    <TabsContent value="payroll" className="mt-0 space-y-6">
+                      {/* Hero Card with Last/Next Invoice */}
+                      <F42v6_InvoiceHeroCard 
+                        onViewDetails={handleViewDetails}
+                        currency={currency}
+                      />
                       <F42v6_InvoicesSection 
                         currency={currency}
                         onDownload={handleDownload}
