@@ -1163,11 +1163,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* EARNINGS Section - Auto-expand when filtering and has pending */}
+                  {/* EARNINGS Section - Collapsed by default, auto-expand when filtering */}
                   {(!showPendingOnly || earningAdjCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Earnings"
-                      defaultOpen={showPendingOnly && earningAdjCounts.pending > 0}
+                      defaultOpen={false}
+                      forceOpen={showPendingOnly && earningAdjCounts.pending > 0 ? true : undefined}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1255,11 +1256,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* OVERTIME Section - Auto-expand when filtering and has pending */}
+                  {/* OVERTIME Section - Collapsed by default, auto-expand when filtering */}
                   {overtimeCounts.total > 0 && (!showPendingOnly || overtimeCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Overtime"
-                      defaultOpen={showPendingOnly && overtimeCounts.pending > 0}
+                      defaultOpen={false}
+                      forceOpen={showPendingOnly && overtimeCounts.pending > 0 ? true : undefined}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved}
                     >
@@ -1297,11 +1299,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* LEAVE Section - Auto-expand when filtering and has pending */}
+                  {/* LEAVE Section - Collapsed by default, auto-expand when filtering */}
                   {hasLeaves && (!showPendingOnly || leaveCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Leave"
-                      defaultOpen={showPendingOnly && leaveCounts.pending > 0}
+                      defaultOpen={false}
+                      forceOpen={showPendingOnly && leaveCounts.pending > 0 ? true : undefined}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved}
                     >

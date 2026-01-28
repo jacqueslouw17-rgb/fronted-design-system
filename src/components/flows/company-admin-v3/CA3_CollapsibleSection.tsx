@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,6 +7,7 @@ interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  forceOpen?: boolean; // New prop to force open state dynamically
   pendingCount?: number;
   approvedCount?: number;
   rejectedCount?: number;
@@ -18,6 +19,7 @@ export const CollapsibleSection = ({
   title,
   children,
   defaultOpen = false,
+  forceOpen,
   pendingCount = 0,
   approvedCount = 0,
   rejectedCount = 0,
@@ -25,6 +27,13 @@ export const CollapsibleSection = ({
   className,
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  // Respond to forceOpen changes
+  useEffect(() => {
+    if (forceOpen !== undefined) {
+      setIsOpen(forceOpen);
+    }
+  }, [forceOpen]);
   
   const displayTotal = totalCount ?? (pendingCount + approvedCount + rejectedCount);
   const hasPending = pendingCount > 0;
