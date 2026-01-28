@@ -26,7 +26,8 @@ import { CA3_ApproveDialog, CA3_RejectDialog } from "./CA3_ConfirmationDialogs";
 
 // Note: Leave is handled separately in the Leaves tab, not here
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-export type SubmissionStatus = "pending" | "approved" | "rejected";
+// Worker-level status: pending = has adjustments needing review, ready = all reviewed
+export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 
 // Line item for pay breakdown
@@ -67,7 +68,6 @@ export interface WorkerSubmission {
   currency?: string;
   flagged?: boolean;
   flagReason?: string;
-  rejectionReason?: string;
 }
 
 interface CA3_SubmissionsViewProps {
@@ -91,9 +91,8 @@ const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; la
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
-  pending: { icon: Clock, label: "Pending", color: "bg-orange-500/15 text-orange-600 border-orange-500/30" },
-  approved: { icon: CheckCircle2, label: "Approved", color: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  rejected: { icon: X, label: "Rejected", color: "bg-destructive/10 text-destructive border-destructive/20" },
+  pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
+  ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
 // Interactive adjustment row with expandable approve/reject UI and state management
@@ -430,8 +429,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Computed counts
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
   const pendingCount = externalPendingCount ?? internalPendingCount;
-  const approvedCount = submissions.filter(s => s.status === "approved").length;
-  const rejectedCount = submissions.filter(s => s.status === "rejected").length;
+  const readyCount = submissions.filter(s => s.status === "ready").length;
   
   // Can continue only when no pending submissions
   const canContinue = pendingCount === 0;
@@ -495,10 +493,18 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }
   };
 
-  const renderSubmissionRow = (submission: WorkerSubmission, isLast: boolean = false) => {
+  const renderSubmissionRow = (submission: WorkerSubmission) => {
     const status = statusConfig[submission.status];
     const StatusIcon = status.icon;
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
+    
+    // Count pending adjustments for this worker (considering local state overrides)
+    const workerPendingCount = submission.submissions.filter((adj, idx) => {
+      const key = `${submission.id}-${idx}`;
+      const localState = adjustmentStates[key];
+      const effectiveStatus = localState?.status || adj.status || 'pending';
+      return effectiveStatus === 'pending' && typeof adj.amount === 'number';
+    }).length;
 
     return (
       <motion.div
@@ -507,10 +513,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group",
-          submission.status === "rejected" && "border-destructive/20 bg-destructive/5"
-        )}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer group"
         onClick={() => handleRowClick(submission)}
       >
         {/* Avatar */}
@@ -556,14 +559,21 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <p className="text-xs text-muted-foreground">—</p>
           )}
 
-          {/* Status */}
-          <div className={cn("flex items-center gap-1 text-xs", 
-            submission.status === "approved" && "text-accent-green-text",
-            submission.status === "pending" && "text-accent-amber-text",
-            submission.status === "rejected" && "text-destructive"
-          )}>
-            <StatusIcon className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{status.label}</span>
+          {/* Status with pending count */}
+          <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
+            {submission.status === "pending" && workerPendingCount > 0 ? (
+              <>
+                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-orange-500/15 text-orange-600 text-[10px] font-semibold">
+                  {workerPendingCount}
+                </span>
+                <span className="hidden sm:inline">{status.label}</span>
+              </>
+            ) : (
+              <>
+                <StatusIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{status.label}</span>
+              </>
+            )}
           </div>
 
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -639,39 +649,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   Pending ({pendingCount})
                 </TabsTrigger>
-                <TabsTrigger value="approved" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Approved ({approvedCount})
+                <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Ready ({readyCount})
                 </TabsTrigger>
-                {rejectedCount > 0 && (
-                  <TabsTrigger value="rejected" className="text-xs h-7 px-3 data-[state=active]:bg-background text-destructive">
-                    Rejected ({rejectedCount})
-                  </TabsTrigger>
-                )}
               </TabsList>
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
               <TabsContent value="all" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.map((s, i) => renderSubmissionRow(s, i === filteredSubmissions.length - 1))}
+                  {filteredSubmissions.map((s) => renderSubmissionRow(s))}
                 </AnimatePresence>
               </TabsContent>
 
               <TabsContent value="pending" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.filter(s => s.status === "pending").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
+                  {filteredSubmissions.filter(s => s.status === "pending").map((s) => renderSubmissionRow(s))}
                 </AnimatePresence>
               </TabsContent>
 
-              <TabsContent value="approved" className="mt-0 space-y-1.5">
+              <TabsContent value="ready" className="mt-0 space-y-1.5">
                 <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.filter(s => s.status === "approved").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
-                </AnimatePresence>
-              </TabsContent>
-
-              <TabsContent value="rejected" className="mt-0 space-y-1.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredSubmissions.filter(s => s.status === "rejected").map((s, i, arr) => renderSubmissionRow(s, i === arr.length - 1))}
+                  {filteredSubmissions.filter(s => s.status === "ready").map((s) => renderSubmissionRow(s))}
                 </AnimatePresence>
               </TabsContent>
             </div>
@@ -894,18 +893,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </div>
                     </div>
                   </section>
-
-                  {/* Rejection reason display if rejected */}
-                  {selectedSubmission.status === "rejected" && selectedSubmission.rejectionReason && (
-                    <section>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                        Rejection reason
-                      </h3>
-                      <div className="bg-destructive/10 rounded-lg p-4 border border-destructive/20">
-                        <p className="text-sm text-destructive">{selectedSubmission.rejectionReason}</p>
-                      </div>
-                    </section>
-                  )}
 
                   {/* Rejection form - matching leave pattern */}
                   {showCustomReason && (
