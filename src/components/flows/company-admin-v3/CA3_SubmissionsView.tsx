@@ -1010,10 +1010,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       size="sm"
                       onClick={onContinue}
                       disabled={!canContinue}
-                      className="h-9 text-xs gap-1.5"
+                      className="h-9 text-xs"
                     >
                       Continue to Submit
-                      <ChevronRight className="h-3.5 w-3.5" />
                     </Button>
                   </span>
                 </TooltipTrigger>

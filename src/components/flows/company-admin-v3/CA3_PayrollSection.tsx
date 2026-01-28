@@ -372,9 +372,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
             </p>
           </div>
           {!isSubmitted && (
-            <Button onClick={handleEnterWorkflow} size="sm" className="gap-1.5">
+            <Button onClick={handleEnterWorkflow} size="sm">
               Continue to submissions
-              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>
