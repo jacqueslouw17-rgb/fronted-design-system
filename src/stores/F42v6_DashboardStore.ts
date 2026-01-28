@@ -12,7 +12,7 @@ import { create } from 'zustand';
 export type F42v6_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
 export type F42v6_InvoiceStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 export type F42v6_ContractType = 'hourly' | 'fixed';
-export type F42v6_AdjustmentType = 'Expense' | 'Additional hours' | 'Bonus' | 'Correction';
+export type F42v6_AdjustmentType = 'Expense' | 'Additional hours' | 'Bonus' | 'Correction' | 'Unpaid Leave';
 export type F42v6_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 
 export interface F42v6_LineItem {
@@ -31,6 +31,7 @@ export interface F42v6_Adjustment {
   status: F42v6_AdjustmentStatus;
   description?: string;
   category?: string;
+  days?: number; // For unpaid leave
   hours?: number;
   // For additional hours resubmissions
   date?: string;
