@@ -17,32 +17,38 @@ interface F41v6_PayoutBreakdownDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency?: string;
+  period?: string;
+  paidDate?: string;
+  earnings?: { label: string; amount: number }[];
+  deductions?: { label: string; amount: number }[];
+  netPay?: number;
 }
 
 export const F41v6_PayoutBreakdownDrawer = ({
   open,
   onOpenChange,
-  currency = "PHP"
-}: F41v6_PayoutBreakdownDrawerProps) => {
-  const currencySymbol = currency === "PHP" ? "₱" : "$";
-
-  const earnings = [
+  currency = "PHP",
+  period = "Dec 2025",
+  paidDate = "Dec 15, 2025",
+  earnings = [
     { label: "Base Salary", amount: 50000 },
     { label: "Overtime (8 hrs)", amount: 2500 },
     { label: "Performance Bonus", amount: 5000 },
-  ];
-
-  const deductions = [
+  ],
+  deductions = [
     { label: "SSS Contribution", amount: 1125 },
     { label: "PhilHealth", amount: 500 },
     { label: "Pag-IBIG", amount: 100 },
     { label: "Withholding Tax", amount: 8608.33 },
     { label: "Company Benefits", amount: 5000 },
-  ];
+  ],
+  netPay,
+}: F41v6_PayoutBreakdownDrawerProps) => {
+  const currencySymbol = currency === "PHP" ? "₱" : "$";
 
   const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
   const totalDeductions = deductions.reduce((sum, item) => sum + item.amount, 0);
-  const netPay = totalEarnings - totalDeductions;
+  const finalNetPay = netPay ?? (totalEarnings - totalDeductions);
 
   const formatAmount = (amount: number) => {
     return `${currencySymbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -54,9 +60,9 @@ export const F41v6_PayoutBreakdownDrawer = ({
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
           <div className="flex items-center gap-2">
             <SheetTitle className="text-lg font-semibold">What's included</SheetTitle>
-            <Badge variant="secondary" className="text-xs">Dec 2025</Badge>
+            <Badge variant="secondary" className="text-xs">{period}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">Payout breakdown for December 15, 2025</p>
+          <p className="text-sm text-muted-foreground">Payout breakdown for {paidDate}</p>
         </SheetHeader>
 
         <div className="px-6 py-5 space-y-6">
@@ -100,10 +106,10 @@ export const F41v6_PayoutBreakdownDrawer = ({
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm font-medium text-foreground">Net Pay</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Paid on Dec 15, 2025</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Paid on {paidDate}</p>
             </div>
             <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
-              {formatAmount(netPay)}
+              {formatAmount(finalNetPay)}
             </p>
           </div>
           <Button variant="outline" className="w-full gap-2">

@@ -15,9 +15,63 @@ import { AgentLayout } from "@/components/agent/AgentLayout";
 import { F42v6_InvoiceHeroCard, F42v6_InvoicesSection, F42v6_InvoiceBreakdownDrawer } from "@/components/flows/contractor-dashboard-v6";
 import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
 
+import type { F42v5_LineItem } from "@/stores/F42v5_DashboardStore";
+
+interface InvoiceData {
+  id: string;
+  period: string;
+  paidDate: string;
+  lineItems: F42v5_LineItem[];
+  invoiceTotal: number;
+}
+
+const invoicesData: InvoiceData[] = [
+  {
+    id: "dec",
+    period: "Dec 2025",
+    paidDate: "Dec 15, 2025",
+    lineItems: [
+      { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
+      { type: 'Earnings', label: 'Project Milestone Bonus', meta: 'Q4 completion', amount: 250 },
+    ],
+    invoiceTotal: 5250,
+  },
+  {
+    id: "1",
+    period: "Nov 2025",
+    paidDate: "Dec 5, 2025",
+    lineItems: [
+      { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
+      { type: 'Earnings', label: 'Bug Fix Sprint', meta: 'Additional work', amount: 250 },
+    ],
+    invoiceTotal: 5250,
+  },
+  {
+    id: "2",
+    period: "Oct 2025",
+    paidDate: "Nov 5, 2025",
+    lineItems: [
+      { type: 'Earnings', label: 'Consulting Services', meta: '38 hrs @ $125/hr', amount: 4750 },
+      { type: 'Earnings', label: 'Documentation', meta: 'API docs', amount: 350 },
+    ],
+    invoiceTotal: 5100,
+  },
+  {
+    id: "3",
+    period: "Sep 2025",
+    paidDate: "Oct 5, 2025",
+    lineItems: [
+      { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
+      { type: 'Earnings', label: 'Project Kickoff Bonus', meta: 'Q3 project', amount: 250 },
+    ],
+    invoiceTotal: 5250,
+  },
+];
+
 const F42v6_ContractorDashboardPage = () => {
   const { currency } = useF42v6_DashboardStore();
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData>(invoicesData[0]);
   
   const candidateProfile = {
     name: "Maria Santos",
@@ -36,16 +90,14 @@ const F42v6_ContractorDashboardPage = () => {
     }, 300);
   }, []);
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (invoiceId?: string) => {
+    const invoice = invoicesData.find(i => i.id === invoiceId) || invoicesData[0];
+    setSelectedInvoice(invoice);
     setBreakdownOpen(true);
   };
 
   const handleDownload = (invoiceId: string) => {
     console.log("Download invoice:", invoiceId);
-  };
-
-  const handleDownloadAll = () => {
-    console.log("Download all invoices");
   };
 
   return (
@@ -92,7 +144,7 @@ const F42v6_ContractorDashboardPage = () => {
                   <F42v6_InvoicesSection 
                     currency={currency}
                     onDownload={handleDownload}
-                    onDownloadAll={handleDownloadAll}
+                    onViewDetails={handleViewDetails}
                   />
                 </div>
               </main>
@@ -104,12 +156,9 @@ const F42v6_ContractorDashboardPage = () => {
             open={breakdownOpen}
             onOpenChange={setBreakdownOpen}
             currency={currency}
-            lineItems={[
-              { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
-              { type: 'Earnings', label: 'Project Milestone Bonus', meta: 'Q4 completion', amount: 250 },
-            ]}
-            invoiceTotal={5250}
-            periodLabel="Dec 2025"
+            lineItems={selectedInvoice.lineItems}
+            invoiceTotal={selectedInvoice.invoiceTotal}
+            periodLabel={selectedInvoice.period}
           />
         </div>
       </TooltipProvider>

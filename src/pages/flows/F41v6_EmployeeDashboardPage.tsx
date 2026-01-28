@@ -14,8 +14,91 @@ import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
 import { F41v6_PayoutHeroCard, F41v6_PayslipsSection, F41v6_PayoutBreakdownDrawer } from "@/components/flows/employee-dashboard-v6";
 
+interface PayslipData {
+  id: string;
+  period: string;
+  paidDate: string;
+  earnings: { label: string; amount: number }[];
+  deductions: { label: string; amount: number }[];
+  netPay: number;
+}
+
+const payslipsData: PayslipData[] = [
+  {
+    id: "dec",
+    period: "Dec 2025",
+    paidDate: "Dec 15, 2025",
+    earnings: [
+      { label: "Base Salary", amount: 50000 },
+      { label: "Overtime (8 hrs)", amount: 2500 },
+      { label: "Performance Bonus", amount: 5000 },
+    ],
+    deductions: [
+      { label: "SSS Contribution", amount: 1125 },
+      { label: "PhilHealth", amount: 500 },
+      { label: "Pag-IBIG", amount: 100 },
+      { label: "Withholding Tax", amount: 8608.33 },
+      { label: "Company Benefits", amount: 5000 },
+    ],
+    netPay: 42166.67,
+  },
+  {
+    id: "1",
+    period: "Nov 2025",
+    paidDate: "Dec 5, 2025",
+    earnings: [
+      { label: "Base Salary", amount: 50000 },
+      { label: "Overtime (4 hrs)", amount: 1250 },
+    ],
+    deductions: [
+      { label: "SSS Contribution", amount: 1125 },
+      { label: "PhilHealth", amount: 500 },
+      { label: "Pag-IBIG", amount: 100 },
+      { label: "Withholding Tax", amount: 8025 },
+    ],
+    netPay: 41500.00,
+  },
+  {
+    id: "2",
+    period: "Oct 2025",
+    paidDate: "Nov 5, 2025",
+    earnings: [
+      { label: "Base Salary", amount: 50000 },
+      { label: "Overtime (8 hrs)", amount: 2500 },
+      { label: "Performance Bonus", amount: 5000 },
+    ],
+    deductions: [
+      { label: "SSS Contribution", amount: 1125 },
+      { label: "PhilHealth", amount: 500 },
+      { label: "Pag-IBIG", amount: 100 },
+      { label: "Withholding Tax", amount: 8608.33 },
+      { label: "Company Benefits", amount: 5000 },
+    ],
+    netPay: 42166.67,
+  },
+  {
+    id: "3",
+    period: "Sep 2025",
+    paidDate: "Oct 5, 2025",
+    earnings: [
+      { label: "Base Salary", amount: 50000 },
+      { label: "Overtime (8 hrs)", amount: 2500 },
+      { label: "Performance Bonus", amount: 5000 },
+    ],
+    deductions: [
+      { label: "SSS Contribution", amount: 1125 },
+      { label: "PhilHealth", amount: 500 },
+      { label: "Pag-IBIG", amount: 100 },
+      { label: "Withholding Tax", amount: 8608.33 },
+      { label: "Company Benefits", amount: 5000 },
+    ],
+    netPay: 42166.67,
+  },
+];
+
 const F41v6_EmployeeDashboardPage = () => {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [selectedPayslip, setSelectedPayslip] = useState<PayslipData>(payslipsData[0]);
 
   const candidateProfile = {
     name: "Maria Santos",
@@ -35,16 +118,14 @@ const F41v6_EmployeeDashboardPage = () => {
     }, 300);
   }, []);
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (payslipId?: string) => {
+    const payslip = payslipsData.find(p => p.id === payslipId) || payslipsData[0];
+    setSelectedPayslip(payslip);
     setBreakdownOpen(true);
   };
 
   const handleDownload = (payslipId: string) => {
     console.log("Download payslip:", payslipId);
-  };
-
-  const handleDownloadAll = () => {
-    console.log("Download all payslips");
   };
 
   return (
@@ -91,7 +172,7 @@ const F41v6_EmployeeDashboardPage = () => {
                   <F41v6_PayslipsSection 
                     currency={candidateProfile.currency}
                     onDownload={handleDownload}
-                    onDownloadAll={handleDownloadAll}
+                    onViewDetails={handleViewDetails}
                   />
                 </div>
               </main>
@@ -103,6 +184,11 @@ const F41v6_EmployeeDashboardPage = () => {
             open={breakdownOpen}
             onOpenChange={setBreakdownOpen}
             currency={candidateProfile.currency}
+            period={selectedPayslip.period}
+            paidDate={selectedPayslip.paidDate}
+            earnings={selectedPayslip.earnings}
+            deductions={selectedPayslip.deductions}
+            netPay={selectedPayslip.netPay}
           />
         </div>
       </TooltipProvider>
