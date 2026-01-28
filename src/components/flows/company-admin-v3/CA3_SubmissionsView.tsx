@@ -1114,10 +1114,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               total: pendingLeaves.length
             };
             
-            // Filter items based on showPendingOnly
+            // Filter items based on showPendingOnly - only pending, not rejected
             const shouldShowItem = (status: AdjustmentItemStatus) => {
               if (!showPendingOnly) return true;
-              return status === 'pending' || status === 'rejected';
+              return status === 'pending';
             };
             
             return (
@@ -1163,11 +1163,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 {/* Content with collapsible sections */}
                 <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* EARNINGS Section - Only show if has content when filtering */}
+                  {/* EARNINGS Section - Auto-expand when filtering and has pending */}
                   {(!showPendingOnly || earningAdjCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Earnings"
-                      defaultOpen={false}
+                      defaultOpen={showPendingOnly && earningAdjCounts.pending > 0}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1255,11 +1255,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* OVERTIME Section - Only show if has pending when filtering */}
+                  {/* OVERTIME Section - Auto-expand when filtering and has pending */}
                   {overtimeCounts.total > 0 && (!showPendingOnly || overtimeCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Overtime"
-                      defaultOpen={false}
+                      defaultOpen={showPendingOnly && overtimeCounts.pending > 0}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved}
                     >
@@ -1297,11 +1297,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
-                  {/* LEAVE Section - Only show if has pending when filtering */}
+                  {/* LEAVE Section - Auto-expand when filtering and has pending */}
                   {hasLeaves && (!showPendingOnly || leaveCounts.pending > 0) && (
                     <CollapsibleSection
                       title="Leave"
-                      defaultOpen={false}
+                      defaultOpen={showPendingOnly && leaveCounts.pending > 0}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved}
                     >
