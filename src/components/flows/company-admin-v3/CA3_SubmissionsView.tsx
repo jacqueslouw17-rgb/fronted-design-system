@@ -494,9 +494,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   };
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
-    // Fallback to 'pending' config if status is not recognized
-    const status = statusConfig[submission.status] || statusConfig.pending;
-    const StatusIcon = status.icon;
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
     
     // Count pending adjustments for this worker (considering local state overrides)
@@ -506,6 +503,11 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       const effectiveStatus = localState?.status || adj.status || 'pending';
       return effectiveStatus === 'pending' && typeof adj.amount === 'number';
     }).length;
+    
+    // Derive effective worker status: if no pending adjustments remain, worker is "ready"
+    const effectiveWorkerStatus: SubmissionStatus = workerPendingCount > 0 ? "pending" : "ready";
+    const status = statusConfig[effectiveWorkerStatus];
+    const StatusIcon = status.icon;
 
     return (
       <motion.div
@@ -562,7 +564,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
           {/* Status with pending count */}
           <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
-            {submission.status === "pending" && workerPendingCount > 0 ? (
+            {effectiveWorkerStatus === "pending" && workerPendingCount > 0 ? (
               <>
                 <span className="flex items-center justify-center h-4 w-4 rounded-full bg-orange-500/15 text-orange-600 text-[10px] font-semibold">
                   {workerPendingCount}
