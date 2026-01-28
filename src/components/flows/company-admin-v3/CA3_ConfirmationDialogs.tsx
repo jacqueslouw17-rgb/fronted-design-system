@@ -3,6 +3,7 @@
  * Confirmation Dialogs for Approve/Reject Actions
  */
 
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,6 +115,135 @@ export const CA3_RejectDialog = ({
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Reject adjustment
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+// Bulk Approve Dialog
+interface CA3_BulkApproveDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  pendingCount: number;
+}
+
+export const CA3_BulkApproveDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  pendingCount,
+}: CA3_BulkApproveDialogProps) => {
+  const handleConfirm = () => {
+    onConfirm();
+    onOpenChange(false);
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent 
+        className="sm:max-w-md"
+        onOverlayClick={() => onOpenChange(false)}
+      >
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        
+        <AlertDialogHeader>
+          <AlertDialogTitle>Approve all pending items?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will approve all {pendingCount} pending adjustment{pendingCount !== 1 ? 's' : ''} and leave request{pendingCount !== 1 ? 's' : ''} for this worker. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            className="bg-gradient-primary text-primary-foreground hover:opacity-90"
+          >
+            Approve all ({pendingCount})
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+// Bulk Reject Dialog - requires reason input
+interface CA3_BulkRejectDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (reason: string) => void;
+  pendingCount: number;
+}
+
+export const CA3_BulkRejectDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
+  pendingCount,
+}: CA3_BulkRejectDialogProps) => {
+  const [reason, setReason] = React.useState("");
+
+  const handleConfirm = () => {
+    onConfirm(reason);
+    onOpenChange(false);
+    setReason("");
+  };
+
+  // Reset reason when dialog closes
+  React.useEffect(() => {
+    if (!open) setReason("");
+  }, [open]);
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent 
+        className="sm:max-w-md"
+        onOverlayClick={() => onOpenChange(false)}
+      >
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        
+        <AlertDialogHeader>
+          <AlertDialogTitle>Reject all pending items?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will reject all {pendingCount} pending adjustment{pendingCount !== 1 ? 's' : ''} and leave request{pendingCount !== 1 ? 's' : ''} for this worker. The worker will be notified.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <div className="py-2">
+          <label htmlFor="bulk-reject-reason" className="text-sm font-medium text-foreground mb-1.5 block">
+            Reason for rejection
+          </label>
+          <textarea
+            id="bulk-reject-reason"
+            placeholder="Enter a reason that will apply to all rejected items..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="w-full min-h-[80px] resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+        </div>
+        
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            disabled={!reason.trim()}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 disabled:pointer-events-none"
+          >
+            Reject all ({pendingCount})
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CA3_ApproveDialog, CA3_RejectDialog } from "./CA3_ConfirmationDialogs";
+import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
@@ -738,6 +738,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [adjustmentStates, setAdjustmentStates] = useState<Record<string, AdjustmentState>>({});
   // Local state for leave statuses (keyed by submissionId-leaveId)
   const [leaveStates, setLeaveStates] = useState<Record<string, AdjustmentState>>({});
+  
+  // Bulk action dialogs
+  const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
+  const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
 
   // Computed counts
   const internalPendingCount = submissions.filter(s => s.status === "pending").length;
@@ -824,6 +828,52 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
       setDrawerOpen(false);
       toast.info(`Rejected submission for ${selectedSubmission.workerName}`);
     }
+  };
+
+  // Bulk approve all pending items for the selected worker
+  const handleBulkApprove = () => {
+    if (!selectedSubmission) return;
+    
+    // Approve all pending adjustments
+    selectedSubmission.submissions.forEach((adj, idx) => {
+      const currentState = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+      if (currentState.status === 'pending') {
+        updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'approved' });
+      }
+    });
+    
+    // Approve all pending leaves
+    (selectedSubmission.pendingLeaves || []).forEach((leave) => {
+      const currentState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+      if (currentState.status === 'pending') {
+        updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+      }
+    });
+    
+    toast.success(`Approved all pending items for ${selectedSubmission.workerName}`);
+  };
+
+  // Bulk reject all pending items for the selected worker
+  const handleBulkReject = (reason: string) => {
+    if (!selectedSubmission) return;
+    
+    // Reject all pending adjustments
+    selectedSubmission.submissions.forEach((adj, idx) => {
+      const currentState = getAdjustmentStatus(selectedSubmission.id, idx, adj.status as AdjustmentItemStatus);
+      if (currentState.status === 'pending') {
+        updateAdjustmentStatus(selectedSubmission.id, idx, { status: 'rejected', rejectionReason: reason });
+      }
+    });
+    
+    // Reject all pending leaves
+    (selectedSubmission.pendingLeaves || []).forEach((leave) => {
+      const currentState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+      if (currentState.status === 'pending') {
+        updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+      }
+    });
+    
+    toast.info(`Rejected all pending items for ${selectedSubmission.workerName}`);
   };
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
@@ -1411,16 +1461,50 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   )}
                 </div>
 
-                {/* Footer - Close button only, individual adjustments are approved/rejected inline */}
-                <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-5">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setDrawerOpen(false)}
-                  >
-                    Close
-                  </Button>
+                {/* Footer - Bulk actions when pending, otherwise close only */}
+                <div className="border-t border-border/40 bg-gradient-to-b from-muted/20 to-muted/40 px-6 py-4">
+                  {currentPendingCount > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 h-9 text-xs border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300"
+                        onClick={() => setShowBulkRejectDialog(true)}
+                      >
+                        Reject all ({currentPendingCount})
+                      </Button>
+                      <Button 
+                        size="sm"
+                        className="flex-1 h-9 text-xs"
+                        onClick={() => setShowBulkApproveDialog(true)}
+                      >
+                        Approve all ({currentPendingCount})
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      Close
+                    </Button>
+                  )}
                 </div>
+                
+                {/* Bulk action dialogs */}
+                <CA3_BulkApproveDialog
+                  open={showBulkApproveDialog}
+                  onOpenChange={setShowBulkApproveDialog}
+                  onConfirm={handleBulkApprove}
+                  pendingCount={currentPendingCount}
+                />
+                <CA3_BulkRejectDialog
+                  open={showBulkRejectDialog}
+                  onOpenChange={setShowBulkRejectDialog}
+                  onConfirm={handleBulkReject}
+                  pendingCount={currentPendingCount}
+                />
               </>
             );
           })()}
