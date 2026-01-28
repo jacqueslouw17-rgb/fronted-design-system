@@ -250,117 +250,105 @@ const AdjustmentRow = ({
     );
   }
 
-  // Pending state - orange styling with expandable approve/reject
+  // Pending state - clean, aligned with other rows
   return (
     <>
-      <div className="mb-1.5">
+      <div 
+        className={cn(
+          "rounded transition-all duration-150 overflow-hidden my-0.5",
+          "border border-orange-300/40 dark:border-orange-500/25",
+          "bg-orange-50/50 dark:bg-orange-500/[0.06]"
+        )}
+      >
+        {/* Main row - same padding as BreakdownRow */}
         <div 
-          className={cn(
-            "rounded-md transition-all duration-200 overflow-hidden",
-            "border border-orange-300/50 dark:border-orange-500/30",
-            "bg-orange-50/60 dark:bg-orange-500/[0.08]"
-          )}
+          className="flex items-center justify-between py-2 px-2.5 cursor-pointer hover:bg-orange-100/50 dark:hover:bg-orange-500/10 transition-colors"
+          onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
         >
-          {/* Main row */}
-          <div 
-            className="flex items-center justify-between py-2.5 px-3 cursor-pointer hover:bg-orange-100/60 dark:hover:bg-orange-500/15 transition-colors"
-            onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-          >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <span className="text-sm font-medium text-foreground">
-                {label}
-              </span>
-              <Badge 
-                variant="outline" 
-                className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-semibold bg-orange-200/80 text-orange-800 border-orange-400/50 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/40"
-              >
-                Pending
-              </Badge>
-            </div>
-            
-            <span className="text-sm tabular-nums font-mono font-semibold text-foreground">
-              +{formatAmount(amount, currency)}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-sm text-foreground">{label}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+              pending
             </span>
           </div>
-          {/* Expanded action panel */}
-          <AnimatePresence>
-            {expanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="overflow-hidden"
-              >
-                <div className="border-t border-orange-300/40 dark:border-orange-500/20 px-3 py-3">
-                  {!showRejectForm ? (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowRejectForm(true);
-                        }}
-                        className="flex-1 h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                        Reject
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleApproveClick();
-                        }}
-                        className="flex-1 h-8 text-xs gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90"
-                      >
-                        <Check className="h-3.5 w-3.5" />
-                        Approve
-                      </Button>
-                    </div>
-                  ) : (
-                  <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">
-                        Reason for rejection (sent to worker)
-                      </Label>
-                      <Textarea
-                        placeholder="Explain why this adjustment is being rejected..."
-                        value={rejectReasonInput}
-                        onChange={(e) => setRejectReasonInput(e.target.value)}
-                        className="min-h-[70px] resize-none text-sm"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectReasonInput("");
-                        }}
-                        className="flex-1 h-8 text-xs"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleRejectClick}
-                        disabled={!rejectReasonInput.trim()}
-                        className="flex-1 h-8 text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                      >
-                        Reject adjustment
-                      </Button>
-                    </div>
-                  </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          
+          <span className="text-sm tabular-nums font-mono text-foreground ml-3">
+            +{formatAmount(amount, currency)}
+          </span>
         </div>
+        {/* Expanded action panel */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.12, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-orange-200/60 dark:border-orange-500/15 px-2.5 py-2.5">
+                {!showRejectForm ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRejectForm(true);
+                      }}
+                      className="flex-1 h-7 text-[11px] gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+                    >
+                      <X className="h-3 w-3" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApproveClick();
+                      }}
+                      className="flex-1 h-7 text-[11px] gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Check className="h-3 w-3" />
+                      Approve
+                    </Button>
+                  </div>
+                ) : (
+                <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                  <Textarea
+                    placeholder="Reason for rejection..."
+                    value={rejectReasonInput}
+                    onChange={(e) => setRejectReasonInput(e.target.value)}
+                    className="min-h-[60px] resize-none text-sm"
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReasonInput("");
+                      }}
+                      className="flex-1 h-7 text-[11px]"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleRejectClick}
+                      disabled={!rejectReasonInput.trim()}
+                      className="flex-1 h-7 text-[11px] bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Confirmation Dialogs */}
@@ -1143,245 +1131,228 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             
             return (
               <>
-                {/* Header with period badge */}
-                <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/40 bg-muted/30">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <SheetTitle className="text-lg font-semibold">Pay breakdown</SheetTitle>
-                      <Badge variant="outline" className="text-xs font-normal">
-                        {selectedSubmission.periodLabel || "Jan 1 – Jan 31"}
-                      </Badge>
-                    </div>
+                {/* Compact header */}
+                <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <SheetTitle className="text-base font-semibold">Pay breakdown</SheetTitle>
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground">
+                      {selectedSubmission.periodLabel || "Jan 1–31"}
+                    </Badge>
                   </div>
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                  
+                  {/* Worker info + toggle in same row */}
+                  <div className="flex items-center gap-2.5">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
                         {getInitials(selectedSubmission.workerName)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{selectedSubmission.workerName}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm font-medium text-foreground leading-tight">{selectedSubmission.workerName}</p>
+                      <p className="text-[11px] text-muted-foreground/70">
                         {selectedSubmission.workerCountry} · {selectedSubmission.workerType === "employee" ? "Employee" : "Contractor"}
                       </p>
                     </div>
+                    
+                    {/* Inline pending toggle */}
+                    {currentPendingCount > 0 && (
+                      <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                        <span className="text-[10px] text-muted-foreground/60">Pending</span>
+                        <Switch
+                          checked={showPendingOnly}
+                          onCheckedChange={setShowPendingOnly}
+                          className="h-4 w-7 data-[state=checked]:bg-orange-500"
+                        />
+                      </label>
+                    )}
                   </div>
-                  
-                  {/* Pending filter toggle */}
-                  {currentPendingCount > 0 && (
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
-                      <div className="flex items-center gap-2">
-                        <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Show pending only</span>
-                      </div>
-                      <Switch
-                        checked={showPendingOnly}
-                        onCheckedChange={setShowPendingOnly}
-                        className="h-4 w-7"
-                      />
-                    </div>
-                  )}
                 </SheetHeader>
 
-                {/* Receipt-style content with collapsible sections */}
-                <div className="px-5 py-4 space-y-2" onClick={() => setExpandedItemId(null)}>
+                {/* Content with collapsible sections */}
+                <div className="px-5 py-3 space-y-1" onClick={() => setExpandedItemId(null)}>
                   
-                  {/* Summary banner when items need action */}
+                  {/* Compact pending banner */}
                   {currentPendingCount > 0 && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-orange-100/70 dark:bg-orange-500/15 border border-orange-300/50 dark:border-orange-500/30 mb-3">
-                      <Clock className="h-3.5 w-3.5 text-orange-700 dark:text-orange-400" />
-                      <span className="text-xs font-medium text-orange-800 dark:text-orange-300">
-                        {currentPendingCount} item{currentPendingCount !== 1 ? 's' : ''} pending review
+                    <div className="flex items-center gap-1.5 py-1.5 mb-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+                      <span className="text-[11px] font-medium text-orange-700 dark:text-orange-400">
+                        {currentPendingCount} pending
                       </span>
                     </div>
                   )}
                   
-                  {/* EARNINGS Section - Collapsible */}
+                  {/* EARNINGS Section - Collapsed by default */}
                   <CollapsibleSection
                     title="Earnings"
-                    defaultOpen={!showPendingOnly || earningAdjCounts.pending > 0}
+                    defaultOpen={false}
                     pendingCount={earningAdjCounts.pending}
                     approvedCount={earnings.length + earningAdjCounts.approved}
-                    rejectedCount={earningAdjCounts.rejected}
                   >
-                    <div className="space-y-0">
-                      {/* Base earnings - always show unless filtering */}
-                      {!showPendingOnly && earnings.map((item, idx) => (
-                        <BreakdownRow
-                          key={idx}
-                          label={item.label}
-                          amount={item.amount}
-                          currency={currency}
-                          isLocked={item.locked}
-                          isPositive
-                        />
-                      ))}
-                      {/* Adjustments (Expenses, Bonus) */}
-                      {allAdjustments
-                        .map((adj, originalIdx) => ({ adj, originalIdx }))
-                        .filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus')
-                        .filter(({ adj, originalIdx }) => {
-                          const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
-                          return shouldShowItem(status);
-                        })
-                        .map(({ adj, originalIdx }) => {
-                          const config = submissionTypeConfig[adj.type as SubmissionType];
-                          if (!config) return null;
-                          const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                          const itemId = `adj-${originalIdx}`;
-                          return (
-                            <div key={itemId} data-expandable-item>
-                              <AdjustmentRow
-                                label={config.label}
-                                amount={adj.amount || 0}
-                                currency={adj.currency || currency}
-                                status={adjState.status}
-                                rejectionReason={adjState.rejectionReason || adj.rejectionReason}
-                                isExpanded={expandedItemId === itemId}
-                                onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
-                                onApprove={() => {
-                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                                  toast.success(`Approved ${config.label.toLowerCase()}`);
-                                }}
-                                onReject={(reason) => {
-                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                                  toast.info(`Rejected ${config.label.toLowerCase()}`);
-                                }}
-                              />
-                            </div>
-                          );
-                        })}
-                      {/* Total Earnings */}
-                      {!showPendingOnly && (
-                        <BreakdownRow
-                          label="Total earnings"
-                          amount={totalEarnings + approvedAdjustmentTotal}
-                          currency={currency}
-                          isPositive
-                          isTotal
-                        />
-                      )}
-                    </div>
+                    {/* Base earnings */}
+                    {!showPendingOnly && earnings.map((item, idx) => (
+                      <BreakdownRow
+                        key={idx}
+                        label={item.label}
+                        amount={item.amount}
+                        currency={currency}
+                        isLocked={item.locked}
+                        isPositive
+                      />
+                    ))}
+                    {/* Adjustments (Expenses, Bonus) - no wrapper div */}
+                    {allAdjustments
+                      .map((adj, originalIdx) => ({ adj, originalIdx }))
+                      .filter(({ adj }) => adj.type === 'expenses' || adj.type === 'bonus')
+                      .filter(({ adj, originalIdx }) => {
+                        const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                        return shouldShowItem(status);
+                      })
+                      .map(({ adj, originalIdx }) => {
+                        const config = submissionTypeConfig[adj.type as SubmissionType];
+                        if (!config) return null;
+                        const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                        const itemId = `adj-${originalIdx}`;
+                        return (
+                          <AdjustmentRow
+                            key={itemId}
+                            label={config.label}
+                            amount={adj.amount || 0}
+                            currency={adj.currency || currency}
+                            status={adjState.status}
+                            rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                            isExpanded={expandedItemId === itemId}
+                            onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                            onApprove={() => {
+                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                              toast.success(`Approved ${config.label.toLowerCase()}`);
+                            }}
+                            onReject={(reason) => {
+                              updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                              toast.info(`Rejected ${config.label.toLowerCase()}`);
+                            }}
+                          />
+                        );
+                      })}
+                    {/* Total Earnings */}
+                    {!showPendingOnly && (
+                      <BreakdownRow
+                        label="Total earnings"
+                        amount={totalEarnings + approvedAdjustmentTotal}
+                        currency={currency}
+                        isPositive
+                        isTotal
+                      />
+                    )}
                   </CollapsibleSection>
 
-                  {/* DEDUCTIONS Section - Collapsible */}
+                  {/* DEDUCTIONS Section - Collapsed by default */}
                   {deductions.length > 0 && !showPendingOnly && (
                     <CollapsibleSection
                       title="Deductions"
                       defaultOpen={false}
                       approvedCount={deductions.length}
                     >
-                      <div className="space-y-0">
-                        {deductions.map((item, idx) => (
-                          <BreakdownRow
-                            key={idx}
-                            label={item.label}
-                            amount={Math.abs(item.amount)}
-                            currency={currency}
-                            isLocked={item.locked}
-                            isPositive={false}
-                          />
-                        ))}
+                      {deductions.map((item, idx) => (
                         <BreakdownRow
-                          label="Total deductions"
-                          amount={totalDeductions}
+                          key={idx}
+                          label={item.label}
+                          amount={Math.abs(item.amount)}
                           currency={currency}
+                          isLocked={item.locked}
                           isPositive={false}
-                          isTotal
                         />
-                      </div>
+                      ))}
+                      <BreakdownRow
+                        label="Total deductions"
+                        amount={totalDeductions}
+                        currency={currency}
+                        isPositive={false}
+                        isTotal
+                      />
                     </CollapsibleSection>
                   )}
 
-                  {/* OVERTIME Section - Collapsible */}
+                  {/* OVERTIME Section - Collapsed by default */}
                   {overtimeCounts.total > 0 && (
                     <CollapsibleSection
                       title="Overtime"
-                      defaultOpen={overtimeCounts.pending > 0}
+                      defaultOpen={false}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved}
-                      rejectedCount={overtimeCounts.rejected}
                     >
-                      <div className="space-y-0">
-                        {allAdjustments
-                          .map((adj, originalIdx) => ({ adj, originalIdx }))
-                          .filter(({ adj }) => adj.type === 'overtime')
-                          .filter(({ adj, originalIdx }) => {
-                            const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
-                            return shouldShowItem(status);
-                          })
-                          .map(({ adj, originalIdx }) => {
-                            const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
-                            const itemId = `overtime-${originalIdx}`;
-                            return (
-                              <div key={itemId} data-expandable-item>
-                                <AdjustmentRow
-                                  label={`${adj.hours || 0}h logged`}
-                                  amount={adj.amount || 0}
-                                  currency={currency}
-                                  status={adjState.status}
-                                  rejectionReason={adjState.rejectionReason || adj.rejectionReason}
-                                  isExpanded={expandedItemId === itemId}
-                                  onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
-                                  onApprove={() => {
-                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                                    toast.success('Approved overtime');
-                                  }}
-                                  onReject={(reason) => {
-                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                                    toast.info('Rejected overtime');
-                                  }}
-                                />
-                              </div>
-                            );
-                          })}
-                      </div>
+                      {allAdjustments
+                        .map((adj, originalIdx) => ({ adj, originalIdx }))
+                        .filter(({ adj }) => adj.type === 'overtime')
+                        .filter(({ adj, originalIdx }) => {
+                          const status = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus).status;
+                          return shouldShowItem(status);
+                        })
+                        .map(({ adj, originalIdx }) => {
+                          const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                          const itemId = `overtime-${originalIdx}`;
+                          return (
+                            <AdjustmentRow
+                              key={itemId}
+                              label={`${adj.hours || 0}h logged`}
+                              amount={adj.amount || 0}
+                              currency={currency}
+                              status={adjState.status}
+                              rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                              isExpanded={expandedItemId === itemId}
+                              onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                              onApprove={() => {
+                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                toast.success('Approved overtime');
+                              }}
+                              onReject={(reason) => {
+                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                toast.info('Rejected overtime');
+                              }}
+                            />
+                          );
+                        })}
                     </CollapsibleSection>
                   )}
 
-                  {/* LEAVE Section - Collapsible */}
+                  {/* LEAVE Section - Collapsed by default */}
                   {hasLeaves && (
                     <CollapsibleSection
-                      title="Leave in this period"
-                      defaultOpen={leaveCounts.pending > 0}
+                      title="Leave"
+                      defaultOpen={false}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved}
-                      rejectedCount={leaveCounts.rejected}
                     >
-                      <div className="space-y-0">
-                        {pendingLeaves
-                          .filter((leave) => {
-                            const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
-                            return shouldShowItem(status);
-                          })
-                          .map((leave) => {
-                            const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
-                            const itemId = `leave-${leave.id}`;
-                            return (
-                              <div key={itemId} data-expandable-item>
-                                <LeaveRow
-                                  leave={{
-                                    ...leave,
-                                    status: leaveState.status,
-                                    rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
-                                  }}
-                                  currency={currency}
-                                  isExpanded={expandedItemId === itemId}
-                                  onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
-                                  onApprove={() => {
-                                    updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
-                                    toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                                  }}
-                                  onReject={(reason) => {
-                                    updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
-                                    toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                                  }}
-                                />
-                              </div>
-                            );
-                          })}
-                      </div>
+                      {pendingLeaves
+                        .filter((leave) => {
+                          const status = getLeaveStatus(selectedSubmission.id, leave.id, leave.status).status;
+                          return shouldShowItem(status);
+                        })
+                        .map((leave) => {
+                          const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                          const itemId = `leave-${leave.id}`;
+                          return (
+                            <LeaveRow
+                              key={itemId}
+                              leave={{
+                                ...leave,
+                                status: leaveState.status,
+                                rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
+                              }}
+                              currency={currency}
+                              isExpanded={expandedItemId === itemId}
+                              onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                              onApprove={() => {
+                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+                                toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                              }}
+                              onReject={(reason) => {
+                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+                                toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                              }}
+                            />
+                          );
+                        })}
                     </CollapsibleSection>
                   )}
 
