@@ -269,7 +269,7 @@ const AdjustmentRow = ({
         </span>
       </div>
       
-      {/* Expanded action panel - appears below */}
+      {/* Expanded action panel */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -279,7 +279,7 @@ const AdjustmentRow = ({
             transition={{ duration: 0.12, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="py-2 pl-0">
+            <div className="py-2 -mx-3 px-3">
               {!showRejectForm ? (
                 <div className="flex items-center gap-2">
                   <Button
@@ -289,9 +289,9 @@ const AdjustmentRow = ({
                       e.stopPropagation();
                       setShowRejectForm(true);
                     }}
-                    className="flex-1 h-7 text-[11px] gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+                    className="flex-1 h-8 text-xs gap-1.5 border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 hover:text-red-700 hover:border-red-300"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3.5 w-3.5" />
                     Reject
                   </Button>
                   <Button
@@ -300,43 +300,43 @@ const AdjustmentRow = ({
                       e.stopPropagation();
                       handleApproveClick();
                     }}
-                    className="flex-1 h-7 text-[11px] gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="flex-1 h-8 text-xs gap-1.5"
                   >
-                    <Check className="h-3 w-3" />
+                    <Check className="h-3.5 w-3.5" />
                     Approve
                   </Button>
                 </div>
               ) : (
-              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                <Textarea
-                  placeholder="Reason for rejection..."
-                  value={rejectReasonInput}
-                  onChange={(e) => setRejectReasonInput(e.target.value)}
-                  className="min-h-[60px] resize-none text-sm"
-                  autoFocus
-                />
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setShowRejectForm(false);
-                      setRejectReasonInput("");
-                    }}
-                    className="flex-1 h-7 text-[11px]"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleRejectClick}
-                    disabled={!rejectReasonInput.trim()}
-                    className="flex-1 h-7 text-[11px] bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                  >
-                    Reject
-                  </Button>
+                <div className="space-y-2 p-3 rounded-md border border-border/50 bg-muted/30" onClick={(e) => e.stopPropagation()}>
+                  <Textarea
+                    placeholder="Reason for rejection..."
+                    value={rejectReasonInput}
+                    onChange={(e) => setRejectReasonInput(e.target.value)}
+                    className="min-h-[60px] resize-none text-sm bg-background"
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReasonInput("");
+                      }}
+                      className="flex-1 h-8 text-xs"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleRejectClick}
+                      disabled={!rejectReasonInput.trim()}
+                      className="flex-1 h-8 text-xs bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Reject
+                    </Button>
+                  </div>
                 </div>
-              </div>
               )}
             </div>
           </motion.div>
