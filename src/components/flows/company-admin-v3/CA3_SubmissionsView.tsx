@@ -136,84 +136,91 @@ const AdjustmentRow = ({
 
   return (
     <div className="mb-2">
-      {/* Main row */}
+      {/* Main row + expanded panel share a continuous border */}
       <div 
         className={cn(
-          "flex items-center justify-between py-3 px-3 -mx-3 rounded-lg transition-all duration-200",
-          isPending && "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-200/60 dark:border-orange-500/20 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 hover:border-orange-300 dark:hover:border-orange-500/30",
-          !isPending && "bg-muted/30",
-          isExpanded && isPending && "rounded-b-none border-b-0"
+          "rounded-lg transition-all duration-200 overflow-hidden",
+          isPending && "border border-orange-200/60 dark:border-orange-500/20",
+          !isPending && "border border-transparent"
         )}
-        onClick={() => isPending && setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <span className="text-sm font-medium text-foreground">
-            {label}
-          </span>
-          <Badge 
-            variant="outline" 
-            className={cn(
-              "text-[11px] px-2 py-0.5 shrink-0 font-medium",
-              isPending 
-                ? "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30"
-                : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
-            )}
-          >
-            {isPending ? 'Pending approval' : 'Approved'}
-          </Badge>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold tabular-nums font-mono text-foreground">
-            +{formatAmount(amount, currency)}
-          </span>
-          {isPending && (
-            <ChevronRight className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-              isExpanded && "rotate-90"
-            )} />
+        {/* Main row */}
+        <div 
+          className={cn(
+            "flex items-center justify-between py-2.5 px-3 transition-all duration-200",
+            isPending && "bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10",
+            !isPending && "bg-muted/30"
           )}
+          onClick={() => isPending && setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <span className="text-sm font-medium text-foreground">
+              {label}
+            </span>
+            <Badge 
+              variant="outline" 
+              className={cn(
+                "text-[11px] px-2 py-0.5 shrink-0 font-medium",
+                isPending 
+                  ? "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30"
+                  : "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20"
+              )}
+            >
+              {isPending ? 'Pending approval' : 'Approved'}
+            </Badge>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold tabular-nums font-mono text-foreground">
+              +{formatAmount(amount, currency)}
+            </span>
+            {isPending && (
+              <ChevronRight className={cn(
+                "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                isExpanded && "rotate-90"
+              )} />
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Expanded action panel */}
-      <AnimatePresence>
-        {isExpanded && isPending && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="bg-orange-50/30 dark:bg-orange-500/5 border border-t-0 border-orange-200/60 dark:border-orange-500/20 rounded-b-lg px-3 py-3">
-              {!showRejectForm ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowRejectForm(true);
-                    }}
-                    className="flex-1 h-9 text-sm border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-                  >
-                    <X className="h-4 w-4 mr-1.5" />
-                    Reject
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleApprove();
-                    }}
-                    className="flex-1 h-9 text-sm bg-accent-green-fill hover:bg-accent-green-fill/90 text-white"
-                  >
-                    <Check className="h-4 w-4 mr-1.5" />
-                    Approve
-                  </Button>
-                </div>
-              ) : (
+        {/* Expanded action panel */}
+        <AnimatePresence>
+          {isExpanded && isPending && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
+                {!showRejectForm ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRejectForm(true);
+                      }}
+                      className="flex-1 h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApprove();
+                      }}
+                      className="flex-1 h-8 text-xs gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Approve
+                    </Button>
+                  </div>
+                ) : (
                 <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">
@@ -249,11 +256,12 @@ const AdjustmentRow = ({
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
