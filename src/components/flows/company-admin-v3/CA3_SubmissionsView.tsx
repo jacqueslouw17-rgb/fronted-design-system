@@ -870,7 +870,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 
                   {/* Estimated net pay - above rejection section */}
                   <section className="pt-2 border-t border-border/40">
-                    <div className="flex items-start justify-between py-3">
+                    <div className={cn(
+                      "flex justify-between py-3",
+                      currentPendingCount > 0 ? "items-start" : "items-center"
+                    )}>
                       <div>
                         <p className="text-sm font-medium text-foreground">Estimated net pay</p>
                         {currentPendingCount > 0 && (
@@ -883,7 +886,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
                           {formatCurrency(adjustedNet, currency)}
                         </p>
-                        {(approvedAdjustmentTotal > 0 || currentPendingCount > 0) && (
+                        {approvedAdjustmentTotal > 0 && (
                           <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
                             Base: {formatCurrency(baseNet, currency)}
                           </p>
