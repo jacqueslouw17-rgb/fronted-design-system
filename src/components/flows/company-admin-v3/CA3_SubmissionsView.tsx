@@ -254,7 +254,7 @@ const AdjustmentRow = ({
   return (
     <>
       <div 
-        className="flex items-center justify-between py-2 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/15 -mx-2.5 px-2.5 rounded transition-colors"
+        className="flex items-center justify-between py-2 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/15 -mx-3 px-3 rounded transition-colors"
         onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
       >
         <div className="flex items-center gap-2 min-w-0">
