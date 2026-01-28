@@ -399,24 +399,12 @@ const BreakdownRow = ({
       isTotal && "pt-3 mt-1 border-t border-dashed border-border/50",
       className
     )}>
-      <div className="flex items-center gap-2 min-w-0 flex-1">
-        <span className={cn(
+      <span className={cn(
           "truncate",
           isTotal ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"
         )}>
           {label}
         </span>
-        {isLocked && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Lock className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">Statutory deduction</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
-      </div>
       
       <span className={cn(
         "whitespace-nowrap tabular-nums text-right font-mono shrink-0 ml-4",
