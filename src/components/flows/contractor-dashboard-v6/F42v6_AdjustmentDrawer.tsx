@@ -1,11 +1,13 @@
 /**
- * Flow 4.2 — Contractor Dashboard v5
+ * Flow 4.2 — Contractor Dashboard v6
  * Request Adjustment Drawer (right-side panel)
  * 
- * ALIGNED: Matches F41v5_AdjustmentModal card-based UI patterns.
+ * ALIGNED: Matches F41v6_AdjustmentModal layout patterns.
+ * - Single column horizontal tiles with descriptions
  * - Batch expense support with multiple line items
  * - Simplified forms (removed notes/description fields)
- * - Compact inline layout
+ * 
+ * INDEPENDENT: This is a complete clone - changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useEffect } from 'react';
@@ -18,8 +20,8 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -28,21 +30,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useF42v5_DashboardStore, type F42v5_AdjustmentType, type F42v5_ContractType } from '@/stores/F42v5_DashboardStore';
+import { useF42v6_DashboardStore, type F42v6_ContractType } from '@/stores/F42v6_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertCircle, Calendar } from 'lucide-react';
-import { F41v5_TimeInput } from '@/components/flows/employee-dashboard-v5/F41v5_TimeInput';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, Calendar } from 'lucide-react';
+import { F41v6_TimeInput } from '@/components/flows/employee-dashboard-v6/F41v6_TimeInput';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 
 export type ContractorRequestType = 'expense' | 'additional-hours' | 'bonus' | 'correction' | null;
 
-interface F42v5_AdjustmentDrawerProps {
+interface F42v6_AdjustmentDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
-  contractType: F42v5_ContractType;
+  contractType: F42v6_ContractType;
   initialType?: ContractorRequestType;
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
@@ -75,19 +77,21 @@ interface AdditionalHoursLineItem {
 }
 
 
-const getRequestTypeOptions = (contractType: F42v5_ContractType) => {
+const getRequestTypeOptions = (contractType: F42v6_ContractType) => {
   const options = [
     { 
       id: 'expense' as ContractorRequestType, 
       label: 'Expense Reimbursements', 
       description: 'Submit a reimbursement',
-      icon: Receipt 
+      icon: Receipt,
+      disabled: false
     },
     { 
       id: 'bonus' as ContractorRequestType, 
       label: 'Commission', 
       description: 'Request additional pay',
-      icon: Gift 
+      icon: Gift,
+      disabled: false
     },
   ];
   
@@ -97,7 +101,8 @@ const getRequestTypeOptions = (contractType: F42v5_ContractType) => {
       id: 'additional-hours' as ContractorRequestType,
       label: 'Additional hours',
       description: 'Log extra time',
-      icon: Clock
+      icon: Clock,
+      disabled: false
     });
   }
   
@@ -118,8 +123,8 @@ export const F42v6_AdjustmentDrawer = ({
   initialEndTime,
   rejectedId,
   onBack 
-}: F42v5_AdjustmentDrawerProps) => {
-  const { addAdjustment, markRejectionResubmitted, adjustments } = useF42v5_DashboardStore();
+}: F42v6_AdjustmentDrawerProps) => {
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF42v6_DashboardStore();
 
   const rejectedAdjustment = rejectedId
     ? adjustments.find((adj) => adj.id === rejectedId)
@@ -549,49 +554,53 @@ export const F42v6_AdjustmentDrawer = ({
                 {selectedType === 'bonus' && 'Commission request'}
                 {selectedType === 'correction' && 'Correction request'}
               </SheetTitle>
-              <SheetDescription>
-                {selectedType === null && 'Submit an adjustment for the current invoice cycle.'}
-                {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
-                {selectedType === 'additional-hours' && 'Log extra hours worked.'}
-                {selectedType === 'bonus' && 'Request a commission payment.'}
-                {selectedType === 'correction' && 'Flag an error to be corrected.'}
+              <SheetDescription className="text-xs mt-0.5">
+                {selectedType === null && 'Submit an adjustment for the current invoice cycle'}
+                {selectedType === 'expense' && 'Submit expenses for reimbursement'}
+                {selectedType === 'additional-hours' && 'Log your additional hours'}
+                {selectedType === 'bonus' && 'Request a commission payment'}
+                {selectedType === 'correction' && 'Flag an error to be corrected'}
               </SheetDescription>
             </div>
           </div>
         </SheetHeader>
 
-        <div className="flex-1 py-6 overflow-y-auto">
-          {/* Rejection Reason Notice (shown on resubmission) */}
+        <div className="py-6 space-y-6">
+          {/* Rejection notification for resubmissions */}
           {!!rejectedId && rejectionReason && (
-            <div className="mb-5 flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
-              <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <p className="text-xs font-medium text-destructive">Rejected by admin</p>
-                <p className="text-sm text-destructive/80 dark:text-destructive/90">{rejectionReason}</p>
+                <p className="text-sm text-destructive/80">{rejectionReason}</p>
               </div>
             </div>
           )}
 
-          {/* Type Selection Grid */}
+          {/* Type Selection */}
           {selectedType === null && (
-            <div className="grid grid-cols-3 gap-2">
-              {requestTypeOptions.map((option) => {
-                const Icon = option.icon;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => setSelectedType(option.id)}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
-                  >
-                    <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                      <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-foreground">{option.label}</p>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-1 gap-3">
+              {requestTypeOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => !option.disabled && setSelectedType(option.id)}
+                  disabled={option.disabled}
+                  className={cn(
+                    "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
+                    option.disabled
+                      ? "opacity-50 cursor-not-allowed border-border/40"
+                      : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
+                  )}
+                >
+                  <div className="p-2.5 rounded-lg bg-muted/50">
+                    <option.icon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">{option.label}</p>
+                    <p className="text-xs text-muted-foreground">{option.description}</p>
+                  </div>
+                </button>
+              ))}
             </div>
           )}
 
@@ -843,7 +852,7 @@ export const F42v6_AdjustmentDrawer = ({
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Start time</Label>
-                        <F41v5_TimeInput
+                        <F41v6_TimeInput
                           value={item.startTime}
                           onChange={(val) => updateAdditionalHoursItem(item.id, 'startTime', val)}
                           hasError={!!errors[`additional_${index}_startTime`]}
@@ -852,7 +861,7 @@ export const F42v6_AdjustmentDrawer = ({
 
                       <div className="space-y-1.5">
                         <Label className="text-xs">End time</Label>
-                        <F41v5_TimeInput
+                        <F41v6_TimeInput
                           value={item.endTime}
                           onChange={(val) => updateAdditionalHoursItem(item.id, 'endTime', val)}
                           hasError={!!errors[`additional_${index}_endTime`]}
