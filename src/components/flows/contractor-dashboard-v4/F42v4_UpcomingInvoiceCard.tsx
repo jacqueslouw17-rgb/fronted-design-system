@@ -1,7 +1,7 @@
 /**
- * Flow 4.2 — Contractor Dashboard v3
+ * Flow 4.2 — Contractor Dashboard v4
  * Upcoming Invoice Card with T-5 confirmation
- * Aligned with Flow 4.1 Employee Dashboard patterns
+ * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
 import { useState } from 'react';
@@ -11,12 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronDown, ChevronUp, Lock, FileText, X } from 'lucide-react';
-import { useF42v3_DashboardStore, type F42v3_WindowState, type F42v3_Adjustment } from '@/stores/F42v3_DashboardStore';
-import { F42v3_AdjustmentDrawer } from './F42v3_AdjustmentDrawer';
-import { F42v3_ConfirmInvoiceDialog } from './F42v3_ConfirmInvoiceDialog';
-import { F42v3_AdjustmentDetailDrawer } from './F42v3_AdjustmentDetailDrawer';
-import { F42v3_WithdrawDialog } from './F42v3_WithdrawDialog';
-import { F42v3_InvoiceHistoryDrawer } from './F42v3_InvoiceHistoryDrawer';
+import { useF42v4_DashboardStore, type F42v4_WindowState, type F42v4_Adjustment } from '@/stores/F42v4_DashboardStore';
+import { F42v4_AdjustmentDrawer } from './F42v4_AdjustmentDrawer';
+import { F42v4_ConfirmInvoiceDialog } from './F42v4_ConfirmInvoiceDialog';
+import { F42v4_AdjustmentDetailDrawer } from './F42v4_AdjustmentDetailDrawer';
+import { F42v4_WithdrawDialog } from './F42v4_WithdrawDialog';
+import { F42v4_InvoiceHistoryDrawer } from './F42v4_InvoiceHistoryDrawer';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -33,7 +33,7 @@ const formatDate = (dateStr: string) => {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
-const getStatusBadge = (windowState: F42v3_WindowState, confirmed: boolean) => {
+const getStatusBadge = (windowState: F42v4_WindowState, confirmed: boolean) => {
   if (windowState === 'PAID') {
     return <Badge className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">Paid</Badge>;
   }
@@ -49,7 +49,7 @@ const getStatusBadge = (windowState: F42v3_WindowState, confirmed: boolean) => {
   return <Badge className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30">Action needed</Badge>;
 };
 
-const getAdjustmentStatusColor = (status: F42v3_Adjustment['status']) => {
+const getAdjustmentStatusColor = (status: F42v4_Adjustment['status']) => {
   switch (status) {
     case 'Pending':
       return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-500 dark:border-amber-500/30';
@@ -64,12 +64,12 @@ const getAdjustmentStatusColor = (status: F42v3_Adjustment['status']) => {
   }
 };
 
-export const F42v3_UpcomingInvoiceCard = () => {
+export const F42v4_UpcomingInvoiceCard = () => {
   const [lineItemsOpen, setLineItemsOpen] = useState(false);
   const [adjustmentDrawerOpen, setAdjustmentDrawerOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [invoiceHistoryOpen, setInvoiceHistoryOpen] = useState(false);
-  const [selectedAdjustment, setSelectedAdjustment] = useState<F42v3_Adjustment | null>(null);
+  const [selectedAdjustment, setSelectedAdjustment] = useState<F42v4_Adjustment | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
 
@@ -85,7 +85,7 @@ export const F42v3_UpcomingInvoiceCard = () => {
     adjustments,
     daysUntilClose,
     withdrawAdjustment,
-  } = useF42v3_DashboardStore();
+  } = useF42v4_DashboardStore();
 
   const isWindowOpen = windowState === 'OPEN';
   const isWindowClosed = windowState === 'CLOSED';
@@ -391,34 +391,35 @@ export const F42v3_UpcomingInvoiceCard = () => {
             </Button>
           </div>
 
-          {/* View previous invoices link */}
-          <div className="text-center">
-            <Button 
-              variant="link" 
+          {/* Previous Invoices Link */}
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => setInvoiceHistoryOpen(true)}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-xs"
             >
-              View previous invoices
+              Previous invoices →
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Drawers/Dialogs */}
-      <F42v3_AdjustmentDrawer
-        open={adjustmentDrawerOpen}
+      {/* Modals/Drawers */}
+      <F42v4_AdjustmentDrawer 
+        open={adjustmentDrawerOpen} 
         onOpenChange={setAdjustmentDrawerOpen}
         currency={currency}
         contractType={contractType}
       />
-
-      <F42v3_ConfirmInvoiceDialog
+      
+      <F42v4_ConfirmInvoiceDialog
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         periodLabel={periodLabel}
       />
 
-      <F42v3_AdjustmentDetailDrawer
+      <F42v4_AdjustmentDetailDrawer
         adjustment={selectedAdjustment}
         onClose={() => setSelectedAdjustment(null)}
         onCancelRequest={handleCancelFromDrawer}
@@ -426,13 +427,13 @@ export const F42v3_UpcomingInvoiceCard = () => {
         isWindowOpen={isWindowOpen}
       />
 
-      <F42v3_WithdrawDialog
+      <F42v4_WithdrawDialog
         open={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}
       />
 
-      <F42v3_InvoiceHistoryDrawer
+      <F42v4_InvoiceHistoryDrawer
         open={invoiceHistoryOpen}
         onOpenChange={setInvoiceHistoryOpen}
       />

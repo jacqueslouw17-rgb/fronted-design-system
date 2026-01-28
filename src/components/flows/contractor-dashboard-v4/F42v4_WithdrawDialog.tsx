@@ -1,6 +1,7 @@
 /**
- * Flow 4.2 — Contractor Dashboard v3
+ * Flow 4.2 — Contractor Dashboard v4
  * Withdraw/Cancel Request Confirmation Dialog
+ * ISOLATED: Changes here do NOT affect v3 or any other flow.
  */
 
 import {
@@ -14,17 +15,17 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-interface F42v3_WithdrawDialogProps {
+interface F42v4_WithdrawDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const F42v3_WithdrawDialog = ({
+export const F42v4_WithdrawDialog = ({
   open,
   onOpenChange,
   onConfirm,
-}: F42v3_WithdrawDialogProps) => {
+}: F42v4_WithdrawDialogProps) => {
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);
