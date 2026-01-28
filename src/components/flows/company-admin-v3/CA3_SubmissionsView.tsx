@@ -181,7 +181,7 @@ const AdjustmentRow = ({
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge 
                 variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30"
+                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/10"
               >
                 Rejected
               </Badge>
@@ -235,7 +235,7 @@ const AdjustmentRow = ({
               </span>
               <Badge 
                 variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30"
+                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 hover:bg-orange-100 dark:hover:bg-orange-500/15"
               >
                 Pending approval
               </Badge>
