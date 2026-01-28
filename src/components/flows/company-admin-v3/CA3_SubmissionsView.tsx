@@ -595,31 +595,21 @@ const LeaveRow = ({
             className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="text-sm font-medium text-foreground">
-                {config.label}
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">
+                  {config.label}
+                </span>
+                <Badge 
+                  variant="outline" 
+                  className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
+                >
+                  Pending approval
+                </Badge>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
               </span>
-              <Badge 
-                variant="outline" 
-                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
-              >
-                Pending approval
-              </Badge>
-              
-              {/* Details shown on hover/expanded */}
-              <AnimatePresence>
-                {showDetails && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.15 }}
-                    className="text-xs text-muted-foreground"
-                  >
-                    · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {formatDateRange(leave.startDate, leave.endDate)}
-                  </motion.span>
-                )}
-              </AnimatePresence>
             </div>
             
             {/* Right side - amount shown on hover/expanded */}
