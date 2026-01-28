@@ -194,20 +194,21 @@ const F41v6_EmployeeDashboardPage = () => {
                     showInput={false} 
                   />
 
-                  {/* Hero Card with Last/Next Payout */}
-                  <F41v6_PayoutHeroCard 
-                    onViewDetails={handleViewDetails}
-                    currency={candidateProfile.currency}
-                  />
-
                   {/* Tabs: Payroll / Adjustments */}
                   <Tabs defaultValue="payroll" className="w-full">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="payroll">Payroll</TabsTrigger>
-                      <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
-                    </TabsList>
+                    <div className="flex justify-center mb-6">
+                      <TabsList>
+                        <TabsTrigger value="payroll">Payroll</TabsTrigger>
+                        <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
+                      </TabsList>
+                    </div>
 
-                    <TabsContent value="payroll" className="mt-0">
+                    <TabsContent value="payroll" className="mt-0 space-y-6">
+                      {/* Hero Card with Last/Next Payout */}
+                      <F41v6_PayoutHeroCard 
+                        onViewDetails={handleViewDetails}
+                        currency={candidateProfile.currency}
+                      />
                       <F41v6_PayslipsSection 
                         currency={candidateProfile.currency}
                         onDownload={handleDownload}
