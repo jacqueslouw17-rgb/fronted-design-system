@@ -743,13 +743,36 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
 
-  // Computed counts
-  const internalPendingCount = submissions.filter(s => s.status === "pending").length;
-  const pendingCount = externalPendingCount ?? internalPendingCount;
-  const readyCount = submissions.filter(s => s.status === "ready").length;
+  // Computed counts - dynamically calculate based on local state overrides
+  const dynamicPendingCount = useMemo(() => {
+    return submissions.reduce((count, submission) => {
+      // Count pending adjustments considering local overrides
+      const pendingAdjustments = submission.submissions.filter((adj, idx) => {
+        const key = `${submission.id}-${idx}`;
+        const localState = adjustmentStates[key];
+        const effectiveStatus = localState?.status || adj.status || 'pending';
+        return effectiveStatus === 'pending';
+      }).length;
+      
+      // Count pending leaves considering local overrides
+      const pendingLeaves = (submission.pendingLeaves || []).filter((leave) => {
+        const key = `${submission.id}-leave-${leave.id}`;
+        const localState = leaveStates[key];
+        const effectiveStatus = localState?.status || leave.status || 'pending';
+        return effectiveStatus === 'pending';
+      }).length;
+      
+      // If worker has any pending items, count as pending worker
+      return count + (pendingAdjustments + pendingLeaves > 0 ? 1 : 0);
+    }, 0);
+  }, [submissions, adjustmentStates, leaveStates]);
   
-  // Can continue only when no pending submissions
-  const canContinue = pendingCount === 0;
+  const internalPendingCount = submissions.filter(s => s.status === "pending").length;
+  const pendingCount = externalPendingCount ?? dynamicPendingCount;
+  const readyCount = submissions.length - dynamicPendingCount;
+  
+  // Can continue only when no pending submissions (using dynamic count)
+  const canContinue = dynamicPendingCount === 0;
 
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
