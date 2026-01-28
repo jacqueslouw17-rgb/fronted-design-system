@@ -23,7 +23,7 @@ interface F42v5_WithdrawDialogProps {
   onConfirm: () => void;
 }
 
-export const F42v5_WithdrawDialog = ({
+export const F42v6_WithdrawDialog = ({
   open,
   onOpenChange,
   onConfirm,

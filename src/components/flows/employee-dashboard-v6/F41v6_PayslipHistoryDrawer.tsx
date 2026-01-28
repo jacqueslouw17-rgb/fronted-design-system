@@ -1,8 +1,8 @@
 /**
- * Flow 4.1 — Employee Dashboard v5
+ * Flow 4.1 — Employee Dashboard v6
  * Previous Payslips History Drawer (right-side panel)
  * Now with detail view when clicking a payslip
- * INDEPENDENT from v4 and all other flows.
+ * INDEPENDENT from v5 and all other flows.
  */
 
 import { useState } from 'react';
@@ -38,7 +38,7 @@ interface Payslip {
   overtimeAmount?: number;
 }
 
-interface F41v5_PayslipHistoryDrawerProps {
+interface F41v6_PayslipHistoryDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -154,10 +154,10 @@ const BreakdownRow = ({
   </div>
 );
 
-export const F41v5_PayslipHistoryDrawer = ({
+export const F41v6_PayslipHistoryDrawer = ({
   open,
   onOpenChange,
-}: F41v5_PayslipHistoryDrawerProps) => {
+}: F41v6_PayslipHistoryDrawerProps) => {
   const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
 
   const handleDownload = (payslip: Payslip, e?: React.MouseEvent) => {

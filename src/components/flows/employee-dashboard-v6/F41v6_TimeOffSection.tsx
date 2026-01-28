@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v5
+ * Flow 4.1 — Employee Dashboard v6
  * Leave Requests Section - Clean, minimal design with emoji balance display
- * INDEPENDENT: This is a complete clone - changes here do NOT affect v4 or any other flow.
+ * INDEPENDENT: This is a complete clone - changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useMemo } from 'react';
@@ -10,13 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Info, X, RotateCcw, CalendarDays } from 'lucide-react';
-import { useF41v5_DashboardStore, type F41v5_LeaveRequest } from '@/stores/F41v5_DashboardStore';
+import { useF41v6_DashboardStore, type F41v6_LeaveRequest } from '@/stores/F41v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { F41v5_WithdrawDialog } from './F41v5_WithdrawDialog';
+import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
 import { toast } from 'sonner';
 
-interface F41v5_TimeOffSectionProps {
+interface F41v6_TimeOffSectionProps {
   onRequestTimeOff: (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => void;
 }
 
@@ -33,19 +33,15 @@ interface ProcessedLeave {
   totalDays: number;
   daysInCurrentPeriod: number;
   daysInNextPeriod: number;
-  status: F41v5_LeaveRequest['status'];
+  status: F41v6_LeaveRequest['status'];
   spansPeriods: boolean;
   isInCurrentPeriod: boolean;
   isInLater: boolean;
   rejectionReason?: string;
 }
 
-interface F41v5_TimeOffSectionProps {
-  onRequestTimeOff: (rejectedId?: string, leaveType?: string, startDate?: string, endDate?: string, rejectionReason?: string) => void;
-}
-
-export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionProps) => {
-  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v5_DashboardStore();
+export const F41v6_TimeOffSection = ({ onRequestTimeOff }: F41v6_TimeOffSectionProps) => {
+  const { leaveRequests, withdrawLeaveRequest, payrollStatus } = useF41v6_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   
@@ -147,7 +143,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
     }
   };
 
-  const getStatusBadge = (status: F41v5_LeaveRequest['status']) => {
+  const getStatusBadge = (status: F41v6_LeaveRequest['status']) => {
     switch (status) {
       case 'Pending':
         return (
@@ -313,7 +309,7 @@ export const F41v5_TimeOffSection = ({ onRequestTimeOff }: F41v5_TimeOffSectionP
         </CardContent>
       </Card>
       
-      <F41v5_WithdrawDialog
+      <F41v6_WithdrawDialog
         open={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}

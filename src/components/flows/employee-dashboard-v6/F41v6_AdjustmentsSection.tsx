@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v5
+ * Flow 4.1 — Employee Dashboard v6
  * Adjustments Section - Shows pending & rejected adjustments only
- * INDEPENDENT: Changes here do NOT affect v4 or any other flow.
+ * INDEPENDENT: Changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useMemo } from 'react';
@@ -10,18 +10,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { X, RotateCcw, Receipt } from 'lucide-react';
-import { useF41v5_DashboardStore, type F41v5_Adjustment } from '@/stores/F41v5_DashboardStore';
+import { useF41v6_DashboardStore, type F41v6_Adjustment } from '@/stores/F41v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { F41v5_WithdrawDialog } from './F41v5_WithdrawDialog';
+import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
 import { toast } from 'sonner';
 
-interface F41v5_AdjustmentsSectionProps {
+interface F41v6_AdjustmentsSectionProps {
   onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => void;
 }
 
-export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_AdjustmentsSectionProps) => {
-  const { adjustments, payrollStatus, withdrawAdjustment, resubmittedRejectionIds } = useF41v5_DashboardStore();
+export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_AdjustmentsSectionProps) => {
+  const { adjustments, payrollStatus, withdrawAdjustment, resubmittedRejectionIds } = useF41v6_DashboardStore();
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [withdrawTargetId, setWithdrawTargetId] = useState<string | null>(null);
   
@@ -67,7 +67,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
     }
   };
 
-  const handleResubmit = (adj: F41v5_Adjustment) => {
+  const handleResubmit = (adj: F41v6_Adjustment) => {
     // Open adjustment modal with pre-filled data including rejected ID
     const typeMap: Record<string, string> = {
       'Expense': 'expense',
@@ -86,7 +86,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
     );
   };
 
-  const getStatusBadge = (status: F41v5_Adjustment['status']) => {
+  const getStatusBadge = (status: F41v6_Adjustment['status']) => {
     switch (status) {
       case 'Pending':
         return (
@@ -105,7 +105,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
     }
   };
 
-  const getTypeLabel = (type: F41v5_Adjustment['type']) => {
+  const getTypeLabel = (type: F41v6_Adjustment['type']) => {
     switch (type) {
       case 'Expense': return 'Expense';
       case 'Overtime': return 'Overtime';
@@ -115,7 +115,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
     }
   };
 
-  const renderAdjustmentRow = (adj: F41v5_Adjustment) => {
+  const renderAdjustmentRow = (adj: F41v6_Adjustment) => {
     const isPending = adj.status === 'Pending';
     const isRejected = adj.status === 'Admin rejected';
     
@@ -230,7 +230,7 @@ export const F41v5_AdjustmentsSection = ({ onRequestAdjustment }: F41v5_Adjustme
         </CardContent>
       </Card>
       
-      <F41v5_WithdrawDialog
+      <F41v6_WithdrawDialog
         open={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
         onConfirm={handleConfirmWithdraw}

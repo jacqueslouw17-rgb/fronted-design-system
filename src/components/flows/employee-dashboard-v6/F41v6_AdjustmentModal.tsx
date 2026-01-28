@@ -1,7 +1,7 @@
 /**
- * Flow 4.1 — Employee Dashboard v5
+ * Flow 4.1 — Employee Dashboard v6
  * Request Change Drawer with tile-based type selection
- * INDEPENDENT: This is a complete clone - changes here do NOT affect v4 or any other flow.
+ * INDEPENDENT: This is a complete clone - changes here do NOT affect v5 or any other flow.
  */
 
 import { useState, useEffect } from 'react';
@@ -25,16 +25,16 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import { useF41v5_DashboardStore } from '@/stores/F41v5_DashboardStore';
+import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
 import { cn } from '@/lib/utils';
 import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { F41v5_TimeInput } from './F41v5_TimeInput';
+import { F41v6_TimeInput } from './F41v6_TimeInput';
 
 export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
 
-interface F41v5_AdjustmentModalProps {
+interface F41v6_AdjustmentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: string;
@@ -98,8 +98,8 @@ const requestTypeOptions = [
   },
 ];
 
-export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v5_AdjustmentModalProps) => {
-  const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v5_DashboardStore();
+export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v6_AdjustmentModalProps) => {
+  const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v6_DashboardStore();
 
   const rejectedAdjustment = rejectedId
     ? adjustments.find((adj) => adj.id === rejectedId)
@@ -500,448 +500,342 @@ export const F41v5_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
               </SheetTitle>
-              <SheetDescription>
-                {selectedType === null && 'Submit an adjustment for the current pay cycle.'}
-                {selectedType === 'expense' && 'Submit an expense for reimbursement.'}
-                {selectedType === 'overtime' && 'Log overtime hours worked.'}
-                {selectedType === 'bonus-correction' && 'Request a bonus for this pay period.'}
+              <SheetDescription className="text-xs mt-0.5">
+                {selectedType === null && 'Submit an adjustment for the current pay cycle'}
+                {selectedType === 'expense' && 'Submit expenses for reimbursement'}
+                {selectedType === 'overtime' && 'Log your overtime hours'}
+                {selectedType === 'bonus-correction' && 'Request a bonus payment'}
               </SheetDescription>
             </div>
           </div>
         </SheetHeader>
 
-        <div className="py-6">
-          {/* Rejection Reason Notice (shown on resubmission) */}
+        <div className="py-6 space-y-6">
+          {/* Rejection notification for resubmissions */}
           {!!rejectedId && rejectionReason && (
-            <div className="mb-5 flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 dark:bg-destructive/10 border border-destructive/20">
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
               <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <p className="text-xs font-medium text-destructive">Rejected by admin</p>
-                <p className="text-sm text-destructive/80 dark:text-destructive/90">{rejectionReason}</p>
+                <p className="text-sm text-destructive/80">{rejectionReason}</p>
               </div>
             </div>
           )}
 
+          {/* Type Selection */}
           {selectedType === null && (
-            <div className="grid grid-cols-3 gap-2">
-              {requestTypeOptions.map((option) => {
-                const Icon = option.icon;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => setSelectedType(option.id)}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/60 bg-card hover:border-primary/50 hover:bg-primary/[0.02] transition-all text-center group"
-                  >
-                    <div className="p-2.5 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                      <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-foreground">{option.label}</p>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-1 gap-3">
+              {requestTypeOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => !option.disabled && setSelectedType(option.id)}
+                  disabled={option.disabled}
+                  className={cn(
+                    "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
+                    option.disabled
+                      ? "opacity-50 cursor-not-allowed border-border/40"
+                      : "border-border/60 hover:border-primary/50 hover:bg-primary/[0.02]"
+                  )}
+                >
+                  <div className="p-2.5 rounded-lg bg-muted/50">
+                    <option.icon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">{option.label}</p>
+                    <p className="text-xs text-muted-foreground">{option.description}</p>
+                  </div>
+                </button>
+              ))}
             </div>
           )}
 
+          {/* Expense Form */}
           {selectedType === 'expense' && (
-            <div className="space-y-5">
-              <div className="space-y-3">
-                {expenseItems.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
-                  >
+            <div className="space-y-4">
+              {expenseItems.map((item, index) => (
+                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {expenseItems.length > 1 ? `Expense ${index + 1}` : 'Expense details'}
+                    </span>
                     {expenseItems.length > 1 && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeExpenseItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
+                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
                       >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-                    {expenseItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Expense {index + 1}
-                        </span>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Category</Label>
-                        <Select 
-                          value={item.category} 
-                          onValueChange={(val) => {
-                            updateExpenseItem(item.id, 'category', val);
-                            if (val !== 'Other') {
-                              updateExpenseItem(item.id, 'otherCategory', '');
-                            }
-                          }}
-                        >
-                          <SelectTrigger className={cn(
-                            "h-9",
-                            errors[`expense_${index}_category`] && 'border-destructive'
-                          )}>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {expenseCategories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Amount ({currency})</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          placeholder="0.00"
-                          value={item.amount}
-                          onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`expense_${index}_amount`] && 'border-destructive'
-                          )}
-                        />
-                      </div>
-                    </div>
-                    {item.category === 'Other' && (
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Specify category</Label>
-                        <Input
-                          type="text"
-                          placeholder="e.g., Office supplies"
-                          value={item.otherCategory}
-                          onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
-                          className={cn(
-                            "h-9",
-                            errors[`expense_${index}_otherCategory`] && 'border-destructive'
-                          )}
-                        />
-                        {errors[`expense_${index}_otherCategory`] && (
-                          <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
-                        )}
-                      </div>
-                    )}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Receipt</Label>
-                      {item.receipt ? (
-                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {item.receipt.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary" />
-                          )}
-                          <span className="text-xs text-foreground truncate flex-1">
-                            {item.receipt.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateExpenseItem(item.id, 'receipt', null)}
-                            className="p-1 rounded hover:bg-muted"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className={cn(
-                          "flex items-center gap-2 p-2 rounded-lg border border-dashed cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]",
-                          errors[`expense_${index}_receipt`] ? 'border-destructive' : 'border-border/60'
-                        )}>
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Upload receipt</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                updateExpenseItem(item.id, 'receipt', file);
-                                setErrors(prev => {
-                                  const { [`expense_${index}_receipt`]: _, ...rest } = prev;
-                                  return rest;
-                                });
-                              }
-                            }}
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addExpenseItem}
-                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-                >
-                  <span className="text-lg leading-none">+</span>
-                  Add another expense
-                </button>
-              </div>
-              {expenseItems.length > 1 && expenseItems.some(item => item.amount) && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <span className="text-sm text-muted-foreground">Total ({expenseItems.length} items)</span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
-                    {currency} {expenseItems
-                      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
-                      .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-              )}
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitExpenses} className="flex-1">
-                  Submit {expenseItems.length > 1 ? `${expenseItems.length} expenses` : 'expense'}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {selectedType === 'overtime' && (
-            <div className="space-y-5">
-              <div className="space-y-3">
-                {overtimeItems.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
-                  >
-                    {overtimeItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeOvertimeItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    )}
-                    {overtimeItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Entry {index + 1}
-                        </span>
-                      </div>
-                    )}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Date</Label>
-                      <Popover 
-                        open={openDatePopoverId === item.id} 
-                        onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full h-9 justify-start text-left font-normal",
-                              !item.date && "text-muted-foreground",
-                              errors[`overtime_${index}_date`] && 'border-destructive'
-                            )}
-                          >
-                            {item.date ? format(item.date, 'PPP') : <span>Select date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={item.date}
-                            onSelect={(date) => {
-                              updateOvertimeItem(item.id, 'date', date);
-                              setOpenDatePopoverId(null);
-                            }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                            disabled={(date) => date > new Date()}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Start time</Label>
-                        <F41v5_TimeInput
-                          value={item.startTime}
-                          onChange={(val) => updateOvertimeItem(item.id, 'startTime', val)}
-                          hasError={!!errors[`overtime_${index}_startTime`]}
-                        />
-                        {errors[`overtime_${index}_startTime`] && (
-                          <p className="text-xs text-destructive">{errors[`overtime_${index}_startTime`]}</p>
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">End time</Label>
-                        <F41v5_TimeInput
-                          value={item.endTime}
-                          onChange={(val) => updateOvertimeItem(item.id, 'endTime', val)}
-                          hasError={!!errors[`overtime_${index}_endTime`]}
-                        />
-                        {errors[`overtime_${index}_endTime`] && (
-                          <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
-                        )}
-                      </div>
-                    </div>
-                    {item.calculatedHours > 0 && (
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-primary/5 border border-primary/20">
-                        <span className="text-xs text-muted-foreground">Duration</span>
-                        <span className="text-sm font-semibold text-primary tabular-nums">
-                          {item.calculatedHours}h
-                        </span>
-                      </div>
+                        <X className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addOvertimeItem}
-                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-                >
-                  <span className="text-lg leading-none">+</span>
-                  Add another entry
-                </button>
-              </div>
-              {(overtimeItems.length > 1 || overtimeItems.some(item => item.calculatedHours > 0)) && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <span className="text-sm text-muted-foreground">
-                    Total {overtimeItems.length > 1 ? `(${overtimeItems.length} entries)` : ''}
-                  </span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
-                    {overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0)}h
-                  </span>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Overtime is reviewed by your company before payroll approval. Rate per company policy.
-              </p>
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitOvertime} className="flex-1">
-                  Submit {overtimeItems.length > 1 ? `${overtimeItems.length} entries` : 'request'}
-                </Button>
-              </div>
-            </div>
-          )}
 
-          {selectedType === 'bonus-correction' && (
-            <div className="space-y-5">
-              <div className="space-y-3">
-                {bonusItems.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className="p-4 rounded-xl border border-border/60 bg-card/50 space-y-3 relative group"
-                  >
-                    {bonusItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeBonusItem(item.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full bg-muted border border-border/60 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:border-destructive/30"
-                      >
-                        <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Select
+                      value={item.category}
+                      onValueChange={(value) => updateExpenseItem(item.id, 'category', value)}
+                    >
+                      <SelectTrigger className={errors[`expense_${index}_category`] ? 'border-destructive' : ''}>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {expenseCategories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors[`expense_${index}_category`] && (
+                      <p className="text-xs text-destructive">{errors[`expense_${index}_category`]}</p>
                     )}
-                    {bonusItems.length > 1 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                          Bonus {index + 1}
-                        </span>
-                      </div>
-                    )}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Amount ({currency})</Label>
+                  </div>
+
+                  {item.category === 'Other' && (
+                    <div className="space-y-2">
+                      <Label>Specify category</Label>
                       <Input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="0.00"
-                        value={item.amount}
-                        onChange={(e) => updateBonusItem(item.id, 'amount', e.target.value)}
-                        className={cn(
-                          "h-9",
-                          errors[`bonus_${index}_amount`] && 'border-destructive'
-                        )}
+                        value={item.otherCategory}
+                        onChange={(e) => updateExpenseItem(item.id, 'otherCategory', e.target.value)}
+                        placeholder="Enter category name"
+                        className={errors[`expense_${index}_otherCategory`] ? 'border-destructive' : ''}
                       />
-                      {errors[`bonus_${index}_amount`] && (
-                        <p className="text-xs text-destructive">{errors[`bonus_${index}_amount`]}</p>
+                      {errors[`expense_${index}_otherCategory`] && (
+                        <p className="text-xs text-destructive">{errors[`expense_${index}_otherCategory`]}</p>
                       )}
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Attachment (optional)</Label>
-                      {item.attachment ? (
-                        <div className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/30">
-                          {item.attachment.type.startsWith('image/') ? (
-                            <Image className="h-4 w-4 text-primary" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-primary" />
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Amount ({currency})</Label>
+                    <Input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
+                      placeholder="0.00"
+                      className={errors[`expense_${index}_amount`] ? 'border-destructive' : ''}
+                    />
+                    {errors[`expense_${index}_amount`] && (
+                      <p className="text-xs text-destructive">{errors[`expense_${index}_amount`]}</p>
+                    )}
+                  </div>
+
+                  {renderFileUpload(
+                    item.receipt,
+                    (file) => updateExpenseItem(item.id, 'receipt', file),
+                    `expense_${index}_receipt`,
+                    true
+                  )}
+                </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addExpenseItem}
+                className="w-full"
+              >
+                + Add another expense
+              </Button>
+
+              {expenseItems.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {currency} {expenseItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <Button onClick={handleSubmitExpenses} className="w-full">
+                Request adjustment
+              </Button>
+            </div>
+          )}
+
+          {/* Overtime Form */}
+          {selectedType === 'overtime' && (
+            <div className="space-y-4">
+              {overtimeItems.map((item, index) => (
+                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {overtimeItems.length > 1 ? `Entry ${index + 1}` : 'Overtime details'}
+                    </span>
+                    {overtimeItems.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOvertimeItem(item.id)}
+                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Popover
+                      open={openDatePopoverId === item.id}
+                      onOpenChange={(open) => setOpenDatePopoverId(open ? item.id : null)}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !item.date && "text-muted-foreground",
+                            errors[`overtime_${index}_date`] && "border-destructive"
                           )}
-                          <span className="text-xs text-foreground truncate flex-1">
-                            {item.attachment.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateBonusItem(item.id, 'attachment', null)}
-                            className="p-1 rounded hover:bg-muted"
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="flex items-center gap-2 p-2 rounded-lg border border-dashed border-border/60 cursor-pointer transition-colors hover:border-primary/50 hover:bg-primary/[0.02]">
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Upload document</span>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                updateBonusItem(item.id, 'attachment', file);
-                              }
-                            }}
-                          />
-                        </label>
+                        >
+                          {item.date ? format(item.date, 'PPP') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={item.date}
+                          onSelect={(date) => {
+                            updateOvertimeItem(item.id, 'date', date);
+                            setOpenDatePopoverId(null);
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors[`overtime_${index}_date`] && (
+                      <p className="text-xs text-destructive">{errors[`overtime_${index}_date`]}</p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Start time</Label>
+                      <F41v6_TimeInput
+                        value={item.startTime}
+                        onChange={(value) => updateOvertimeItem(item.id, 'startTime', value)}
+                        hasError={!!errors[`overtime_${index}_startTime`]}
+                      />
+                      {errors[`overtime_${index}_startTime`] && (
+                        <p className="text-xs text-destructive">{errors[`overtime_${index}_startTime`]}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End time</Label>
+                      <F41v6_TimeInput
+                        value={item.endTime}
+                        onChange={(value) => updateOvertimeItem(item.id, 'endTime', value)}
+                        hasError={!!errors[`overtime_${index}_endTime`]}
+                      />
+                      {errors[`overtime_${index}_endTime`] && (
+                        <p className="text-xs text-destructive">{errors[`overtime_${index}_endTime`]}</p>
                       )}
                     </div>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addBonusItem}
-                  className="w-full p-3 rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/[0.02] transition-colors flex items-center justify-center gap-2"
-                >
-                  <span className="text-lg leading-none">+</span>
-                  Add another bonus
-                </button>
-              </div>
-              {(bonusItems.length > 1 || bonusItems.some(item => item.amount)) && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/40">
-                  <span className="text-sm text-muted-foreground">
-                    Total {bonusItems.length > 1 ? `(${bonusItems.length} requests)` : ''}
-                  </span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
-                    {currency} {bonusItems
-                      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
-                      .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+
+                  {item.calculatedHours > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {item.calculatedHours}h calculated
+                    </Badge>
+                  )}
+                </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addOvertimeItem}
+                className="w-full"
+              >
+                + Add another entry
+              </Button>
+
+              {overtimeItems.some(item => item.calculatedHours > 0) && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Total hours</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {overtimeItems.reduce((sum, item) => sum + item.calculatedHours, 0)}h
+                    </span>
+                  </div>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                This request is subject to admin approval before being included.
-              </p>
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitBonus} className="flex-1">
-                  Submit {bonusItems.length > 1 ? `${bonusItems.length} requests` : 'request'}
-                </Button>
-              </div>
+
+              <Button onClick={handleSubmitOvertime} className="w-full">
+                Request adjustment
+              </Button>
+            </div>
+          )}
+
+          {/* Bonus Form */}
+          {selectedType === 'bonus-correction' && (
+            <div className="space-y-4">
+              {bonusItems.map((item, index) => (
+                <div key={item.id} className="p-4 rounded-lg border border-border/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {bonusItems.length > 1 ? `Bonus ${index + 1}` : 'Bonus details'}
+                    </span>
+                    {bonusItems.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeBonusItem(item.id)}
+                        className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Amount ({currency})</Label>
+                    <Input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => updateBonusItem(item.id, 'amount', e.target.value)}
+                      placeholder="0.00"
+                      className={errors[`bonus_${index}_amount`] ? 'border-destructive' : ''}
+                    />
+                    {errors[`bonus_${index}_amount`] && (
+                      <p className="text-xs text-destructive">{errors[`bonus_${index}_amount`]}</p>
+                    )}
+                  </div>
+
+                  {renderFileUpload(
+                    item.attachment,
+                    (file) => updateBonusItem(item.id, 'attachment', file),
+                    `bonus_${index}_attachment`,
+                    false
+                  )}
+                </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addBonusItem}
+                className="w-full"
+              >
+                + Add another bonus
+              </Button>
+
+              {bonusItems.length > 0 && (
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Session total</span>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {currency} {bonusItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <Button onClick={handleSubmitBonus} className="w-full">
+                Request adjustment
+              </Button>
             </div>
           )}
         </div>

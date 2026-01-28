@@ -17,16 +17,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useF42v5_DashboardStore } from '@/stores/F42v5_DashboardStore';
+import { useF42v6_DashboardStore } from '@/stores/F42v6_DashboardStore';
 
-interface F42v5_ConfirmInvoiceDialogProps {
+interface F42v6_ConfirmInvoiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   periodLabel: string;
 }
 
-export const F42v5_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v5_ConfirmInvoiceDialogProps) => {
-  const { submitInvoice } = useF42v5_DashboardStore();
+export const F42v6_ConfirmInvoiceDialog = ({ open, onOpenChange, periodLabel }: F42v6_ConfirmInvoiceDialogProps) => {
+  const { submitInvoice } = useF42v6_DashboardStore();
 
   const handleConfirm = () => {
     submitInvoice();
