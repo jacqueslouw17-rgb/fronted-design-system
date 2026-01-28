@@ -210,31 +210,44 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-5">
-          <div className={`flex items-start justify-between ${visibleAdjustments.length > 0 ? 'mb-4' : ''}`}>
-            <div>
+          {visibleAdjustments.length === 0 ? (
+            /* Empty state - centered layout */
+            <div className="flex flex-col items-center text-center py-4">
               <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
-              <p className="text-sm text-muted-foreground">
-                {visibleAdjustments.length === 0 
-                  ? 'No pending adjustments'
-                  : `${pendingCount > 0 ? `${pendingCount} pending` : ''}${pendingCount > 0 && rejectedCount > 0 ? ' · ' : ''}${rejectedCount > 0 ? `${rejectedCount} rejected` : ''}`
-                }
-              </p>
+              <p className="text-sm text-muted-foreground mb-4">No pending adjustments</p>
+              <Button 
+                onClick={() => onRequestAdjustment()}
+                size="sm"
+                variant="outline"
+              >
+                Request adjustment
+              </Button>
             </div>
-            
-            <Button 
-              onClick={() => onRequestAdjustment()}
-              size="sm"
-              variant="outline"
-              className="shrink-0"
-            >
-              Request adjustment
-            </Button>
-          </div>
-          
-          {visibleAdjustments.length > 0 && (
-            <div className="space-y-2">
-              {visibleAdjustments.map(adj => renderAdjustmentRow(adj))}
-            </div>
+          ) : (
+            /* Has items - standard layout */
+            <>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {`${pendingCount > 0 ? `${pendingCount} pending` : ''}${pendingCount > 0 && rejectedCount > 0 ? ' · ' : ''}${rejectedCount > 0 ? `${rejectedCount} rejected` : ''}`}
+                  </p>
+                </div>
+                
+                <Button 
+                  onClick={() => onRequestAdjustment()}
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0"
+                >
+                  Request adjustment
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {visibleAdjustments.map(adj => renderAdjustmentRow(adj))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
