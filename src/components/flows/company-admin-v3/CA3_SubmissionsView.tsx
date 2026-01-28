@@ -928,23 +928,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
           </div>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground leading-tight">
             <span>{submission.workerCountry}</span>
-            <span className="text-muted-foreground/40">·</span>
-            {submission.submissions.slice(0, 2).map((sub, idx) => {
-              const config = submissionTypeConfig[sub.type];
-              return (
-                <span key={idx} className="text-muted-foreground">
-                  {config.label}{idx < Math.min(submission.submissions.length, 2) - 1 && ", "}
-                </span>
-              );
-            })}
-            {submission.submissions.length > 2 && (
-              <span>+{submission.submissions.length - 2}</span>
-            )}
-            {/* Show leave indicator if pending leaves exist */}
-            {pendingLeaveCount > 0 && (
+            {/* Only show submission types for pending workers */}
+            {effectiveWorkerStatus === "pending" && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <span className="text-accent-amber-text">{pendingLeaveCount} leave</span>
+                {submission.submissions.slice(0, 2).map((sub, idx) => {
+                  const config = submissionTypeConfig[sub.type];
+                  return (
+                    <span key={idx} className="text-muted-foreground">
+                      {config.label}{idx < Math.min(submission.submissions.length, 2) - 1 && ", "}
+                    </span>
+                  );
+                })}
+                {submission.submissions.length > 2 && (
+                  <span>+{submission.submissions.length - 2}</span>
+                )}
+                {/* Show leave indicator if pending leaves exist */}
+                {pendingLeaveCount > 0 && (
+                  <>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span className="text-orange-600 dark:text-orange-400">{pendingLeaveCount} leave</span>
+                  </>
+                )}
               </>
             )}
           </div>
