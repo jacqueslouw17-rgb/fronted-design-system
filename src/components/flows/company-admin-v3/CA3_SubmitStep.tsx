@@ -221,19 +221,57 @@ export const CA3_SubmitStep: React.FC<CA3_SubmitStepProps> = ({
                       Based on current rates · EUR 1.08 · PHP 0.018 · NOK 0.089
                     </p>
                     
-                    {/* Elegant receipt-style breakdown */}
+                    {/* Enhanced receipt-style breakdown with review summary */}
                     <div className="mt-4 pt-3 border-t border-primary/10 space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Gross pay</span>
-                        <span className="text-foreground tabular-nums">$124,800</span>
+                        <span className="text-muted-foreground">Base salaries & fees</span>
+                        <span className="text-foreground tabular-nums">$118,500</span>
                       </div>
+                      
+                      {/* Approved adjustments - positive impact */}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                          Approved adjustments
+                          <span className="text-[10px] text-muted-foreground/70">(3 items)</span>
+                        </span>
+                        <span className="text-accent-green-text tabular-nums">+$6,300</span>
+                      </div>
+                      
+                      {/* Rejected adjustments - show what was NOT included */}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <XCircle className="h-3 w-3 text-muted-foreground/50" />
+                          Rejected
+                          <span className="text-[10px] text-muted-foreground/70">(1 item)</span>
+                        </span>
+                        <span className="text-muted-foreground/60 tabular-nums line-through">$1,200</span>
+                      </div>
+                      
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">Fronted fees</span>
                         <span className="text-foreground tabular-nums">$3,792</span>
                       </div>
+                      
                       <div className="flex items-center justify-between text-xs pt-1.5 border-t border-primary/10">
                         <span className="text-primary/80 font-medium">Net payout</span>
                         <span className="text-primary font-medium tabular-nums">$128,592</span>
+                      </div>
+                    </div>
+                    
+                    {/* Review summary badges */}
+                    <div className="mt-3 pt-3 border-t border-primary/10 flex flex-wrap gap-2">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-accent-green-fill/10 border border-accent-green-outline/20">
+                        <CheckCircle2 className="h-3 w-3 text-accent-green-text" />
+                        <span className="text-[10px] font-medium text-accent-green-text">3 approved</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/30 border border-border/40">
+                        <XCircle className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-[10px] font-medium text-muted-foreground">1 rejected</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                        <Clock className="h-3 w-3 text-blue-600" />
+                        <span className="text-[10px] font-medium text-blue-600">2 leaves approved</span>
                       </div>
                     </div>
                   </div>
