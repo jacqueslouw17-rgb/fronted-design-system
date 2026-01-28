@@ -113,6 +113,7 @@ const F41v6_EmployeeDashboardPage = () => {
     amount?: string;
     rejectedId?: string;
     hours?: number;
+    days?: number;
     date?: string;
     startTime?: string;
     endTime?: string;
@@ -154,9 +155,10 @@ const F41v6_EmployeeDashboardPage = () => {
     hours?: number,
     date?: string,
     startTime?: string,
-    endTime?: string
+    endTime?: string,
+    days?: number
   ) => {
-    setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime });
+    setAdjustmentPrefill({ type, category, amount, rejectedId, hours, date, startTime, endTime, days });
     setAdjustmentModalOpen(true);
   };
 
@@ -249,6 +251,7 @@ const F41v6_EmployeeDashboardPage = () => {
             initialExpenseAmount={adjustmentPrefill.amount}
             rejectedId={adjustmentPrefill.rejectedId}
             initialHours={adjustmentPrefill.hours}
+            initialDays={adjustmentPrefill.days}
             initialDate={adjustmentPrefill.date}
             initialStartTime={adjustmentPrefill.startTime}
             initialEndTime={adjustmentPrefill.endTime}

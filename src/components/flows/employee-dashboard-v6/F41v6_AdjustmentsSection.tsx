@@ -17,7 +17,7 @@ import { F41v6_WithdrawDialog } from './F41v6_WithdrawDialog';
 import { toast } from 'sonner';
 
 interface F41v6_AdjustmentsSectionProps {
-  onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string) => void;
+  onRequestAdjustment: (type?: string, category?: string, amount?: string, rejectedId?: string, hours?: number, date?: string, startTime?: string, endTime?: string, days?: number) => void;
 }
 
 export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_AdjustmentsSectionProps) => {
@@ -72,7 +72,8 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
     const typeMap: Record<string, string> = {
       'Expense': 'expense',
       'Overtime': 'overtime',
-      'Bonus': 'bonus-correction'
+      'Bonus': 'bonus-correction',
+      'Unpaid Leave': 'unpaid-leave'
     };
     onRequestAdjustment(
       typeMap[adj.type] || 'expense',
@@ -82,7 +83,8 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
       adj.hours,
       adj.date,
       adj.startTime,
-      adj.endTime
+      adj.endTime,
+      adj.days
     );
   };
 
@@ -111,8 +113,15 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
       case 'Overtime': return 'Overtime';
       case 'Bonus': return 'Bonus';
       case 'Correction': return 'Correction';
+      case 'Unpaid Leave': return 'Unpaid Leave';
       default: return type;
     }
+  };
+
+  const getDisplayValue = (adj: F41v6_Adjustment) => {
+    if (adj.type === 'Overtime' && adj.hours) return `${adj.hours}h`;
+    if (adj.type === 'Unpaid Leave' && adj.days) return `${adj.days}d`;
+    return formatAmount(adj.amount);
   };
 
   const renderAdjustmentRow = (adj: F41v6_Adjustment) => {
@@ -139,7 +148,7 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
           <span className="text-muted-foreground/40 text-xs">·</span>
           
           <span className="text-xs text-foreground font-medium tabular-nums">
-            {adj.type === 'Overtime' && adj.hours ? `${adj.hours}h` : formatAmount(adj.amount)}
+            {getDisplayValue(adj)}
           </span>
           
           {getStatusBadge(adj.status)}

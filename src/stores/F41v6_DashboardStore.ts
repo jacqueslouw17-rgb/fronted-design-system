@@ -12,7 +12,7 @@ import { create } from 'zustand';
 export type F41v6_PayrollStatus = 'draft' | 'submitted' | 'returned' | 'approved' | 'finalised' | 'rejected';
 
 export type F41v6_WindowState = 'OPEN' | 'CLOSED' | 'PAID' | 'NONE';
-export type F41v6_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction';
+export type F41v6_AdjustmentType = 'Expense' | 'Overtime' | 'Bonus' | 'Correction' | 'Unpaid Leave';
 export type F41v6_AdjustmentStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
 export type F41v6_LeaveType = 'Vacation' | 'Sick' | 'Compassionate' | 'Maternity';
 export type F41v6_LeaveStatus = 'Pending' | 'Admin approved' | 'Admin rejected' | 'Queued for next cycle';
@@ -37,6 +37,7 @@ export interface F41v6_Adjustment {
   status: F41v6_AdjustmentStatus;
   description?: string;
   category?: string;
+  days?: number; // For unpaid leave
   hours?: number;
   // For overtime resubmissions
   date?: string;
@@ -150,6 +151,16 @@ const initialState: F41v6_DashboardState = {
   approvedAt: undefined,
   confirmed: false,
   adjustments: [
+    // Mock unpaid leave
+    {
+      id: 'adj-demo-unpaid-leave-1',
+      type: 'Unpaid Leave' as F41v6_AdjustmentType,
+      label: '2 days unpaid leave',
+      amount: null,
+      status: 'Pending' as F41v6_AdjustmentStatus,
+      days: 2,
+      submittedAt: '2026-01-22T10:00:00.000Z',
+    },
     // Mock pending adjustment
     {
       id: 'adj-demo-pending-1',

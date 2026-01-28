@@ -27,12 +27,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { useF41v6_DashboardStore } from '@/stores/F41v6_DashboardStore';
 import { cn } from '@/lib/utils';
-import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle } from 'lucide-react';
+import { Upload, X, FileText, Image, ArrowLeft, Receipt, Clock, Gift, AlertTriangle, CalendarOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { F41v6_TimeInput } from './F41v6_TimeInput';
 
-export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | null;
+export type RequestType = 'leave' | 'expense' | 'overtime' | 'bonus-correction' | 'unpaid-leave' | null;
 
 interface F41v6_AdjustmentModalProps {
   open: boolean;
@@ -42,6 +42,7 @@ interface F41v6_AdjustmentModalProps {
   initialExpenseCategory?: string;
   initialExpenseAmount?: string;
   initialHours?: number;
+  initialDays?: number; // For unpaid leave
   initialDate?: string;
   initialStartTime?: string;
   initialEndTime?: string;
@@ -96,9 +97,16 @@ const requestTypeOptions = [
     icon: Gift,
     disabled: false 
   },
+  { 
+    id: 'unpaid-leave' as RequestType, 
+    label: 'Unpaid Leave', 
+    description: 'Request time off without pay',
+    icon: CalendarOff,
+    disabled: false 
+  },
 ];
 
-export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v6_AdjustmentModalProps) => {
+export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialType = null, initialExpenseCategory = '', initialExpenseAmount = '', initialHours, initialDays, initialDate, initialStartTime, initialEndTime, rejectedId, onBack }: F41v6_AdjustmentModalProps) => {
   const { addAdjustment, markRejectionResubmitted, adjustments } = useF41v6_DashboardStore();
 
   const rejectedAdjustment = rejectedId
@@ -121,6 +129,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
   const [bonusItems, setBonusItems] = useState<BonusLineItem[]>([
     { id: crypto.randomUUID(), amount: '', attachment: null }
   ]);
+  const [unpaidLeaveDays, setUnpaidLeaveDays] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [openDatePopoverId, setOpenDatePopoverId] = useState<string | null>(null);
 
@@ -134,6 +143,7 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     setExpenseNotes('');
     setOvertimeItems([{ id: crypto.randomUUID(), date: undefined, startTime: '', endTime: '', calculatedHours: 0 }]);
     setBonusItems([{ id: crypto.randomUUID(), amount: '', attachment: null }]);
+    setUnpaidLeaveDays(initialDays?.toString() || '');
     setErrors({});
   };
 
@@ -251,7 +261,11 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
         calculatedHours: initialHours || 0 
       }]);
     }
-  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDate, initialStartTime, initialEndTime]);
+    // Pre-fill unpaid leave days for resubmissions
+    if (open && initialType === 'unpaid-leave' && initialDays) {
+      setUnpaidLeaveDays(initialDays.toString());
+    }
+  }, [open, initialType, initialExpenseCategory, initialExpenseAmount, initialHours, initialDays, initialDate, initialStartTime, initialEndTime]);
 
   useEffect(() => {
     setErrors({});
@@ -352,6 +366,20 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     return !hasError;
   };
 
+  const validateUnpaidLeave = () => {
+    const newErrors: Record<string, string> = {};
+    const days = parseFloat(unpaidLeaveDays);
+    
+    if (!unpaidLeaveDays || isNaN(days) || days <= 0) {
+      newErrors['unpaid_leave_days'] = 'Please enter valid number of days';
+    } else if (days > 30) {
+      newErrors['unpaid_leave_days'] = 'Maximum 30 days allowed';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmitExpenses = () => {
     if (!validateExpenseItems()) return;
 
@@ -429,6 +457,26 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
     handleClose();
   };
 
+  const handleSubmitUnpaidLeave = () => {
+    if (!validateUnpaidLeave()) return;
+
+    const days = parseFloat(unpaidLeaveDays);
+    addAdjustment({
+      type: 'Unpaid Leave',
+      label: `${days} day${days !== 1 ? 's' : ''} unpaid leave`,
+      amount: null,
+      days: days,
+    });
+
+    // Mark the rejected item as resubmitted if this was a resubmission
+    if (rejectedId) {
+      markRejectionResubmitted(rejectedId);
+    }
+
+    toast.success(`Unpaid leave request submitted for review.`);
+    handleClose();
+  };
+
   const renderFileUpload = (
     file: File | null,
     setFile: (file: File | null) => void,
@@ -499,12 +547,14 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
                 {selectedType === 'expense' && 'Expense request'}
                 {selectedType === 'overtime' && 'Overtime request'}
                 {selectedType === 'bonus-correction' && 'Bonus request'}
+                {selectedType === 'unpaid-leave' && 'Unpaid leave'}
               </SheetTitle>
               <SheetDescription className="text-xs mt-0.5">
                 {selectedType === null && 'Submit an adjustment for the current pay cycle'}
                 {selectedType === 'expense' && 'Submit expenses for reimbursement'}
                 {selectedType === 'overtime' && 'Log your overtime hours'}
                 {selectedType === 'bonus-correction' && 'Request a bonus payment'}
+                {selectedType === 'unpaid-leave' && 'Request time off without pay'}
               </SheetDescription>
             </div>
           </div>
@@ -835,6 +885,39 @@ export const F41v6_AdjustmentModal = ({ open, onOpenChange, currency, initialTyp
 
               <Button onClick={handleSubmitBonus} className="w-full">
                 Request adjustment
+              </Button>
+            </div>
+          )}
+
+          {/* Unpaid Leave Form */}
+          {selectedType === 'unpaid-leave' && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg border border-border/60 space-y-4">
+                <span className="text-sm font-medium">Unpaid leave details</span>
+                
+                <div className="space-y-2">
+                  <Label>Number of days</Label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    max="30"
+                    step="0.5"
+                    value={unpaidLeaveDays}
+                    onChange={(e) => setUnpaidLeaveDays(e.target.value)}
+                    placeholder="e.g. 2"
+                    className={errors['unpaid_leave_days'] ? 'border-destructive' : ''}
+                  />
+                  {errors['unpaid_leave_days'] && (
+                    <p className="text-xs text-destructive">{errors['unpaid_leave_days']}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Enter the number of days (supports half days, e.g. 1.5)
+                  </p>
+                </div>
+              </div>
+
+              <Button onClick={handleSubmitUnpaidLeave} className="w-full">
+                Request unpaid leave
               </Button>
             </div>
           )}
