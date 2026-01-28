@@ -621,14 +621,9 @@ const LeaveRow = ({
               className="overflow-hidden"
             >
               <div className="py-2 px-3">
-                {/* Show dates and reason when expanded */}
+                {/* Show dates when expanded */}
                 <div className="text-xs text-muted-foreground mb-2">
                   {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
-                  {leave.reason && (
-                    <span className="block mt-1">
-                      <span className="font-medium">Reason:</span> {leave.reason}
-                    </span>
-                  )}
                 </div>
                 {!showRejectForm ? (
                   <div className="flex items-center gap-2">
