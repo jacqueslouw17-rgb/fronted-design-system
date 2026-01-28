@@ -211,10 +211,10 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-5">
           {visibleAdjustments.length === 0 ? (
-            /* Empty state - centered layout with visual interest */
-            <div className="flex flex-col items-center text-center py-8">
-              <div className="w-12 h-12 rounded-full bg-primary/[0.08] border border-primary/20 flex items-center justify-center mb-4">
-                <Sparkles className="h-5 w-5 text-primary/60" />
+            /* Empty state - centered layout with gradient background */
+            <div className="flex flex-col items-center text-center py-8 px-4 -m-5 rounded-lg bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.06]">
+              <div className="w-12 h-12 rounded-full bg-background/80 border border-primary/20 flex items-center justify-center mb-4 shadow-sm">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <h2 className="text-lg font-semibold text-foreground mb-1">All clear!</h2>
               <p className="text-sm text-muted-foreground mb-5 max-w-[240px]">
