@@ -198,7 +198,7 @@ const AdjustmentRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-2 mb-1"
+        className="-mx-2 mb-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -245,7 +245,7 @@ const AdjustmentRow = ({
   // Pending state - orange styling with expandable approve/reject
   return (
     <>
-      <div className="-mx-2 mb-1">
+      <div className="-mx-2 mb-2">
         <div 
           className={cn(
             "rounded-lg transition-all duration-200 overflow-hidden",
@@ -522,7 +522,7 @@ const LeaveRow = ({
   if (isRejected) {
     return (
       <div 
-        className="-mx-2 mb-1"
+        className="-mx-2 mb-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -572,7 +572,7 @@ const LeaveRow = ({
   return (
     <>
       <div 
-        className="mb-1"
+        className="mb-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
