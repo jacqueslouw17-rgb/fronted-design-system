@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, RotateCcw, Receipt } from 'lucide-react';
+import { X, RotateCcw, Receipt, Sparkles } from 'lucide-react';
 import { useF41v6_DashboardStore, type F41v6_Adjustment } from '@/stores/F41v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -211,14 +211,18 @@ export const F41v6_AdjustmentsSection = ({ onRequestAdjustment }: F41v6_Adjustme
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-5">
           {visibleAdjustments.length === 0 ? (
-            /* Empty state - centered layout */
-            <div className="flex flex-col items-center text-center py-4">
-              <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
-              <p className="text-sm text-muted-foreground mb-4">No pending adjustments</p>
+            /* Empty state - centered layout with visual interest */
+            <div className="flex flex-col items-center text-center py-8">
+              <div className="w-12 h-12 rounded-full bg-primary/[0.08] border border-primary/20 flex items-center justify-center mb-4">
+                <Sparkles className="h-5 w-5 text-primary/60" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground mb-1">All clear!</h2>
+              <p className="text-sm text-muted-foreground mb-5 max-w-[240px]">
+                No pending adjustments. Need to log expenses, overtime, or time off?
+              </p>
               <Button 
                 onClick={() => onRequestAdjustment()}
                 size="sm"
-                variant="outline"
               >
                 Request adjustment
               </Button>
