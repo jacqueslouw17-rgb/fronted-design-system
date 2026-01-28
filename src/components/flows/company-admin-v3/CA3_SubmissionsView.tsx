@@ -689,43 +689,35 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             // Get all adjustments (pending, approved, rejected)
             const allAdjustments = selectedSubmission.submissions;
             const currency = selectedSubmission.currency || 'USD';
+            const adjustmentEntries = allAdjustments.map((adj, originalIdx) => ({ adj, originalIdx }));
+            // Only adjustments with an explicit numeric amount affect pay and should be counted/totaled.
+            // (E.g., timesheets without an `amount` are informational and should not block or affect totals.)
+            const moneyAdjustments = adjustmentEntries.filter(({ adj }) => typeof adj.amount === 'number' && (adj.amount ?? 0) !== 0);
             
             // Calculate statuses based on local state
-            const getEffectiveStatus = (idx: number, originalStatus?: AdjustmentItemStatus): AdjustmentItemStatus => {
-              return getAdjustmentStatus(selectedSubmission.id, idx, originalStatus).status;
+            const getEffectiveStatus = (originalIdx: number, originalStatus?: AdjustmentItemStatus): AdjustmentItemStatus => {
+              return getAdjustmentStatus(selectedSubmission.id, originalIdx, originalStatus).status;
             };
             
             // Count pending adjustments based on current state
-            const currentPendingCount = allAdjustments.filter((adj, idx) => {
-              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
+            const currentPendingCount = moneyAdjustments.filter(({ adj, originalIdx }) => {
+              const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
               return effectiveStatus === 'pending';
             }).length;
             
-            // Calculate adjustment total (only approved adjustments count toward net pay)
-            const approvedAdjustmentTotal = allAdjustments.reduce((sum, adj, idx) => {
-              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
-              if (effectiveStatus === 'approved') {
-                return sum + (adj.amount || 0);
-              }
-              return sum;
-            }, 0);
-            
-            // Pending adjustments still show in estimate but clearly marked
-            const pendingAdjustmentTotal = allAdjustments.reduce((sum, adj, idx) => {
-              const effectiveStatus = getEffectiveStatus(idx, adj.status as AdjustmentItemStatus);
-              if (effectiveStatus === 'pending') {
-                return sum + (adj.amount || 0);
-              }
-              return sum;
+            // Only approved adjustments should change the displayed net pay.
+            // Pending adjustments remain visible as line items + the count label.
+            const approvedAdjustmentTotal = moneyAdjustments.reduce((sum, { adj, originalIdx }) => {
+              const effectiveStatus = getEffectiveStatus(originalIdx, adj.status as AdjustmentItemStatus);
+              return effectiveStatus === 'approved' ? sum + (adj.amount || 0) : sum;
             }, 0);
             
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
-            // Net pay = base + approved adjustments (pending shown separately)
-            const adjustedNet = baseNet + approvedAdjustmentTotal + pendingAdjustmentTotal;
-            const confirmedNet = baseNet + approvedAdjustmentTotal;
+            // Net pay updates only when items are approved.
+            const adjustedNet = baseNet + approvedAdjustmentTotal;
             const hasAdjustments = allAdjustments.length > 0;
             
             return (
@@ -804,7 +796,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       {/* Total Earnings */}
                       <BreakdownRow
                         label="Total earnings"
-                        amount={totalEarnings + approvedAdjustmentTotal + pendingAdjustmentTotal}
+                        amount={totalEarnings + approvedAdjustmentTotal}
                         currency={currency}
                         isPositive
                         isTotal
