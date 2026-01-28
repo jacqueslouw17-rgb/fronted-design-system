@@ -133,6 +133,8 @@ const AdjustmentRow = ({
   rejectionReason,
   onApprove,
   onReject,
+  isExpanded = false,
+  onToggleExpand,
 }: { 
   label: string;
   amount: number;
@@ -141,8 +143,12 @@ const AdjustmentRow = ({
   rejectionReason?: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const expanded = onToggleExpand ? isExpanded : localExpanded;
+  const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
@@ -162,7 +168,7 @@ const AdjustmentRow = ({
 
   const handleApproveConfirm = () => {
     onApprove();
-    setIsExpanded(false);
+    toggleExpand(); // Close on approve
   };
 
   const handleRejectClick = () => {
@@ -173,10 +179,9 @@ const AdjustmentRow = ({
 
   const handleRejectConfirm = () => {
     onReject(rejectReasonInput);
-    setIsExpanded(false);
+    toggleExpand(); // Close on reject
     setShowRejectForm(false);
     setRejectReasonInput("");
-  };
 
   const isPending = status === 'pending';
   const isRejected = status === 'rejected';
@@ -255,7 +260,7 @@ const AdjustmentRow = ({
           {/* Main row */}
           <div 
             className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={toggleExpand}
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <span className="text-sm text-muted-foreground">
@@ -275,7 +280,7 @@ const AdjustmentRow = ({
           </div>
           {/* Expanded action panel */}
           <AnimatePresence>
-            {isExpanded && (
+            {expanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -425,13 +430,19 @@ const LeaveRow = ({
   currency,
   onApprove,
   onReject,
+  isExpanded = false,
+  onToggleExpand,
 }: { 
   leave: PendingLeaveItem;
   currency: string;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const expanded = onToggleExpand ? isExpanded : localExpanded;
+  const toggleExpand = onToggleExpand || (() => setLocalExpanded(!localExpanded));
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
@@ -473,7 +484,7 @@ const LeaveRow = ({
   const handleApproveConfirm = () => {
     setShowApproveDialog(false);
     onApprove();
-    setIsExpanded(false);
+    toggleExpand(); // Close on approve
   };
 
   const handleRejectClick = () => {
@@ -485,13 +496,13 @@ const LeaveRow = ({
   const handleRejectConfirm = () => {
     setShowRejectDialog(false);
     onReject(rejectReasonInput);
-    setIsExpanded(false);
+    toggleExpand(); // Close on reject
     setShowRejectForm(false);
     setRejectReasonInput("");
   };
 
   // Show details when hovered or expanded
-  const showDetails = isHovered || isExpanded;
+  const showDetails = isHovered || expanded;
 
   // Approved state - clean display with better spacing
   if (isApproved) {
@@ -583,7 +594,7 @@ const LeaveRow = ({
           {/* Main row */}
           <div 
             className="flex items-center justify-between py-2 px-2 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={toggleExpand}
           >
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -629,7 +640,7 @@ const LeaveRow = ({
 
           {/* Expanded action panel */}
           <AnimatePresence>
-            {isExpanded && (
+            {expanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -752,6 +763,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const [rejectReason, setRejectReason] = useState("");
   const [showCustomReason, setShowCustomReason] = useState(false);
   
+  // Track which item is currently expanded (only one at a time)
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  
   // Local state for adjustment statuses within the drawer (keyed by submissionId-adjustmentIndex)
   const [adjustmentStates, setAdjustmentStates] = useState<Record<string, AdjustmentState>>({});
   // Local state for leave statuses (keyed by submissionId-leaveId)
@@ -820,10 +834,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     }));
   };
 
+  // Close expanded item when clicking outside
   const handleRowClick = (submission: WorkerSubmission) => {
     setSelectedSubmission(submission);
     setDrawerOpen(true);
     setRejectReason("");
+    setExpandedItemId(null);
   };
 
   const handleApproveFromDrawer = () => {
@@ -1125,7 +1141,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 </SheetHeader>
 
                 {/* Receipt-style content */}
-                <div className="px-6 py-5 space-y-6">
+                <div className="px-6 py-5 space-y-6" onClick={() => setExpandedItemId(null)}>
                   
                   {/* EARNINGS Section */}
                   <section>
@@ -1152,23 +1168,27 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           const config = submissionTypeConfig[adj.type as SubmissionType];
                           if (!config) return null;
                           const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                          const itemId = `adj-${originalIdx}`;
                           return (
-                            <AdjustmentRow
-                              key={`adj-${originalIdx}`}
-                              label={config.label}
-                              amount={adj.amount || 0}
-                              currency={adj.currency || currency}
-                              status={adjState.status}
-                              rejectionReason={adjState.rejectionReason || adj.rejectionReason}
-                              onApprove={() => {
-                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                                toast.success(`Approved ${config.label.toLowerCase()}`);
-                              }}
-                              onReject={(reason) => {
-                                updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                                toast.info(`Rejected ${config.label.toLowerCase()}`);
-                              }}
-                            />
+                            <div key={itemId} data-expandable-item>
+                              <AdjustmentRow
+                                label={config.label}
+                                amount={adj.amount || 0}
+                                currency={adj.currency || currency}
+                                status={adjState.status}
+                                rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                                isExpanded={expandedItemId === itemId}
+                                onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                onApprove={() => {
+                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                  toast.success(`Approved ${config.label.toLowerCase()}`);
+                                }}
+                                onReject={(reason) => {
+                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                  toast.info(`Rejected ${config.label.toLowerCase()}`);
+                                }}
+                              />
+                            </div>
                           );
                         })}
                       {/* Total Earnings */}
@@ -1222,23 +1242,27 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           .filter(({ adj }) => adj.type === 'overtime')
                           .map(({ adj, originalIdx }) => {
                             const adjState = getAdjustmentStatus(selectedSubmission.id, originalIdx, adj.status as AdjustmentItemStatus);
+                            const itemId = `overtime-${originalIdx}`;
                             return (
-                              <AdjustmentRow
-                                key={originalIdx}
-                                label={`${adj.hours || 0}h logged`}
-                                amount={adj.amount || 0}
-                                currency={currency}
-                                status={adjState.status}
-                                rejectionReason={adjState.rejectionReason || adj.rejectionReason}
-                                onApprove={() => {
-                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
-                                  toast.success('Approved overtime');
-                                }}
-                                onReject={(reason) => {
-                                  updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
-                                  toast.info('Rejected overtime');
-                                }}
-                              />
+                              <div key={itemId} data-expandable-item>
+                                <AdjustmentRow
+                                  label={`${adj.hours || 0}h logged`}
+                                  amount={adj.amount || 0}
+                                  currency={currency}
+                                  status={adjState.status}
+                                  rejectionReason={adjState.rejectionReason || adj.rejectionReason}
+                                  isExpanded={expandedItemId === itemId}
+                                  onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                  onApprove={() => {
+                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'approved' });
+                                    toast.success('Approved overtime');
+                                  }}
+                                  onReject={(reason) => {
+                                    updateAdjustmentStatus(selectedSubmission.id, originalIdx, { status: 'rejected', rejectionReason: reason });
+                                    toast.info('Rejected overtime');
+                                  }}
+                                />
+                              </div>
                             );
                           })}
                       </div>
@@ -1254,24 +1278,28 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       <div className="space-y-0">
                         {pendingLeaves.map((leave) => {
                           const leaveState = getLeaveStatus(selectedSubmission.id, leave.id, leave.status);
+                          const itemId = `leave-${leave.id}`;
                           return (
-                            <LeaveRow
-                              key={leave.id}
-                              leave={{
-                                ...leave,
-                                status: leaveState.status,
-                                rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
-                              }}
-                              currency={currency}
-                              onApprove={() => {
-                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
-                                toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                              }}
-                              onReject={(reason) => {
-                                updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
-                                toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
-                              }}
-                            />
+                            <div key={itemId} data-expandable-item>
+                              <LeaveRow
+                                leave={{
+                                  ...leave,
+                                  status: leaveState.status,
+                                  rejectionReason: leaveState.rejectionReason || leave.rejectionReason,
+                                }}
+                                currency={currency}
+                                isExpanded={expandedItemId === itemId}
+                                onToggleExpand={() => setExpandedItemId(expandedItemId === itemId ? null : itemId)}
+                                onApprove={() => {
+                                  updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'approved' });
+                                  toast.success(`Approved ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                }}
+                                onReject={(reason) => {
+                                  updateLeaveStatus(selectedSubmission.id, leave.id, { status: 'rejected', rejectionReason: reason });
+                                  toast.info(`Rejected ${leaveTypeConfig[leave.leaveType].label.toLowerCase()}`);
+                                }}
+                              />
+                            </div>
                           );
                         })}
                       </div>
@@ -1374,3 +1402,4 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
 };
 
 export default CA3_SubmissionsView;
+
