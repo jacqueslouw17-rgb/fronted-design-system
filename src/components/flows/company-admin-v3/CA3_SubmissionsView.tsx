@@ -597,17 +597,6 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {pendingCount > 0 && (
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={onApproveAll}
-                  className="h-9 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  Approve all safe
-                </Button>
-              )}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
