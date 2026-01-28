@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { X, RotateCcw, Receipt } from 'lucide-react';
+import { X, RotateCcw, Receipt, Sparkles } from 'lucide-react';
 import { useF42v6_DashboardStore, type F42v6_Adjustment } from '@/stores/F42v6_DashboardStore';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -107,8 +107,15 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
       case 'Additional hours': return 'Additional hours';
       case 'Bonus': return 'Commission';
       case 'Correction': return 'Correction';
+      case 'Unpaid Leave': return 'Unpaid Leave';
       default: return type;
     }
+  };
+
+  const getDisplayValue = (adj: F42v6_Adjustment) => {
+    if (adj.type === 'Additional hours' && adj.hours) return `${adj.hours}h`;
+    if (adj.type === 'Unpaid Leave' && adj.days) return `${adj.days}d`;
+    return formatAmount(adj.amount);
   };
 
   const renderAdjustmentRow = (adj: F42v6_Adjustment) => {
@@ -135,7 +142,7 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
           <span className="text-muted-foreground/40 text-xs">·</span>
           
           <span className="text-xs text-foreground font-medium tabular-nums">
-            {adj.type === 'Additional hours' && adj.hours ? `${adj.hours}h` : formatAmount(adj.amount)}
+            {getDisplayValue(adj)}
           </span>
           
           {getStatusBadge(adj.status)}
@@ -197,31 +204,48 @@ export const F42v6_AdjustmentsSection = ({ onRequestAdjustment }: F42v6_Adjustme
     <>
       <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-5">
-          <div className={`flex items-start justify-between ${visibleAdjustments.length > 0 ? 'mb-4' : ''}`}>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
-              <p className="text-sm text-muted-foreground">
-                {visibleAdjustments.length === 0 
-                  ? 'No pending adjustments'
-                  : `${pendingCount > 0 ? `${pendingCount} pending` : ''}${pendingCount > 0 && rejectedCount > 0 ? ' · ' : ''}${rejectedCount > 0 ? `${rejectedCount} rejected` : ''}`
-                }
+          {visibleAdjustments.length === 0 ? (
+            /* Empty state - centered layout with gradient background */
+            <div className="flex flex-col items-center text-center py-8 px-4 -m-5 rounded-lg bg-gradient-to-br from-primary/[0.06] via-secondary/[0.04] to-accent/[0.06]">
+              <div className="w-12 h-12 rounded-full bg-background/80 border border-primary/20 flex items-center justify-center mb-4 shadow-sm">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground mb-1">All clear!</h2>
+              <p className="text-sm text-muted-foreground mb-5 max-w-[240px]">
+                No pending adjustments. Need to log expenses, hours, or time off?
               </p>
+              <Button 
+                onClick={() => onRequestAdjustment()}
+                size="sm"
+              >
+                Request adjustment
+              </Button>
             </div>
-            
-            <Button 
-              onClick={() => onRequestAdjustment()}
-              size="sm"
-              variant="outline"
-              className="shrink-0"
-            >
-              Request adjustment
-            </Button>
-          </div>
-          
-          {visibleAdjustments.length > 0 && (
-            <div className="space-y-2">
-              {visibleAdjustments.map(adj => renderAdjustmentRow(adj))}
-            </div>
+          ) : (
+            /* Has items - standard layout */
+            <>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground mb-1">Adjustments</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {`${pendingCount > 0 ? `${pendingCount} pending` : ''}${pendingCount > 0 && rejectedCount > 0 ? ' · ' : ''}${rejectedCount > 0 ? `${rejectedCount} rejected` : ''}`}
+                  </p>
+                </div>
+                
+                <Button 
+                  onClick={() => onRequestAdjustment()}
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0"
+                >
+                  Request adjustment
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {visibleAdjustments.map(adj => renderAdjustmentRow(adj))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
