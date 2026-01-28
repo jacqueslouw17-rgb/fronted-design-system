@@ -479,16 +479,13 @@ const LeaveRow = ({
   if (isApproved) {
     return (
       <div className="flex items-center justify-between py-2.5 px-1">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <LeaveIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-muted-foreground">
-              {config.label}
-            </span>
-            <span className="text-xs text-muted-foreground/70">
-              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
-            </span>
-          </div>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span className="text-sm text-muted-foreground">
+            {config.label}
+          </span>
+          <span className="text-xs text-muted-foreground/70">
+            {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+          </span>
         </div>
         <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
           {deductionAmount > 0 ? (
@@ -513,24 +510,21 @@ const LeaveRow = ({
       >
         <div className="rounded-lg overflow-hidden border border-destructive/30 bg-destructive/5">
           <div className="flex items-center justify-between py-2.5 px-3">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <LeaveIcon className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground line-through">
-                    {config.label}
-                  </span>
-                  <Badge 
-                    variant="outline" 
-                    className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
-                  >
-                    Rejected
-                  </Badge>
-                </div>
-                <span className="text-xs text-muted-foreground/50 line-through">
-                  {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground line-through">
+                  {config.label}
                 </span>
+                <Badge 
+                  variant="outline" 
+                  className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-destructive/10 text-destructive border-destructive/30 pointer-events-none"
+                >
+                  Rejected
+                </Badge>
               </div>
+              <span className="text-xs text-muted-foreground/50 line-through">
+                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+              </span>
             </div>
           </div>
           
@@ -568,24 +562,21 @@ const LeaveRow = ({
           className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <LeaveIcon className="h-4 w-4 text-orange-600 dark:text-orange-400 shrink-0" />
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">
-                  {config.label}
-                </span>
-                <Badge 
-                  variant="outline" 
-                  className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
-                >
-                  Pending approval
-                </Badge>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground">
+                {config.label}
               </span>
+              <Badge 
+                variant="outline" 
+                className="text-[11px] px-2 py-0.5 shrink-0 font-medium bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/30 pointer-events-none"
+              >
+                Pending approval
+              </Badge>
             </div>
+            <span className="text-xs text-muted-foreground">
+              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
+            </span>
           </div>
           
           <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
