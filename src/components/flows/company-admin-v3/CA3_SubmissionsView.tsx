@@ -445,9 +445,10 @@ const LeaveRow = ({
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
   
   const config = leaveTypeConfig[leave.leaveType];
-  const LeaveIcon = config.icon;
   
   const formatAmount = (amt: number, curr: string) => {
     const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$" };
@@ -474,6 +475,33 @@ const LeaveRow = ({
   const isPending = leave.status === 'pending';
   const isRejected = leave.status === 'rejected';
   const isApproved = leave.status === 'approved';
+
+  const handleApproveClick = () => {
+    setShowApproveDialog(true);
+  };
+
+  const handleApproveConfirm = () => {
+    setShowApproveDialog(false);
+    onApprove();
+    setIsExpanded(false);
+  };
+
+  const handleRejectClick = () => {
+    if (rejectReasonInput.trim()) {
+      setShowRejectDialog(true);
+    }
+  };
+
+  const handleRejectConfirm = () => {
+    setShowRejectDialog(false);
+    onReject(rejectReasonInput);
+    setIsExpanded(false);
+    setShowRejectForm(false);
+    setRejectReasonInput("");
+  };
+
+  // Show details when hovered or expanded
+  const showDetails = isHovered || isExpanded;
 
   // Approved state - clean display with better spacing
   if (isApproved) {
@@ -552,18 +580,22 @@ const LeaveRow = ({
 
   // Pending state - interactive (matches AdjustmentRow orange styling)
   return (
-    <div className="-mx-2 mb-1">
-      <div className={cn(
-        "rounded-lg transition-all duration-200 overflow-hidden",
-        "border border-orange-200/60 dark:border-orange-500/20"
-      )}>
-        {/* Main row */}
-        <div 
-          className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-            <div className="flex items-center gap-2">
+    <>
+      <div 
+        className="-mx-2 mb-1"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={cn(
+          "rounded-lg transition-all duration-200 overflow-hidden",
+          "border border-orange-200/60 dark:border-orange-500/20"
+        )}>
+          {/* Main row */}
+          <div 
+            className="flex items-center justify-between py-2.5 px-3 bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10 transition-all duration-200"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               <span className="text-sm font-medium text-foreground">
                 {config.label}
               </span>
@@ -573,119 +605,149 @@ const LeaveRow = ({
               >
                 Pending approval
               </Badge>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`} · {formatDateRange(leave.startDate, leave.endDate)}
-            </span>
-          </div>
-          
-          <div className="flex flex-col items-end gap-0.5 shrink-0 ml-4">
-            {deductionAmount > 0 ? (
-              <>
-                <span className="text-sm tabular-nums font-mono font-medium text-foreground">
-                  −{formatAmount(deductionAmount, currency)}
-                </span>
-                <span className="text-[10px] text-orange-600 dark:text-orange-400">Unpaid</span>
-              </>
-            ) : (
-              <span className="text-xs text-muted-foreground">No pay impact</span>
-            )}
-          </div>
-        </div>
-
-        {/* Expanded action panel */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
-                {leave.reason && (
-                  <p className="text-xs text-muted-foreground mb-2.5">
-                    <span className="font-medium">Reason:</span> {leave.reason}
-                  </p>
+              
+              {/* Details shown on hover/expanded */}
+              <AnimatePresence>
+                {showDetails && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="text-xs text-muted-foreground"
+                  >
+                    · {leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod}d`} · {formatDateRange(leave.startDate, leave.endDate)}
+                  </motion.span>
                 )}
-                {!showRejectForm ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowRejectForm(true);
-                      }}
-                      className="flex-1 h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onApprove();
-                        setIsExpanded(false);
-                      }}
-                      className="flex-1 h-8 text-xs gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      Approve
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">
-                        Reason for rejection (sent to worker)
-                      </Label>
-                      <Textarea
-                        placeholder="Explain why this leave is being rejected..."
-                        value={rejectReasonInput}
-                        onChange={(e) => setRejectReasonInput(e.target.value)}
-                        className="min-h-[70px] resize-none text-sm"
-                        autoFocus
-                      />
-                    </div>
+              </AnimatePresence>
+            </div>
+            
+            {/* Right side - amount shown on hover/expanded */}
+            <AnimatePresence>
+              {showDetails && (
+                <motion.div
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center gap-2 shrink-0 ml-4"
+                >
+                  {deductionAmount > 0 ? (
+                    <>
+                      <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium">Unpaid</span>
+                      <span className="text-sm tabular-nums font-mono font-medium text-foreground">
+                        −{formatAmount(deductionAmount, currency)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">No pay impact</span>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Expanded action panel */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="overflow-hidden"
+              >
+                <div className="bg-orange-50/30 dark:bg-orange-500/5 border-t border-orange-200/40 dark:border-orange-500/15 px-3 py-2.5">
+                  {leave.reason && (
+                    <p className="text-xs text-muted-foreground mb-2.5">
+                      <span className="font-medium">Reason:</span> {leave.reason}
+                    </p>
+                  )}
+                  {!showRejectForm ? (
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectReasonInput("");
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowRejectForm(true);
                         }}
-                        className="flex-1 h-8 text-xs"
+                        className="flex-1 h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
                       >
-                        Cancel
+                        <X className="h-3.5 w-3.5" />
+                        Reject
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => {
-                          if (rejectReasonInput.trim()) {
-                            onReject(rejectReasonInput);
-                            setIsExpanded(false);
-                            setShowRejectForm(false);
-                            setRejectReasonInput("");
-                          }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApproveClick();
                         }}
-                        disabled={!rejectReasonInput.trim()}
-                        className="flex-1 h-8 text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        className="flex-1 h-8 text-xs gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90"
                       >
-                        Reject leave
+                        <Check className="h-3.5 w-3.5" />
+                        Approve
                       </Button>
                     </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  ) : (
+                    <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">
+                          Reason for rejection (sent to worker)
+                        </Label>
+                        <Textarea
+                          placeholder="Explain why this leave is being rejected..."
+                          value={rejectReasonInput}
+                          onChange={(e) => setRejectReasonInput(e.target.value)}
+                          className="min-h-[70px] resize-none text-sm"
+                          autoFocus
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setShowRejectForm(false);
+                            setRejectReasonInput("");
+                          }}
+                          className="flex-1 h-8 text-xs"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleRejectClick}
+                          disabled={!rejectReasonInput.trim()}
+                          className="flex-1 h-8 text-xs bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                          Reject leave
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+
+      {/* Confirmation Dialogs */}
+      <CA3_ApproveDialog
+        open={showApproveDialog}
+        onOpenChange={setShowApproveDialog}
+        onConfirm={handleApproveConfirm}
+        adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`}
+        amount={deductionAmount > 0 ? `−${formatAmount(deductionAmount, currency)}` : "No pay impact"}
+      />
+      <CA3_RejectDialog
+        open={showRejectDialog}
+        onOpenChange={setShowRejectDialog}
+        onConfirm={handleRejectConfirm}
+        adjustmentType={`${config.label} (${leave.daysInThisPeriod === 0.5 ? '½ day' : `${leave.daysInThisPeriod} day${leave.daysInThisPeriod > 1 ? 's' : ''}`})`}
+      />
+    </>
   );
 };
 
