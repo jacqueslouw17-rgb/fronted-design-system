@@ -5,18 +5,19 @@
  * INDEPENDENT from v5 - changes here do not affect other flows.
  */
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import Topbar from "@/components/dashboard/Topbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleLensProvider } from "@/contexts/RoleLensContext";
 import { AgentHeader } from "@/components/agent/AgentHeader";
 import { AgentLayout } from "@/components/agent/AgentLayout";
-import { F42v6_InvoiceHeroCard, F42v6_InvoicesSection } from "@/components/flows/contractor-dashboard-v6";
+import { F42v6_InvoiceHeroCard, F42v6_InvoicesSection, F42v6_InvoiceBreakdownDrawer } from "@/components/flows/contractor-dashboard-v6";
 import { useF42v6_DashboardStore } from "@/stores/F42v6_DashboardStore";
 
 const F42v6_ContractorDashboardPage = () => {
   const { currency } = useF42v6_DashboardStore();
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   
   const candidateProfile = {
     name: "Maria Santos",
@@ -36,8 +37,7 @@ const F42v6_ContractorDashboardPage = () => {
   }, []);
 
   const handleViewDetails = () => {
-    // Open breakdown drawer or navigate to details
-    console.log("View details clicked");
+    setBreakdownOpen(true);
   };
 
   const handleDownload = (invoiceId: string) => {
@@ -98,6 +98,19 @@ const F42v6_ContractorDashboardPage = () => {
               </main>
             </AgentLayout>
           </div>
+
+          {/* Breakdown Drawer */}
+          <F42v6_InvoiceBreakdownDrawer
+            open={breakdownOpen}
+            onOpenChange={setBreakdownOpen}
+            currency={currency}
+            lineItems={[
+              { type: 'Earnings', label: 'Consulting Services', meta: '40 hrs @ $125/hr', amount: 5000 },
+              { type: 'Earnings', label: 'Project Milestone Bonus', meta: 'Q4 completion', amount: 250 },
+            ]}
+            invoiceTotal={5250}
+            periodLabel="Dec 2025"
+          />
         </div>
       </TooltipProvider>
     </RoleLensProvider>
