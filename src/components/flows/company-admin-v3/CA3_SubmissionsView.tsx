@@ -494,7 +494,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   };
 
   const renderSubmissionRow = (submission: WorkerSubmission) => {
-    const status = statusConfig[submission.status];
+    // Fallback to 'pending' config if status is not recognized
+    const status = statusConfig[submission.status] || statusConfig.pending;
     const StatusIcon = status.icon;
     const TypeIcon = submission.workerType === "employee" ? Users : Briefcase;
     
