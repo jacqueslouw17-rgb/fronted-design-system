@@ -18,7 +18,6 @@ interface Payslip {
 interface F41v6_PayslipsSectionProps {
   currency?: string;
   onDownload?: (payslipId: string) => void;
-  onDownloadAll?: () => void;
   onViewDetails?: (payslipId: string) => void;
 }
 

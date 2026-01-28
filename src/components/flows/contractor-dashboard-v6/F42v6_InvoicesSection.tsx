@@ -18,7 +18,6 @@ interface Invoice {
 interface F42v6_InvoicesSectionProps {
   currency?: string;
   onDownload?: (invoiceId: string) => void;
-  onDownloadAll?: () => void;
   onViewDetails?: (invoiceId: string) => void;
 }
 
