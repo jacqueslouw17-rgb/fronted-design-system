@@ -135,8 +135,8 @@ const AdjustmentRow = ({
   const isPending = status === 'pending';
 
   return (
-    <div className="mb-2">
-      {/* Main row + expanded panel share a continuous border */}
+    <div className="-mx-0.5 mb-1">
+      {/* Main row + expanded panel share a continuous border - offset by -mx to align inner content */}
       <div 
         className={cn(
           "rounded-lg transition-all duration-200 overflow-hidden",
@@ -144,17 +144,17 @@ const AdjustmentRow = ({
           !isPending && "border border-transparent"
         )}
       >
-        {/* Main row */}
+        {/* Main row - py matches BreakdownRow, px compensates for border offset */}
         <div 
           className={cn(
-            "flex items-center justify-between py-2.5 px-3 transition-all duration-200",
+            "flex items-center justify-between py-2 px-2 transition-all duration-200",
             isPending && "bg-orange-50/50 dark:bg-orange-500/5 cursor-pointer hover:bg-orange-100/70 dark:hover:bg-orange-500/10",
             !isPending && "bg-muted/30"
           )}
           onClick={() => isPending && setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <span className="text-sm font-medium text-foreground">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-sm text-muted-foreground">
               {label}
             </span>
             <Badge 
@@ -171,7 +171,7 @@ const AdjustmentRow = ({
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold tabular-nums font-mono text-foreground">
+            <span className="text-sm tabular-nums font-mono text-foreground">
               +{formatAmount(amount, currency)}
             </span>
             {isPending && (
