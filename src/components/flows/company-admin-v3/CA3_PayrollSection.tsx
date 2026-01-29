@@ -276,9 +276,9 @@ const previousPayrolls: PreviousPayroll[] = [
   },
 ];
 
-// Build periods array for dropdown
-const allPeriods: PayrollPeriod[] = [
-  { id: "current", label: "January 2026", status: "current" },
+// Build periods array for dropdown - defined inside component to be dynamic
+const buildPeriods = (isSubmitted: boolean): PayrollPeriod[] => [
+  { id: "current", label: "January 2026", status: isSubmitted ? "processing" : "current" },
   ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
 ];
 
@@ -397,7 +397,8 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       currencyCount: 3,
     };
     
-    const selectedPeriodData = allPeriods.find(p => p.id === selectedPeriodId);
+    const periods = buildPeriods(isPayrollSubmitted);
+    const selectedPeriodData = periods.find(p => p.id === selectedPeriodId);
     const periodLabel = selectedPeriodData?.label || payPeriod;
     
     return (
@@ -407,7 +408,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <CA3_PeriodDropdown 
-                periods={allPeriods}
+                periods={periods}
                 selectedPeriodId={selectedPeriodId}
                 onPeriodChange={handlePeriodChange}
               />

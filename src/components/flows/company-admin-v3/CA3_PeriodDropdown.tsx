@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export interface PayrollPeriod {
   id: string;
   label: string;
-  status: "current" | "paid";
+  status: "current" | "processing" | "paid";
 }
 
 interface CA3_PeriodDropdownProps {
@@ -79,6 +79,11 @@ export const CA3_PeriodDropdown: React.FC<CA3_PeriodDropdownProps> = ({
                 <span className="flex items-center gap-1 text-[11px] text-accent-green-text">
                   <CheckCircle2 className="h-3 w-3" />
                   Paid
+                </span>
+              ) : period.status === "processing" ? (
+                <span className="flex items-center gap-1 text-[11px] text-primary">
+                  <Clock className="h-3 w-3" />
+                  Processing
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-[11px] text-amber-600">
