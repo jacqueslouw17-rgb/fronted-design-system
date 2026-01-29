@@ -510,8 +510,10 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
     }, 0);
   }, [submissions, adjustmentStates, leaveStates]);
 
-  const readyCount = submissions.length - dynamicPendingCount;
-  const canContinue = dynamicPendingCount === 0;
+  // Ready count = workers that have been finalized (marked as ready)
+  const readyCount = finalizedWorkers.size;
+  // Can continue only when ALL workers have been marked as ready
+  const canContinue = finalizedWorkers.size === submissions.length && submissions.length > 0;
 
   const filteredSubmissions = useMemo(() => {
     if (!searchQuery) return submissions;
@@ -735,7 +737,7 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
                 </TooltipTrigger>
                 {!canContinue && (
                   <TooltipContent side="bottom" className="max-w-[200px]">
-                    <p className="text-xs">Resolve all {dynamicPendingCount} pending submission{dynamicPendingCount !== 1 ? 's' : ''} before continuing</p>
+                    <p className="text-xs">Mark all {submissions.length - readyCount} remaining worker{submissions.length - readyCount !== 1 ? 's' : ''} as ready before continuing</p>
                   </TooltipContent>
                 )}
               </Tooltip>
