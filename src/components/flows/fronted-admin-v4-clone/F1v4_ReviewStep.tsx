@@ -1,23 +1,25 @@
 /**
  * F1v4_ReviewStep - Review payroll totals and workers
  * 
- * Shows KPI cards, FX summary, and worker list without horizontal scroll
+ * Dense, glass-container layout matching Flow 6 v3 patterns
  */
 
 import React, { useState } from "react";
 import { 
   Users, 
   Briefcase, 
-  Globe, 
-  ChevronRight,
+  DollarSign,
+  Receipt,
+  Building2,
+  TrendingUp,
   Search,
-  Eye,
-  Download,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
@@ -42,9 +44,9 @@ const MOCK_WORKERS: WorkerData[] = [
 
 const statusConfig: Record<WorkerData["status"], { label: string; className: string }> = {
   ready: { label: "Ready", className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  "auto-generated": { label: "Auto-generated", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
-  "missing-submission": { label: "Missing submission", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-  "needs-attention": { label: "Needs attention", className: "bg-destructive/10 text-destructive border-destructive/20" },
+  "auto-generated": { label: "Auto", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+  "missing-submission": { label: "Missing", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  "needs-attention": { label: "Attention", className: "bg-destructive/10 text-destructive border-destructive/20" },
   blocking: { label: "Blocking", className: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
@@ -69,12 +71,6 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
     return `${symbols[currency] || currency} ${amount.toLocaleString()}`;
   };
 
-  const formatTotalCurrency = (amount: number) => {
-    if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
-    if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
-    return `$${amount.toLocaleString()}`;
-  };
-
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   const employees = workers.filter(w => w.type === "employee");
@@ -97,98 +93,127 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-colors">
-          <p className="text-[11px] text-muted-foreground mb-1">Gross Pay</p>
-          <p className="text-xl font-semibold text-foreground">$124.8K</p>
-        </div>
-        <div className="p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-colors">
-          <p className="text-[11px] text-muted-foreground mb-1">Net Pay</p>
-          <p className="text-xl font-semibold text-foreground">$98.5K</p>
-        </div>
-        <div className="p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-colors">
-          <p className="text-[11px] text-muted-foreground mb-1">Fronted Fees (Est.)</p>
-          <p className="text-xl font-semibold text-foreground">$3.7K</p>
-        </div>
-        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
-          <p className="text-[11px] text-primary/70 mb-1">Total Cost</p>
-          <p className="text-xl font-semibold text-primary">{formatTotalCurrency(company.totalCost)}</p>
-        </div>
-      </div>
+      {/* Summary Card with KPIs */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
+        <CardContent className="py-5 px-5">
+          {/* KPI Grid */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+                <DollarSign className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs">Gross Pay</span>
+              </div>
+              <p className="text-xl font-semibold text-foreground">$124.9K</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Salaries + Contractor fees</p>
+            </div>
 
-      {/* Quick Actions Bar */}
-      <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm">
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /><span className="font-medium text-foreground">{employees.length}</span> employees</span>
-          <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /><span className="font-medium text-foreground">{contractors.length}</span> contractors</span>
-          <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /><span className="font-medium text-foreground">{company.currencyCount}</span> currencies</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => toast.success("Payroll data exported")} className="gap-1.5 text-xs text-muted-foreground"><Download className="h-3.5 w-3.5" />Export</Button>
-        </div>
-      </div>
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+                <Receipt className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs">Adjustments</span>
+              </div>
+              <p className="text-xl font-semibold text-foreground">$8.2K</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Bonuses, overtime & expenses</p>
+            </div>
 
-      {/* Worker Table */}
-      <div className="rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
-        <div className="p-4 border-b border-border/40">
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+                <Building2 className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs">Fronted Fees</span>
+              </div>
+              <p className="text-xl font-semibold text-foreground">$3.7K</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Transaction + Service</p>
+            </div>
+
+            <div className="bg-primary/[0.04] rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs">Total Cost</span>
+              </div>
+              <p className="text-xl font-semibold text-foreground">${(company.totalCost / 1000).toFixed(1)}K</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Pay + All Fees</p>
+            </div>
+          </div>
+
+          {/* Footer Stats */}
+          <div className="flex items-center justify-center gap-5 text-xs text-muted-foreground py-2.5 border-t border-border/30">
+            <span className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              Employees: <strong className="text-foreground">{employees.length}</strong>
+            </span>
+            <span className="text-border">·</span>
+            <span className="flex items-center gap-1.5">
+              <Briefcase className="h-3.5 w-3.5" />
+              Contractors: <strong className="text-foreground">{contractors.length}</strong>
+            </span>
+            <span className="text-border">·</span>
+            <span>Currencies: <strong className="text-foreground">{company.currencyCount}</strong></span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Worker List */}
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
+        <div className="px-5 py-3 border-b border-border/30">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-foreground">Workers</h3>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input placeholder="Search by name or country..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-8 text-xs bg-background/50" />
+            <div className="relative w-56">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-7 text-xs bg-background/50" />
             </div>
           </div>
         </div>
 
-        <Tabs defaultValue="all" className="p-4">
-          <TabsList className="h-8 bg-muted/30 p-0.5 mb-4">
-            <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">All ({workers.length})</TabsTrigger>
-            <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background gap-1.5"><Users className="h-3 w-3" />Employees ({employees.length})</TabsTrigger>
-            <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background gap-1.5"><Briefcase className="h-3 w-3" />Contractors ({contractors.length})</TabsTrigger>
-          </TabsList>
+        <div className="px-5 py-3">
+          <Tabs defaultValue="all">
+            <TabsList className="h-7 bg-muted/30 p-0.5 mb-3">
+              <TabsTrigger value="all" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">All ({workers.length})</TabsTrigger>
+              <TabsTrigger value="employees" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Employees ({employees.length})</TabsTrigger>
+              <TabsTrigger value="contractors" className="text-[11px] h-6 px-2.5 data-[state=active]:bg-background">Contractors ({contractors.length})</TabsTrigger>
+            </TabsList>
 
-          {["all", "employees", "contractors"].map((tabValue) => {
-            const tabWorkers = tabValue === "all" ? filteredWorkers : tabValue === "employees" ? employees.filter(w => filteredWorkers.includes(w)) : contractors.filter(w => filteredWorkers.includes(w));
+            {["all", "employees", "contractors"].map((tabValue) => {
+              const tabWorkers = tabValue === "all" ? filteredWorkers : tabValue === "employees" ? employees.filter(w => filteredWorkers.includes(w)) : contractors.filter(w => filteredWorkers.includes(w));
 
-            return (
-              <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-2">
-                {tabWorkers.map((worker) => {
-                  const config = statusConfig[worker.status];
-                  const TypeIcon = worker.type === "employee" ? Users : Briefcase;
+              return (
+                <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
+                  {tabWorkers.map((worker) => {
+                    const config = statusConfig[worker.status];
+                    const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
-                  return (
-                    <div key={worker.id} className="p-3.5 rounded-lg border border-border/60 bg-card/80 hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => handleViewDetails(worker)}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1">
-                          <Avatar className="h-9 w-9"><AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{getInitials(worker.name)}</AvatarFallback></Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-sm font-medium text-foreground">{worker.name}</p>
-                              <span className="text-[10px] text-muted-foreground flex items-center gap-1"><TypeIcon className="h-3 w-3" />{worker.type === "employee" ? "Employee" : "Contractor"}</span>
+                    return (
+                      <div key={worker.id} className="px-3 py-2.5 rounded-lg bg-muted/30 border border-border/20 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleViewDetails(worker)}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5 flex-1">
+                            <Avatar className="h-7 w-7"><AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">{getInitials(worker.name)}</AvatarFallback></Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <p className="text-sm font-medium text-foreground">{worker.name}</p>
+                                <TypeIcon className="h-3 w-3 text-muted-foreground" />
+                              </div>
+                              <p className="text-[11px] text-muted-foreground">{countryFlags[worker.country] || ""} {worker.country} · {worker.currency}</p>
                             </div>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1.5"><span>{countryFlags[worker.country] || ""}</span>{worker.country}<span className="text-muted-foreground/40">•</span>{worker.currency}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}>{config.label}</Badge>
+                            {worker.issues > 0 && <span className="text-[10px] text-destructive font-medium">{worker.issues}</span>}
+                            <p className="text-sm font-medium text-foreground min-w-[90px] text-right tabular-nums">{formatCurrency(worker.netPay, worker.currency)}</p>
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 ml-4">
-                          <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 h-4 font-medium", config.className)}>{config.label}</Badge>
-                          {worker.issues > 0 && <span className="text-[10px] text-destructive font-medium">{worker.issues} issue{worker.issues > 1 ? "s" : ""}</span>}
-                          <p className="text-sm font-medium text-foreground min-w-[100px] text-right tabular-nums">{formatCurrency(worker.netPay, worker.currency)}</p>
-                          <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={(e) => { e.stopPropagation(); handleViewDetails(worker); }}>View details</Button>
-                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </TabsContent>
-            );
-          })}
-        </Tabs>
-      </div>
+                    );
+                  })}
+                </TabsContent>
+              );
+            })}
+          </Tabs>
+        </div>
+      </Card>
 
       {/* Continue Action */}
-      <div className="flex items-center justify-between pt-2">
-        <p className="text-xs text-muted-foreground">Submit before <span className="font-medium text-foreground">Jan 25, 2026</span> — 5 days remaining</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">Deadline: <span className="font-medium text-foreground">Jan 25</span> — 5 days left</p>
         <Button onClick={onContinue} size="sm" className="gap-1.5">Continue to Exceptions<ChevronRight className="h-3.5 w-3.5" /></Button>
       </div>
 
