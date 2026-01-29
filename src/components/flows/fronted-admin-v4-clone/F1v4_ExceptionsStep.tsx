@@ -36,6 +36,7 @@ interface F1v4_ExceptionsStepProps {
   exceptionsCount: number;
   onResolve: () => void;
   onContinue: () => void;
+  hideHeader?: boolean;
 }
 
 const MOCK_EXCEPTIONS: Exception[] = [
@@ -117,6 +118,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
   exceptionsCount,
   onResolve,
   onContinue,
+  hideHeader = false,
 }) => {
   const [exceptions, setExceptions] = useState<Exception[]>(MOCK_EXCEPTIONS);
   const [selectedExceptionId, setSelectedExceptionId] = useState<string | null>(null);
@@ -224,6 +226,97 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
     return pendingProgress.find((p) => p.exceptionId === exceptionId)?.progress || 0;
   };
 
+  // Exception list content
+  const renderExceptionsList = () => (
+    <>
+      {visibleExceptions.length === 0 ? (
+        <div className="py-6 flex flex-col items-center gap-2">
+          <CheckCircle2 className="h-8 w-8 text-accent-green-text" />
+          <p className="text-sm font-medium text-foreground">All exceptions resolved</p>
+          <p className="text-xs text-muted-foreground">Ready to approve payroll</p>
+        </div>
+      ) : (
+        <AnimatePresence mode="popLayout">
+          {visibleExceptions.map((exception) => {
+            const CategoryIcon = categoryIcons[exception.category];
+            const isBlocking = exception.type === "blocking";
+            const isPending = exception.status === "pending";
+            const progress = getProgress(exception.id);
+
+            return (
+              <motion.div
+                key={exception.id}
+                layout
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.3 } }}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
+                  isBlocking && !isPending && "border-destructive/30 bg-destructive/5",
+                  isBlocking && isPending && "border-accent-green-outline/30 bg-accent-green-fill/5",
+                  !isBlocking && "border-amber-500/20 bg-amber-500/5"
+                )}
+                onClick={() => handleOpenFix(exception.id)}
+              >
+                <Avatar className="h-7 w-7 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
+                    {getInitials(exception.workerName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <CategoryIcon className={cn(
+                      "h-3.5 w-3.5 flex-shrink-0",
+                      isBlocking && !isPending && "text-destructive",
+                      isBlocking && isPending && "text-accent-green-text",
+                      !isBlocking && "text-amber-600"
+                    )} />
+                    <p className="text-sm font-medium text-foreground truncate">{exception.title}</p>
+                    <Badge variant="outline" className={cn(
+                      "text-[9px] px-1.5 py-0 h-4 font-medium flex-shrink-0",
+                      isBlocking
+                        ? "bg-destructive/10 text-destructive border-destructive/20"
+                        : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                    )}>
+                      {isBlocking ? "Blocking" : "Warning"}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {countryFlags[exception.workerCountry]} {exception.workerName}
+                    {!isPending && ` · ${exception.description}`}
+                  </p>
+                  {isPending && isBlocking && (
+                    <div className="mt-2">
+                      <Progress value={progress} className="h-1 bg-muted" />
+                      <p className="text-[10px] text-muted-foreground mt-1">Awaiting response...</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      )}
+    </>
+  );
+
+  // When hideHeader is true, just render the content without card wrapper
+  if (hideHeader) {
+    return (
+      <>
+        <div className="space-y-1.5">
+          {renderExceptionsList()}
+        </div>
+        <F1v4_ExceptionFixDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          exception={selectedException}
+          onStatusChange={handleStatusChange}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="space-y-5">
       {/* Exception List Card with Header */}
@@ -263,74 +356,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
           </div>
         </CardHeader>
         <CardContent className="py-4 px-4 space-y-1.5">
-          {visibleExceptions.length === 0 ? (
-            <div className="py-6 flex flex-col items-center gap-2">
-              <CheckCircle2 className="h-8 w-8 text-accent-green-text" />
-              <p className="text-sm font-medium text-foreground">All exceptions resolved</p>
-              <p className="text-xs text-muted-foreground">Ready to approve payroll</p>
-            </div>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              {visibleExceptions.map((exception) => {
-                const CategoryIcon = categoryIcons[exception.category];
-                const isBlocking = exception.type === "blocking";
-                const isPending = exception.status === "pending";
-                const progress = getProgress(exception.id);
-
-                return (
-                  <motion.div
-                    key={exception.id}
-                    layout
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.3 } }}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer hover:bg-muted/30",
-                      isBlocking && !isPending && "border-destructive/30 bg-destructive/5",
-                      isBlocking && isPending && "border-accent-green-outline/30 bg-accent-green-fill/5",
-                      !isBlocking && "border-amber-500/20 bg-amber-500/5"
-                    )}
-                    onClick={() => handleOpenFix(exception.id)}
-                  >
-                    <Avatar className="h-7 w-7 flex-shrink-0">
-                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
-                        {getInitials(exception.workerName)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <CategoryIcon className={cn(
-                          "h-3.5 w-3.5 flex-shrink-0",
-                          isBlocking && !isPending && "text-destructive",
-                          isBlocking && isPending && "text-accent-green-text",
-                          !isBlocking && "text-amber-600"
-                        )} />
-                        <p className="text-sm font-medium text-foreground truncate">{exception.title}</p>
-                        <Badge variant="outline" className={cn(
-                          "text-[9px] px-1.5 py-0 h-4 font-medium flex-shrink-0",
-                          isBlocking
-                            ? "bg-destructive/10 text-destructive border-destructive/20"
-                            : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                        )}>
-                          {isBlocking ? "Blocking" : "Warning"}
-                        </Badge>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {countryFlags[exception.workerCountry]} {exception.workerName}
-                        {!isPending && ` · ${exception.description}`}
-                      </p>
-                      {isPending && isBlocking && (
-                        <div className="mt-2">
-                          <Progress value={progress} className="h-1 bg-muted" />
-                          <p className="text-[10px] text-muted-foreground mt-1">Awaiting response...</p>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          )}
+          {renderExceptionsList()}
         </CardContent>
       </Card>
 

@@ -600,6 +600,14 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted/50 transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+                </button>
+              )}
               <h3 className="text-base font-medium text-foreground">Submissions</h3>
               <p className="text-sm text-muted-foreground">{submissions.length} workers this cycle</p>
             </div>
