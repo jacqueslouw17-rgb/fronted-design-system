@@ -46,7 +46,7 @@ export const CollapsibleSection = ({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-center gap-1.5 py-1 -mx-2 px-2 rounded group cursor-pointer transition-colors",
-          "hover:bg-muted/50"
+          "hover:bg-muted/70"
         )}
       >
         <motion.div
