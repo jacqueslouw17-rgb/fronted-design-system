@@ -1278,8 +1278,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                   <SheetDescription className="sr-only">Pay breakdown details</SheetDescription>
                   
                   {/* Worker info + actions in same row */}
-                  <div className="flex items-center gap-2.5">
-                    <Avatar className="h-7 w-7">
+                  <div className="flex items-start gap-2.5">
+                    <Avatar className="h-7 w-7 mt-0.5">
                       <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
                         {getInitials(selectedSubmission.workerName)}
                       </AvatarFallback>
@@ -1291,8 +1291,8 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       </p>
                     </div>
                     
-                    {/* Right-side actions: Add adjustment + Pending toggle */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    {/* Right-side actions: Add adjustment + Pending toggle - aligned to name baseline */}
+                    <div className="flex items-center gap-2 shrink-0 mt-0.5">
                       {/* Small outlined add adjustment button */}
                       {!showPendingOnly && (
                         <button
@@ -1308,7 +1308,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                       {currentPendingCount > 0 && (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div>
+                            <div className="flex items-center">
                               <Switch
                                 checked={showPendingOnly}
                                 onCheckedChange={setShowPendingOnly}
