@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Palmtree, Filter, Eye, EyeOff, ArrowLeft, Download } from "lucide-react";
+import { Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, Filter, Eye, EyeOff, ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +33,8 @@ export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "
 // Worker-level status: pending = has adjustments needing review, ready = all reviewed
 export type SubmissionStatus = "pending" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
-// Re-use LeaveType from LeavesTab (not exported here to avoid conflict)
-type LeaveTypeLocal = "Annual" | "Sick" | "Unpaid" | "Compassionate" | "Maternity" | "Other";
+// Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
+type LeaveTypeLocal = "Unpaid";
 
 // Line item for pay breakdown
 interface PayLineItem {
@@ -112,13 +112,9 @@ const submissionTypeConfig: Record<SubmissionType, { icon: React.ElementType; la
   correction: { icon: FileText, label: "Correction", color: "bg-muted text-muted-foreground border-border/50" },
 };
 
+// Only unpaid leave flows through payroll - it affects pay directly
 const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: string; color: string; affectsPay: boolean }> = {
-  Annual: { icon: Palmtree, label: "Annual Leave", color: "bg-primary/10 text-primary border-primary/20", affectsPay: false },
-  Sick: { icon: Calendar, label: "Sick Leave", color: "bg-accent-amber-fill/10 text-accent-amber-text border-accent-amber-outline/20", affectsPay: false },
   Unpaid: { icon: Calendar, label: "Unpaid Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: true },
-  Compassionate: { icon: Calendar, label: "Compassionate Leave", color: "bg-purple-500/10 text-purple-600 border-purple-500/20", affectsPay: false },
-  Maternity: { icon: Calendar, label: "Maternity Leave", color: "bg-pink-500/10 text-pink-600 border-pink-500/20", affectsPay: false },
-  Other: { icon: Calendar, label: "Other Leave", color: "bg-muted text-muted-foreground border-border", affectsPay: false },
 };
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {

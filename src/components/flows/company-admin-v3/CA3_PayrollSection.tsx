@@ -74,20 +74,8 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "overtime", hours: 8, description: "Project deadline", amount: 3500, status: "pending" },
       { type: "expenses", amount: 1212, currency: "PHP", description: "Meals", status: "pending" },
     ],
-    // Pending leave requests for this pay period
-    pendingLeaves: [
-      {
-        id: "leave-maria-1",
-        leaveType: "Annual",
-        startDate: "2026-01-20",
-        endDate: "2026-01-22",
-        totalDays: 3,
-        daysInThisPeriod: 3,
-        reason: "Family vacation",
-        status: "pending",
-        dailyRate: 2272.73, // 50000 / 22 working days
-      },
-    ],
+    // Pending leave requests for this pay period - only unpaid leave affects payroll
+    pendingLeaves: [],
     status: "pending",
     totalImpact: 4712,
     currency: "PHP",
@@ -164,19 +152,8 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "expenses", amount: 890, currency: "EUR", description: "Conference registration fee", status: "pending" },
     ],
-    // Sick leave example (paid - no pay impact)
-    pendingLeaves: [
-      {
-        id: "leave-jonas-1",
-        leaveType: "Sick",
-        startDate: "2026-01-08",
-        endDate: "2026-01-09",
-        totalDays: 2,
-        daysInThisPeriod: 2,
-        reason: "Flu recovery",
-        status: "pending",
-      },
-    ],
+    // No pending leaves - sick leave handled separately in Leaves tab
+    pendingLeaves: [],
     status: "pending",
     totalImpact: 890,
     currency: "EUR",
@@ -197,20 +174,9 @@ const mockSubmissions: WorkerSubmission[] = [
       { type: "Deduction", label: "ESI", amount: -3000, locked: true },
     ],
     submissions: [],
-    // Compassionate leave example (paid - no pay impact)
-    pendingLeaves: [
-      {
-        id: "leave-priya-1",
-        leaveType: "Compassionate",
-        startDate: "2026-01-13",
-        endDate: "2026-01-14",
-        totalDays: 2,
-        daysInThisPeriod: 2,
-        reason: "Family bereavement",
-        status: "pending",
-      },
-    ],
-    status: "pending",
+    // No pending leaves - compassionate leave handled separately in Leaves tab
+    pendingLeaves: [],
+    status: "ready",
     totalImpact: 0,
     currency: "INR",
   },
@@ -232,19 +198,8 @@ const mockSubmissions: WorkerSubmission[] = [
     submissions: [
       { type: "bonus", amount: 5000, currency: "SEK", description: "Q4 performance bonus", status: "pending" },
     ],
-    // Maternity leave example (paid - no pay impact)
-    pendingLeaves: [
-      {
-        id: "leave-lisa-1",
-        leaveType: "Maternity",
-        startDate: "2026-01-27",
-        endDate: "2026-02-28",
-        totalDays: 23,
-        daysInThisPeriod: 3,
-        reason: "Maternity leave starting",
-        status: "pending",
-      },
-    ],
+    // No pending leaves - maternity leave handled separately in Leaves tab
+    pendingLeaves: [],
     status: "pending",
     totalImpact: 5000,
     currency: "SEK",
