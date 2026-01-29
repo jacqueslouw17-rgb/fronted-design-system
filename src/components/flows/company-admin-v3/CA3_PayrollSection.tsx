@@ -519,7 +519,7 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
 
   // Render landing view (before entering workflow)
   const renderLandingView = () => {
-    // If viewing previous, show historical view instead
+    // If viewing a previous period, show historical view instead
     if (isViewingPrevious) {
       return renderPreviousPayrollView();
     }
