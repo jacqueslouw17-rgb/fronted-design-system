@@ -771,26 +771,25 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   
   // Track newly added adjustment for animation + auto-expand
   const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
+  const [expandedSection, setExpandedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   
   // Handle admin adding adjustment on behalf of worker
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({
       ...prev,
-      [submissionId]: [...(prev[submissionId] || []), adjustment],
+      [submissionId]: [...(prev[submissionId] || []), adjustment]
     }));
+    setIsAddingAdjustment(false);
+    toast.success(`${adjustment.type === 'expense' ? 'Expense' : adjustment.type === 'overtime' ? 'Overtime' : 'Unpaid leave'} added successfully`);
     
     // Set which section to auto-expand and which item to highlight
-    if (adjustment.type === 'expense') {
-      setNewlyAddedSection('earnings');
-    } else if (adjustment.type === 'overtime') {
-      setNewlyAddedSection('overtime');
-    } else if (adjustment.type === 'unpaid_leave') {
-      setNewlyAddedSection('leave');
-    }
+    const section = adjustment.type === 'expense' ? 'earnings' : adjustment.type === 'overtime' ? 'overtime' : 'leave';
+    setNewlyAddedSection(section);
+    setExpandedSection(section); // Keep section expanded permanently
     setNewlyAddedId(adjustment.id);
     
-    // Clear highlight after animation
+    // Clear highlight after animation, but keep section expanded
     setTimeout(() => {
       setNewlyAddedId(null);
       setNewlyAddedSection(null);
@@ -1318,7 +1317,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : (newlyAddedSection === 'earnings' || expandedSection === 'earnings')}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1377,9 +1376,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-colors group",
+                            "-mx-3 px-3 rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
                               : "hover:bg-muted/50"
                           )}
                         >
@@ -1446,7 +1445,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Overtime"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'}
+                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : (newlyAddedSection === 'overtime' || expandedSection === 'overtime')}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
                     >
@@ -1491,9 +1490,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-colors group",
+                            "-mx-3 px-3 rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
                               : "hover:bg-muted/50"
                           )}
                         >
@@ -1524,7 +1523,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Leave"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'}
+                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : (newlyAddedSection === 'leave' || expandedSection === 'leave')}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
                     >
@@ -1568,9 +1567,9 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-colors group",
+                            "-mx-3 px-3 rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
                               : "hover:bg-muted/50"
                           )}
                         >
