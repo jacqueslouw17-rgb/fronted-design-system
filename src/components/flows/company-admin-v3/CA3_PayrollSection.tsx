@@ -1,17 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2, Send, Users, Briefcase } from "lucide-react";
+import { DollarSign, Receipt, Building2, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 
 import { CA3_PayrollStepper, CA3_PayrollStep } from "./CA3_PayrollStepper";
 import { CA3_SubmissionsView, WorkerSubmission, PendingLeaveItem } from "./CA3_SubmissionsView";
 import { CA3_SubmitConfirmationModal } from "./CA3_SubmitConfirmationModal";
 import { CA3_TrackingView, TrackingWorker } from "./CA3_TrackingView";
 import { CA3_SubmitStep } from "./CA3_SubmitStep";
+import { CA3_PeriodDropdown, PayrollPeriod } from "./CA3_PeriodDropdown";
 
 const mockSubmissions: WorkerSubmission[] = [
   {
@@ -230,14 +229,7 @@ interface PreviousPayroll {
   employeeCount: number;
   contractorCount: number;
   currencyCount: number;
-  workers: {
-    id: string;
-    name: string;
-    country: string;
-    type: "employee" | "contractor";
-    amount: number;
-    currency: string;
-  }[];
+  workers: TrackingWorker[];
 }
 
 const previousPayrolls: PreviousPayroll[] = [
@@ -253,13 +245,13 @@ const previousPayrolls: PreviousPayroll[] = [
     contractorCount: 5,
     currencyCount: 3,
     workers: [
-      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR" },
-      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR" },
-      { id: "3", name: "Marco Rossi", country: "Italy", type: "contractor", amount: 4500, currency: "EUR" },
-      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK" },
-      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK" },
-      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP" },
-      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP" },
+      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR", status: "paid" },
+      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR", status: "paid" },
+      { id: "3", name: "Marco Rossi", country: "Italy", type: "contractor", amount: 4500, currency: "EUR", status: "paid" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK", status: "paid" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK", status: "paid" },
+      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP", status: "paid" },
+      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP", status: "paid" },
     ],
   },
   {
@@ -274,14 +266,20 @@ const previousPayrolls: PreviousPayroll[] = [
     contractorCount: 4,
     currencyCount: 3,
     workers: [
-      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR" },
-      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR" },
-      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK" },
-      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK" },
-      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP" },
-      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP" },
+      { id: "1", name: "David Martinez", country: "Portugal", type: "contractor", amount: 4200, currency: "EUR", status: "paid" },
+      { id: "2", name: "Sophie Laurent", country: "France", type: "employee", amount: 5800, currency: "EUR", status: "paid" },
+      { id: "4", name: "Alex Hansen", country: "Norway", type: "employee", amount: 65000, currency: "NOK", status: "paid" },
+      { id: "5", name: "Emma Wilson", country: "Norway", type: "contractor", amount: 72000, currency: "NOK", status: "paid" },
+      { id: "6", name: "Maria Santos", country: "Philippines", type: "employee", amount: 280000, currency: "PHP", status: "paid" },
+      { id: "7", name: "Jose Reyes", country: "Philippines", type: "contractor", amount: 245000, currency: "PHP", status: "failed" },
     ],
   },
+];
+
+// Build periods array for dropdown
+const allPeriods: PayrollPeriod[] = [
+  { id: "current", label: "January 2026", status: "current" },
+  ...previousPayrolls.map(p => ({ id: p.id, label: p.period, status: "paid" as const })),
 ];
 
 interface CA3_PayrollSectionProps {
@@ -289,8 +287,8 @@ interface CA3_PayrollSectionProps {
 }
 
 export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPeriod }) => {
-  // Period view state - null = current, string = previous period id
-  const [viewingPreviousId, setViewingPreviousId] = useState<string | null>(null);
+  // Period view state - "current" = current, or previous period id
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("current");
   
   // Workflow entered state - start on landing view
   const [hasEnteredWorkflow, setHasEnteredWorkflow] = useState(false);
@@ -312,21 +310,21 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   const [trackingWorkers, setTrackingWorkers] = useState<TrackingWorker[]>(mockTrackingWorkers);
 
   // Get selected previous payroll
-  const selectedPrevious = viewingPreviousId 
-    ? previousPayrolls.find(p => p.id === viewingPreviousId) 
+  const isViewingPrevious = selectedPeriodId !== "current";
+  const selectedPrevious = isViewingPrevious 
+    ? previousPayrolls.find(p => p.id === selectedPeriodId) 
     : null;
 
   // Computed values for submissions
   const pendingSubmissions = useMemo(() => submissions.filter(s => s.status === "pending").length, [submissions]);
 
-  // Helper functions for previous payroll view
-  const getInitials = (name: string) => {
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  };
-
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", INR: "₹", SEK: "kr" };
-    return `${symbols[currency] || currency}${amount.toLocaleString()}`;
+  // Handle period change
+  const handlePeriodChange = (periodId: string) => {
+    setSelectedPeriodId(periodId);
+    // Reset workflow when switching periods
+    if (periodId !== "current") {
+      setHasEnteredWorkflow(false);
+    }
   };
 
   const handleStepClick = (step: CA3_PayrollStep) => {
@@ -388,277 +386,141 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
   };
 
   // Render summary card (used in both landing and track views)
-  const renderSummaryCard = (isSubmitted: boolean = false) => (
-    <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-      <CardContent className="py-6 px-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
-            {isSubmitted ? (
-              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
-                <Clock className="h-3 w-3 mr-1" />
-                Processing
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-                <Clock className="h-3 w-3 mr-1" />
-                In review
-              </Badge>
-            )}
-            <span className="text-muted-foreground/50">·</span>
-            <button 
-              onClick={() => setViewingPreviousId(previousPayrolls[0]?.id || null)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-            >
-              View previous
-            </button>
-          </div>
-          {!isSubmitted && (
-            <Button onClick={handleEnterWorkflow} size="sm">
-              Continue to submissions
-            </Button>
-          )}
-        </div>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {/* Gross Pay */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <DollarSign className="h-4 w-4 text-primary" />
-              <span className="text-sm">Gross Pay</span>
-            </div>
-            <p className="text-2xl font-semibold text-foreground">$124.9K</p>
-            <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
-          </div>
-
-          {/* Total Adjustments */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <Receipt className="h-4 w-4 text-primary" />
-              <span className="text-sm">Adjustments</span>
-            </div>
-            <p className="text-2xl font-semibold text-foreground">$8.2K</p>
-            <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
-          </div>
-
-          {/* Fronted Fees */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <Building2 className="h-4 w-4 text-primary" />
-              <span className="text-sm">Fronted Fees</span>
-            </div>
-            <p className="text-2xl font-semibold text-foreground">$3,742</p>
-            <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
-          </div>
-
-          {/* Total Cost */}
-          <div className="bg-primary/[0.04] rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-sm">Total Cost</span>
-            </div>
-            <p className="text-2xl font-semibold text-foreground">$128.6K</p>
-            <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
-          </div>
-        </div>
-
-        {/* Footer Stats */}
-        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
-          <span>Employees: <strong className="text-foreground">4</strong></span>
-          <span className="text-border">·</span>
-          <span>Contractors: <strong className="text-foreground">5</strong></span>
-          <span className="text-border">·</span>
-          <span>Currencies: <strong className="text-foreground">3</strong></span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  // Render previous payroll view (immutable historical data)
-  const renderPreviousPayrollView = () => {
-    if (!selectedPrevious) return null;
-
-    const employees = selectedPrevious.workers.filter(w => w.type === "employee");
-    const contractors = selectedPrevious.workers.filter(w => w.type === "contractor");
-
+  const renderSummaryCard = (isSubmitted: boolean = false, metrics?: { grossPay: string; adjustments: string; fees: string; totalCost: string; employeeCount: number; contractorCount: number; currencyCount: number }) => {
+    const displayMetrics = metrics || {
+      grossPay: "$124.9K",
+      adjustments: "$8.2K",
+      fees: "$3,742",
+      totalCost: "$128.6K",
+      employeeCount: 4,
+      contractorCount: 5,
+      currencyCount: 3,
+    };
+    
+    const selectedPeriodData = allPeriods.find(p => p.id === selectedPeriodId);
+    const periodLabel = selectedPeriodData?.label || payPeriod;
+    
     return (
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
         <CardContent className="py-6 px-6">
-          {/* Header with back navigation */}
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setViewingPreviousId(null)}
-                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <h3 className="text-lg font-semibold text-foreground">{selectedPrevious.period} Payroll</h3>
-              <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Paid
-              </Badge>
-              {/* Navigate between previous periods */}
-              {previousPayrolls.length > 1 && (
-                <>
-                  <span className="text-muted-foreground/50">·</span>
-                  {previousPayrolls.map((p, idx) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setViewingPreviousId(p.id)}
-                      className={cn(
-                        "text-sm transition-colors",
-                        p.id === viewingPreviousId 
-                          ? "text-foreground font-medium" 
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {p.period.split(" ")[0]}
-                    </button>
-                  ))}
-                </>
+              <CA3_PeriodDropdown 
+                periods={allPeriods}
+                selectedPeriodId={selectedPeriodId}
+                onPeriodChange={handlePeriodChange}
+              />
+              {isViewingPrevious ? (
+                <Badge variant="outline" className="bg-accent-green/10 text-accent-green-text border-accent-green/20">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Paid
+                </Badge>
+              ) : isSubmitted ? (
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Processing
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                  <Clock className="h-3 w-3 mr-1" />
+                  In review
+                </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">Paid on {selectedPrevious.paidDate}</p>
+            {!isSubmitted && !isViewingPrevious && (
+              <Button onClick={handleEnterWorkflow} size="sm">
+                Continue to submissions
+              </Button>
+            )}
           </div>
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-4 gap-4 mb-6">
+            {/* Gross Pay */}
             <div className="bg-primary/[0.04] rounded-xl p-4">
               <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                 <DollarSign className="h-4 w-4 text-primary" />
                 <span className="text-sm">Gross Pay</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.grossPay}</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.grossPay}</p>
               <p className="text-xs text-muted-foreground mt-1">Salaries + Contractor fees</p>
             </div>
 
+            {/* Total Adjustments */}
             <div className="bg-primary/[0.04] rounded-xl p-4">
               <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                 <Receipt className="h-4 w-4 text-primary" />
                 <span className="text-sm">Adjustments</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.adjustments}</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.adjustments}</p>
               <p className="text-xs text-muted-foreground mt-1">Bonuses, overtime & expenses</p>
             </div>
 
+            {/* Fronted Fees */}
             <div className="bg-primary/[0.04] rounded-xl p-4">
               <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                 <Building2 className="h-4 w-4 text-primary" />
                 <span className="text-sm">Fronted Fees</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.fees}</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.fees}</p>
               <p className="text-xs text-muted-foreground mt-1">Transaction + Service</p>
             </div>
 
+            {/* Total Cost */}
             <div className="bg-primary/[0.04] rounded-xl p-4">
               <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 <span className="text-sm">Total Cost</span>
               </div>
-              <p className="text-2xl font-semibold text-foreground">{selectedPrevious.totalCost}</p>
+              <p className="text-2xl font-semibold text-foreground">{displayMetrics.totalCost}</p>
               <p className="text-xs text-muted-foreground mt-1">Pay + All Fees</p>
             </div>
           </div>
 
-          {/* Workers List */}
-          <div className="space-y-4">
-            {/* Employees Section */}
-            {employees.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">Employees</span>
-                  <span className="text-xs text-muted-foreground">({employees.length})</span>
-                </div>
-                <div className="space-y-1">
-                  {employees.map((worker) => (
-                    <div 
-                      key={worker.id}
-                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20"
-                    >
-                      <Avatar className="h-6 w-6 flex-shrink-0">
-                        <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
-                          {getInitials(worker.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
-                          <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
-                        </div>
-                      </div>
-                      <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                        {formatCurrency(worker.amount, worker.currency)}
-                      </p>
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-accent-green/10 text-accent-green-text flex-shrink-0">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Paid
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Contractors Section */}
-            {contractors.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">Contractors</span>
-                  <span className="text-xs text-muted-foreground">({contractors.length})</span>
-                </div>
-                <div className="space-y-1">
-                  {contractors.map((worker) => (
-                    <div 
-                      key={worker.id}
-                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-muted/30 border border-border/20"
-                    >
-                      <Avatar className="h-6 w-6 flex-shrink-0">
-                        <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-medium">
-                          {getInitials(worker.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-medium text-foreground truncate">{worker.name}</p>
-                          <span className="text-[11px] text-muted-foreground">· {worker.country}</span>
-                        </div>
-                      </div>
-                      <p className="text-sm font-medium text-foreground tabular-nums flex-shrink-0">
-                        {formatCurrency(worker.amount, worker.currency)}
-                      </p>
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-accent-green/10 text-accent-green-text flex-shrink-0">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Paid
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Footer Stats */}
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 mt-4 border-t border-border/30">
-            <span>Employees: <strong className="text-foreground">{selectedPrevious.employeeCount}</strong></span>
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground py-3 border-t border-border/30">
+            <span>Employees: <strong className="text-foreground">{displayMetrics.employeeCount}</strong></span>
             <span className="text-border">·</span>
-            <span>Contractors: <strong className="text-foreground">{selectedPrevious.contractorCount}</strong></span>
+            <span>Contractors: <strong className="text-foreground">{displayMetrics.contractorCount}</strong></span>
             <span className="text-border">·</span>
-            <span>Currencies: <strong className="text-foreground">{selectedPrevious.currencyCount}</strong></span>
+            <span>Currencies: <strong className="text-foreground">{displayMetrics.currencyCount}</strong></span>
           </div>
         </CardContent>
       </Card>
     );
   };
 
+  // Render previous payroll view (immutable historical data) - reuses CA3_TrackingView
+  const renderPreviousPayrollView = () => {
+    if (!selectedPrevious) return null;
+
+    return (
+      <div className="space-y-6">
+        {renderSummaryCard(false, {
+          grossPay: selectedPrevious.grossPay,
+          adjustments: selectedPrevious.adjustments,
+          fees: selectedPrevious.fees,
+          totalCost: selectedPrevious.totalCost,
+          employeeCount: selectedPrevious.employeeCount,
+          contractorCount: selectedPrevious.contractorCount,
+          currencyCount: selectedPrevious.currencyCount,
+        })}
+        <CA3_TrackingView
+          workers={selectedPrevious.workers}
+          onExportCSV={handleExportCSV}
+          onDownloadAuditPDF={handleDownloadAuditPDF}
+          isHistorical={true}
+          paidDate={selectedPrevious.paidDate}
+        />
+      </div>
+    );
+  };
+
   // Render landing view (before entering workflow)
   const renderLandingView = () => {
     // If viewing previous, show historical view instead
-    if (viewingPreviousId) {
+    if (isViewingPrevious) {
       return renderPreviousPayrollView();
     }
     return renderSummaryCard(false);
