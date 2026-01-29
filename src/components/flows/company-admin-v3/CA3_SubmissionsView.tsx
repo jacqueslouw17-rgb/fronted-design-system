@@ -769,12 +769,32 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Admin add adjustment mode
   const [isAddingAdjustment, setIsAddingAdjustment] = useState(false);
   
+  // Track newly added adjustment for animation + auto-expand
+  const [newlyAddedSection, setNewlyAddedSection] = useState<'earnings' | 'overtime' | 'leave' | null>(null);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+  
   // Handle admin adding adjustment on behalf of worker
   const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
     setAdminAdjustments(prev => ({
       ...prev,
       [submissionId]: [...(prev[submissionId] || []), adjustment],
     }));
+    
+    // Set which section to auto-expand and which item to highlight
+    if (adjustment.type === 'expense') {
+      setNewlyAddedSection('earnings');
+    } else if (adjustment.type === 'overtime') {
+      setNewlyAddedSection('overtime');
+    } else if (adjustment.type === 'unpaid_leave') {
+      setNewlyAddedSection('leave');
+    }
+    setNewlyAddedId(adjustment.id);
+    
+    // Clear highlight after animation
+    setTimeout(() => {
+      setNewlyAddedId(null);
+      setNewlyAddedSection(null);
+    }, 2000);
   };
   
   // Remove admin-added adjustment
@@ -1298,7 +1318,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Earnings"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : false}
+                      forceOpen={showPendingOnly ? earningAdjCounts.pending > 0 : newlyAddedSection === 'earnings'}
                       pendingCount={earningAdjCounts.pending}
                       approvedCount={earnings.length + earningAdjCounts.approved}
                     >
@@ -1351,9 +1371,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     {!showPendingOnly && workerAdminAdjustments
                       .filter(a => a.type === 'expense')
                       .map((adj) => (
-                        <div 
+                        <motion.div 
                           key={adj.id} 
-                          className="-mx-3 px-3 rounded transition-colors hover:bg-muted/50 group"
+                          initial={newlyAddedId === adj.id ? { opacity: 0, y: -8, scale: 0.98 } : false}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                          className={cn(
+                            "-mx-3 px-3 rounded transition-colors group",
+                            newlyAddedId === adj.id 
+                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              : "hover:bg-muted/50"
+                          )}
                         >
                           <div className="flex items-center justify-between py-2">
                             <div className="flex flex-col min-w-0 flex-1">
@@ -1372,7 +1400,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                               </button>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     {/* Total Earnings */}
                     {!showPendingOnly && (
@@ -1418,7 +1446,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Overtime"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : false}
+                      forceOpen={showPendingOnly ? overtimeCounts.pending > 0 : newlyAddedSection === 'overtime'}
                       pendingCount={overtimeCounts.pending}
                       approvedCount={overtimeCounts.approved + workerAdminAdjustments.filter(a => a.type === 'overtime').length}
                     >
@@ -1457,9 +1485,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     {!showPendingOnly && workerAdminAdjustments
                       .filter(a => a.type === 'overtime')
                       .map((adj) => (
-                        <div 
+                        <motion.div 
                           key={adj.id} 
-                          className="-mx-3 px-3 rounded transition-colors hover:bg-muted/50 group"
+                          initial={newlyAddedId === adj.id ? { opacity: 0, y: -8, scale: 0.98 } : false}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                          className={cn(
+                            "-mx-3 px-3 rounded transition-colors group",
+                            newlyAddedId === adj.id 
+                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              : "hover:bg-muted/50"
+                          )}
                         >
                           <div className="flex items-center justify-between py-2">
                             <div className="flex flex-col min-w-0 flex-1">
@@ -1478,7 +1514,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                               </button>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     </CollapsibleSection>
                   )}
@@ -1488,7 +1524,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     <CollapsibleSection
                       title="Leave"
                       defaultOpen={false}
-                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : false}
+                      forceOpen={showPendingOnly ? leaveCounts.pending > 0 : newlyAddedSection === 'leave'}
                       pendingCount={leaveCounts.pending}
                       approvedCount={leaveCounts.approved + workerAdminAdjustments.filter(a => a.type === 'unpaid_leave').length}
                     >
@@ -1526,9 +1562,17 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     {!showPendingOnly && workerAdminAdjustments
                       .filter(a => a.type === 'unpaid_leave')
                       .map((adj) => (
-                        <div 
+                        <motion.div 
                           key={adj.id} 
-                          className="-mx-3 px-3 rounded transition-colors hover:bg-muted/50 group"
+                          initial={newlyAddedId === adj.id ? { opacity: 0, y: -8, scale: 0.98 } : false}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                          className={cn(
+                            "-mx-3 px-3 rounded transition-colors group",
+                            newlyAddedId === adj.id 
+                              ? "bg-accent/20 ring-1 ring-accent/40" 
+                              : "hover:bg-muted/50"
+                          )}
                         >
                           <div className="flex items-center justify-between py-2">
                             <div className="flex flex-col min-w-0 flex-1">
@@ -1547,7 +1591,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                               </button>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     </CollapsibleSection>
                   )}
