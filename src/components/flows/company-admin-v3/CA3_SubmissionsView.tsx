@@ -1304,16 +1304,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         </button>
                       )}
                       
-                      {/* Inline pending toggle */}
+                      {/* Pending toggle with tooltip */}
                       {currentPendingCount > 0 && (
-                        <label className="flex items-center gap-1.5 cursor-pointer">
-                          <span className="text-[10px] text-muted-foreground/60">Pending</span>
-                          <Switch
-                            checked={showPendingOnly}
-                            onCheckedChange={setShowPendingOnly}
-                            className="h-4 w-7 data-[state=checked]:bg-orange-500"
-                          />
-                        </label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Switch
+                                checked={showPendingOnly}
+                                onCheckedChange={setShowPendingOnly}
+                                className="h-4 w-7 data-[state=checked]:bg-orange-500"
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="text-xs">
+                            {showPendingOnly ? "Show all items" : "Show pending only"}
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                     </div>
                   </div>
