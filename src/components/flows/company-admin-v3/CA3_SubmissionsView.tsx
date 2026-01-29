@@ -807,11 +807,12 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   const dynamicPendingCount = useMemo(() => {
     return submissions.reduce((count, submission) => {
       // Count pending adjustments considering local overrides
+      // Only count adjustments with amounts (timesheets without amounts are informational only)
       const pendingAdjustments = submission.submissions.filter((adj, idx) => {
         const key = `${submission.id}-${idx}`;
         const localState = adjustmentStates[key];
         const effectiveStatus = localState?.status || adj.status || 'pending';
-        return effectiveStatus === 'pending';
+        return effectiveStatus === 'pending' && typeof adj.amount === 'number';
       }).length;
       
       // Count pending leaves considering local overrides
