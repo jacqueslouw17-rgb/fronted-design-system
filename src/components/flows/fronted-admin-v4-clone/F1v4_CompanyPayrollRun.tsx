@@ -453,7 +453,10 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <h3 className="text-base font-medium text-foreground">Approve</h3>
+                  <F1v4_PayrollStepper
+                    currentStep="approve"
+                    completedSteps={completedSteps as StepperStep[]}
+                  />
                 </div>
                 <div className="flex items-center gap-3">
                   <Button 

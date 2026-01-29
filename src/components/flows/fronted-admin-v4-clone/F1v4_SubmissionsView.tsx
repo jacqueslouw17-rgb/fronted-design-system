@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, CheckCircle2, Clock, FileText, Receipt, Timer, Award, 
   ChevronRight, Check, X, Users, Briefcase, Lock, Calendar, 
-  ArrowLeft, Download, Plus, Undo2, XCircle, Eye
+  ChevronLeft, Download, Plus, Undo2, XCircle, Eye, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ import { format } from "date-fns";
 import { CA3_BulkApproveDialog, CA3_BulkRejectDialog, CA3_MarkAsReadyDialog } from "@/components/flows/company-admin-v3/CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "@/components/flows/company-admin-v3/CA3_CollapsibleSection";
 import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "@/components/flows/company-admin-v3/CA3_AdminAddAdjustment";
+import { F1v4_PayrollStepper } from "./F1v4_PayrollStepper";
 
 // Types - matching CA3_SubmissionsView exactly
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
@@ -723,8 +724,21 @@ export const F1v4_SubmissionsView: React.FC<F1v4_SubmissionsViewProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h3 className="text-base font-medium text-foreground">Submissions</h3>
-              <p className="text-sm text-muted-foreground">{submissions.length} workers this cycle</p>
+              {onClose && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <F1v4_PayrollStepper
+                currentStep="submissions"
+                completedSteps={[]}
+                pendingCount={dynamicPendingCount}
+              />
             </div>
             <div className="flex items-center gap-3">
               <Tooltip>
