@@ -1396,10 +1396,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-all duration-500 group",
+                            "rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
-                              : "hover:bg-muted/50"
+                              ? "bg-primary/5 ring-1 ring-primary/20" 
+                              : "-mx-3 px-3 hover:bg-muted/50"
                           )}
                         >
                           <div className="flex items-center justify-between py-2">
@@ -1510,10 +1510,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-all duration-500 group",
+                            "rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
-                              : "hover:bg-muted/50"
+                              ? "bg-primary/5 ring-1 ring-primary/20" 
+                              : "-mx-3 px-3 hover:bg-muted/50"
                           )}
                         >
                           <div className="flex items-center justify-between py-2">
@@ -1587,10 +1587,10 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.25, ease: "easeOut" }}
                           className={cn(
-                            "-mx-3 px-3 rounded transition-all duration-500 group",
+                            "rounded transition-all duration-500 group",
                             newlyAddedId === adj.id 
-                              ? "bg-sky-100 dark:bg-sky-900/30 ring-1 ring-sky-300 dark:ring-sky-700" 
-                              : "hover:bg-muted/50"
+                              ? "bg-primary/5 ring-1 ring-primary/20" 
+                              : "-mx-3 px-3 hover:bg-muted/50"
                           )}
                         >
                           <div className="flex items-center justify-between py-2">
