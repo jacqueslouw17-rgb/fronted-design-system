@@ -207,7 +207,7 @@ const AdjustmentRow = ({
         onMouseLeave={() => setIsHovered(false)}
       >
           {/* Main row */}
-          <div className="flex items-center justify-between py-2.5 px-3">
+          <div className="flex items-center justify-between py-2.5">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-sm text-muted-foreground line-through">{label}</span>
               <Badge 
@@ -529,7 +529,7 @@ const LeaveRow = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-          <div className="flex items-center justify-between py-2.5 px-3">
+          <div className="flex items-center justify-between py-2.5">
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground line-through">
