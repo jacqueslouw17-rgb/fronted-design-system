@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CA3_ApproveDialog, CA3_RejectDialog, CA3_BulkApproveDialog, CA3_BulkRejectDialog } from "./CA3_ConfirmationDialogs";
 import { CollapsibleSection } from "./CA3_CollapsibleSection";
+import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdjustment";
 
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
@@ -755,12 +756,32 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
   // Local state for leave statuses (keyed by submissionId-leaveId)
   const [leaveStates, setLeaveStates] = useState<Record<string, AdjustmentState>>({});
   
+  // Admin-added adjustments (keyed by submissionId)
+  const [adminAdjustments, setAdminAdjustments] = useState<Record<string, AdminAddedAdjustment[]>>({});
+  
   // Bulk action dialogs
   const [showBulkApproveDialog, setShowBulkApproveDialog] = useState(false);
   const [showBulkRejectDialog, setShowBulkRejectDialog] = useState(false);
   
   // Receipt view state
   const [showReceiptView, setShowReceiptView] = useState(false);
+  
+  // Handle admin adding adjustment on behalf of worker
+  const handleAdminAddAdjustment = (submissionId: string, adjustment: AdminAddedAdjustment) => {
+    setAdminAdjustments(prev => ({
+      ...prev,
+      [submissionId]: [...(prev[submissionId] || []), adjustment],
+    }));
+  };
+  
+  // Remove admin-added adjustment
+  const handleRemoveAdminAdjustment = (submissionId: string, adjustmentId: string) => {
+    setAdminAdjustments(prev => ({
+      ...prev,
+      [submissionId]: (prev[submissionId] || []).filter(a => a.id !== adjustmentId),
+    }));
+    toast.info("Adjustment removed");
+  };
 
   // Computed counts - dynamically calculate based on local state overrides
   const dynamicPendingCount = useMemo(() => {
@@ -1148,11 +1169,29 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             const totalEarnings = earnings.reduce((sum, item) => sum + item.amount, 0);
             const totalDeductions = Math.abs(deductions.reduce((sum, item) => sum + item.amount, 0));
             
+            // Get admin-added adjustments for this worker
+            const workerAdminAdjustments = adminAdjustments[selectedSubmission.id] || [];
+            
+            // Calculate admin-added adjustment totals
+            const adminExpenseTotal = workerAdminAdjustments
+              .filter(a => a.type === 'expense')
+              .reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminOvertimeTotal = workerAdminAdjustments
+              .filter(a => a.type === 'overtime')
+              .reduce((sum, a) => sum + (a.amount || 0), 0);
+            const adminUnpaidLeaveTotal = workerAdminAdjustments
+              .filter(a => a.type === 'unpaid_leave')
+              .reduce((sum, a) => sum + (a.amount || 0), 0);
+            
+            const adminAdditionsTotal = adminExpenseTotal + adminOvertimeTotal;
+            const adminDeductionsTotal = adminUnpaidLeaveTotal;
+            
             const baseNet = selectedSubmission.estimatedNet || selectedSubmission.basePay || 0;
-            // Net pay updates only when items are approved.
-            const adjustedNet = baseNet + approvedAdjustmentTotal - approvedLeaveDeduction;
+            // Net pay updates only when items are approved (or admin-added).
+            const adjustedNet = baseNet + approvedAdjustmentTotal + adminAdditionsTotal - approvedLeaveDeduction - adminDeductionsTotal;
             const hasAdjustments = allAdjustments.length > 0;
             const hasLeaves = pendingLeaves.length > 0;
+            const hasAdminAdjustments = workerAdminAdjustments.length > 0;
             
             // Count items by status for each section
             const getAdjustmentCounts = (types: string[]) => {
@@ -1407,6 +1446,64 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                     </CollapsibleSection>
                   )}
 
+                  {/* ADMIN-ADDED Section - Show if there are any admin adjustments */}
+                  {hasAdminAdjustments && !showPendingOnly && (
+                    <CollapsibleSection
+                      title="Admin Added"
+                      defaultOpen={true}
+                      approvedCount={workerAdminAdjustments.length}
+                    >
+                      {workerAdminAdjustments.map((adj) => {
+                        const isDeduction = adj.type === 'unpaid_leave';
+                        const typeLabels: Record<string, string> = {
+                          unpaid_leave: 'Unpaid Leave',
+                          overtime: 'Overtime',
+                          expense: 'Expense',
+                        };
+                        return (
+                          <div key={adj.id} className="flex items-center justify-between py-2 group">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-sm text-foreground">
+                                {adj.description || typeLabels[adj.type]}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground/70">
+                                {typeLabels[adj.type]} · Added by admin
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "text-sm tabular-nums font-mono",
+                                isDeduction ? "text-muted-foreground" : "text-foreground"
+                              )}>
+                                {isDeduction ? '−' : '+'}{formatCurrency(adj.amount || 0, currency)}
+                              </span>
+                              <button
+                                onClick={() => handleRemoveAdminAdjustment(selectedSubmission.id, adj.id)}
+                                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
+                              >
+                                <X className="h-3 w-3 text-destructive" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </CollapsibleSection>
+                  )}
+
+                  {/* Add Adjustment Button - Always visible when not filtering */}
+                  {!showPendingOnly && (
+                    <div className="pt-2">
+                      <CA3_AdminAddAdjustment
+                        workerType={selectedSubmission.workerType}
+                        workerName={selectedSubmission.workerName}
+                        currency={currency}
+                        dailyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 22 : 100}
+                        hourlyRate={selectedSubmission.basePay ? selectedSubmission.basePay / 176 : 15}
+                        onAddAdjustment={(adjustment) => handleAdminAddAdjustment(selectedSubmission.id, adjustment)}
+                      />
+                    </div>
+                  )}
+
                   {/* Estimated net pay - above rejection section */}
                   <section className="pt-2 border-t border-border/40">
                     <div className={cn(
@@ -1430,7 +1527,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                         <p className="text-2xl font-bold text-foreground tabular-nums font-mono tracking-tight">
                           {formatCurrency(adjustedNet, currency)}
                         </p>
-                        {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0) && (
+                        {(approvedAdjustmentTotal !== 0 || approvedLeaveDeduction !== 0 || hasAdminAdjustments) && (
                           <p className="text-xs text-muted-foreground mt-1 tabular-nums font-mono">
                             Base: {formatCurrency(baseNet, currency)}
                           </p>
