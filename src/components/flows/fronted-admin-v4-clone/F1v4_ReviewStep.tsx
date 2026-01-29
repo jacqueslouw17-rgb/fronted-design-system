@@ -2,6 +2,7 @@
  * F1v4_ReviewStep - Review payroll totals and workers
  * 
  * Dense, glass-container layout matching Flow 6 v3 patterns
+ * Simplified statuses for Fronted Admin (company admin already caught issues)
  */
 
 import React, { useState } from "react";
@@ -14,6 +15,7 @@ import {
   TrendingUp,
   Search,
   Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +23,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
-import { F1v4_WorkerDetailDrawer, WorkerData } from "./F1v4_WorkerDetailDrawer";
-import { F1v4_PayslipPreviewModal } from "./F1v4_PayslipPreviewModal";
+import { F1v4_WorkerReceiptDrawer, WorkerData } from "./F1v4_WorkerReceiptDrawer";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 
 interface F1v4_ReviewStepProps {
@@ -33,14 +33,15 @@ interface F1v4_ReviewStepProps {
   onContinue: () => void;
 }
 
+// Simplified mock workers - most are ready since company admin resolved issues
 const MOCK_WORKERS: WorkerData[] = [
-  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000, issues: 0 },
-  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500, issues: 0 },
-  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "auto-generated", netPay: 280000, issues: 0 },
-  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "missing-submission", netPay: 65000, issues: 1, missingData: [{ field: "Timesheet", reason: "Not submitted for this period", fix: "Send reminder" }] },
-  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200, issues: 0 },
-  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "needs-attention", netPay: 72000, issues: 2, missingData: [{ field: "Bank details", reason: "Account verification pending", fix: "Request verification" }] },
-  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800, issues: 0 },
+  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000 },
+  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500 },
+  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000 },
+  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "pending", netPay: 65000 },
+  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200 },
+  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "flagged", netPay: 72000 },
+  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800 },
 ];
 
 const MOCK_PERIODS: PayrollPeriod[] = [
@@ -49,12 +50,11 @@ const MOCK_PERIODS: PayrollPeriod[] = [
   { id: "nov-2025", label: "November 2025", status: "paid" },
 ];
 
-const statusConfig: Record<WorkerData["status"], { label: string; className: string }> = {
-  ready: { label: "Ready", className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  "auto-generated": { label: "Auto", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
-  "missing-submission": { label: "Missing", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-  "needs-attention": { label: "Attention", className: "bg-destructive/10 text-destructive border-destructive/20" },
-  blocking: { label: "Blocking", className: "bg-destructive/10 text-destructive border-destructive/20" },
+// Simplified status config for Fronted Admin
+const statusConfig: Record<WorkerData["status"], { label: string; icon: React.ElementType; className: string }> = {
+  ready: { label: "Ready", icon: CheckCircle2, className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
+  pending: { label: "Pending", icon: Clock, className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  flagged: { label: "Flagged", icon: Clock, className: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
 const countryFlags: Record<string, string> = {
@@ -70,8 +70,6 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
   const [workers] = useState<WorkerData[]>(MOCK_WORKERS);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
-  const [payslipModalOpen, setPayslipModalOpen] = useState(false);
-  const [payslipWorker, setPayslipWorker] = useState<WorkerData | null>(null);
   const [selectedPeriodId, setSelectedPeriodId] = useState("current");
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -83,6 +81,9 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
 
   const employees = workers.filter(w => w.type === "employee");
   const contractors = workers.filter(w => w.type === "contractor");
+  const readyWorkers = workers.filter(w => w.status === "ready");
+  const pendingWorkers = workers.filter(w => w.status !== "ready");
+  
   const filteredWorkers = workers.filter(w => 
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     w.country.toLowerCase().includes(searchQuery.toLowerCase())
@@ -92,11 +93,6 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
     const idx = workers.findIndex(w => w.id === worker.id);
     setSelectedWorkerIndex(idx >= 0 ? idx : 0);
     setDrawerOpen(true);
-  };
-
-  const handlePayslipPreview = (worker: WorkerData) => {
-    setPayslipWorker(worker);
-    setPayslipModalOpen(true);
   };
 
   const isViewingPrevious = selectedPeriodId !== "current";
@@ -182,7 +178,7 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker List - Card rows matching Flow 6 v3 Submissions pattern */}
+      {/* Worker List */}
       <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
         <CardContent className="p-0">
           <Tabs defaultValue="all" className="w-full">
@@ -191,11 +187,11 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
                 <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
                   All ({workers.length})
                 </TabsTrigger>
-                <TabsTrigger value="employees" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Employees ({employees.length})
+                <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Ready ({readyWorkers.length})
                 </TabsTrigger>
-                <TabsTrigger value="contractors" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Contractors ({contractors.length})
+                <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
+                  Pending ({pendingWorkers.length})
                 </TabsTrigger>
               </TabsList>
               <div className="relative w-44">
@@ -210,17 +206,18 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
             </div>
 
             <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
-              {["all", "employees", "contractors"].map((tabValue) => {
+              {["all", "ready", "pending"].map((tabValue) => {
                 const tabWorkers = tabValue === "all" 
                   ? filteredWorkers 
-                  : tabValue === "employees" 
-                    ? employees.filter(w => filteredWorkers.includes(w)) 
-                    : contractors.filter(w => filteredWorkers.includes(w));
+                  : tabValue === "ready" 
+                    ? readyWorkers.filter(w => filteredWorkers.includes(w)) 
+                    : pendingWorkers.filter(w => filteredWorkers.includes(w));
 
                 return (
                   <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
                     {tabWorkers.map((worker) => {
                       const config = statusConfig[worker.status];
+                      const StatusIcon = config.icon;
                       const TypeIcon = worker.type === "employee" ? Users : Briefcase;
 
                       return (
@@ -254,9 +251,10 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
                             <p className="text-sm font-semibold text-foreground tabular-nums">
                               {formatCurrency(worker.netPay, worker.currency)}
                             </p>
-                            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4.5 font-medium", config.className)}>
-                              {config.label}
-                            </Badge>
+                            <div className={cn("flex items-center gap-1 text-xs", config.className.includes("text-") ? config.className.split(" ").find(c => c.startsWith("text-")) : "")}>
+                              <StatusIcon className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">{config.label}</span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -269,22 +267,14 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker Detail Drawer */}
-      <F1v4_WorkerDetailDrawer
+      {/* Worker Receipt Drawer - Reuses Flow 6 v3 patterns */}
+      <F1v4_WorkerReceiptDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         worker={workers[selectedWorkerIndex] || null}
         workers={workers}
         currentIndex={selectedWorkerIndex}
         onNavigate={setSelectedWorkerIndex}
-        onPayslipPreview={handlePayslipPreview}
-      />
-
-      {/* Payslip Preview Modal */}
-      <F1v4_PayslipPreviewModal
-        open={payslipModalOpen}
-        onOpenChange={setPayslipModalOpen}
-        worker={payslipWorker}
       />
     </div>
   );
