@@ -31,8 +31,8 @@ import { CA3_AdminAddAdjustment, AdminAddedAdjustment } from "./CA3_AdminAddAdju
 // Note: Leave is handled separately in the Leaves tab, but pending leaves in this pay period 
 // can also be reviewed here if admin missed them
 export type SubmissionType = "timesheet" | "expenses" | "bonus" | "overtime" | "adjustment" | "correction";
-// Worker-level status: pending = has adjustments needing review, ready = all reviewed
-export type SubmissionStatus = "pending" | "ready";
+// Worker-level status: pending = has items needing review, reviewed = all approved/rejected awaiting finalization, ready = finalized
+export type SubmissionStatus = "pending" | "reviewed" | "ready";
 export type AdjustmentItemStatus = "pending" | "approved" | "rejected";
 // Only unpaid leave flows through payroll submissions - other leave types handled in Leaves tab
 type LeaveTypeLocal = "Unpaid";
@@ -120,6 +120,7 @@ const leaveTypeConfig: Record<LeaveTypeLocal, { icon: React.ElementType; label: 
 
 const statusConfig: Record<SubmissionStatus, { icon: React.ElementType; label: string; color: string }> = {
   pending: { icon: Clock, label: "Pending", color: "text-orange-600" },
+  reviewed: { icon: Eye, label: "Reviewed", color: "text-blue-600" },
   ready: { icon: CheckCircle2, label: "Ready", color: "text-accent-green-text" },
 };
 
@@ -1059,10 +1060,22 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
     // Total rejected items - worker needs to resubmit
     const workerRejectedCount = rejectedAdjustmentCount + rejectedLeaveCount;
     
+    // Check if worker is finalized
+    const isFinalized = isWorkerFinalized(submission.id);
+    
     // Derive effective worker status: 
-    // - pending = has items needing review OR has rejected items awaiting resubmission
-    // - ready = all items approved (no pending, no rejected)
-    const effectiveWorkerStatus: SubmissionStatus = (workerPendingCount > 0 || workerRejectedCount > 0) ? "pending" : "ready";
+    // - pending = has items needing review
+    // - reviewed = all items approved/rejected, awaiting "Mark as Ready"
+    // - ready = admin has clicked "Mark as Ready" (finalized)
+    let effectiveWorkerStatus: SubmissionStatus;
+    if (isFinalized) {
+      effectiveWorkerStatus = "ready";
+    } else if (workerPendingCount > 0) {
+      effectiveWorkerStatus = "pending";
+    } else {
+      // All items reviewed but not yet finalized
+      effectiveWorkerStatus = "reviewed";
+    }
     const status = statusConfig[effectiveWorkerStatus];
     const StatusIcon = status.icon;
 
@@ -1114,7 +1127,7 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
             <p className="text-xs text-muted-foreground">—</p>
           )}
 
-          {/* Status with pending count or rejected indicator */}
+          {/* Status with pending count, reviewed indicator, or ready */}
           <div className={cn("flex items-center gap-1.5 text-xs", status.color)}>
             {workerPendingCount > 0 ? (
               <>
@@ -1123,12 +1136,15 @@ export const CA3_SubmissionsView: React.FC<CA3_SubmissionsViewProps> = ({
                 </span>
                 <span className="hidden sm:inline">{status.label}</span>
               </>
-            ) : workerRejectedCount > 0 ? (
+            ) : effectiveWorkerStatus === 'reviewed' ? (
               <>
-                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold">
-                  {workerRejectedCount}
-                </span>
-                <span className="hidden sm:inline text-destructive">Rejected</span>
+                <StatusIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{status.label}</span>
+                {workerRejectedCount > 0 && (
+                  <span className="flex items-center justify-center h-4 w-4 rounded-full bg-destructive/15 text-destructive text-[10px] font-semibold ml-0.5">
+                    {workerRejectedCount}
+                  </span>
+                )}
               </>
             ) : (
               <>
