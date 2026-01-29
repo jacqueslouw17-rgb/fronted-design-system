@@ -188,6 +188,7 @@ export const F1v4_ExceptionsStep: React.FC<F1v4_ExceptionsStepProps> = ({
               Skip
             </Button>
             <Button
+              variant="secondary"
               size="sm"
               onClick={() => handleOverride(exception.id, exception.workerName)}
               className="h-7 px-2 text-xs gap-1"
