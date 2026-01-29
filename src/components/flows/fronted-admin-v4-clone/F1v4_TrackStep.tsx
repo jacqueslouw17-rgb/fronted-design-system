@@ -34,7 +34,10 @@ interface F1v4_TrackStepProps {
   onBack?: () => void;
   onClose?: () => void;
   hideHeader?: boolean;
-  // Stepper props
+  isHistorical?: boolean;
+  paidDate?: string;
+  // Stepper props - hidden by default in track step
+  showStepper?: boolean;
   currentStep?: F1v4_PayrollStep;
   completedSteps?: F1v4_PayrollStep[];
   onStepClick?: (step: F1v4_PayrollStep) => void;
@@ -69,6 +72,9 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
   onBack,
   onClose,
   hideHeader = false,
+  isHistorical = false,
+  paidDate,
+  showStepper = false,
   currentStep = "track",
   completedSteps = ["submissions", "exceptions", "approve"],
   onStepClick,
@@ -188,19 +194,41 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
       <div className="px-6 pt-6 pb-5 border-b border-border/40">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm text-muted-foreground">Payment Status</p>
-              <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Approved
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
-              <span className="text-lg text-muted-foreground">of {workers.length}</span>
-              <span className="text-sm text-muted-foreground">payments reconciled</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Mark payments as paid or retry failed payouts</p>
+            {isHistorical ? (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-muted-foreground">Payment Status</p>
+                  <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Paid
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
+                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
+                  <span className="text-sm text-muted-foreground">payments paid</span>
+                </div>
+                {paidDate && (
+                  <p className="text-xs text-muted-foreground mt-1">Paid on {paidDate}</p>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-muted-foreground">Payment Status</p>
+                  <span className="px-2 py-0.5 rounded-full bg-accent-green/10 text-accent-green-text text-xs font-medium flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Approved
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-foreground tabular-nums">{paidCount}</span>
+                  <span className="text-lg text-muted-foreground">of {workers.length}</span>
+                  <span className="text-sm text-muted-foreground">payments reconciled</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Mark payments as paid or retry failed payouts</p>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="sm" onClick={handleExportCSV} className="h-8 text-xs gap-1.5 text-muted-foreground">
@@ -214,28 +242,30 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
           </div>
         </div>
         
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <Progress value={progressPercent} className="h-1" />
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-accent-green" />
-              <span className="text-muted-foreground">{paidCount} paid</span>
+        {/* Progress bar - hidden for historical view */}
+        {!isHistorical && (
+          <div className="space-y-2">
+            <Progress value={progressPercent} className="h-1" />
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-accent-green" />
+                <span className="text-muted-foreground">{paidCount} paid</span>
+              </div>
+              {inTransitCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-blue-500" />
+                  <span className="text-muted-foreground">{inTransitCount} in transit</span>
+                </div>
+              )}
+              {notPaidCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="text-muted-foreground">{notPaidCount} not paid</span>
+                </div>
+              )}
             </div>
-            {inTransitCount > 0 && (
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <span className="text-muted-foreground">{inTransitCount} in transit</span>
-              </div>
-            )}
-            {notPaidCount > 0 && (
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-amber-500" />
-                <span className="text-muted-foreground">{notPaidCount} not paid</span>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Worker List */}
@@ -277,39 +307,42 @@ export const F1v4_TrackStep: React.FC<F1v4_TrackStepProps> = ({
 
   return (
     <Card className="border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {onBack && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onBack}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <F1v4_PayrollStepper
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              onStepClick={onStepClick}
-            />
+      {/* Stepper Header - only show when showStepper is true */}
+      {showStepper && (
+        <CardHeader className="bg-gradient-to-r from-primary/[0.02] to-secondary/[0.02] border-b border-border/40 py-4 px-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onBack}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground -ml-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <F1v4_PayrollStepper
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepClick={onStepClick}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              {onClose && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={onClose}
+                  className="h-9 text-xs"
+                >
+                  Close
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            {onClose && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={onClose}
-                className="h-9 text-xs"
-              >
-                Close
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      )}
       
       {renderContent()}
 
