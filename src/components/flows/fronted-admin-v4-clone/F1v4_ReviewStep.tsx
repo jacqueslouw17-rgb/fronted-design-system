@@ -1,8 +1,10 @@
 /**
  * F1v4_ReviewStep - Review payroll totals and workers
  * 
- * Dense, glass-container layout matching Flow 6 v3 patterns
- * Simplified statuses for Fronted Admin (company admin already caught issues)
+ * Uses F1v4_SubmissionsView which matches Flow 6 v3 patterns exactly:
+ * - Worker rows with pending/rejected counts
+ * - "1 day to resubmit" indicator
+ * - Full drawer with approve/reject actions
  */
 
 import React, { useState } from "react";
@@ -13,19 +15,12 @@ import {
   Receipt,
   Building2,
   TrendingUp,
-  Search,
   Clock,
-  CheckCircle2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
-import { F1v4_WorkerReceiptDrawer, WorkerData } from "./F1v4_WorkerReceiptDrawer";
+import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v4_SubmissionsView";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
 
 interface F1v4_ReviewStepProps {
@@ -33,15 +28,146 @@ interface F1v4_ReviewStepProps {
   onContinue: () => void;
 }
 
-// Simplified mock workers - most are ready since company admin resolved issues
-const MOCK_WORKERS: WorkerData[] = [
-  { id: "1", name: "Marcus Chen", type: "contractor", country: "Singapore", currency: "SGD", status: "ready", netPay: 12000 },
-  { id: "2", name: "Sofia Rodriguez", type: "contractor", country: "Spain", currency: "EUR", status: "ready", netPay: 6500 },
-  { id: "3", name: "Maria Santos", type: "employee", country: "Philippines", currency: "PHP", status: "ready", netPay: 280000 },
-  { id: "4", name: "Alex Hansen", type: "employee", country: "Norway", currency: "NOK", status: "pending", netPay: 65000 },
-  { id: "5", name: "David Martinez", type: "contractor", country: "Portugal", currency: "EUR", status: "ready", netPay: 4200 },
-  { id: "6", name: "Emma Wilson", type: "contractor", country: "Norway", currency: "NOK", status: "flagged", netPay: 72000 },
-  { id: "7", name: "Jonas Schmidt", type: "employee", country: "Germany", currency: "EUR", status: "ready", netPay: 5800 },
+// Mock submissions data matching CA3_SubmissionsView structure
+const MOCK_SUBMISSIONS: WorkerSubmission[] = [
+  { 
+    id: "1", 
+    workerId: "1",
+    workerName: "Marcus Chen", 
+    workerType: "contractor", 
+    workerCountry: "Singapore", 
+    currency: "SGD", 
+    status: "ready",
+    basePay: 12000,
+    estimatedNet: 12000,
+    totalImpact: 500,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 12000, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
+  { 
+    id: "2", 
+    workerId: "2",
+    workerName: "Sofia Rodriguez", 
+    workerType: "contractor", 
+    workerCountry: "Spain", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 6500,
+    estimatedNet: 6500,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 6500, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
+  { 
+    id: "3", 
+    workerId: "3",
+    workerName: "Maria Santos", 
+    workerType: "employee", 
+    workerCountry: "Philippines", 
+    currency: "PHP", 
+    status: "pending",
+    basePay: 280000,
+    estimatedNet: 238000,
+    totalImpact: 15000,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Salary", amount: 280000, type: "Earnings" },
+      { label: "Income Tax", amount: -28000, type: "Deduction", locked: true },
+      { label: "Social Security", amount: -14000, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "expenses", amount: 8500, description: "Travel reimbursement", status: "pending" },
+      { type: "bonus", amount: 6500, description: "Q4 Performance Bonus", status: "pending" },
+    ],
+    pendingLeaves: [],
+  },
+  { 
+    id: "4", 
+    workerId: "4",
+    workerName: "Alex Hansen", 
+    workerType: "employee", 
+    workerCountry: "Norway", 
+    currency: "NOK", 
+    status: "pending",
+    basePay: 65000,
+    estimatedNet: 52000,
+    totalImpact: 4500,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Salary", amount: 65000, type: "Earnings" },
+      { label: "Income Tax", amount: -9750, type: "Deduction", locked: true },
+      { label: "Pension", amount: -3250, type: "Deduction", locked: true },
+    ],
+    submissions: [
+      { type: "overtime", amount: 4500, hours: 12, description: "12h overtime", status: "pending" },
+    ],
+    pendingLeaves: [
+      { id: "leave-1", leaveType: "Unpaid", startDate: "2026-01-20", endDate: "2026-01-21", totalDays: 2, daysInThisPeriod: 2, status: "pending", dailyRate: 2955 },
+    ],
+  },
+  { 
+    id: "5", 
+    workerId: "5",
+    workerName: "David Martinez", 
+    workerType: "contractor", 
+    workerCountry: "Portugal", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 4200,
+    estimatedNet: 4200,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 4200, type: "Earnings" },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
+  { 
+    id: "6", 
+    workerId: "6",
+    workerName: "Emma Wilson", 
+    workerType: "contractor", 
+    workerCountry: "Norway", 
+    currency: "NOK", 
+    status: "pending",
+    basePay: 72000,
+    estimatedNet: 72000,
+    totalImpact: 3200,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Contract Fee", amount: 72000, type: "Earnings" },
+    ],
+    submissions: [
+      { type: "expenses", amount: 3200, description: "Equipment purchase", status: "rejected", rejectionReason: "Missing receipt - please resubmit with documentation" },
+    ],
+    pendingLeaves: [],
+  },
+  { 
+    id: "7", 
+    workerId: "7",
+    workerName: "Jonas Schmidt", 
+    workerType: "employee", 
+    workerCountry: "Germany", 
+    currency: "EUR", 
+    status: "ready",
+    basePay: 5800,
+    estimatedNet: 4350,
+    periodLabel: "Jan 1 – Jan 31",
+    lineItems: [
+      { label: "Base Salary", amount: 5800, type: "Earnings" },
+      { label: "Income Tax", amount: -1160, type: "Deduction", locked: true },
+      { label: "Social Security", amount: -290, type: "Deduction", locked: true },
+    ],
+    submissions: [],
+    pendingLeaves: [],
+  },
 ];
 
 const MOCK_PERIODS: PayrollPeriod[] = [
@@ -50,51 +176,15 @@ const MOCK_PERIODS: PayrollPeriod[] = [
   { id: "nov-2025", label: "November 2025", status: "paid" },
 ];
 
-// Simplified status config for Fronted Admin
-const statusConfig: Record<WorkerData["status"], { label: string; icon: React.ElementType; className: string }> = {
-  ready: { label: "Ready", icon: CheckCircle2, className: "bg-accent-green-fill/10 text-accent-green-text border-accent-green-outline/20" },
-  pending: { label: "Pending", icon: Clock, className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-  flagged: { label: "Flagged", icon: Clock, className: "bg-destructive/10 text-destructive border-destructive/20" },
-};
-
-const countryFlags: Record<string, string> = {
-  Singapore: "🇸🇬", Spain: "🇪🇸", Philippines: "🇵🇭", Norway: "🇳🇴",
-  Portugal: "🇵🇹", Germany: "🇩🇪", France: "🇫🇷", Italy: "🇮🇹"
-};
-
 export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
   company,
   onContinue,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [workers] = useState<WorkerData[]>(MOCK_WORKERS);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedWorkerIndex, setSelectedWorkerIndex] = useState(0);
   const [selectedPeriodId, setSelectedPeriodId] = useState("current");
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: Record<string, string> = { EUR: "€", NOK: "kr", PHP: "₱", USD: "$", SGD: "S$" };
-    return `${symbols[currency] || currency} ${amount.toLocaleString()}`;
-  };
-
-  const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-
-  const employees = workers.filter(w => w.type === "employee");
-  const contractors = workers.filter(w => w.type === "contractor");
-  const readyWorkers = workers.filter(w => w.status === "ready");
-  const pendingWorkers = workers.filter(w => w.status !== "ready");
+  const employees = MOCK_SUBMISSIONS.filter(w => w.workerType === "employee");
+  const contractors = MOCK_SUBMISSIONS.filter(w => w.workerType === "contractor");
   
-  const filteredWorkers = workers.filter(w => 
-    w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.country.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleViewDetails = (worker: WorkerData) => {
-    const idx = workers.findIndex(w => w.id === worker.id);
-    setSelectedWorkerIndex(idx >= 0 ? idx : 0);
-    setDrawerOpen(true);
-  };
-
   const isViewingPrevious = selectedPeriodId !== "current";
 
   return (
@@ -114,11 +204,6 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
                 In review
               </Badge>
             </div>
-            {!isViewingPrevious && (
-              <Button onClick={onContinue} size="sm">
-                Continue to Exceptions
-              </Button>
-            )}
           </div>
         </CardHeader>
         <CardContent className="py-5 px-5">
@@ -178,104 +263,13 @@ export const F1v4_ReviewStep: React.FC<F1v4_ReviewStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* Worker List */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm">
-        <CardContent className="p-0">
-          <Tabs defaultValue="all" className="w-full">
-            <div className="px-5 py-3 border-b border-border/30 flex items-center justify-between">
-              <TabsList className="h-8 bg-muted/30 p-0.5">
-                <TabsTrigger value="all" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  All ({workers.length})
-                </TabsTrigger>
-                <TabsTrigger value="ready" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Ready ({readyWorkers.length})
-                </TabsTrigger>
-                <TabsTrigger value="pending" className="text-xs h-7 px-3 data-[state=active]:bg-background">
-                  Pending ({pendingWorkers.length})
-                </TabsTrigger>
-              </TabsList>
-              <div className="relative w-44">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input 
-                  placeholder="Search..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
-                  className="pl-8 h-8 text-xs bg-background/50 border-border/30" 
-                />
-              </div>
-            </div>
-
-            <div className="max-h-[420px] overflow-y-auto p-4 space-y-1.5">
-              {["all", "ready", "pending"].map((tabValue) => {
-                const tabWorkers = tabValue === "all" 
-                  ? filteredWorkers 
-                  : tabValue === "ready" 
-                    ? readyWorkers.filter(w => filteredWorkers.includes(w)) 
-                    : pendingWorkers.filter(w => filteredWorkers.includes(w));
-
-                return (
-                  <TabsContent key={tabValue} value={tabValue} className="mt-0 space-y-1.5">
-                    {tabWorkers.map((worker) => {
-                      const config = statusConfig[worker.status];
-                      const StatusIcon = config.icon;
-                      const TypeIcon = worker.type === "employee" ? Users : Briefcase;
-
-                      return (
-                        <div 
-                          key={worker.id} 
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:bg-muted/30 transition-colors cursor-pointer"
-                          onClick={() => handleViewDetails(worker)}
-                        >
-                          {/* Avatar */}
-                          <Avatar className="h-7 w-7 flex-shrink-0">
-                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-medium">
-                              {getInitials(worker.name)}
-                            </AvatarFallback>
-                          </Avatar>
-
-                          {/* Worker Info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground truncate">
-                                {worker.name}
-                              </span>
-                              <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                            </div>
-                            <span className="text-[11px] text-muted-foreground leading-tight">
-                              {countryFlags[worker.country] || ""} {worker.country}
-                            </span>
-                          </div>
-
-                          {/* Right side: Amount + Status */}
-                          <div className="flex items-center gap-3 flex-shrink-0">
-                            <p className="text-sm font-semibold text-foreground tabular-nums">
-                              {formatCurrency(worker.netPay, worker.currency)}
-                            </p>
-                            <div className={cn("flex items-center gap-1 text-xs", config.className.includes("text-") ? config.className.split(" ").find(c => c.startsWith("text-")) : "")}>
-                              <StatusIcon className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">{config.label}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </TabsContent>
-                );
-              })}
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Worker Receipt Drawer - Reuses Flow 6 v3 patterns */}
-      <F1v4_WorkerReceiptDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        worker={workers[selectedWorkerIndex] || null}
-        workers={workers}
-        currentIndex={selectedWorkerIndex}
-        onNavigate={setSelectedWorkerIndex}
-      />
+      {/* Worker Submissions - Matches Flow 6 v3 exactly */}
+      {!isViewingPrevious && (
+        <F1v4_SubmissionsView
+          submissions={MOCK_SUBMISSIONS}
+          onContinue={onContinue}
+        />
+      )}
     </div>
   );
 };
