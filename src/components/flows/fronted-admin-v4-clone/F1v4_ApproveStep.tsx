@@ -189,40 +189,6 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             <p className="text-xl font-semibold text-foreground">{company.currencyCount}</p>
           </div>
         </div>
-
-        {/* CTA */}
-        <div className="pt-2">
-          <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-            <AlertDialogTrigger asChild>
-              <Button size="lg" className="h-11 px-6 gap-2">
-                <FileCheck className="h-4 w-4" />
-                Approve & Lock Run
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Approve Payroll Numbers?</AlertDialogTitle>
-                <AlertDialogDescription className="space-y-3">
-                  <p>
-                    Approving payroll for <strong>{company.name}</strong> totaling{" "}
-                    <strong>{formatCurrency(company.totalCost)}</strong>.
-                  </p>
-                  <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-foreground text-sm">
-                    <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <p>
-                      Payments are handled outside Fronted. This locks the run 
-                      and generates the payment summary.
-                    </p>
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onApprove}>Confirm & Lock</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
       </div>
     </div>
   );
@@ -293,16 +259,36 @@ export const F1v4_ApproveStep: React.FC<F1v4_ApproveStepProps> = ({
             />
           </div>
           <div className="flex items-center gap-3">
-            {onClose && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={onClose}
-                className="h-9 text-xs"
-              >
-                Close
-              </Button>
-            )}
+            <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" className="gap-1.5">
+                  <FileCheck className="h-3.5 w-3.5" />
+                  Approve & Lock
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Approve Payroll Numbers?</AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-3">
+                    <p>
+                      Approving payroll for <strong>{company.name}</strong> totaling{" "}
+                      <strong>{formatCurrency(company.totalCost)}</strong>.
+                    </p>
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-foreground text-sm">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <p>
+                        Payments are handled outside Fronted. This locks the run 
+                        and generates the payment summary.
+                      </p>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onApprove}>Confirm & Lock</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </CardHeader>
