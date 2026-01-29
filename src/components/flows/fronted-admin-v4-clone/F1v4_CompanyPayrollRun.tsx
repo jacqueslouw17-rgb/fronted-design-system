@@ -16,11 +16,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CompanyPayrollData } from "./F1v4_PayrollTab";
 import { F1v4_SubmissionsView, WorkerSubmission } from "./F1v4_SubmissionsView";
-import { F1v4_ExceptionsStep } from "./F1v4_ExceptionsStep";
+import { F1v4_ExceptionsStep, WorkerException } from "./F1v4_ExceptionsStep";
 import { F1v4_ApproveStep } from "./F1v4_ApproveStep";
 import { F1v4_TrackStep } from "./F1v4_TrackStep";
 import { F1v4_PeriodDropdown, PayrollPeriod } from "./F1v4_PeriodDropdown";
-
+import { F1v4_PayrollStepper, F1v4_PayrollStep as StepperStep } from "./F1v4_PayrollStepper";
 export type F1v4_PayrollStep = "submissions" | "exceptions" | "approve" | "track";
 
 interface F1v4_CompanyPayrollRunProps {
@@ -402,10 +402,11 @@ export const F1v4_CompanyPayrollRun: React.FC<F1v4_CompanyPayrollRunProps> = ({
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <h3 className="text-base font-medium text-foreground">Exceptions</h3>
-                  {exceptionsCount > 0 && (
-                    <Badge variant="destructive" className="text-xs">{exceptionsCount} blocking</Badge>
-                  )}
+                  <F1v4_PayrollStepper
+                    currentStep="exceptions"
+                    completedSteps={completedSteps as StepperStep[]}
+                    exceptionsCount={exceptionsCount}
+                  />
                 </div>
                 <div className="flex items-center gap-3">
                   <Button 

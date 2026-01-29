@@ -8,15 +8,16 @@ import React from "react";
 import { Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type F1v4_PayrollStep = "review" | "exceptions" | "approve" | "track";
+export type F1v4_PayrollStep = "review" | "submissions" | "exceptions" | "approve" | "track";
 
 interface StepConfig {
   id: F1v4_PayrollStep;
   label: string;
 }
 
+// Map internal step names to display - "submissions" maps to "Review" label
 const steps: StepConfig[] = [
-  { id: "review", label: "Review" },
+  { id: "submissions", label: "Review" },
   { id: "exceptions", label: "Exceptions" },
   { id: "approve", label: "Approve" },
   { id: "track", label: "Track & Reconcile" },
@@ -35,7 +36,7 @@ export const F1v4_PayrollStepper: React.FC<F1v4_PayrollStepperProps> = ({
   onStepClick,
   exceptionsCount = 0,
 }) => {
-  const stepOrder: F1v4_PayrollStep[] = ["review", "exceptions", "approve", "track"];
+  const stepOrder: F1v4_PayrollStep[] = ["submissions", "exceptions", "approve", "track"];
   const currentIndex = stepOrder.indexOf(currentStep);
 
   const getStepState = (step: F1v4_PayrollStep): "completed" | "active" | "upcoming" => {
