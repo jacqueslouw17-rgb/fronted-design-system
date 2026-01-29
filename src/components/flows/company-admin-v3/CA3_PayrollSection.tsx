@@ -307,24 +307,19 @@ export const CA3_PayrollSection: React.FC<CA3_PayrollSectionProps> = ({ payPerio
       <CardContent className="py-6 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
-              {isSubmitted ? (
-                <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Processing
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
-                  <Clock className="h-3 w-3 mr-1" />
-                  In review
-                </Badge>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {isSubmitted ? "Payroll submitted to Fronted for processing" : "Workers have 3 days left to submit"}
-            </p>
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-foreground">{payPeriod} Payroll</h3>
+            {isSubmitted ? (
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
+                <Clock className="h-3 w-3 mr-1" />
+                Processing
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                <Clock className="h-3 w-3 mr-1" />
+                In review
+              </Badge>
+            )}
           </div>
           {!isSubmitted && (
             <Button onClick={handleEnterWorkflow} size="sm">
